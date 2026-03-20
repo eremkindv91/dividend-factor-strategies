@@ -128,7 +128,7 @@ dividend-factor-strategies/
 
 ```bash
 # 1. Клонируйте репозиторий
-git clone https://github.com/dremkin/dividend-factor-strategies.git
+git clone https://github.com/eremkindv91/dividend-factor-strategies.git
 cd dividend-factor-strategies
 
 # 2. Создайте виртуальное окружение
