@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# ML artifacts
+catboost_info/
+lightgbm_model.*
+*.joblib
+*.pkl
+
+# Temp Office files
+~$*
+
+# Node (if any)
+node_modules/

@@ -1,0 +1,43 @@
+|--- dsi_proxy <= 0.04
+|   |--- brent_usd <= 111.44
+|   |   |--- div_cut_count <= 0.50
+|   |   |   |--- inter_rate_x_roe <= 0.01
+|   |   |   |   |--- key_rate_pct <= 8.12
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- key_rate_pct >  8.12
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- inter_rate_x_roe >  0.01
+|   |   |   |   |--- corruption_rank <= 137.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- corruption_rank >  137.50
+|   |   |   |   |   |--- class: 0
+|   |   |--- div_cut_count >  0.50
+|   |   |   |--- FCF <= -583.49
+|   |   |   |   |--- class: 0
+|   |   |   |--- FCF >  -583.49
+|   |   |   |   |--- corruption_rank <= 136.50
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- corruption_rank >  136.50
+|   |   |   |   |   |--- class: 0
+|   |--- brent_usd >  111.44
+|   |   |--- revenue_mln <= 29833.32
+|   |   |   |--- class: 0
+|   |   |--- revenue_mln >  29833.32
+|   |   |   |--- class: 1
+|--- dsi_proxy >  0.04
+|   |--- roa_pct <= 0.40
+|   |   |--- class: 1
+|   |--- roa_pct >  0.40
+|   |   |--- CFO_ <= 1103.24
+|   |   |   |--- div_streak <= 2.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- div_streak >  2.50
+|   |   |   |   |--- class: 1
+|   |   |--- CFO_ >  1103.24
+|   |   |   |--- military_spending_mln_usd <= 63456.90
+|   |   |   |   |--- class: 1
+|   |   |   |--- military_spending_mln_usd >  63456.90
+|   |   |   |   |--- mom_6_1_pct <= -22.33
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- mom_6_1_pct >  -22.33
+|   |   |   |   |   |--- class: 1

@@ -1,0 +1,25 @@
+|--- div_streak <= 0.50
+|   |--- equity_mln <= 184117.50
+|   |   |--- class: 0
+|   |--- equity_mln >  184117.50
+|   |   |--- class: 0
+|--- div_streak >  0.50
+|   |--- mom_12_1_pct <= -20.66
+|   |   |--- topix_ret_yr <= 0.10
+|   |   |   |--- ebitda_margin_pct <= 8.27
+|   |   |   |   |--- class: 0
+|   |   |   |--- ebitda_margin_pct >  8.27
+|   |   |   |   |--- class: 1
+|   |   |--- topix_ret_yr >  0.10
+|   |   |   |--- class: 0
+|   |--- mom_12_1_pct >  -20.66
+|   |   |--- boj_rate_avg <= 0.10
+|   |   |   |--- inter_fx_x_roe <= 0.02
+|   |   |   |   |--- class: 1
+|   |   |   |--- inter_fx_x_roe >  0.02
+|   |   |   |   |--- class: 1
+|   |   |--- boj_rate_avg >  0.10
+|   |   |   |--- equity_ratio <= 0.45
+|   |   |   |   |--- class: 1
+|   |   |   |--- equity_ratio >  0.45
+|   |   |   |   |--- class: 0
