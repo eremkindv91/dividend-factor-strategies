@@ -61,7 +61,7 @@ dividend-factor-strategies/
 
 ### 01. Факторные стратегии — бэктест
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dremkin/dividend-factor-strategies/blob/main/notebooks/01_factor_backtest.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/01_factor_backtest.ipynb)
 
 | | |
 |---|---|
@@ -74,7 +74,7 @@ dividend-factor-strategies/
 
 ### 02. Фактор качества — декомпозиция
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dremkin/dividend-factor-strategies/blob/main/notebooks/02_quality_factor_research.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/02_quality_factor_research.ipynb)
 
 | | |
 |---|---|
@@ -86,7 +86,7 @@ dividend-factor-strategies/
 
 ### 03. ML-прогнозирование дивидендов
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dremkin/dividend-factor-strategies/blob/main/notebooks/03_ml_dividend_forecast.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/03_ml_dividend_forecast.ipynb)
 
 | | |
 |---|---|
