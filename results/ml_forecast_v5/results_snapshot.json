@@ -1,0 +1,17 @@
+{
+  "seed": 42,
+  "cv_start_year": 2016,
+  "pred_year": 2025,
+  "best_model_rf": "xgboost",
+  "best_model_jp": "catboost",
+  "auc_rf": 0.9041556921275973,
+  "auc_jp": 0.9793313069908814,
+  "bl3_rf": 0.8330867120449836,
+  "bl3_jp": 0.7975679542203147,
+  "n_features_rf": 146,
+  "n_features_jp": 116,
+  "n_companies_rf": 236,
+  "n_companies_jp": 245,
+  "ablation_a_rf": 0.9041556921275973,
+  "ablation_b_rf": 0.8909130816505707
+}
