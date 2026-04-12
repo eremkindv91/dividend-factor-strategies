@@ -54,7 +54,8 @@
 ├── notebooks/
 │   ├── 01_factor_backtest.ipynb    # бэктест факторных стратегий
 │   ├── 02_quality_factor_research.ipynb  # декомпозиция Quality
-│   └── 03_ml_dividend_forecast.ipynb     # ML-прогнозирование
+│   ├── 03_ml_dividend_forecast.ipynb     # ML-прогнозирование
+│   └── 04_optuna_enhanced_rating.ipynb   # оптимизация Optuna + расширенный анализ
 ├── results/
 │   ├── factor_backtest/            # таблицы и графики факторов
 │   ├── quality_research/           # IC, квинтили, Fama-MacBeth
@@ -85,6 +86,19 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/03_ml_dividend_forecast.ipynb)
 
 Прогнозирование факта выплаты дивидендов (классификация) и размера DPS (регрессия). Walk-forward CV с расширяющимся окном, начиная с 2016 года. Аблационное исследование (вклад групп признаков), SHAP-анализ, изотоническая калибровка, рейтинг дивидендной устойчивости на 2026 год.
+
+### 04. Оптимизация гиперпараметров (Optuna) и расширенный анализ
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/04_optuna_enhanced_rating.ipynb)
+
+Байесовская оптимизация гиперпараметров лучших моделей из ноутбука 03 с помощью Optuna TPE (40 trials). Включает:
+- **Optuna TPE** — автоматический подбор гиперпараметров вместо фиксированных, walk-forward CV как objective
+- **Сравнение baseline vs optimized** — статистическая значимость улучшения (Wilcoxon signed-rank test)
+- **Анализ структурного излома** — тест на изменение дивидендного режима России после 2022 (санкции), Mann-Whitney U
+- **SHAP-анализ** — TreeExplainer, top-15 признаков для каждой страны, сравнение важности между рынками
+- **Ablation study** — количественная оценка вклада истории дивидендов в качество модели
+- **Оптимизация весов рейтинга** — data-driven подбор весов в формуле sustainability score
+- **Финальный рейтинг 2026** — обновлённый рейтинг дивидендной устойчивости с оптимизированными параметрами
 
 ---
 
