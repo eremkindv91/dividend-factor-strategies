@@ -55,12 +55,14 @@
 │   ├── 01_factor_backtest.ipynb    # бэктест факторных стратегий
 │   ├── 02_quality_factor_research.ipynb  # декомпозиция Quality
 │   ├── 03_ml_dividend_forecast.ipynb     # ML-прогнозирование
-│   └── 04_optuna_enhanced_rating.ipynb   # оптимизация Optuna + расширенный анализ
+│   ├── 04_optuna_enhanced_rating.ipynb   # оптимизация Optuna + расширенный анализ
+│   └── 05_statistical_validation.ipynb   # статистическая валидация результатов
 ├── results/
 │   ├── factor_backtest/            # таблицы и графики факторов
 │   ├── quality_research/           # IC, квинтили, Fama-MacBeth
 │   ├── ml_forecast_v5/             # OOF-прогнозы, SHAP, рейтинг 2026
-│   └── thesis_figures/             # фигуры для диплома
+│   ├── thesis_figures/             # фигуры для диплома
+│   └── stat_validation/            # статтесты: качество данных, Sharpe, bootstrap
 ├── requirements.txt
 └── README.md
 ```
@@ -99,6 +101,18 @@
 - **Ablation study** — количественная оценка вклада истории дивидендов в качество модели
 - **Оптимизация весов рейтинга** — data-driven подбор весов в формуле sustainability score
 - **Финальный рейтинг 2026** — обновлённый рейтинг дивидендной устойчивости с оптимизированными параметрами
+
+### 05. Статистическая валидация результатов
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/05_statistical_validation.ipynb)
+
+Формальная проверка результатов бэктеста (ноутбуки 01–02): значимость превышения коэффициента Шарпа над индексом, надёжность оценок на ~160 месячных наблюдениях, поправка на множественное тестирование при отборе дескрипторов. Методы:
+- **Качество данных** — Jarque–Bera (нормальность), Ljung–Box на квадратах (кластеризация волатильности), ADF + KPSS (стационарность)
+- **Значимость Sharpe** — тест Jobson–Korkie с поправкой Memmel (2003) и робастный Ledoit–Wolf (2008, HAC)
+- **Block bootstrap** — circular block bootstrap (5000×, блок 6 мес.): 95%-доверительные интервалы Sharpe/CAGR и bootstrap p-value
+- **Множественное тестирование** — пороги Harvey–Liu–Zhu (2016, |t|>3.0) и процедура Benjamini–Hochberg (FDR 10%)
+
+Итог: на японском рынке индекс значимо обыгрывает только profitability-Quality (LW p≈0.04, bootstrap p≈0.02); на российском различия Sharpe статистически незначимы; из 53 IC-дескрипторов строгие поправки переживает единственный — FCF yield.
 
 ---
 
