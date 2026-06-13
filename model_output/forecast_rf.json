@@ -10,7 +10,33 @@
     "shap_note": "SHAP иллюстративен: рассчитан по лучшей одиночной модели (xgboost) на признаках финальной панели; не является точной декомпозицией ансамблевого прогноза.",
     "shap_features_used": 140,
     "source_note": "Прогноз заморожен на дату прогона ВКР; обновляется только при ручной пересборке.",
-    "built_at": "2026-06-13T15:12:25+03:00"
+    "audit": {
+      "dual_class_ratio_threshold": 1.5,
+      "dps_flagged": [
+        "BANEP",
+        "BSPBP",
+        "DZRDP",
+        "IGSTP",
+        "JNOSP",
+        "KROTP",
+        "KZOSP",
+        "LNZLP",
+        "LSNGP",
+        "MGTSP",
+        "MISBP",
+        "NNSBP",
+        "OMZZP",
+        "SBERP",
+        "TGKBP",
+        "VJGZP",
+        "VRSBP",
+        "YRSBP"
+      ],
+      "n_dps_flagged": 18,
+      "n_payout_inherited": 22,
+      "note": "Ненадёжный DPS помечен insufficient_data по dual-class (расхождение ≥1.5× при разреженной строке префа) и аномалии к истории; cut_risk/stability сохранены, число DPS не фабрикуется. payout префа наследует факт эмитента."
+    },
+    "built_at": "2026-06-13T23:11:39+03:00"
   },
   "tickers": [
     {
@@ -724,9 +750,9 @@
       "p_ens": 0.8719,
       "cut_risk": 0.1281,
       "stability_score": 0.8549,
-      "dividend_forecast": 52.7092,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 270.8232,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 12,
       "current_dps": 147.31,
       "current_paid": 1,
@@ -762,8 +788,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 39.08,
+      "payout_last_year": 2024,
+      "payout_source": "BANE",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с BANE в 1.62× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "BAZA",
@@ -1053,9 +1082,9 @@
       "p_ens": 0.8064,
       "cut_risk": 0.1936,
       "stability_score": 0.6846,
-      "dividend_forecast": 1.6886,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 224.0299,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 6,
       "current_dps": 0.22,
       "current_paid": 1,
@@ -1091,8 +1120,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 45.64,
+      "payout_last_year": 2024,
+      "payout_source": "BSPB",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с BSPB в 13.76× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "CARM",
@@ -1467,8 +1499,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 28.42,
+      "payout_last_year": 2024,
+      "payout_source": "CNTL"
     },
     {
       "ticker": "DATA",
@@ -1805,9 +1838,9 @@
       "p_ens": 0.1478,
       "cut_risk": 0.8522,
       "stability_score": 0.095,
-      "dividend_forecast": 228.4346,
-      "dividend_forecast_lo": 146.269,
-      "dividend_forecast_hi": 438.5623,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -1844,7 +1877,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с DZRD в 2.26× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "EELT",
@@ -2886,9 +2921,9 @@
       "p_ens": 0.1478,
       "cut_risk": 0.8522,
       "stability_score": 0.095,
-      "dividend_forecast": 309.7908,
-      "dividend_forecast_lo": 65.9185,
-      "dividend_forecast_hi": 358.2119,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -2925,7 +2960,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с IGST в 1.91× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "IRAO",
@@ -3121,9 +3158,9 @@
       "p_ens": 0.8064,
       "cut_risk": 0.1936,
       "stability_score": 0.6846,
-      "dividend_forecast": 0.4977,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 223.0632,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 6,
       "current_dps": 0.01,
       "current_paid": 1,
@@ -3160,7 +3197,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с JNOS в 2.45× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "KAZT",
@@ -3253,8 +3292,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 31.77,
+      "payout_last_year": 2024,
+      "payout_source": "KAZT"
     },
     {
       "ticker": "KBSB",
@@ -3535,8 +3575,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 110.09,
+      "payout_last_year": 2024,
+      "payout_source": "KGKC"
     },
     {
       "ticker": "KLSB",
@@ -3967,9 +4008,9 @@
       "p_ens": 0.1833,
       "cut_risk": 0.8167,
       "stability_score": 0.1429,
-      "dividend_forecast": 12.2677,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 237.3799,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -4005,8 +4046,11 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 1.99,
+      "payout_last_year": 2024,
+      "payout_source": "KROT",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с KROT в 3.29× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "KRSB",
@@ -4099,8 +4143,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 39.89,
+      "payout_last_year": 2024,
+      "payout_source": "KRSB"
     },
     {
       "ticker": "KUZB",
@@ -4202,9 +4247,9 @@
       "p_ens": 0.8685,
       "cut_risk": 0.1315,
       "stability_score": 0.6396,
-      "dividend_forecast": 1.0431,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 223.4395,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 5,
       "current_dps": 0.25,
       "current_paid": 1,
@@ -4240,8 +4285,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 106.6,
+      "payout_last_year": 2024,
+      "payout_source": "KZOS",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с KZOS в 5.01× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "LEAS",
@@ -4484,9 +4532,9 @@
       "p_ens": 0.6357,
       "cut_risk": 0.3643,
       "stability_score": 0.6862,
-      "dividend_forecast": 23.6249,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 249.7045,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 8,
       "current_dps": 9.55,
       "current_paid": 1,
@@ -4523,7 +4571,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с LNZL в 23.16× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "LPSB",
@@ -4625,9 +4675,9 @@
       "p_ens": 0.855,
       "cut_risk": 0.145,
       "stability_score": 0.7309,
-      "dividend_forecast": 10.5691,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 233.1157,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 7,
       "current_dps": 25.9523,
       "current_paid": 1,
@@ -4663,8 +4713,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 20.06,
+      "payout_last_year": 2024,
+      "payout_source": "LSNG",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с LSNG в 6.92× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "LSRG",
@@ -5236,9 +5289,9 @@
       "p_ens": 0.092,
       "cut_risk": 0.908,
       "stability_score": 0.095,
-      "dividend_forecast": 28.9309,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 252.3445,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -5274,8 +5327,11 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 142.42,
+      "payout_last_year": 2019,
+      "payout_source": "MGTS",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с MGTS в 2.18× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "MISB",
@@ -5330,9 +5386,9 @@
       "p_ens": 0.8798,
       "cut_risk": 0.1202,
       "stability_score": 0.6231,
-      "dividend_forecast": 3.2831,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 226.089,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 4,
       "current_dps": 3.283,
       "current_paid": 1,
@@ -5368,8 +5424,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 18.25,
+      "payout_last_year": 2024,
+      "payout_source": "MISB",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с MISB в 1.53× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "MOEX",
@@ -6308,8 +6367,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 17.03,
+      "payout_last_year": 2024,
+      "payout_source": "NKNC"
     },
     {
       "ticker": "NKSH",
@@ -6505,9 +6565,9 @@
       "p_ens": 0.0813,
       "cut_risk": 0.9187,
       "stability_score": 0.0758,
-      "dividend_forecast": 84.2185,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 284.5685,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -6544,7 +6604,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с NNSB в 4.55× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "NSVZ",
@@ -6693,9 +6755,9 @@
       "p_ens": 0.7325,
       "cut_risk": 0.2675,
       "stability_score": 0.5323,
-      "dividend_forecast": 168.147,
-      "dividend_forecast_lo": 92.1773,
-      "dividend_forecast_hi": 384.4706,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 3,
       "current_dps": 0.012,
       "current_paid": 1,
@@ -6732,7 +6794,9 @@
         }
       ],
       "payout_last": 0.0,
-      "payout_last_year": 2024
+      "payout_last_year": 2024,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "разреженная панель: прогноз неправдоподобен относительно истории — число ненадёжно"
     },
     {
       "ticker": "OZON",
@@ -7107,8 +7171,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 51.59,
+      "payout_last_year": 2024,
+      "payout_source": "PMSB"
     },
     {
       "ticker": "POSI",
@@ -7906,8 +7971,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 87.99,
+      "payout_last_year": 2024,
+      "payout_source": "RTKM"
     },
     {
       "ticker": "RTSB",
@@ -8000,8 +8066,9 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 82.01,
+      "payout_last_year": 2024,
+      "payout_source": "RTSB"
     },
     {
       "ticker": "RUAL",
@@ -8235,8 +8302,9 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 41.62,
+      "payout_last_year": 2024,
+      "payout_source": "SAGO"
     },
     {
       "ticker": "SARE",
@@ -8385,9 +8453,9 @@
       "p_ens": 0.7583,
       "cut_risk": 0.2417,
       "stability_score": 0.5323,
-      "dividend_forecast": 12.055,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 234.8464,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 3,
       "current_dps": 34.84,
       "current_paid": 1,
@@ -8423,8 +8491,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 44.12,
+      "payout_last_year": 2024,
+      "payout_source": "SBER",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с SBER в 1.78× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "SELG",
@@ -9034,8 +9105,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 47.95,
+      "payout_last_year": 2022,
+      "payout_source": "TATN"
     },
     {
       "ticker": "TGKB",
@@ -9090,9 +9162,9 @@
       "p_ens": 0.0696,
       "cut_risk": 0.9304,
       "stability_score": 0.0547,
-      "dividend_forecast": 0.3485,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 222.9223,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -9128,8 +9200,11 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 194.28,
+      "payout_last_year": 2018,
+      "payout_source": "TGKB",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с TGKB в 1.84× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "TGKN",
@@ -9316,8 +9391,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 40.96,
+      "payout_last_year": 2024,
+      "payout_source": "TORS"
     },
     {
       "ticker": "TRMK",
@@ -10077,9 +10153,9 @@
       "p_ens": 0.0813,
       "cut_risk": 0.9187,
       "stability_score": 0.0758,
-      "dividend_forecast": 85.3181,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 289.0115,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -10116,7 +10192,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с VJGZ в 2.97× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "VKCO",
@@ -10265,9 +10343,9 @@
       "p_ens": 0.8764,
       "cut_risk": 0.1236,
       "stability_score": 0.6231,
-      "dividend_forecast": 7.9113,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 229.7314,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 4,
       "current_dps": 6.9456,
       "current_paid": 1,
@@ -10303,8 +10381,11 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 19.4,
+      "payout_last_year": 2024,
+      "payout_source": "VRSB",
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с VRSB в 1.54× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "VSEH",
@@ -10632,8 +10713,9 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": null,
-      "payout_last_year": null
+      "payout_last": 23.93,
+      "payout_last_year": 2024,
+      "payout_source": "WTCM"
     },
     {
       "ticker": "WUSH",
@@ -10970,9 +11052,9 @@
       "p_ens": 0.092,
       "cut_risk": 0.908,
       "stability_score": 0.095,
-      "dividend_forecast": 8.7579,
-      "dividend_forecast_lo": 0.0,
-      "dividend_forecast_hi": 229.9508,
+      "dividend_forecast": null,
+      "dividend_forecast_lo": null,
+      "dividend_forecast_hi": null,
       "div_streak": 0,
       "current_dps": 0.0,
       "current_paid": 0,
@@ -11009,7 +11091,9 @@
         }
       ],
       "payout_last": null,
-      "payout_last_year": null
+      "payout_last_year": null,
+      "forecast_status": "insufficient_data",
+      "forecast_note": "dual-class: DPS расходится с YRSB в 2.63× (строка префа разрежена) — число ненадёжно"
     },
     {
       "ticker": "ZAYM",

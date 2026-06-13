@@ -211,6 +211,7 @@ function detailKV(t) {
     price_stale: 'цена не обновлена (кэш)',
     no_price: 'нет рыночной цены',
     no_forecast: 'нет прогноза модели',
+    dps_unreliable: 'прогноз дивиденда скрыт как ненадёжный',
   };
   const flags = (t.flags || []).map((f) => flagMap[f] || f);
   return `<dl class="kv">
@@ -219,8 +220,10 @@ function detailKV(t) {
     <dt>Интервал прогноза</dt><dd class="tnum">${lohi}</dd>
     <dt>Дивиденд за посл. год</dt><dd class="tnum">${fmtRub(t.current_dps)}</dd>
     <dt>Серия лет выплат</dt><dd class="tnum">${t.div_streak ?? ND}</dd>
-    <dt>Payout (факт)</dt><dd class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%'+(t.payout_year?` (${t.payout_year})`:'') : ND}</dd>
-  </dl>` + (flags.length ? `<div class="flagline">⚠ ${flags.map(esc).join('; ')}</div>` : '');
+    <dt>Payout (факт)</dt><dd class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%'+(t.payout_year?` (${t.payout_year})`:'')+(t.payout_source?` <span class="muted">· эмитент</span>`:'') : ND}</dd>
+  </dl>`
+    + (t.forecast_note ? `<div class="flagline">ℹ ${esc(t.forecast_note)}</div>` : '')
+    + (flags.length ? `<div class="flagline">⚠ ${flags.map(esc).join('; ')}</div>` : '');
 }
 
 function toggleDetail(tr, t) {

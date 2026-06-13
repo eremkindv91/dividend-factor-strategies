@@ -132,6 +132,47 @@ def main() -> int:
             rec["payout_last_year"] = None
         records.append(rec)
 
+    # ── Пост-обработка по УТВЕРЖДЁННОМУ аудиту (правило, НЕ точечная правка артефакта) ──
+    # Пары обычка/преф по тикеру (база+P); в аудите все 38 подтверждены по имени (поле name).
+    by_tk = {r["ticker"]: r for r in records}
+    DUAL_RATIO_THR = 1.5      # порог материальной дивергенции DPS внутри пары (медиана пар = 1.43)
+    DUAL_EXCEPT = {"WTCMP"}   # панель префа БОГАЧЕ обычки и дивергенция пограничная (1.50×) — оставляем
+    AUDIT2_FLAG = {"OMZZP"}   # стендэлон-преф: неправдоподобное возобновление (≈168₽ vs ≈0₽) из разреж. панели
+
+    # 1) payout эмитента → префу: payout_ratio — показатель уровня КОМПАНИИ, одинаков для обоих
+    #    классов акций. Это не «копирование DPS» (DPS — на акцию), а тот же факт эмитента. Кроме стендэлонов.
+    n_inherited = 0
+    for tk, r in by_tk.items():
+        if tk.endswith("P") and tk[:-1] in by_tk:
+            base = by_tk[tk[:-1]]
+            if base.get("payout_last") is not None:
+                r["payout_last"] = base["payout_last"]
+                r["payout_last_year"] = base["payout_last_year"]
+                r["payout_source"] = tk[:-1]   # факт из отчётности обычки (тот же эмитент)
+                n_inherited += 1
+
+    # 2) пометка ненадёжного DPS (cut_risk/stability/ p_ens СОХРАНЯЮТСЯ; число DPS не фабрикуем)
+    flagged = {}
+    for tk, r in by_tk.items():
+        if tk.endswith("P") and tk[:-1] in by_tk and tk not in DUAL_EXCEPT:
+            do = by_tk[tk[:-1]].get("dividend_forecast"); dp = r.get("dividend_forecast")
+            if isinstance(do, (int, float)) and isinstance(dp, (int, float)) and min(do, dp) > 0:
+                ratio = max(do, dp) / min(do, dp)
+                if ratio >= DUAL_RATIO_THR:
+                    flagged[tk] = (f"dual-class: DPS расходится с {tk[:-1]} в {ratio:.2f}× "
+                                   f"(строка префа разрежена) — число ненадёжно")
+    for tk in AUDIT2_FLAG:
+        if tk in by_tk:
+            flagged[tk] = "разреженная панель: прогноз неправдоподобен относительно истории — число ненадёжно"
+
+    for tk, reason in flagged.items():
+        r = by_tk[tk]
+        r["dividend_forecast"] = None
+        r["dividend_forecast_lo"] = None
+        r["dividend_forecast_hi"] = None
+        r["forecast_status"] = "insufficient_data"
+        r["forecast_note"] = reason
+
     artifact = {
         "meta": {
             "market": "RU",
@@ -148,6 +189,15 @@ def main() -> int:
                           "ансамблевого прогноза."),
             "shap_features_used": len(feats),
             "source_note": "Прогноз заморожен на дату прогона ВКР; обновляется только при ручной пересборке.",
+            "audit": {
+                "dual_class_ratio_threshold": DUAL_RATIO_THR,
+                "dps_flagged": sorted(flagged),
+                "n_dps_flagged": len(flagged),
+                "n_payout_inherited": n_inherited,
+                "note": ("Ненадёжный DPS помечен insufficient_data по dual-class (расхождение ≥1.5× "
+                         "при разреженной строке префа) и аномалии к истории; cut_risk/stability "
+                         "сохранены, число DPS не фабрикуется. payout префа наследует факт эмитента."),
+            },
             "built_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         },
         "tickers": records,
@@ -162,6 +212,8 @@ def main() -> int:
     print(f"[build_artifact] записано: {os.path.relpath(OUT_JSON, REPO)}")
     print(f"  тикеров={len(records)} | с SHAP={n_shap} | с payout-фактом={n_payout} | "
           f"forecast_asof={artifact['meta']['forecast_asof']}")
+    print(f"  DPS помечено insufficient_data: {len(flagged)} → {sorted(flagged)}")
+    print(f"  payout унаследован префами от обычки: {n_inherited}")
     return 0
 
 

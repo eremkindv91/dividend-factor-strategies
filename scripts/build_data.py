@@ -128,7 +128,9 @@ def main() -> int:
 
         # ── статус ──
         has_pred = isinstance(r.get("cut_risk"), (int, float))
-        status = "ok" if (has_pred and price and price > 0) else "insufficient_data"
+        # DPS помечен ненадёжным в артефакте (dual-class / аномалия) → forecast_status
+        dps_flagged = (r.get("forecast_status") == "insufficient_data") or not isinstance(dps, (int, float))
+        status = "ok" if (has_pred and price and price > 0 and not dps_flagged) else "insufficient_data"
         if status == "ok":
             n_ok += 1
         else:
@@ -137,6 +139,8 @@ def main() -> int:
                 flags.append("no_price")
             if not has_pred:
                 flags.append("no_forecast")
+            if r.get("forecast_status") == "insufficient_data":
+                flags.append("dps_unreliable")
 
         out_rows.append({
             "ticker": tk,
@@ -149,6 +153,7 @@ def main() -> int:
             "dividend_forecast_hi": num(r.get("dividend_forecast_hi")),
             "payout": num(payout),
             "payout_year": r.get("payout_last_year"),
+            "payout_source": r.get("payout_source"),
             "dividend_yield_expected": num(round(y_exp, 2) if y_exp is not None else None),
             "dividend_yield_if_paid": num(round(y_paid, 2) if y_paid is not None else None),
             "price": num(round(price, 2) if isinstance(price, (int, float)) else None),
@@ -158,6 +163,7 @@ def main() -> int:
             "current_dps": num(r.get("current_dps")),
             "current_paid": r.get("current_paid"),
             "status": status,
+            "forecast_note": r.get("forecast_note"),
             "flags": flags,
             "shap_top5": r.get("shap_top5", []),
         })
