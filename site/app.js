@@ -116,9 +116,28 @@ const COLS = [
   { key: 'status', label: 'Статус' },
 ];
 
+// быстрое ранжирование (один клик → от большего к меньшему)
+const RANK_PRESETS = [
+  { key: 'stability_score', label: 'Устойчивость' },
+  { key: 'dividend_yield_expected', label: 'Доходность (ожид.)' },
+  { key: 'dividend_yield_if_paid', label: 'Доходность (при выплате)' },
+];
+
+function renderRanks() {
+  const el = document.getElementById('ranks');
+  if (!el) return;
+  el.hidden = false;
+  el.innerHTML = '<span class="ranks-lbl">Рейтинг ↓</span>' + RANK_PRESETS.map((p) =>
+    `<button class="rank-chip${(sortKey === p.key && sortDir < 0) ? ' active' : ''}" data-key="${p.key}">${p.label}</button>`).join('');
+  el.querySelectorAll('.rank-chip').forEach((b) => b.addEventListener('click', () => {
+    sortKey = b.dataset.key; sortDir = -1; render();
+  }));
+}
+
 function render() {
   VIEW = computeView();
   document.getElementById('count').textContent = `${VIEW.length} из ${DATA.tickers.length}`;
+  renderRanks();
   renderTable();
   renderCards();
 }
@@ -140,7 +159,7 @@ function renderTable() {
       ? '<span class="status-chip s-ok">✓ полные</span>'
       : '<span class="status-chip s-insuf">неполные</span>';
     return `<tr class="data-row" data-i="${i}">
-      <td class="left"><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
+      <td class="left"><span class="rank">${i + 1}</span><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
       <td>${stabilityCell(t.stability_score)}</td>
       <td>${riskBadge(t.cut_risk)}</td>
       <td class="tnum">${fmtRub(t.dividend_forecast)}</td>
@@ -220,12 +239,12 @@ function toggleDetail(tr, t) {
 function renderCards() {
   const el = document.getElementById('cards');
   if (!el) return;
-  el.innerHTML = VIEW.map((t) => {
+  el.innerHTML = VIEW.map((t, i) => {
     const statusChip = t.status === 'ok'
       ? '<span class="status-chip s-ok">✓ полные</span>'
       : '<span class="status-chip s-insuf">неполные</span>';
     return `<div class="card">
-      <div class="top"><span class="tk">${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
+      <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
       <div class="nm">${esc(t.name)} · ${esc(t.sector)}</div>
       <div class="grid">
         <div><span class="lbl">Устойчивость</span>${fmtScore(t.stability_score)}</div>

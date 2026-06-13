@@ -78,6 +78,19 @@ header.site { padding: 8px 0 18px; }
 .btn:hover { border-color: var(--accent); }
 .count { color: var(--ink-faint); font-size: .85rem; align-self: center; }
 
+/* ── Быстрое ранжирование ── */
+.ranks { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.ranks-lbl { color: var(--ink-faint); font-size: .82rem; }
+.rank-chip {
+  font: inherit; font-size: .85rem; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--accent-deep);
+  border-radius: 999px; padding: 6px 13px; box-shadow: var(--shadow);
+}
+.rank-chip:hover { border-color: var(--accent); }
+.rank-chip.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
+.rank { display: inline-block; min-width: 1.4em; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 600; margin-right: 6px; }
+
 /* ── Таблица ── */
 .table-card { background: var(--surface); border-radius: var(--radius);
   box-shadow: var(--shadow); overflow-x: auto; }
