@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Прогноз дивидендов РФ на год вперёд</title>
+  <meta name="description" content="Прогноз дивидендов российских эмитентов на год вперёд: устойчивость выплаты, риск невыплаты, прогнозный дивиденд, payout, дивидендная доходность. ML-модель магистерской ВКР.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <h1>Прогноз дивидендов российских эмитентов</h1>
+      <p class="sub">Прогноз на следующий год: устойчивость выплаты, риск невыплаты, размер дивиденда и дивидендная доходность. Прогноза цены и полной доходности нет.</p>
+      <div class="dates" id="dates"></div>
+      <div id="banner"></div>
+    </header>
+
+    <div class="controls" id="controls" hidden>
+      <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
+      <select id="sector"><option value="">Все отрасли</option></select>
+      <select id="statusFilter">
+        <option value="">Все статусы</option>
+        <option value="ok">Только с полными данными</option>
+        <option value="insufficient_data">Только неполные</option>
+      </select>
+      <span class="spacer"></span>
+      <span class="count" id="count"></span>
+      <button class="btn" id="csv">Экспорт CSV</button>
+    </div>
+
+    <div id="app">
+      <div class="loading">Загрузка данных…</div>
+    </div>
+
+    <footer class="method" id="method" hidden>
+      <h3>Методология</h3>
+      <ul>
+        <li><b>Источник прогноза</b> — двухэтапная ML-модель магистерской ВКР (НИУ ВШЭ). Stage&nbsp;1: классификация факта выплаты в следующем году (калиброванный изотонической регрессией ансамбль top-3 — CatBoost/XGBoost/LightGBM, walk-forward OOF, ROC-AUC&nbsp;≈&nbsp;<span id="auc"></span>). Stage&nbsp;2: регрессия размера дивиденда.</li>
+        <li><b>Риск невыплаты</b> = 1&nbsp;−&nbsp;P(выплата). <b>Устойчивость</b> = 0,6·P&nbsp;+&nbsp;0,4·(серия лет выплат&nbsp;/&nbsp;макс.). Лейбла «снижения на&nbsp;X%» в модели нет.</li>
+        <li><b>Дивидендная доходность</b> на дату пересчёта цены: <b>ожидаемая</b> = P&nbsp;·&nbsp;прогнозный дивиденд&nbsp;/&nbsp;цена; <b>при выплате</b> = прогнозный дивиденд&nbsp;/&nbsp;цена. Цена — spot (закрытие), MOEX&nbsp;ISS.</li>
+        <li><b>Payout</b> — последний известный факт (год указан), не прогноз.</li>
+        <li><b>SHAP</b> в карточке иллюстративен: рассчитан по лучшей одиночной модели (xgboost), это <i>не</i> точная декомпозиция ансамблевого прогноза.</li>
+        <li><b>Две даты:</b> прогноз модели заморожен на дату прогона ВКР; ежедневно обновляется только рыночная цена и дивидендная доходность.</li>
+      </ul>
+      <div class="disc" id="disclaimer"></div>
+      <p class="attrib" id="attrib"></p>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

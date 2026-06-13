@@ -39,3 +39,9 @@ lightgbm_model.*
 
 # Node (if any)
 node_modules/
+
+# Dividend site: генерируемые/локальные артефакты
+# data.json собирается инференсом и деплоится в Pages — в репо не нужен
+site/data.json
+# кэш цен MOEX персистится через actions/cache
+model_output/prices_cache.json
