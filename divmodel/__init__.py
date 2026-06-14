@@ -14,6 +14,7 @@ from .pipeline import (
     drop_correlated,
     MultiModelZI,
     per_ticker_shap,
+    ensemble_shap,
 )
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "drop_correlated",
     "MultiModelZI",
     "per_ticker_shap",
+    "ensemble_shap",
 ]

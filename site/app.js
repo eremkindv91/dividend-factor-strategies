@@ -8,6 +8,8 @@ const fmtPct = (x, d = 1) => isNum(x) ? ru(x, d) + '%' : ND;
 const fmtRub = (x) => isNum(x) ? ru(x, 2) + ' ₽' : ND;
 const fmtScore = (x) => isNum(x) ? ru(x * 100, 1) + '%' : ND;   // 0..1 → %
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const mdash = '<span class="muted" title="нет данных">—</span>';
+const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
 
 let DATA = null;
 let VIEW = [];
@@ -24,13 +26,12 @@ function riskBadge(cr) {
   return `<span class="badge ${cls}">${pct} · ${word}</span>`;
 }
 function stabilityCell(s) {
-  if (!isNum(s)) return `<span class="muted">${ND}</span>`;
-  const pct = s * 100;
-  let bar = 'var(--good-bar)';
-  if (s < 0.34) bar = 'var(--risk-bar)';
-  else if (s < 0.67) bar = 'var(--warn-bar)';
-  return `<span class="tnum">${ru(pct, 1)}%</span>`
-    + `<span class="bar"><span style="width:${Math.max(2, Math.min(100, pct)).toFixed(0)}%;background:${bar}"></span></span>`;
+  if (!isNum(s)) return mdash;
+  const pct = ru(s * 100, 1) + '%';
+  let cls = 'b-good', word = 'высокая';
+  if (s < 0.34) { cls = 'b-neut'; word = 'низкая'; }
+  else if (s < 0.67) { cls = 'b-warn'; word = 'средняя'; }
+  return `<span class="badge ${cls}">${pct} · ${word}</span>`;
 }
 
 // ── загрузка ──
@@ -111,8 +112,8 @@ const COLS = [
   { key: 'cut_risk', label: 'Риск невыплаты' },
   { key: 'dividend_forecast', label: 'Прогноз дивиденда' },
   { key: 'payout', label: 'Payout' },
-  { key: 'dividend_yield_expected', label: 'Дох. ожид.' },
-  { key: 'dividend_yield_if_paid', label: 'Дох. при выпл.' },
+  { key: 'dividend_yield_expected', label: 'Дох. ожид.', title: 'Ожидаемая доходность = вероятность выплаты × прогнозный дивиденд / цена' },
+  { key: 'dividend_yield_if_paid', label: 'Дох. при выпл.', title: 'Доходность при выплате = прогнозный дивиденд / цена (без поправки на вероятность)' },
   { key: 'status', label: 'Статус' },
 ];
 
@@ -149,12 +150,12 @@ function arrow(key) {
 
 function renderTable() {
   const head = '<tr>' + COLS.map((c) =>
-    `<th class="${c.left ? 'left' : ''}" data-key="${c.key}">${c.label}${arrow(c.key)}</th>`).join('') + '</tr>';
+    `<th class="${c.left ? 'left' : ''}" data-key="${c.key}"${c.title ? ` title="${c.title}"` : ''}>${c.label}${arrow(c.key)}</th>`).join('') + '</tr>';
 
   const body = VIEW.map((t, i) => {
     const payoutTxt = isNum(t.payout)
       ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}`
-      : `<span class="muted">${ND}</span>`;
+      : mdash;
     const statusChip = t.status === 'ok'
       ? '<span class="status-chip s-ok">✓ полные</span>'
       : '<span class="status-chip s-insuf">неполные</span>';
@@ -162,10 +163,10 @@ function renderTable() {
       <td class="left"><span class="rank">${i + 1}</span><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
       <td>${stabilityCell(t.stability_score)}</td>
       <td>${riskBadge(t.cut_risk)}</td>
-      <td class="tnum">${fmtRub(t.dividend_forecast)}</td>
+      <td class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</td>
       <td class="tnum">${payoutTxt}</td>
-      <td class="tnum">${fmtPct(t.dividend_yield_expected)}</td>
-      <td class="tnum">${fmtPct(t.dividend_yield_if_paid)}</td>
+      <td class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</td>
+      <td class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</td>
       <td>${statusChip}</td>
     </tr>`;
   }).join('');
@@ -196,7 +197,7 @@ function shapHTML(t) {
       <span style="flex:1">${esc(s.feature_ru || s.feature)}</span>
       <span class="shap-bar"><span style="width:${w}%;background:${col}"></span></span>
     </div>`;
-  }).join('') + `<p class="muted" style="margin-top:8px;font-size:.8rem">↑ повышает / ↓ снижает вероятность выплаты (иллюстративно)</p>`;
+  }).join('') + `<p class="muted" style="margin-top:8px;font-size:.8rem">↑ повышает / ↓ снижает вероятность выплаты · усреднено по моделям ансамбля</p>`;
 }
 
 function detailKV(t) {
@@ -250,11 +251,11 @@ function renderCards() {
       <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
       <div class="nm">${esc(t.name)} · ${esc(t.sector)}</div>
       <div class="grid">
-        <div><span class="lbl">Устойчивость</span>${fmtScore(t.stability_score)}</div>
-        <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${fmtRub(t.dividend_forecast)}</span></div>
-        <div><span class="lbl">Доходн. ожид.</span><span class="tnum">${fmtPct(t.dividend_yield_expected)}</span></div>
-        <div><span class="lbl">Доходн. при выплате</span><span class="tnum">${fmtPct(t.dividend_yield_if_paid)}</span></div>
-        <div><span class="lbl">Payout</span><span class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%' : ND}</span></div>
+        <div><span class="lbl">Устойчивость</span>${stabilityCell(t.stability_score)}</div>
+        <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</span></div>
+        <div><span class="lbl">Доходн. ожид.</span><span class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</span></div>
+        <div><span class="lbl">Доходн. при выплате</span><span class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</span></div>
+        <div><span class="lbl">Payout</span><span class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%' : mdash}</span></div>
         <div><span class="lbl">Статус</span>${statusChip}</div>
       </div>
       <details><summary>Факторы и детали</summary>

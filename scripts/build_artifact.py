@@ -60,6 +60,25 @@ def forecast_asof() -> str:
     return datetime.fromtimestamp(ts, tz=timezone.utc).astimezone().strftime("%Y-%m-%d")
 
 
+def top3_ensemble_models() -> list:
+    """Top-3 модели ансамбля РФ по медианному walk-forward AUC из сохранённых OOF
+    (как выбирается ансамбль в нб 03). Ограничиваем tree-объяснимыми (cb/xgb/lgb/rf),
+    т.к. SHAP считается TreeExplainer'ом."""
+    import glob
+    from sklearn.metrics import roc_auc_score
+    rows = []
+    for f in glob.glob(os.path.join(REPO, "results", "ml_forecast_v5", "oof_rf_*.csv")):
+        mn = os.path.basename(f).replace("oof_rf_", "").replace(".csv", "")
+        d = pd.read_csv(f)
+        aucs = [roc_auc_score(g["paid_next"], g["p_hat"])
+                for _, g in d.groupby("year") if g["paid_next"].nunique() > 1]
+        if aucs:
+            rows.append((mn, float(pd.Series(aucs).median())))
+    rows.sort(key=lambda x: -x[1])
+    tree = [m for m, _ in rows if m in ("catboost", "xgboost", "lightgbm", "rf")]
+    return tree[:3] if tree else [BEST_MODEL_RF]
+
+
 def main() -> int:
     print("[build_artifact] загрузка прогноза ВКР:", os.path.relpath(ARTIFACT_XLSX, REPO))
     fc = pd.read_excel(ARTIFACT_XLSX, sheet_name="Russia_Full")
@@ -77,10 +96,10 @@ def main() -> int:
     pred_year = int(panel["year"].max())
     print(f"  признаков: {len(feats)} | прогнозный срез year={pred_year} → дивиденды {pred_year + 1}")
 
-    print(f"[build_artifact] обучение {BEST_MODEL_RF} + SHAP (иллюстративно)...")
-    shap_map, _model, auc_in = dm.per_ticker_shap(
-        panel, feats, cat_feats, BEST_MODEL_RF, pred_year, top_k=5)
-    print(f"  in-sample AUC={auc_in:.3f} (норма для бустинга); SHAP по {len(shap_map)} тикерам")
+    top3 = top3_ensemble_models()
+    print(f"[build_artifact] ансамблевый SHAP по top-3 моделям {top3}...")
+    shap_map, n_models = dm.ensemble_shap(panel, feats, cat_feats, top3, pred_year, top_k=5)
+    print(f"  SHAP усреднён по {n_models} моделям ансамбля; {len(shap_map)} тикеров")
 
     # ── последний известный payout по тикеру (факт, не прогноз) ──
     # payout_ratio_pct последнего года часто =0 (дивиденд за прогнозный год ещё не разнесён),
@@ -184,9 +203,11 @@ def main() -> int:
                       "изотоническая калибровка); Stage2 — регрессия размера дивиденда. "
                       "Прогнозы взяты из прогона ВКР."),
             "auc_oof_rf": AUC_OOF_RF,
-            "shap_note": ("SHAP иллюстративен: рассчитан по лучшей одиночной модели (xgboost) "
-                          "на признаках финальной панели; не является точной декомпозицией "
-                          "ансамблевого прогноза."),
+            "shap_models": top3,
+            "shap_note": ("SHAP усреднён по моделям ансамбля (top-3: " + ", ".join(top3) + "), "
+                          "вклад каждой модели нормирован построчно. Отражает направление и состав "
+                          "факторов, влияющих на вероятность выплаты в ансамблевом прогнозе "
+                          "(величины приближённые — калибровка вероятности монотонна)."),
             "shap_features_used": len(feats),
             "source_note": "Прогноз заморожен на дату прогона ВКР; обновляется только при ручной пересборке.",
             "audit": {

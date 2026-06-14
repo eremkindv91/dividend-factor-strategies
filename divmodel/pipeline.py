@@ -361,3 +361,58 @@ def per_ticker_shap(df: pd.DataFrame, feats: List[str], cat_feats: List[str],
         order = np.argsort(np.abs(row))[::-1][:top_k]
         out[str(tk)] = [(feats[j], float(row[j])) for j in order]
     return out, model, auc
+
+
+def ensemble_shap(df: pd.DataFrame, feats: List[str], cat_feats: List[str],
+                  model_names: List[str], pred_year: int, top_k: int = 5):
+    """SHAP в разрезе тикеров, УСРЕДНЁННЫЙ по моделям ансамбля (top-3) — отражает
+    драйверы ансамблевого прогноза, а не одной модели. Каждая модель обучается на
+    размеченных данных, TreeExplainer считается на прогнозном срезе year==pred_year.
+
+    Единицы SHAP различаются между моделями (бустинги — лог-оддсы, RF — вероятность),
+    поэтому вклад каждой модели нормируется построчно на сумму |вклада| и затем
+    усредняется. Возвращает (dict ticker→[(feat, impact)], число использованных моделей)."""
+    import shap
+
+    labeled = df[df["label_known_paid"] == 1].copy()
+    for c in cat_feats:
+        labeled[c] = safe_cat(labeled[c])
+    cat_idx = [feats.index(c) for c in cat_feats if c in feats]
+
+    latest = df[df["year"] == pred_year].copy()
+    for c in cat_feats:
+        if c in latest.columns:
+            latest[c] = safe_cat(latest[c])
+    tickers = latest["ticker"].values
+    n, F = len(latest), len(feats)
+    acc = np.zeros((n, F))
+    used = 0
+
+    for mn in model_names:
+        model = MultiModelZI(mn, seed=SEED)
+        model.fit(labeled[feats], labeled["paid_next"].astype(int).values,
+                  labeled["dps_next"].fillna(0).values,
+                  cat_feats=cat_feats, cat_idx=cat_idx)
+        X = model._preprocess_pred(latest[feats], cat_feats)
+        try:
+            sv = shap.TreeExplainer(model.clf).shap_values(X)
+        except Exception:
+            continue
+        if isinstance(sv, list):           # старый формат: список по классам
+            sv = sv[1]
+        sv = np.asarray(sv, dtype=float)
+        if sv.ndim == 3:                   # новый формат: (n, F, n_classes)
+            sv = sv[:, :, 1]
+        denom = np.abs(sv).sum(axis=1, keepdims=True)
+        denom[denom == 0] = 1.0
+        acc += sv / denom                  # построчная нормировка → сопоставимость моделей
+        used += 1
+
+    if used:
+        acc /= used
+    out: Dict[str, list] = {}
+    for i, tk in enumerate(tickers):
+        row = acc[i]
+        order = np.argsort(np.abs(row))[::-1][:top_k]
+        out[str(tk)] = [(feats[j], float(row[j])) for j in order]
+    return out, used
