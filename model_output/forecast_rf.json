@@ -38,10 +38,10 @@
         "YRSBP"
       ],
       "n_dps_flagged": 18,
-      "n_payout_inherited": 22,
+      "n_payout_inherited": 19,
       "note": "Ненадёжный DPS помечен insufficient_data по dual-class (расхождение ≥1.5× при разреженной строке префа) и аномалии к истории; cut_risk/stability сохранены, число DPS не фабрикуется. payout префа наследует факт эмитента."
     },
-    "built_at": "2026-06-14T09:49:15+03:00"
+    "built_at": "2026-06-14T16:06:26+03:00"
   },
   "tickers": [
     {
@@ -182,8 +182,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 4.4,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "AFLT",
@@ -558,8 +558,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 47.11,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "ASSB",
@@ -605,8 +605,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 15.67,
-      "payout_last_year": 2020
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "ASTR",
@@ -890,8 +890,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 182.9,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "BISVP",
@@ -1222,8 +1222,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 27.45,
-      "payout_last_year": 2019
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "CHGZ",
@@ -1693,8 +1693,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 168.6,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "DOMRF",
@@ -1977,8 +1977,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 82.93,
-      "payout_last_year": 2020
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "ELMT",
@@ -2118,8 +2118,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 115.93,
-      "payout_last_year": 2020
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "EUTR",
@@ -2212,8 +2212,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 39.48,
-      "payout_last_year": 2020
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "FESH",
@@ -2306,8 +2306,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 24.42,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "FIXR",
@@ -2447,8 +2447,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 186.91,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "GCHE",
@@ -2635,8 +2635,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 148.26,
-      "payout_last_year": 2013
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "GTRK",
@@ -2682,8 +2682,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 38.61,
-      "payout_last_year": 2019
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "HEAD",
@@ -2776,8 +2776,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 2.86,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "HNFG",
@@ -2870,8 +2870,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 69.7,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "IGST",
@@ -3060,8 +3060,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 80.93,
-      "payout_last_year": 2016
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "IVAT",
@@ -3722,8 +3722,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 6.36,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "KMEZ",
@@ -5285,8 +5285,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 142.42,
-      "payout_last_year": 2019
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "MGTSP",
@@ -5332,9 +5332,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 142.42,
-      "payout_last_year": 2019,
-      "payout_source": "MGTS",
+      "payout_last": null,
+      "payout_last_year": null,
       "forecast_status": "insufficient_data",
       "forecast_note": "dual-class: DPS расходится с MGTS в 2.18× (строка префа разрежена) — число ненадёжно"
     },
@@ -5667,8 +5666,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 20.11,
-      "payout_last_year": 2019
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "MRKU",
@@ -5808,8 +5807,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 60.51,
-      "payout_last_year": 2018
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "MRKZ",
@@ -5855,8 +5854,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 35.39,
-      "payout_last_year": 2019
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "MRSB",
@@ -6137,8 +6136,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 82.84,
-      "payout_last_year": 2020
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "NAUK",
@@ -7035,8 +7034,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 14.43,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "PLZL",
@@ -7082,8 +7081,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 32.32,
-      "payout_last_year": 2016
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "PMSB",
@@ -7365,8 +7364,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 1.36,
-      "payout_last_year": 2017
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "RAGR",
@@ -7412,8 +7411,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 59.31,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "RASP",
@@ -7459,8 +7458,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 31.69,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "RDRB",
@@ -7647,8 +7646,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 7.18,
-      "payout_last_year": 2016
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "RNFT",
@@ -8119,8 +8118,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 16.94,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "RUSI",
@@ -8546,8 +8545,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 111.85,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "SFIN",
@@ -8640,8 +8639,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 274.82,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "SIBN",
@@ -8687,8 +8686,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 29.45,
-      "payout_last_year": 2015
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "SLEN",
@@ -8781,8 +8780,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 33.07,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "SOFL",
@@ -9063,8 +9062,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 47.95,
-      "payout_last_year": 2022
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "TATNP",
@@ -9110,9 +9109,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 47.95,
-      "payout_last_year": 2022,
-      "payout_source": "TATN"
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "TGKB",
@@ -9158,8 +9156,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 194.28,
-      "payout_last_year": 2018
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "TGKBP",
@@ -9205,9 +9203,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 194.28,
-      "payout_last_year": 2018,
-      "payout_source": "TGKB",
+      "payout_last": null,
+      "payout_last_year": null,
       "forecast_status": "insufficient_data",
       "forecast_note": "dual-class: DPS расходится с TGKB в 1.84× (строка префа разрежена) — число ненадёжно"
     },
@@ -9302,8 +9299,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 36.65,
-      "payout_last_year": 2015
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "TORS",
@@ -9444,8 +9441,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 53.04,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "TRNFP",
@@ -9820,8 +9817,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 242.95,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "URKZ",
@@ -9914,8 +9911,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 254.54,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "UTAR",
@@ -10483,8 +10480,8 @@
           "direction": "↓ снижает вероятность выплаты"
         }
       ],
-      "payout_last": 26.22,
-      "payout_last_year": 2023
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "VSYD",
@@ -10624,8 +10621,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 0.0,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "WTCM",
@@ -10860,8 +10857,8 @@
           "direction": "↑ повышает вероятность выплаты"
         }
       ],
-      "payout_last": 53.51,
-      "payout_last_year": 2021
+      "payout_last": null,
+      "payout_last_year": null
     },
     {
       "ticker": "YDEX",

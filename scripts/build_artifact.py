@@ -101,9 +101,12 @@ def main() -> int:
     shap_map, n_models = dm.ensemble_shap(panel, feats, cat_feats, top3, pred_year, top_k=5)
     print(f"  SHAP усреднён по {n_models} моделям ансамбля; {len(shap_map)} тикеров")
 
-    # ── последний известный payout по тикеру (факт, не прогноз) ──
-    # payout_ratio_pct последнего года часто =0 (дивиденд за прогнозный год ещё не разнесён),
-    # поэтому берём последний год с РЕАЛЬНЫМ payout (>0).
+    # ── последний фактический payout по тикеру (факт, не прогноз) ──
+    # Берём последний год, где payout_ratio_pct реально есть (>0). Пересчёт из панели НЕ делаем:
+    # он лез в прогнозный год и давал частичные/искажённые значения (GCHE, TATNP). Устаревший
+    # payout (год < STALE_CUTOFF) скрываем при сборке («—»), чтобы древний показатель (напр.
+    # Норникель 2013) не читался как актуальный.
+    STALE_CUTOFF = pred_year - 1  # 2024: показываем payout только за последний закрытый год и новее
     pay = panel[panel["payout_ratio_pct"].notna()
                 & (panel["payout_ratio_pct"] > 0)].sort_values("year")
     payout_last = (pay.groupby("ticker")
@@ -143,11 +146,11 @@ def main() -> int:
             "current_paid": (int(r["current_paid"]) if pd.notna(r.get("current_paid")) else None),
             "shap_top5": shap5,
         }
-        if tk in payout_last.index:
+        if tk in payout_last.index and int(payout_last.loc[tk, "payout_last_year"]) >= STALE_CUTOFF:
             rec["payout_last"] = _round(payout_last.loc[tk, "payout_last"], 2)
             rec["payout_last_year"] = int(payout_last.loc[tk, "payout_last_year"])
         else:
-            rec["payout_last"] = None
+            rec["payout_last"] = None        # нет актуального payout (или только устаревший) → «—»
             rec["payout_last_year"] = None
         records.append(rec)
 
