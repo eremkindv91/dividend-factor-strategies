@@ -93,15 +93,18 @@ header.site { padding: 8px 0 18px; }
 
 /* ── Таблица ── */
 .table-card { background: var(--surface); border-radius: var(--radius);
-  box-shadow: var(--shadow); overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
+  box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
 thead th {
-  position: sticky; top: 0; z-index: 2;
+  position: sticky; top: 0; z-index: 5;
   background: #F0F2F7; color: var(--ink-soft);
   font-size: .76rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
   text-align: right; padding: 10px 10px; white-space: nowrap; cursor: pointer; user-select: none;
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 3px 8px -5px rgba(46, 52, 64, .25);
 }
+thead th:first-child { border-top-left-radius: var(--radius); }
+thead th:last-child { border-top-right-radius: var(--radius); }
 thead th:first-child, thead th.left { text-align: left; }
 thead th .arrow { color: var(--accent-deep); font-size: .7rem; }
 tbody td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--line);
