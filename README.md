@@ -54,6 +54,7 @@
 ├── notebooks/
 │   ├── 01_factor_backtest.ipynb    # бэктест факторных стратегий
 │   ├── 02_quality_factor_research.ipynb  # декомпозиция Quality
+│   ├── 02b_quality_barra_msci.ipynb # Quality по методологии MSCI Barra
 │   ├── 03_ml_dividend_forecast.ipynb     # ML-прогнозирование
 │   ├── 04_optuna_enhanced_rating.ipynb   # оптимизация Optuna + расширенный анализ
 │   └── 05_statistical_validation.ipynb   # статистическая валидация результатов
@@ -82,6 +83,12 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/02_quality_factor_research.ipynb)
 
 Разложение Quality на отдельные дескрипторы (ROE, маржа, долг/EBITDA, accruals и др.). Анализ IC (information coefficient), квинтильные портфели, регрессии Фамы–Макбета для каждого дескриптора.
+
+### 02b. Quality по методологии MSCI Barra
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eremkindv91/dividend-factor-strategies/blob/main/notebooks/02b_quality_barra_msci.ipynb)
+
+Реплика базовой модели MSCI Barra Global Equity Model (ROE, Earnings Variability, Leverage) и авторское расширение до семи дескрипторов (+ Dividend Yield, Accruals Quality, FCF Yield, Cash Conversion). Единый конвейер: Winsorize 5/95 → z-score → секторная нейтрализация → композит. Квинтильные портфели, валидация против индекса MSCI Japan Quality, регрессия Фамы–Макбета, тест монотонности, скользящий коэффициент Шарпа и межстрановое сравнение рынков РФ и Японии.
 
 ### 03. ML-прогнозирование дивидендов
 
