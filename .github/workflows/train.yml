@@ -1,0 +1,43 @@
+name: train (пересборка прогнозного артефакта)
+
+# Ручной запуск. Переобучает модель на замороженной панели ВКР и пересобирает
+# model_output/forecast_rf.json (прогноз + per-ticker SHAP), затем коммитит артефакт.
+# Cron-инференс (update.yml) работает уже на этом готовом артефакте.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Установка зависимостей
+        run: pip install -r requirements.txt
+
+      - name: Пересборка артефакта прогноза
+        run: python scripts/build_artifact.py
+
+      - name: Коммит артефакта (если изменился)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add model_output/forecast_rf.json
+          if git diff --staged --quiet; then
+            echo "Артефакт не изменился — коммит не нужен."
+          else
+            git commit -m "rebuild forecast artifact (train)"
+            git push
+          fi

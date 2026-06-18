@@ -1,0 +1,58 @@
+name: update (свежие цены + публикация в gh-pages)
+
+# Cron-инференс на ГОТОВОМ артефакте: тянет свежие цены MOEX ISS, пересчитывает
+# дивидендную доходность, собирает site/data.json и публикует сайт в ветку gh-pages
+# (тот же механизм, что ручной scripts/deploy_ghpages.sh — Pages source остаётся gh-pages).
+# НЕ обучает модель. Если артефакта нет или нет ни одной цены — build_data.py падает,
+# публикации нет (на gh-pages остаётся последняя успешная версия сайта).
+on:
+  schedule:
+    - cron: "0 16 * * 1-5"   # ~19:00 МСК, после закрытия основной сессии MOEX, по будням
+  workflow_dispatch:
+
+permissions:
+  contents: write            # нужно для push в ветку gh-pages
+
+concurrency:
+  group: deploy-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # build_data.py / moex_iss.py — только stdlib, pip install не требуется
+
+      # кэш последних валидных цен между запусками (фолбэк при недоступности ISS)
+      - uses: actions/cache@v4
+        with:
+          path: model_output/prices_cache.json
+          key: prices-cache-${{ github.run_id }}
+          restore-keys: |
+            prices-cache-
+
+      - name: Сборка data.json (инференс на артефакте + свежие цены MOEX ISS)
+        run: python scripts/build_data.py   # exit!=0 (нет артефакта/нет цен) → публикации нет
+
+      - name: Публикация site/ → gh-pages (orphan, как scripts/deploy_ghpages.sh)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
+          touch "$TMP/.nojekyll"
+          git -C "$TMP" init -q
+          git -C "$TMP" checkout -q -b gh-pages
+          git -C "$TMP" add -A
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "deploy: автообновление цен (cron)"
+          git -C "$TMP" push -f \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          rm -rf "$TMP"
