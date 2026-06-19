@@ -45,3 +45,4 @@ node_modules/
 site/data.json
 # кэш цен MOEX персистится через actions/cache
 model_output/prices_cache.json
+data/panels_final/panel_russia_final_smartlab.csv

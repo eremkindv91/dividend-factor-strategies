@@ -80,12 +80,9 @@ def top3_ensemble_models() -> list:
 
 
 def main() -> int:
-    print("[build_artifact] загрузка прогноза ВКР:", os.path.relpath(ARTIFACT_XLSX, REPO))
-    fc = pd.read_excel(ARTIFACT_XLSX, sheet_name="Russia_Full")
-    fc["ticker"] = fc["ticker"].astype(str).str.strip()
-    print(f"  Russia_Full: {len(fc)} тикеров")
+    live = "--live" in sys.argv
 
-    # ── панель → признаки → per-ticker SHAP (логика нб 03) ──
+    # ── панель → признаки (нужны и для SHAP, и для live-переобучения) ──
     print("[build_artifact] панель и признаки:", os.path.relpath(PANEL_CSV, REPO))
     panel = dm.load_panel(PANEL_CSV)
     panel = dm.build_targets(panel, RF_DPS_COL, RF_FLAG_COL, RF_PRICE_COL)
@@ -96,7 +93,26 @@ def main() -> int:
     pred_year = int(panel["year"].max())
     print(f"  признаков: {len(feats)} | прогнозный срез year={pred_year} → дивиденды {pred_year + 1}")
 
-    top3 = top3_ensemble_models()
+    # ── источник прогноза: LIVE-переобучение ИЛИ замороженный xlsx ВКР ──
+    if live:
+        from divmodel.forecast import train_and_forecast
+        print("[build_artifact] LIVE: переобучение ансамбля на текущей панели (тяжело, минуты)…")
+        fc = train_and_forecast(panel, RF_DPS_COL, RF_FLAG_COL, RF_CAT_COLS, pred_year=pred_year)
+        auc_used = fc.attrs.get("auc", {}).get(fc.attrs.get("best"), AUC_OOF_RF)
+        # сан-гейты (fail-safe: не публикуем мусор)
+        assert len(fc) >= 200, f"live: мало тикеров ({len(fc)})"
+        assert fc["p_ens"].between(0, 1).all(), "live: p_ens вне [0,1]"
+        assert auc_used >= 0.80, f"live: AUC подозрительно низкий ({auc_used:.3f})"
+        top3 = fc.attrs["top3"]
+        print(f"  LIVE: {len(fc)} тикеров | top3={top3} | AUC*={auc_used:.3f} | сан-гейты OK")
+    else:
+        print("[build_artifact] загрузка прогноза ВКР:", os.path.relpath(ARTIFACT_XLSX, REPO))
+        fc = pd.read_excel(ARTIFACT_XLSX, sheet_name="Russia_Full")
+        auc_used = AUC_OOF_RF
+        top3 = top3_ensemble_models()
+    fc["ticker"] = fc["ticker"].astype(str).str.strip()
+    print(f"  прогноз: {len(fc)} тикеров")
+
     print(f"[build_artifact] ансамблевый SHAP по top-3 моделям {top3}...")
     shap_map, n_models = dm.ensemble_shap(panel, feats, cat_feats, top3, pred_year, top_k=5)
     print(f"  SHAP усреднён по {n_models} моделям ансамбля; {len(shap_map)} тикеров")
@@ -198,21 +214,25 @@ def main() -> int:
     artifact = {
         "meta": {
             "market": "RU",
-            "forecast_asof": forecast_asof(),
+            "forecast_asof": (datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
+                              if live else forecast_asof()),
             "feature_year": pred_year,
             "forecast_year": pred_year + 1,
             "n_tickers": len(records),
             "model": ("Stage1 — калиброванный ансамбль top-3 (CatBoost/XGBoost/LightGBM, "
                       "изотоническая калибровка); Stage2 — регрессия размера дивиденда. "
-                      "Прогнозы взяты из прогона ВКР."),
-            "auc_oof_rf": AUC_OOF_RF,
+                      + ("Переобучено на текущей панели (live)." if live
+                         else "Прогнозы взяты из прогона ВКР.")),
+            "auc_oof_rf": round(auc_used, 4),
             "shap_models": top3,
             "shap_note": ("SHAP усреднён по моделям ансамбля (top-3: " + ", ".join(top3) + "), "
                           "вклад каждой модели нормирован построчно. Отражает направление и состав "
                           "факторов, влияющих на вероятность выплаты в ансамблевом прогнозе "
                           "(величины приближённые — калибровка вероятности монотонна)."),
             "shap_features_used": len(feats),
-            "source_note": "Прогноз заморожен на дату прогона ВКР; обновляется только при ручной пересборке.",
+            "source_note": ("Прогноз переобучен на текущей панели (live) — обновляется квартально."
+                            if live else
+                            "Прогноз заморожен на дату прогона ВКР; обновляется только при ручной пересборке."),
             "audit": {
                 "dual_class_ratio_threshold": DUAL_RATIO_THR,
                 "dps_flagged": sorted(flagged),

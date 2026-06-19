@@ -1,0 +1,55 @@
+name: refresh (квартал — панель SmartLab + переобучение)
+
+# АВТОНОМНЫЙ квартальный конвейер: дозаполняет панель из SmartLab (с гейтами),
+# ПЕРЕОБУЧАЕТ прогноз на свежей панели (build_artifact --live, с сан-гейтами) и коммитит
+# артефакт + панель. Публикацию подхватит ближайший cron update.yml (свежий forecast_rf.json).
+# Fail-safe: любой упавший шаг или сработавший сан-гейт прерывает job → коммита нет →
+# на сайте остаётся прошлый прогноз. SmartLab без API: при блокировке облачного IP часть
+# тикеров не достанется (логируется, не фатально) — панель просто меньше дозаполнится.
+on:
+  schedule:
+    - cron: "0 3 5 3,6,9,12 *"   # 5-го марта/июня/сентября/декабря, после сезонов отчётности
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Установка зависимостей (ML-стек)
+        run: pip install -r requirements.txt
+
+      - name: Дозаполнение панели из SmartLab (гейты валюта/перехлёст/только пустые)
+        run: |
+          python scripts/smartlab_reconcile.py ALL
+          # reconcile пишет в *_smartlab.csv (только дозаполнения, ручное не трогает) → применяем
+          cp data/panels_final/panel_russia_final_smartlab.csv data/panels_final/panel_russia_final.csv
+
+      - name: Переобучение прогноза на свежей панели (live)
+        run: python scripts/build_artifact.py --live   # сан-гейты внутри → падает на мусоре, деплоя нет
+
+      - name: Коммит панели + артефакта (если изменилось)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/panels_final/panel_russia_final.csv model_output/forecast_rf.json results/smartlab/reconcile.csv
+          if git diff --staged --quiet; then
+            echo "Изменений нет — коммит не нужен."
+          else
+            git commit -m "refresh: квартальное обновление панели (SmartLab) + переобучение прогноза (live)"
+            git push
+          fi
