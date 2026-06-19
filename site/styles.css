@@ -175,6 +175,33 @@ footer.method ul { margin: 6px 0; padding-left: 18px; }
 
 .loading, .error { padding: 40px 16px; text-align: center; color: var(--ink-soft); }
 .error { color: var(--risk-ink); }
+.empty { color: var(--ink-faint); padding: 28px 16px; font-size: .92rem; text-align: center; }
+td.empty { text-align: center; }
+
+/* ── Кастомный тултип (data-tooltip, чистый CSS, псевдоэлементы) ── */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after, [data-tooltip]::before {
+  position: absolute; left: 0; bottom: calc(100% + 10px);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(4px); transition: opacity .18s ease, transform .18s ease; z-index: 50;
+}
+[data-tooltip]::after {                              /* пузырь с текстом */
+  content: attr(data-tooltip);
+  width: max-content; max-width: min(320px, 86vw); white-space: normal;
+  background: var(--ink); color: #fff;
+  font-size: .8rem; font-weight: 400; line-height: 1.45; text-transform: none; letter-spacing: 0;
+  padding: 9px 12px; border-radius: 10px; box-shadow: 0 6px 20px rgba(46, 52, 64, .22);
+}
+[data-tooltip]::before {                             /* уголок-стрелка */
+  content: ''; left: 16px; bottom: calc(100% + 4px);
+  border: 6px solid transparent; border-top-color: var(--ink);
+}
+[data-tooltip]:hover::after, [data-tooltip]:hover::before,
+[data-tooltip]:focus-visible::after, [data-tooltip]:focus-visible::before {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+/* «Рейтинг ↓»: намёк на интерактивность, стрелка сортировки остаётся читаемой */
+.ranks-lbl[data-tooltip] { cursor: help; border-bottom: 1px dotted var(--ink-faint); padding-bottom: 1px; }
 
 /* ── Адаптив ── */
 @media (max-width: 760px) {

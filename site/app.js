@@ -10,6 +10,10 @@ const fmtScore = (x) => isNum(x) ? ru(x * 100, 1) + '%' : ND;   // 0..1 → %
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mdash = '<span class="muted" title="нет данных">—</span>';
 const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
+const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+// Текст тултипа «Рейтинг» — ПЛЕЙСХОЛДЕР, меняй формулировку здесь:
+const RATING_TOOLTIP = 'Итоговый рейтинг. По умолчанию таблица отсортирована по убыванию ожидаемой дивидендной доходности E[DY], скорректированной на фактор устойчивости.';
 
 let DATA = null;
 let VIEW = [];
@@ -75,7 +79,7 @@ function init(data) {
 
   // события
   document.getElementById('controls').hidden = false;
-  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('search').addEventListener('input', debounce(render, 130));
   document.getElementById('sector').addEventListener('change', render);
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
@@ -128,7 +132,7 @@ function renderRanks() {
   const el = document.getElementById('ranks');
   if (!el) return;
   el.hidden = false;
-  el.innerHTML = '<span class="ranks-lbl">Рейтинг ↓</span>' + RANK_PRESETS.map((p) =>
+  el.innerHTML = `<span class="ranks-lbl" data-tooltip="${esc(RATING_TOOLTIP)}">Рейтинг ↓</span>` + RANK_PRESETS.map((p) =>
     `<button class="rank-chip${(sortKey === p.key && sortDir < 0) ? ' active' : ''}" data-key="${p.key}">${p.label}</button>`).join('');
   el.querySelectorAll('.rank-chip').forEach((b) => b.addEventListener('click', () => {
     sortKey = b.dataset.key; sortDir = -1; render();
@@ -152,7 +156,7 @@ function renderTable() {
   const head = '<tr>' + COLS.map((c) =>
     `<th class="${c.left ? 'left' : ''}" data-key="${c.key}"${c.title ? ` title="${c.title}"` : ''}>${c.label}${arrow(c.key)}</th>`).join('') + '</tr>';
 
-  const body = VIEW.map((t, i) => {
+  const body = VIEW.length ? VIEW.map((t, i) => {
     const payoutTxt = isNum(t.payout)
       ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}`
       : mdash;
@@ -169,7 +173,7 @@ function renderTable() {
       <td class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</td>
       <td>${statusChip}</td>
     </tr>`;
-  }).join('');
+  }).join('') : `<tr><td colspan="${COLS.length}" class="empty">Ничего не найдено</td></tr>`;
 
   document.getElementById('app').innerHTML =
     `<div class="table-card"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>`
@@ -243,7 +247,7 @@ function toggleDetail(tr, t) {
 function renderCards() {
   const el = document.getElementById('cards');
   if (!el) return;
-  el.innerHTML = VIEW.map((t, i) => {
+  el.innerHTML = VIEW.length ? VIEW.map((t, i) => {
     const statusChip = t.status === 'ok'
       ? '<span class="status-chip s-ok">✓ полные</span>'
       : '<span class="status-chip s-insuf">неполные</span>';
@@ -262,7 +266,7 @@ function renderCards() {
         <div style="margin-top:8px">${shapHTML(t)}${detailKV(t)}</div>
       </details>
     </div>`;
-  }).join('');
+  }).join('') : '<div class="empty">Ничего не найдено</div>';
 }
 
 // ── экспорт CSV (RU Excel: ; разделитель, запятая-десятичная, BOM) ──
