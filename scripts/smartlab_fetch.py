@@ -26,8 +26,17 @@ from __future__ import annotations
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from typing import Dict, List, Optional
+
+
+class SmartLabUnavailable(RuntimeError):
+    """Транзиентный сбой: таймаут/сеть/HTTP 403/429/5xx — СИГНАЛ ТРОТТЛИНГА/блока IP."""
+
+
+class SmartLabNotFound(RuntimeError):
+    """Страницы/таблицы нет (делистинг, неизвестный тикер) — легитимный промах, НЕ троттлинг."""
 
 BASE = "https://smart-lab.ru/q/{ticker}/f/y/"
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -72,10 +81,15 @@ def _http_get(url: str, timeout: int = 30, retries: int = 3) -> str:
                 "Accept-Encoding": "identity"})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return r.read().decode("utf-8", "replace")
-        except Exception as e:  # noqa: BLE001
+        except urllib.error.HTTPError as e:
+            if e.code == 404:                       # страницы нет → НЕ троттлинг, без ретраев
+                raise SmartLabNotFound(f"404 {url}")
+            last = e                                # 403/429/5xx → блок/троттлинг → ретраим
+            time.sleep(2 ** attempt)
+        except Exception as e:                      # таймаут/сеть → ретраим
             last = e
             time.sleep(2 ** attempt)
-    raise RuntimeError(f"smart-lab недоступен ({url}): {last}")
+    raise SmartLabUnavailable(f"smart-lab недоступен после {retries} попыток ({url}): {last}")
 
 
 def _txt(c: str) -> str:
@@ -121,7 +135,7 @@ def fetch_fundamentals(ticker: str) -> dict:
     html = _http_get(source)
     labels = _col_labels(html)
     if not labels:
-        raise RuntimeError(f"{ticker}: не найден заголовок-год (страница пуста/изменилась?)")
+        raise SmartLabNotFound(f"{ticker}: нет таблицы-заголовка (страница пуста/делистинг?)")
 
     data: Dict[str, Dict[str, Optional[float]]] = {}
     meta_rows: Dict[str, List[str]] = {}

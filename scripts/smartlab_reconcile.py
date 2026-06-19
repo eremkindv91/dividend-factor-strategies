@@ -36,7 +36,9 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
-from smartlab_fetch import fetch_fundamentals, FIELD_MAP, RELIABLE  # noqa: E402
+from smartlab_fetch import (  # noqa: E402
+    fetch_fundamentals, FIELD_MAP, RELIABLE, SmartLabUnavailable, SmartLabNotFound,
+)
 
 PANEL = os.path.join(REPO, "data", "panels_final", "panel_russia_final.csv")
 OUT_PANEL = os.path.join(REPO, "data", "panels_final", "panel_russia_final_smartlab.csv")
@@ -44,6 +46,7 @@ OUT_REPORT = os.path.join(REPO, "results", "smartlab", "reconcile.csv")
 YEARS = ("2024", "2025")
 TOL = 0.07
 UNIT_BAND = (0.85, 1.15)
+CB_MAX_THROTTLE = 5      # circuit breaker: N сетевых ошибок подряд → прервать фетч
 
 
 def reconcile(tickers, years=YEARS, tol=TOL, delay=1.0):
@@ -74,21 +77,37 @@ def reconcile(tickers, years=YEARS, tol=TOL, delay=1.0):
                 st.append(abs(sv * 1000.0 / fx / pv2 - 1) <= tol)
         return None if not st else all(st)
 
-    # ── pass 1: фетч (с алиасами в fetch + наследование префами) ──
+    # ── pass 1: фетч (алиасы в fetch + наследование префами + CIRCUIT BREAKER) ──
+    # Предохранитель: CB_MAX_THROTTLE СЕТЕВЫХ ошибок подряд (SmartLabUnavailable —
+    # таймаут/403/429/5xx = троттлинг/блок IP) → прерываем фетч, переобучение пойдёт на
+    # имеющейся панели. Легитимные 404 (SmartLabNotFound, делистинг) счётчик НЕ трогают.
     fetched, errors = {}, []
+    consec_throttle, cb_tripped = 0, False
     for i, tk in enumerate(tickers):
-        try:
-            fetched[tk] = fetch_fundamentals(tk)
-        except Exception as e:  # noqa: BLE001
-            if tk.endswith("P") and len(tk) > 1:        # преф → фундамент обычки
-                try:
-                    r = fetch_fundamentals(tk[:-1])
-                    r["inherited_from"] = tk[:-1]
-                    fetched[tk] = r
-                except Exception:  # noqa: BLE001
-                    errors.append((tk, str(e)))
-            else:
-                errors.append((tk, str(e)))
+        cands = [tk, tk[:-1]] if (tk.endswith("P") and len(tk) > 1) else [tk]
+        got, err, throttled = None, None, False
+        for cand in cands:                              # тикер, затем преф→обычка
+            try:
+                got = fetch_fundamentals(cand)
+                if cand != tk:
+                    got["inherited_from"] = cand
+                break
+            except SmartLabUnavailable as e:
+                err, throttled = e, True                # сеть/403/429/5xx → троттлинг
+            except SmartLabNotFound as e:
+                err = e                                 # нет страницы → легитимный промах
+        if got is not None:
+            fetched[tk] = got
+            consec_throttle = 0
+        else:
+            errors.append((tk, str(err)))
+            consec_throttle = consec_throttle + 1 if throttled else 0   # 404 не считаем
+            if consec_throttle >= CB_MAX_THROTTLE:
+                cb_tripped = True
+                print(f"\n[CIRCUIT BREAKER] {consec_throttle} сетевых ошибок подряд — SmartLab "
+                      f"троттлит/блокирует IP. Прерываю фетч на {i + 1}/{len(tickers)}; "
+                      f"переобучение — на имеющейся панели.")
+                break
         if i + 1 < len(tickers):
             time.sleep(delay)
 
@@ -168,6 +187,9 @@ def reconcile(tickers, years=YEARS, tol=TOL, delay=1.0):
 
     print(f"[reconcile] тикеров: {len(tickers)} | ошибок фетча: {len(errors)} | "
           f"префов унаследовано: {n_inherited}")
+    if cb_tripped:
+        print("  ⚠ CIRCUIT BREAKER сработал — фетч прерван (троттлинг SmartLab); "
+              "дозаполнения мало/нет, переобучение на имеющейся панели. CI: Success.")
     if errors:
         print("  не достали:", ", ".join(tk for tk, _ in errors[:15]), ("…" if len(errors) > 15 else ""))
     print(f"  ДОЗАПОЛНЕНО пустых: {n_fill} | совпадений: {n_match} | флагов: {n_flag}")
