@@ -253,7 +253,8 @@ class DCFValuation:
     @classmethod
     def from_panel(cls, ticker: str, panel: pd.DataFrame, *, year: Optional[int] = None,
                    beta: Optional[float] = None, g: float = 0.02,
-                   cost_of_debt: Optional[float] = None, **kw) -> "DCFValuation":
+                   cost_of_debt: Optional[float] = None, normalize_cyclical: bool = False,
+                   **kw) -> "DCFValuation":
         """
         Собрать Fundamentals из строки панели (best-effort, мех. скрин). Деньги в млн ₽.
         Forward-допущения по умолчанию: рост = историч. 3y CAGR выручки (клип 0..15%),
@@ -271,7 +272,30 @@ class DCFValuation:
         rev = latest("revenue_mln")
         if not rev or rev <= 0:
             raise ValueError(f"{ticker}: нет выручки в панели")
-        ebit = latest("operating_income_mln", latest("ebitda_mln", np.nan))  # EBIT~оп.приб.; иначе EBITDA-прокси
+        ebitda_last = latest("ebitda_mln", np.nan)
+        capex_last = abs(latest("CAPEX_", latest("capex_mln", 0.0)))
+        ebit = latest("operating_income_mln", ebitda_last)   # EBIT~оп.приб.; иначе EBITDA-прокси
+        ebit_margin = (ebit / rev) if (ebit == ebit and ebit) else 0.15
+        capex_pct = (capex_last / rev) if capex_last else 0.06
+
+        if normalize_cyclical:        # циклик: пик инвестцикла искажает последнюю точку → медиана
+            def _med_ratio(col):
+                if col not in pool.columns:
+                    return None
+                s2 = pool.dropna(subset=["revenue_mln", col])
+                s2 = s2[s2["revenue_mln"] > 0]
+                if s2.empty:
+                    return None
+                return float((s2[col].abs() / s2["revenue_mln"]).tail(7).median())
+            # CAPEX > EBITDA (аномалия большой стройки) → историч. медиана CAPEX/Выручка
+            if capex_last and ebitda_last == ebitda_last and ebitda_last > 0 and capex_last > ebitda_last:
+                cm = _med_ratio("CAPEX_") or _med_ratio("capex_mln")
+                if cm:
+                    capex_pct = cm
+            mm = _med_ratio("operating_income_mln") or _med_ratio("ebitda_mln")  # маржа: медиана (мид-цикл)
+            if mm:
+                ebit_margin = mm
+
         shares = latest("number_of_shares", np.nan)
         if not (shares and shares > 0):                      # иначе из капитализации/цены
             mcap, price = latest("market_cap_mln"), latest("price_end")
@@ -280,9 +304,9 @@ class DCFValuation:
             raise ValueError(f"{ticker}: не удалось определить кол-во акций")
         f = Fundamentals(
             revenue_ltm=rev,
-            ebit_margin=(ebit / rev) if (ebit == ebit and ebit) else 0.15,
+            ebit_margin=ebit_margin,
             da_pct=(abs(latest("amortization_mln", 0.0)) / rev) or 0.06,
-            capex_pct=(abs(latest("CAPEX_", latest("capex_mln", 0.0))) / rev) or 0.06,
+            capex_pct=capex_pct,
             nwc_pct=0.10,                                    # дефолт (NWC из панели шумит)
             tax_rate=latest("effective_tax_rate_filled", latest("statutory_tax_rate_filled", 0.20)),
             net_debt=latest("net_debt_mln", 0.0),

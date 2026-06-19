@@ -188,37 +188,59 @@ class ValuationRouter:
                        f"Банк: DDM, g={g:.0%} (органический рост капитала ~инфляция/ВВП). FCFF к банку неприменим.",
                        sens=sens)
 
-        # ── REGULATED / COMMODITY / MATURE → DCF (+DDM, долговой гейт) ──
+        # ── REGULATED / COMMODITY / MATURE ──
+        # DCF (с нормализацией цикликов) → если базовый FCFF<0 → блок; дивфишка → DDM-якорь.
+        cyc = (vclass == "COMMODITY")
+        dcf = None
+        base_fcff = dcf_fair = wacc = float("nan")
         try:
-            dcf = DCFValuation.from_panel(ticker, self.panel, price=price, rf=self.rf)
-            _, s = dcf.valuate()
-            base = s["WACC"]
-            sens = dcf.sensitivity_matrix([base - 0.04, base - 0.02, base, base + 0.02, base + 0.04],
-                                          [0.01, 0.02, 0.03])
-            fair = s["Fair_Price"]
-            assum = {"метод": "FCFF", "WACC": round(base, 3), "g": dcf.g, "Rf": round(self.rf, 3)}
-        except Exception as e:  # noqa: BLE001
-            return res("DCF", float("nan"), {}, f"DCF не построился: {e}")
+            dcf = DCFValuation.from_panel(ticker, self.panel, price=price, rf=self.rf,
+                                          normalize_cyclical=cyc)
+            dff, s = dcf.valuate()
+            base_fcff = float(dff["FCFF"].iloc[0])
+            dcf_fair, wacc = s["Fair_Price"], s["WACC"]
+        except Exception:  # noqa: BLE001
+            pass
+        dcf_ok = (base_fcff == base_fcff and base_fcff > 0 and dcf_fair == dcf_fair and dcf_fair > 0)
+        g_ddm = DDM_G.get(vclass, DDM_G["MATURE"])
 
-        note = "Зрелый генератор кэша: DCF (FCFF). "
+        note = ""
         if vclass == "REGULATED":
-            note += "Тариф-регулирование → низкий терминальный g. "
-        if vclass == "COMMODITY":
-            note += "Циклик: смотри матрицу чувствительности (годы после инвестцикла). "
+            note += "Тариф-регулирование → низкий g. "
+        if cyc:
+            note += "Циклик: входы нормализованы по медиане (мид-цикл). "
 
-        # долговой гейт
-        if nd_eb == nd_eb and nd_eb > ND_EBITDA_MAX:
-            alert = (f"Net Debt/EBITDA {nd_eb:.1f}× (> {ND_EBITDA_MAX}) — дивиденд может платиться в долг, "
-                     f"риск среза высок; DDM отключён.")
-            return res("DCF", fair, assum, note, alert=alert, sens=sens)
+        def dcf_sens():
+            return dcf.sensitivity_matrix([wacc - 0.04, wacc - 0.02, wacc, wacc + 0.02, wacc + 0.04],
+                                          [0.01, 0.02, 0.03]) if dcf else None
 
-        # кросс-чек DDM (если есть дивиденд и долг в норме)
+        # долговой гейт: дивиденд в долг → DDM отключён
+        if div and div > 0 and nd_eb == nd_eb and nd_eb > ND_EBITDA_MAX:
+            alert = f"Net Debt/EBITDA {nd_eb:.1f}× (>{ND_EBITDA_MAX}) — дивиденд в долг, риск среза; DDM отключён."
+            if dcf_ok:
+                return res("DCF", dcf_fair, {"WACC": round(wacc, 3), "g": dcf.g}, note, alert, dcf_sens())
+            return res("DCF — нерепрезентативен", float("nan"), {},
+                       note + "DCF нерепрезентативен: отрицательный FCF (пик инвестцикла).", alert)
+
+        # дивидендная фишка → ЯКОРЬ DDM (механический DCF на высокой ставке завышает)
         if div and div > 0:
-            g = DDM_G.get(vclass, DDM_G["MATURE"])
-            assum["DDM_fair"] = round(DDM(div, re, g).fair(), 1)
-            assum["DDM_g"] = g
-            note += f"Кросс-чек DDM (g={g:.0%}): {assum['DDM_fair']:,.0f}₽."
-        return res("DCF", fair, assum, note, sens=sens)
+            ddm = DDM(div, re, g_ddm)
+            sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
+                                   [max(0.0, g_ddm - 0.01), g_ddm, g_ddm + 0.01])
+            assum = {"D1": div, "Re": round(re, 3), "g": g_ddm}
+            n = note + f"Дивидендная фишка → якорь DDM (g={g_ddm:.0%}). "
+            if dcf_ok:
+                assum["DCF_fair"] = round(dcf_fair, 1)
+                n += f"DCF-кросс-чек: {dcf_fair:,.0f}₽."
+            else:
+                n += "DCF скрыт: отрицательный FCF (пик инвестцикла)."
+            return res("DDM", ddm.fair(), assum, n, sens=sens)
+
+        # не дивидендная: DCF если репрезентативен, иначе блок
+        if dcf_ok:
+            return res("DCF", dcf_fair, {"WACC": round(wacc, 3), "g": dcf.g}, note, sens=dcf_sens())
+        return res("DCF — нерепрезентативен", float("nan"), {},
+                   note + "DCF нерепрезентативен: отрицательный свободный денежный поток (пик инвестцикла).")
 
     def _multiples(self, sub, price, res):
         shares = _shares(sub, price)

@@ -168,6 +168,8 @@ tr.detail-row > td { padding: 0; background: #FBFCFE; }
 .hist-val { font-size: .82rem; white-space: nowrap; }
 .spark { width: 100%; height: 38px; display: block; }
 .hist-years { font-size: .74rem; margin-top: 4px; }
+.hist-axis { padding-top: 3px; border-top: 1px solid var(--line); }
+.hist-yr { display: flex; justify-content: space-between; font-size: .68rem; color: var(--ink-faint); padding: 0 2px; }
 
 /* ── Карточки (mobile) ── */
 .cards { display: none; }

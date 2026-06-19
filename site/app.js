@@ -236,7 +236,10 @@ function historyHTML(h) {
     return `<div class="hist-row"><span class="hist-lbl">${label}</span>${sparkline(h[k], col)}`
       + `<span class="hist-val tnum">${last != null ? ru(last, unit === '%' ? 1 : 0) + unit : '—'}</span></div>`;
   }).join('');
-  return `<div class="hist">${rows}<div class="hist-years muted">${h.years[0]}–${h.years[h.years.length - 1]}</div></div>`;
+  const axis = `<div class="hist-row hist-axis"><span></span>`
+    + `<div class="hist-yr">${h.years.map((y) => `<span>'${String(y).slice(2)}</span>`).join('')}</div>`
+    + `<span></span></div>`;
+  return `<div class="hist">${rows}${axis}</div>`;
 }
 
 // ── матрица чувствительности (мини-таблица) ──
