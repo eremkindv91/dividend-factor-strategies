@@ -42,6 +42,9 @@ jobs:
       - name: Переобучение прогноза на свежей панели (live)
         run: python scripts/build_artifact.py --live   # сан-гейты внутри → падает на мусоре, деплоя нет
 
+      - name: Оценка справедливой стоимости (роутер DCF/DDM/мультипликаторы) + история
+        run: python scripts/build_valuations.py        # дополняет forecast_rf.json блоками valuation+history
+
       - name: Коммит панели + артефакта (если изменилось)
         run: |
           git config user.name  "github-actions[bot]"

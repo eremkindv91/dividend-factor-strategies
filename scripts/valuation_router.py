@@ -121,9 +121,11 @@ class DDM:
 
 class ValuationRouter:
     def __init__(self, panel: pd.DataFrame, dividends: Optional[Dict[str, float]] = None,
-                 market: Optional[MoexMarket] = None, rf: Optional[float] = None):
+                 market: Optional[MoexMarket] = None, rf: Optional[float] = None,
+                 prices: Optional[Dict[str, float]] = None):
         self.panel = panel
         self.dividends = dividends or {}
+        self.prices = prices or {}            # batch: цены словарём (без per-ticker API)
         self.market = market or MoexMarket()
         self.rf = rf if rf is not None else self._safe_rf()
 
@@ -135,10 +137,12 @@ class ValuationRouter:
             return 0.15
 
     def _price(self, ticker: str, sub: pd.DataFrame) -> Optional[float]:
+        if self.prices:                                 # batch-режим: словарь/панель, без API
+            return self.prices.get(ticker) or _latest(sub, "price_end")
         try:
-            return self.market.last_price(ticker)
+            return self.market.last_price(ticker)       # standalone: live
         except Exception:  # noqa: BLE001
-            return _latest(sub, "price_end")            # фолбэк: цена из панели
+            return _latest(sub, "price_end")
 
     def value(self, ticker: str) -> ValuationResult:
         sub = self.panel[self.panel["ticker"] == ticker].sort_values("year")

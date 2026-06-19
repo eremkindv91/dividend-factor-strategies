@@ -204,6 +204,67 @@ function shapHTML(t) {
   }).join('') + `<p class="muted" style="margin-top:8px;font-size:.8rem">↑ повышает / ↓ снижает вероятность выплаты · усреднено по моделям ансамбля</p>`;
 }
 
+// ── мини-график (SVG-спарклайн) ──
+function sparkline(vals, color) {
+  const pts = vals.map((v, i) => [i, v]).filter((p) => p[1] != null);
+  if (pts.length < 2) return '<span class="muted">—</span>';
+  const w = 200, h = 38, ys = pts.map((p) => p[1]);
+  const x0 = pts[0][0], x1 = pts[pts.length - 1][0];
+  const y0 = Math.min(...ys, 0), y1 = Math.max(...ys, 0);     // включаем 0 (видно знак)
+  const sx = (i) => (x1 === x0 ? 0 : (i - x0) / (x1 - x0)) * (w - 6) + 3;
+  const sy = (v) => h - 3 - (y1 === y0 ? 0.5 : (v - y0) / (y1 - y0)) * (h - 6);
+  const d = pts.map((p, k) => (k ? 'L' : 'M') + sx(p[0]).toFixed(1) + ' ' + sy(p[1]).toFixed(1)).join(' ');
+  const last = pts[pts.length - 1];
+  const zero = (y0 < 0 && y1 > 0) ? `<line x1="3" y1="${sy(0).toFixed(1)}" x2="${w - 3}" y2="${sy(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>` : '';
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${zero}`
+    + `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.7"/>`
+    + `<circle cx="${sx(last[0]).toFixed(1)}" cy="${sy(last[1]).toFixed(1)}" r="2.4" fill="${color}"/></svg>`;
+}
+
+// ── динамика показателей (графики один-под-другим) ──
+function historyHTML(h) {
+  if (!h || !h.years || !h.years.length) return `<p class="muted">${ND}</p>`;
+  const fields = [
+    ['revenue_mln', 'Выручка', 'var(--accent-deep)', ' млн ₽'],
+    ['net_profit_mln', 'Чистая прибыль', 'var(--good-ink)', ' млн ₽'],
+    ['ebitda_mln', 'EBITDA', 'var(--accent)', ' млн ₽'],
+    ['total_debt_mln', 'Долг', 'var(--risk-ink)', ' млн ₽'],
+    ['roe_pct', 'ROE', 'var(--warn-ink)', '%'],
+  ];
+  const rows = fields.filter((f) => h[f[0]] && h[f[0]].some((v) => v != null)).map(([k, label, col, unit]) => {
+    const last = [...h[k]].reverse().find((v) => v != null);
+    return `<div class="hist-row"><span class="hist-lbl">${label}</span>${sparkline(h[k], col)}`
+      + `<span class="hist-val tnum">${last != null ? ru(last, unit === '%' ? 1 : 0) + unit : '—'}</span></div>`;
+  }).join('');
+  return `<div class="hist">${rows}<div class="hist-years muted">${h.years[0]}–${h.years[h.years.length - 1]}</div></div>`;
+}
+
+// ── матрица чувствительности (мини-таблица) ──
+function sensHTML(s) {
+  if (!s) return '';
+  const head = '<th></th>' + s.cols.map((c) => `<th>${(c * 100).toFixed(1)}</th>`).join('');
+  const body = s.values.map((row, i) => `<tr><th>${(s.rows[i] * 100).toFixed(1)}</th>`
+    + row.map((v) => `<td>${v == null ? '—' : ru(v, 0)}</td>`).join('') + '</tr>').join('');
+  return `<div class="sens"><div class="sens-cap muted">Чувствительность, ₽ · строки ${esc(s.row_label)}% × столбцы ${esc(s.col_label)}%</div>`
+    + `<table class="sens-tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+// ── блок оценки справедливой стоимости ──
+function valuationHTML(v) {
+  if (!v) return `<p class="muted">${ND}</p>`;
+  const fair = isNum(v.fair_price) ? `<b class="tnum">${ru(v.fair_price, 1)} ₽</b>` : '<span class="muted">оценка вручную</span>';
+  const up = isNum(v.upside_pct)
+    ? `<span class="badge ${v.upside_pct >= 0 ? 'b-good' : 'b-risk'}">${v.upside_pct >= 0 ? '+' : ''}${ru(v.upside_pct, 1)}%</span>` : '';
+  const alert = v.alert ? `<div class="flagline">⚠ ${esc(v.alert)}</div>` : '';
+  return `<div class="val">
+    <div class="val-top"><span class="val-method">${esc(v.method)}</span>${up}</div>
+    <div class="val-fair">Справедливая цена: ${fair}</div>
+    ${alert}
+    <p class="val-note muted">${esc(v.note || '')}</p>
+    ${sensHTML(v.sensitivity)}
+  </div>`;
+}
+
 function detailKV(t) {
   const lohi = (isNum(t.dividend_forecast_lo) && isNum(t.dividend_forecast_hi))
     ? `${ru(t.dividend_forecast_lo, 1)}–${ru(t.dividend_forecast_hi, 1)} ₽` : ND;
@@ -238,6 +299,8 @@ function toggleDetail(tr, t) {
   const dr = document.createElement('tr');
   dr.className = 'detail-row';
   dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail">
+    <div><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
+    <div><h4>Динамика показателей</h4>${historyHTML(t.history)}</div>
     <div><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
     <div><h4>Детали</h4>${detailKV(t)}</div>
   </div></td>`;
@@ -262,11 +325,20 @@ function renderCards() {
         <div><span class="lbl">Payout</span><span class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%' : mdash}</span></div>
         <div><span class="lbl">Статус</span>${statusChip}</div>
       </div>
-      <details><summary>Факторы и детали</summary>
-        <div style="margin-top:8px">${shapHTML(t)}${detailKV(t)}</div>
+      <details data-i="${i}"><summary>Оценка, динамика и факторы</summary>
+        <div class="card-detail" style="margin-top:8px"></div>
       </details>
     </div>`;
   }).join('') : '<div class="empty">Ничего не найдено</div>';
+  // ленивый рендер деталей карточки по первому открытию (236×графики — не строим заранее)
+  el.querySelectorAll('details[data-i]').forEach((d) => d.addEventListener('toggle', function () {
+    if (!this.open) return;
+    const box = this.querySelector('.card-detail');
+    if (!box || box.dataset.filled) return;
+    const t = VIEW[+this.dataset.i];
+    box.innerHTML = valuationHTML(t.valuation) + historyHTML(t.history) + shapHTML(t) + detailKV(t);
+    box.dataset.filled = '1';
+  }));
 }
 
 // ── экспорт CSV (RU Excel: ; разделитель, запятая-десятичная, BOM) ──

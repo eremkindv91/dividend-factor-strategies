@@ -57,6 +57,17 @@ def num(x):
     return x if isinstance(x, (int, float)) and x is not None else ND
 
 
+def valuation_row(v, price):
+    """Проброс блока оценки из артефакта + пересчёт upside к СВЕЖЕЙ цене."""
+    if not isinstance(v, dict):
+        return None
+    v = dict(v)
+    fair = v.get("fair_price")
+    v["upside_pct"] = (round((fair / price - 1) * 100, 1)
+                       if (isinstance(fair, (int, float)) and price and price > 0) else None)
+    return v
+
+
 def main() -> int:
     if not os.path.exists(ARTIFACT):
         fail(f"нет артефакта {ARTIFACT}. Сначала запустите scripts/build_artifact.py (train).")
@@ -166,6 +177,8 @@ def main() -> int:
             "forecast_note": r.get("forecast_note"),
             "flags": flags,
             "shap_top5": r.get("shap_top5", []),
+            "valuation": valuation_row(r.get("valuation"), price),
+            "history": r.get("history"),
         })
 
     data = {
@@ -175,6 +188,8 @@ def main() -> int:
             "price_asof": pmeta.get("price_asof"),
             "feature_year": meta_a.get("feature_year"),
             "forecast_year": meta_a.get("forecast_year"),
+            "valuation_asof": meta_a.get("valuation_asof"),
+            "rf_ofz": meta_a.get("rf_ofz"),
             "source": "MOEX ISS (борд TQBR), цены с задержкой/на закрытие",
             "source_ok": pmeta.get("source_ok"),
             "prices_stale": prices_stale,
