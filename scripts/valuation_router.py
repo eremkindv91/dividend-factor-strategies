@@ -196,9 +196,9 @@ class ValuationRouter:
             return res("NAV", float("nan"), {},
                        "Оценка по NAV портфеля объектов недвижимости. Механически не считаем.")
 
-        # ── GROWTH → мультипликаторы ──
+        # ── GROWTH → сектор-мультипликаторы ──
         if vclass == "GROWTH":
-            return self._multiples(sub, price, res)
+            return self._multiples(sub, sector, price, res)
 
         # ── FINANCIAL → DDM(g=4%) ──
         if vclass == "FINANCIAL":
@@ -300,24 +300,23 @@ class ValuationRouter:
         return res("DCF — нерепрезентативен", float("nan"), {},
                    note + "DCF нерепрезентативен: отрицательный свободный денежный поток (пик инвестцикла).")
 
-    def _multiples(self, sub, price, res):
+    def _multiples(self, sub, sector, price, res):
+        """GROWTH/IT — оценка по СЕКТОР-мультипликаторам (медиана EV/EBITDA + P/E), не по своей
+        волатильной истории; P/S-фолбэк для ранних без EBITDA. Сан-клэмп ловит хвосты."""
+        m = self.sector_mult.get(sector, {})
         shares = _shares(sub, price)
-        nd = _latest(sub, "net_debt_mln", 0.0)
-        eb = sub["ebitda_mln"].dropna()
-        evm = sub["ev_ebitda"].dropna()
-        if len(eb) and eb.iloc[-1] > 0 and len(evm):
-            cur, med, ebitda = evm.iloc[-1], float(evm.tail(3).median()), eb.iloc[-1]
-            target_ev, metric = med * ebitda, "EV/EBITDA"
-        else:                                            # ранний рост без EBITDA → EV/Sales
-            rev = sub["revenue_mln"].dropna()
-            mcap = (price or 0) * shares
-            cur = (mcap + nd) / rev.iloc[-1] if len(rev) and rev.iloc[-1] else float("nan")
-            med, target_ev, metric = 1.5, 1.5 * (rev.iloc[-1] if len(rev) else 0), "EV/Sales"
-        fair = (target_ev - nd) / shares if (shares == shares and shares > 0) else float("nan")
-        note = (f"Оценка по историческим форвардным мультипликаторам ({metric}): тек.={cur:.1f}× vs "
-                f"3y-медиана={med:.1f}×. Свободный денежный поток нерепрезентативен (стадия активного роста).")
-        return res(f"Multiples ({metric})", fair,
-                   {"current_mult": round(cur, 1), "target_mult": round(med, 1)}, note)
+        comp = self._comparative(sub, sector, price)         # сектор-медиана EV/EBITDA + P/E
+        if comp and comp > 0:
+            return res("Сравнит. (сектор)", comp,
+                       {"ev_ebitda_sec": m.get("ev_ebitda"), "pe_sec": m.get("pe")},
+                       f"GROWTH/IT → сектор-мультипликаторы (EV/EBITDA {m.get('ev_ebitda')}× / "
+                       f"P/E {m.get('pe')}×). FCFF нерепрезентативен (стадия роста).")
+        rev = _latest(sub, "revenue_mln")                    # ранний рост без EBITDA/прибыли → P/S сектора
+        ps = m.get("ps")
+        if ps and rev and rev > 0 and shares and shares > 0:
+            return res("Сравнит. (P/S сектора)", ps * rev / shares, {"ps_sec": ps},
+                       f"GROWTH без EBITDA → P/S сектора {ps}×. Прибыль/FCFF нерепрезентативны (ранний рост).")
+        return res("Сравнит. — н/д", float("nan"), {}, "GROWTH: нет сектор-мультипликаторов для оценки.")
 
 
 def load_dividends(path: str = FROZEN) -> Dict[str, float]:

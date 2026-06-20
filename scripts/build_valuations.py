@@ -95,7 +95,8 @@ def main() -> int:
             s = pd.to_numeric(grp[col], errors="coerce").dropna() if col in grp.columns else pd.Series(dtype=float)
             s = s[(s > lo) & (s < hi)]
             return round(float(s.median()), 2) if len(s) >= 3 else None
-        sector_mult[str(sec)] = {"ev_ebitda": med("ev_ebitda", 0, 30), "pe": med("pe", 0, 40)}
+        sector_mult[str(sec)] = {"ev_ebitda": med("ev_ebitda", 0, 30), "pe": med("pe", 0, 40),
+                                 "ps": med("ps", 0, 15)}
 
     router = ValuationRouter(panel, dividends=dividends, prices=prices, rf=rf, sector_mult=sector_mult)
 

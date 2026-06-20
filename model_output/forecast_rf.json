@@ -2128,14 +2128,14 @@
       "payout_last": 27.62,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 941.5,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=15.3× vs 3y-медиана=23.6×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 147.6,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 15.3,
-          "target_mult": 23.6
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -4743,14 +4743,14 @@
       "payout_last": null,
       "payout_last_year": null,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 1059.7,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=12.2× vs 3y-медиана=18.6×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 234.7,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 12.2,
-          "target_mult": 18.6
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -5196,14 +5196,14 @@
       "payout_last": 12.94,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 224.2,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=15.1× vs 3y-медиана=15.1×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 60.6,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 15.1,
-          "target_mult": 15.1
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -5493,14 +5493,14 @@
       "payout_last": 51.33,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 4308.3,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=11.5× vs 3y-медиана=11.7×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 1520.9,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 11.5,
-          "target_mult": 11.7
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -9083,14 +9083,14 @@
       "payout_last": 179.2,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 4007.7,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=7.6× vs 3y-медиана=8.2×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 2027.1,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 7.6,
-          "target_mult": 8.2
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -10301,14 +10301,14 @@
       "payout_last": null,
       "payout_last_year": null,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 338.0,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=9.2× vs 3y-медиана=15.6×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 75.1,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 9.2,
-          "target_mult": 15.6
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -23469,14 +23469,14 @@
       "payout_last": null,
       "payout_last_year": null,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 13781.8,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=6.2× vs 3y-медиана=19.1×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 2840.2,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 6.2,
-          "target_mult": 19.1
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -24796,14 +24796,14 @@
       "payout_last": 180.57,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 2174.5,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=25.3× vs 3y-медиана=12.6×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 585.8,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 25.3,
-          "target_mult": 12.6
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -30444,14 +30444,14 @@
       "payout_last": null,
       "payout_last_year": null,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 120.4,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=3.9× vs 3y-медиана=6.0×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 39.7,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 3.9,
-          "target_mult": 6.0
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -35467,14 +35467,13 @@
       "payout_last": null,
       "payout_last_year": null,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (P/S сектора)",
         "vclass": "GROWTH",
-        "fair_price": 345.2,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=6.6× vs 3y-медиана=16.9×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 310.0,
+        "note": "GROWTH без EBITDA → P/S сектора 1.11×. Прибыль/FCFF нерепрезентативны (ранний рост).",
         "alert": "",
         "assumptions": {
-          "current_mult": 6.6,
-          "target_mult": 16.9
+          "ps_sec": 1.11
         },
         "sensitivity": null
       },
@@ -37219,14 +37218,14 @@
       "payout_last": 11.83,
       "payout_last_year": 2024,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 233.7,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=5.1× vs 3y-медиана=7.3×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 125.6,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 5.1,
-          "target_mult": 7.3
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
@@ -37718,14 +37717,14 @@
       "payout_last": 52.0,
       "payout_last_year": 2025,
       "valuation": {
-        "method": "Multiples (EV/EBITDA)",
+        "method": "Сравнит. (сектор)",
         "vclass": "GROWTH",
-        "fair_price": 7004.9,
-        "note": "Оценка по историческим форвардным мультипликаторам (EV/EBITDA): тек.=6.9× vs 3y-медиана=10.3×. Свободный денежный поток нерепрезентативен (стадия активного роста).",
+        "fair_price": 2101.2,
+        "note": "GROWTH/IT → сектор-мультипликаторы (EV/EBITDA 3.93× / P/E 4.82×). FCFF нерепрезентативен (стадия роста).",
         "alert": "",
         "assumptions": {
-          "current_mult": 6.9,
-          "target_mult": 10.3
+          "ev_ebitda_sec": 3.93,
+          "pe_sec": 4.82
         },
         "sensitivity": null
       },
