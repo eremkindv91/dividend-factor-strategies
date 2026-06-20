@@ -72,6 +72,57 @@ def copy_sp(sp):
     return {"sector": sp.get("sector"), "metrics": [dict(m) for m in sp.get("metrics", [])]}
 
 
+# ── Composite Verdict: надёжность(Q=stability) × оценка(V=upside), флаги мягко штрафуют ──
+STAB_HI, STAB_LO = 0.67, 0.34       # тиры надёжности (как в таблице)
+VAL_BAND = 15.0                     # margin of safety, % (±15 → справедливо)
+VAL_CRED_MAX = 150.0                # потолок ПРАВДОПОДОБНОЙ недооценки: upside>150% — артефакт → «оценка н/д»
+VAL_CLAMP = 50.0                    # клэмп upside в скоре (гасит шумные мега-значения)
+FLAG_PENALTY = 0.8                  # множитель score при долге/governance
+VERDICT_LABELS = {                  # (тир надёжности, бэнд оценки) → (полный ярлык, короткий, цвет)
+    ("hi", "under"): ("★ Надёжный и недооценён", "★ Надёжный+дёшево", "good"),
+    ("hi", "fair"):  ("Надёжный, оценён справедливо", "Надёжный", "good"),
+    ("hi", "over"):  ("Надёжный, но дорог", "Надёжный, дорог", "neut"),
+    ("hi", "na"):    ("Надёжный · оценка н/д", "Надёжный", "neut"),
+    ("mid", "under"):("Недооценён, надёжность средняя", "Недооценён", "good"),
+    ("mid", "fair"): ("Средний профиль", "Средний", "neut"),
+    ("mid", "over"): ("Средний профиль, дорог", "Средний, дорог", "neut"),
+    ("mid", "na"):   ("Средний профиль · оценка н/д", "Средний", "neut"),
+    ("lo", "under"): ("⚠ Дёшево, но риск выплаты", "⚠ Дёшево/риск", "warn"),
+    ("lo", "fair"):  ("Слабый дивиденд", "Слабый", "risk"),
+    ("lo", "over"):  ("Слабый дивиденд, дорог", "Слабый", "risk"),
+    ("lo", "na"):    ("Низкая надёжность · оценка н/д", "Низкая надёжн.", "risk"),
+}
+
+
+def compute_verdict(stability, upside, alert):
+    """Сводит надёжность × оценку в категориальный вердикт + score для сортировки.
+    score = Q·(1+clamp(V,±50)/100)·penalty — без свободных весов, экономически интерпретируемо."""
+    if not isinstance(stability, (int, float)):
+        return None
+    al = (alert or "").lower()
+    f_debt = "в долг" in al
+    f_gov = "governance" in al
+    f_unrel = "ненадёжна" in al
+    q = float(stability)
+    v_raw = float(upside) if isinstance(upside, (int, float)) else None
+    # надёжность оценки: флаг «ненадёжна» ИЛИ запредельный upside (>150% — артефакт) → V не используем
+    v = v_raw if (v_raw is not None and not f_unrel and -100.0 < v_raw <= VAL_CRED_MAX) else None
+    stab_tier = "hi" if q >= STAB_HI else ("lo" if q < STAB_LO else "mid")
+    band = "na" if v is None else ("under" if v >= VAL_BAND else ("over" if v <= -VAL_BAND else "fair"))
+    label, short, color = VERDICT_LABELS[(stab_tier, band)]
+    flags = (["в долг"] if f_debt else []) + (["governance"] if f_gov else [])
+    if flags:
+        if color in ("good", "neut"):
+            color = "warn"                     # мягко: цвет ≤ амбер
+        label += " · ⚠ " + "/".join(flags)
+        short += " ⚠"
+    vclamp = max(-VAL_CLAMP, min(VAL_CLAMP, v)) if v is not None else 0.0
+    score = q * (1 + vclamp / 100.0) * (FLAG_PENALTY if flags else 1.0)
+    return {"label": label, "short": short, "color": color, "score": round(score, 4),
+            "q": round(q, 4), "v": (round(v, 1) if v is not None else None),
+            "flags": flags, "unreliable": f_unrel, "tier": stab_tier, "band": band}
+
+
 def valuation_row(v, price):
     """Проброс блока оценки из артефакта + пересчёт upside к СВЕЖЕЙ цене."""
     if not isinstance(v, dict):
@@ -222,6 +273,17 @@ def main() -> int:
             row["sector_percentiles"] = {"sector": sec, "metrics": [metric]}
         n_up += 1
     print(f"[build_data] upside-перцентиль: {n_up}")
+
+    # ── Composite Verdict (после upside — он цено-зависим) ──
+    n_verdict = 0
+    for row in out_rows:
+        val = row.get("valuation") or {}
+        vd = compute_verdict(row.get("stability_score"), val.get("upside_pct"), val.get("alert"))
+        row["verdict"] = vd
+        row["verdict_score"] = vd["score"] if vd else ND
+        if vd:
+            n_verdict += 1
+    print(f"[build_data] вердикт: {n_verdict}")
 
     data = {
         "meta": {

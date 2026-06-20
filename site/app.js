@@ -12,12 +12,12 @@ const mdash = '<span class="muted" title="нет данных">—</span>';
 const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
-// Текст тултипа «Рейтинг» — ПЛЕЙСХОЛДЕР, меняй формулировку здесь:
-const RATING_TOOLTIP = 'Итоговый рейтинг. По умолчанию таблица отсортирована по убыванию ожидаемой дивидендной доходности E[DY], скорректированной на фактор устойчивости.';
+// Текст тултипа «Рейтинг» — меняй формулировку здесь:
+const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
 
 let DATA = null;
 let VIEW = [];
-let sortKey = 'stability_score';
+let sortKey = 'verdict_score';
 let sortDir = -1; // -1 desc, 1 asc
 
 // ── классификация для бейджей ──
@@ -36,6 +36,17 @@ function stabilityCell(s) {
   if (s < 0.34) { cls = 'b-neut'; word = 'низкая'; }
   else if (s < 0.67) { cls = 'b-warn'; word = 'средняя'; }
   return `<span class="badge ${cls}">${pct} · ${word}</span>`;
+}
+
+// ── Composite Verdict: цветной чип (короткий ярлык в таблице, полный в карточке) ──
+const VCOLORCLS = { good: 'b-good', neut: 'b-neut', warn: 'b-warn', risk: 'b-risk' };
+function verdictChip(v, full) {
+  if (!v) return mdash;
+  const cls = VCOLORCLS[v.color] || 'b-neut';
+  const tip = `Надёжность ${ru(v.q * 100, 0)}%`
+    + (v.v != null ? ` · к справедливой цене ${v.v >= 0 ? '+' : ''}${ru(v.v, 1)}%` : ' · оценка н/д')
+    + (v.flags && v.flags.length ? ` · ⚠ ${v.flags.join('/')}` : '');
+  return `<span class="badge vchip ${cls}" data-tooltip="${esc(tip)}">${esc(full ? v.label : v.short)}</span>`;
 }
 
 // ── загрузка ──
@@ -79,6 +90,7 @@ function init(data) {
 
   // события
   document.getElementById('controls').hidden = false;
+  document.getElementById('mapwrap').hidden = false;
   document.getElementById('search').addEventListener('input', debounce(render, 130));
   document.getElementById('sector').addEventListener('change', render);
   document.getElementById('statusFilter').addEventListener('change', render);
@@ -112,6 +124,7 @@ function computeView() {
 
 const COLS = [
   { key: 'ticker', label: 'Тикер', left: true },
+  { key: 'verdict_score', label: 'Вердикт', left: true, title: 'Надёжность дивиденда × оценка, со штрафом за долг/governance. Сортировка по умолчанию.' },
   { key: 'stability_score', label: 'Устойчивость' },
   { key: 'cut_risk', label: 'Риск невыплаты' },
   { key: 'dividend_forecast', label: 'Прогноз дивиденда' },
@@ -123,6 +136,7 @@ const COLS = [
 
 // быстрое ранжирование (один клик → от большего к меньшему)
 const RANK_PRESETS = [
+  { key: 'verdict_score', label: 'Вердикт (общий)' },
   { key: 'stability_score', label: 'Устойчивость' },
   { key: 'dividend_yield_expected', label: 'Доходность (ожид.)' },
   { key: 'dividend_yield_if_paid', label: 'Доходность (при выплате)' },
@@ -139,10 +153,53 @@ function renderRanks() {
   }));
 }
 
+// ── Карта рынка: scatter Надёжность(Y) × Оценка(X), цвет = вердикт ──
+function renderMap() {
+  const el = document.getElementById('map');
+  if (!el) return;
+  const pts = VIEW.filter((t) => t.verdict && t.verdict.v != null && isNum(t.stability_score));
+  const na = VIEW.filter((t) => t.verdict && t.verdict.v == null).length;
+  if (pts.length < 3) { el.innerHTML = `<p class="map-note muted">Недостаточно оценённых имён для карты (с оценкой: ${pts.length}).</p>`; return; }
+  const W = 720, H = 430, mL = 54, mR = 18, mT = 30, mB = 46;
+  const iw = W - mL - mR, ih = H - mT - mB, XCL = 100;
+  const sx = (v) => mL + (Math.max(-XCL, Math.min(XCL, v)) + XCL) / (2 * XCL) * iw;
+  const sy = (q) => mT + (1 - q) * ih;
+  const x0 = sx(0), yHi = sy(0.67), yLo = sy(0.34);
+  const COL = { good: '#10B981', warn: '#F59E0B', neut: '#94A3B8', risk: '#F43F5E' };
+  const xticks = [-100, -50, 0, 50, 100].map((v) => {
+    const x = sx(v);
+    return `<line x1="${x}" y1="${mT}" x2="${x}" y2="${mT + ih}" stroke="#EEF1F6"/>`
+      + `<text x="${x}" y="${mT + ih + 16}" class="mp-tick" text-anchor="middle">${v > 0 ? '+' : ''}${v}%</text>`;
+  }).join('');
+  const yticks = [0, 34, 67, 100].map((p) => `<text x="${mL - 8}" y="${(sy(p / 100) + 3).toFixed(1)}" class="mp-tick" text-anchor="end">${p}</text>`).join('');
+  const dots = pts.map((t) => {
+    const v = t.verdict, cx = sx(v.v), cy = sy(t.stability_score), star = v.label.startsWith('★');
+    return `<circle class="mp-dot" data-tk="${esc(t.ticker)}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${star ? 4.6 : 3.1}" fill="${COL[v.color] || COL.neut}" fill-opacity="${star ? 0.95 : 0.62}" stroke="${star ? '#0F766E' : 'none'}" stroke-width="${star ? 1.3 : 0}"><title>${esc(t.ticker)} — ${esc(v.label)} · надёжн. ${ru(t.stability_score * 100, 0)}%, ${v.v >= 0 ? '+' : ''}${ru(v.v, 1)}%</title></circle>`;
+  }).join('');
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" class="map-svg">`
+    + `<rect x="${x0}" y="${mT}" width="${(mL + iw - x0).toFixed(1)}" height="${(yHi - mT).toFixed(1)}" fill="#10B981" fill-opacity="0.05"/>`
+    + xticks + yticks
+    + `<line x1="${x0}" y1="${mT}" x2="${x0}" y2="${mT + ih}" stroke="#CBD5E1" stroke-dasharray="3 3"/>`
+    + `<line x1="${mL}" y1="${yHi}" x2="${mL + iw}" y2="${yHi}" stroke="#E2E8F0" stroke-dasharray="3 3"/>`
+    + `<line x1="${mL}" y1="${yLo}" x2="${mL + iw}" y2="${yLo}" stroke="#E2E8F0" stroke-dasharray="3 3"/>`
+    + `<text x="${mL + iw}" y="${mT + 14}" class="mp-corner" text-anchor="end">★ надёжные + дёшево</text>`
+    + `<text x="${mL + 4}" y="${mT + 14}" class="mp-corner" text-anchor="start">надёжные, дорого</text>`
+    + `<text x="${mL + iw}" y="${(mT + ih - 6).toFixed(1)}" class="mp-corner" text-anchor="end">дёшево, рискованно</text>`
+    + `<text x="${mL + 4}" y="${(mT + ih - 6).toFixed(1)}" class="mp-corner" text-anchor="start">слабые</text>`
+    + `<text x="${mL + iw / 2}" y="${H - 6}" class="mp-axis" text-anchor="middle">← дороже · недооценка к справедливой цене · дешевле →</text>`
+    + `<text transform="translate(14 ${mT + ih / 2}) rotate(-90)" class="mp-axis" text-anchor="middle">надёжность дивиденда, %</text>`
+    + dots + `</svg>`
+    + `<div class="map-note muted">Точка — эмитент: X = недооценка к справедливой цене (клэмп ±100%), Y = надёжность дивиденда. Зелёные ★ — надёжные и недооценённые.${na ? ` ${na} без надёжной оценки не показаны.` : ''}</div>`;
+  el.querySelectorAll('.mp-dot').forEach((c) => c.addEventListener('click', () => {
+    const s = document.getElementById('search'); if (s) { s.value = c.dataset.tk; render(); }
+  }));
+}
+
 function render() {
   VIEW = computeView();
   document.getElementById('count').textContent = `${VIEW.length} из ${DATA.tickers.length}`;
   renderRanks();
+  renderMap();
   renderTable();
   renderCards();
 }
@@ -165,6 +222,7 @@ function renderTable() {
       : '<span class="status-chip s-insuf">неполные</span>';
     return `<tr class="data-row" data-i="${i}">
       <td class="left"><span class="rank">${i + 1}</span><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
+      <td class="left">${verdictChip(t.verdict, false)}</td>
       <td>${stabilityCell(t.stability_score)}</td>
       <td>${riskBadge(t.cut_risk)}</td>
       <td class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</td>
@@ -423,6 +481,7 @@ function renderCards() {
     return `<div class="card">
       <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
       <div class="nm">${esc(t.name)} · ${esc(t.sector)}</div>
+      <div class="card-verdict">${verdictChip(t.verdict, true)}</div>
       <div class="grid">
         <div><span class="lbl">Устойчивость</span>${stabilityCell(t.stability_score)}</div>
         <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</span></div>

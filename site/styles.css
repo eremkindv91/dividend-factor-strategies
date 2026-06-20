@@ -130,6 +130,24 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .s-ok { color: var(--good-ink); background: var(--good-fill); }
 .s-insuf { color: var(--neut-ink); background: var(--neut-fill); }
 
+/* вердикт-чип */
+.vchip { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.card-verdict { margin-top: 8px; }
+
+/* карта рынка */
+.mapwrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); margin: 0 0 12px; padding: 2px 14px; }
+.mapwrap > summary { cursor: pointer; color: var(--accent-deep); font-size: .9rem; padding: 10px 0;
+  font-weight: 600; }
+.mapwrap > summary .muted { font-weight: 400; font-size: .8rem; }
+.map-svg { width: 100%; height: auto; display: block; margin: 4px 0; }
+.mp-tick { font-size: 10px; fill: var(--ink-faint); font-family: var(--mono); }
+.mp-axis { font-size: 11px; fill: var(--ink-soft); }
+.mp-corner { font-size: 10px; fill: var(--ink-faint); }
+.mp-dot { cursor: pointer; transition: r .1s, fill-opacity .1s; }
+.mp-dot:hover { r: 6; fill-opacity: 1; }
+.map-note { font-size: .78rem; padding: 2px 0 10px; }
+
 /* раскрытие строки */
 tr.detail-row > td { padding: 0; background: #FBFCFE; }
 .detail {
