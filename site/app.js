@@ -349,6 +349,26 @@ function valuationHTML(v) {
   </div>`;
 }
 
+// ── позиция в секторе: перцентили метрик (бар ориентирован «к лучшему», 100 = лучший в секторе) ──
+function sectorPercentilesHTML(t) {
+  const sp = t.sector_percentiles;
+  if (!sp || !Array.isArray(sp.metrics) || !sp.metrics.length) return `<p class="muted">${ND}</p>`;
+  const rows = sp.metrics.map((m) => {
+    const g = Math.max(0, Math.min(100, m.good_pct));
+    const cls = g >= 67 ? 'p-good' : (g >= 34 ? 'p-mid' : 'p-low');
+    const raw = m.key === 'stability' ? ru(m.raw * 100, 0) + '%'
+      : ru(m.raw, m.unit === '×' ? 2 : 1) + (m.unit || '');
+    const tip = `лучше ${g}% сектора · сравнение с ${m.n} компаниями`
+      + (m.polarity === 'down' ? ' · ниже значение = лучше' : '');
+    return `<div class="pctl-row" data-tooltip="${esc(tip)}">`
+      + `<span class="pctl-lbl">${esc(m.label)}</span>`
+      + `<span class="pctl-raw tnum">${raw}</span>`
+      + `<span class="pctl-bar"><i class="${cls}" style="width:${g}%"></i></span>`
+      + `<span class="pctl-pct tnum">${g}</span></div>`;
+  }).join('');
+  return `<div class="pctl"><div class="pctl-head muted">Сектор: ${esc(sp.sector)} · бар = «лучше N% сектора»</div>${rows}</div>`;
+}
+
 function detailKV(t) {
   const lohi = (isNum(t.dividend_forecast_lo) && isNum(t.dividend_forecast_hi))
     ? `${ru(t.dividend_forecast_lo, 1)}–${ru(t.dividend_forecast_hi, 1)} ₽` : ND;
@@ -384,6 +404,7 @@ function toggleDetail(tr, t) {
   dr.className = 'detail-row';
   dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail">
     <div><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
+    <div><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
     <div><h4>Динамика показателей</h4>${historyHTML(t.history)}</div>
     <div><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
     <div><h4>Детали</h4>${detailKV(t)}</div>
@@ -421,7 +442,7 @@ function renderCards() {
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
     const t = VIEW[+this.dataset.i];
-    box.innerHTML = valuationHTML(t.valuation) + historyHTML(t.history) + shapHTML(t) + detailKV(t);
+    box.innerHTML = valuationHTML(t.valuation) + sectorPercentilesHTML(t) + historyHTML(t.history) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
   }));

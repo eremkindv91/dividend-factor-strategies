@@ -57,6 +57,21 @@ def num(x):
     return x if isinstance(x, (int, float)) and x is not None else ND
 
 
+def pct_rank(vals, x):
+    """Перцентиль x в vals (kind='mean'), 0..100. Чистый stdlib."""
+    n = len(vals)
+    below = sum(1 for v in vals if v < x)
+    equal = sum(1 for v in vals if v == x)
+    return 100.0 * (below + 0.5 * equal) / n
+
+
+def copy_sp(sp):
+    """Копия блока сектор-перцентилей из артефакта (чтобы дописать upside, не мутируя артефакт)."""
+    if not isinstance(sp, dict):
+        return None
+    return {"sector": sp.get("sector"), "metrics": [dict(m) for m in sp.get("metrics", [])]}
+
+
 def valuation_row(v, price):
     """Проброс блока оценки из артефакта + пересчёт upside к СВЕЖЕЙ цене."""
     if not isinstance(v, dict):
@@ -179,7 +194,34 @@ def main() -> int:
             "shap_top5": r.get("shap_top5", []),
             "valuation": valuation_row(r.get("valuation"), price),
             "history": r.get("history"),
+            "sector_percentiles": copy_sp(r.get("sector_percentiles")),
         })
+
+    # ── upside-перцентиль внутри сектора (цено-зависим → считаем ЗДЕСЬ, к свежей цене, ежедневно) ──
+    UP_MIN_PEERS = 5
+    up_pools: dict = {}
+    for row in out_rows:
+        up = (row.get("valuation") or {}).get("upside_pct")
+        sec = row.get("sector")
+        if isinstance(up, (int, float)) and sec and sec != ND:
+            up_pools.setdefault(sec, {})[row["ticker"]] = float(up)
+    n_up = 0
+    for row in out_rows:
+        up = (row.get("valuation") or {}).get("upside_pct")
+        sec = row.get("sector")
+        pool = up_pools.get(sec, {})
+        if not (isinstance(up, (int, float)) and len(pool) >= UP_MIN_PEERS and row["ticker"] in pool):
+            continue
+        good = pct_rank(list(pool.values()), float(up))     # выше upside = лучше
+        metric = {"key": "upside", "label": "Недооценка (upside)", "unit": "%", "polarity": "up",
+                  "raw": round(float(up), 1), "good_pct": int(round(good)), "n": len(pool)}
+        sp = row.get("sector_percentiles")
+        if isinstance(sp, dict) and isinstance(sp.get("metrics"), list):
+            sp["metrics"].append(metric)
+        else:
+            row["sector_percentiles"] = {"sector": sec, "metrics": [metric]}
+        n_up += 1
+    print(f"[build_data] upside-перцентиль: {n_up}")
 
     data = {
         "meta": {

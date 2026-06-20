@@ -186,6 +186,21 @@ tr.detail-row > td { padding: 0; background: #FBFCFE; }
   opacity: 0; pointer-events: none; transition: opacity .08s; }
 .pm-val { text-align: right; font-family: var(--mono); font-size: .88rem; font-weight: 600; white-space: nowrap; }
 
+/* ── Позиция в секторе (перцентили метрик) ── */
+.pctl { display: flex; flex-direction: column; }
+.pctl-head { font-size: .74rem; margin-bottom: 8px; }
+.pctl-row { display: grid; grid-template-columns: minmax(110px, 1.1fr) 62px 1fr 30px;
+  align-items: center; gap: 10px; padding: 6px 0; border-bottom: .5px solid var(--line); }
+.pctl-row:last-child { border-bottom: none; }
+.pctl-lbl { font-size: .84rem; color: var(--ink); }
+.pctl-raw { font-size: .82rem; color: var(--ink-soft); text-align: right; }
+.pctl-bar { height: 7px; border-radius: 999px; background: var(--neut-fill); overflow: hidden; }
+.pctl-bar > i { display: block; height: 100%; border-radius: 999px; }
+.pctl-bar > i.p-good { background: var(--good-bar); }
+.pctl-bar > i.p-mid  { background: var(--warn-bar); }
+.pctl-bar > i.p-low  { background: var(--risk-bar); }
+.pctl-pct { font-size: .82rem; font-weight: 600; color: var(--ink-soft); text-align: right; }
+
 /* ── Карточки (mobile) ── */
 .cards { display: none; }
 .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);

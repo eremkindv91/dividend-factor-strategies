@@ -39,6 +39,18 @@ HIST_FIELDS = {
 }
 HIST_YEARS = 8
 
+# ── сектор-перцентили: коэффициенты деривируем из СЫРЫХ полей (ratio-колонки разрежены) ──
+PCTL_YEAR_MIN = 2023          # срез кросс-секции: не сравнивать ROE-2017 с ROE-2025
+PCTL_MIN_PEERS = 5            # < сопоставимых в секторе → метрику не показываем (шум)
+PCTL_META = {                 # key → (подпись, единица, polarity 'up'|'down', знаков после запятой)
+    "roe":           ("ROE", "%", "up", 1),
+    "ebitda_margin": ("EBITDA-маржа", "%", "up", 1),
+    "debt_ebitda":   ("Долг / EBITDA", "×", "down", 2),
+    "div_yield":     ("Дивдоходность", "%", "up", 1),
+    "stability":     ("Устойчивость дивиденда", "", "up", 2),
+}
+PCTL_ORDER = ["roe", "ebitda_margin", "debt_ebitda", "div_yield", "stability"]
+
 
 def _num(v):
     return None if pd.isna(v) else round(float(v), 1)
@@ -66,6 +78,72 @@ def sensitivity_block(s) -> dict | None:
         "cols": [round(float(c), 4) for c in s.columns],
         "values": [[None if pd.isna(v) else round(float(v), 0) for v in row] for row in s.values],
     }
+
+
+def _pct_rank(vals: list, x: float) -> float:
+    """Перцентиль x в vals (kind='mean'), 0..100. Без scipy — не тащим зависимость в CI."""
+    n = len(vals)
+    below = sum(1 for v in vals if v < x)
+    equal = sum(1 for v in vals if v == x)
+    return 100.0 * (below + 0.5 * equal) / n
+
+
+def _fundamentals(sub: pd.DataFrame) -> dict:
+    """5 фундаментальных коэффициентов из СЫРЫХ полей (надёжнее разреженных ratio-колонок).
+    Потоковые (ROE/маржа/долг) берём из последнего ПОЛНОГО года = последней строки с непустой
+    выручкой: частичный текущий год выручки часто не имеет, иначе ROE искажался бы (прибыль за
+    квартал / полный капитал). Доходность — из самой свежей строки (рыночная метрика)."""
+    sub = sub.sort_values("year")
+    sub = sub[sub["year"] >= PCTL_YEAR_MIN]
+    if sub.empty:
+        return {}
+    last = sub.iloc[-1]
+    rev = pd.to_numeric(sub["revenue_mln"], errors="coerce") if "revenue_mln" in sub else pd.Series(dtype=float)
+    rev_rows = sub[rev.notna().values] if len(rev) else sub.iloc[0:0]
+    frow = rev_rows.iloc[-1] if len(rev_rows) else last      # строка «полного» года
+    def g(row, c):
+        return float(row[c]) if (c in row and pd.notna(row[c])) else None
+    np_, eq, rv, eb = g(frow, "net_profit_mln"), g(frow, "equity_mln"), g(frow, "revenue_mln"), g(frow, "ebitda_mln")
+    nd = g(frow, "net_debt_mln")
+    if nd is None:
+        nd = g(frow, "total_debt_mln")       # net_debt разрежён → gross-leverage как фолбэк
+    return {
+        "roe":           (np_ / eq * 100) if (np_ is not None and eq and eq > 0) else None,
+        "ebitda_margin": (eb / rv * 100) if (eb is not None and rv and rv > 0) else None,
+        "debt_ebitda":   (nd / eb) if (nd is not None and eb and eb > 0) else None,
+        "div_yield":     g(last, "div_yield_pct"),
+    }
+
+
+def attach_sector_percentiles(art_tickers: list, panel: pd.DataFrame) -> int:
+    """Перцентиль каждой метрики ВНУТРИ сектора, ориентированный «к лучшему» (good_pct: 100=лучший).
+    Гейт N≥PCTL_MIN_PEERS заодно гасит неприменимые метрики (у банков EBITDA-маржа/Долг почти пусты)."""
+    fund = {str(tk): _fundamentals(sub) for tk, sub in panel.groupby("ticker")}
+    pools: dict = {}                          # сектор → метрика → {тикер: значение}
+    for r in art_tickers:
+        tk, sec = r["ticker"], r.get("sector")
+        vals = dict(fund.get(tk, {}))
+        vals["stability"] = r.get("stability_score")   # из артефакта (полное покрытие)
+        for m, v in vals.items():
+            if isinstance(v, (int, float)) and v == v:  # не None/NaN
+                pools.setdefault(sec, {}).setdefault(m, {})[tk] = float(v)
+    n_blocks = 0
+    for r in art_tickers:
+        tk, sec = r["ticker"], r.get("sector")
+        out = []
+        for m in PCTL_ORDER:
+            pool = pools.get(sec, {}).get(m, {})
+            if tk not in pool or len(pool) < PCTL_MIN_PEERS:
+                continue
+            label, unit, pol, ndig = PCTL_META[m]
+            raw_pct = _pct_rank(list(pool.values()), pool[tk])
+            good = raw_pct if pol == "up" else (100.0 - raw_pct)
+            out.append({"key": m, "label": label, "unit": unit, "polarity": pol,
+                        "raw": round(pool[tk], ndig), "good_pct": int(round(good)), "n": len(pool)})
+        if out:
+            r["sector_percentiles"] = {"sector": sec, "metrics": out}
+            n_blocks += 1
+    return n_blocks
 
 
 def main() -> int:
@@ -152,6 +230,9 @@ def main() -> int:
                               f"акционера сверх системного эффекта ставки (запертый кэш / неэфф. M&A).")
                 n_gov += 1
         print(f"  governance-флаг: {n_gov} | оценка-ненадёжна (Δ>{GOV_CAP}%): {n_broken} | медиана Δ={med:.0f}%")
+
+    n_pct = attach_sector_percentiles(art["tickers"], panel)
+    print(f"  сектор-перцентили: блоков {n_pct}")
 
     art["meta"]["valuation_asof"] = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
     art["meta"]["rf_ofz"] = round(rf, 4)
