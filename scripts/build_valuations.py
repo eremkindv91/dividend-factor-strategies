@@ -87,7 +87,17 @@ def main() -> int:
         rf = 0.15
         print(f"[build_valuations] Rf (ОФЗ) недоступна: {e} → 0.15")
 
-    router = ValuationRouter(panel, dividends=dividends, prices=prices, rf=rf)
+    # сектор-медианы мультипликаторов для сравнительного метода (робастно, без аутлаеров)
+    sector_mult = {}
+    last_rows = panel.sort_values("year").groupby("ticker").tail(1)
+    for sec, grp in last_rows.groupby("sector"):
+        def med(col, lo, hi):
+            s = pd.to_numeric(grp[col], errors="coerce").dropna() if col in grp.columns else pd.Series(dtype=float)
+            s = s[(s > lo) & (s < hi)]
+            return round(float(s.median()), 2) if len(s) >= 3 else None
+        sector_mult[str(sec)] = {"ev_ebitda": med("ev_ebitda", 0, 30), "pe": med("pe", 0, 40)}
+
+    router = ValuationRouter(panel, dividends=dividends, prices=prices, rf=rf, sector_mult=sector_mult)
 
     n_val = n_hist = 0
     by_method: dict = {}

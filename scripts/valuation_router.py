@@ -24,6 +24,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import statistics
 import sys
 from typing import Dict, List, Optional
 
@@ -122,12 +123,31 @@ class DDM:
 class ValuationRouter:
     def __init__(self, panel: pd.DataFrame, dividends: Optional[Dict[str, float]] = None,
                  market: Optional[MoexMarket] = None, rf: Optional[float] = None,
-                 prices: Optional[Dict[str, float]] = None):
+                 prices: Optional[Dict[str, float]] = None,
+                 sector_mult: Optional[Dict[str, dict]] = None):
         self.panel = panel
         self.dividends = dividends or {}
         self.prices = prices or {}            # batch: цены словарём (без per-ticker API)
+        self.sector_mult = sector_mult or {}  # {сектор: {ev_ebitda, pe}} для сравнительного метода
+        self._tickers = set(panel["ticker"].astype(str))
         self.market = market or MoexMarket()
         self.rf = rf if rf is not None else self._safe_rf()
+
+    def _comparative(self, sub: pd.DataFrame, sector: str, price) -> Optional[float]:
+        """Сравнительная оценка: медиана EV/EBITDA и P/E сектора → implied справедливая цена."""
+        m = self.sector_mult.get(sector, {})
+        shares = _shares(sub, price)
+        if not (shares and shares > 0):
+            return None
+        nd = _latest(sub, "net_debt_mln", 0.0)
+        fairs = []
+        ebitda = _latest(sub, "ebitda_mln")
+        if m.get("ev_ebitda") and ebitda and ebitda > 0:
+            fairs.append((m["ev_ebitda"] * ebitda - nd) / shares)
+        ni = _latest(sub, "net_profit_mln")
+        if m.get("pe") and ni and ni > 0:
+            fairs.append(m["pe"] * ni / shares)
+        return statistics.median(fairs) if fairs else None
 
     def _safe_rf(self) -> float:
         try:
@@ -155,9 +175,14 @@ class ValuationRouter:
         re = self.rf + beta * ERP_RU
         nd_eb = _latest(sub, "net_debt_to_ebitda")
         div = self.dividends.get(ticker)
+        is_pref = ticker.endswith("P") and ticker[:-1] in self._tickers
 
         def res(method, fair, assum, note, alert="", sens=None):
             up = (fair / price - 1) * 100 if (price and fair == fair) else float("nan")
+            if fair == fair and up == up and abs(up) > 300:    # абсурд → не показываем как опорный
+                return ValuationResult(ticker, sector, vclass, "Оценка ненадёжна", float("nan"), price,
+                                       float("nan"), {},
+                                       "Оценка ненадёжна: |upside|>300% (данные / разводнение / преф).", alert, None)
             return ValuationResult(ticker, sector, vclass, method, fair, price, up, assum, note, alert, sens)
 
         # ── флаговые классы (без автонома) ──
@@ -187,6 +212,15 @@ class ValuationRouter:
             return res("DDM", ddm.fair(), {"D1": div, "Re": round(re, 3), "g": g},
                        f"Банк: DDM, g={g:.0%} (органический рост капитала ~инфляция/ВВП). FCFF к банку неприменим.",
                        sens=sens)
+
+        # ── ПРЕФЫ (дивидендный инструмент): DCF делит equity на share-base префа → ломается → DDM ──
+        if is_pref and div and div > 0:
+            g = DDM_G.get(vclass, DDM_G["MATURE"])
+            ddm = DDM(div, re, g)
+            sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
+                                   [max(0.0, g - 0.01), g, g + 0.01])
+            return res("DDM (преф)", ddm.fair(), {"D1": div, "Re": round(re, 3), "g": g},
+                       f"Привилегированная (дивидендный инструмент) → DDM, g={g:.0%}.", sens=sens)
 
         # ── REGULATED / COMMODITY / MATURE ──
         # DCF (с нормализацией цикликов) → если базовый FCFF<0 → блок; дивфишка → DDM-якорь.
@@ -239,16 +273,25 @@ class ValuationRouter:
 
         # COMMODITY / MATURE (зрелый ген-кэша) → ЯКОРЬ DCF (если FCFF>0), DDM — кросс-чек
         if dcf_ok:
-            assum = {"WACC": round(wacc, 3), "g": dcf.g}
-            n = note + "Зрелый генератор кэша → якорь DCF (FCFF)."
+            comp = self._comparative(sub, sector, price)
+            assum = {"WACC": round(wacc, 3), "g": dcf.g, "DCF_fair": round(dcf_fair, 1)}
             if div and div > 0:
                 ddm_fair = DDM(div, re, g_ddm).fair()
                 assum["DDM_fair"] = round(ddm_fair, 1)
-                n += f" DDM-кросс-чек (g={g_ddm:.0%}): {ddm_fair:,.0f}₽."
-                # Δ = |P_DCF − P_DDM| / P_DCF — governance-флаг ставится КРОСС-СЕКЦИОННО
-                # (build_valuations: аутлаер к медиане сектора), не абсолютным порогом.
+                # Δ = |P_DCF − P_DDM| / P_DCF — governance-флаг ставится КРОСС-СЕКЦИОННО (build_valuations)
                 if ddm_fair == ddm_fair and dcf_fair > 0:
                     assum["delta_pct"] = round(abs(dcf_fair - ddm_fair) / dcf_fair * 100)
+            if comp and comp > 0:                              # справедливая = среднее DCF↔сравнит.
+                blend = (dcf_fair + comp) / 2
+                assum["Comp_fair"] = round(comp, 1)
+                n = note + (f"Справедливая = среднее DCF↔сравнит. (сектор-мультипл.): "
+                            f"DCF {dcf_fair:,.0f} / Comp {comp:,.0f} → {blend:,.0f}₽.")
+                if div and div > 0:
+                    n += f" DDM-кросс-чек: {assum.get('DDM_fair', 0):,.0f}₽."
+                return res("DCF + Сравнит. (среднее)", blend, assum, n, sens=dcf_sens())
+            n = note + "Зрелый генератор кэша → якорь DCF (FCFF)."
+            if div and div > 0:
+                n += f" DDM-кросс-чек (g={g_ddm:.0%}): {assum.get('DDM_fair', 0):,.0f}₽."
             return res("DCF", dcf_fair, assum, n, sens=dcf_sens())
 
         # DCF блокирован (FCFF<0): дивиденд → DDM-фолбэк, иначе «нерепрезентативен»
