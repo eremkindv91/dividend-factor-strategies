@@ -228,11 +228,14 @@ function smoothPath(pts) {                     // монотонно-кубич�
 }
 
 function areaSpark(vals, color, uid) {         // area-спарклайн с градиентом и end-точкой
-  const W = 260, H = 48, n = vals.length, pad = 6;
+  const W = 260, H = 48, pad = 6;
   const valid = vals.map((v, i) => [i, v]).filter((p) => p[1] != null);
   if (valid.length < 2) return `<svg viewBox="0 0 ${W} ${H}" class="pspark"></svg>`;
   const ys = valid.map((p) => p[1]); let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
-  const sx = (i) => n <= 1 ? W / 2 : pad + i / (n - 1) * (W - 2 * pad);
+  // ось X ребейзится на ДИАПАЗОН ДАННЫХ метрики (первый→последний непустой год), а не на весь ряд лет:
+  // метрики с поздним стартом (ROE при отриц. капитале, EBITDA) заполняют ширину, а не жмутся вправо.
+  const i0 = valid[0][0], i1 = valid[valid.length - 1][0], span = (i1 - i0) || 1;
+  const sx = (i) => pad + (i - i0) / span * (W - 2 * pad);
   const sy = (v) => H - pad - (v - y0) / (y1 - y0) * (H - 2 * pad);
   const pts = valid.map((p) => [sx(p[0]), sy(p[1])]);
   const line = smoothPath(pts), last = pts[pts.length - 1];
@@ -288,13 +291,17 @@ function historyHTML(h) {
   return `<div class="charts">${csBlock}<div class="ch-block"><div class="ch-title">Динамика показателей</div>${perfMultiples(h)}</div></div>`;
 }
 
-function wireCharts(root) {                      // синхронизированный кросхейр по small-multiples
+function wireCharts(root) {                      // кросхейр по small-multiples (по диапазону данных каждой строки)
   root.querySelectorAll('.pm').forEach((pm) => {
-    const years = JSON.parse(pm.dataset.years);
-    const rows = [...pm.querySelectorAll('.pm-row')].map((r) => ({
-      vals: JSON.parse(r.dataset.vals), pct: r.dataset.pct === '1',
-      cross: r.querySelector('.pm-cross'), val: r.querySelector('.pm-val'), chart: r.querySelector('.pm-chart'),
-    }));
+    const rows = [...pm.querySelectorAll('.pm-row')].map((r) => {
+      const vals = JSON.parse(r.dataset.vals);
+      const vi = vals.map((v, i) => (v != null ? i : -1)).filter((i) => i >= 0);   // индексы непустых лет
+      return {
+        vals, pct: r.dataset.pct === '1',
+        i0: vi.length ? vi[0] : 0, i1: vi.length ? vi[vi.length - 1] : 0,           // диапазон данных строки
+        cross: r.querySelector('.pm-cross'), val: r.querySelector('.pm-val'), chart: r.querySelector('.pm-chart'),
+      };
+    });
     const reset = () => rows.forEach((d) => {
       d.cross.style.opacity = 0;
       const valid = d.vals.filter((v) => v != null), last = valid[valid.length - 1];
@@ -303,9 +310,10 @@ function wireCharts(root) {                      // синхронизирова
     pm.addEventListener('mousemove', (e) => {
       const rect = rows[0].chart.getBoundingClientRect();
       let f = (e.clientX - rect.left) / rect.width; f = Math.max(0, Math.min(1, f));
-      const idx = Math.round(f * (years.length - 1)), w = rows[0].chart.clientWidth;
-      const x = years.length <= 1 ? w / 2 : 6 + idx / (years.length - 1) * (w - 12);
-      rows.forEach((d) => {
+      rows.forEach((d) => {                          // каждая строка мапит f на свой диапазон (зеркалит sx-ребейз)
+        const w = d.chart.clientWidth, span = (d.i1 - d.i0) || 1;
+        const idx = Math.round(d.i0 + f * span);
+        const x = d.i1 === d.i0 ? w / 2 : 6 + (idx - d.i0) / span * (w - 12);
         d.cross.style.left = x + 'px'; d.cross.style.opacity = 1;
         const v = d.vals[idx];
         d.val.textContent = v == null ? '—' : (d.pct ? ru(v, 1) + '%' : fmtShort(v));
