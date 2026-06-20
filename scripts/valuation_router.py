@@ -241,20 +241,15 @@ class ValuationRouter:
         if dcf_ok:
             assum = {"WACC": round(wacc, 3), "g": dcf.g}
             n = note + "Зрелый генератор кэша → якорь DCF (FCFF)."
-            alert = ""
             if div and div > 0:
                 ddm_fair = DDM(div, re, g_ddm).fair()
                 assum["DDM_fair"] = round(ddm_fair, 1)
                 n += f" DDM-кросс-чек (g={g_ddm:.0%}): {ddm_fair:,.0f}₽."
-                # cross-check: Delta = |P_DCF − P_DDM| / P_DCF; >20% → governance/capital-allocation risk
+                # Δ = |P_DCF − P_DDM| / P_DCF — governance-флаг ставится КРОСС-СЕКЦИОННО
+                # (build_valuations: аутлаер к медиане сектора), не абсолютным порогом.
                 if ddm_fair == ddm_fair and dcf_fair > 0:
-                    delta = abs(dcf_fair - ddm_fair) / dcf_fair
-                    assum["delta_pct"] = round(delta * 100)
-                    if delta > 0.20:
-                        alert = (f"Governance / Capital Allocation: DCF↔DDM расходятся на {delta * 100:.0f}% — "
-                                 "генерация FCF не конвертируется в доходность акционера "
-                                 "(запертый кэш / неэффективные M&A / перерасход capex).")
-            return res("DCF", dcf_fair, assum, n, alert=alert, sens=dcf_sens())
+                    assum["delta_pct"] = round(abs(dcf_fair - ddm_fair) / dcf_fair * 100)
+            return res("DCF", dcf_fair, assum, n, sens=dcf_sens())
 
         # DCF блокирован (FCFF<0): дивиденд → DDM-фолбэк, иначе «нерепрезентативен»
         if div and div > 0:

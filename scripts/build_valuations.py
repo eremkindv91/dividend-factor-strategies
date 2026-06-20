@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import statistics
 import sys
 from datetime import datetime, timezone
 
@@ -112,6 +113,34 @@ def main() -> int:
         if len(sub):
             r["history"] = history_block(sub)
             n_hist += 1
+
+    # ── cross-sectional Governance / Capital-Allocation флаг ──
+    # Δ(DCF,DDM) высок у ВСЕХ сырьевиков при дорогом ключе (системно). Идиосинкразию (запертый
+    # кэш СВЕРХ системного эффекта) ловим относительно: робастный z к медиане сектора COMMODITY/MATURE.
+    GOV_Z, GOV_FLOOR, GOV_CAP = 1.5, 40, 250   # σ-порог, пол Δ%, потолок (выше — оценка сломана) — тюнится здесь
+    pairs = [(r, (r.get("valuation") or {}).get("assumptions", {}).get("delta_pct"))
+             for r in art["tickers"] if (r.get("valuation") or {}).get("vclass") in ("COMMODITY", "MATURE")]
+    sane = [d for _, d in pairs if isinstance(d, (int, float)) and d <= GOV_CAP]
+    n_gov = n_broken = 0
+    if sane:
+        med = statistics.median(sane)
+        mad = statistics.median([abs(x - med) for x in sane]) or 1.0
+        for r, d in pairs:
+            if not isinstance(d, (int, float)):
+                continue
+            v = r["valuation"]
+            if d > GOV_CAP:                          # сломанная оценка — не governance
+                v["alert"] = "Оценка ненадёжна: DCF↔DDM расходятся аномально (вероятна ошибка данных/валюты)."
+                n_broken += 1
+                continue
+            z = (d - med) / (1.4826 * mad)
+            v["assumptions"]["gov_z"] = round(z, 1)
+            if d >= GOV_FLOOR and z >= GOV_Z:        # аутлаер к сектору → идиосинкразия
+                v["alert"] = (f"Governance / Capital Allocation (выше сектора на {z:.1f}σ): "
+                              f"Δ(DCF↔DDM) {d:.0f}% при медиане {med:.0f}% — FCF не доходит до "
+                              f"акционера сверх системного эффекта ставки (запертый кэш / неэфф. M&A).")
+                n_gov += 1
+        print(f"  governance-флаг: {n_gov} | оценка-ненадёжна (Δ>{GOV_CAP}%): {n_broken} | медиана Δ={med:.0f}%")
 
     art["meta"]["valuation_asof"] = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
     art["meta"]["rf_ofz"] = round(rf, 4)

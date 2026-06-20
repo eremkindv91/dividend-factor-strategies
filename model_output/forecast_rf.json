@@ -96,12 +96,13 @@
         "vclass": "MATURE",
         "fair_price": 12.7,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 28₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 121% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "Governance / Capital Allocation (выше сектора на 1.8σ): Δ(DCF↔DDM) 121% при медиане 79% — FCF не доходит до акционера сверх системного эффекта ставки (запертый кэш / неэфф. M&A).",
         "assumptions": {
           "WACC": 0.184,
           "g": 0.02,
           "DDM_fair": 28.1,
-          "delta_pct": 121
+          "delta_pct": 121,
+          "gov_z": 1.8
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -279,12 +280,13 @@
         "vclass": "MATURE",
         "fair_price": 192.2,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 24₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 88% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.196,
           "g": 0.02,
           "DDM_fair": 23.6,
-          "delta_pct": 88
+          "delta_pct": 88,
+          "gov_z": 0.4
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -779,12 +781,13 @@
         "vclass": "COMMODITY",
         "fair_price": 1904.8,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 2,953₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 55% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.163,
           "g": 0.02,
           "DDM_fair": 2952.9,
-          "delta_pct": 55
+          "delta_pct": 55,
+          "gov_z": -1.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -962,12 +965,13 @@
         "vclass": "COMMODITY",
         "fair_price": 21.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 13₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 40% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.185,
           "g": 0.02,
           "DDM_fair": 13.0,
-          "delta_pct": 40
+          "delta_pct": 40,
+          "gov_z": -1.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -1455,12 +1459,13 @@
         "vclass": "MATURE",
         "fair_price": 13.5,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 4₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 73% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.184,
           "g": 0.02,
           "DDM_fair": 3.6,
-          "delta_pct": 73
+          "delta_pct": 73,
+          "gov_z": -0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -2457,12 +2462,13 @@
         "vclass": "COMMODITY",
         "fair_price": 5190.2,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 522₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 90% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.173,
           "g": 0.02,
           "DDM_fair": 522.2,
-          "delta_pct": 90
+          "delta_pct": 90,
+          "gov_z": 0.5
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -2641,12 +2647,13 @@
         "vclass": "COMMODITY",
         "fair_price": 33928.2,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 378₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.138,
           "g": 0.02,
           "DDM_fair": 377.9,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -2932,12 +2939,13 @@
         "vclass": "MATURE",
         "fair_price": 1846.9,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 633₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 66% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.16,
           "g": 0.02,
           "DDM_fair": 632.9,
-          "delta_pct": 66
+          "delta_pct": 66,
+          "gov_z": -0.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -3298,12 +3306,13 @@
         "vclass": "COMMODITY",
         "fair_price": 455.7,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 3₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.241,
           "g": 0.02,
           "DDM_fair": 2.9,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -3474,12 +3483,13 @@
         "vclass": "COMMODITY",
         "fair_price": 959.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 671₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 30% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.2,
           "g": 0.02,
           "DDM_fair": 670.8,
-          "delta_pct": 30
+          "delta_pct": 30,
+          "gov_z": -2.1
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -4329,7 +4339,8 @@
           "WACC": 0.21,
           "g": 0.02,
           "DDM_fair": 25.2,
-          "delta_pct": 6
+          "delta_pct": 6,
+          "gov_z": -3.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -4465,12 +4476,13 @@
         "vclass": "MATURE",
         "fair_price": 47231.7,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 2,643₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 94% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.138,
           "g": 0.02,
           "DDM_fair": 2643.1,
-          "delta_pct": 94
+          "delta_pct": 94,
+          "gov_z": 0.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -4627,12 +4639,13 @@
         "vclass": "COMMODITY",
         "fair_price": 520.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 254₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 51% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.216,
           "g": 0.02,
           "DDM_fair": 254.2,
-          "delta_pct": 51
+          "delta_pct": 51,
+          "gov_z": -1.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -5381,12 +5394,13 @@
         "vclass": "MATURE",
         "fair_price": 362.2,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 27₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 93% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.162,
           "g": 0.02,
           "DDM_fair": 26.6,
-          "delta_pct": 93
+          "delta_pct": 93,
+          "gov_z": 0.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -6194,12 +6208,13 @@
         "vclass": "MATURE",
         "fair_price": 17013.3,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 1,779₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 90% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.166,
           "g": 0.02,
           "DDM_fair": 1779.2,
-          "delta_pct": 90
+          "delta_pct": 90,
+          "gov_z": 0.5
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -7331,12 +7346,13 @@
         "vclass": "MATURE",
         "fair_price": 973.3,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 32₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 97% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.147,
           "g": 0.02,
           "DDM_fair": 32.3,
-          "delta_pct": 97
+          "delta_pct": 97,
+          "gov_z": 0.8
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -7648,7 +7664,8 @@
           "WACC": 0.207,
           "g": 0.02,
           "DDM_fair": 13.3,
-          "delta_pct": 20
+          "delta_pct": 20,
+          "gov_z": -2.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -7826,12 +7843,13 @@
         "vclass": "MATURE",
         "fair_price": 154.9,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 39₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 75% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.191,
           "g": 0.02,
           "DDM_fair": 39.2,
-          "delta_pct": 75
+          "delta_pct": 75,
+          "gov_z": -0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -7986,7 +8004,8 @@
           "WACC": 0.195,
           "g": 0.02,
           "DDM_fair": 1.4,
-          "delta_pct": 9
+          "delta_pct": 9,
+          "gov_z": -3.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -8164,12 +8183,13 @@
         "vclass": "MATURE",
         "fair_price": 200.5,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 28₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 86% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.181,
           "g": 0.02,
           "DDM_fair": 28.2,
-          "delta_pct": 86
+          "delta_pct": 86,
+          "gov_z": 0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -8529,12 +8549,13 @@
         "vclass": "MATURE",
         "fair_price": 5446.3,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 822₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 85% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.164,
           "g": 0.02,
           "DDM_fair": 821.6,
-          "delta_pct": 85
+          "delta_pct": 85,
+          "gov_z": 0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -8712,7 +8733,7 @@
         "vclass": "MATURE",
         "fair_price": 6.3,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 280₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 4344% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "Оценка ненадёжна: DCF↔DDM расходятся аномально (вероятна ошибка данных/валюты).",
         "assumptions": {
           "WACC": 0.188,
           "g": 0.02,
@@ -8996,12 +9017,13 @@
         "vclass": "COMMODITY",
         "fair_price": 26.5,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 47₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 78% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.197,
           "g": 0.02,
           "DDM_fair": 47.1,
-          "delta_pct": 78
+          "delta_pct": 78,
+          "gov_z": -0.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -9454,12 +9476,13 @@
         "vclass": "COMMODITY",
         "fair_price": 37.3,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 4₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 88% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.169,
           "g": 0.02,
           "DDM_fair": 4.5,
-          "delta_pct": 88
+          "delta_pct": 88,
+          "gov_z": 0.4
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -9637,12 +9660,13 @@
         "vclass": "MATURE",
         "fair_price": 797.4,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 92₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 88% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.187,
           "g": 0.02,
           "DDM_fair": 91.8,
-          "delta_pct": 88
+          "delta_pct": 88,
+          "gov_z": 0.4
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -9935,12 +9959,13 @@
         "vclass": "COMMODITY",
         "fair_price": 31059.5,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 1,587₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 95% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.153,
           "g": 0.02,
           "DDM_fair": 1587.2,
-          "delta_pct": 95
+          "delta_pct": 95,
+          "gov_z": 0.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -11044,12 +11069,13 @@
         "vclass": "COMMODITY",
         "fair_price": 213.9,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 95₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 56% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.18,
           "g": 0.02,
           "DDM_fair": 94.7,
-          "delta_pct": 56
+          "delta_pct": 56,
+          "gov_z": -1.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -11228,12 +11254,13 @@
         "vclass": "COMMODITY",
         "fair_price": 19506.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 104₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.132,
           "g": 0.02,
           "DDM_fair": 104.1,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -12962,12 +12989,13 @@
         "vclass": "COMMODITY",
         "fair_price": 738.1,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 33₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 96% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.207,
           "g": 0.02,
           "DDM_fair": 32.8,
-          "delta_pct": 96
+          "delta_pct": 96,
+          "gov_z": 0.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -13411,12 +13439,13 @@
         "vclass": "MATURE",
         "fair_price": 754.7,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 4₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.172,
           "g": 0.02,
           "DDM_fair": 4.3,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -13573,12 +13602,13 @@
         "vclass": "MATURE",
         "fair_price": 822.1,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 219₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 73% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.188,
           "g": 0.02,
           "DDM_fair": 219.1,
-          "delta_pct": 73
+          "delta_pct": 73,
+          "gov_z": -0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -14447,7 +14477,7 @@
         "vclass": "COMMODITY",
         "fair_price": 0.7,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 25₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 3222% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "Оценка ненадёжна: DCF↔DDM расходятся аномально (вероятна ошибка данных/валюты).",
         "assumptions": {
           "WACC": 0.175,
           "g": 0.02,
@@ -14996,12 +15026,13 @@
         "vclass": "MATURE",
         "fair_price": 7452.9,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 622₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 92% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.18,
           "g": 0.02,
           "DDM_fair": 622.4,
-          "delta_pct": 92
+          "delta_pct": 92,
+          "gov_z": 0.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -15179,12 +15210,13 @@
         "vclass": "COMMODITY",
         "fair_price": 8974.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 1,842₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 79% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.205,
           "g": 0.02,
           "DDM_fair": 1841.7,
-          "delta_pct": 79
+          "delta_pct": 79,
+          "gov_z": 0.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -15362,12 +15394,13 @@
         "vclass": "MATURE",
         "fair_price": 138.5,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 84₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 40% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.159,
           "g": 0.02,
           "DDM_fair": 83.7,
-          "delta_pct": 40
+          "delta_pct": 40,
+          "gov_z": -1.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -16516,12 +16549,13 @@
         "vclass": "MATURE",
         "fair_price": 9.0,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 6₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 36% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.185,
           "g": 0.02,
           "DDM_fair": 5.7,
-          "delta_pct": 36
+          "delta_pct": 36,
+          "gov_z": -1.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -16971,12 +17005,13 @@
         "vclass": "COMMODITY",
         "fair_price": 33.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 7₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 79% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.216,
           "g": 0.02,
           "DDM_fair": 6.9,
-          "delta_pct": 79
+          "delta_pct": 79,
+          "gov_z": 0.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -17336,12 +17371,13 @@
         "vclass": "MATURE",
         "fair_price": 1060.8,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 471₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 56% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.183,
           "g": 0.02,
           "DDM_fair": 471.5,
-          "delta_pct": 56
+          "delta_pct": 56,
+          "gov_z": -1.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -21626,12 +21662,13 @@
         "vclass": "MATURE",
         "fair_price": 1126.0,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 59₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 95% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.205,
           "g": 0.02,
           "DDM_fair": 58.7,
-          "delta_pct": 95
+          "delta_pct": 95,
+          "gov_z": 0.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -21969,12 +22006,13 @@
         "vclass": "MATURE",
         "fair_price": 415.9,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 69₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 83% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.229,
           "g": 0.02,
           "DDM_fair": 69.3,
-          "delta_pct": 83
+          "delta_pct": 83,
+          "gov_z": 0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -22607,12 +22645,13 @@
         "vclass": "COMMODITY",
         "fair_price": 71.9,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 30₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 58% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.22,
           "g": 0.02,
           "DDM_fair": 30.4,
-          "delta_pct": 58
+          "delta_pct": 58,
+          "gov_z": -0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -22790,12 +22829,13 @@
         "vclass": "MATURE",
         "fair_price": 11.2,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 4₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 65% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.18,
           "g": 0.02,
           "DDM_fair": 3.9,
-          "delta_pct": 65
+          "delta_pct": 65,
+          "gov_z": -0.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -23520,12 +23560,13 @@
         "vclass": "COMMODITY",
         "fair_price": 791.2,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 383₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 52% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.233,
           "g": 0.02,
           "DDM_fair": 382.5,
-          "delta_pct": 52
+          "delta_pct": 52,
+          "gov_z": -1.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -24206,12 +24247,13 @@
         "vclass": "MATURE",
         "fair_price": 43.6,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 11₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 74% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.189,
           "g": 0.02,
           "DDM_fair": 11.4,
-          "delta_pct": 74
+          "delta_pct": 74,
+          "gov_z": -0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -24368,12 +24410,13 @@
         "vclass": "MATURE",
         "fair_price": 9613.5,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 3,087₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 68% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.203,
           "g": 0.02,
           "DDM_fair": 3087.3,
-          "delta_pct": 68
+          "delta_pct": 68,
+          "gov_z": -0.5
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -24521,7 +24564,8 @@
           "WACC": 0.167,
           "g": 0.02,
           "DDM_fair": 2706.4,
-          "delta_pct": 9
+          "delta_pct": 9,
+          "gov_z": -3.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -24835,12 +24879,13 @@
         "vclass": "COMMODITY",
         "fair_price": 1341.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 960₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 28% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.181,
           "g": 0.02,
           "DDM_fair": 959.6,
-          "delta_pct": 28
+          "delta_pct": 28,
+          "gov_z": -2.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -25524,12 +25569,13 @@
         "vclass": "MATURE",
         "fair_price": 10.7,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 1₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 88% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.225,
           "g": 0.02,
           "DDM_fair": 1.3,
-          "delta_pct": 88
+          "delta_pct": 88,
+          "gov_z": 0.4
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -25707,12 +25753,13 @@
         "vclass": "MATURE",
         "fair_price": 425.8,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 66₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 84% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.186,
           "g": 0.02,
           "DDM_fair": 66.2,
-          "delta_pct": 84
+          "delta_pct": 84,
+          "gov_z": 0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -26225,12 +26272,13 @@
         "vclass": "COMMODITY",
         "fair_price": 46.8,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 21₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 56% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.226,
           "g": 0.02,
           "DDM_fair": 20.7,
-          "delta_pct": 56
+          "delta_pct": 56,
+          "gov_z": -1.0
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -27135,12 +27183,13 @@
         "vclass": "COMMODITY",
         "fair_price": 86.7,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 22₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 75% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.155,
           "g": 0.02,
           "DDM_fair": 21.7,
-          "delta_pct": 75
+          "delta_pct": 75,
+          "gov_z": -0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -27454,12 +27503,13 @@
         "vclass": "COMMODITY",
         "fair_price": 221.7,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 73₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 67% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.203,
           "g": 0.02,
           "DDM_fair": 72.8,
-          "delta_pct": 67
+          "delta_pct": 67,
+          "gov_z": -0.5
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -30705,12 +30755,13 @@
         "vclass": "COMMODITY",
         "fair_price": 486.5,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 128₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 74% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.169,
           "g": 0.02,
           "DDM_fair": 128.2,
-          "delta_pct": 74
+          "delta_pct": 74,
+          "gov_z": -0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -31467,12 +31518,13 @@
         "vclass": "MATURE",
         "fair_price": 204.3,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 141₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 31% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.17,
           "g": 0.02,
           "DDM_fair": 140.8,
-          "delta_pct": 31
+          "delta_pct": 31,
+          "gov_z": -2.1
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -32000,12 +32052,13 @@
         "vclass": "COMMODITY",
         "fair_price": 757.3,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 131₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 83% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.22,
           "g": 0.02,
           "DDM_fair": 130.7,
-          "delta_pct": 83
+          "delta_pct": 83,
+          "gov_z": 0.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -32183,12 +32236,13 @@
         "vclass": "COMMODITY",
         "fair_price": 12854.6,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 138₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.194,
           "g": 0.02,
           "DDM_fair": 137.8,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -33643,12 +33697,13 @@
         "vclass": "COMMODITY",
         "fair_price": 9965.9,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 730₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 93% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.16,
           "g": 0.02,
           "DDM_fair": 729.9,
-          "delta_pct": 93
+          "delta_pct": 93,
+          "gov_z": 0.6
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -34170,12 +34225,13 @@
         "vclass": "COMMODITY",
         "fair_price": 0.5,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 1₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 163% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "Governance / Capital Allocation (выше сектора на 3.7σ): Δ(DCF↔DDM) 163% при медиане 79% — FCF не доходит до акционера сверх системного эффекта ставки (запертый кэш / неэфф. M&A).",
         "assumptions": {
           "WACC": 0.172,
           "g": 0.02,
           "DDM_fair": 1.4,
-          "delta_pct": 163
+          "delta_pct": 163,
+          "gov_z": 3.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -35027,12 +35083,13 @@
         "vclass": "MATURE",
         "fair_price": 384.6,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 50₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 87% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.171,
           "g": 0.02,
           "DDM_fair": 49.6,
-          "delta_pct": 87
+          "delta_pct": 87,
+          "gov_z": 0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -35528,12 +35585,13 @@
         "vclass": "MATURE",
         "fair_price": 56.5,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 8₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 85% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.21,
           "g": 0.02,
           "DDM_fair": 8.3,
-          "delta_pct": 85
+          "delta_pct": 85,
+          "gov_z": 0.3
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -37157,12 +37215,13 @@
         "vclass": "COMMODITY",
         "fair_price": 4302.4,
         "note": "Циклик: входы нормализованы по медиане (мид-цикл). Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 2,576₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 40% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.233,
           "g": 0.02,
           "DDM_fair": 2576.3,
-          "delta_pct": 40
+          "delta_pct": 40,
+          "gov_z": -1.7
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -37340,12 +37399,13 @@
         "vclass": "MATURE",
         "fair_price": 8398.1,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 4,152₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 51% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.19,
           "g": 0.02,
           "DDM_fair": 4151.7,
-          "delta_pct": 51
+          "delta_pct": 51,
+          "gov_z": -1.2
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -37516,12 +37576,13 @@
         "vclass": "MATURE",
         "fair_price": 529257.8,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 3,328₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 99% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.13,
           "g": 0.02,
           "DDM_fair": 3328.0,
-          "delta_pct": 99
+          "delta_pct": 99,
+          "gov_z": 0.9
         },
         "sensitivity": {
           "row_label": "WACC",
@@ -38279,12 +38340,13 @@
         "vclass": "MATURE",
         "fair_price": 10528.4,
         "note": "Зрелый генератор кэша → якорь DCF (FCFF). DDM-кросс-чек (g=2%): 702₽.",
-        "alert": "Governance / Capital Allocation: DCF↔DDM расходятся на 93% — генерация FCF не конвертируется в доходность акционера (запертый кэш / неэффективные M&A / перерасход capex).",
+        "alert": "",
         "assumptions": {
           "WACC": 0.177,
           "g": 0.02,
           "DDM_fair": 701.7,
-          "delta_pct": 93
+          "delta_pct": 93,
+          "gov_z": 0.6
         },
         "sensitivity": {
           "row_label": "WACC",
