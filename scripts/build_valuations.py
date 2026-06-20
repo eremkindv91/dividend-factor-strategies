@@ -32,8 +32,9 @@ HIST_FIELDS = {
     "revenue_mln": "Выручка",
     "net_profit_mln": "Чистая прибыль",
     "ebitda_mln": "EBITDA",
-    "total_debt_mln": "Долг",
     "roe_pct": "ROE, %",
+    "assets_mln": "Активы",          # Chart 1 — структура капитала
+    "equity_mln": "Капитал",
 }
 HIST_YEARS = 8
 
@@ -44,6 +45,10 @@ def _num(v):
 
 def history_block(sub: pd.DataFrame) -> dict:
     sub = sub.sort_values("year").tail(HIST_YEARS)
+    cols = [c for c in HIST_FIELDS if c in sub.columns]
+    # обрезаем хвостовые годы без данных (иначе ось показывает год, где линии нет)
+    while len(sub) > 1 and cols and all(pd.isna(sub.iloc[-1][c]) for c in cols):
+        sub = sub.iloc[:-1]
     b = {"years": [int(y) for y in sub["year"]], "labels": HIST_FIELDS}
     for c in HIST_FIELDS:
         if c in sub.columns:

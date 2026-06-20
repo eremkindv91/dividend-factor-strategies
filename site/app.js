@@ -204,42 +204,115 @@ function shapHTML(t) {
   }).join('') + `<p class="muted" style="margin-top:8px;font-size:.8rem">↑ повышает / ↓ снижает вероятность выплаты · усреднено по моделям ансамбля</p>`;
 }
 
-// ── мини-график (SVG-спарклайн) ──
-function sparkline(vals, color) {
-  const pts = vals.map((v, i) => [i, v]).filter((p) => p[1] != null);
-  if (pts.length < 2) return '<span class="muted">—</span>';
-  const w = 200, h = 38, ys = pts.map((p) => p[1]);
-  const x0 = pts[0][0], x1 = pts[pts.length - 1][0];
-  const y0 = Math.min(...ys, 0), y1 = Math.max(...ys, 0);     // включаем 0 (видно знак)
-  const sx = (i) => (x1 === x0 ? 0 : (i - x0) / (x1 - x0)) * (w - 6) + 3;
-  const sy = (v) => h - 3 - (y1 === y0 ? 0.5 : (v - y0) / (y1 - y0)) * (h - 6);
-  const d = pts.map((p, k) => (k ? 'L' : 'M') + sx(p[0]).toFixed(1) + ' ' + sy(p[1]).toFixed(1)).join(' ');
-  const last = pts[pts.length - 1];
-  const zero = (y0 < 0 && y1 > 0) ? `<line x1="3" y1="${sy(0).toFixed(1)}" x2="${w - 3}" y2="${sy(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>` : '';
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${zero}`
-    + `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.7"/>`
-    + `<circle cx="${sx(last[0]).toFixed(1)}" cy="${sy(last[1]).toFixed(1)}" r="2.4" fill="${color}"/></svg>`;
+// ── премиум-графики (Bloomberg/SaaS-эстетика): структура капитала + small-multiples ──
+const CH = { teal: '#0F766E', slate: '#1E293B', grey: '#64748B', up: '#10B981', down: '#F43F5E', ink: '#334155', faint: '#94A3B8', line: '#E2E8F0' };
+
+function fmtShort(v) {
+  if (v == null) return '—';
+  const a = Math.abs(v), s = v < 0 ? '−' : '';
+  if (a >= 1e6) return s + (a / 1e6).toFixed(a / 1e6 >= 10 ? 0 : 1) + ' трлн';
+  if (a >= 1e3) return s + (a / 1e3).toFixed(a / 1e3 >= 10 ? 0 : 1) + ' млрд';
+  return s + Math.round(a) + ' млн';
 }
 
-// ── динамика показателей (графики один-под-другим) ──
+function smoothPath(pts) {                     // монотонно-кубическая сглаженная кривая
+  if (pts.length < 2) return pts.length ? `M${pts[0][0]} ${pts[0][1]}` : '';
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+function areaSpark(vals, color, uid) {         // area-спарклайн с градиентом и end-точкой
+  const W = 260, H = 48, n = vals.length, pad = 6;
+  const valid = vals.map((v, i) => [i, v]).filter((p) => p[1] != null);
+  if (valid.length < 2) return `<svg viewBox="0 0 ${W} ${H}" class="pspark"></svg>`;
+  const ys = valid.map((p) => p[1]); let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
+  const sx = (i) => n <= 1 ? W / 2 : pad + i / (n - 1) * (W - 2 * pad);
+  const sy = (v) => H - pad - (v - y0) / (y1 - y0) * (H - 2 * pad);
+  const pts = valid.map((p) => [sx(p[0]), sy(p[1])]);
+  const line = smoothPath(pts), last = pts[pts.length - 1];
+  const area = `${line} L${last[0].toFixed(1)} ${H} L${pts[0][0].toFixed(1)} ${H} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="pspark" preserveAspectRatio="none">`
+    + `<defs><linearGradient id="ag${uid}" x1="0" y1="0" x2="0" y2="1">`
+    + `<stop offset="0" stop-color="${color}" stop-opacity="0.18"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>`
+    + `<path d="${area}" fill="url(#ag${uid})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`
+    + `<circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.2" fill="${color}"/></svg>`;
+}
+
+function capitalStructure(h) {                  // Chart 1: накладывающиеся бары Активы/Капитал + леверидж
+  const A = h.assets_mln, E = h.equity_mln;
+  if (!A || !E || !A.some((v) => v != null)) return '';
+  const ys = h.years, maxA = Math.max(...A.filter((v) => v != null)), n = ys.length;
+  const W = Math.max(n * 50, 280), H = 158, base = H - 30, top = 12, bw = Math.min(38, W / n * 0.66);
+  const g = ys.map((y, i) => {
+    const a = A[i]; if (a == null) return '';
+    const e = E[i], cx = (i + 0.5) / n * W;
+    const ha = a / maxA * (base - top), ya = base - ha;
+    const he = e != null ? e / maxA * (base - top) : 0, ye = base - he;
+    const lev = (a && e != null) ? Math.round((a - e) / a * 100) : null;
+    return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${ya.toFixed(1)}" width="${bw.toFixed(1)}" height="${ha.toFixed(1)}" rx="3" fill="${CH.teal}" fill-opacity="0.20"/>`
+      + (e != null ? `<rect x="${(cx - bw * 0.3).toFixed(1)}" y="${ye.toFixed(1)}" width="${(bw * 0.6).toFixed(1)}" height="${he.toFixed(1)}" rx="2.5" fill="${CH.slate}"/>` : '')
+      + `<text x="${cx.toFixed(1)}" y="${(ya - 5).toFixed(1)}" class="cs-lbl" text-anchor="middle">${fmtShort(a)}</text>`
+      + `<text x="${cx.toFixed(1)}" y="${base + 14}" class="cs-yr" text-anchor="middle">'${String(y).slice(2)}</text>`
+      + (lev != null ? `<text x="${cx.toFixed(1)}" y="${base + 25}" class="cs-lev" text-anchor="middle">${lev}%</text>` : '');
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="cs-svg">${g}</svg>`;
+}
+
+function perfMultiples(h) {                      // Chart 2: small-multiples area + синхро-кросхейр
+  const M = [['revenue_mln', 'Выручка', CH.teal, 0], ['net_profit_mln', 'Чистая прибыль', CH.slate, 0],
+             ['ebitda_mln', 'EBITDA', CH.grey, 0], ['roe_pct', 'ROE', CH.slate, 1]];
+  const rows = M.filter((m) => h[m[0]] && h[m[0]].some((v) => v != null)).map((m, i) => {
+    const vals = h[m[0]], pct = m[3], valid = vals.filter((v) => v != null);
+    const last = valid[valid.length - 1], prev = valid[valid.length - 2];
+    const col = prev == null ? CH.ink : (last >= prev ? CH.up : CH.down);
+    const disp = pct ? ru(last, 1) + '%' : fmtShort(last);
+    return `<div class="pm-row" data-vals='${JSON.stringify(vals)}' data-pct="${pct}">`
+      + `<div class="pm-name"><span>${m[1]}</span><span class="pm-sub">${h.years[h.years.length - 1]}</span></div>`
+      + `<div class="pm-chart">${areaSpark(vals, m[2], 'p' + i)}<div class="pm-cross"></div></div>`
+      + `<div class="pm-val" style="color:${col}">${disp}</div></div>`;
+  }).join('');
+  return `<div class="pm" data-years='${JSON.stringify(h.years)}'>${rows}</div>`;
+}
+
 function historyHTML(h) {
   if (!h || !h.years || !h.years.length) return `<p class="muted">${ND}</p>`;
-  const fields = [
-    ['revenue_mln', 'Выручка', 'var(--accent-deep)', ' млн ₽'],
-    ['net_profit_mln', 'Чистая прибыль', 'var(--good-ink)', ' млн ₽'],
-    ['ebitda_mln', 'EBITDA', 'var(--accent)', ' млн ₽'],
-    ['total_debt_mln', 'Долг', 'var(--risk-ink)', ' млн ₽'],
-    ['roe_pct', 'ROE', 'var(--warn-ink)', '%'],
-  ];
-  const rows = fields.filter((f) => h[f[0]] && h[f[0]].some((v) => v != null)).map(([k, label, col, unit]) => {
-    const last = [...h[k]].reverse().find((v) => v != null);
-    return `<div class="hist-row"><span class="hist-lbl">${label}</span>${sparkline(h[k], col)}`
-      + `<span class="hist-val tnum">${last != null ? ru(last, unit === '%' ? 1 : 0) + unit : '—'}</span></div>`;
-  }).join('');
-  const axis = `<div class="hist-row hist-axis"><span></span>`
-    + `<div class="hist-yr">${h.years.map((y) => `<span>'${String(y).slice(2)}</span>`).join('')}</div>`
-    + `<span></span></div>`;
-  return `<div class="hist">${rows}${axis}</div>`;
+  const cs = capitalStructure(h);
+  const csBlock = cs ? `<div class="ch-block"><div class="ch-title">Структура капитала`
+    + `<span class="ch-leg"><i style="background:${CH.teal};opacity:.4"></i>Активы<i style="background:${CH.slate}"></i>Капитал · % = долг/активы</span></div>${cs}</div>` : '';
+  return `<div class="charts">${csBlock}<div class="ch-block"><div class="ch-title">Динамика показателей</div>${perfMultiples(h)}</div></div>`;
+}
+
+function wireCharts(root) {                      // синхронизированный кросхейр по small-multiples
+  root.querySelectorAll('.pm').forEach((pm) => {
+    const years = JSON.parse(pm.dataset.years);
+    const rows = [...pm.querySelectorAll('.pm-row')].map((r) => ({
+      vals: JSON.parse(r.dataset.vals), pct: r.dataset.pct === '1',
+      cross: r.querySelector('.pm-cross'), val: r.querySelector('.pm-val'), chart: r.querySelector('.pm-chart'),
+    }));
+    const reset = () => rows.forEach((d) => {
+      d.cross.style.opacity = 0;
+      const valid = d.vals.filter((v) => v != null), last = valid[valid.length - 1];
+      d.val.textContent = d.pct ? ru(last, 1) + '%' : fmtShort(last);
+    });
+    pm.addEventListener('mousemove', (e) => {
+      const rect = rows[0].chart.getBoundingClientRect();
+      let f = (e.clientX - rect.left) / rect.width; f = Math.max(0, Math.min(1, f));
+      const idx = Math.round(f * (years.length - 1)), w = rows[0].chart.clientWidth;
+      const x = years.length <= 1 ? w / 2 : 6 + idx / (years.length - 1) * (w - 12);
+      rows.forEach((d) => {
+        d.cross.style.left = x + 'px'; d.cross.style.opacity = 1;
+        const v = d.vals[idx];
+        d.val.textContent = v == null ? '—' : (d.pct ? ru(v, 1) + '%' : fmtShort(v));
+      });
+    });
+    pm.addEventListener('mouseleave', reset);
+  });
 }
 
 // ── матрица чувствительности (мини-таблица) ──
@@ -308,6 +381,7 @@ function toggleDetail(tr, t) {
     <div><h4>Детали</h4>${detailKV(t)}</div>
   </div></td>`;
   tr.after(dr);
+  wireCharts(dr);
 }
 
 function renderCards() {
@@ -341,6 +415,7 @@ function renderCards() {
     const t = VIEW[+this.dataset.i];
     box.innerHTML = valuationHTML(t.valuation) + historyHTML(t.history) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
+    wireCharts(box);
   }));
 }
 

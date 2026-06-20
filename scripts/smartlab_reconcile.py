@@ -37,7 +37,7 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 from smartlab_fetch import (  # noqa: E402
-    fetch_fundamentals, FIELD_MAP, RELIABLE, SmartLabUnavailable, SmartLabNotFound,
+    fetch_fundamentals, FIELD_MAP, RELIABLE, FILL_GAP, SmartLabUnavailable, SmartLabNotFound,
 )
 
 PANEL = os.path.join(REPO, "data", "panels_final", "panel_russia_final.csv")
@@ -164,6 +164,10 @@ def reconcile(tickers, years=YEARS, tol=TOL, delay=1.0):
                             n_fill += 1
                     elif slf in RELIABLE:
                         action = f"skip(unit:cur={g['cur'] or '?'},med={g['med']})"
+                    elif slf in FILL_GAP and g["ok"]:        # пробел → определение SmartLab (полнота)
+                        df.loc[(df.ticker == tk) & (df.year == int(y)), pcol] = slv_mln
+                        action = "FILL_gap(SL-def)"
+                        n_fill += 1
                     else:
                         action = "skip_empty(needs_mapping)"
                     report.append((tk, y, slf, pcol, None, round(slv_mln, 1), None, action, g["cur"], src))

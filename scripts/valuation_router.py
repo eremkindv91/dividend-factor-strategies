@@ -222,23 +222,43 @@ class ValuationRouter:
             return res("DCF — нерепрезентативен", float("nan"), {},
                        note + "DCF нерепрезентативен: отрицательный FCF (пик инвестцикла).", alert)
 
-        # дивидендная фишка → ЯКОРЬ DDM (механический DCF на высокой ставке завышает)
-        if div and div > 0:
+        def ddm_result(extra_note):
             ddm = DDM(div, re, g_ddm)
             sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
                                    [max(0.0, g_ddm - 0.01), g_ddm, g_ddm + 0.01])
             assum = {"D1": div, "Re": round(re, 3), "g": g_ddm}
-            n = note + f"Дивидендная фишка → якорь DDM (g={g_ddm:.0%}). "
+            n = note + extra_note
             if dcf_ok:
                 assum["DCF_fair"] = round(dcf_fair, 1)
-                n += f"DCF-кросс-чек: {dcf_fair:,.0f}₽."
-            else:
-                n += "DCF скрыт: отрицательный FCF (пик инвестцикла)."
+                n += f" DCF-кросс-чек: {dcf_fair:,.0f}₽."
             return res("DDM", ddm.fair(), assum, n, sens=sens)
 
-        # не дивидендная: DCF если репрезентативен, иначе блок
+        # РЕГУЛИРУЕМЫЕ (тариф → механический DCF завышает) + дивиденд → ЯКОРЬ DDM
+        if vclass == "REGULATED" and div and div > 0:
+            return ddm_result(f"Регулируемый дивиденд → якорь DDM (g={g_ddm:.0%}).")
+
+        # COMMODITY / MATURE (зрелый ген-кэша) → ЯКОРЬ DCF (если FCFF>0), DDM — кросс-чек
         if dcf_ok:
-            return res("DCF", dcf_fair, {"WACC": round(wacc, 3), "g": dcf.g}, note, sens=dcf_sens())
+            assum = {"WACC": round(wacc, 3), "g": dcf.g}
+            n = note + "Зрелый генератор кэша → якорь DCF (FCFF)."
+            alert = ""
+            if div and div > 0:
+                ddm_fair = DDM(div, re, g_ddm).fair()
+                assum["DDM_fair"] = round(ddm_fair, 1)
+                n += f" DDM-кросс-чек (g={g_ddm:.0%}): {ddm_fair:,.0f}₽."
+                # cross-check: Delta = |P_DCF − P_DDM| / P_DCF; >20% → governance/capital-allocation risk
+                if ddm_fair == ddm_fair and dcf_fair > 0:
+                    delta = abs(dcf_fair - ddm_fair) / dcf_fair
+                    assum["delta_pct"] = round(delta * 100)
+                    if delta > 0.20:
+                        alert = (f"Governance / Capital Allocation: DCF↔DDM расходятся на {delta * 100:.0f}% — "
+                                 "генерация FCF не конвертируется в доходность акционера "
+                                 "(запертый кэш / неэффективные M&A / перерасход capex).")
+            return res("DCF", dcf_fair, assum, n, alert=alert, sens=dcf_sens())
+
+        # DCF блокирован (FCFF<0): дивиденд → DDM-фолбэк, иначе «нерепрезентативен»
+        if div and div > 0:
+            return ddm_result("DCF скрыт (отрицательный FCF, пик инвестцикла) → оценка по DDM.")
         return res("DCF — нерепрезентативен", float("nan"), {},
                    note + "DCF нерепрезентативен: отрицательный свободный денежный поток (пик инвестцикла).")
 

@@ -162,14 +162,29 @@ tr.detail-row > td { padding: 0; background: #FBFCFE; }
 .sens-tbl th, .sens-tbl td { border: 1px solid var(--line); padding: 3px 7px; text-align: right;
   position: static; text-transform: none; letter-spacing: 0; box-shadow: none; cursor: default; white-space: nowrap; }
 .sens-tbl th { background: #F0F2F7; color: var(--ink-soft); font-weight: 600; }
-.hist { display: flex; flex-direction: column; gap: 1px; }
-.hist-row { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 10px; padding: 2px 0; }
-.hist-lbl { font-size: .8rem; color: var(--ink-soft); }
-.hist-val { font-size: .82rem; white-space: nowrap; }
-.spark { width: 100%; height: 38px; display: block; }
-.hist-years { font-size: .74rem; margin-top: 4px; }
-.hist-axis { padding-top: 3px; border-top: 1px solid var(--line); }
-.hist-yr { display: flex; justify-content: space-between; font-size: .68rem; color: var(--ink-faint); padding: 0 2px; }
+/* ── премиум-графики (структура капитала + small-multiples) ── */
+.charts { display: flex; flex-direction: column; gap: 16px; }
+.ch-title { font-size: .74rem; font-weight: 600; color: var(--ink-soft); text-transform: uppercase;
+  letter-spacing: .03em; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ch-leg { font-size: .68rem; color: var(--ink-faint); font-weight: 400; text-transform: none;
+  letter-spacing: 0; display: flex; gap: 4px; align-items: center; }
+.ch-leg i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-left: 5px; }
+.cs-svg { width: 100%; height: auto; display: block; }
+.cs-lbl { font-size: 9px; fill: #475569; font-family: var(--mono); }
+.cs-yr { font-size: 9.5px; fill: #94A3B8; }
+.cs-lev { font-size: 9px; fill: #64748B; font-family: var(--mono); font-weight: 600; }
+.pm { display: flex; flex-direction: column; }
+.pm-row { display: grid; grid-template-columns: 130px 1fr 92px; align-items: center; gap: 14px;
+  padding: 7px 0; border-bottom: .5px solid var(--line); }
+.pm-row:last-child { border-bottom: none; }
+.pm-name { display: flex; flex-direction: column; line-height: 1.2; }
+.pm-name span:first-child { font-size: .84rem; color: var(--ink); font-weight: 500; }
+.pm-sub { font-size: .68rem; color: var(--ink-faint); margin-top: 1px; }
+.pm-chart { position: relative; height: 48px; }
+.pspark { width: 100%; height: 48px; display: block; }
+.pm-cross { position: absolute; top: 2px; bottom: 2px; width: 1px; background: var(--ink-faint);
+  opacity: 0; pointer-events: none; transition: opacity .08s; }
+.pm-val { text-align: right; font-family: var(--mono); font-size: .88rem; font-weight: 600; white-space: nowrap; }
 
 /* ── Карточки (mobile) ── */
 .cards { display: none; }

@@ -66,10 +66,12 @@ ALIASES = {
     "LNTA": "LENT",   # Лента
 }
 
-RELIABLE = ("revenue", "assets", "net_income")   # безопасно для авто-заполнения пустых (сверено)
-# Только отчёт, НЕ авто-заполнять (определения расходятся): equity — доля меньшинства;
-# debt/net_debt/ebitda — аренда МСФО-16.
-NEEDS_MAPPING = ("net_assets", "debt", "net_debt", "ebitda")
+RELIABLE = ("revenue", "assets", "net_income")   # точный филл: unit-гейт + overlap-гейт (сверено)
+# Дозаполнять ПРОБЕЛЫ из SmartLab (его определение — для полноты графиков/оценки), НЕ перезапись.
+# Определения расходятся (аренда МСФО-16 / доля меньшинства), но заполнить пустую ячейку лучше,
+# чем оставить дыру; в отчёте помечается FILL_gap(SL-def).
+FILL_GAP = ("ebitda", "debt", "net_assets")
+NEEDS_MAPPING = ("net_debt",)                    # остаётся только отчёт (производное, шумит)
 
 
 def _http_get(url: str, timeout: int = 30, retries: int = 3) -> str:
