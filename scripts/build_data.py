@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 from moex_iss import get_prices  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
+MOMENTUM = os.path.join(REPO, "model_output", "momentum.json")
 OUT_JSON = os.path.join(REPO, "site", "data.json")
 
 YIELD_MAX = 100.0   # >100% или <0 — невозможно → reject поля
@@ -158,6 +159,14 @@ def main() -> int:
     tickers = [r["ticker"] for r in records]
     print(f"[build_data] артефакт: {len(tickers)} тикеров, forecast_asof={meta_a.get('forecast_asof')}")
 
+    momentum = {}                                    # WML 12-1 + vol_ann (месячный pipeline, опц.)
+    if os.path.exists(MOMENTUM):
+        try:
+            momentum = json.load(open(MOMENTUM, encoding="utf-8")).get("data", {})
+            print(f"[build_data] momentum: {len(momentum)} тикеров")
+        except Exception as e:  # noqa: BLE001
+            sys.stderr.write(f"[build_data] momentum.json битый ({e}) — без momentum\n")
+
     fetched = get_prices(tickers)
     prices, pmeta = fetched["prices"], fetched["meta"]
     n_usable = pmeta["n_fresh"] + pmeta["n_cached"]
@@ -258,6 +267,8 @@ def main() -> int:
             "nd_ebitda": r.get("nd_ebitda"),
             "mcap": (round(r["shares"] * price / 1e6) if (isinstance(r.get("shares"), (int, float))
                      and isinstance(price, (int, float)) and price) else ND),   # живая капитализация, млн ₽
+            "mom_score": (momentum.get(tk) or {}).get("mom"),     # WML 12-1 (месячный pipeline)
+            "vol_ann": (momentum.get(tk) or {}).get("vol_ann"),   # годовая волатильность (inverse-vol)
         })
 
     # ── upside-перцентиль внутри сектора (цено-зависим → считаем ЗДЕСЬ, к свежей цене, ежедневно) ──

@@ -537,8 +537,8 @@ const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходно
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor, отсечь пенни/неликвид
 const PF_QMETRICS = ['roe', 'ebitda_margin', 'debt_ebitda', 'div_yield'];  // сектор-нейтральные ранги
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
-  quality: { cagr: 17.5, sharpe: 0.40, maxdd: -33,
-    label: 'Quality-фактор · бэктест ВКР (расширенная модель, Q1-квинтиль, 2012–2025): CAGR 17,5%, Sharpe 0,40, устойчив по подпериодам' },
+  quality: { label: 'Quality-фактор · бэктест ВКР (расширенная модель, Q1-квинтиль, 2012–2025): CAGR 17,5%, Sharpe 0,40, устойчив по подпериодам' },
+  momentum: { label: 'Momentum (WML 12-1) · бэктест ВКР 2012–2025: Long-Short +6,5%/год избыточной доходности (t≈1,2 — на грани значимости); ребаланс месячный' },
 };
 
 // сектор-нейтральный quality-композит (мирроит Barra ВКР, переиспользует готовые перцентили)
@@ -557,17 +557,11 @@ function eligibleForPortfolio(t) {
   return true;
 }
 
-// проекция весов под лимиты: макс/бумагу + секторный кап (итеративный water-filling)
+// проекция весов под лимиты. Секторный кап — best-effort (итеративно), затем
+// индивидуальный — ГАРАНТИЯ через water-filling (maxW≥1/N всегда выполнимо).
 function capWeights(items, maxW, secCap) {
-  for (let iter = 0; iter < 80; iter++) {
+  for (let k = 0; k < 60; k++) {            // 1. секторный кап
     let changed = false;
-    items.forEach((it) => { it._cap = false; });
-    let excess = 0;
-    items.forEach((it) => { if (it.w > maxW + 1e-9) { excess += it.w - maxW; it.w = maxW; it._cap = true; changed = true; } });
-    if (excess > 1e-9) {
-      const free = items.filter((it) => !it._cap), fs = free.reduce((s, it) => s + it.w, 0);
-      if (fs > 1e-12) free.forEach((it) => { it.w += excess * it.w / fs; });
-    }
     const bySec = {};
     items.forEach((it) => { bySec[it.sector] = (bySec[it.sector] || 0) + it.w; });
     for (const sec in bySec) {
@@ -575,11 +569,23 @@ function capWeights(items, maxW, secCap) {
         const removed = bySec[sec] - secCap, scale = secCap / bySec[sec];
         items.filter((it) => it.sector === sec).forEach((it) => { it.w *= scale; });
         const others = items.filter((it) => it.sector !== sec), os = others.reduce((s, it) => s + it.w, 0);
-        if (os > 1e-12) others.forEach((it) => { it.w += removed * it.w / os; });
-        changed = true;
+        if (os > 1e-12) { others.forEach((it) => { it.w += removed * it.w / os; }); changed = true; }
       }
     }
     if (!changed) break;
+  }
+  for (let k = 0; k < 200; k++) {           // 2. индивидуальный кап (water-filling по остатку до maxW)
+    let excess = 0;
+    items.forEach((it) => { if (it.w > maxW + 1e-12) { excess += it.w - maxW; it.w = maxW; } });
+    if (excess < 1e-12) break;
+    const bySec = {};
+    items.forEach((it) => { bySec[it.sector] = (bySec[it.sector] || 0) + it.w; });
+    // излишек льём преимущественно в бумаги секторов с запасом до secCap (чтобы не раздувать капнутый сектор)
+    let room = items.filter((it) => it.w < maxW - 1e-12 && bySec[it.sector] < secCap - 1e-9);
+    let rs = room.reduce((s, it) => s + (maxW - it.w), 0);
+    if (rs < 1e-12) { room = items.filter((it) => it.w < maxW - 1e-12); rs = room.reduce((s, it) => s + (maxW - it.w), 0); }
+    if (rs < 1e-12) break;
+    room.forEach((it) => { it.w += excess * (maxW - it.w) / rs; });
   }
   const tot = items.reduce((s, it) => s + it.w, 0) || 1;
   items.forEach((it) => { it.w /= tot; });
@@ -592,10 +598,15 @@ function buildPortfolio(method, opts) {
   if (scored.length < 3) return null;
   scored.sort((a, b) => b.score - a.score);
   const top = scored.slice(0, opts.n);
-  const items = top.map((x) => ({
-    ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score,
-    w: opts.weight === 'score' ? Math.max(x.score, 1) : (opts.weight === 'mcap' && isNum(x.t.mcap) ? x.t.mcap : 1),
-  }));
+  const vols = top.map((x) => x.t.vol_ann).filter(isNum).sort((a, b) => a - b);   // для дозаполнения inverse-vol
+  const medVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
+  const items = top.map((x) => {
+    let w = 1;
+    if (opts.weight === 'score') w = Math.max(x.score, 1);
+    else if (opts.weight === 'mcap') w = isNum(x.t.mcap) ? x.t.mcap : 1;
+    else if (opts.weight === 'invvol') w = 1 / (isNum(x.t.vol_ann) && x.t.vol_ann > 0 ? x.t.vol_ann : medVol);
+    return { ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score, w };
+  });
   const tot0 = items.reduce((s, it) => s + it.w, 0) || 1;
   items.forEach((it) => { it.w /= tot0; });
   capWeights(items, Math.max(opts.cap / 100, 1 / items.length), opts.seccap / 100);
