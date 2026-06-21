@@ -77,7 +77,9 @@ STAB_HI, STAB_LO = 0.67, 0.34       # тиры надёжности (как в �
 VAL_BAND = 15.0                     # margin of safety, % (±15 → справедливо)
 VAL_CRED_MAX = 150.0                # потолок ПРАВДОПОДОБНОЙ недооценки: upside>150% — артефакт → «оценка н/д»
 VAL_CLAMP = 50.0                    # клэмп upside в скоре (гасит шумные мега-значения)
-FLAG_PENALTY = 0.8                  # множитель score при долге/governance
+FLAG_PENALTY = 0.8                  # множитель score при жёстком долге(>2.5)/governance
+DEBT_SOFT_LO, DEBT_SOFT_HI = 2.0, 2.5   # зона УМЕРЕННОГО левериджа (ниже жёсткого гейта 2.5)
+DEBT_SOFT_MAXPEN = 0.15             # макс штраф к score на верхней границе зоны
 VERDICT_LABELS = {                  # (тир надёжности, бэнд оценки) → (полный ярлык, короткий, цвет)
     ("hi", "under"): ("★ Надёжный и недооценён", "★ Надёжный+дёшево", "good"),
     ("hi", "fair"):  ("Надёжный, оценён справедливо", "Надёжный", "good"),
@@ -94,9 +96,10 @@ VERDICT_LABELS = {                  # (тир надёжности, бэнд о�
 }
 
 
-def compute_verdict(stability, upside, alert):
+def compute_verdict(stability, upside, alert, nd_eb=None):
     """Сводит надёжность × оценку в категориальный вердикт + score для сортировки.
-    score = Q·(1+clamp(V,±50)/100)·penalty — без свободных весов, экономически интерпретируемо."""
+    score = Q·(1+clamp(V,±50)/100)·penalty·lev_pen — без свободных весов, экономически интерпретируемо.
+    nd_eb — Net Debt/EBITDA: градуированный штраф за умеренный леверидж [2.0,2.5) ниже жёсткого гейта."""
     if not isinstance(stability, (int, float)):
         return None
     al = (alert or "").lower()
@@ -111,13 +114,19 @@ def compute_verdict(stability, upside, alert):
     band = "na" if v is None else ("under" if v >= VAL_BAND else ("over" if v <= -VAL_BAND else "fair"))
     label, short, color = VERDICT_LABELS[(stab_tier, band)]
     flags = (["в долг"] if f_debt else []) + (["governance"] if f_gov else [])
+    lev_pen = 1.0
+    if not f_debt and isinstance(nd_eb, (int, float)) and DEBT_SOFT_LO <= nd_eb < DEBT_SOFT_HI:
+        frac = (nd_eb - DEBT_SOFT_LO) / (DEBT_SOFT_HI - DEBT_SOFT_LO)   # 2.0→0, 2.5→1
+        lev_pen = 1.0 - DEBT_SOFT_MAXPEN * frac
+        flags.append("повышенный долг")        # леверидж близко к гейту, но ниже «в долг»
     if flags:
         if color in ("good", "neut"):
             color = "warn"                     # мягко: цвет ≤ амбер
         label += " · ⚠ " + "/".join(flags)
         short += " ⚠"
+    hard_pen = FLAG_PENALTY if (f_debt or f_gov) else 1.0
     vclamp = max(-VAL_CLAMP, min(VAL_CLAMP, v)) if v is not None else 0.0
-    score = q * (1 + vclamp / 100.0) * (FLAG_PENALTY if flags else 1.0)
+    score = q * (1 + vclamp / 100.0) * hard_pen * lev_pen
     return {"label": label, "short": short, "color": color, "score": round(score, 4),
             "q": round(q, 4), "v": (round(v, 1) if v is not None else None),
             "flags": flags, "unreliable": f_unrel, "tier": stab_tier, "band": band}
@@ -246,6 +255,7 @@ def main() -> int:
             "valuation": valuation_row(r.get("valuation"), price),
             "history": r.get("history"),
             "sector_percentiles": copy_sp(r.get("sector_percentiles")),
+            "nd_ebitda": r.get("nd_ebitda"),
         })
 
     # ── upside-перцентиль внутри сектора (цено-зависим → считаем ЗДЕСЬ, к свежей цене, ежедневно) ──
@@ -278,7 +288,7 @@ def main() -> int:
     n_verdict = 0
     for row in out_rows:
         val = row.get("valuation") or {}
-        vd = compute_verdict(row.get("stability_score"), val.get("upside_pct"), val.get("alert"))
+        vd = compute_verdict(row.get("stability_score"), val.get("upside_pct"), val.get("alert"), row.get("nd_ebitda"))
         row["verdict"] = vd
         row["verdict_score"] = vd["score"] if vd else ND
         if vd:

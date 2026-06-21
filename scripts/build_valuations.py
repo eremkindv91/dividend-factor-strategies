@@ -201,6 +201,9 @@ def main() -> int:
                               "assumptions": {}, "sensitivity": None}
         if len(sub):
             r["history"] = history_block(sub)
+            ndv = (pd.to_numeric(sub.sort_values("year")["net_debt_to_ebitda"], errors="coerce").dropna()
+                   if "net_debt_to_ebitda" in sub.columns else pd.Series(dtype=float))
+            r["nd_ebitda"] = round(float(ndv.iloc[-1]), 2) if len(ndv) else None   # для долгового штрафа вердикта
             n_hist += 1
 
     # ── cross-sectional Governance / Capital-Allocation флаг ──
