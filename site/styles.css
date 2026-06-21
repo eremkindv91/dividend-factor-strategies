@@ -177,6 +177,20 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .pf-secbar { height: 7px; border-radius: 999px; background: var(--neut-fill); overflow: hidden; }
 .pf-secbar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
 
+/* риск-метрики корзины */
+.pf-risk { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+.pf-risk-head { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint); margin-bottom: 10px; }
+.pf-risk-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.pf-rc { display: flex; flex-direction: column; gap: 2px; }
+.pf-rc span { font-size: .7rem; color: var(--ink-faint); }
+.pf-rc b { font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pf-rc b.g { color: var(--good-ink); }
+.pf-rc b.r { color: var(--risk-ink); }
+.pf-eq { margin: 10px 0 4px; }
+.pf-eq .pspark { height: 44px; }
+.pf-risk-note { font-size: .74rem; line-height: 1.4; }
+@media (max-width: 760px) { .pf-risk-grid { grid-template-columns: repeat(3, 1fr); } .pf-summary { grid-template-columns: repeat(2, 1fr); } .pf-grid { grid-template-columns: 1fr; } }
+
 /* раскрытие строки */
 tr.detail-row > td { padding: 0; background: #FBFCFE; }
 .detail {

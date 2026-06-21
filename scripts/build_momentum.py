@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WML 12-1 momentum + годовая волатильность по дневным свечам MOEX → model_output/momentum.json.
+Месячная история MOEX → model_output/momentum.json (скаляры) + model_output/returns.json (ряд).
 
-Momentum (Jegadeesh-Titman, как в нб 01_factor_backtest): 11-мес доходность со СКИПОМ последнего
-месяца — единственный фактор, устойчиво работающий на РФ на долгом сроке; ребаланс МЕСЯЧНЫЙ, поэтому
-пересчитываем раз в месяц. vol_ann (годовая волатильность дневных доходностей) — для inverse-vol
-взвешивания и будущей ковариации (Фаза 3).
+Из месячных свечей (~7.6 года, interval=31) считаем:
+  • momentum.json: WML 12-1 (Jegadeesh-Titman, как в нб 01) + годовая волатильность — для скоринга
+    и inverse-vol взвешивания корзины (ребаланс momentum месячный → пересчитываем раз в месяц);
+  • returns.json: ряд МЕСЯЧНЫХ доходностей по тикерам, выровненный на общую ось месяцев — фронт
+    собирает из него ряд доходностей корзины и считает КОРРЕКТНЫЕ риск-метрики (Sharpe/Sortino/
+    Calmar/maxDD/волатильность с учётом корреляций) + основа для ковариации (Фаза 3, оптимизатор).
 
-CIRCUIT-BREAKER против троттлинга MOEX с облачных IP (как в smartlab_reconcile): CB_MAX сетевых
-ошибок ПОДРЯД → стоп, сохраняем что успели + прошлый momentum.json (union, ничего не теряем).
-Запускать ЛУЧШЕ ЛОКАЛЬНО (чистый IP) и коммитить momentum.json; CI — fallback с брейкером.
+CIRCUIT-BREAKER против троттлинга MOEX с облачных IP (как smartlab_reconcile): CB_MAX сетевых
+ошибок ПОДРЯД → стоп, union с прошлым (ничего не теряем). Запускать ЛУЧШЕ ЛОКАЛЬНО + коммитить.
 
 Запуск:  python scripts/build_momentum.py
 """
@@ -29,85 +30,79 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 from moex_iss import fetch_candles  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
-OUT = os.path.join(REPO, "model_output", "momentum.json")
-CB_MAX = 8               # сетевых ошибок подряд → circuit-breaker
-PAUSE = 0.15             # вежливая пауза между тикерами
-MIN_CANDLES = 30
-
-
-def monthly_closes(candles):
-    """Последнее закрытие каждого месяца (свечи по возрастанию)."""
-    bym = {}
-    for d, c in candles:
-        bym[d[:7]] = c                       # перезапись → остаётся последняя сделка месяца
-    return [bym[m] for m in sorted(bym)]
-
-
-def momentum_12_1(monthly):
-    """11-мес доходность со скипом текущего месяца: M[-2]/M[-13]−1. Нужно ≥13 мес."""
-    if len(monthly) < 13:
-        return None
-    m2, m13 = monthly[-2], monthly[-13]
-    return (m2 / m13 - 1) if m13 > 0 else None
-
-
-def vol_annualized(candles):
-    """Годовая волатильность дневных доходностей (последние ~252 дня)."""
-    closes = [c for _, c in candles][-253:]
-    rets = [closes[i] / closes[i - 1] - 1 for i in range(1, len(closes)) if closes[i - 1] > 0]
-    if len(rets) < 20:
-        return None
-    return statistics.pstdev(rets) * math.sqrt(252)
+OUT_MOM = os.path.join(REPO, "model_output", "momentum.json")
+OUT_RET = os.path.join(REPO, "model_output", "returns.json")
+CB_MAX = 8                 # сетевых ошибок подряд → circuit-breaker
+PAUSE = 0.15
+HISTORY_DAYS = 2780        # ~7.6 года месячных свечей
+MAX_MONTHS = 96            # ось ряда доходностей (8 лет)
+VOL_WINDOW = 60            # окно для скалярной vol_ann (5 лет)
 
 
 def main() -> int:
     art = json.load(open(ARTIFACT, encoding="utf-8"))
     tickers = [r["ticker"] for r in art["tickers"]]
-    prev = {}
-    if os.path.exists(OUT):
+    prev_mom = {}
+    if os.path.exists(OUT_MOM):
         try:
-            prev = json.load(open(OUT, encoding="utf-8")).get("data", {})
+            prev_mom = json.load(open(OUT_MOM, encoding="utf-8")).get("data", {})
         except Exception:  # noqa: BLE001
-            prev = {}
-    out = dict(prev)                          # union: непролитые тикеры сохраняют прошлые значения
+            prev_mom = {}
+    mom_out = dict(prev_mom)
+    series: dict = {}          # tk → {month 'YYYY-MM': ret}
 
     consec_err = n_ok = n_skip = n_err = 0
     tripped = False
     for tk in tickers:
         try:
-            candles = fetch_candles(tk)
+            candles = fetch_candles(tk, days=HISTORY_DAYS, interval=31)   # месячные
             consec_err = 0
-        except Exception as e:                # noqa: BLE001 — сетевая ошибка/троттлинг
+        except Exception as e:  # noqa: BLE001
             consec_err += 1
             n_err += 1
             sys.stderr.write(f"[momentum] {tk}: {e}\n")
             if consec_err >= CB_MAX:
                 sys.stderr.write(f"[momentum] ⚡ CIRCUIT-BREAKER: {CB_MAX} ошибок подряд → стоп "
-                                 f"(сохраняю {n_ok} свежих + прошлые для остальных)\n")
+                                 f"(сохраняю {n_ok} свежих + прошлые)\n")
                 tripped = True
                 break
             time.sleep(1.0)
             continue
-        if len(candles) < MIN_CANDLES:
+        if len(candles) < 13:
             n_skip += 1
             continue
-        mom = momentum_12_1(monthly_closes(candles))
-        vol = vol_annualized(candles)
-        if mom is None and vol is None:
-            n_skip += 1
-            continue
-        out[tk] = {"mom": round(mom, 4) if mom is not None else None,
-                   "vol_ann": round(vol, 4) if vol is not None else None}
+        months = [d[:7] for d, _ in candles]
+        closes = [c for _, c in candles]
+        # WML 12-1: последний ПОЛНЫЙ месяц [-2] к 12 мес. назад [-13] (скип текущего [-1])
+        mom = (closes[-2] / closes[-13] - 1) if closes[-13] > 0 else None
+        # месячные доходности (ключ = месяц закрытия)
+        rets = {}
+        for i in range(1, len(closes)):
+            if closes[i - 1] > 0:
+                rets[months[i]] = closes[i] / closes[i - 1] - 1
+        rvals = list(rets.values())
+        vol = (statistics.pstdev(rvals[-VOL_WINDOW:]) * math.sqrt(12)) if len(rvals) >= 12 else None
+        mom_out[tk] = {"mom": round(mom, 4) if mom is not None else None,
+                       "vol_ann": round(vol, 4) if vol is not None else None}
+        series[tk] = rets
         n_ok += 1
         time.sleep(PAUSE)
 
-    data = {"meta": {"asof": datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d"),
-                     "n": len(out), "n_fresh": n_ok, "n_err": n_err, "tripped": tripped,
-                     "source": "MOEX ISS daily candles (TQBR), WML 12-1 + vol_ann"},
-            "data": out}
-    json.dump(data, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"[momentum] записано {os.path.relpath(OUT, REPO)}: всего {len(out)} | свежих {n_ok} | "
-          f"пропущено {n_skip} | ошибок {n_err} | breaker={'ДА' if tripped else 'нет'}")
+    # ── ось месяцев (последние MAX_MONTHS) + выравнивание рядов ──
+    all_months = sorted({m for s in series.values() for m in s})
+    axis = all_months[-MAX_MONTHS:]
+    ret_data = {tk: [round(s[m], 4) if m in s else None for m in axis] for tk, s in series.items()}
+
+    asof = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
+    json.dump({"meta": {"asof": asof, "n": len(mom_out), "n_fresh": n_ok, "n_err": n_err,
+                        "tripped": tripped, "source": "MOEX ISS monthly candles (TQBR), WML 12-1 + vol_ann"},
+               "data": mom_out}, open(OUT_MOM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump({"meta": {"asof": asof, "months": axis, "n_tickers": len(ret_data),
+                        "note": "месячные ценовые доходности, выровнены на общую ось"},
+               "data": ret_data}, open(OUT_RET, "w", encoding="utf-8"), ensure_ascii=False)
+    print(f"[momentum] momentum.json: {len(mom_out)} | returns.json: {len(ret_data)} тикеров × "
+          f"{len(axis)} мес ({axis[0] if axis else '—'}…{axis[-1] if axis else '—'}) | "
+          f"свежих {n_ok} | ошибок {n_err} | breaker={'ДА' if tripped else 'нет'}")
     return 0
 
 

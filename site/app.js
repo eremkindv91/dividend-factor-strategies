@@ -633,9 +633,69 @@ function portfolioMetrics(items, capital) {
   };
 }
 
+// ── риск-метрики корзины (исторический ряд месячных доходностей, ленивая подгрузка) ──
+const RF_HIST = 0.09;          // долгосрочная безрисковая РФ (период 2019–26; спот 15% — пик, исказил бы)
+let PF_RETURNS = null;
+let PF_RET_LOADING = false;
+function loadReturns(cb) {
+  if (PF_RETURNS) { cb(); return; }
+  if (PF_RET_LOADING) return;
+  PF_RET_LOADING = true;
+  fetch('returns.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { PF_RETURNS = j || { months: [], data: {} }; PF_RET_LOADING = false; cb(); })
+    .catch(() => { PF_RETURNS = { months: [], data: {} }; PF_RET_LOADING = false; cb(); });
+}
+function _pstdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); }
+
+function portfolioRisk(items, grossYieldPct) {
+  if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
+  const months = PF_RETURNS.months, R = PF_RETURNS.data;
+  const ydrip = (isNum(grossYieldPct) ? grossYieldPct : 0) / 100 / 12;   // дивиденд как равномерный месячный drip → тотал-ретёрн
+  const port = [];
+  for (let j = 0; j < months.length; j++) {
+    let num = 0, wsum = 0;
+    items.forEach((it) => { const r = (R[it.ticker] || [])[j]; if (isNum(r)) { num += it.w * r; wsum += it.w; } });
+    if (wsum > 0.5) port.push(num / wsum + ydrip);          // ≥50% веса покрыто историей
+  }
+  if (port.length < 24) return null;                         // мало истории для риск-метрик
+  const n = port.length;
+  const cagr = Math.pow(port.reduce((p, r) => p * (1 + r), 1), 12 / n) - 1;
+  const vol = _pstdev(port) * Math.sqrt(12);
+  const dd = Math.sqrt(port.reduce((s, r) => s + Math.min(r, 0) ** 2, 0) / n) * Math.sqrt(12);   // downside-дев (MAR=0)
+  let eq = 1, peak = 1, mdd = 0; const curve = [];
+  port.forEach((r) => { eq *= (1 + r); curve.push(eq); peak = Math.max(peak, eq); mdd = Math.min(mdd, eq / peak - 1); });
+  return {
+    months: n, cagr, vol, maxdd: mdd, equity: curve,
+    sharpe: vol ? (cagr - RF_HIST) / vol : null,
+    sortino: dd ? (cagr - RF_HIST) / dd : null,
+    calmar: mdd < 0 ? cagr / Math.abs(mdd) : null,
+  };
+}
+
+function riskPanelHTML(risk) {
+  if (!risk) return PF_RETURNS ? '' : '<div class="pf-risk-note muted">Загрузка истории для риск-метрик…</div>';
+  const cell = (lbl, val, cls) => `<div class="pf-rc"><span>${lbl}</span><b class="${cls || ''}">${val}</b></div>`;
+  const sg = (x) => (x >= 0.5 ? 'g' : (x < 0 ? 'r' : ''));
+  return `<div class="pf-risk">
+    <div class="pf-risk-head">Риск корзины · исторический, ${risk.months} мес</div>
+    <div class="pf-risk-grid">
+      ${cell('CAGR (тотал)', ru(risk.cagr * 100, 1) + '%')}
+      ${cell('Волатильность', ru(risk.vol * 100, 1) + '%')}
+      ${cell('Sharpe', risk.sharpe != null ? ru(risk.sharpe, 2) : mdash, sg(risk.sharpe))}
+      ${cell('Sortino', risk.sortino != null ? ru(risk.sortino, 2) : mdash, sg(risk.sortino))}
+      ${cell('Max drawdown', ru(risk.maxdd * 100, 0) + '%', 'r')}
+      ${cell('Calmar', risk.calmar != null ? ru(risk.calmar, 2) : mdash)}
+    </div>
+    <div class="pf-eq">${areaSpark(risk.equity, CH.teal, 'pfeq')}</div>
+    <div class="pf-risk-note muted">Тотал-ретёрн ≈ ценовой ряд MOEX + тек. дивдоходность (drip); vs долгосрочная безрисковая ~${(RF_HIST * 100).toFixed(0)}%. Это реализованный риск ТЕКУЩИХ бумаг корзины, не бэктест стратегии (его валидирует факторный бэктест ВКР выше).</div>
+  </div>`;
+}
+
 function renderPortfolio() {
   const out = document.getElementById('pf-out');
   if (!out) return;
+  if (!PF_RETURNS) loadReturns(renderPortfolio);     // подгрузим историю и перерисуем с риск-метриками
   const method = document.getElementById('pf-method').value;
   const opts = {
     n: +document.getElementById('pf-n').value,
@@ -648,6 +708,7 @@ function renderPortfolio() {
   if (!items) { out.innerHTML = `<p class="muted" style="padding:8px">Недостаточно подходящих бумаг для корзины.</p>`; return; }
   PF_LAST = { items, capital };
   const m = portfolioMetrics(items, capital);
+  const risk = portfolioRisk(items, m.grossY);
   const bt = FACTOR_BACKTEST[method];
   const rows = items.map((it, i) => {
     const alloc = capital ? capital * it.w : null;
@@ -668,6 +729,7 @@ function renderPortfolio() {
       <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
     </div>
     ${bt ? `<div class="pf-bt muted">📈 ${esc(bt.label)}</div>` : ''}
+    ${riskPanelHTML(risk)}
     <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th><th class="left">Вердикт</th></tr></thead><tbody>${rows}</tbody></table>
       <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>
       <div class="pf-sectors"><h4>Секторная концентрация</h4>${secBars}</div></div>`;

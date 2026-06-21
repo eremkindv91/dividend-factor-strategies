@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 from datetime import datetime, timezone
 
@@ -341,6 +342,12 @@ def main() -> int:
     print(f"[build_data] записано: {os.path.relpath(OUT_JSON, REPO)}")
     print(f"  ok={n_ok} insufficient={n_insuff} | доходность: reject={n_yield_rejected} "
           f"high={n_yield_high} | payout<0={n_payout_neg} | prices_stale={prices_stale}")
+
+    # ряд доходностей для риск-метрик конструктора (ленивая подгрузка фронтом)
+    ret_src = os.path.join(REPO, "model_output", "returns.json")
+    if os.path.exists(ret_src):
+        shutil.copyfile(ret_src, os.path.join(REPO, "site", "returns.json"))
+        print("[build_data] returns.json → site/")
     return 0
 
 

@@ -35,7 +35,7 @@ ISS_BOARD_URL = (
 )
 ISS_CANDLES_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{tk}/candles.json"
-    "?iss.meta=off&interval=24&from={frm}&till={till}&candles.columns=close,begin"
+    "?iss.meta=off&interval={interval}&from={frm}&till={till}&candles.columns=close,begin"
 )
 USER_AGENT = "dividend-forecast-site/1.0 (+https://github.com/eremkindv91/dividend-factor-strategies)"
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -91,14 +91,14 @@ def fetch_board_prices(timeout: int = 25, retries: int = 4) -> Dict[str, dict]:
     return out
 
 
-def fetch_candles(ticker: str, days: int = 430, timeout: int = 25,
+def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int = 25,
                   retries: int = 3) -> List[Tuple[str, float]]:
-    """Дневные свечи (close, дата) за последние ~days календарных дней, борд TQBR.
-    Возвращает [(YYYY-MM-DD, close)] по возрастанию; ~280 строк за 430 дней (< лимита пагинации
-    MOEX 500). Бросает RuntimeError при недоступности (ловится circuit-breaker'ом)."""
+    """Свечи (close, дата) за последние ~days календарных дней, борд TQBR. interval: 24=дневные,
+    31=месячные. Возвращает [(YYYY-MM-DD, close)] по возрастанию; держим число строк < лимита
+    пагинации MOEX 500 (месячные за 8 лет ≈96, дневные за 430д ≈280). RuntimeError при сбое."""
     till = date.today().isoformat()
     frm = (date.today() - timedelta(days=days)).isoformat()
-    url = ISS_CANDLES_URL.format(tk=ticker, frm=frm, till=till)
+    url = ISS_CANDLES_URL.format(tk=ticker, interval=interval, frm=frm, till=till)
     payload = _http_get_json(url, timeout=timeout, retries=retries)
     out = []
     for r in _rows(payload.get("candles", {"columns": [], "data": []})):

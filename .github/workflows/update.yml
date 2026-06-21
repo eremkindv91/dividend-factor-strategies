@@ -45,6 +45,7 @@ jobs:
         run: |
           TMP="$(mktemp -d)"
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
+          [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           touch "$TMP/.nojekyll"
           git -C "$TMP" init -q
           git -C "$TMP" checkout -q -b gh-pages
