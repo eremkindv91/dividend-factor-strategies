@@ -535,19 +535,14 @@ function exportCSV() {
 // ══════════ Конструктор портфеля ══════════
 const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходность «на руки»
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor, отсечь пенни/неликвид
-const PF_QMETRICS = ['roe', 'ebitda_margin', 'debt_ebitda', 'div_yield'];  // сектор-нейтральные ранги
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
-  quality: { label: 'Quality-фактор · бэктест ВКР (расширенная модель, Q1-квинтиль, 2012–2025): CAGR 17,5%, Sharpe 0,40, устойчив по подпериодам' },
+  quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
   momentum: { label: 'Momentum (WML 12-1) · бэктест ВКР 2012–2025: Long-Short +6,5%/год избыточной доходности (t≈1,2 — на грани значимости); ребаланс месячный' },
 };
 
-// сектор-нейтральный quality-композит (мирроит Barra ВКР, переиспользует готовые перцентили)
+// верная 3-дескрипторная Barra Quality (ROE / стабильность прибыли / леверидж; винзор+z+сектор-нейтрализация в build_valuations)
 function qualityScore(t) {
-  const parts = [];
-  const sp = t.sector_percentiles;
-  if (sp && Array.isArray(sp.metrics)) sp.metrics.forEach((m) => { if (PF_QMETRICS.includes(m.key)) parts.push(m.good_pct); });
-  if (isNum(t.stability_score)) parts.push(t.stability_score * 100);
-  return parts.length >= 2 ? parts.reduce((a, b) => a + b, 0) / parts.length : null;
+  return isNum(t.quality_barra) ? t.quality_barra : null;
 }
 
 function eligibleForPortfolio(t) {
@@ -674,7 +669,11 @@ function portfolioRisk(items, grossYieldPct) {
 }
 
 function riskPanelHTML(risk) {
-  if (!risk) return PF_RETURNS ? '' : '<div class="pf-risk-note muted">Загрузка истории для риск-метрик…</div>';
+  if (!risk) {
+    if (!PF_RETURNS) return '<div class="pf-risk-note muted">Загрузка истории для риск-метрик…</div>';
+    if (!PF_RETURNS.months || !PF_RETURNS.months.length) return '<div class="pf-risk-note muted">Историческая серия недоступна — риск-метрики не построены.</div>';
+    return '<div class="pf-risk-note muted">Недостаточно истории для риск-метрик этой корзины.</div>';
+  }
   const cell = (lbl, val, cls) => `<div class="pf-rc"><span>${lbl}</span><b class="${cls || ''}">${val}</b></div>`;
   const sg = (x) => (x >= 0.5 ? 'g' : (x < 0 ? 'r' : ''));
   return `<div class="pf-risk">

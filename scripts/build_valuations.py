@@ -146,6 +146,47 @@ def attach_sector_percentiles(art_tickers: list, panel: pd.DataFrame) -> int:
     return n_blocks
 
 
+def _cv(arr) -> float | None:
+    """Коэффициент вариации (std/|mean|) ряда — мера НЕстабильности прибыли (Barra EarningsVariability)."""
+    vals = [float(v) for v in (arr or []) if isinstance(v, (int, float))]
+    if len(vals) < 3:
+        return None
+    m = statistics.mean(vals)
+    return statistics.pstdev(vals) / abs(m) if m else None
+
+
+def attach_quality_barra(art_tickers: list, panel: pd.DataFrame) -> int:
+    """ВЕРНАЯ 3-дескрипторная Barra Quality (как 02b_quality_barra_msci ВКР): ROE(+),
+    стабильность прибыли(−CV EBITDA), леверидж(−Долг/EBITDA). Винзоризация 5/95 + z-score +
+    СЕКТОРНАЯ нейтрализация (z − среднее_сектора) + композит (среднее ≥2 дескрипторов). Кросс-секц."""
+    rows = []
+    for r in art_tickers:
+        f = _fundamentals(panel[panel["ticker"] == r["ticker"]])
+        hist = r.get("history") or {}
+        ev = _cv(hist.get("ebitda_mln"))
+        if ev is None:
+            ev = _cv(hist.get("net_profit_mln"))
+        rows.append({"ticker": r["ticker"], "sector": r.get("sector"),
+                     "roe": f.get("roe"), "earnvar": ev, "lev": f.get("debt_ebitda")})
+    df = pd.DataFrame(rows)
+    zcols = []
+    for col, sign in (("roe", 1.0), ("earnvar", -1.0), ("lev", -1.0)):   # знак: к качеству
+        s = pd.to_numeric(df[col], errors="coerce")
+        s = s.clip(s.quantile(0.05), s.quantile(0.95))                   # винзоризация
+        sd = s.std()
+        df[col + "_z"] = ((s - s.mean()) / sd * sign) if (sd and sd == sd) else s * 0.0
+        df[col + "_z"] = df[col + "_z"] - df.groupby("sector")[col + "_z"].transform("mean")  # сектор-нейтрализация
+        zcols.append(col + "_z")
+    df["q"] = df[zcols].apply(lambda row: row.dropna().mean() if row.notna().sum() >= 2 else None, axis=1)
+    qmap = dict(zip(df["ticker"], df["q"]))
+    n = 0
+    for r in art_tickers:
+        q = qmap.get(r["ticker"])
+        r["quality_barra"] = round(float(q), 3) if (q is not None and pd.notna(q)) else None
+        n += r["quality_barra"] is not None
+    return n
+
+
 def main() -> int:
     art = json.load(open(ARTIFACT, encoding="utf-8"))
     panel = pd.read_csv(PANEL)
@@ -242,6 +283,8 @@ def main() -> int:
 
     n_pct = attach_sector_percentiles(art["tickers"], panel)
     print(f"  сектор-перцентили: блоков {n_pct}")
+    n_qb = attach_quality_barra(art["tickers"], panel)
+    print(f"  Barra-3 quality: {n_qb}")
 
     art["meta"]["valuation_asof"] = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
     art["meta"]["rf_ofz"] = round(rf, 4)

@@ -262,7 +262,8 @@
         ]
       },
       "nd_ebitda": 0.73,
-      "shares": 92645451
+      "shares": 92645451,
+      "quality_barra": -0.387
     },
     {
       "ticker": "ABRD",
@@ -500,7 +501,8 @@
         ]
       },
       "nd_ebitda": 2.32,
-      "shares": 108889117
+      "shares": 108889117,
+      "quality_barra": 0.252
     },
     {
       "ticker": "AFKS",
@@ -638,7 +640,8 @@
         ]
       },
       "nd_ebitda": 4.65,
-      "shares": 9650000000
+      "shares": 9650000000,
+      "quality_barra": 0.0
     },
     {
       "ticker": "AFLT",
@@ -817,7 +820,8 @@
         ]
       },
       "nd_ebitda": 2.97,
-      "shares": 3975771215
+      "shares": 3975771215,
+      "quality_barra": -0.019
     },
     {
       "ticker": "AKRN",
@@ -1045,7 +1049,8 @@
         ]
       },
       "nd_ebitda": 1.77,
-      "shares": 36757156
+      "shares": 36757156,
+      "quality_barra": 0.372
     },
     {
       "ticker": "ALRS",
@@ -1274,7 +1279,8 @@
         ]
       },
       "nd_ebitda": 1.53,
-      "shares": 7364965630
+      "shares": 7364965630,
+      "quality_barra": 0.561
     },
     {
       "ticker": "AMEZ",
@@ -1489,7 +1495,8 @@
         ]
       },
       "nd_ebitda": 2.76,
-      "shares": 498454822
+      "shares": 498454822,
+      "quality_barra": -0.245
     },
     {
       "ticker": "APRI",
@@ -1652,7 +1659,8 @@
         ]
       },
       "nd_ebitda": 5.41,
-      "shares": 1115439217
+      "shares": 1115439217,
+      "quality_barra": 0.01
     },
     {
       "ticker": "APTK",
@@ -1872,7 +1880,8 @@
         ]
       },
       "nd_ebitda": 0.0,
-      "shares": 7630433826
+      "shares": 7630433826,
+      "quality_barra": 0.057
     },
     {
       "ticker": "AQUA",
@@ -2100,7 +2109,8 @@
         ]
       },
       "nd_ebitda": 1.28,
-      "shares": 87876649
+      "shares": 87876649,
+      "quality_barra": 0.376
     },
     {
       "ticker": "ARSA",
@@ -2312,7 +2322,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 123817165
+      "shares": 123817165,
+      "quality_barra": -0.02
     },
     {
       "ticker": "ASSB",
@@ -2527,7 +2538,8 @@
         ]
       },
       "nd_ebitda": 1.41,
-      "shares": 773900078
+      "shares": 773900078,
+      "quality_barra": 0.73
     },
     {
       "ticker": "ASTR",
@@ -2688,7 +2700,8 @@
         ]
       },
       "nd_ebitda": 0.24,
-      "shares": 210000000
+      "shares": 210000000,
+      "quality_barra": 0.427
     },
     {
       "ticker": "AVAN",
@@ -2900,7 +2913,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 80700000
+      "shares": 80700000,
+      "quality_barra": 0.808
     },
     {
       "ticker": "BANE",
@@ -3128,7 +3142,8 @@
         ]
       },
       "nd_ebitda": 0.59,
-      "shares": 147846489
+      "shares": 147846489,
+      "quality_barra": 0.01
     },
     {
       "ticker": "BANEP",
@@ -3357,7 +3372,8 @@
         ]
       },
       "nd_ebitda": 0.86,
-      "shares": 29788012
+      "shares": 29788012,
+      "quality_barra": 0.01
     },
     {
       "ticker": "BAZA",
@@ -3508,7 +3524,8 @@
         ]
       },
       "nd_ebitda": -0.68,
-      "shares": 165000000
+      "shares": 165000000,
+      "quality_barra": 0.458
     },
     {
       "ticker": "BELU",
@@ -3746,7 +3763,8 @@
         ]
       },
       "nd_ebitda": 1.9,
-      "shares": 126400000
+      "shares": 126400000,
+      "quality_barra": 0.338
     },
     {
       "ticker": "BISVP",
@@ -3975,7 +3993,8 @@
         ]
       },
       "nd_ebitda": 0.2,
-      "shares": 36165270
+      "shares": 36165270,
+      "quality_barra": 0.274
     },
     {
       "ticker": "BLNG",
@@ -4138,7 +4157,8 @@
         ]
       },
       "nd_ebitda": 1.23,
-      "shares": 1150000000
+      "shares": 1150000000,
+      "quality_barra": -1.992
     },
     {
       "ticker": "BRZL",
@@ -4367,7 +4387,8 @@
         ]
       },
       "nd_ebitda": -3.04,
-      "shares": 7027270
+      "shares": 7027270,
+      "quality_barra": -0.626
     },
     {
       "ticker": "BSPB",
@@ -4586,7 +4607,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 445368521
+      "shares": 445368521,
+      "quality_barra": 0.104
     },
     {
       "ticker": "BSPBP",
@@ -4808,7 +4830,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 20100000
+      "shares": 20100000,
+      "quality_barra": 0.039
     },
     {
       "ticker": "CARM",
@@ -4997,7 +5020,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 2917616015
+      "shares": 2917616015,
+      "quality_barra": 0.406
     },
     {
       "ticker": "CBOM",
@@ -5207,7 +5231,8 @@
         ]
       },
       "nd_ebitda": 1.62,
-      "shares": 33429709866
+      "shares": 33429709866,
+      "quality_barra": -0.342
     },
     {
       "ticker": "CHGZ",
@@ -5385,7 +5410,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 26771420
+      "shares": 26771420,
+      "quality_barra": null
     },
     {
       "ticker": "CHKZ",
@@ -5602,7 +5628,8 @@
         ]
       },
       "nd_ebitda": 1.62,
-      "shares": 600216
+      "shares": 600216,
+      "quality_barra": 0.704
     },
     {
       "ticker": "CHMF",
@@ -5831,7 +5858,8 @@
         ]
       },
       "nd_ebitda": 0.16,
-      "shares": 837718660
+      "shares": 837718660,
+      "quality_barra": 0.487
     },
     {
       "ticker": "CNRU",
@@ -5997,7 +6025,8 @@
         ]
       },
       "nd_ebitda": -3.07,
-      "shares": 77670490
+      "shares": 77670490,
+      "quality_barra": -0.543
     },
     {
       "ticker": "CNTL",
@@ -6216,7 +6245,8 @@
         ]
       },
       "nd_ebitda": -2.09,
-      "shares": 166167000
+      "shares": 166167000,
+      "quality_barra": -1.202
     },
     {
       "ticker": "CNTLP",
@@ -6447,7 +6477,8 @@
         ]
       },
       "nd_ebitda": -2.09,
-      "shares": 55389000
+      "shares": 55389000,
+      "quality_barra": -1.202
     },
     {
       "ticker": "DATA",
@@ -6617,7 +6648,8 @@
         ]
       },
       "nd_ebitda": -0.58,
-      "shares": 218021202
+      "shares": 218021202,
+      "quality_barra": 0.86
     },
     {
       "ticker": "DELI",
@@ -6839,7 +6871,8 @@
         ]
       },
       "nd_ebitda": 0.0,
-      "shares": 175849057
+      "shares": 175849057,
+      "quality_barra": -0.283
     },
     {
       "ticker": "DIAS",
@@ -7002,7 +7035,8 @@
         ]
       },
       "nd_ebitda": -0.81,
-      "shares": 10500000
+      "shares": 10500000,
+      "quality_barra": 1.057
     },
     {
       "ticker": "DIOD",
@@ -7230,7 +7264,8 @@
         ]
       },
       "nd_ebitda": -10.32,
-      "shares": 91500000
+      "shares": 91500000,
+      "quality_barra": -1.757
     },
     {
       "ticker": "DOMRF",
@@ -7419,7 +7454,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 179888718
+      "shares": 179888718,
+      "quality_barra": 0.88
     },
     {
       "ticker": "DVEC",
@@ -7648,7 +7684,8 @@
         ]
       },
       "nd_ebitda": 1.56,
-      "shares": 17223107804
+      "shares": 17223107804,
+      "quality_barra": 0.042
     },
     {
       "ticker": "DZRD",
@@ -7804,7 +7841,8 @@
         ]
       },
       "nd_ebitda": 1.99,
-      "shares": 343407
+      "shares": 343407,
+      "quality_barra": 0.012
     },
     {
       "ticker": "DZRDP",
@@ -8011,7 +8049,8 @@
         ]
       },
       "nd_ebitda": 1.99,
-      "shares": 114469
+      "shares": 114469,
+      "quality_barra": 0.012
     },
     {
       "ticker": "EELT",
@@ -8249,7 +8288,8 @@
         ]
       },
       "nd_ebitda": 0.71,
-      "shares": 551813000
+      "shares": 551813000,
+      "quality_barra": 0.206
     },
     {
       "ticker": "ELFV",
@@ -8478,7 +8518,8 @@
         ]
       },
       "nd_ebitda": 2.0,
-      "shares": 35371898370
+      "shares": 35371898370,
+      "quality_barra": 0.352
     },
     {
       "ticker": "ELMT",
@@ -8636,7 +8677,8 @@
         ]
       },
       "nd_ebitda": -1.3,
-      "shares": 469725539040
+      "shares": 469725539040,
+      "quality_barra": 0.6
     },
     {
       "ticker": "ENPG",
@@ -8815,7 +8857,8 @@
         ]
       },
       "nd_ebitda": 3.15,
-      "shares": 638848896
+      "shares": 638848896,
+      "quality_barra": -0.154
     },
     {
       "ticker": "ETLN",
@@ -8985,7 +9028,8 @@
         ]
       },
       "nd_ebitda": 8.77,
-      "shares": 383445362
+      "shares": 383445362,
+      "quality_barra": 0.227
     },
     {
       "ticker": "EUTR",
@@ -9157,7 +9201,8 @@
         ]
       },
       "nd_ebitda": 1.63,
-      "shares": 159148665
+      "shares": 159148665,
+      "quality_barra": -0.056
     },
     {
       "ticker": "FEES",
@@ -9327,7 +9372,8 @@
         ]
       },
       "nd_ebitda": 6.0,
-      "shares": 2113460101477
+      "shares": 2113460101477,
+      "quality_barra": 0.132
     },
     {
       "ticker": "FESH",
@@ -9555,7 +9601,8 @@
         ]
       },
       "nd_ebitda": 0.66,
-      "shares": 2951250000
+      "shares": 2951250000,
+      "quality_barra": -0.047
     },
     {
       "ticker": "FIXP",
@@ -9756,7 +9803,8 @@
         ]
       },
       "nd_ebitda": 0.26,
-      "shares": 1633605601
+      "shares": 1633605601,
+      "quality_barra": 0.973
     },
     {
       "ticker": "FIXR",
@@ -9985,7 +10033,8 @@
         ]
       },
       "nd_ebitda": 0.27,
-      "shares": 100000000000
+      "shares": 100000000000,
+      "quality_barra": 0.473
     },
     {
       "ticker": "FLOT",
@@ -10213,7 +10262,8 @@
         ]
       },
       "nd_ebitda": -0.74,
-      "shares": 2374993901
+      "shares": 2374993901,
+      "quality_barra": 0.285
     },
     {
       "ticker": "GAZP",
@@ -10432,7 +10482,8 @@
         ]
       },
       "nd_ebitda": 1.75,
-      "shares": 23673512900
+      "shares": 23673512900,
+      "quality_barra": -0.056
     },
     {
       "ticker": "GCHE",
@@ -10670,7 +10721,8 @@
         ]
       },
       "nd_ebitda": 2.36,
-      "shares": 42222042
+      "shares": 42222042,
+      "quality_barra": 0.261
     },
     {
       "ticker": "GEMC",
@@ -10881,7 +10933,8 @@
         ]
       },
       "nd_ebitda": -0.38,
-      "shares": 90000000
+      "shares": 90000000,
+      "quality_barra": 0.495
     },
     {
       "ticker": "GLRX",
@@ -11023,7 +11076,8 @@
         ]
       },
       "nd_ebitda": 3.29,
-      "shares": 282812500
+      "shares": 282812500,
+      "quality_barra": 0.166
     },
     {
       "ticker": "GMKN",
@@ -11251,7 +11305,8 @@
         ]
       },
       "nd_ebitda": 1.41,
-      "shares": 15286339700
+      "shares": 15286339700,
+      "quality_barra": 0.508
     },
     {
       "ticker": "GTRK",
@@ -11412,7 +11467,8 @@
         ]
       },
       "nd_ebitda": 18.47,
-      "shares": 58462120
+      "shares": 58462120,
+      "quality_barra": null
     },
     {
       "ticker": "HEAD",
@@ -11594,7 +11650,8 @@
         ]
       },
       "nd_ebitda": -0.06,
-      "shares": 47184918
+      "shares": 47184918,
+      "quality_barra": 0.877
     },
     {
       "ticker": "HIMCP",
@@ -11822,7 +11879,8 @@
         ]
       },
       "nd_ebitda": 1.82,
-      "shares": 229631402
+      "shares": 229631402,
+      "quality_barra": 0.023
     },
     {
       "ticker": "HNFG",
@@ -12039,7 +12097,8 @@
         ]
       },
       "nd_ebitda": 1.18,
-      "shares": 40444445
+      "shares": 40444445,
+      "quality_barra": 0.365
     },
     {
       "ticker": "HYDR",
@@ -12218,7 +12277,8 @@
         ]
       },
       "nd_ebitda": 7.52,
-      "shares": 444793377038
+      "shares": 444793377038,
+      "quality_barra": 0.393
     },
     {
       "ticker": "IGST",
@@ -12397,7 +12457,8 @@
         ]
       },
       "nd_ebitda": 1.33,
-      "shares": 800729
+      "shares": 800729,
+      "quality_barra": 0.243
     },
     {
       "ticker": "IGSTP",
@@ -12578,7 +12639,8 @@
         ]
       },
       "nd_ebitda": 1.33,
-      "shares": 266910
+      "shares": 266910,
+      "quality_barra": 0.243
     },
     {
       "ticker": "IRAO",
@@ -12816,7 +12878,8 @@
         ]
       },
       "nd_ebitda": -2.48,
-      "shares": 104400000000
+      "shares": 104400000000,
+      "quality_barra": 0.643
     },
     {
       "ticker": "IRKT",
@@ -12995,7 +13058,8 @@
         ]
       },
       "nd_ebitda": 6.65,
-      "shares": 12051279624
+      "shares": 12051279624,
+      "quality_barra": -0.95
     },
     {
       "ticker": "IVAT",
@@ -13165,7 +13229,8 @@
         ]
       },
       "nd_ebitda": 0.21,
-      "shares": 100000000
+      "shares": 100000000,
+      "quality_barra": 0.411
     },
     {
       "ticker": "JNOS",
@@ -13377,7 +13442,8 @@
         ]
       },
       "nd_ebitda": 2.02,
-      "shares": 932654723
+      "shares": 932654723,
+      "quality_barra": -0.168
     },
     {
       "ticker": "JNOSP",
@@ -13600,7 +13666,8 @@
         ]
       },
       "nd_ebitda": 2.02,
-      "shares": 310884574
+      "shares": 310884574,
+      "quality_barra": -0.168
     },
     {
       "ticker": "KAZT",
@@ -13837,7 +13904,8 @@
         ]
       },
       "nd_ebitda": 1.15,
-      "shares": 176582530
+      "shares": 176582530,
+      "quality_barra": 0.165
     },
     {
       "ticker": "KAZTP",
@@ -14075,7 +14143,8 @@
         ]
       },
       "nd_ebitda": 1.15,
-      "shares": 3204795
+      "shares": 3204795,
+      "quality_barra": 0.165
     },
     {
       "ticker": "KBSB",
@@ -14313,7 +14382,8 @@
         ]
       },
       "nd_ebitda": -2.3,
-      "shares": 17869440
+      "shares": 17869440,
+      "quality_barra": 0.296
     },
     {
       "ticker": "KCHE",
@@ -14492,7 +14562,8 @@
         ]
       },
       "nd_ebitda": 7.69,
-      "shares": 58294409860
+      "shares": 58294409860,
+      "quality_barra": -0.49
     },
     {
       "ticker": "KCHEP",
@@ -14720,7 +14791,8 @@
         ]
       },
       "nd_ebitda": 7.69,
-      "shares": 183062052
+      "shares": 183062052,
+      "quality_barra": -0.49
     },
     {
       "ticker": "KFBA",
@@ -14892,7 +14964,8 @@
         ]
       },
       "nd_ebitda": 12.52,
-      "shares": 41220793
+      "shares": 41220793,
+      "quality_barra": -1.786
     },
     {
       "ticker": "KGKC",
@@ -15121,7 +15194,8 @@
         ]
       },
       "nd_ebitda": 1.36,
-      "shares": 122453406
+      "shares": 122453406,
+      "quality_barra": 0.312
     },
     {
       "ticker": "KGKCP",
@@ -15350,7 +15424,8 @@
         ]
       },
       "nd_ebitda": 1.36,
-      "shares": 14393052
+      "shares": 14393052,
+      "quality_barra": 0.312
     },
     {
       "ticker": "KLSB",
@@ -15529,7 +15604,8 @@
         ]
       },
       "nd_ebitda": 2.52,
-      "shares": 91487347
+      "shares": 91487347,
+      "quality_barra": -0.209
     },
     {
       "ticker": "KLVZ",
@@ -15673,7 +15749,8 @@
         ]
       },
       "nd_ebitda": 3.13,
-      "shares": 921052700
+      "shares": 921052700,
+      "quality_barra": -1.889
     },
     {
       "ticker": "KMAZ",
@@ -15843,7 +15920,8 @@
         ]
       },
       "nd_ebitda": 5.62,
-      "shares": 707229559
+      "shares": 707229559,
+      "quality_barra": -0.475
     },
     {
       "ticker": "KMEZ",
@@ -16071,7 +16149,8 @@
         ]
       },
       "nd_ebitda": -0.38,
-      "shares": 3764600
+      "shares": 3764600,
+      "quality_barra": 0.173
     },
     {
       "ticker": "KOGK",
@@ -16276,7 +16355,8 @@
         ]
       },
       "nd_ebitda": 0.44,
-      "shares": 25012600
+      "shares": 25012600,
+      "quality_barra": -0.691
     },
     {
       "ticker": "KRKN",
@@ -16453,7 +16533,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 748012
+      "shares": 748012,
+      "quality_barra": null
     },
     {
       "ticker": "KRKNP",
@@ -16639,7 +16720,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 249337
+      "shares": 249337,
+      "quality_barra": null
     },
     {
       "ticker": "KRKOP",
@@ -16797,7 +16879,8 @@
         ]
       },
       "nd_ebitda": -0.95,
-      "shares": 71086000
+      "shares": 71086000,
+      "quality_barra": 1.089
     },
     {
       "ticker": "KROT",
@@ -17016,7 +17099,8 @@
         ]
       },
       "nd_ebitda": -0.08,
-      "shares": 9217583
+      "shares": 9217583,
+      "quality_barra": -1.995
     },
     {
       "ticker": "KROTP",
@@ -17238,7 +17322,8 @@
         ]
       },
       "nd_ebitda": -0.08,
-      "shares": 1474549
+      "shares": 1474549,
+      "quality_barra": -1.995
     },
     {
       "ticker": "KRSB",
@@ -17476,7 +17561,8 @@
         ]
       },
       "nd_ebitda": -1.31,
-      "shares": 596039612
+      "shares": 596039612,
+      "quality_barra": 0.332
     },
     {
       "ticker": "KRSBP",
@@ -17714,7 +17800,8 @@
         ]
       },
       "nd_ebitda": -1.31,
-      "shares": 168993328
+      "shares": 168993328,
+      "quality_barra": 0.332
     },
     {
       "ticker": "KUZB",
@@ -17833,7 +17920,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 22503490875
+      "shares": 22503490875,
+      "quality_barra": null
     },
     {
       "ticker": "KZOS",
@@ -18070,7 +18158,8 @@
         ]
       },
       "nd_ebitda": 0.41,
-      "shares": 1785114000
+      "shares": 1785114000,
+      "quality_barra": 0.06
     },
     {
       "ticker": "KZOSP",
@@ -18310,7 +18399,8 @@
         ]
       },
       "nd_ebitda": 0.41,
-      "shares": 119596000
+      "shares": 119596000,
+      "quality_barra": 0.06
     },
     {
       "ticker": "LEAS",
@@ -18529,7 +18619,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 120000000
+      "shares": 120000000,
+      "quality_barra": -1.461
     },
     {
       "ticker": "LENT",
@@ -18758,7 +18849,8 @@
         ]
       },
       "nd_ebitda": 1.79,
-      "shares": 115985197
+      "shares": 115985197,
+      "quality_barra": 0.406
     },
     {
       "ticker": "LKOH",
@@ -18996,7 +19088,8 @@
         ]
       },
       "nd_ebitda": -0.62,
-      "shares": 692865762
+      "shares": 692865762,
+      "quality_barra": 0.273
     },
     {
       "ticker": "LMBZ",
@@ -19213,7 +19306,8 @@
         ]
       },
       "nd_ebitda": -0.94,
-      "shares": 20752219
+      "shares": 20752219,
+      "quality_barra": 0.681
     },
     {
       "ticker": "LNZL",
@@ -19416,7 +19510,8 @@
         ]
       },
       "nd_ebitda": -3.84,
-      "shares": 1140300
+      "shares": 1140300,
+      "quality_barra": 0.471
     },
     {
       "ticker": "LNZLP",
@@ -19639,7 +19734,8 @@
         ]
       },
       "nd_ebitda": -4.28,
-      "shares": 347700
+      "shares": 347700,
+      "quality_barra": 0.462
     },
     {
       "ticker": "LPSB",
@@ -19868,7 +19964,8 @@
         ]
       },
       "nd_ebitda": -3.0,
-      "shares": 155521950
+      "shares": 155521950,
+      "quality_barra": 0.526
     },
     {
       "ticker": "LSNG",
@@ -20106,7 +20203,8 @@
         ]
       },
       "nd_ebitda": 0.0,
-      "shares": 8523785320
+      "shares": 8523785320,
+      "quality_barra": 0.238
     },
     {
       "ticker": "LSNGP",
@@ -20297,7 +20395,8 @@
         ]
       },
       "nd_ebitda": -0.23,
-      "shares": 93264311
+      "shares": 93264311,
+      "quality_barra": 0.088
     },
     {
       "ticker": "LSRG",
@@ -20476,7 +20575,8 @@
         ]
       },
       "nd_ebitda": 3.1,
-      "shares": 103030215
+      "shares": 103030215,
+      "quality_barra": 0.406
     },
     {
       "ticker": "LVHK",
@@ -20696,7 +20796,8 @@
         ]
       },
       "nd_ebitda": 1.26,
-      "shares": 52940000
+      "shares": 52940000,
+      "quality_barra": -0.579
     },
     {
       "ticker": "MAGE",
@@ -20866,7 +20967,8 @@
         ]
       },
       "nd_ebitda": 8.01,
-      "shares": 463838268
+      "shares": 463838268,
+      "quality_barra": -0.429
     },
     {
       "ticker": "MAGEP",
@@ -21085,7 +21187,8 @@
         ]
       },
       "nd_ebitda": 8.01,
-      "shares": 145673254
+      "shares": 145673254,
+      "quality_barra": -0.429
     },
     {
       "ticker": "MAGN",
@@ -21314,7 +21417,8 @@
         ]
       },
       "nd_ebitda": -1.02,
-      "shares": 11174330000
+      "shares": 11174330000,
+      "quality_barra": 0.384
     },
     {
       "ticker": "MBNK",
@@ -21533,7 +21637,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 37526637
+      "shares": 37526637,
+      "quality_barra": -0.377
     },
     {
       "ticker": "MDMG",
@@ -21752,7 +21857,8 @@
         ]
       },
       "nd_ebitda": -0.42,
-      "shares": 75125010
+      "shares": 75125010,
+      "quality_barra": -0.1
     },
     {
       "ticker": "MFGS",
@@ -21969,7 +22075,8 @@
         ]
       },
       "nd_ebitda": 5.32,
-      "shares": 99474705
+      "shares": 99474705,
+      "quality_barra": -0.508
     },
     {
       "ticker": "MFGSP",
@@ -22180,7 +22287,8 @@
         ]
       },
       "nd_ebitda": 1.72,
-      "shares": 33056875
+      "shares": 33056875,
+      "quality_barra": -0.353
     },
     {
       "ticker": "MGKL",
@@ -22392,7 +22500,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 1268545000
+      "shares": 1268545000,
+      "quality_barra": 0.122
     },
     {
       "ticker": "MGNT",
@@ -22625,7 +22734,8 @@
         ]
       },
       "nd_ebitda": 2.7,
-      "shares": 101911355
+      "shares": 101911355,
+      "quality_barra": -0.418
     },
     {
       "ticker": "MGTS",
@@ -22854,7 +22964,8 @@
         ]
       },
       "nd_ebitda": 0.37,
-      "shares": 79708751
+      "shares": 79708751,
+      "quality_barra": 0.498
     },
     {
       "ticker": "MGTSP",
@@ -23084,7 +23195,8 @@
         ]
       },
       "nd_ebitda": 0.37,
-      "shares": 15514042
+      "shares": 15514042,
+      "quality_barra": 0.498
     },
     {
       "ticker": "MISB",
@@ -23322,7 +23434,8 @@
         ]
       },
       "nd_ebitda": -1.63,
-      "shares": 121847780
+      "shares": 121847780,
+      "quality_barra": 0.105
     },
     {
       "ticker": "MISBP",
@@ -23560,7 +23673,8 @@
         ]
       },
       "nd_ebitda": -1.63,
-      "shares": 10652220
+      "shares": 10652220,
+      "quality_barra": 0.105
     },
     {
       "ticker": "MOEX",
@@ -23779,7 +23893,8 @@
         ]
       },
       "nd_ebitda": -0.84,
-      "shares": 2276401458
+      "shares": 2276401458,
+      "quality_barra": 0.644
     },
     {
       "ticker": "MRKC",
@@ -24017,7 +24132,8 @@
         ]
       },
       "nd_ebitda": 1.29,
-      "shares": 42217941468
+      "shares": 42217941468,
+      "quality_barra": 0.074
     },
     {
       "ticker": "MRKK",
@@ -24236,7 +24352,8 @@
         ]
       },
       "nd_ebitda": 1.83,
-      "shares": 2093354170
+      "shares": 2093354170,
+      "quality_barra": -1.309
     },
     {
       "ticker": "MRKP",
@@ -24474,7 +24591,8 @@
         ]
       },
       "nd_ebitda": 0.3,
-      "shares": 112697817043
+      "shares": 112697817043,
+      "quality_barra": 0.164
     },
     {
       "ticker": "MRKS",
@@ -24698,7 +24816,8 @@
         ]
       },
       "nd_ebitda": 4.03,
-      "shares": 94815163249
+      "shares": 94815163249,
+      "quality_barra": -0.217
     },
     {
       "ticker": "MRKU",
@@ -24936,7 +25055,8 @@
         ]
       },
       "nd_ebitda": 0.89,
-      "shares": 87430485711
+      "shares": 87430485711,
+      "quality_barra": 0.035
     },
     {
       "ticker": "MRKV",
@@ -25174,7 +25294,8 @@
         ]
       },
       "nd_ebitda": 0.3,
-      "shares": 188307958732
+      "shares": 188307958732,
+      "quality_barra": 0.141
     },
     {
       "ticker": "MRKY",
@@ -25403,7 +25524,8 @@
         ]
       },
       "nd_ebitda": 1.57,
-      "shares": 151641426354
+      "shares": 151641426354,
+      "quality_barra": -0.47
     },
     {
       "ticker": "MRKZ",
@@ -25573,7 +25695,8 @@
         ]
       },
       "nd_ebitda": 0.64,
-      "shares": 95785923138
+      "shares": 95785923138,
+      "quality_barra": 0.336
     },
     {
       "ticker": "MRSB",
@@ -25781,7 +25904,8 @@
         ]
       },
       "nd_ebitda": 0.14,
-      "shares": 1345037710
+      "shares": 1345037710,
+      "quality_barra": 0.689
     },
     {
       "ticker": "MSRS",
@@ -26018,7 +26142,8 @@
         ]
       },
       "nd_ebitda": 1.03,
-      "shares": 48707091574
+      "shares": 48707091574,
+      "quality_barra": 0.076
     },
     {
       "ticker": "MTLR",
@@ -26233,7 +26358,8 @@
         ]
       },
       "nd_ebitda": 8.36,
-      "shares": 416270745
+      "shares": 416270745,
+      "quality_barra": -1.438
     },
     {
       "ticker": "MTLRP",
@@ -26452,7 +26578,8 @@
         ]
       },
       "nd_ebitda": 8.36,
-      "shares": 138756915
+      "shares": 138756915,
+      "quality_barra": -1.438
     },
     {
       "ticker": "MTSS",
@@ -26681,7 +26808,8 @@
         ]
       },
       "nd_ebitda": 2.47,
-      "shares": 1998381575
+      "shares": 1998381575,
+      "quality_barra": -0.145
     },
     {
       "ticker": "MVID",
@@ -26842,7 +26970,8 @@
         ]
       },
       "nd_ebitda": 4.09,
-      "shares": 179768227
+      "shares": 179768227,
+      "quality_barra": null
     },
     {
       "ticker": "NAUK",
@@ -27080,7 +27209,8 @@
         ]
       },
       "nd_ebitda": -1.33,
-      "shares": 11789500
+      "shares": 11789500,
+      "quality_barra": 0.894
     },
     {
       "ticker": "NFAZ",
@@ -27238,7 +27368,8 @@
         ]
       },
       "nd_ebitda": 4.38,
-      "shares": 8038896
+      "shares": 8038896,
+      "quality_barra": -0.914
     },
     {
       "ticker": "NKHP",
@@ -27466,7 +27597,8 @@
         ]
       },
       "nd_ebitda": -0.79,
-      "shares": 67597000
+      "shares": 67597000,
+      "quality_barra": 0.387
     },
     {
       "ticker": "NKNC",
@@ -27654,7 +27786,8 @@
         ]
       },
       "nd_ebitda": 2.72,
-      "shares": 1611256000
+      "shares": 1611256000,
+      "quality_barra": 0.089
     },
     {
       "ticker": "NKNCP",
@@ -27892,7 +28025,8 @@
         ]
       },
       "nd_ebitda": 2.72,
-      "shares": 218983750
+      "shares": 218983750,
+      "quality_barra": 0.089
     },
     {
       "ticker": "NKSH",
@@ -28120,7 +28254,8 @@
         ]
       },
       "nd_ebitda": -0.02,
-      "shares": 63731171
+      "shares": 63731171,
+      "quality_barra": -0.21
     },
     {
       "ticker": "NLMK",
@@ -28349,7 +28484,8 @@
         ]
       },
       "nd_ebitda": -0.05,
-      "shares": 5993227240
+      "shares": 5993227240,
+      "quality_barra": 0.5
     },
     {
       "ticker": "NMTP",
@@ -28577,7 +28713,8 @@
         ]
       },
       "nd_ebitda": -0.08,
-      "shares": 19259815400
+      "shares": 19259815400,
+      "quality_barra": 0.438
     },
     {
       "ticker": "NNSB",
@@ -28806,7 +28943,8 @@
         ]
       },
       "nd_ebitda": 1.1,
-      "shares": 3919400
+      "shares": 3919400,
+      "quality_barra": -0.484
     },
     {
       "ticker": "NNSBP",
@@ -28987,7 +29125,8 @@
         ]
       },
       "nd_ebitda": 1.1,
-      "shares": 1063512
+      "shares": 1063512,
+      "quality_barra": -0.484
     },
     {
       "ticker": "NSVZ",
@@ -29211,7 +29350,8 @@
         ]
       },
       "nd_ebitda": 2.8,
-      "shares": 15701562
+      "shares": 15701562,
+      "quality_barra": -0.209
     },
     {
       "ticker": "NVTK",
@@ -29449,7 +29589,8 @@
         ]
       },
       "nd_ebitda": -0.05,
-      "shares": 3036306000
+      "shares": 3036306000,
+      "quality_barra": 0.04
     },
     {
       "ticker": "OKEY",
@@ -29664,7 +29805,8 @@
         ]
       },
       "nd_ebitda": 2.74,
-      "shares": 737265416
+      "shares": 737265416,
+      "quality_barra": 0.579
     },
     {
       "ticker": "OMZZP",
@@ -29895,7 +30037,8 @@
         ]
       },
       "nd_ebitda": 0.3,
-      "shares": 2750000
+      "shares": 2750000,
+      "quality_barra": -0.096
     },
     {
       "ticker": "OZON",
@@ -30077,7 +30220,8 @@
         ]
       },
       "nd_ebitda": 0.0,
-      "shares": 216413733
+      "shares": 216413733,
+      "quality_barra": -1.17
     },
     {
       "ticker": "OZPH",
@@ -30275,7 +30419,8 @@
         ]
       },
       "nd_ebitda": 1.11,
-      "shares": 1167690558
+      "shares": 1167690558,
+      "quality_barra": 0.017
     },
     {
       "ticker": "PAZA",
@@ -30469,7 +30614,8 @@
         ]
       },
       "nd_ebitda": -2.26,
-      "shares": 1567904
+      "shares": 1567904,
+      "quality_barra": 0.711
     },
     {
       "ticker": "PHOR",
@@ -30697,7 +30843,8 @@
         ]
       },
       "nd_ebitda": 2.1,
-      "shares": 129500000
+      "shares": 129500000,
+      "quality_barra": 0.158
     },
     {
       "ticker": "PIKK",
@@ -30867,7 +31014,8 @@
         ]
       },
       "nd_ebitda": 3.99,
-      "shares": 660497344
+      "shares": 660497344,
+      "quality_barra": -0.364
     },
     {
       "ticker": "PLZL",
@@ -31095,7 +31243,8 @@
         ]
       },
       "nd_ebitda": 1.56,
-      "shares": 1360694001
+      "shares": 1360694001,
+      "quality_barra": 1.189
     },
     {
       "ticker": "PMSB",
@@ -31333,7 +31482,8 @@
         ]
       },
       "nd_ebitda": -2.0,
-      "shares": 36210960
+      "shares": 36210960,
+      "quality_barra": 0.767
     },
     {
       "ticker": "PMSBP",
@@ -31571,7 +31721,8 @@
         ]
       },
       "nd_ebitda": -2.0,
-      "shares": 11353500
+      "shares": 11353500,
+      "quality_barra": 0.767
     },
     {
       "ticker": "POSI",
@@ -31753,7 +31904,8 @@
         ]
       },
       "nd_ebitda": 3.12,
-      "shares": 71214000
+      "shares": 71214000,
+      "quality_barra": 0.105
     },
     {
       "ticker": "PRFN",
@@ -31982,7 +32134,8 @@
         ]
       },
       "nd_ebitda": -1.04,
-      "shares": 838287450
+      "shares": 838287450,
+      "quality_barra": 0.894
     },
     {
       "ticker": "PRMD",
@@ -32180,7 +32333,8 @@
         ]
       },
       "nd_ebitda": 2.17,
-      "shares": 212500000
+      "shares": 212500000,
+      "quality_barra": -0.154
     },
     {
       "ticker": "QIWI",
@@ -32383,7 +32537,8 @@
         ]
       },
       "nd_ebitda": -1.68,
-      "shares": 68222621
+      "shares": 68222621,
+      "quality_barra": -0.875
     },
     {
       "ticker": "RAGR",
@@ -32598,7 +32753,8 @@
         ]
       },
       "nd_ebitda": 2.58,
-      "shares": 958749600
+      "shares": 958749600,
+      "quality_barra": 0.081
     },
     {
       "ticker": "RASP",
@@ -32817,7 +32973,8 @@
         ]
       },
       "nd_ebitda": 0.06,
-      "shares": 665733918
+      "shares": 665733918,
+      "quality_barra": -0.833
     },
     {
       "ticker": "RDRB",
@@ -33036,7 +33193,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 27492735
+      "shares": 27492735,
+      "quality_barra": 0.025
     },
     {
       "ticker": "RENI",
@@ -33255,7 +33413,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 556952780
+      "shares": 556952780,
+      "quality_barra": 0.602
     },
     {
       "ticker": "RGSS",
@@ -33465,7 +33624,8 @@
         ]
       },
       "nd_ebitda": 1.96,
-      "shares": 489503740915
+      "shares": 489503740915,
+      "quality_barra": 0.595
     },
     {
       "ticker": "RKKE",
@@ -33680,7 +33840,8 @@
         ]
       },
       "nd_ebitda": 6.3,
-      "shares": 1842049
+      "shares": 1842049,
+      "quality_barra": -1.183
     },
     {
       "ticker": "RNFT",
@@ -33908,7 +34069,8 @@
         ]
       },
       "nd_ebitda": 1.11,
-      "shares": 294120000
+      "shares": 294120000,
+      "quality_barra": 0.26
     },
     {
       "ticker": "ROLO",
@@ -34078,7 +34240,8 @@
         ]
       },
       "nd_ebitda": 11.76,
-      "shares": 30001000000
+      "shares": 30001000000,
+      "quality_barra": -0.472
     },
     {
       "ticker": "ROSN",
@@ -34298,7 +34461,8 @@
         ]
       },
       "nd_ebitda": 0.05,
-      "shares": 10598177817
+      "shares": 10598177817,
+      "quality_barra": null
     },
     {
       "ticker": "ROST",
@@ -34468,7 +34632,8 @@
         ]
       },
       "nd_ebitda": 2.72,
-      "shares": 16305334
+      "shares": 16305334,
+      "quality_barra": 0.244
     },
     {
       "ticker": "RTGZ",
@@ -34617,7 +34782,8 @@
         ]
       },
       "nd_ebitda": 9.49,
-      "shares": 120246
+      "shares": 120246,
+      "quality_barra": 0.125
     },
     {
       "ticker": "RTKM",
@@ -34855,7 +35021,8 @@
         ]
       },
       "nd_ebitda": 1.65,
-      "shares": 3282997929
+      "shares": 3282997929,
+      "quality_barra": 0.176
     },
     {
       "ticker": "RTKMP",
@@ -35084,7 +35251,8 @@
         ]
       },
       "nd_ebitda": 2.36,
-      "shares": 209565147
+      "shares": 209565147,
+      "quality_barra": 0.105
     },
     {
       "ticker": "RTSB",
@@ -35313,7 +35481,8 @@
         ]
       },
       "nd_ebitda": -7.27,
-      "shares": 8128764676
+      "shares": 8128764676,
+      "quality_barra": 0.595
     },
     {
       "ticker": "RTSBP",
@@ -35542,7 +35711,8 @@
         ]
       },
       "nd_ebitda": -7.27,
-      "shares": 925737256
+      "shares": 925737256,
+      "quality_barra": 0.595
     },
     {
       "ticker": "RUAL",
@@ -35766,7 +35936,8 @@
         ]
       },
       "nd_ebitda": 4.36,
-      "shares": 15193014862
+      "shares": 15193014862,
+      "quality_barra": 0.195
     },
     {
       "ticker": "RUSI",
@@ -35969,7 +36140,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 109000000
+      "shares": 109000000,
+      "quality_barra": -2.036
     },
     {
       "ticker": "RZSB",
@@ -36193,7 +36365,8 @@
         ]
       },
       "nd_ebitda": -1.34,
-      "shares": 206940220
+      "shares": 206940220,
+      "quality_barra": 0.804
     },
     {
       "ticker": "SAGO",
@@ -36408,7 +36581,8 @@
         ]
       },
       "nd_ebitda": -2.29,
-      "shares": 3480630296
+      "shares": 3480630296,
+      "quality_barra": 0.228
     },
     {
       "ticker": "SAGOP",
@@ -36623,7 +36797,8 @@
         ]
       },
       "nd_ebitda": -2.29,
-      "shares": 364918444
+      "shares": 364918444,
+      "quality_barra": 0.228
     },
     {
       "ticker": "SARE",
@@ -36774,7 +36949,8 @@
         ]
       },
       "nd_ebitda": -1.38,
-      "shares": 4865127996
+      "shares": 4865127996,
+      "quality_barra": 0.459
     },
     {
       "ticker": "SAREP",
@@ -36925,7 +37101,8 @@
         ]
       },
       "nd_ebitda": -1.38,
-      "shares": 1493316000
+      "shares": 1493316000,
+      "quality_barra": 0.459
     },
     {
       "ticker": "SBER",
@@ -37144,7 +37321,8 @@
         ]
       },
       "nd_ebitda": 1.54,
-      "shares": 21586948000
+      "shares": 21586948000,
+      "quality_barra": 0.222
     },
     {
       "ticker": "SBERP",
@@ -37364,7 +37542,8 @@
         ]
       },
       "nd_ebitda": 1.54,
-      "shares": 1000000000
+      "shares": 1000000000,
+      "quality_barra": 0.144
     },
     {
       "ticker": "SELG",
@@ -37579,7 +37758,8 @@
         ]
       },
       "nd_ebitda": 3.23,
-      "shares": 1030000000
+      "shares": 1030000000,
+      "quality_barra": 0.392
     },
     {
       "ticker": "SFIN",
@@ -37789,7 +37969,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 50237005
+      "shares": 50237005,
+      "quality_barra": null
     },
     {
       "ticker": "SGZH",
@@ -37959,7 +38140,8 @@
         ]
       },
       "nd_ebitda": 14.84,
-      "shares": 78450000000
+      "shares": 78450000000,
+      "quality_barra": -1.511
     },
     {
       "ticker": "SIBN",
@@ -38196,7 +38378,8 @@
         ]
       },
       "nd_ebitda": 0.8,
-      "shares": 4741299639
+      "shares": 4741299639,
+      "quality_barra": 0.091
     },
     {
       "ticker": "SLEN",
@@ -38375,7 +38558,8 @@
         ]
       },
       "nd_ebitda": 2.7,
-      "shares": 2237123773
+      "shares": 2237123773,
+      "quality_barra": -0.25
     },
     {
       "ticker": "SMLT",
@@ -38545,7 +38729,8 @@
         ]
       },
       "nd_ebitda": 7.38,
-      "shares": 61579358
+      "shares": 61579358,
+      "quality_barra": 0.091
     },
     {
       "ticker": "SOFL",
@@ -38722,7 +38907,8 @@
         ]
       },
       "nd_ebitda": 0.0,
-      "shares": 400002000
+      "shares": 400002000,
+      "quality_barra": 0.187
     },
     {
       "ticker": "SPBE",
@@ -38932,7 +39118,8 @@
         ]
       },
       "nd_ebitda": -4.01,
-      "shares": 132843907
+      "shares": 132843907,
+      "quality_barra": 0.283
     },
     {
       "ticker": "SVAV",
@@ -39170,7 +39357,8 @@
         ]
       },
       "nd_ebitda": 0.35,
-      "shares": 31486001
+      "shares": 31486001,
+      "quality_barra": 0.262
     },
     {
       "ticker": "SVCB",
@@ -39375,7 +39563,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 22516228905
+      "shares": 22516228905,
+      "quality_barra": -0.093
     },
     {
       "ticker": "T",
@@ -39594,7 +39783,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 268274786
+      "shares": 268274786,
+      "quality_barra": 0.011
     },
     {
       "ticker": "TATN",
@@ -39832,7 +40022,8 @@
         ]
       },
       "nd_ebitda": -0.22,
-      "shares": 2178690700
+      "shares": 2178690700,
+      "quality_barra": 0.246
     },
     {
       "ticker": "TATNP",
@@ -40069,7 +40260,8 @@
         ]
       },
       "nd_ebitda": -0.22,
-      "shares": 147508500
+      "shares": 147508500,
+      "quality_barra": 0.246
     },
     {
       "ticker": "TGKB",
@@ -40293,7 +40485,8 @@
         ]
       },
       "nd_ebitda": 10.35,
-      "shares": 1458404850747
+      "shares": 1458404850747,
+      "quality_barra": -1.929
     },
     {
       "ticker": "TGKBP",
@@ -40474,7 +40667,8 @@
         ]
       },
       "nd_ebitda": 10.35,
-      "shares": 16500533681
+      "shares": 16500533681,
+      "quality_barra": -1.929
     },
     {
       "ticker": "TGKN",
@@ -40662,7 +40856,8 @@
         ]
       },
       "nd_ebitda": 1.83,
-      "shares": 1357945609114
+      "shares": 1357945609114,
+      "quality_barra": -0.536
     },
     {
       "ticker": "TNSE",
@@ -40891,7 +41086,8 @@
         ]
       },
       "nd_ebitda": -1.2,
-      "shares": 13668239
+      "shares": 13668239,
+      "quality_barra": 0.527
     },
     {
       "ticker": "TORS",
@@ -41129,7 +41325,8 @@
         ]
       },
       "nd_ebitda": 0.14,
-      "shares": 3819315580
+      "shares": 3819315580,
+      "quality_barra": -0.023
     },
     {
       "ticker": "TORSP",
@@ -41367,7 +41564,8 @@
         ]
       },
       "nd_ebitda": 0.14,
-      "shares": 576693000
+      "shares": 576693000,
+      "quality_barra": -0.023
     },
     {
       "ticker": "TRMK",
@@ -41582,7 +41780,8 @@
         ]
       },
       "nd_ebitda": 4.76,
-      "shares": 1052000000
+      "shares": 1052000000,
+      "quality_barra": 0.229
     },
     {
       "ticker": "TRNFP",
@@ -41770,7 +41969,8 @@
         ]
       },
       "nd_ebitda": 0.28,
-      "shares": 155487500
+      "shares": 155487500,
+      "quality_barra": 0.193
     },
     {
       "ticker": "TTLK",
@@ -42008,7 +42208,8 @@
         ]
       },
       "nd_ebitda": -0.4,
-      "shares": 20843976400
+      "shares": 20843976400,
+      "quality_barra": 0.485
     },
     {
       "ticker": "TUZA",
@@ -42206,7 +42407,8 @@
         ]
       },
       "nd_ebitda": -0.9,
-      "shares": 8220000
+      "shares": 8220000,
+      "quality_barra": -0.923
     },
     {
       "ticker": "UGLD",
@@ -42428,7 +42630,8 @@
         ]
       },
       "nd_ebitda": 2.19,
-      "shares": 222778849052
+      "shares": 222778849052,
+      "quality_barra": 0.492
     },
     {
       "ticker": "UKUZ",
@@ -42589,7 +42792,8 @@
         ]
       },
       "nd_ebitda": 5.1,
-      "shares": 36149002
+      "shares": 36149002,
+      "quality_barra": null
     },
     {
       "ticker": "UNAC",
@@ -42813,7 +43017,8 @@
         ]
       },
       "nd_ebitda": 5.97,
-      "shares": 1009366990290
+      "shares": 1009366990290,
+      "quality_barra": -0.982
     },
     {
       "ticker": "UNKL",
@@ -43019,7 +43224,8 @@
         ]
       },
       "nd_ebitda": 7.28,
-      "shares": 599737
+      "shares": 599737,
+      "quality_barra": 0.136
     },
     {
       "ticker": "UPRO",
@@ -43230,7 +43436,8 @@
         ]
       },
       "nd_ebitda": -0.8,
-      "shares": 63048706145
+      "shares": 63048706145,
+      "quality_barra": 0.718
     },
     {
       "ticker": "URKZ",
@@ -43459,7 +43666,8 @@
         ]
       },
       "nd_ebitda": 0.19,
-      "shares": 54776100
+      "shares": 54776100,
+      "quality_barra": 0.65
     },
     {
       "ticker": "USBN",
@@ -43620,7 +43828,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 360134697357
+      "shares": 360134697357,
+      "quality_barra": -0.431
     },
     {
       "ticker": "UTAR",
@@ -43799,7 +44008,8 @@
         ]
       },
       "nd_ebitda": 3.71,
-      "shares": 7896123268
+      "shares": 7896123268,
+      "quality_barra": 0.066
     },
     {
       "ticker": "UWGN",
@@ -44028,7 +44238,8 @@
         ]
       },
       "nd_ebitda": -0.32,
-      "shares": 2905885544
+      "shares": 2905885544,
+      "quality_barra": 0.726
     },
     {
       "ticker": "VGSB",
@@ -44227,7 +44438,8 @@
         ]
       },
       "nd_ebitda": -1.22,
-      "shares": 319595965
+      "shares": 319595965,
+      "quality_barra": 0.225
     },
     {
       "ticker": "VGSBP",
@@ -44425,7 +44637,8 @@
         ]
       },
       "nd_ebitda": -1.22,
-      "shares": 80499134
+      "shares": 80499134,
+      "quality_barra": 0.225
     },
     {
       "ticker": "VJGZ",
@@ -44653,7 +44866,8 @@
         ]
       },
       "nd_ebitda": 1.24,
-      "shares": 18091110
+      "shares": 18091110,
+      "quality_barra": -0.356
     },
     {
       "ticker": "VJGZP",
@@ -44834,7 +45048,8 @@
         ]
       },
       "nd_ebitda": 1.24,
-      "shares": 5883050
+      "shares": 5883050,
+      "quality_barra": -0.356
     },
     {
       "ticker": "VKCO",
@@ -45015,7 +45230,8 @@
         ]
       },
       "nd_ebitda": 0.51,
-      "shares": 572904180
+      "shares": 572904180,
+      "quality_barra": -1.804
     },
     {
       "ticker": "VLHZ",
@@ -45194,7 +45410,8 @@
         ]
       },
       "nd_ebitda": 2.63,
-      "shares": 5005605
+      "shares": 5005605,
+      "quality_barra": 0.078
     },
     {
       "ticker": "VRSB",
@@ -45432,7 +45649,8 @@
         ]
       },
       "nd_ebitda": -1.55,
-      "shares": 56151024
+      "shares": 56151024,
+      "quality_barra": 0.162
     },
     {
       "ticker": "VRSBP",
@@ -45672,7 +45890,8 @@
         ]
       },
       "nd_ebitda": -1.55,
-      "shares": 18716678
+      "shares": 18716678,
+      "quality_barra": 0.162
     },
     {
       "ticker": "VSEH",
@@ -45884,7 +46103,8 @@
         ]
       },
       "nd_ebitda": 2.84,
-      "shares": 500000000
+      "shares": 500000000,
+      "quality_barra": 0.33
     },
     {
       "ticker": "VSMO",
@@ -46113,7 +46333,8 @@
         ]
       },
       "nd_ebitda": 0.66,
-      "shares": 11529538
+      "shares": 11529538,
+      "quality_barra": 0.245
     },
     {
       "ticker": "VSYD",
@@ -46326,7 +46547,8 @@
         ]
       },
       "nd_ebitda": -5.82,
-      "shares": 2829795
+      "shares": 2829795,
+      "quality_barra": 0.518
     },
     {
       "ticker": "VSYDP",
@@ -46545,7 +46767,8 @@
         ]
       },
       "nd_ebitda": -5.82,
-      "shares": 51839
+      "shares": 51839,
+      "quality_barra": -1.47
     },
     {
       "ticker": "VTBR",
@@ -46764,7 +46987,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 6620418282
+      "shares": 6620418282,
+      "quality_barra": 0.094
     },
     {
       "ticker": "WTCM",
@@ -46936,7 +47160,8 @@
         ]
       },
       "nd_ebitda": -4.2,
-      "shares": 1083000000
+      "shares": 1083000000,
+      "quality_barra": 0.238
     },
     {
       "ticker": "WTCMP",
@@ -47116,7 +47341,8 @@
         ]
       },
       "nd_ebitda": -4.2,
-      "shares": 162000000
+      "shares": 162000000,
+      "quality_barra": 0.596
     },
     {
       "ticker": "WUSH",
@@ -47291,7 +47517,8 @@
         ]
       },
       "nd_ebitda": 1.76,
-      "shares": 111382432
+      "shares": 111382432,
+      "quality_barra": -0.491
     },
     {
       "ticker": "X5",
@@ -47529,7 +47756,8 @@
         ]
       },
       "nd_ebitda": 2.24,
-      "shares": 271572872
+      "shares": 271572872,
+      "quality_barra": 0.405
     },
     {
       "ticker": "YAKG",
@@ -47753,7 +47981,8 @@
         ]
       },
       "nd_ebitda": 2.85,
-      "shares": 826919375
+      "shares": 826919375,
+      "quality_barra": 0.092
     },
     {
       "ticker": "YDEX",
@@ -47944,7 +48173,8 @@
         ]
       },
       "nd_ebitda": 0.46,
-      "shares": 393959444
+      "shares": 393959444,
+      "quality_barra": 0.046
     },
     {
       "ticker": "YKEN",
@@ -48114,7 +48344,8 @@
         ]
       },
       "nd_ebitda": 4.57,
-      "shares": 10187741424
+      "shares": 10187741424,
+      "quality_barra": -2.759
     },
     {
       "ticker": "YKENP",
@@ -48333,7 +48564,8 @@
         ]
       },
       "nd_ebitda": 4.57,
-      "shares": 1332635125
+      "shares": 1332635125,
+      "quality_barra": -2.759
     },
     {
       "ticker": "YRSB",
@@ -48562,7 +48794,8 @@
         ]
       },
       "nd_ebitda": 0.39,
-      "shares": 17143584
+      "shares": 17143584,
+      "quality_barra": 0.176
     },
     {
       "ticker": "YRSBP",
@@ -48743,7 +48976,8 @@
         ]
       },
       "nd_ebitda": 0.39,
-      "shares": 4507320
+      "shares": 4507320,
+      "quality_barra": 0.176
     },
     {
       "ticker": "ZAYM",
@@ -48948,7 +49182,8 @@
         ]
       },
       "nd_ebitda": null,
-      "shares": 100000000
+      "shares": 100000000,
+      "quality_barra": 1.035
     },
     {
       "ticker": "ZVEZ",
@@ -49111,7 +49346,8 @@
         ]
       },
       "nd_ebitda": 16.2,
-      "shares": 562020480
+      "shares": 562020480,
+      "quality_barra": -0.841
     }
   ]
 }
