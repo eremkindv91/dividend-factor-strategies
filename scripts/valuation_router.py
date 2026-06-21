@@ -47,9 +47,15 @@ COMMODITY = {"Нефть и газ", "Металлы и добыча", "Хими
 # прочее (Промышленность, Потребительский, Транспорт, Здравоохранение) → MATURE
 
 SPECIAL_TICKERS = {"SNGSP", "SNGS", "LSNGP"}             # NAV/спец-ситуация (расширяемо)
-DDM_G = {"FINANCIAL": 0.04, "REGULATED": 0.01, "COMMODITY": 0.025, "MATURE": 0.02}
+DDM_G = {"FINANCIAL": 0.04, "REGULATED": 0.01, "COMMODITY": 0.025, "MATURE": 0.02}   # терминальный g2
 ND_EBITDA_MAX = 2.5                                      # выше → дивиденд в долг → DDM off
 FROZEN = os.path.join(REPO, "model_output", "forecast_rf.json")
+
+# ── 2-стадийный DDM: ближний рост по текущей ставке + терминал по НОРМАЛИЗОВАННОЙ (крутить тут) ──
+STAGE1_YEARS = 5                                         # явный горизонт стадии-1
+G1 = {"FINANCIAL": 0.08, "REGULATED": 0.04, "COMMODITY": 0.05, "MATURE": 0.05}       # ближний рост дивиденда
+NORM_RF = 0.09                                           # долгосрочная Rf (нейтральная ставка ЦБ), НЕ спот 15%
+NORM_ERP = 0.055                                         # долгосрочный риск-премиум RU (спот ERP 10% — стрессовый)
 
 
 def classify(ticker: str, sector: str) -> str:
@@ -122,6 +128,36 @@ class DDM:
         return m
 
 
+class TwoStageDDM:
+    """2-стадийный DDM: N лет роста дивиденда g1 → терминал Гордона g2. Дисконт СКВОЗНОЙ по
+    НОРМАЛИЗОВАННОЙ долгосрочной COE (Re_term): спот-ставка ЦБ 15% — транзиентный пик, а COE —
+    долгосрочное понятие; through-cycle интринзик. D0 — нормализ. текущий дивиденд; D_t=D0·(1+g1)^t.
+    (re_near сохранён для справки/возможного term-structure варианта — в текущем не используется.)"""
+
+    def __init__(self, d0: float, re_near: float, re_term: float, g1: float, g2: float, n: int = STAGE1_YEARS):
+        self.d0, self.re_near, self.re_term = d0, re_near, re_term
+        self.g1, self.g2, self.n = g1, g2, n
+
+    def fair(self, re_term: Optional[float] = None, g2: Optional[float] = None) -> float:
+        re_t = self.re_term if re_term is None else re_term
+        g2 = self.g2 if g2 is None else g2
+        if re_t <= g2:
+            return float("nan")
+        pv, d = 0.0, self.d0
+        for t in range(1, self.n + 1):
+            d *= (1 + self.g1)                          # дивиденд года t
+            pv += d / (1 + re_t) ** t                   # сквозной дисконт по нормализованной COE
+        tv = d * (1 + g2) / (re_t - g2)                 # терминал на D_{N+1}
+        pv += tv / (1 + re_t) ** self.n
+        return pv
+
+    def sensitivity(self, re_term_range, g2_range) -> pd.DataFrame:
+        m = pd.DataFrame({round(g, 4): [self.fair(re_term=r, g2=g) for r in re_term_range] for g in g2_range},
+                         index=[round(r, 4) for r in re_term_range])
+        m.index.name, m.columns.name = "Re_терм", "g"
+        return m
+
+
 class ValuationRouter:
     def __init__(self, panel: pd.DataFrame, dividends: Optional[Dict[str, float]] = None,
                  market: Optional[MoexMarket] = None, rf: Optional[float] = None,
@@ -186,7 +222,8 @@ class ValuationRouter:
         vclass = classify(ticker, sector)
         price = self._price(ticker, sub)
         beta = _latest(sub, "beta_imoex", 1.0) or 1.0
-        re = self.rf + beta * ERP_RU
+        re = self.rf + beta * ERP_RU                    # ближняя ставка (спот) — для стадии-1
+        re_term = NORM_RF + beta * NORM_ERP             # нормализованная — для терминала Гордона
         nd_eb = _latest(sub, "net_debt_to_ebitda")
         div_fc = self.dividends.get(ticker)             # прогноз модели
         div = self._div_norm(sub, div_fc)               # нормализованный дивиденд (робастный) — якорь DDM
@@ -217,29 +254,33 @@ class ValuationRouter:
 
         # ── FINANCIAL → DDM(g=4%) ──
         if vclass == "FINANCIAL":
-            g = DDM_G["FINANCIAL"]
+            g2, g1 = DDM_G["FINANCIAL"], G1["FINANCIAL"]
             if not (div and div > 0):
-                return res("DDM", float("nan"), {"Re": round(re, 3), "g": g},
+                return res("DDM", float("nan"), {"Re": round(re, 3), "g": g2},
                            "Банк без прогноза дивиденда → DDM неинформативен (смотри justified P/B = (ROE−g)/(Re−g)).",
                            alert="нет дивиденда")
-            ddm = DDM(div, re, g)
-            sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04], [0.03, 0.04, 0.05])
-            return res("DDM", ddm.fair(), {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g},
-                       f"Банк: DDM, g={g:.0%} (органический рост капитала ~инфляция/ВВП). FCFF к банку неприменим. "
-                       f"D1={div}₽ — нормализованный дивиденд (медиана факта 5л + прогноз).",
-                       sens=sens)
+            ddm = TwoStageDDM(div, re, re_term, g1, g2)
+            sens = ddm.sensitivity([re_term - 0.03, re_term - 0.015, re_term, re_term + 0.015, re_term + 0.03],
+                                   [max(0.0, g2 - 0.01), g2, g2 + 0.01])
+            return res("DDM 2-ст.", ddm.fair(),
+                       {"D0": div, "D1_прогноз": div_fc, "Re_спот": round(re, 3), "Re_терм": round(re_term, 3),
+                        "g1": g1, "g2": g2},
+                       f"Банк: 2-стадийный DDM (рост дивиденда {g1:.0%} {STAGE1_YEARS}л → терминал g={g2:.0%} по "
+                       f"нормализ. ставке {re_term:.0%}). D0={div}₽ — нормализ. дивиденд (медиана факта+прогноз). "
+                       f"FCFF к банку неприменим.", sens=sens)
 
         # ── ПРЕФЫ (дивидендный инструмент): DCF делит equity на share-base префа → ломается → DDM ──
         if is_pref and div and div > 0:
-            g = DDM_G.get(vclass, DDM_G["MATURE"])
-            ddm = DDM(div, re, g)
-            sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
-                                   [max(0.0, g - 0.01), g, g + 0.01])
-            return res("DDM (преф)", ddm.fair(), {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g},
-                       f"Привилегированная (дивидендный инструмент) → DDM на нормализованном дивиденде "
-                       f"D̄={div}₽ (медиана факта 5л"
-                       + (f" + прогноз {div_fc:.1f}₽" if isinstance(div_fc, (int, float)) else "")
-                       + f"); g={g:.0%}.", sens=sens)
+            g2, g1 = DDM_G.get(vclass, DDM_G["MATURE"]), G1.get(vclass, G1["MATURE"])
+            ddm = TwoStageDDM(div, re, re_term, g1, g2)
+            sens = ddm.sensitivity([re_term - 0.03, re_term - 0.015, re_term, re_term + 0.015, re_term + 0.03],
+                                   [max(0.0, g2 - 0.01), g2, g2 + 0.01])
+            return res("DDM 2-ст. (преф)", ddm.fair(),
+                       {"D0": div, "D1_прогноз": div_fc, "Re_спот": round(re, 3), "Re_терм": round(re_term, 3),
+                        "g1": g1, "g2": g2},
+                       f"Привилегированная → 2-стадийный DDM (рост {g1:.0%} {STAGE1_YEARS}л → терминал g={g2:.0%} по "
+                       f"нормализ. ставке {re_term:.0%}). D0={div}₽ — нормализ. дивиденд (медиана факта"
+                       + (f"+прогноз {div_fc:.1f}₽" if isinstance(div_fc, (int, float)) else "") + ").", sens=sens)
 
         # ── REGULATED / COMMODITY / MATURE ──
         # DCF (с нормализацией цикликов) → если базовый FCFF<0 → блок; дивфишка → DDM-якорь.
@@ -276,15 +317,18 @@ class ValuationRouter:
                        note + "DCF нерепрезентативен: отрицательный FCF (пик инвестцикла).", alert)
 
         def ddm_result(extra_note):
-            ddm = DDM(div, re, g_ddm)
-            sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
+            g1 = G1.get(vclass, G1["MATURE"])
+            ddm = TwoStageDDM(div, re, re_term, g1, g_ddm)
+            sens = ddm.sensitivity([re_term - 0.03, re_term - 0.015, re_term, re_term + 0.015, re_term + 0.03],
                                    [max(0.0, g_ddm - 0.01), g_ddm, g_ddm + 0.01])
-            assum = {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g_ddm}
-            n = note + extra_note + f" D1={div}₽ — нормализ. дивиденд (медиана факта 5л + прогноз)."
+            assum = {"D0": div, "D1_прогноз": div_fc, "Re_спот": round(re, 3), "Re_терм": round(re_term, 3),
+                     "g1": g1, "g2": g_ddm}
+            n = note + extra_note + (f" 2-стадийный DDM: рост {g1:.0%} {STAGE1_YEARS}л → терминал g={g_ddm:.0%} "
+                                     f"по нормализ. ставке {re_term:.0%}; D0={div}₽ (медиана факта+прогноз).")
             if dcf_ok:
                 assum["DCF_fair"] = round(dcf_fair, 1)
                 n += f" DCF-кросс-чек: {dcf_fair:,.0f}₽."
-            return res("DDM", ddm.fair(), assum, n, sens=sens)
+            return res("DDM 2-ст.", ddm.fair(), assum, n, sens=sens)
 
         # РЕГУЛИРУЕМЫЕ (тариф → механический DCF завышает) + дивиденд → ЯКОРЬ DDM
         if vclass == "REGULATED" and div and div > 0:
@@ -295,7 +339,7 @@ class ValuationRouter:
             comp = self._comparative(sub, sector, price)
             assum = {"WACC": round(wacc, 3), "g": dcf.g, "DCF_fair": round(dcf_fair, 1)}
             if div and div > 0:
-                ddm_fair = DDM(div, re, g_ddm).fair()
+                ddm_fair = TwoStageDDM(div, re, re_term, G1.get(vclass, G1["MATURE"]), g_ddm).fair()
                 assum["DDM_fair"] = round(ddm_fair, 1)
                 # Δ = |P_DCF − P_DDM| / P_DCF — governance-флаг ставится КРОСС-СЕКЦИОННО (build_valuations)
                 if ddm_fair == ddm_fair and dcf_fair > 0:
