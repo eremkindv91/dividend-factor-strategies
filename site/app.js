@@ -538,6 +538,9 @@ const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий li
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
   quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
   momentum: { label: 'Momentum (WML 12-1) · бэктест ВКР 2012–2025: Long-Short +6,5%/год избыточной доходности (t≈1,2 — на грани значимости); ребаланс месячный' },
+  optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
+  optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
+  optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
 };
 
 // верная 3-дескрипторная Barra Quality (ROE / стабильность прибыли / леверидж; винзор+z+сектор-нейтрализация в build_valuations)
@@ -587,6 +590,7 @@ function capWeights(items, maxW, secCap) {
 }
 
 function buildPortfolio(method, opts) {
+  if (method === 'optmv' || method === 'optrp' || method === 'optiv') return buildOptimized(method, opts);
   const uni = DATA.tickers.filter(eligibleForPortfolio);
   const scoreFn = method === 'momentum' ? ((t) => (isNum(t.mom_score) ? t.mom_score : null)) : qualityScore;
   const scored = uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
@@ -604,6 +608,77 @@ function buildPortfolio(method, opts) {
   });
   const tot0 = items.reduce((s, it) => s + it.w, 0) || 1;
   items.forEach((it) => { it.w /= tot0; });
+  capWeights(items, Math.max(opts.cap / 100, 1 / items.length), opts.seccap / 100);
+  items.sort((a, b) => b.w - a.w);
+  return items;
+}
+
+// ── робастный оптимизатор (ковариация из returns.json, весь eligible-универсум) ──
+const OPT_WINDOW = 60;         // окно месяцев для ковариации
+const OPT_SHRINK = 0.2;        // усадка ковариации к диагонали (Ledoit-Wolf-lite) → робастность
+
+function covMatrix(mat) {       // mat: N имён × T месяцев → выборочная ковариация NxN
+  const N = mat.length, T = mat[0].length;
+  const mean = mat.map((row) => row.reduce((a, b) => a + b, 0) / T);
+  const cov = Array.from({ length: N }, () => new Array(N).fill(0));
+  for (let i = 0; i < N; i++) {
+    for (let j = i; j < N; j++) {
+      let s = 0;
+      for (let t = 0; t < T; t++) s += (mat[i][t] - mean[i]) * (mat[j][t] - mean[j]);
+      cov[i][j] = cov[j][i] = s / T;
+    }
+  }
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (i !== j) cov[i][j] *= (1 - OPT_SHRINK);  // усадка
+  return cov;
+}
+function _sigma(cov, w) { return w.map((_, i) => { let s = 0; for (let j = 0; j < w.length; j++) s += cov[i][j] * w[j]; return s; }); }
+function invVolWeights(cov) {
+  const w = cov.map((_, i) => 1 / Math.sqrt(Math.max(cov[i][i], 1e-9)));
+  const s = w.reduce((a, b) => a + b, 0); return w.map((x) => x / s);
+}
+function riskParity(cov) {      // фикс-точка w_i ∝ 1/MRC_i (MRC=(Σw)_i) → равный риск-вклад
+  const N = cov.length; let w = new Array(N).fill(1 / N);
+  for (let k = 0; k < 400; k++) {
+    const mrc = _sigma(cov, w);
+    let s = 0; const nw = mrc.map((mi) => { const v = 1 / Math.max(mi, 1e-12); s += v; return v; });
+    w = nw.map((x) => x / s);
+  }
+  return w;
+}
+function _projSimplex(v) {      // КОРРЕКТНАЯ евклидова проекция на {w≥0, Σw=1} (Duchi et al. 2008)
+  const u = [...v].sort((a, b) => b - a);
+  let css = 0, theta = 0;
+  for (let i = 0; i < u.length; i++) { css += u[i]; const t = (css - 1) / (i + 1); if (u[i] - t > 0) theta = t; }
+  return v.map((x) => Math.max(x - theta, 0));
+}
+function minVariance(cov) {     // min wᵀΣw s.t. Σw=1, w≥0 (проективный градиент; box/сектор — позже capWeights)
+  const N = cov.length;
+  let L = 1e-9; for (let i = 0; i < N; i++) { let s = 0; for (let j = 0; j < N; j++) s += Math.abs(cov[i][j]); L = Math.max(L, s); }
+  const eta = 1 / L;            // шаг < 2/λmax (граница Гершгорина) → устойчивая сходимость
+  let w = new Array(N).fill(1 / N);
+  for (let k = 0; k < 600; k++) { const g = _sigma(cov, w); for (let i = 0; i < N; i++) w[i] -= eta * g[i]; w = _projSimplex(w); }
+  return w;
+}
+
+function buildOptimized(method, opts) {
+  if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
+  const months = PF_RETURNS.months, R = PF_RETURNS.data;
+  const i0 = Math.max(0, months.length - OPT_WINDOW), span = months.length - i0;
+  const cand = DATA.tickers.filter(eligibleForPortfolio).filter((t) => {
+    const a = R[t.ticker]; if (!a) return false;
+    let c = 0; for (let j = i0; j < months.length; j++) if (isNum(a[j])) c++;
+    return c >= span * 0.8;                          // ≥80% истории в окне
+  });
+  if (cand.length < 5) return null;
+  const mat = cand.map((t) => { const a = R[t.ticker]; const row = []; for (let j = i0; j < months.length; j++) row.push(isNum(a[j]) ? a[j] : 0); return row; });
+  const cov = covMatrix(mat);
+  const w = method === 'optiv' ? invVolWeights(cov) : (method === 'optrp' ? riskParity(cov) : minVariance(cov));
+  let items = cand.map((t, i) => ({ ticker: t.ticker, name: t.name, sector: t.sector || ND, t, score: w[i], w: w[i] }));
+  items.sort((a, b) => b.w - a.w);
+  if (opts.n && items.length > opts.n) {             // оптимизация видит ВЕСЬ универсум, держим top-N по весу
+    items = items.slice(0, opts.n);
+    const s = items.reduce((x, it) => x + it.w, 0) || 1; items.forEach((it) => { it.w /= s; });
+  }
   capWeights(items, Math.max(opts.cap / 100, 1 / items.length), opts.seccap / 100);
   items.sort((a, b) => b.w - a.w);
   return items;
@@ -704,7 +779,11 @@ function renderPortfolio() {
   };
   const capital = +document.getElementById('pf-capital').value || 0;
   const items = buildPortfolio(method, opts);
-  if (!items) { out.innerHTML = `<p class="muted" style="padding:8px">Недостаточно подходящих бумаг для корзины.</p>`; return; }
+  if (!items) {
+    const loading = method.startsWith('opt') && (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length);
+    out.innerHTML = `<p class="muted" style="padding:8px">${loading ? 'Загрузка истории для оптимизатора…' : 'Недостаточно подходящих бумаг для корзины.'}</p>`;
+    return;
+  }
   PF_LAST = { items, capital };
   const m = portfolioMetrics(items, capital);
   const risk = portfolioRisk(items, m.grossY);
