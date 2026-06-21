@@ -95,6 +95,7 @@ function init(data) {
   document.getElementById('sector').addEventListener('change', render);
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
+  wirePortfolio();
 
   render();
 }
@@ -529,4 +530,168 @@ function exportCSV() {
   a.download = 'dividend_forecast_rf.csv';
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+// ══════════ Конструктор портфеля ══════════
+const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходность «на руки»
+const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor, отсечь пенни/неликвид
+const PF_QMETRICS = ['roe', 'ebitda_margin', 'debt_ebitda', 'div_yield'];  // сектор-нейтральные ранги
+const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
+  quality: { cagr: 17.5, sharpe: 0.40, maxdd: -33,
+    label: 'Quality-фактор · бэктест ВКР (расширенная модель, Q1-квинтиль, 2012–2025): CAGR 17,5%, Sharpe 0,40, устойчив по подпериодам' },
+};
+
+// сектор-нейтральный quality-композит (мирроит Barra ВКР, переиспользует готовые перцентили)
+function qualityScore(t) {
+  const parts = [];
+  const sp = t.sector_percentiles;
+  if (sp && Array.isArray(sp.metrics)) sp.metrics.forEach((m) => { if (PF_QMETRICS.includes(m.key)) parts.push(m.good_pct); });
+  if (isNum(t.stability_score)) parts.push(t.stability_score * 100);
+  return parts.length >= 2 ? parts.reduce((a, b) => a + b, 0) / parts.length : null;
+}
+
+function eligibleForPortfolio(t) {
+  if (t.status !== 'ok' || !isNum(t.price) || t.price <= 0) return false;
+  if (t.verdict && t.verdict.unreliable) return false;
+  if (isNum(t.mcap) && t.mcap < PF_MIN_MCAP) return false;   // ND по mcap не отсекаем
+  return true;
+}
+
+// проекция весов под лимиты: макс/бумагу + секторный кап (итеративный water-filling)
+function capWeights(items, maxW, secCap) {
+  for (let iter = 0; iter < 80; iter++) {
+    let changed = false;
+    items.forEach((it) => { it._cap = false; });
+    let excess = 0;
+    items.forEach((it) => { if (it.w > maxW + 1e-9) { excess += it.w - maxW; it.w = maxW; it._cap = true; changed = true; } });
+    if (excess > 1e-9) {
+      const free = items.filter((it) => !it._cap), fs = free.reduce((s, it) => s + it.w, 0);
+      if (fs > 1e-12) free.forEach((it) => { it.w += excess * it.w / fs; });
+    }
+    const bySec = {};
+    items.forEach((it) => { bySec[it.sector] = (bySec[it.sector] || 0) + it.w; });
+    for (const sec in bySec) {
+      if (bySec[sec] > secCap + 1e-9) {
+        const removed = bySec[sec] - secCap, scale = secCap / bySec[sec];
+        items.filter((it) => it.sector === sec).forEach((it) => { it.w *= scale; });
+        const others = items.filter((it) => it.sector !== sec), os = others.reduce((s, it) => s + it.w, 0);
+        if (os > 1e-12) others.forEach((it) => { it.w += removed * it.w / os; });
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  const tot = items.reduce((s, it) => s + it.w, 0) || 1;
+  items.forEach((it) => { it.w /= tot; });
+}
+
+function buildPortfolio(method, opts) {
+  const uni = DATA.tickers.filter(eligibleForPortfolio);
+  const scoreFn = method === 'momentum' ? ((t) => (isNum(t.mom_score) ? t.mom_score : null)) : qualityScore;
+  const scored = uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
+  if (scored.length < 3) return null;
+  scored.sort((a, b) => b.score - a.score);
+  const top = scored.slice(0, opts.n);
+  const items = top.map((x) => ({
+    ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score,
+    w: opts.weight === 'score' ? Math.max(x.score, 1) : (opts.weight === 'mcap' && isNum(x.t.mcap) ? x.t.mcap : 1),
+  }));
+  const tot0 = items.reduce((s, it) => s + it.w, 0) || 1;
+  items.forEach((it) => { it.w /= tot0; });
+  capWeights(items, Math.max(opts.cap / 100, 1 / items.length), opts.seccap / 100);
+  items.sort((a, b) => b.w - a.w);
+  return items;
+}
+
+function portfolioMetrics(items, capital) {
+  let gy = 0, stab = 0, wsum = 0;
+  const sec = {};
+  items.forEach((it) => {
+    const y = isNum(it.t.dividend_yield_expected) ? it.t.dividend_yield_expected
+      : (isNum(it.t.dividend_yield_if_paid) ? it.t.dividend_yield_if_paid : null);
+    if (y != null) { gy += it.w * y; wsum += it.w; }
+    if (isNum(it.t.stability_score)) stab += it.w * it.t.stability_score;
+    sec[it.sector] = (sec[it.sector] || 0) + it.w;
+  });
+  const grossY = wsum ? gy / wsum : null;            // на покрытый вес
+  const netY = grossY != null ? grossY * NET_OF_TAX : null;
+  return {
+    grossY, netY, stability: stab,
+    incomeNet: (netY != null && capital) ? capital * netY / 100 : null,
+    sectors: Object.entries(sec).sort((a, b) => b[1] - a[1]),
+  };
+}
+
+function renderPortfolio() {
+  const out = document.getElementById('pf-out');
+  if (!out) return;
+  const method = document.getElementById('pf-method').value;
+  const opts = {
+    n: +document.getElementById('pf-n').value,
+    weight: document.getElementById('pf-weight').value,
+    cap: +document.getElementById('pf-cap').value,
+    seccap: +document.getElementById('pf-seccap').value,
+  };
+  const capital = +document.getElementById('pf-capital').value || 0;
+  const items = buildPortfolio(method, opts);
+  if (!items) { out.innerHTML = `<p class="muted" style="padding:8px">Недостаточно подходящих бумаг для корзины.</p>`; return; }
+  PF_LAST = { items, capital };
+  const m = portfolioMetrics(items, capital);
+  const bt = FACTOR_BACKTEST[method];
+  const rows = items.map((it, i) => {
+    const alloc = capital ? capital * it.w : null;
+    const y = isNum(it.t.dividend_yield_expected) ? it.t.dividend_yield_expected : it.t.dividend_yield_if_paid;
+    const inc = (alloc && isNum(y)) ? alloc * y / 100 * NET_OF_TAX : null;
+    return `<tr><td class="left">${i + 1}</td><td class="left"><b>${esc(it.ticker)}</b> <span class="muted">${esc(it.sector)}</span></td>
+      <td class="tnum">${ru(it.w * 100, 1)}%</td>
+      <td class="tnum">${alloc != null ? fmtRub(Math.round(alloc)) : mdash}</td>
+      <td class="tnum">${inc != null ? fmtRub(Math.round(inc)) : mdash}</td>
+      <td class="left">${verdictChip(it.t.verdict, false)}</td></tr>`;
+  }).join('');
+  const secBars = m.sectors.map(([s, w]) =>
+    `<div class="pf-secrow"><span>${esc(s)}</span><span class="pf-secbar"><i style="width:${(w * 100).toFixed(0)}%"></i></span><span class="tnum">${ru(w * 100, 0)}%</span></div>`).join('');
+  out.innerHTML = `<div class="pf-summary">
+      <div class="pf-card"><span class="lbl">Доходность (на руки)</span><b class="tnum">${m.netY != null ? ru(m.netY, 1) + '%' : mdash}</b><span class="muted">до НДФЛ ${m.grossY != null ? ru(m.grossY, 1) + '%' : '—'}</span></div>
+      <div class="pf-card"><span class="lbl">Устойчивость портфеля</span><b class="tnum">${ru(m.stability * 100, 0)}%</b></div>
+      <div class="pf-card"><span class="lbl">Доход в год (на руки)</span><b class="tnum">${m.incomeNet != null ? fmtRub(Math.round(m.incomeNet)) : mdash}</b><span class="muted">на ${capital ? fmtRub(capital) : '—'}</span></div>
+      <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
+    </div>
+    ${bt ? `<div class="pf-bt muted">📈 ${esc(bt.label)}</div>` : ''}
+    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th><th class="left">Вердикт</th></tr></thead><tbody>${rows}</tbody></table>
+      <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>
+      <div class="pf-sectors"><h4>Секторная концентрация</h4>${secBars}</div></div>`;
+  document.getElementById('pf-csv').addEventListener('click', exportPortfolioCSV);
+}
+
+let PF_LAST = null;
+function exportPortfolioCSV() {
+  if (!PF_LAST) return;
+  const lines = [['Тикер', 'Отрасль', 'Вес %', 'Сумма ₽', 'Вердикт'].join(';')];
+  PF_LAST.items.forEach((it) => lines.push([it.ticker, '"' + String(it.sector).replace(/"/g, '""') + '"',
+    ru(it.w * 100, 2).replace(/ /g, ''), PF_LAST.capital ? Math.round(PF_LAST.capital * it.w) : '',
+    '"' + String((it.t.verdict || {}).label || '').replace(/"/g, '""') + '"'].join(';')));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'portfolio.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function wirePortfolio() {
+  const pf = document.getElementById('pf');
+  if (!pf) return;
+  pf.hidden = false;
+  if (DATA.tickers.some((t) => isNum(t.mom_score))) {
+    const o = document.querySelector('#pf-method option[value="momentum"]');
+    if (o) { o.disabled = false; o.textContent = 'Momentum (импульс)'; }
+  }
+  document.getElementById('pf-gen').addEventListener('click', renderPortfolio);
+  ['pf-method', 'pf-n', 'pf-weight', 'pf-cap', 'pf-seccap', 'pf-capital'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => { if (document.getElementById('pf-out').dataset.shown) renderPortfolio(); });
+  });
+  pf.addEventListener('toggle', function () {
+    if (this.open && !document.getElementById('pf-out').dataset.shown) {
+      document.getElementById('pf-out').dataset.shown = '1';
+      renderPortfolio();
+    }
+  });
 }

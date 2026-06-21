@@ -148,6 +148,35 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mp-dot:hover { r: 6; fill-opacity: 1; }
 .map-note { font-size: .78rem; padding: 2px 0 10px; }
 
+/* ── Конструктор портфеля ── */
+.pf-body { padding: 6px 0 12px; }
+.pf-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-bottom: 12px; }
+.pf-controls label { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--ink-faint);
+  text-transform: uppercase; letter-spacing: .02em; }
+.pf-controls select, .pf-controls input { font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; }
+.pf-controls input[type="number"] { width: 110px; font-variant-numeric: tabular-nums; }
+.pf-controls .btn { align-self: flex-end; }
+.pf-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.pf-card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 2px; }
+.pf-card .lbl { font-size: .72rem; color: var(--ink-faint); }
+.pf-card b { font-size: 1.15rem; color: var(--accent-deep); }
+.pf-card .muted { font-size: .72rem; }
+.pf-bt { font-size: .8rem; background: var(--good-fill); color: var(--good-ink); border-radius: 10px;
+  padding: 8px 12px; margin-bottom: 12px; }
+.pf-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 18px; align-items: start; }
+.pf-tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.pf-tbl th { font-size: .72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .02em;
+  text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.pf-tbl th.left { text-align: left; }
+.pf-tbl td { padding: 6px 8px; text-align: right; border-bottom: .5px solid var(--line); white-space: nowrap; }
+.pf-tbl td.left { text-align: left; }
+.pf-sectors h4 { margin: 0 0 8px; font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint); }
+.pf-secrow { display: grid; grid-template-columns: 1fr 90px 36px; align-items: center; gap: 8px; padding: 4px 0; font-size: .82rem; }
+.pf-secbar { height: 7px; border-radius: 999px; background: var(--neut-fill); overflow: hidden; }
+.pf-secbar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
 /* раскрытие строки */
 tr.detail-row > td { padding: 0; background: #FBFCFE; }
 .detail {

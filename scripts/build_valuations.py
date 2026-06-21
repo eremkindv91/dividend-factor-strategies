@@ -201,9 +201,15 @@ def main() -> int:
                               "assumptions": {}, "sensitivity": None}
         if len(sub):
             r["history"] = history_block(sub)
-            ndv = (pd.to_numeric(sub.sort_values("year")["net_debt_to_ebitda"], errors="coerce").dropna()
+            sv = sub.sort_values("year")
+            ndv = (pd.to_numeric(sv["net_debt_to_ebitda"], errors="coerce").dropna()
                    if "net_debt_to_ebitda" in sub.columns else pd.Series(dtype=float))
             r["nd_ebitda"] = round(float(ndv.iloc[-1]), 2) if len(ndv) else None   # для долгового штрафа вердикта
+            # implied shares (mcap/price посл. года) → build_data считает живой mcap для value-weight/пенни-фильтра
+            mc = pd.to_numeric(sv["market_cap_mln"], errors="coerce") if "market_cap_mln" in sv.columns else pd.Series(dtype=float)
+            pe = pd.to_numeric(sv["price_end"], errors="coerce") if "price_end" in sv.columns else pd.Series(dtype=float)
+            both = mc.notna() & pe.notna() & (pe > 0)
+            r["shares"] = round(float(mc[both].iloc[-1]) * 1e6 / float(pe[both].iloc[-1])) if both.any() else None
             n_hist += 1
 
     # ── cross-sectional Governance / Capital-Allocation флаг ──

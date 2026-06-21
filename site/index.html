@@ -38,6 +38,30 @@
       <div id="map"></div>
     </details>
 
+    <details class="mapwrap pfwrap" id="pf" hidden>
+      <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
+      <div class="pf-body">
+        <div class="pf-controls">
+          <label>Стратегия<select id="pf-method">
+            <option value="quality">Quality (качество)</option>
+            <option value="momentum" disabled>Momentum (скоро)</option>
+            <option value="optimizer" disabled>Оптимизатор (скоро)</option>
+          </select></label>
+          <label>Бумаг<select id="pf-n"><option>10</option><option selected>15</option><option>20</option></select></label>
+          <label>Взвешивание<select id="pf-weight">
+            <option value="equal">Равные доли</option>
+            <option value="score">По фактору</option>
+            <option value="mcap">По капитализации</option>
+          </select></label>
+          <label>Макс/бумагу %<input type="number" id="pf-cap" value="20" min="5" max="100" step="5"></label>
+          <label>Секторный кап %<input type="number" id="pf-seccap" value="40" min="10" max="100" step="10"></label>
+          <label>Капитал ₽<input type="number" id="pf-capital" value="1000000" min="0" step="100000"></label>
+          <button class="btn" id="pf-gen">Сгенерировать</button>
+        </div>
+        <div id="pf-out"></div>
+      </div>
+    </details>
+
     <div id="app">
       <div class="loading">Загрузка данных…</div>
     </div>

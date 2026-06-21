@@ -256,6 +256,8 @@ def main() -> int:
             "history": r.get("history"),
             "sector_percentiles": copy_sp(r.get("sector_percentiles")),
             "nd_ebitda": r.get("nd_ebitda"),
+            "mcap": (round(r["shares"] * price / 1e6) if (isinstance(r.get("shares"), (int, float))
+                     and isinstance(price, (int, float)) and price) else ND),   # живая капитализация, млн ₽
         })
 
     # ── upside-перцентиль внутри сектора (цено-зависим → считаем ЗДЕСЬ, к свежей цене, ежедневно) ──
