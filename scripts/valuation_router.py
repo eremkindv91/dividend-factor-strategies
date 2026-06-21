@@ -17,7 +17,9 @@
 только DCF + алерт. Re = Rf(ОФЗ) + β·ERP; при текущем ключе Re≈22% → DDM-таргет жёсткий
 (справедливая дивдоходность ~Re−g), что отражает реальность рынка.
 
-Источник дивиденда D1 — прогноз модели (model_output/forecast_rf.json).
+Источник дивиденда D1 для DDM — НОРМАЛИЗОВАННЫЙ: медиана факт. DPS за 5 лет + прогноз модели
+как одна точка (а не одиночный волатильный прогноз — иначе циклики-префы типа Башнефти ломают
+Гордона: прогноз 61.8₽ vs трейлинг 147.3₽ → ложное «дорог на 59%»). Прогноз — в forecast_rf.json.
 """
 from __future__ import annotations
 
@@ -164,6 +166,18 @@ class ValuationRouter:
         except Exception:  # noqa: BLE001
             return _latest(sub, "price_end")
 
+    def _div_norm(self, sub: pd.DataFrame, forecast: Optional[float]) -> Optional[float]:
+        """Робастный дивиденд для DDM: медиана факт. DPS за ~5 лет + прогноз как ОДНА точка
+        (не единственный якорь). Гасит волатильный год/прогноз у цикликов: иначе одиночный
+        заниженный прогноз (Башнефть преф 61.8 vs трейлинг 147.3) ломает Гордона."""
+        s = pd.to_numeric(sub["dps_rub"], errors="coerce").dropna() if "dps_rub" in sub.columns else pd.Series(dtype=float)
+        pts = [float(x) for x in s.tail(5) if x > 0]
+        if isinstance(forecast, (int, float)) and forecast > 0:
+            pts.append(float(forecast))
+        if not pts:
+            return forecast if (isinstance(forecast, (int, float)) and forecast > 0) else None
+        return round(float(statistics.median(pts)), 2)
+
     def value(self, ticker: str) -> ValuationResult:
         sub = self.panel[self.panel["ticker"] == ticker].sort_values("year")
         if sub.empty:
@@ -174,7 +188,8 @@ class ValuationRouter:
         beta = _latest(sub, "beta_imoex", 1.0) or 1.0
         re = self.rf + beta * ERP_RU
         nd_eb = _latest(sub, "net_debt_to_ebitda")
-        div = self.dividends.get(ticker)
+        div_fc = self.dividends.get(ticker)             # прогноз модели
+        div = self._div_norm(sub, div_fc)               # нормализованный дивиденд (робастный) — якорь DDM
         is_pref = ticker.endswith("P") and ticker[:-1] in self._tickers
 
         def res(method, fair, assum, note, alert="", sens=None):
@@ -209,8 +224,9 @@ class ValuationRouter:
                            alert="нет дивиденда")
             ddm = DDM(div, re, g)
             sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04], [0.03, 0.04, 0.05])
-            return res("DDM", ddm.fair(), {"D1": div, "Re": round(re, 3), "g": g},
-                       f"Банк: DDM, g={g:.0%} (органический рост капитала ~инфляция/ВВП). FCFF к банку неприменим.",
+            return res("DDM", ddm.fair(), {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g},
+                       f"Банк: DDM, g={g:.0%} (органический рост капитала ~инфляция/ВВП). FCFF к банку неприменим. "
+                       f"D1={div}₽ — нормализованный дивиденд (медиана факта 5л + прогноз).",
                        sens=sens)
 
         # ── ПРЕФЫ (дивидендный инструмент): DCF делит equity на share-base префа → ломается → DDM ──
@@ -219,8 +235,11 @@ class ValuationRouter:
             ddm = DDM(div, re, g)
             sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
                                    [max(0.0, g - 0.01), g, g + 0.01])
-            return res("DDM (преф)", ddm.fair(), {"D1": div, "Re": round(re, 3), "g": g},
-                       f"Привилегированная (дивидендный инструмент) → DDM, g={g:.0%}.", sens=sens)
+            return res("DDM (преф)", ddm.fair(), {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g},
+                       f"Привилегированная (дивидендный инструмент) → DDM на нормализованном дивиденде "
+                       f"D̄={div}₽ (медиана факта 5л"
+                       + (f" + прогноз {div_fc:.1f}₽" if isinstance(div_fc, (int, float)) else "")
+                       + f"); g={g:.0%}.", sens=sens)
 
         # ── REGULATED / COMMODITY / MATURE ──
         # DCF (с нормализацией цикликов) → если базовый FCFF<0 → блок; дивфишка → DDM-якорь.
@@ -260,8 +279,8 @@ class ValuationRouter:
             ddm = DDM(div, re, g_ddm)
             sens = ddm.sensitivity([re - 0.04, re - 0.02, re, re + 0.02, re + 0.04],
                                    [max(0.0, g_ddm - 0.01), g_ddm, g_ddm + 0.01])
-            assum = {"D1": div, "Re": round(re, 3), "g": g_ddm}
-            n = note + extra_note
+            assum = {"D1": div, "D1_прогноз": div_fc, "Re": round(re, 3), "g": g_ddm}
+            n = note + extra_note + f" D1={div}₽ — нормализ. дивиденд (медиана факта 5л + прогноз)."
             if dcf_ok:
                 assum["DCF_fair"] = round(dcf_fair, 1)
                 n += f" DCF-кросс-чек: {dcf_fair:,.0f}₽."
