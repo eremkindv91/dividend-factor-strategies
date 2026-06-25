@@ -543,6 +543,7 @@ const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста 
   optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
   optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
+  optms: { label: 'Макс-Шарп (tangency, w∝Σ⁻¹μ): СВЯЗЫВАЕТ фактор и риск — ожидаемая доходность μ ∝ Quality-фактор (Barra-3), риск из ковариации. Тилт в качественные имена с хорошим risk/return, не голый min-var' },
 };
 
 // верная 3-дескрипторная Barra Quality (ROE / стабильность прибыли / леверидж; винзор+z+сектор-нейтрализация в build_valuations)
@@ -593,7 +594,7 @@ function capWeights(items, maxW, secCap) {
 }
 
 function buildPortfolio(method, opts) {
-  if (method === 'optmv' || method === 'optrp' || method === 'optiv') return buildOptimized(method, opts);
+  if (method.startsWith('opt')) return buildOptimized(method, opts);
   const uni = DATA.tickers.filter(eligibleForPortfolio);
   const scoreFn = method === 'momentum' ? ((t) => (isNum(t.mom_score) ? t.mom_score : null)) : qualityScore;
   const scored = uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
@@ -665,6 +666,22 @@ function minVariance(cov) {     // min wᵀΣw s.t. Σw=1, w≥0 (проекти
   for (let k = 0; k < 600; k++) { const g = _sigma(cov, w); for (let i = 0; i < N; i++) w[i] -= eta * g[i]; w = _projSimplex(w); }
   return w;
 }
+function _solve(A, b) {         // решение СЛУ Ax=b (Гаусс с частичным пивотом)
+  const n = A.length, M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    [M[c], M[p]] = [M[p], M[c]];
+    const piv = M[c][c] || 1e-12;
+    for (let r = 0; r < n; r++) if (r !== c) { const f = M[r][c] / piv; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; }
+  }
+  return M.map((r, i) => r[n] / (M[i][i] || 1e-12));
+}
+function maxSharpe(cov, mu) {   // tangency long-only: w ∝ Σ⁻¹μ, клип отриц., ренорм. μ=фактор как proxy ожид. доходности
+  const x = _solve(cov, mu);
+  const w = x.map((v) => Math.max(v, 0));
+  const s = w.reduce((a, b) => a + b, 0);
+  return s > 1e-9 ? w.map((v) => v / s) : cov.map(() => 1 / cov.length);
+}
 
 function buildOptimized(method, opts) {
   if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
@@ -678,7 +695,11 @@ function buildOptimized(method, opts) {
   if (cand.length < 5) return null;
   const mat = cand.map((t) => { const a = R[t.ticker]; const row = []; for (let j = i0; j < months.length; j++) { const r = isNum(a[j]) ? a[j] : 0; row.push(Math.max(-RET_WINSOR, Math.min(RET_WINSOR, r))); } return row; });
   const cov = covMatrix(mat);
-  const w = method === 'optiv' ? invVolWeights(cov) : (method === 'optrp' ? riskParity(cov) : minVariance(cov));
+  let w;
+  if (method === 'optiv') w = invVolWeights(cov);
+  else if (method === 'optrp') w = riskParity(cov);
+  else if (method === 'optms') w = maxSharpe(cov, cand.map((t) => (isNum(t.quality_barra) ? t.quality_barra : 0)));  // фактор-тилт
+  else w = minVariance(cov);
   let items = cand.map((t, i) => ({ ticker: t.ticker, name: t.name, sector: t.sector || ND, t, score: w[i], w: w[i] }));
   items.sort((a, b) => b.w - a.w);
   if (opts.n && items.length > opts.n) {             // оптимизация видит ВЕСЬ универсум, держим top-N по весу
