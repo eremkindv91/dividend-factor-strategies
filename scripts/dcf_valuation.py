@@ -314,12 +314,23 @@ class DCFValuation:
             shares=shares,
         )
         beta = beta if beta is not None else (latest("beta_imoex", 1.0) or 1.0)
-        # историч. 3y CAGR выручки → forward-рост (клип)
-        revs = sub["revenue_mln"].dropna().tail(4).values
-        cagr = ((revs[-1] / revs[0]) ** (1 / (len(revs) - 1)) - 1) if len(revs) >= 2 and revs[0] > 0 else 0.05
-        cagr = float(np.clip(cagr, 0.0, 0.15))
+        # ФУНДАМЕНТАЛЬНО ОБОСНОВАННЫЙ рост (Дамодаран): SGR = retention·ROE, а не экстраполяция
+        # выручки (последняя математически противоречива при g > устойчивого). Фолбэк — 3y CAGR.
+        sv = sub.sort_values("year")
+        roe_vals = [n / e for n, e in zip(pd.to_numeric(sv.get("net_profit_mln"), errors="coerce"),
+                                          pd.to_numeric(sv.get("equity_mln"), errors="coerce"))
+                    if pd.notna(n) and pd.notna(e) and e > 0]
+        roe_f = float(np.median(roe_vals[-5:])) if roe_vals else None
+        pr = latest("payout_ratio_pct")
+        b = float(np.clip(1 - pr / 100.0, 0.0, 1.0)) if (pr == pr and 0 <= pr <= 120) else 0.4   # retention
+        if roe_f and roe_f > 0:
+            growth = float(np.clip(b * roe_f, 0.0, 0.12))
+        else:
+            revs = sv["revenue_mln"].dropna().tail(4).values
+            growth = float(np.clip(((revs[-1] / revs[0]) ** (1 / (len(revs) - 1)) - 1)
+                                   if len(revs) >= 2 and revs[0] > 0 else 0.05, 0.0, 0.12))
         dcf = cls(ticker, f, beta=beta, g=g, cost_of_debt=cost_of_debt, **kw)
-        dcf.set_growth([cagr] * cls.YEARS)
+        dcf.set_growth([growth] * cls.YEARS)
         return dcf
 
 
