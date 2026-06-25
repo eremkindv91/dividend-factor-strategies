@@ -96,6 +96,7 @@ function init(data) {
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
   wirePortfolio();
+  loadReturns(() => { const o = document.getElementById('pf-out'); if (o && o.dataset.shown) renderPortfolio(); });  // жадно грузим историю → мгновенный результат
 
   render();
 }
@@ -537,7 +538,7 @@ const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходно
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor, отсечь пенни/неликвид
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
   quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
-  momentum: { label: 'Momentum (WML 12-1) · бэктест ВКР 2012–2025: Long-Short +6,5%/год избыточной доходности (t≈1,2 — на грани значимости); ребаланс месячный' },
+  momentum: { label: 'Momentum (WML 12-1, ТОЛЬКО ЛОНГ top-N) · бэктест ВКР 2012–2025: +2,2%/год избыточной доходности над рынком (t≈0,3 — статистически незначима); единственный фактор, исторически работавший на РФ, но слабо. Ребаланс месячный.' },
   optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
   optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
@@ -708,13 +709,13 @@ const RF_HIST = 0.09;          // долгосрочная безрискова�
 let PF_RETURNS = null;
 let PF_RET_LOADING = false;
 function loadReturns(cb) {
-  if (PF_RETURNS) { cb(); return; }
+  if (PF_RETURNS) { if (cb) cb(); return; }
   if (PF_RET_LOADING) return;
   PF_RET_LOADING = true;
-  fetch('returns.json', { cache: 'no-store' })
-    .then((r) => (r.ok ? r.json() : null))
-    .then((j) => { PF_RETURNS = j || { months: [], data: {} }; PF_RET_LOADING = false; cb(); })
-    .catch(() => { PF_RETURNS = { months: [], data: {} }; PF_RET_LOADING = false; cb(); });
+  fetch('returns.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust: уникальный URL обходит любой кэш/404
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+    .then((j) => { PF_RETURNS = j; PF_RET_LOADING = false; if (cb) cb(); })
+    .catch((e) => { console.error('[pf] returns.json не загрузился:', e); PF_RETURNS = { months: [], data: {}, failed: true }; PF_RET_LOADING = false; if (cb) cb(); });
 }
 function _pstdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); }
 
@@ -746,7 +747,8 @@ function portfolioRisk(items, grossYieldPct) {
 function riskPanelHTML(risk) {
   if (!risk) {
     if (!PF_RETURNS) return '<div class="pf-risk-note muted">Загрузка истории для риск-метрик…</div>';
-    if (!PF_RETURNS.months || !PF_RETURNS.months.length) return '<div class="pf-risk-note muted">Историческая серия недоступна — риск-метрики не построены.</div>';
+    if (PF_RETURNS.failed) return '<div class="pf-risk-note muted">История (returns.json) не загрузилась — обнови страницу (Cmd+Shift+R).</div>';
+    if (!PF_RETURNS.months || !PF_RETURNS.months.length) return '<div class="pf-risk-note muted">Историческая серия недоступна.</div>';
     return '<div class="pf-risk-note muted">Недостаточно истории для риск-метрик этой корзины.</div>';
   }
   const cell = (lbl, val, cls) => `<div class="pf-rc"><span>${lbl}</span><b class="${cls || ''}">${val}</b></div>`;
@@ -780,8 +782,13 @@ function renderPortfolio() {
   const capital = +document.getElementById('pf-capital').value || 0;
   const items = buildPortfolio(method, opts);
   if (!items) {
-    const loading = method.startsWith('opt') && (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length);
-    out.innerHTML = `<p class="muted" style="padding:8px">${loading ? 'Загрузка истории для оптимизатора…' : 'Недостаточно подходящих бумаг для корзины.'}</p>`;
+    let msg = 'Недостаточно подходящих бумаг для корзины.';
+    if (method.startsWith('opt')) {
+      if (!PF_RETURNS) msg = 'Загрузка истории…';
+      else if (PF_RETURNS.failed) msg = 'Не удалось загрузить историю (returns.json) — обнови страницу (Cmd+Shift+R).';
+      else if (!PF_RETURNS.months.length) msg = 'История недоступна.';
+    }
+    out.innerHTML = `<p class="muted" style="padding:8px">${msg}</p>`;
     return;
   }
   PF_LAST = { items, capital };
