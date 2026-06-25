@@ -676,7 +676,7 @@ function buildOptimized(method, opts) {
     return c >= span * 0.8;                          // ≥80% истории в окне
   });
   if (cand.length < 5) return null;
-  const mat = cand.map((t) => { const a = R[t.ticker]; const row = []; for (let j = i0; j < months.length; j++) row.push(isNum(a[j]) ? a[j] : 0); return row; });
+  const mat = cand.map((t) => { const a = R[t.ticker]; const row = []; for (let j = i0; j < months.length; j++) { const r = isNum(a[j]) ? a[j] : 0; row.push(Math.max(-RET_WINSOR, Math.min(RET_WINSOR, r))); } return row; });
   const cov = covMatrix(mat);
   const w = method === 'optiv' ? invVolWeights(cov) : (method === 'optrp' ? riskParity(cov) : minVariance(cov));
   let items = cand.map((t, i) => ({ ticker: t.ticker, name: t.name, sector: t.sector || ND, t, score: w[i], w: w[i] }));
@@ -710,7 +710,9 @@ function portfolioMetrics(items, capital) {
 }
 
 // ── риск-метрики корзины (исторический ряд месячных доходностей, ленивая подгрузка) ──
-const RF_HIST = 0.09;          // долгосрочная безрисковая РФ (период 2019–26; спот 15% — пик, исказил бы)
+// time-varying безрисковая: средняя ключевая ставка ЦБ по годам (а не одна цифра — период 2019-26 ставка гуляла 4-21%)
+const RF_BY_YEAR = { 2019: 0.074, 2020: 0.051, 2021: 0.058, 2022: 0.106, 2023: 0.095, 2024: 0.175, 2025: 0.19, 2026: 0.165 };
+const RET_WINSOR = 0.40;       // винзоризация месячных доходностей ±40% — гасит артефакт закрытия MOEX (фев-мар 2022)
 let PF_RETURNS = null;
 let PF_RET_LOADING = false;
 function loadReturns(cb) {
@@ -728,23 +730,30 @@ function portfolioRisk(items, grossYieldPct) {
   if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
   const months = PF_RETURNS.months, R = PF_RETURNS.data;
   const ydrip = (isNum(grossYieldPct) ? grossYieldPct : 0) / 100 / 12;   // дивиденд как равномерный месячный drip → тотал-ретёрн
-  const port = [];
+  const port = [], excess = [];
   for (let j = 0; j < months.length; j++) {
     let num = 0, wsum = 0;
     items.forEach((it) => { const r = (R[it.ticker] || [])[j]; if (isNum(r)) { num += it.w * r; wsum += it.w; } });
-    if (wsum > 0.5) port.push(num / wsum + ydrip);          // ≥50% веса покрыто историей
+    if (wsum > 0.5) {                                         // ≥50% веса покрыто историей
+      let r = num / wsum + ydrip;
+      r = Math.max(-RET_WINSOR, Math.min(RET_WINSOR, r));    // винзор (2022-разрыв)
+      port.push(r);
+      const rf = (RF_BY_YEAR[+months[j].slice(0, 4)] || 0.10) / 12;   // безрисковая того месяца
+      excess.push(r - rf);
+    }
   }
   if (port.length < 24) return null;                         // мало истории для риск-метрик
   const n = port.length;
   const cagr = Math.pow(port.reduce((p, r) => p * (1 + r), 1), 12 / n) - 1;
   const vol = _pstdev(port) * Math.sqrt(12);
-  const dd = Math.sqrt(port.reduce((s, r) => s + Math.min(r, 0) ** 2, 0) / n) * Math.sqrt(12);   // downside-дев (MAR=0)
+  const exAnn = excess.reduce((a, b) => a + b, 0) / n * 12;  // годовая избыточная доходность (vs time-varying rf)
+  const dd = Math.sqrt(excess.reduce((s, e) => s + Math.min(e, 0) ** 2, 0) / n) * Math.sqrt(12);   // downside-дев (MAR=rf)
   let eq = 1, peak = 1, mdd = 0; const curve = [];
   port.forEach((r) => { eq *= (1 + r); curve.push(eq); peak = Math.max(peak, eq); mdd = Math.min(mdd, eq / peak - 1); });
   return {
     months: n, cagr, vol, maxdd: mdd, equity: curve,
-    sharpe: vol ? (cagr - RF_HIST) / vol : null,
-    sortino: dd ? (cagr - RF_HIST) / dd : null,
+    sharpe: vol ? exAnn / vol : null,
+    sortino: dd ? exAnn / dd : null,
     calmar: mdd < 0 ? cagr / Math.abs(mdd) : null,
   };
 }
@@ -759,7 +768,7 @@ function riskPanelHTML(risk) {
   const cell = (lbl, val, cls) => `<div class="pf-rc"><span>${lbl}</span><b class="${cls || ''}">${val}</b></div>`;
   const sg = (x) => (x >= 0.5 ? 'g' : (x < 0 ? 'r' : ''));
   return `<div class="pf-risk">
-    <div class="pf-risk-head">Риск корзины · исторический, ${risk.months} мес</div>
+    <div class="pf-risk-head">⚠ Характеристики ТЕКУЩИХ бумаг корзины · ${risk.months} мес (НЕ бэктест стратегии)</div>
     <div class="pf-risk-grid">
       ${cell('CAGR (тотал)', ru(risk.cagr * 100, 1) + '%')}
       ${cell('Волатильность', ru(risk.vol * 100, 1) + '%')}
@@ -769,7 +778,7 @@ function riskPanelHTML(risk) {
       ${cell('Calmar', risk.calmar != null ? ru(risk.calmar, 2) : mdash)}
     </div>
     <div class="pf-eq">${areaSpark(risk.equity, CH.teal, 'pfeq')}</div>
-    <div class="pf-risk-note muted">Тотал-ретёрн ≈ ценовой ряд MOEX + тек. дивдоходность (drip); vs долгосрочная безрисковая ~${(RF_HIST * 100).toFixed(0)}%. Это реализованный риск ТЕКУЩИХ бумаг корзины, не бэктест стратегии (его валидирует факторный бэктест ВКР выше).</div>
+    <div class="pf-risk-note muted">Считается на исторических ценах ИМЕННО этих бумаг (survivorship: делистнутые/взорвавшиеся не учтены) — это НЕ бэктест стратегии с ребалансом, а характеристики сегодняшней корзины. Тотал-ретёрн ≈ цена MOEX + тек. дивдоходность (drip, прибл.); Sharpe/Sortino vs time-varying ключевой ставки ЦБ; месячные доходности винзоризованы ±40% (артефакт закрытия биржи 2022).</div>
   </div>`;
 }
 
