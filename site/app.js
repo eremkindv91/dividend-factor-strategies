@@ -535,7 +535,8 @@ function exportCSV() {
 
 // ══════════ Конструктор портфеля ══════════
 const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходность «на руки»
-const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor, отсечь пенни/неликвид
+const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor
+const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — отсечь нетендерные (стоячие цены → ложный low-vol в оптимизаторе)
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
   quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
   momentum: { label: 'Momentum (WML 12-1, ТОЛЬКО ЛОНГ top-N) · бэктест ВКР 2012–2025: +2,2%/год избыточной доходности над рынком (t≈0,3 — статистически незначима); единственный фактор, исторически работавший на РФ, но слабо. Ребаланс месячный.' },
@@ -553,6 +554,7 @@ function eligibleForPortfolio(t) {
   if (t.status !== 'ok' || !isNum(t.price) || t.price <= 0) return false;
   if (t.verdict && t.verdict.unreliable) return false;
   if (isNum(t.mcap) && t.mcap < PF_MIN_MCAP) return false;   // ND по mcap не отсекаем
+  if (isNum(t.adv) && t.adv < PF_MIN_ADV) return false;      // нетендерные — вон (ND по adv не отсекаем)
   return true;
 }
 
@@ -617,6 +619,8 @@ function buildPortfolio(method, opts) {
 // ── робастный оптимизатор (ковариация из returns.json, весь eligible-универсум) ──
 const OPT_WINDOW = 60;         // окно месяцев для ковариации
 const OPT_SHRINK = 0.2;        // усадка ковариации к диагонали (Ledoit-Wolf-lite) → робастность
+const OPT_VOLFLOOR = (0.12 ** 2) / 12;   // пол месячной дисперсии (≈12% год.) — чтобы min-var не эксплуатировал
+                                          // занижённую волатильность неликвида (застывшие цены)
 
 function covMatrix(mat) {       // mat: N имён × T месяцев → выборочная ковариация NxN
   const N = mat.length, T = mat[0].length;
@@ -630,6 +634,7 @@ function covMatrix(mat) {       // mat: N имён × T месяцев → вы�
     }
   }
   for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (i !== j) cov[i][j] *= (1 - OPT_SHRINK);  // усадка
+  for (let i = 0; i < N; i++) cov[i][i] = Math.max(cov[i][i], OPT_VOLFLOOR);   // vol-floor против неликвид-артефакта
   return cov;
 }
 function _sigma(cov, w) { return w.map((_, i) => { let s = 0; for (let j = 0; j < w.length; j++) s += cov[i][j] * w[j]; return s; }); }

@@ -35,7 +35,7 @@ ISS_BOARD_URL = (
 )
 ISS_CANDLES_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{tk}/candles.json"
-    "?iss.meta=off&interval={interval}&from={frm}&till={till}&candles.columns=close,begin"
+    "?iss.meta=off&interval={interval}&from={frm}&till={till}&candles.columns=close,begin,value"
 )
 USER_AGENT = "dividend-forecast-site/1.0 (+https://github.com/eremkindv91/dividend-factor-strategies)"
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -104,7 +104,8 @@ def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int
     for r in _rows(payload.get("candles", {"columns": [], "data": []})):
         c = r.get("close")
         if c is not None and float(c) > 0:
-            out.append((str(r.get("begin"))[:10], float(c)))
+            v = r.get("value")
+            out.append((str(r.get("begin"))[:10], float(c), float(v) if v is not None else 0.0))   # (дата, close, оборот ₽)
     out.sort()
     return out
 

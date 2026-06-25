@@ -270,6 +270,7 @@ def main() -> int:
                      and isinstance(price, (int, float)) and price) else ND),   # живая капитализация, млн ₽
             "mom_score": (momentum.get(tk) or {}).get("mom"),     # WML 12-1 (месячный pipeline)
             "vol_ann": (momentum.get(tk) or {}).get("vol_ann"),   # годовая волатильность (inverse-vol)
+            "adv": (momentum.get(tk) or {}).get("adv"),           # ADV ₽/день (ликвидность-фильтр)
             "quality_barra": r.get("quality_barra"),              # верная 3-дескр Barra (ВКР)
         })
 

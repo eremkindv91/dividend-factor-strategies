@@ -1,6 +1,6 @@
 {
  "meta": {
-  "asof": "2026-06-21",
+  "asof": "2026-06-25",
   "n": 236,
   "n_fresh": 232,
   "n_err": 0,
@@ -10,63 +10,78 @@
  "data": {
   "ABIO": {
    "mom": -0.402,
-   "vol_ann": 0.6474
+   "vol_ann": 0.6514,
+   "adv": 102927400
   },
   "ABRD": {
    "mom": -0.2414,
-   "vol_ann": 0.3241
+   "vol_ann": 0.3298,
+   "adv": 40680323
   },
   "AFKS": {
    "mom": -0.208,
-   "vol_ann": 0.3977
+   "vol_ann": 0.3928,
+   "adv": 1213704510
   },
   "AFLT": {
    "mom": -0.2702,
-   "vol_ann": 0.3685
+   "vol_ann": 0.3757,
+   "adv": 1171668519
   },
   "AKRN": {
    "mom": 0.1435,
-   "vol_ann": 0.418
+   "vol_ann": 0.4234,
+   "adv": 62045883
   },
   "ALRS": {
    "mom": -0.486,
-   "vol_ann": 0.3406
+   "vol_ann": 0.3443,
+   "adv": 1323037337
   },
   "APRI": {
    "mom": 0.143,
-   "vol_ann": 0.283
+   "vol_ann": 0.2748,
+   "adv": 1948064
   },
   "APTK": {
    "mom": -0.3491,
-   "vol_ann": 0.2441
+   "vol_ann": 0.2656,
+   "adv": 38585498
   },
   "AQUA": {
    "mom": -0.3109,
-   "vol_ann": 0.3981
+   "vol_ann": 0.4084,
+   "adv": 81404800
   },
   "ARSA": {
    "mom": -0.298,
-   "vol_ann": 0.3934
+   "vol_ann": 0.3972,
+   "adv": 3798989
   },
   "ASSB": {
    "mom": 0.8094,
-   "vol_ann": 0.7174
+   "vol_ann": 0.7203,
+   "adv": 3094890
   },
   "ASTR": {
    "mom": -0.2992,
-   "vol_ann": 0.3737
+   "vol_ann": 0.3763,
+   "adv": 402066331
   },
   "AVAN": {
    "mom": -0.1096,
-   "vol_ann": 0.4451
+   "vol_ann": 0.4459,
+   "adv": 4987783
   },
   "BANE": {
    "mom": -0.2417,
-   "vol_ann": 0.4205
+   "vol_ann": 0.4286,
+   "adv": 83258383
   },
   "BANEP": {
    "mom": -0.143,
-   "vol_ann": 0.4361
+   "vol_ann": 0.4413,
+   "adv": 251316183
   },
   "BAZA": {
    "mom": null,
@@ -74,75 +89,93 @@
   },
   "BELU": {
    "mom": -0.275,
-   "vol_ann": 0.5564
+   "vol_ann": 0.5612,
+   "adv": 275119890
   },
   "BISVP": {
    "mom": 0.1891,
-   "vol_ann": 0.3825
+   "vol_ann": 0.3859,
+   "adv": 1426520
   },
   "BLNG": {
    "mom": -0.3343,
-   "vol_ann": 0.5923
+   "vol_ann": 0.6039,
+   "adv": 53428012
   },
   "BRZL": {
    "mom": -0.1656,
-   "vol_ann": 0.4384
+   "vol_ann": 0.4562,
+   "adv": 5996487
   },
   "BSPB": {
    "mom": -0.1929,
-   "vol_ann": 0.415
+   "vol_ann": 0.4238,
+   "adv": 371359009
   },
   "BSPBP": {
    "mom": -0.234,
-   "vol_ann": 0.6148
+   "vol_ann": 0.6257,
+   "adv": 13657253
   },
   "CARM": {
    "mom": -0.3918,
-   "vol_ann": 0.4285
+   "vol_ann": 0.4395,
+   "adv": 30281093
   },
   "CBOM": {
    "mom": 0.1107,
-   "vol_ann": 0.4145
+   "vol_ann": 0.4107,
+   "adv": 257910822
   },
   "CHGZ": {
    "mom": 0.1359,
-   "vol_ann": 1.4012
+   "vol_ann": 1.4027,
+   "adv": 5576888
   },
   "CHKZ": {
    "mom": -0.0178,
-   "vol_ann": 0.5472
+   "vol_ann": 0.5507,
+   "adv": 1869456
   },
   "CHMF": {
    "mom": -0.3444,
-   "vol_ann": 0.3577
+   "vol_ann": 0.3627,
+   "adv": 1297868748
   },
   "CNRU": {
    "mom": 0.1203,
-   "vol_ann": 0.2206
+   "vol_ann": 0.288,
+   "adv": 155722067
   },
   "CNTL": {
    "mom": -0.1352,
-   "vol_ann": 0.3316
+   "vol_ann": 0.3323,
+   "adv": 18317399
   },
   "CNTLP": {
    "mom": -0.2932,
-   "vol_ann": 0.5043
+   "vol_ann": 0.5096,
+   "adv": 20154405
   },
   "DATA": {
    "mom": -0.2378,
-   "vol_ann": 0.3703
+   "vol_ann": 0.3815,
+   "adv": 108389867
   },
   "DELI": {
    "mom": -0.6368,
-   "vol_ann": 0.3403
+   "vol_ann": 0.3803,
+   "adv": 61167295
   },
   "DIAS": {
    "mom": -0.637,
-   "vol_ann": 0.3192
+   "vol_ann": 0.3183,
+   "adv": 83597935
   },
   "DIOD": {
    "mom": -0.2267,
-   "vol_ann": 0.4049
+   "vol_ann": 0.4173,
+   "adv": 3663073
   },
   "DOMRF": {
    "mom": null,
@@ -150,51 +183,63 @@
   },
   "DVEC": {
    "mom": -0.2058,
-   "vol_ann": 0.7012
+   "vol_ann": 0.7083,
+   "adv": 28655923
   },
   "DZRD": {
    "mom": -0.4199,
-   "vol_ann": 0.7549
+   "vol_ann": 0.7749,
+   "adv": 1965705
   },
   "DZRDP": {
    "mom": -0.1429,
-   "vol_ann": 0.4867
+   "vol_ann": 0.4941,
+   "adv": 2203946
   },
   "EELT": {
    "mom": -0.2333,
-   "vol_ann": 0.3832
+   "vol_ann": 0.3869,
+   "adv": 6837786
   },
   "ELFV": {
    "mom": -0.1358,
-   "vol_ann": 0.2857
+   "vol_ann": 0.3009,
+   "adv": 76509457
   },
   "ELMT": {
    "mom": -0.1743,
-   "vol_ann": 0.2947
+   "vol_ann": 0.2943,
+   "adv": 14744073
   },
   "ENPG": {
    "mom": -0.0799,
-   "vol_ann": 0.4236
+   "vol_ann": 0.4278,
+   "adv": 210264064
   },
   "ETLN": {
    "mom": -0.5711,
-   "vol_ann": 0.468
+   "vol_ann": 0.4698,
+   "adv": 54384319
   },
   "EUTR": {
    "mom": -0.5038,
-   "vol_ann": 0.5149
+   "vol_ann": 0.5159,
+   "adv": 648528249
   },
   "FEES": {
    "mom": -0.1268,
-   "vol_ann": 0.3486
+   "vol_ann": 0.3557,
+   "adv": 257977171
   },
   "FESH": {
    "mom": 0.1078,
-   "vol_ann": 0.558
+   "vol_ann": 0.5643,
+   "adv": 313307162
   },
   "FIXP": {
    "mom": -0.4489,
-   "vol_ann": 0.4449
+   "vol_ann": 0.4449,
+   "adv": 110568197
   },
   "FIXR": {
    "mom": null,
@@ -202,19 +247,23 @@
   },
   "FLOT": {
    "mom": 0.0876,
-   "vol_ann": 0.4125
+   "vol_ann": 0.4136,
+   "adv": 552440184
   },
   "GAZP": {
    "mom": -0.1082,
-   "vol_ann": 0.3871
+   "vol_ann": 0.3901,
+   "adv": 10011899497
   },
   "GCHE": {
    "mom": -0.0295,
-   "vol_ann": 0.3195
+   "vol_ann": 0.3237,
+   "adv": 34366677
   },
   "GEMC": {
    "mom": 0.0459,
-   "vol_ann": 0.4782
+   "vol_ann": 0.4819,
+   "adv": 42273224
   },
   "GLRX": {
    "mom": null,
@@ -222,735 +271,918 @@
   },
   "GMKN": {
    "mom": 0.1291,
-   "vol_ann": 0.2772
+   "vol_ann": 0.2762,
+   "adv": 2730366750
   },
   "GTRK": {
    "mom": -0.7408,
-   "vol_ann": 0.9988
+   "vol_ann": 0.9985,
+   "adv": 176268828
   },
   "HEAD": {
    "mom": -0.1206,
-   "vol_ann": 0.2017
+   "vol_ann": 0.213,
+   "adv": 753723959
   },
   "HIMCP": {
    "mom": -0.1724,
-   "vol_ann": 0.5821
+   "vol_ann": 0.596,
+   "adv": 3348583
   },
   "HNFG": {
    "mom": -0.3463,
-   "vol_ann": 0.2635
+   "vol_ann": 0.2958,
+   "adv": 46168583
   },
   "HYDR": {
    "mom": -0.1738,
-   "vol_ann": 0.2476
+   "vol_ann": 0.2584,
+   "adv": 197218643
   },
   "IGST": {
    "mom": -0.1202,
-   "vol_ann": 0.7951
+   "vol_ann": 0.7954,
+   "adv": 3943340
   },
   "IGSTP": {
    "mom": -0.2494,
-   "vol_ann": 0.9528
+   "vol_ann": 0.954,
+   "adv": 2803423
   },
   "IRAO": {
    "mom": -0.0223,
-   "vol_ann": 0.2746
+   "vol_ann": 0.2782,
+   "adv": 550947142
   },
   "IRKT": {
    "mom": -0.3544,
-   "vol_ann": 0.7513
+   "vol_ann": 0.7551,
+   "adv": 181126546
   },
   "IVAT": {
    "mom": -0.2706,
-   "vol_ann": 0.4562
+   "vol_ann": 0.4879,
+   "adv": 215047648
   },
   "JNOS": {
    "mom": 0.5567,
-   "vol_ann": 0.7175
+   "vol_ann": 0.7216,
+   "adv": 3693057
   },
   "JNOSP": {
    "mom": 0.1952,
-   "vol_ann": 0.5317
+   "vol_ann": 0.5377,
+   "adv": 2419947
   },
   "KAZT": {
    "mom": -0.175,
-   "vol_ann": 0.4174
+   "vol_ann": 0.427,
+   "adv": 16554049
   },
   "KAZTP": {
    "mom": -0.1829,
-   "vol_ann": 0.4478
+   "vol_ann": 0.4564,
+   "adv": 5915205
   },
   "KBSB": {
    "mom": 0.4935,
-   "vol_ann": 0.7114
+   "vol_ann": 0.7137,
+   "adv": 2484051
   },
   "KCHE": {
    "mom": -0.1387,
-   "vol_ann": 1.4557
+   "vol_ann": 1.4595,
+   "adv": 2747823
   },
   "KCHEP": {
    "mom": 0.1917,
-   "vol_ann": 0.701
+   "vol_ann": 0.7077,
+   "adv": 1213492
   },
   "KFBA": {
    "mom": 0.0492,
-   "vol_ann": 0.1758
+   "vol_ann": 0.1781,
+   "adv": 482411
   },
   "KGKC": {
    "mom": -0.0652,
-   "vol_ann": 0.2918
+   "vol_ann": 0.2918,
+   "adv": 607471
   },
   "KGKCP": {
    "mom": 0.0549,
-   "vol_ann": 0.28
+   "vol_ann": 0.28,
+   "adv": 889476
   },
   "KLSB": {
    "mom": -0.18,
-   "vol_ann": 0.5267
+   "vol_ann": 0.5281,
+   "adv": 26916038
   },
   "KLVZ": {
    "mom": -0.2685,
-   "vol_ann": 0.3022
+   "vol_ann": 0.3319,
+   "adv": 6212377
   },
   "KMAZ": {
    "mom": -0.3877,
-   "vol_ann": 0.4835
+   "vol_ann": 0.4937,
+   "adv": 96693602
   },
   "KMEZ": {
    "mom": -0.2803,
-   "vol_ann": 0.5378
+   "vol_ann": 0.542,
+   "adv": 2171198
   },
   "KOGK": {
    "mom": -0.2099,
-   "vol_ann": 0.29
+   "vol_ann": 0.3104,
+   "adv": 1008530
   },
   "KRKN": {
    "mom": 0.2143,
-   "vol_ann": 0.3231
+   "vol_ann": 0.3177,
+   "adv": 755214
   },
   "KRKNP": {
    "mom": -0.1578,
-   "vol_ann": 0.2797
+   "vol_ann": 0.2866,
+   "adv": 10954718
   },
   "KRKOP": {
    "mom": 0.0924,
-   "vol_ann": 0.307
+   "vol_ann": 0.3159,
+   "adv": 1262827
   },
   "KROT": {
    "mom": -0.1411,
-   "vol_ann": 0.7484
+   "vol_ann": 0.7517,
+   "adv": 35269535
   },
   "KROTP": {
    "mom": -0.0091,
-   "vol_ann": 0.5325
+   "vol_ann": 0.5334,
+   "adv": 3293834
   },
   "KRSB": {
    "mom": 0.3317,
-   "vol_ann": 0.4401
+   "vol_ann": 0.4442,
+   "adv": 1745499
   },
   "KRSBP": {
    "mom": 0.2745,
-   "vol_ann": 0.42
+   "vol_ann": 0.4215,
+   "adv": 1018575
   },
   "KUZB": {
    "mom": -0.2146,
-   "vol_ann": 0.4612
+   "vol_ann": 0.4608,
+   "adv": 3617372
   },
   "KZOS": {
    "mom": -0.2393,
-   "vol_ann": 0.3377
+   "vol_ann": 0.3422,
+   "adv": 22343681
   },
   "KZOSP": {
    "mom": -0.2801,
-   "vol_ann": 0.3898
+   "vol_ann": 0.3972,
+   "adv": 32785070
   },
   "LEAS": {
    "mom": 0.0622,
-   "vol_ann": 0.3293
+   "vol_ann": 0.3293,
+   "adv": 183133361
   },
   "LENT": {
    "mom": 0.1924,
-   "vol_ann": 0.3959
+   "vol_ann": 0.3959,
+   "adv": 59030991
   },
   "LKOH": {
    "mom": -0.2231,
-   "vol_ann": 0.3159
+   "vol_ann": 0.3196,
+   "adv": 5487282222
   },
   "LMBZ": {
    "mom": 0.0943,
-   "vol_ann": 0.3183
+   "vol_ann": 0.3215,
+   "adv": 1887297
   },
   "LNZL": {
    "mom": -0.7095,
-   "vol_ann": 0.7648
+   "vol_ann": 0.7648,
+   "adv": 39862429
   },
   "LNZLP": {
    "mom": -0.7376,
-   "vol_ann": 0.6463
+   "vol_ann": 0.6463,
+   "adv": 49051138
   },
   "LPSB": {
    "mom": -0.0281,
-   "vol_ann": 0.6606
+   "vol_ann": 0.6656,
+   "adv": 2791234
   },
   "LSNG": {
    "mom": 0.1387,
-   "vol_ann": 0.5705
+   "vol_ann": 0.5795,
+   "adv": 37024440
   },
   "LSNGP": {
    "mom": 0.6031,
-   "vol_ann": 0.3138
+   "vol_ann": 0.3171,
+   "adv": 60125514
   },
   "LSRG": {
    "mom": -0.1694,
-   "vol_ann": 0.3815
+   "vol_ann": 0.3849,
+   "adv": 153981795
   },
   "LVHK": {
    "mom": -0.1744,
-   "vol_ann": 0.5446
+   "vol_ann": 0.5537,
+   "adv": 4464523
   },
   "MAGE": {
    "mom": -0.1947,
-   "vol_ann": 0.2907
+   "vol_ann": 0.3049,
+   "adv": 2334772
   },
   "MAGEP": {
    "mom": -0.0338,
-   "vol_ann": 0.3381
+   "vol_ann": 0.3461,
+   "adv": 1627930
   },
   "MAGN": {
    "mom": -0.3334,
-   "vol_ann": 0.3763
+   "vol_ann": 0.3843,
+   "adv": 1126998840
   },
   "MBNK": {
    "mom": -0.0142,
-   "vol_ann": 0.286
+   "vol_ann": 0.2938,
+   "adv": 95618740
   },
   "MDMG": {
    "mom": 0.2495,
-   "vol_ann": 0.4082
+   "vol_ann": 0.4096,
+   "adv": 91817221
   },
   "MFGS": {
    "mom": 0.0912,
-   "vol_ann": 0.4193
+   "vol_ann": 0.4352,
+   "adv": 2390486
   },
   "MFGSP": {
    "mom": 0.1632,
-   "vol_ann": 0.4677
+   "vol_ann": 0.4816,
+   "adv": 2055300
   },
   "MGKL": {
    "mom": 0.0133,
-   "vol_ann": 0.2675
+   "vol_ann": 0.2676,
+   "adv": 19091152
   },
   "MGNT": {
    "mom": -0.3631,
-   "vol_ann": 0.3958
+   "vol_ann": 0.4032,
+   "adv": 1803376935
   },
   "MGTS": {
    "mom": 0.2,
-   "vol_ann": 0.3309
+   "vol_ann": 0.3324,
+   "adv": 1228426
   },
   "MGTSP": {
    "mom": 0.606,
-   "vol_ann": 0.5204
+   "vol_ann": 0.5204,
+   "adv": 23004492
   },
   "MISB": {
    "mom": 0.0161,
-   "vol_ann": 0.9985
+   "vol_ann": 1.0058,
+   "adv": 1879426
   },
   "MISBP": {
    "mom": 0.1949,
-   "vol_ann": 0.9213
+   "vol_ann": 0.928,
+   "adv": 2398363
   },
   "MOEX": {
    "mom": -0.1267,
-   "vol_ann": 0.3036
+   "vol_ann": 0.3054,
+   "adv": 1138918664
   },
   "MRKC": {
    "mom": 0.1385,
-   "vol_ann": 0.4393
+   "vol_ann": 0.4453,
+   "adv": 49980228
   },
   "MRKK": {
    "mom": 0.2869,
-   "vol_ann": 0.4462
+   "vol_ann": 0.4546,
+   "adv": 3351788
   },
   "MRKP": {
    "mom": 0.2803,
-   "vol_ann": 0.4028
+   "vol_ann": 0.4037,
+   "adv": 55005555
   },
   "MRKS": {
    "mom": -0.1175,
-   "vol_ann": 0.6232
+   "vol_ann": 0.6287,
+   "adv": 19828814
   },
   "MRKU": {
    "mom": 0.4892,
-   "vol_ann": 0.4975
+   "vol_ann": 0.5002,
+   "adv": 27329454
   },
   "MRKV": {
    "mom": 0.8763,
-   "vol_ann": 0.4201
+   "vol_ann": 0.4171,
+   "adv": 29234461
   },
   "MRKY": {
    "mom": 0.1391,
-   "vol_ann": 0.4911
+   "vol_ann": 0.4996,
+   "adv": 16459696
   },
   "MRKZ": {
    "mom": 0.7234,
-   "vol_ann": 0.7668
+   "vol_ann": 0.7725,
+   "adv": 35207744
   },
   "MRSB": {
    "mom": 0.2493,
-   "vol_ann": 0.5297
+   "vol_ann": 0.5297,
+   "adv": 2522831
   },
   "MSRS": {
    "mom": 0.3653,
-   "vol_ann": 0.2593
+   "vol_ann": 0.2642,
+   "adv": 33258074
   },
   "MTLR": {
    "mom": -0.4402,
-   "vol_ann": 0.5618
+   "vol_ann": 0.5672,
+   "adv": 1799066324
   },
   "MTLRP": {
    "mom": -0.4392,
-   "vol_ann": 0.6724
+   "vol_ann": 0.6769,
+   "adv": 427235318
   },
   "MTSS": {
    "mom": -0.037,
-   "vol_ann": 0.3126
+   "vol_ann": 0.313,
+   "adv": 858168571
   },
   "MVID": {
    "mom": -0.3356,
-   "vol_ann": 0.4167
+   "vol_ann": 0.4187,
+   "adv": 183386929
   },
   "NAUK": {
    "mom": 0.1432,
-   "vol_ann": 0.7141
+   "vol_ann": 0.7145,
+   "adv": 4173239
   },
   "NFAZ": {
    "mom": -0.2702,
-   "vol_ann": 0.5357
+   "vol_ann": 0.5409,
+   "adv": 4440926
   },
   "NKHP": {
    "mom": -0.2517,
-   "vol_ann": 0.624
+   "vol_ann": 0.6355,
+   "adv": 54837889
   },
   "NKNC": {
    "mom": -0.2203,
-   "vol_ann": 0.3613
+   "vol_ann": 0.3762,
+   "adv": 19979607
   },
   "NKNCP": {
    "mom": -0.3306,
-   "vol_ann": 0.3695
+   "vol_ann": 0.3784,
+   "adv": 23619539
   },
   "NKSH": {
    "mom": -0.2635,
-   "vol_ann": 0.4947
+   "vol_ann": 0.4953,
+   "adv": 3482962
   },
   "NLMK": {
    "mom": -0.2998,
-   "vol_ann": 0.3627
+   "vol_ann": 0.3721,
+   "adv": 1335556841
   },
   "NMTP": {
    "mom": -0.0695,
-   "vol_ann": 0.4328
+   "vol_ann": 0.4332,
+   "adv": 223158260
   },
   "NNSB": {
    "mom": 0.2105,
-   "vol_ann": 0.6755
+   "vol_ann": 0.6844,
+   "adv": 1276752
   },
   "NNSBP": {
    "mom": 0.088,
-   "vol_ann": 0.7438
+   "vol_ann": 0.7488,
+   "adv": 1042264
   },
   "NSVZ": {
    "mom": -0.1521,
-   "vol_ann": 0.6715
+   "vol_ann": 0.6722,
+   "adv": 23273576
   },
   "NVTK": {
    "mom": -0.0243,
-   "vol_ann": 0.3744
+   "vol_ann": 0.3775,
+   "adv": 2636631016
   },
   "OKEY": {
    "mom": 0.5738,
-   "vol_ann": 0.5131
+   "vol_ann": 0.5137,
+   "adv": 11976631
   },
   "OMZZP": {
    "mom": 0.074,
-   "vol_ann": 0.6856
+   "vol_ann": 0.6876,
+   "adv": 1973404
   },
   "OZON": {
    "mom": 0.0829,
-   "vol_ann": 0.5734
+   "vol_ann": 0.5759,
+   "adv": 1371532872
   },
   "OZPH": {
    "mom": 0.0548,
-   "vol_ann": 0.5011
+   "vol_ann": 0.5157,
+   "adv": 167923394
   },
   "PAZA": {
    "mom": -0.0835,
-   "vol_ann": 0.5843
+   "vol_ann": 0.5852,
+   "adv": 2220779
   },
   "PHOR": {
    "mom": -0.0407,
-   "vol_ann": 0.3569
+   "vol_ann": 0.3628,
+   "adv": 613573573
   },
   "PIKK": {
    "mom": -0.094,
-   "vol_ann": 0.4957
+   "vol_ann": 0.4944,
+   "adv": 950698264
   },
   "PLZL": {
    "mom": 0.1472,
-   "vol_ann": 0.3897
+   "vol_ann": 0.3913,
+   "adv": 2109046571
   },
   "PMSB": {
    "mom": 0.8043,
-   "vol_ann": 0.4548
+   "vol_ann": 0.4577,
+   "adv": 17053231
   },
   "PMSBP": {
    "mom": 0.8503,
-   "vol_ann": 0.515
+   "vol_ann": 0.5196,
+   "adv": 9980054
   },
   "POSI": {
    "mom": -0.3061,
-   "vol_ann": 0.5405
+   "vol_ann": 0.5434,
+   "adv": 506254563
   },
   "PRFN": {
    "mom": -0.0989,
-   "vol_ann": 2.0702
+   "vol_ann": 2.0751,
+   "adv": 17126663
   },
   "PRMD": {
    "mom": -0.034,
-   "vol_ann": 0.2557
+   "vol_ann": 0.2652,
+   "adv": 53407274
   },
   "QIWI": {
    "mom": 0.1106,
-   "vol_ann": 0.5723
+   "vol_ann": 0.5723,
+   "adv": 181917117
   },
   "RAGR": {
    "mom": -0.0936,
-   "vol_ann": 0.4869
+   "vol_ann": 0.5062,
+   "adv": 735876911
   },
   "RASP": {
    "mom": -0.4888,
-   "vol_ann": 0.4759
+   "vol_ann": 0.4791,
+   "adv": 339664304
   },
   "RDRB": {
    "mom": -0.2171,
-   "vol_ann": 0.3698
+   "vol_ann": 0.3701,
+   "adv": 2196595
   },
   "RENI": {
    "mom": -0.3078,
-   "vol_ann": 0.4275
+   "vol_ann": 0.4283,
+   "adv": 86785685
   },
   "RGSS": {
    "mom": -0.0645,
-   "vol_ann": 0.376
+   "vol_ann": 0.3805,
+   "adv": 5334971
   },
   "RKKE": {
    "mom": -0.1745,
-   "vol_ann": 0.8115
+   "vol_ann": 0.8175,
+   "adv": 29791757
   },
   "RNFT": {
    "mom": -0.2578,
-   "vol_ann": 0.4921
+   "vol_ann": 0.5041,
+   "adv": 783689107
   },
   "ROLO": {
    "mom": -0.44,
-   "vol_ann": 0.5247
+   "vol_ann": 0.5372,
+   "adv": 134324274
   },
   "ROSN": {
    "mom": -0.1171,
-   "vol_ann": 0.4363
+   "vol_ann": 0.44,
+   "adv": 2790177366
   },
   "ROST": {
    "mom": -0.2603,
-   "vol_ann": 0.5708
+   "vol_ann": 0.5756,
+   "adv": 3112870
   },
   "RTGZ": {
    "mom": -0.3074,
-   "vol_ann": 0.3032
+   "vol_ann": 0.3107,
+   "adv": 703792
   },
   "RTKM": {
    "mom": -0.1228,
-   "vol_ann": 0.3116
+   "vol_ann": 0.319,
+   "adv": 326488600
   },
   "RTKMP": {
    "mom": -0.1592,
-   "vol_ann": 0.2701
+   "vol_ann": 0.2772,
+   "adv": 92809862
   },
   "RTSB": {
    "mom": 0.1015,
-   "vol_ann": 1.0648
+   "vol_ann": 1.069,
+   "adv": 2798848
   },
   "RTSBP": {
    "mom": 0.0689,
-   "vol_ann": 0.8365
+   "vol_ann": 0.8426,
+   "adv": 2631361
   },
   "RUAL": {
    "mom": 0.1081,
-   "vol_ann": 0.3452
+   "vol_ann": 0.3538,
+   "adv": 1030688588
   },
   "RUSI": {
    "mom": -0.0757,
-   "vol_ann": 0.5158
+   "vol_ann": 0.5242,
+   "adv": 5198086
   },
   "RZSB": {
    "mom": 0.3516,
-   "vol_ann": 0.4018
+   "vol_ann": 0.4102,
+   "adv": 2896614
   },
   "SAGO": {
    "mom": -0.0361,
-   "vol_ann": 0.4794
+   "vol_ann": 0.4804,
+   "adv": 2354704
   },
   "SAGOP": {
    "mom": -0.0449,
-   "vol_ann": 0.4856
+   "vol_ann": 0.4876,
+   "adv": 1540541
   },
   "SARE": {
    "mom": 0.7879,
-   "vol_ann": 0.973
+   "vol_ann": 0.9736,
+   "adv": 3008203
   },
   "SAREP": {
    "mom": 0.6561,
-   "vol_ann": 0.6356
+   "vol_ann": 0.6358,
+   "adv": 1704825
   },
   "SBER": {
    "mom": 0.0168,
-   "vol_ann": 0.3528
+   "vol_ann": 0.3542,
+   "adv": 12645032895
   },
   "SBERP": {
    "mom": 0.0262,
-   "vol_ann": 0.3494
+   "vol_ann": 0.3509,
+   "adv": 1097166612
   },
   "SELG": {
    "mom": -0.011,
-   "vol_ann": 0.443
+   "vol_ann": 0.4474,
+   "adv": 261755980
   },
   "SFIN": {
    "mom": -0.4514,
-   "vol_ann": 0.6188
+   "vol_ann": 0.627,
+   "adv": 318667947
   },
   "SGZH": {
    "mom": -0.452,
-   "vol_ann": 0.507
+   "vol_ann": 0.515,
+   "adv": 490958866
   },
   "SIBN": {
    "mom": -0.0709,
-   "vol_ann": 0.2991
+   "vol_ann": 0.304,
+   "adv": 560044757
   },
   "SLEN": {
    "mom": -0.0216,
-   "vol_ann": 0.3844
+   "vol_ann": 0.3852,
+   "adv": 2934200
   },
   "SMLT": {
    "mom": -0.6755,
-   "vol_ann": 0.5869
+   "vol_ann": 0.5981,
+   "adv": 1403992325
   },
   "SOFL": {
    "mom": -0.4577,
-   "vol_ann": 0.2854
+   "vol_ann": 0.3001,
+   "adv": 263614762
   },
   "SPBE": {
    "mom": -0.1269,
-   "vol_ann": 0.8771
+   "vol_ann": 0.888,
+   "adv": 757546065
   },
   "SVAV": {
    "mom": -0.3012,
-   "vol_ann": 0.5659
+   "vol_ann": 0.5854,
+   "adv": 144025938
   },
   "SVCB": {
    "mom": -0.2733,
-   "vol_ann": 0.308
+   "vol_ann": 0.305,
+   "adv": 737002533
   },
   "T": {
    "mom": -0.0783,
-   "vol_ann": 0.3944
+   "vol_ann": 0.3959,
+   "adv": 4659566044
   },
   "TATN": {
    "mom": -0.0985,
-   "vol_ann": 0.3403
+   "vol_ann": 0.3512,
+   "adv": 1395860893
   },
   "TATNP": {
    "mom": -0.1038,
-   "vol_ann": 0.3155
+   "vol_ann": 0.3259,
+   "adv": 342163958
   },
   "TGKB": {
    "mom": -0.106,
-   "vol_ann": 0.6012
+   "vol_ann": 0.616,
+   "adv": 27552463
   },
   "TGKBP": {
    "mom": -0.0838,
-   "vol_ann": 0.5356
+   "vol_ann": 0.5479,
+   "adv": 11189732
   },
   "TGKN": {
    "mom": -0.2618,
-   "vol_ann": 0.7961
+   "vol_ann": 0.8091,
+   "adv": 66308391
   },
   "TNSE": {
    "mom": 0.4396,
-   "vol_ann": 0.8309
+   "vol_ann": 0.8364,
+   "adv": 2737985
   },
   "TORS": {
    "mom": 0.4333,
-   "vol_ann": 0.5398
+   "vol_ann": 0.5471,
+   "adv": 1259633
   },
   "TORSP": {
    "mom": 0.8182,
-   "vol_ann": 0.5188
+   "vol_ann": 0.5225,
+   "adv": 1336230
   },
   "TRMK": {
    "mom": -0.2712,
-   "vol_ann": 0.5558
+   "vol_ann": 0.5639,
+   "adv": 295485242
   },
   "TRNFP": {
    "mom": 0.0304,
-   "vol_ann": 0.3006
+   "vol_ann": 0.3024,
+   "adv": 1030106552
   },
   "TTLK": {
    "mom": -0.0409,
-   "vol_ann": 0.395
+   "vol_ann": 0.4013,
+   "adv": 37569724
   },
   "TUZA": {
    "mom": -0.2614,
-   "vol_ann": 0.4224
+   "vol_ann": 0.4263,
+   "adv": 6330548
   },
   "UGLD": {
    "mom": -0.1028,
-   "vol_ann": 0.4614
+   "vol_ann": 0.4616,
+   "adv": 1006241898
   },
   "UKUZ": {
    "mom": -0.257,
-   "vol_ann": 0.5333
+   "vol_ann": 0.5361,
+   "adv": 1870203
   },
   "UNAC": {
    "mom": -0.3963,
-   "vol_ann": 0.8695
+   "vol_ann": 0.875,
+   "adv": 125971591
   },
   "UNKL": {
    "mom": -0.2445,
-   "vol_ann": 0.4173
+   "vol_ann": 0.4284,
+   "adv": 10733970
   },
   "UPRO": {
    "mom": -0.1684,
-   "vol_ann": 0.398
+   "vol_ann": 0.4029,
+   "adv": 329157885
   },
   "URKZ": {
    "mom": -0.1981,
-   "vol_ann": 0.3454
+   "vol_ann": 0.3547,
+   "adv": 852589
   },
   "USBN": {
    "mom": 0.2568,
-   "vol_ann": 0.4588
+   "vol_ann": 0.4587,
+   "adv": 5828332
   },
   "UTAR": {
    "mom": -0.1717,
-   "vol_ann": 0.4715
+   "vol_ann": 0.4802,
+   "adv": 3898747
   },
   "UWGN": {
    "mom": -0.4258,
-   "vol_ann": 0.4165
+   "vol_ann": 0.427,
+   "adv": 98165244
   },
   "VGSB": {
    "mom": 0.35,
-   "vol_ann": 0.9347
+   "vol_ann": 0.9373,
+   "adv": 2539763
   },
   "VGSBP": {
    "mom": 0.3914,
-   "vol_ann": 0.7021
+   "vol_ann": 0.7092,
+   "adv": 1862670
   },
   "VJGZ": {
    "mom": 0.4072,
-   "vol_ann": 0.7023
+   "vol_ann": 0.7169,
+   "adv": 2683980
   },
   "VJGZP": {
    "mom": 0.0049,
-   "vol_ann": 0.7172
+   "vol_ann": 0.7282,
+   "adv": 2974298
   },
   "VKCO": {
    "mom": -0.1436,
-   "vol_ann": 0.6706
+   "vol_ann": 0.6765,
+   "adv": 1048083026
   },
   "VLHZ": {
    "mom": -0.0434,
-   "vol_ann": 0.5618
+   "vol_ann": 0.5714,
+   "adv": 5004044
   },
   "VRSB": {
    "mom": -0.067,
-   "vol_ann": 1.3491
+   "vol_ann": 1.3513,
+   "adv": 18633726
   },
   "VRSBP": {
    "mom": 0.2265,
-   "vol_ann": 0.8607
+   "vol_ann": 0.866,
+   "adv": 2298696
   },
   "VSEH": {
    "mom": -0.1004,
-   "vol_ann": 0.3311
+   "vol_ann": 0.3367,
+   "adv": 63162907
   },
   "VSMO": {
    "mom": -0.1424,
-   "vol_ann": 0.3752
+   "vol_ann": 0.3765,
+   "adv": 65045093
   },
   "VSYD": {
    "mom": -0.2087,
-   "vol_ann": 0.6229
+   "vol_ann": 0.6265,
+   "adv": 1431444
   },
   "VSYDP": {
    "mom": -0.1006,
-   "vol_ann": 0.4542
+   "vol_ann": 0.4564,
+   "adv": 1045269
   },
   "VTBR": {
    "mom": -0.2564,
-   "vol_ann": 0.4102
+   "vol_ann": 0.4118,
+   "adv": 3848802153
   },
   "WTCM": {
    "mom": 0.123,
-   "vol_ann": 0.331
+   "vol_ann": 0.3316,
+   "adv": 1616249
   },
   "WTCMP": {
    "mom": 0.2368,
-   "vol_ann": 0.297
+   "vol_ann": 0.2972,
+   "adv": 1591233
   },
   "WUSH": {
    "mom": -0.6299,
-   "vol_ann": 0.409
+   "vol_ann": 0.4147,
+   "adv": 402926424
   },
   "X5": {
    "mom": -0.303,
-   "vol_ann": 0.2815
+   "vol_ann": 0.2911,
+   "adv": 2536927772
   },
   "YAKG": {
    "mom": -0.2278,
-   "vol_ann": 0.3759
+   "vol_ann": 0.3933,
+   "adv": 11258767
   },
   "YDEX": {
    "mom": -0.04,
-   "vol_ann": 0.2412
+   "vol_ann": 0.2566,
+   "adv": 3363933983
   },
   "YKEN": {
    "mom": -0.1544,
-   "vol_ann": 0.6837
+   "vol_ann": 0.6892,
+   "adv": 2216993
   },
   "YKENP": {
    "mom": -0.1738,
-   "vol_ann": 0.4237
+   "vol_ann": 0.4382,
+   "adv": 1045070
   },
   "YRSB": {
    "mom": 0.1317,
-   "vol_ann": 0.8603
+   "vol_ann": 0.867,
+   "adv": 1321809
   },
   "YRSBP": {
    "mom": 0.0435,
-   "vol_ann": 0.6611
+   "vol_ann": 0.6638,
+   "adv": 1247611
   },
   "ZAYM": {
    "mom": -0.0044,
-   "vol_ann": 0.2645
+   "vol_ann": 0.2645,
+   "adv": 28930702
   },
   "ZVEZ": {
    "mom": -0.1762,
-   "vol_ann": 0.648
+   "vol_ann": 0.6578,
+   "adv": 4475919
   },
   "AMEZ": {
    "mom": 0.0103,
-   "vol_ann": 0.7926
+   "vol_ann": 0.7926,
+   "adv": 78447334
   }
  }
 }

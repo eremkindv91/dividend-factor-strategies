@@ -71,8 +71,9 @@ def main() -> int:
         if len(candles) < 13:
             n_skip += 1
             continue
-        months = [d[:7] for d, _ in candles]
-        closes = [c for _, c in candles]
+        months = [d[:7] for d, _, _ in candles]
+        closes = [c for _, c, _ in candles]
+        values = [v for _, _, v in candles]      # месячный оборот, ₽
         # WML 12-1: последний ПОЛНЫЙ месяц [-2] к 12 мес. назад [-13] (скип текущего [-1])
         mom = (closes[-2] / closes[-13] - 1) if closes[-13] > 0 else None
         # месячные доходности (ключ = месяц закрытия)
@@ -82,8 +83,10 @@ def main() -> int:
                 rets[months[i]] = closes[i] / closes[i - 1] - 1
         rvals = list(rets.values())
         vol = (statistics.pstdev(rvals[-VOL_WINDOW:]) * math.sqrt(12)) if len(rvals) >= 12 else None
+        recent_val = [v for v in values[-VOL_WINDOW:] if v > 0]
+        adv = round(statistics.mean(recent_val) / 21) if recent_val else None   # ADV: среднедневной оборот ₽ (≈21 торг.дней/мес)
         mom_out[tk] = {"mom": round(mom, 4) if mom is not None else None,
-                       "vol_ann": round(vol, 4) if vol is not None else None}
+                       "vol_ann": round(vol, 4) if vol is not None else None, "adv": adv}
         series[tk] = rets
         n_ok += 1
         time.sleep(PAUSE)
