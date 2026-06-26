@@ -1010,14 +1010,16 @@ function sawUIHTML(d) {
 
     <div class="saw-interp">${esc(cp.explanation)}</div>
 
-    <div class="saw-chart-wrap"><div id="saw-chart"></div>
-      <div class="saw-chart-legend muted"><span class="lg-line"></span> MCFTR &nbsp; <span class="lg-zz"></span> зигзаг экстремумов &nbsp; <span class="lg-low">▲</span> подтверждённый минимум &nbsp; <span class="lg-high">▼</span> подтверждённый максимум</div>
-    </div>
-
-    <div class="saw-distro-wrap">
-      <div class="saw-distro-title">Распределение амплитуд завершённых волн <span class="muted">(«пила»: где сейчас рынок на кривой)</span></div>
-      <div class="saw-distro-cap">Каждая точка — завершённая волна: её амплитуда (ось X, слева просадки, справа ралли) и доля волн с такой же или большей амплитудой (ось Y). Центр — полоса порога ±9,5%. Точка «сейчас» — текущее движение на survival-кривой.</div>
-      <div class="saw-distro">${sawDistroSVG(d)}</div>
+    <div class="saw-charts-row">
+      <div class="saw-col saw-chart-col">
+        <div class="saw-col-title">Динамика MCFTR и зигзаг волн</div>
+        <div id="saw-chart"></div>
+        <div class="saw-chart-legend muted"><span class="lg-line"></span> MCFTR &nbsp; <span class="lg-zz"></span> зигзаг &nbsp; <span class="lg-low">▲</span> минимум &nbsp; <span class="lg-high">▼</span> максимум</div>
+      </div>
+      <div class="saw-col saw-distro-col">
+        <div class="saw-col-title">Распределение амплитуд волн <span class="saw-help" data-tooltip="Каждая точка — завершённая волна: её амплитуда (ось X, слева просадки, справа ралли) и доля волн с такой же или большей амплитудой (ось Y). Центр — полоса порога ±9,5%. Точка «сейчас» — текущее движение на survival-кривой.">ⓘ</span></div>
+        <div class="saw-distro">${sawDistroSVG(d)}</div>
+      </div>
     </div>
 
     ${sawMethodHTML(d)}
@@ -1085,11 +1087,11 @@ function sawDistroSVG(d) {
   const dnPath = dn.map((p) => [xS(-p.amp), yS(p.s)]).sort((a, b) => a[0] - b[0]);
   const upPath = up.map((p) => [xS(p.amp), yS(p.s)]).sort((a, b) => a[0] - b[0]);
   const poly = (pts) => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const dots = (pts, cls) => pts.map((p) => `<circle class="${cls}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.1"/>`).join('');
+  const dots = (pts, cls) => pts.map((p) => `<circle class="${cls}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6"/>`).join('');
 
   // оси
   let xticks = '';
-  for (let t = Math.ceil(xMin / 20) * 20; t <= xMax; t += 20) {
+  for (let t = Math.ceil(xMin / 30) * 30; t <= xMax; t += 30) {
     const x = xS(t).toFixed(1);
     xticks += `<line class="sd-grid" x1="${x}" y1="${py0}" x2="${x}" y2="${py1}"/>`
       + `<text class="sd-tick" x="${x}" y="${py1 + 16}" text-anchor="middle">${t > 0 ? '+' + t : t}%</text>`;
@@ -1163,6 +1165,6 @@ function sawChart(d) {
   // чтобы подпись «сейчас» у последней точки не упиралась в край. История — скроллом/зумом.
   try {
     const n = d.series.length;
-    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 1 - 760), to: n - 1 + 34 });
+    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 1 - 760), to: n - 1 + 72 });
   } catch (e) { chart.timeScale().fitContent(); }
 }

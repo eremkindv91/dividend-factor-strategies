@@ -373,8 +373,13 @@ td.empty { text-align: center; }
 .saw-interp { background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: .9rem;
   line-height: 1.55; margin-bottom: 14px; }
 
+.saw-charts-row { display: flex; gap: 16px; margin: 4px 0 14px; align-items: flex-start; }
+.saw-col { min-width: 0; }
+.saw-chart-col { flex: 1.3; }
+.saw-distro-col { flex: 1; }
+.saw-col-title { font-weight: 600; font-size: .88rem; margin-bottom: 6px; }
 .saw-chart-wrap { margin-bottom: 14px; }
-#saw-chart { width: 100%; height: 340px; }
+#saw-chart { width: 100%; height: 320px; }
 .saw-chart-legend { font-size: .72rem; margin-top: 6px; display: flex; flex-wrap: wrap;
   gap: 4px 10px; align-items: center; }
 .lg-line { display: inline-block; width: 16px; height: 0; border-top: 2px solid #A9B7D9; }
@@ -388,9 +393,9 @@ td.empty { text-align: center; }
 .sd-grid { stroke: #EEF1F6; stroke-width: 1; }
 .sd-zero { stroke: #C7CEDC; stroke-width: 1; }
 .sd-band { fill: #F4DBD1; opacity: .35; }
-.sd-tick { font-size: 11px; fill: var(--ink-faint); font-family: var(--mono); }
-.sd-axis-y { font-size: 11px; fill: var(--ink-soft); }
-.sd-side { font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+.sd-tick { font-size: 13px; fill: var(--ink-faint); font-family: var(--mono); }
+.sd-axis-y { font-size: 13px; fill: var(--ink-soft); }
+.sd-side { font-size: 15px; font-weight: 700; letter-spacing: .02em; }
 .sd-side-dn { fill: #A2452C; }
 .sd-side-up { fill: #1E6F4C; }
 .sd-line-dn { fill: none; stroke: #A2452C; stroke-width: 1.6; }
@@ -399,13 +404,17 @@ td.empty { text-align: center; }
 .sd-dot-up { fill: #1E6F4C; }
 .sd-now { fill: var(--ink); stroke: #fff; stroke-width: 1.5; }
 .sd-now-l { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.sd-now-t { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.sd-now-t { font-size: 15px; font-weight: 700; fill: var(--ink); }
 
 .saw-method { margin-bottom: 12px; }
 .saw-method-list { margin: 8px 0 0; padding-left: 18px; font-size: .84rem; line-height: 1.5; color: var(--ink-soft); }
 .saw-method-list li { margin-bottom: 6px; }
 .saw-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; }
 
+@media (max-width: 900px) {
+  .saw-charts-row { flex-direction: column; }
+  .saw-chart-col, .saw-distro-col { width: 100%; }
+}
 @media (max-width: 760px) {
   .saw-phase-grid { grid-template-columns: repeat(2, 1fr); }
   #saw-chart { height: 260px; }
