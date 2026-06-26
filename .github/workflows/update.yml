@@ -46,6 +46,10 @@ jobs:
           TMP="$(mktemp -d)"
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
+          # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
+          # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
+          V="${GITHUB_SHA:0:8}"
+          sed -i "s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
           touch "$TMP/.nojekyll"
           git -C "$TMP" init -q
           git -C "$TMP" checkout -q -b gh-pages
