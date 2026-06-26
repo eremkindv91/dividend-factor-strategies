@@ -609,9 +609,10 @@ function buildPortfolio(method, opts) {
   const top = scored.slice(0, opts.n);
   const vols = top.map((x) => x.t.vol_ann).filter(isNum).sort((a, b) => a - b);   // для дозаполнения inverse-vol
   const medVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
+  const ss = top.map((x) => x.score), smin = Math.min(...ss), srange = (Math.max(...ss) - smin) || 1;  // диапазон для score-weight
   const items = top.map((x) => {
     let w = 1;
-    if (opts.weight === 'score') w = Math.max(x.score, 1);
+    if (opts.weight === 'score') w = (x.score - smin) + 0.15 * srange;   // ∝ фактору (сдвиг в плюс; низший ~15% шага, не ноль)
     else if (opts.weight === 'mcap') w = isNum(x.t.mcap) ? x.t.mcap : 1;
     else if (opts.weight === 'invvol') w = 1 / (isNum(x.t.vol_ann) && x.t.vol_ann > 0 ? x.t.vol_ann : medVol);
     return { ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score, w };
@@ -817,6 +818,7 @@ function riskPanelHTML(risk) {
 function renderPortfolio() {
   const out = document.getElementById('pf-out');
   if (!out) return;
+  syncWeightControl();                               // синхронизируем доступность «Взвешивания»
   if (!PF_RETURNS) loadReturns(renderPortfolio);     // подгрузим историю и перерисуем с риск-метриками
   const method = document.getElementById('pf-method').value;
   const opts = {
@@ -880,10 +882,21 @@ function exportPortfolioCSV() {
   a.href = URL.createObjectURL(blob); a.download = 'portfolio.csv'; a.click(); URL.revokeObjectURL(a.href);
 }
 
+function syncWeightControl() {   // «Взвешивание» неприменимо к оптимизаторам — они сами считают веса
+  const wsel = document.getElementById('pf-weight');
+  if (!wsel) return;
+  const isOpt = document.getElementById('pf-method').value.startsWith('opt');
+  wsel.disabled = isOpt;
+  wsel.title = isOpt ? 'Веса вычисляет оптимизатор — этот выбор не используется' : '';
+  const lbl = wsel.closest('label');
+  if (lbl) lbl.style.opacity = isOpt ? '0.4' : '';
+}
+
 function wirePortfolio() {
   const pf = document.getElementById('pf');
   if (!pf) return;
   pf.hidden = false;
+  syncWeightControl();
   if (DATA.tickers.some((t) => isNum(t.mom_score))) {
     const o = document.querySelector('#pf-method option[value="momentum"]');
     if (o) { o.disabled = false; o.textContent = 'Momentum (импульс)'; }
@@ -891,7 +904,7 @@ function wirePortfolio() {
   document.getElementById('pf-gen').addEventListener('click', renderPortfolio);
   ['pf-method', 'pf-n', 'pf-weight', 'pf-cap', 'pf-seccap', 'pf-capital'].forEach((id) => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', () => { if (document.getElementById('pf-out').dataset.shown) renderPortfolio(); });
+    if (el) el.addEventListener('change', () => { syncWeightControl(); if (document.getElementById('pf-out').dataset.shown) renderPortfolio(); });
   });
   pf.addEventListener('toggle', function () {
     if (this.open && !document.getElementById('pf-out').dataset.shown) {
