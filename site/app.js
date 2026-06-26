@@ -1134,7 +1134,7 @@ function sawChart(d) {
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
     grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
     rightPriceScale: { borderColor: '#E6E9F0' },
-    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 4 },
+    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 6 },
     crosshair: { mode: LC.CrosshairMode.Normal },
   });
   const line = chart.addLineSeries({ color: '#A9B7D9', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
@@ -1148,19 +1148,21 @@ function sawChart(d) {
     color: e.type === 'high' ? '#A2452C' : '#1E6F4C',
     shape: e.type === 'high' ? 'arrowDown' : 'arrowUp',
   }));
-  markers.push({ time: cp.current_date, position: 'inBar', color: '#2E3440', shape: 'circle', text: 'сейчас' });
   markers.sort((a, b) => (a.time < b.time ? -1 : 1));
   zz.setMarkers(markers);
+  // «сейчас» — на линии MCFTR (у зигзага нет точки на текущей дате → маркер уехал бы к
+  // последнему экстремуму). Кладём на реальную последнюю точку ряда.
+  line.setMarkers([{ time: cp.current_date, position: 'belowBar', color: '#2E3440', shape: 'circle', text: 'сейчас' }]);
   line.createPriceLine({
     price: cp.anchor_price,
     color: cp.direction === 'down' ? '#A2452C' : '#1E6F4C',
     lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true,
     title: (cp.direction === 'down' ? 'макс ' : 'мин ') + ru(cp.anchor_price, 0) + ' (' + sawPct(cp.move_pct) + ')',
   });
-  // по умолчанию — последние ~3 года (текущая фаза крупно); историю видно скроллом/зумом
+  // по умолчанию — последние ~3 года (текущая фаза крупно) + запас баров справа,
+  // чтобы подпись «сейчас» у последней точки не упиралась в край. История — скроллом/зумом.
   try {
-    const last = d.series[d.series.length - 1][0];
-    const from = new Date(last); from.setFullYear(from.getFullYear() - 3);
-    chart.timeScale().setVisibleRange({ from: from.toISOString().slice(0, 10), to: last });
+    const n = d.series.length;
+    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 1 - 760), to: n - 1 + 34 });
   } catch (e) { chart.timeScale().fitContent(); }
 }
