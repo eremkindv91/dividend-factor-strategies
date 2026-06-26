@@ -323,3 +323,91 @@ td.empty { text-align: center; }
   .controls select { flex: 1 1 100%; }
   .detail { grid-template-columns: 1fr; }
 }
+
+/* ══ Помощник фазы рынка (swing/zigzag MCFTR) ══ */
+.saw-body { padding: 6px 0 14px; }
+.saw-loading, .saw-chart-fallback { padding: 14px 2px; font-size: .9rem; }
+.saw-sub { color: var(--ink-soft); font-size: .92rem; margin: 4px 0 8px; }
+.saw-help { cursor: help; color: var(--accent-deep); border-bottom: 1px dotted var(--accent); white-space: nowrap; }
+.saw-fresh { font-size: .78rem; margin-bottom: 10px; }
+.saw-stale { background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0;
+  border-radius: 10px; padding: 8px 12px; font-size: .82rem; margin-bottom: 12px; }
+.saw-fallback { background: var(--risk-fill); color: var(--risk-ink); border: 1px solid #E2A48C;
+  border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; }
+.saw-fallback .saw-disc { border: 0; color: var(--risk-ink); opacity: .8; margin-top: 8px; }
+
+/* фазовые цвета: --pf заливка, --pi текст, --pc акцент */
+.phase-neutral { --pf:#E7EAF2; --pi:#4A5568; --pc:#A9B7D9; }
+.phase-positive { --pf:#DCEFE4; --pi:#1E6F4C; --pc:#A8D5C2; }
+.phase-watch { --pf:#F4E7CF; --pi:#8A6224; --pc:#EAD9C2; }
+.phase-buy_zone { --pf:#D8EFEA; --pi:#11756B; --pc:#A3D9CF; }
+.phase-strong_buy_zone { --pf:#CDEAD9; --pi:#14663F; --pc:#7FC9A6; }
+.phase-reduce_zone { --pf:#FBE6CF; --pi:#A2691F; --pc:#F0C48A; }
+.phase-strong_reduce_zone { --pf:#F4DBD1; --pi:#8E2F1C; --pc:#E2A48C; }
+
+.saw-card { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--pc);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+.saw-phase-label { font-weight: 700; font-size: 1.05rem; color: var(--pi); margin-bottom: 10px; }
+.saw-phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 14px; }
+.saw-metric { display: flex; flex-direction: column; gap: 2px; }
+.saw-metric .k { font-size: .72rem; color: var(--ink-faint); }
+.saw-metric .v { font-weight: 600; font-size: 1rem; }
+.saw-metric .saw-up { color: var(--good-ink); }
+.saw-metric .saw-down { color: var(--risk-ink); }
+
+.saw-gauge { margin: 4px 0 16px; padding-top: 22px; }
+.saw-gauge-track { position: relative; display: flex; height: 26px; border-radius: 8px;
+  overflow: hidden; border: 1px solid var(--line); }
+.saw-seg { display: flex; align-items: center; justify-content: center; min-width: 0;
+  background: var(--pf); border-right: 1px solid rgba(255,255,255,.7); }
+.saw-seg:last-child { border-right: 0; }
+.saw-seg-active { box-shadow: inset 0 0 0 2px var(--pc); }
+.saw-seg-lbl { font-size: .66rem; color: var(--pi); padding: 0 4px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }
+.saw-gauge-marker { position: absolute; top: 0; height: 26px; width: 2px; background: var(--ink); z-index: 2; }
+.saw-gauge-marker-lbl { position: absolute; top: -20px; left: 0; transform: translateX(-50%);
+  background: var(--ink); color: #fff; font-size: .72rem; font-weight: 700; padding: 1px 6px;
+  border-radius: 6px; white-space: nowrap; }
+.saw-gauge-scale { display: flex; justify-content: space-between; font-size: .68rem; margin-top: 4px; }
+
+.saw-interp { background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: .9rem;
+  line-height: 1.55; margin-bottom: 14px; }
+
+.saw-chart-wrap { margin-bottom: 14px; }
+#saw-chart { width: 100%; height: 340px; }
+.saw-chart-legend { font-size: .72rem; margin-top: 6px; display: flex; flex-wrap: wrap;
+  gap: 4px 10px; align-items: center; }
+.lg-line { display: inline-block; width: 16px; height: 0; border-top: 2px solid #A9B7D9; }
+.lg-zz { display: inline-block; width: 16px; height: 0; border-top: 2px solid #4C5C86; }
+.lg-low { color: #1E6F4C; } .lg-high { color: #A2452C; }
+
+.saw-distro-wrap { margin: 4px 0 16px; }
+.saw-distro-title { font-weight: 600; font-size: .92rem; }
+.saw-distro-cap { font-size: .78rem; color: var(--ink-faint); margin: 2px 0 8px; line-height: 1.45; }
+.sd-svg { width: 100%; height: auto; display: block; }
+.sd-grid { stroke: #EEF1F6; stroke-width: 1; }
+.sd-zero { stroke: #C7CEDC; stroke-width: 1; }
+.sd-band { fill: #F4DBD1; opacity: .35; }
+.sd-tick { font-size: 11px; fill: var(--ink-faint); font-family: var(--mono); }
+.sd-axis-y { font-size: 11px; fill: var(--ink-soft); }
+.sd-side { font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+.sd-side-dn { fill: #A2452C; }
+.sd-side-up { fill: #1E6F4C; }
+.sd-line-dn { fill: none; stroke: #A2452C; stroke-width: 1.6; }
+.sd-line-up { fill: none; stroke: #1E6F4C; stroke-width: 1.6; }
+.sd-dot-dn { fill: #A2452C; }
+.sd-dot-up { fill: #1E6F4C; }
+.sd-now { fill: var(--ink); stroke: #fff; stroke-width: 1.5; }
+.sd-now-l { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.sd-now-t { font-size: 12px; font-weight: 700; fill: var(--ink); }
+
+.saw-method { margin-bottom: 12px; }
+.saw-method-list { margin: 8px 0 0; padding-left: 18px; font-size: .84rem; line-height: 1.5; color: var(--ink-soft); }
+.saw-method-list li { margin-bottom: 6px; }
+.saw-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; }
+
+@media (max-width: 760px) {
+  .saw-phase-grid { grid-template-columns: repeat(2, 1fr); }
+  #saw-chart { height: 260px; }
+  .saw-seg-lbl { font-size: .56rem; padding: 0 2px; }
+}

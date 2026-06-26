@@ -48,3 +48,7 @@ site/returns.json
 # кэш цен MOEX персистится через actions/cache
 model_output/prices_cache.json
 data/panels_final/panel_russia_final_smartlab.csv
+# marketsaw.json генерит CI (production/build_marketsaw.py) и деплоит update.yml — в репо не нужен
+site/marketsaw.json
+# Пила рынка: промежуточные parquet регенерятся research-пайплайном (коммитим winner_model.json + отчёт)
+market_saw/data/*.parquet

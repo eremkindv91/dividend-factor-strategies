@@ -58,6 +58,8 @@ fetch('data.json', { cache: 'no-store' })
       `<div class="error">Не удалось загрузить данные: ${esc(e.message)}</div>`;
   });
 
+wireMarketSaw();   // блок «Помощник фазы рынка» независим от data.json (грузит свой marketsaw.json)
+
 function init(data) {
   DATA = data;
   const m = data.meta;
@@ -912,4 +914,253 @@ function wirePortfolio() {
       renderPortfolio();
     }
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Помощник фазы рынка (swing/zigzag по MCFTR). Все значения — из marketsaw.json
+// (генерит CI), никакого hardcode/пересчёта на фронте. Это индикатор фазы, не прогноз.
+// ══════════════════════════════════════════════════════════════════════════
+let SAW_DATA = null;
+const LWC_SRC = 'https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js';
+
+const sawPct = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+const sawDate = (s) => { const [y, m, d] = String(s).split('-'); return `${d}.${m}.${y}`; };
+const SAW_SHORT = {                                   // короткие подписи сегментов gauge
+  up: { neutral: 'Отскок', positive: 'Рост', reduce_zone: 'Сниж. риска', strong_reduce_zone: 'Перегрев' },
+  down: { neutral: 'Нач. корр.', watch: 'Коррекция', buy_zone: 'Докупка', strong_buy_zone: 'Глуб. просадка' },
+};
+
+function wireMarketSaw() {
+  const el = document.getElementById('marketsaw');
+  if (!el) return;
+  el.hidden = false;
+  el.addEventListener('toggle', function () {
+    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderMarketSaw(); }
+  });
+}
+
+function loadMarketSaw(cb) {
+  if (SAW_DATA) { cb(); return; }
+  fetch('marketsaw.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust, как returns.json
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.current_phase || !j.series) throw new Error('пустой/битый marketsaw.json'); SAW_DATA = j; cb(); })
+    .catch((e) => { console.error('[saw] marketsaw.json не загрузился:', e); cb(e); });
+}
+
+function loadLWC(cb) {
+  if (window.LightweightCharts) { cb(); return; }
+  if (window.__lwc) { window.__lwc.push(cb); return; }
+  window.__lwc = [cb];
+  const s = document.createElement('script');
+  s.src = LWC_SRC; s.async = true;
+  s.onload = () => { const q = window.__lwc; window.__lwc = null; q.forEach((f) => f()); };
+  s.onerror = () => { const q = window.__lwc; window.__lwc = null; q.forEach((f) => f(new Error('LWC'))); };
+  document.head.appendChild(s);
+}
+
+function renderMarketSaw() {
+  const body = document.getElementById('saw-body');
+  body.innerHTML = '<div class="saw-loading muted">Загрузка индекса MCFTR…</div>';
+  loadMarketSaw((err) => {
+    if (err || !SAW_DATA) { body.innerHTML = sawErrorHTML(); return; }
+    body.innerHTML = sawUIHTML(SAW_DATA);
+    loadLWC((lerr) => {
+      const c = document.getElementById('saw-chart');
+      if (lerr || !window.LightweightCharts) { if (c) c.innerHTML = '<div class="muted saw-chart-fallback">График недоступен (не загрузилась графическая библиотека). Расчёт фазы выше — корректен.</div>'; return; }
+      try { sawChart(SAW_DATA); } catch (e) { console.error('[saw] chart:', e); if (c) c.innerHTML = '<div class="muted saw-chart-fallback">Не удалось построить график.</div>'; }
+    });
+  });
+}
+
+function sawErrorHTML() {
+  return `<div class="saw-fallback">
+    <b>Данные MCFTR временно недоступны.</b> Индикатор фазы рынка не обновлён.
+    <div class="saw-disc">Индикатор не является индивидуальной инвестиционной рекомендацией. Он показывает историческую фазу рынка на основе индекса MCFTR и не прогнозирует будущую доходность.</div>
+  </div>`;
+}
+
+function sawUIHTML(d) {
+  const cp = d.current_phase;
+  const TT_MCFTR = 'MCFTR — индекс полной доходности МосБиржи. В отличие от ценового IMOEX, он учитывает дивиденды, поэтому лучше подходит для оценки реального движения рынка.';
+  const TT_FREQ = 'Доля прошлых завершённых волн, которые достигали такой же или большей амплитуды. Это не прогноз, а историческая статистика.';
+  const prob = cp.historical_reach_probability;
+  const probStr = (prob == null) ? '—' : (prob * 100).toFixed(0) + '%';
+  const moveCls = cp.move_pct >= 0 ? 'saw-up' : 'saw-down';
+
+  const stale = d.stale
+    ? `<div class="saw-stale">⚠️ Данные могут быть неактуальны: последняя торговая дата MCFTR — ${esc(sawDate(d.data_last))} (${d.stale_days} дн. назад).</div>`
+    : '';
+
+  return `
+    <p class="saw-sub">Модель показывает, где сейчас находится рынок относительно последнего значимого минимума или максимума индекса <span class="saw-help" data-tooltip="${esc(TT_MCFTR)}">MCFTR ⓘ</span>.</p>
+    <div class="saw-fresh muted">Обновлено: ${esc((d.generated_at || '').replace('T', ' ').slice(0, 16))} · Последняя торговая дата MCFTR: <b>${esc(sawDate(d.data_last))}</b></div>
+    ${stale}
+
+    <div class="saw-card phase-${esc(cp.risk_level)}">
+      <div class="saw-phase-label">${esc(cp.label)}</div>
+      <div class="saw-phase-grid">
+        <div class="saw-metric"><span class="k">Последний экстремум</span><span class="v tnum">${esc(sawDate(cp.anchor_date))}</span><span class="k tnum">${ru(cp.anchor_price, 0)}</span></div>
+        <div class="saw-metric"><span class="k">Текущая цена MCFTR</span><span class="v tnum">${ru(cp.current_price, 0)}</span><span class="k tnum">${esc(sawDate(cp.current_date))}</span></div>
+        <div class="saw-metric"><span class="k">Движение от экстремума</span><span class="v tnum ${moveCls}">${sawPct(cp.move_pct)}</span></div>
+        <div class="saw-metric"><span class="k saw-help" data-tooltip="${esc(TT_FREQ)}">Историческая частота ⓘ</span><span class="v tnum">${probStr}</span></div>
+      </div>
+    </div>
+
+    ${sawGaugeHTML(d)}
+
+    <div class="saw-interp">${esc(cp.explanation)}</div>
+
+    <div class="saw-chart-wrap"><div id="saw-chart"></div>
+      <div class="saw-chart-legend muted"><span class="lg-line"></span> MCFTR &nbsp; <span class="lg-zz"></span> зигзаг экстремумов &nbsp; <span class="lg-low">▲</span> подтверждённый минимум &nbsp; <span class="lg-high">▼</span> подтверждённый максимум</div>
+    </div>
+
+    <div class="saw-distro-wrap">
+      <div class="saw-distro-title">Распределение амплитуд завершённых волн <span class="muted">(«пила»: где сейчас рынок на кривой)</span></div>
+      <div class="saw-distro-cap">Каждая точка — завершённая волна: её амплитуда (ось X, слева просадки, справа ралли) и доля волн с такой же или большей амплитудой (ось Y). Центр — полоса порога ±9,5%. Точка «сейчас» — текущее движение на survival-кривой.</div>
+      <div class="saw-distro">${sawDistroSVG(d)}</div>
+    </div>
+
+    ${sawMethodHTML(d)}
+
+    <div class="saw-disc">Индикатор не является индивидуальной инвестиционной рекомендацией. Он показывает историческую фазу рынка на основе индекса полной доходности MCFTR и не прогнозирует будущую доходность.</div>
+  `;
+}
+
+function sawGaugeHTML(d) {
+  const cp = d.current_phase;
+  const dir = cp.direction;
+  const zones = d.zones[dir];
+  const lastThr = zones[zones.length - 1].thr;
+  const max = lastThr + 0.10;
+  const moveAbs = Math.min(Math.abs(cp.move_pct), max);
+  const pos = (moveAbs / max) * 100;
+  const segs = zones.map((z, i) => {
+    const from = z.thr;
+    const to = (i + 1 < zones.length) ? zones[i + 1].thr : max;
+    const w = ((to - from) / max) * 100;
+    const short = (SAW_SHORT[dir] && SAW_SHORT[dir][z.risk]) || z.label;
+    const active = z.risk === cp.risk_level ? ' saw-seg-active' : '';
+    return `<span class="saw-seg phase-${esc(z.risk)}${active}" style="width:${w.toFixed(2)}%"><span class="saw-seg-lbl">${esc(short)}</span></span>`;
+  }).join('');
+  return `<div class="saw-gauge">
+    <div class="saw-gauge-track">${segs}
+      <span class="saw-gauge-marker" style="left:${pos.toFixed(2)}%"><span class="saw-gauge-marker-lbl">${sawPct(cp.move_pct)}</span></span>
+    </div>
+    <div class="saw-gauge-scale muted"><span>0%</span><span>порог ±9,5%</span><span>${(max * 100).toFixed(0)}%+</span></div>
+  </div>`;
+}
+
+function sawMethodHTML(d) {
+  const us = d.waves_stats.up || {}, ds = d.waves_stats.down || {};
+  const yrs = ((new Date(d.data_last) - new Date(d.series[0][0])) / (365.25 * 864e5)).toFixed(0);
+  return `<details class="saw-method card">
+    <summary>Методика и ограничения</summary>
+    <ul class="saw-method-list">
+      <li><b>Как считается фаза.</b> Берём индекс полной доходности <b>MCFTR</b> (не ценовой IMOEX — иначе дивидендные гэпы давали бы ложные сигналы падения). Через zigzag-логику отмечаем локальные максимумы и минимумы: смена волны подтверждается обратным движением на <b>±9,5%</b> <span class="saw-help" data-tooltip="Порог 9,5% используется для подтверждения смены рыночной волны. Мелкие колебания игнорируются, чтобы не ловить шум.">ⓘ</span>. Текущее движение считается от последнего <b>подтверждённого</b> экстремума.</li>
+      <li><b>Историческая частота.</b> Доля прошлых завершённых волн того же направления, чья амплитуда была такой же или больше текущей. Это survival-статистика прошлого, а не вероятность будущего движения.</li>
+      <li><b>База волн.</b> За ~${yrs} лет: ${us.count || 0} завершённых ростовых волн (медиана ${us.median_amp != null ? '+' + (us.median_amp * 100).toFixed(0) + '%' : '—'}) и ${ds.count || 0} падающих (медиана ${ds.median_amp != null ? '−' + (ds.median_amp * 100).toFixed(0) + '%' : '—'}). Текущая незавершённая волна в статистику не входит.</li>
+      <li><b>Ограничения.</b> Модель вдохновлена публично описанной swing/zigzag-логикой фаз рынка; это воспроизводимая публичная версия, не точная копия какой-либо закрытой методики. Порог и зоны фиксированы (без задней подгонки). Индикатор показывает фазу, а не прогноз, и не учитывает фундаментал отдельных бумаг.</li>
+    </ul>
+  </details>`;
+}
+
+// «Пила» — распределение амплитуд завершённых волн (survival-кривая): для каждой волны
+// точка (амплитуда, доля волн с такой же/большей амплитудой). Слева просадки, справа ралли,
+// центр — полоса порога ±9,5%. Маркер «сейчас» ложится ровно на кривую. Чистый SVG.
+function sawDistroSVG(d) {
+  const W = 720, H = 400, ML = 46, MR = 26, MT = 42, MB = 52;
+  const px0 = ML, px1 = W - MR, py0 = MT, py1 = H - MB;
+  const niceUp = (x) => Math.ceil(x / 10) * 10;
+  const survPts = (arr) => arr.slice().sort((a, b) => a - b).map((a, i, A) => ({ amp: a, s: (A.length - i) / A.length }));
+  const up = survPts(d.waves.filter((w) => w.direction === 'up').map((w) => Math.abs(w.amplitude_pct) * 100));
+  const dn = survPts(d.waves.filter((w) => w.direction === 'down').map((w) => Math.abs(w.amplitude_pct) * 100));
+  if (!up.length || !dn.length) return '';
+  const xMaxUp = niceUp(Math.max(...up.map((p) => p.amp)));
+  const xMaxDn = niceUp(Math.max(...dn.map((p) => p.amp)));
+  const xMin = -xMaxDn, xMax = xMaxUp;
+  const xS = (pct) => px0 + (pct - xMin) / (xMax - xMin) * (px1 - px0);
+  const yS = (s) => py1 - s * (py1 - py0);
+
+  // полилинии (по X слева направо)
+  const dnPath = dn.map((p) => [xS(-p.amp), yS(p.s)]).sort((a, b) => a[0] - b[0]);
+  const upPath = up.map((p) => [xS(p.amp), yS(p.s)]).sort((a, b) => a[0] - b[0]);
+  const poly = (pts) => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const dots = (pts, cls) => pts.map((p) => `<circle class="${cls}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.1"/>`).join('');
+
+  // оси
+  let xticks = '';
+  for (let t = Math.ceil(xMin / 20) * 20; t <= xMax; t += 20) {
+    const x = xS(t).toFixed(1);
+    xticks += `<line class="sd-grid" x1="${x}" y1="${py0}" x2="${x}" y2="${py1}"/>`
+      + `<text class="sd-tick" x="${x}" y="${py1 + 16}" text-anchor="middle">${t > 0 ? '+' + t : t}%</text>`;
+  }
+  let yticks = '';
+  for (let s = 0; s <= 100; s += 20) {
+    const y = yS(s / 100).toFixed(1);
+    yticks += `<line class="sd-grid" x1="${px0}" y1="${y}" x2="${px1}" y2="${y}"/>`
+      + `<text class="sd-tick" x="${px0 - 6}" y="${(+y + 3).toFixed(1)}" text-anchor="end">${s}%</text>`;
+  }
+  const band = `<rect class="sd-band" x="${xS(-9.5).toFixed(1)}" y="${py0}" width="${(xS(9.5) - xS(-9.5)).toFixed(1)}" height="${py1 - py0}"/>`;
+  const zero = `<line class="sd-zero" x1="${xS(0).toFixed(1)}" y1="${py0}" x2="${xS(0).toFixed(1)}" y2="${py1}"/>`;
+
+  // маркер «сейчас»
+  const cp = d.current_phase;
+  let now = '';
+  if (cp.historical_reach_probability != null) {
+    const mx = xS(cp.move_pct * 100), my = yS(cp.historical_reach_probability);
+    now = `<line class="sd-now-l" x1="${mx.toFixed(1)}" y1="${py1}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}"/>`
+      + `<circle class="sd-now" cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="4.5"/>`
+      + `<text class="sd-now-t" x="${mx.toFixed(1)}" y="${(my - 10).toFixed(1)}" text-anchor="${cp.direction === 'down' ? 'start' : 'end'}">сейчас ${sawPct(cp.move_pct)} · ${(cp.historical_reach_probability * 100).toFixed(0)}%</text>`;
+  }
+
+  return `<svg class="sd-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Распределение амплитуд волн MCFTR">
+    <text class="sd-side sd-side-dn" x="${px0}" y="${MT - 16}" text-anchor="start">◀ индекс падает</text>
+    <text class="sd-side sd-side-up" x="${px1}" y="${MT - 16}" text-anchor="end">индекс растёт ▶</text>
+    <text class="sd-axis-y" x="${px0 - 30}" y="${(py0 + py1) / 2}" text-anchor="middle" transform="rotate(-90 ${px0 - 30} ${(py0 + py1) / 2})">доля волн ≥ амплитуды</text>
+    ${yticks}${xticks}${band}${zero}
+    <path class="sd-line-dn" d="${poly(dnPath)}"/>${dots(dnPath, 'sd-dot-dn')}
+    <path class="sd-line-up" d="${poly(upPath)}"/>${dots(upPath, 'sd-dot-up')}
+    ${now}
+  </svg>`;
+}
+
+function sawChart(d) {
+  const el = document.getElementById('saw-chart');
+  if (!el || !window.LightweightCharts) return;
+  el.innerHTML = '';
+  const LC = window.LightweightCharts;
+  const chart = LC.createChart(el, {
+    autoSize: true,
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
+    rightPriceScale: { borderColor: '#E6E9F0' },
+    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 4 },
+    crosshair: { mode: LC.CrosshairMode.Normal },
+  });
+  const line = chart.addLineSeries({ color: '#A9B7D9', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+  line.setData(d.series.map(([t, v]) => ({ time: t, value: v })));
+  const zz = chart.addLineSeries({ color: '#4C5C86', lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
+  zz.setData(d.extremes.map((e) => ({ time: e.date, value: e.price })));
+  const cp = d.current_phase;
+  const markers = d.extremes.map((e) => ({
+    time: e.date,
+    position: e.type === 'high' ? 'aboveBar' : 'belowBar',
+    color: e.type === 'high' ? '#A2452C' : '#1E6F4C',
+    shape: e.type === 'high' ? 'arrowDown' : 'arrowUp',
+  }));
+  markers.push({ time: cp.current_date, position: 'inBar', color: '#2E3440', shape: 'circle', text: 'сейчас' });
+  markers.sort((a, b) => (a.time < b.time ? -1 : 1));
+  zz.setMarkers(markers);
+  line.createPriceLine({
+    price: cp.anchor_price,
+    color: cp.direction === 'down' ? '#A2452C' : '#1E6F4C',
+    lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true,
+    title: (cp.direction === 'down' ? 'макс ' : 'мин ') + ru(cp.anchor_price, 0) + ' (' + sawPct(cp.move_pct) + ')',
+  });
+  // по умолчанию — последние ~3 года (текущая фаза крупно); историю видно скроллом/зумом
+  try {
+    const last = d.series[d.series.length - 1][0];
+    const from = new Date(last); from.setFullYear(from.getFullYear() - 3);
+    chart.timeScale().setVisibleRange({ from: from.toISOString().slice(0, 10), to: last });
+  } catch (e) { chart.timeScale().fitContent(); }
 }

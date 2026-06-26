@@ -36,8 +36,22 @@ jobs:
           restore-keys: |
             prices-cache-
 
+      # кэш последнего валидного marketsaw.json: если MCFTR недоступен, build_marketsaw
+      # не перезаписывает файл → публикуем предыдущий валидный (раздел 13 спеки «Пилы»)
+      - uses: actions/cache@v4
+        with:
+          path: site/marketsaw.json
+          key: marketsaw-${{ github.run_id }}
+          restore-keys: |
+            marketsaw-
+
       - name: Сборка data.json (инференс на артефакте + свежие цены MOEX ISS)
         run: python scripts/build_data.py   # exit!=0 (нет артефакта/нет цен) → публикации нет
+
+      - name: Сборка marketsaw.json (фаза рынка по MCFTR, swing/zigzag)
+        # сбой MCFTR НЕ должен блокировать дневной деплой цен; предыдущий валидный файл (кэш) остаётся
+        run: |
+          python market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл (кэш)"
 
       - name: Публикация site/ → gh-pages (orphan, как scripts/deploy_ghpages.sh)
         env:
@@ -46,6 +60,7 @@ jobs:
           TMP="$(mktemp -d)"
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
+          [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
