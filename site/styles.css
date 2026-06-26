@@ -165,6 +165,8 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .pf-card .muted { font-size: .72rem; }
 .pf-bt { font-size: .8rem; background: var(--good-fill); color: var(--good-ink); border-radius: 10px;
   padding: 8px 12px; margin-bottom: 12px; }
+.pf-reb { font-size: .82rem; padding: 0 0 12px; }
+.pf-reb b { color: var(--accent-deep); }
 .pf-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 18px; align-items: start; }
 .pf-tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
 .pf-tbl th { font-size: .72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .02em;

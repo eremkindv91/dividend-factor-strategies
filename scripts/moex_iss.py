@@ -37,6 +37,10 @@ ISS_CANDLES_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{tk}/candles.json"
     "?iss.meta=off&interval={interval}&from={frm}&till={till}&candles.columns=close,begin,value"
 )
+ISS_DIV_URL = (
+    "https://iss.moex.com/iss/securities/{tk}/dividends.json"
+    "?iss.meta=off&dividends.columns=registryclosedate,value,currencyid"
+)
 USER_AGENT = "dividend-forecast-site/1.0 (+https://github.com/eremkindv91/dividend-factor-strategies)"
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_PATH = os.path.join(REPO, "model_output", "prices_cache.json")
@@ -106,6 +110,19 @@ def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int
         if c is not None and float(c) > 0:
             v = r.get("value")
             out.append((str(r.get("begin"))[:10], float(c), float(v) if v is not None else 0.0))   # (дата, close, оборот ₽)
+    out.sort()
+    return out
+
+
+def fetch_dividends(ticker: str, timeout: int = 25, retries: int = 3) -> List[Tuple[str, float]]:
+    """История выплат: [(дата отсечки YYYY-MM-DD, дивиденд на акцию ₽)], только рубли (SUR).
+    Бесплатный публичный endpoint MOEX ISS. RuntimeError при недоступности."""
+    payload = _http_get_json(ISS_DIV_URL.format(tk=ticker), timeout=timeout, retries=retries)
+    out = []
+    for r in _rows(payload.get("dividends", {"columns": [], "data": []})):
+        v, cur, d = r.get("value"), r.get("currencyid"), r.get("registryclosedate")
+        if v is not None and float(v) > 0 and (cur in (None, "SUR", "RUB")) and d:
+            out.append((str(d)[:10], float(v)))
     out.sort()
     return out
 

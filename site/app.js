@@ -545,6 +545,12 @@ const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста 
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
   optms: { label: 'Макс-Шарп (tangency, w∝Σ⁻¹μ): СВЯЗЫВАЕТ фактор и риск — ожидаемая доходность μ ∝ Quality-фактор (Barra-3), риск из ковариации. Тилт в качественные имена с хорошим risk/return, не голый min-var' },
 };
+const REBALANCE = {            // рекомендуемая частота ребаланса по стратегии
+  quality: 'годовой (после годовых отчётов, как в ВКР — май)',
+  momentum: 'месячный (фактор быстро затухает)',
+  optmv: 'квартальный (ковариация медленная)', optms: 'квартальный (ковариация медленная)',
+  optrp: 'квартальный (ковариация медленная)', optiv: 'квартальный (ковариация медленная)',
+};
 
 // верная 3-дескрипторная Barra Quality (ROE / стабильность прибыли / леверидж; винзор+z+сектор-нейтрализация в build_valuations)
 function qualityScore(t) {
@@ -742,7 +748,7 @@ function loadReturns(cb) {
   PF_RET_LOADING = true;
   fetch('returns.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust: уникальный URL обходит любой кэш/404
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
-    .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {} }; PF_RET_LOADING = false; if (cb) cb(); })   // плоская структура: months из meta
+    .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {}, div: (j && j.div) || null }; PF_RET_LOADING = false; if (cb) cb(); })   // плоская: months из meta + блок div (реальные дивиденды)
     .catch((e) => { console.error('[pf] returns.json не загрузился:', e); PF_RETURNS = { months: [], data: {}, failed: true }; PF_RET_LOADING = false; if (cb) cb(); });
 }
 function _pstdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); }
@@ -750,13 +756,18 @@ function _pstdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return 
 function portfolioRisk(items, grossYieldPct) {
   if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
   const months = PF_RETURNS.months, R = PF_RETURNS.data;
-  const ydrip = (isNum(grossYieldPct) ? grossYieldPct : 0) / 100 / 12;   // дивиденд как равномерный месячный drip → тотал-ретёрн
+  const DIV = PF_RETURNS.div;                                 // реальные месячные дивдоходности (история выплат MOEX)
+  const useReal = DIV && Object.keys(DIV).length > 0;
+  const ydrip = useReal ? 0 : (isNum(grossYieldPct) ? grossYieldPct : 0) / 100 / 12;   // фолбэк-drip только без реальных
   const port = [], excess = [];
   for (let j = 0; j < months.length; j++) {
-    let num = 0, wsum = 0;
-    items.forEach((it) => { const r = (R[it.ticker] || [])[j]; if (isNum(r)) { num += it.w * r; wsum += it.w; } });
+    let num = 0, dnum = 0, wsum = 0;
+    items.forEach((it) => {
+      const r = (R[it.ticker] || [])[j];
+      if (isNum(r)) { num += it.w * r; if (useReal) dnum += it.w * ((DIV[it.ticker] || [])[j] || 0); wsum += it.w; }
+    });
     if (wsum > 0.5) {                                         // ≥50% веса покрыто историей
-      let r = num / wsum + ydrip;
+      let r = (num + dnum) / wsum + ydrip;                    // тотал = цена + РЕАЛЬНЫЙ дивиденд того месяца
       r = Math.max(-RET_WINSOR, Math.min(RET_WINSOR, r));    // винзор (2022-разрыв)
       port.push(r);
       const rf = (RF_BY_YEAR[+months[j].slice(0, 4)] || 0.10) / 12;   // безрисковая того месяца
@@ -799,7 +810,7 @@ function riskPanelHTML(risk) {
       ${cell('Calmar', risk.calmar != null ? ru(risk.calmar, 2) : mdash)}
     </div>
     <div class="pf-eq">${areaSpark(risk.equity, CH.teal, 'pfeq')}</div>
-    <div class="pf-risk-note muted">Считается на исторических ценах ИМЕННО этих бумаг (survivorship: делистнутые/взорвавшиеся не учтены) — это НЕ бэктест стратегии с ребалансом, а характеристики сегодняшней корзины. Тотал-ретёрн ≈ цена MOEX + тек. дивдоходность (drip, прибл.); Sharpe/Sortino vs time-varying ключевой ставки ЦБ; месячные доходности винзоризованы ±40% (артефакт закрытия биржи 2022).</div>
+    <div class="pf-risk-note muted">Считается на исторических ценах ИМЕННО этих бумаг (survivorship: делистнутые/взорвавшиеся не учтены) — это НЕ бэктест стратегии с ребалансом, а характеристики сегодняшней корзины. Тотал-ретёрн = цена MOEX + ${(PF_RETURNS && PF_RETURNS.div && Object.keys(PF_RETURNS.div).length) ? 'РЕАЛЬНЫЕ дивиденды (история выплат MOEX по датам отсечки)' : 'тек. дивдоходность (drip, прибл.)'}; Sharpe/Sortino vs time-varying ключевой ставки ЦБ; месячные доходности винзоризованы ±40% (артефакт закрытия биржи 2022).</div>
   </div>`;
 }
 
@@ -849,6 +860,7 @@ function renderPortfolio() {
       <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
     </div>
     ${bt ? `<div class="pf-bt muted">📈 ${esc(bt.label)}</div>` : ''}
+    ${REBALANCE[method] ? `<div class="pf-reb muted">🔁 Рекомендуемый ребаланс: <b>${esc(REBALANCE[method])}</b></div>` : ''}
     ${riskPanelHTML(risk)}
     <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th><th class="left">Вердикт</th></tr></thead><tbody>${rows}</tbody></table>
       <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>

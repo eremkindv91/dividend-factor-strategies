@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
-from moex_iss import fetch_candles  # noqa: E402
+from moex_iss import fetch_candles, fetch_dividends  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
 OUT_MOM = os.path.join(REPO, "model_output", "momentum.json")
@@ -49,7 +49,8 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             prev_mom = {}
     mom_out = dict(prev_mom)
-    series: dict = {}          # tk → {month 'YYYY-MM': ret}
+    series: dict = {}          # tk → {month 'YYYY-MM': ценовая доходность}
+    div_series: dict = {}      # tk → {month: реализованная дивдоходность (дивиденд_месяца / цена_пред_месяца)}
 
     consec_err = n_ok = n_skip = n_err = 0
     tripped = False
@@ -88,6 +89,21 @@ def main() -> int:
         mom_out[tk] = {"mom": round(mom, 4) if mom is not None else None,
                        "vol_ann": round(vol, 4) if vol is not None else None, "adv": adv}
         series[tk] = rets
+        # реальные дивиденды → месячная реализованная дивдоходность (дивиденд_месяца / цена пред. месяца)
+        try:
+            divs = fetch_dividends(tk)
+        except Exception:  # noqa: BLE001
+            divs = []
+        div_by_month = {}
+        for dt, val in divs:
+            div_by_month[dt[:7]] = div_by_month.get(dt[:7], 0.0) + val
+        close_by_month = dict(zip(months, closes))
+        dy, prev_m = {}, None
+        for mth in months:
+            if prev_m and div_by_month.get(mth, 0) > 0 and close_by_month.get(prev_m, 0) > 0:
+                dy[mth] = div_by_month[mth] / close_by_month[prev_m]
+            prev_m = mth
+        div_series[tk] = dy
         n_ok += 1
         time.sleep(PAUSE)
 
@@ -95,14 +111,15 @@ def main() -> int:
     all_months = sorted({m for s in series.values() for m in s})
     axis = all_months[-MAX_MONTHS:]
     ret_data = {tk: [round(s[m], 4) if m in s else None for m in axis] for tk, s in series.items()}
+    div_data = {tk: [round(s.get(m, 0.0), 5) for m in axis] for tk, s in div_series.items() if any(s.values())}
 
     asof = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
     json.dump({"meta": {"asof": asof, "n": len(mom_out), "n_fresh": n_ok, "n_err": n_err,
                         "tripped": tripped, "source": "MOEX ISS monthly candles (TQBR), WML 12-1 + vol_ann"},
                "data": mom_out}, open(OUT_MOM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"meta": {"asof": asof, "months": axis, "n_tickers": len(ret_data),
-                        "note": "месячные ценовые доходности, выровнены на общую ось"},
-               "data": ret_data}, open(OUT_RET, "w", encoding="utf-8"), ensure_ascii=False)
+                        "note": "месячные ценовые доходности + реальная дивдоходность (блок div)"},
+               "data": ret_data, "div": div_data}, open(OUT_RET, "w", encoding="utf-8"), ensure_ascii=False)
     print(f"[momentum] momentum.json: {len(mom_out)} | returns.json: {len(ret_data)} тикеров × "
           f"{len(axis)} мес ({axis[0] if axis else '—'}…{axis[-1] if axis else '—'}) | "
           f"свежих {n_ok} | ошибок {n_err} | breaker={'ДА' if tripped else 'нет'}")
