@@ -425,3 +425,58 @@ td.empty { text-align: center; }
   #saw-chart { height: 260px; }
   .saw-seg-lbl { font-size: .56rem; padding: 0 2px; }
 }
+
+/* ══ Облигации (скринер + КБД + калькулятор) ══ */
+.bonds-body { padding: 6px 0 14px; }
+.bonds-loading, .bonds-chart-fallback { padding: 14px 2px; font-size: .9rem; }
+.bonds-fresh { font-size: .78rem; margin-bottom: 8px; }
+.bonds-note { font-size: .8rem; color: var(--ink-soft); background: var(--bg); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 14px; line-height: 1.5; }
+.bonds-fallback { background: var(--risk-fill); color: var(--risk-ink); border: 1px solid #E2A48C;
+  border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; }
+.bonds-section-title { font-weight: 600; font-size: .92rem; margin: 16px 0 8px; }
+
+.bonds-chart-wrap { position: relative; height: 360px; }
+.bonds-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.bonds-chart-legend { font-size: .76rem; margin-top: 6px; line-height: 1.4; }
+
+/* цвета рейтингов: AAA зелёный, AA салатовый, A жёлтый, BBB оранжевый */
+.b-rating { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .74rem;
+  font-weight: 700; color: #fff; }
+.r-aaa { background: #1E6F4C; }
+.r-aa  { background: #7FB069; }
+.r-a   { background: #D9A521; color: #4a3a05; }
+.r-bbb { background: #D77A33; }
+
+.bonds-calc-controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; margin-bottom: 12px; }
+.bonds-calc-controls label { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--ink-faint); font-weight: 600; }
+.bonds-calc-controls select, .bonds-calc-controls input { font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; }
+.bonds-calc-controls input[type="number"] { width: 160px; font-variant-numeric: tabular-nums; }
+.bonds-calc-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.bonds-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.bonds-kpi .k { display: block; font-size: .72rem; color: var(--ink-faint); }
+.bonds-kpi .v { font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.bonds-calc-empty { padding: 14px; background: var(--bg); border-radius: 10px; }
+.bonds-calc-note { font-size: .76rem; margin-top: 8px; }
+
+.bonds-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.bonds-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.bonds-table th, .bonds-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.bonds-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem;
+  position: sticky; top: 0; cursor: help; }
+.bonds-table th:first-child, .bonds-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+.bonds-table th:first-child { background: var(--bg); }
+.bonds-table tbody tr:hover td { background: #F3F5FA; }
+.bonds-table .b-name { font-weight: 600; }
+.bonds-table .b-muted { color: var(--ink-faint); }
+.bonds-table .b-strong { font-weight: 700; }
+.bonds-table .b-up { color: var(--good-ink); font-weight: 600; }
+.bonds-table .b-down { color: var(--risk-ink); }
+.bonds-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
+
+@media (max-width: 760px) {
+  .bonds-calc-summary { grid-template-columns: repeat(2, 1fr); }
+  .bonds-chart-wrap { height: 300px; }
+  .bonds-calc-controls input[type="number"] { width: 130px; }
+}

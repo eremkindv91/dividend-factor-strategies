@@ -59,6 +59,7 @@ fetch('data.json', { cache: 'no-store' })
   });
 
 wireMarketSaw();   // блок «Помощник фазы рынка» независим от data.json (грузит свой marketsaw.json)
+wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
 
 function init(data) {
   DATA = data;
@@ -1196,4 +1197,221 @@ function sawChart(d) {
     tip.style.left = Math.max(2, x) + 'px';
     tip.style.top = Math.max(2, y) + 'px';
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Облигации: квантовый скринер + кривая КБД + калькулятор портфеля.
+// Все значения — из site/bonds/*.json (генерит bonds/update_bonds.py по реальному ISS).
+// Это не ИИР; справедливая цена опирается на ПЛОСКИЙ спред рейтинга (модельное допущение).
+// ══════════════════════════════════════════════════════════════════════════
+let BONDS = null;
+const CHARTJS_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+const RATING_GROUP = (r) => { r = String(r || ''); return r.startsWith('AAA') ? 'aaa' : r.startsWith('AA') ? 'aa' : r.startsWith('A') ? 'a' : 'bbb'; };
+const RATING_COLOR = { aaa: '#1E6F4C', aa: '#7FB069', a: '#D9A521', bbb: '#D77A33' };
+const HORIZON_RU = { short: 'Короткий (0–1 год)', mid: 'Средний (1–3 года)', long: 'Длинный (>3 лет)' };
+const rub0 = (x) => isNum(x) ? Math.round(x).toLocaleString('ru-RU') + ' ₽' : ND;
+
+function wireBonds() {
+  const el = document.getElementById('bonds');
+  if (!el) return;
+  el.hidden = false;
+  el.addEventListener('toggle', function () {
+    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderBonds(); }
+  });
+}
+
+function loadBonds(cb) {
+  if (BONDS) { cb(); return; }
+  const t = Date.now();
+  Promise.all([
+    fetch('bonds/screener.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
+    fetch('bonds/chart_data.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
+    fetch('bonds/portfolios.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
+  ]).then(([screener, chart, portfolios]) => {
+    if (!screener || !screener.bonds || !chart) throw new Error('пустые/битые JSON облигаций');
+    BONDS = { meta: screener.meta || {}, bonds: screener.bonds, chart, portfolios: (portfolios && portfolios.portfolios) || {} };
+    cb();
+  }).catch((e) => { console.error('[bonds] не загрузились:', e); cb(e); });
+}
+
+function loadChartJS(cb) {
+  if (window.Chart) { cb(); return; }
+  if (window.__cjs) { window.__cjs.push(cb); return; }
+  window.__cjs = [cb];
+  const s = document.createElement('script');
+  s.src = CHARTJS_SRC; s.async = true;
+  s.onload = () => { const q = window.__cjs; window.__cjs = null; q.forEach((f) => f()); };
+  s.onerror = () => { const q = window.__cjs; window.__cjs = null; q.forEach((f) => f(new Error('Chart.js'))); };
+  document.head.appendChild(s);
+}
+
+function renderBonds() {
+  const body = document.getElementById('bonds-body');
+  body.innerHTML = '<div class="bonds-loading muted">Загрузка скринера облигаций…</div>';
+  loadBonds((err) => {
+    if (err || !BONDS) { body.innerHTML = bondsErrorHTML(); return; }
+    body.innerHTML = bondsUIHTML(BONDS);
+    wireBondsCalc();
+    loadChartJS((cerr) => {
+      const c = document.getElementById('bonds-chart-wrap');
+      if (cerr || !window.Chart) { if (c) c.innerHTML = '<div class="muted bonds-chart-fallback">График КБД недоступен (не загрузилась Chart.js). Таблица и калькулятор ниже — работают.</div>'; return; }
+      try { bondsChart(BONDS); } catch (e) { console.error('[bonds] chart:', e); }
+    });
+  });
+}
+
+function bondsErrorHTML() {
+  return `<div class="bonds-fallback"><b>Данные облигаций временно недоступны.</b> Скринер не обновлён.
+    <div class="bonds-disc">Не индивидуальная инвестиционная рекомендация.</div></div>`;
+}
+
+function bondsUIHTML(d) {
+  const m = d.meta;
+  const upd = (m.updated || '').replace('T', ' ').slice(0, 16);
+  return `
+    <div class="bonds-fresh muted">Обновлено: ${esc(upd)} · бумаг в скринере: <b>${d.bonds.length}</b> · источник: MOEX ISS</div>
+    <div class="bonds-note">${esc(m.note || '')}</div>
+
+    <div class="bonds-section-title">Карта рынка: кривая КБД (ОФЗ) и корпоративные облигации</div>
+    <div id="bonds-chart-wrap" class="bonds-chart-wrap"><canvas id="bonds-chart"></canvas></div>
+    <div class="bonds-chart-legend muted">Линия — бескупонная кривая ОФЗ (КБД MOEX). Точки — корпораты (цвет = рейтинг). Выше линии = премия к ОФЗ. Наведи на точку.</div>
+
+    <div class="bonds-section-title">Калькулятор портфеля</div>
+    <div class="bonds-calc-controls">
+      <label>Горизонт (целевая дюрация)<select id="bonds-horizon">
+        <option value="short">${HORIZON_RU.short}</option>
+        <option value="mid" selected>${HORIZON_RU.mid}</option>
+        <option value="long">${HORIZON_RU.long}</option>
+      </select></label>
+      <label>Сумма, ₽<input type="number" id="bonds-capital" value="1000000" min="0" step="100000"></label>
+    </div>
+    <div id="bonds-calc-out"></div>
+
+    <div class="bonds-section-title">Скринер (${d.bonds.length} бумаг, сортировка по апсайду)</div>
+    ${bondsTableHTML(d.bonds)}
+
+    <div class="bonds-disc">Индикатор не является индивидуальной инвестиционной рекомендацией. Справедливая цена опирается на плоский спред рейтинга (модельное допущение) — крупный «апсайд» у имён A-/BBB отражает некомпенсированную в модели кредит-премию, а не гарантированную недооценку. Данные MOEX ISS.</div>
+  `;
+}
+
+function bondsTableHTML(bonds) {
+  const rows = bonds.slice().sort((a, b) => b.deviation - a.deviation).map((x) => {
+    const g = RATING_GROUP(x.rating);
+    const dev = isNum(x.deviation) ? (x.deviation >= 0 ? '+' : '') + x.deviation.toFixed(1) + '%' : ND;
+    return `<tr>
+      <td class="b-name">${esc(x.name)}</td>
+      <td><span class="b-rating r-${g}">${esc(x.rating)}</span></td>
+      <td class="tnum">${isNum(x.price_market) ? x.price_market.toFixed(2) : ND}</td>
+      <td class="tnum">${isNum(x.ytm_market) ? x.ytm_market.toFixed(2) + '%' : ND}</td>
+      <td class="tnum b-muted">${isNum(x.ytm_fair) ? x.ytm_fair.toFixed(2) + '%' : ND}</td>
+      <td class="tnum ${x.deviation >= 0 ? 'b-up' : 'b-down'}">${dev}</td>
+      <td class="tnum">${isNum(x.ytm_net) ? x.ytm_net.toFixed(2) + '%' : ND}</td>
+      <td class="tnum">${isNum(x.duration_years) ? x.duration_years.toFixed(2) : ND}</td>
+      <td class="tnum b-muted">${isNum(x.coupon_pct) ? x.coupon_pct.toFixed(1) + '%' : ND}</td>
+      <td class="tnum b-muted">${esc(x.maturity || ND)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="bonds-table-wrap"><table class="bonds-table">
+    <thead><tr>
+      <th>Бумага</th><th>Рейтинг</th><th>Цена</th>
+      <th data-tooltip="Доходность к погашению по рыночной цене (WAPRICE), считается из реальных потоков">YTM</th>
+      <th data-tooltip="Справедливая YTM по G-кривой MOEX + плоский спред рейтинга">Fair YTM</th>
+      <th data-tooltip="Апсайд справедливой цены к рыночной. Плоский спред занижает кредит-премию A-/BBB → большой «+» = модельное допущение">Апсайд</th>
+      <th data-tooltip="Чистая YTM после НДФЛ 13% (купоны и ценовой доход)">YTM−налог</th>
+      <th>Дюрация</th><th>Купон</th><th>Погашение</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function bondsChart(d) {
+  const ctx = document.getElementById('bonds-chart');
+  if (!ctx || !window.Chart) return;
+  const ofz = (d.chart.ofz_curve || []).map((p) => ({ x: p.t, y: p.yield }));
+  const corp = (d.chart.corp_points || []).filter((c) => isNum(c.duration) && isNum(c.ytm));
+  if (window.__bondsChart) { try { window.__bondsChart.destroy(); } catch (e) { /* noop */ } }
+  window.__bondsChart = new window.Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        { label: 'Кривая ОФЗ (КБД)', type: 'line', data: ofz, parsing: false,
+          borderColor: '#4C5C86', backgroundColor: 'transparent', pointRadius: 0, borderWidth: 2, tension: 0.3, order: 2 },
+        { label: 'Корпораты', data: corp.map((c) => ({ x: c.duration, y: c.ytm, _c: c })), parsing: false,
+          pointBackgroundColor: corp.map((c) => RATING_COLOR[RATING_GROUP(c.rating)]),
+          pointBorderColor: '#fff', pointBorderWidth: 1, pointRadius: 5, pointHoverRadius: 7, order: 1 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Дюрация, лет' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
+        y: { title: { display: true, text: 'YTM, %' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
+      },
+      plugins: {
+        legend: { labels: { color: '#5A6472', usePointStyle: true } },
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const c = item.raw._c;
+              if (!c) return `ОФЗ: ${item.parsed.y.toFixed(2)}% @ ${item.parsed.x} лет`;
+              const dev = (c.deviation >= 0 ? '+' : '') + Number(c.deviation).toFixed(1) + '%';
+              return [`${c.name} (${c.rating})`, `YTM: ${Number(c.ytm).toFixed(2)}%`,
+                `Fair YTM: ${Number(c.ytm_fair).toFixed(2)}%`, `Апсайд: ${dev}`,
+                `Дюрация: ${Number(c.duration).toFixed(2)} лет`];
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function wireBondsCalc() {
+  ['bonds-horizon', 'bonds-capital'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', bondsCalc);
+  });
+  bondsCalc();
+}
+
+function bondsCalc() {
+  const out = document.getElementById('bonds-calc-out');
+  if (!out) return;
+  const horizon = document.getElementById('bonds-horizon').value;
+  const capital = Math.max(0, +document.getElementById('bonds-capital').value || 0);
+  const port = BONDS.portfolios[horizon];
+  if (!port || !port.bonds || !port.bonds.length) {
+    out.innerHTML = `<div class="bonds-calc-empty muted">Для горизонта «${esc(HORIZON_RU[horizon])}» недостаточно ликвидных кандидатов в скринере.</div>`;
+    return;
+  }
+  let totalSpent = 0, capped = false;
+  const lines = port.bonds.map((b) => {
+    const costPerLot = b.price_market / 100 * b.lot_value;             // ₽ за лот (чистая цена)
+    let allocRub = b.weight * capital;
+    if (b.max_rub && allocRub > b.max_rub) { allocRub = b.max_rub; capped = true; }  // ≤5% дневного оборота
+    const lots = costPerLot > 0 ? Math.floor(allocRub / costPerLot) : 0;
+    const spent = lots * costPerLot;
+    totalSpent += spent;
+    return { b, costPerLot, lots, spent };
+  });
+  const cash = capital - totalSpent;
+  const rows = lines.map(({ b, costPerLot, lots, spent }) => `<tr>
+    <td class="b-name">${esc(b.name)}</td>
+    <td><span class="b-rating r-${RATING_GROUP(b.rating)}">${esc(b.rating)}</span></td>
+    <td class="tnum">${(b.weight * 100).toFixed(1)}%</td>
+    <td class="tnum b-strong">${lots}</td>
+    <td class="tnum">${rub0(costPerLot)}</td>
+    <td class="tnum">${rub0(spent)}</td>
+    <td class="tnum">${capital > 0 ? (spent / capital * 100).toFixed(1) + '%' : '—'}</td>
+  </tr>`).join('');
+  out.innerHTML = `
+    <div class="bonds-calc-summary">
+      <div class="bonds-kpi"><span class="k">Чистая YTM портфеля</span><span class="v">${isNum(port.port_ytm_net) ? port.port_ytm_net.toFixed(2) + '%' : ND}</span></div>
+      <div class="bonds-kpi"><span class="k">Дюрация</span><span class="v">${isNum(port.port_duration) ? port.port_duration.toFixed(2) + ' лет' : ND}</span></div>
+      <div class="bonds-kpi"><span class="k">Вложено</span><span class="v">${rub0(totalSpent)}</span></div>
+      <div class="bonds-kpi"><span class="k">Остаток кэша</span><span class="v">${rub0(cash)}</span></div>
+    </div>
+    <div class="bonds-table-wrap"><table class="bonds-table bonds-calc-table">
+      <thead><tr><th>Бумага</th><th>Рейтинг</th><th>Вес</th><th>Лотов</th><th>Цена лота</th><th>Сумма</th><th>Факт. доля</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    ${capped ? '<div class="bonds-calc-note muted">⚠️ Часть позиций ограничена 5% дневного оборота бумаги (ликвидность) → остаток ушёл в кэш.</div>' : ''}
+    <div class="bonds-calc-note muted">Лоты округлены вниз до целого; цена лота — чистая (без НКД). Инструкция справочная, не ИИР.</div>`;
 }

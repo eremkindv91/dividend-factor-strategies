@@ -61,6 +61,7 @@ jobs:
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
+          [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
