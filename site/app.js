@@ -1070,7 +1070,7 @@ function sawMethodHTML(d) {
 // точка (амплитуда, доля волн с такой же/большей амплитудой). Слева просадки, справа ралли,
 // центр — полоса порога ±9,5%. Маркер «сейчас» ложится ровно на кривую. Чистый SVG.
 function sawDistroSVG(d) {
-  const W = 720, H = 400, ML = 46, MR = 26, MT = 42, MB = 52;
+  const W = 720, H = 480, ML = 46, MR = 26, MT = 42, MB = 52;
   const px0 = ML, px1 = W - MR, py0 = MT, py1 = H - MB;
   const niceUp = (x) => Math.ceil(x / 10) * 10;
   const survPts = (arr) => arr.slice().sort((a, b) => a - b).map((a, i, A) => ({ amp: a, s: (A.length - i) / A.length }));
@@ -1167,4 +1167,33 @@ function sawChart(d) {
     const n = d.series.length;
     chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 1 - 760), to: n - 1 + 72 });
   } catch (e) { chart.timeScale().fitContent(); }
+
+  // тултип при наведении: цена + просадка/ралли от ближайшего слева подтверждённого экстремума
+  el.style.position = 'relative';
+  const tip = document.createElement('div');
+  tip.className = 'saw-chart-tip';
+  tip.style.display = 'none';
+  el.appendChild(tip);
+  const ex = d.extremes;                                   // отсортированы по дате ↑
+  const timeStr = (t) => (typeof t === 'string') ? t
+    : (t && t.year) ? `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}` : null;
+  const pivotAt = (ts) => { let p = null; for (let i = 0; i < ex.length; i++) { if (ex[i].date <= ts) p = ex[i]; else break; } return p; };
+  chart.subscribeCrosshairMove((param) => {
+    const pd = param.seriesData && param.seriesData.get(line);
+    const ts = timeStr(param.time);
+    if (!param.point || !ts || !pd || pd.value == null) { tip.style.display = 'none'; return; }
+    const price = pd.value, piv = pivotAt(ts);
+    let html = `<b>${ru(price, 0)}</b>`;
+    if (piv) {
+      const pct = price / piv.price - 1;
+      html += ` <span class="${pct >= 0 ? 'up' : 'down'}">${sawPct(pct)}</span>`
+        + ` <span class="dim">${piv.type === 'high' ? 'от макс' : 'от мин'} ${sawDate(piv.date)}</span>`;
+    }
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    let x = param.point.x + 14; if (x + tip.offsetWidth > el.clientWidth) x = param.point.x - tip.offsetWidth - 14;
+    let y = param.point.y + 14; if (y + tip.offsetHeight > el.clientHeight) y = param.point.y - tip.offsetHeight - 14;
+    tip.style.left = Math.max(2, x) + 'px';
+    tip.style.top = Math.max(2, y) + 'px';
+  });
 }
