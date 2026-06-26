@@ -1,0 +1,46 @@
+name: momentum (месячный пересчёт WML + дивиденды + ковариация)
+
+# Месячный авто-пересчёт всего, что нужно momentum-корзине, оптимизаторам и риск-метрикам:
+# WML 12-1 + годовая волатильность + ADV (свечи MOEX) + реальная история дивидендов + ряд
+# месячных доходностей (ковариация). build_momentum.py — только stdlib (без pip). Пишет
+# model_output/momentum.json + returns.json и коммитит их в dividend-site; ближайший update.yml
+# публикует. Circuit-breaker в build_momentum: при троттлинге MOEX с облачного IP (8 сетевых
+# ошибок подряд) — стоп + сохранение прошлого снимка (union), CI зелёный, данные не ломаются.
+on:
+  schedule:
+    - cron: "0 6 3 * *"        # 3-го числа каждого месяца, ~09:00 МСК (после закрытия прошлого месяца)
+  workflow_dispatch:
+
+permissions:
+  contents: write              # нужно для git push momentum.json/returns.json в ветку
+
+concurrency:
+  group: momentum
+  cancel-in-progress: false
+
+jobs:
+  refresh-momentum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # build_momentum.py — чистый stdlib, pip install не требуется
+
+      - name: Пересчёт momentum + returns (свечи + дивиденды MOEX, circuit-breaker)
+        run: python scripts/build_momentum.py
+
+      - name: Коммит momentum.json / returns.json (если изменились)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add model_output/momentum.json model_output/returns.json
+          if git diff --cached --quiet; then
+            echo "нет изменений — коммит не нужен"
+          else
+            git commit -m "chore(momentum): месячный авто-пересчёт WML + дивиденды + ковариация"
+            git push
+            echo "обновлено — ближайший update.yml опубликует на gh-pages"
+          fi
