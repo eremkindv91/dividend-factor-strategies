@@ -1621,18 +1621,13 @@ function renderMarketKPI() {
   const el = document.getElementById('market-kpi');
   if (!el) return;
   const dash = '<span class="muted">—</span>';
-  const cp = SAW_DATA ? SAW_DATA.current_phase : null;
   const ml = MARLAMOV ? MARLAMOV.meta : null;
   const bn = (BONDS && BONDS.meta) ? BONDS.meta : null;
-  const move = cp && isNum(cp.move_pct) ? ((cp.move_pct >= 0 ? '+' : '') + (cp.move_pct * 100).toFixed(1) + '%') : dash;
-  const reach = cp && cp.historical_reach_probability != null ? (cp.historical_reach_probability * 100).toFixed(0) + '%' : dash;
   const rfr = ml && isNum(ml.rfr) ? (ml.rfr * 100).toFixed(1) + '%' : dash;
   const regime = ml && ml.regime ? esc(ml.regime) : dash;
   const nStocks = DATA && DATA.meta ? (DATA.meta.n_ok || DATA.meta.n_total) : null;
   const nBonds = bn && isNum(bn.n) ? bn.n : null;
   el.innerHTML = [
-    kpiCard('Движение от экстремума', move),
-    kpiCard('Историческая частота', reach),
     kpiCard('RFR (КБД 1Y)', rfr),
     kpiCard('Режим рынка', regime),
     kpiCard('Акций в скринере', nStocks != null ? nStocks : dash),
