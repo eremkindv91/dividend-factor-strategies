@@ -59,3 +59,22 @@ def test_unified_layer_routes_large_conflict_to_manual_review(tmp_path: Path):
     assert conflicts.loc[0, "conflict_type"] == "value_conflict_gt_5pct"
     assert conflicts.loc[0, "difference_abs"] == 20.0
     assert conflicts.loc[0, "difference_pct"] == 20.0
+
+
+def test_unified_layer_does_not_mix_ras_with_ifrs_or_smartlab(tmp_path: Path):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    smartlab = _fact("smartlab", "aggregator", 100.0, 70, 7)
+    smartlab["reporting_standard"] = "UNKNOWN"
+    ifrs = _fact("official_ifrs_pdf_table", "official_ifrs", 100.5, 90, 4)
+    ifrs["reporting_standard"] = "IFRS"
+    ras = _fact("official_ifrs_pdf_table", "official_ifrs", 80.0, 90, 4)
+    ras["fact_id"] = "ras"
+    ras["reporting_standard"] = "RAS"
+    pd.DataFrame([smartlab, ifrs, ras]).to_parquet(processed / "smartlab_fundamentals.parquet", index=False)
+
+    summary = unify_financial_data(tmp_path)
+    unified = pd.read_parquet(tmp_path / "data" / "unified" / "financial_facts_unified.parquet")
+
+    assert summary["facts_unified"] == 2
+    assert set(unified["reporting_standard"]) == {"IFRS", "RAS"}

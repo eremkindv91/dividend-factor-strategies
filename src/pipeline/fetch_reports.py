@@ -38,6 +38,14 @@ def fetch_reports(
     now = utc_now_iso()
     rows = []
     errors = []
+    if not source_path.exists() and path.exists():
+        existing = pd.read_parquet(path)
+        return {
+            "reports_found": int(len(existing)),
+            "reports_downloaded": 0,
+            "source_errors": 0,
+            "mode": "existing_report_index",
+        }
     if source_path.exists():
         src = pd.read_csv(source_path, dtype=str).fillna("")
         src = src[src.get("active", "true").astype(str).str.lower().isin(["", "true", "1", "yes"])]
@@ -45,6 +53,14 @@ def fetch_reports(
             src = src[src["ticker"].astype(str).str.upper() == str(ticker).upper()]
         report_like = src["source_type"].isin(["manual_report", "report_pdf", "report_xlsx", "ifrs_report"])
         src = src[report_like]
+        if src.empty and path.exists():
+            existing = pd.read_parquet(path)
+            return {
+                "reports_found": int(len(existing)),
+                "reports_downloaded": 0,
+                "source_errors": 0,
+                "mode": "existing_report_index",
+            }
         for _, r in src.iterrows():
             fy = _int_or_none(r.get("fiscal_year"))
             if from_year is not None and fy is not None and fy < from_year:

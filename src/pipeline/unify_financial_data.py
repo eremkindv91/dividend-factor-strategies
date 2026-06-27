@@ -16,10 +16,14 @@ def unify_financial_data(root: Path = REPO_ROOT) -> dict:
     sources = []
     smartlab_path = root / "data" / "processed" / "smartlab_fundamentals.parquet"
     if smartlab_path.exists():
-        sources.append(pd.read_parquet(smartlab_path))
+        smartlab = pd.read_parquet(smartlab_path)
+        if not smartlab.empty:
+            sources.append(smartlab)
     ifrs_path = root / "data" / "processed" / "ifrs_financial_facts.parquet"
     if ifrs_path.exists():
-        sources.append(pd.read_parquet(ifrs_path))
+        ifrs = pd.read_parquet(ifrs_path)
+        if not ifrs.empty:
+            sources.append(ifrs)
     manual_path = root / "data" / "manual_overrides" / "financial_facts.csv"
     manual = read_manual_override(manual_path)
     if not manual.empty:
@@ -29,11 +33,22 @@ def unify_financial_data(root: Path = REPO_ROOT) -> dict:
 
     facts = pd.concat(sources, ignore_index=True, sort=False)
     facts, duplicates_removed = deduplicate_source_rows(facts)
+    facts = facts.copy()
+    facts["_resolution_standard"] = facts.apply(resolution_standard, axis=1)
     now = utc_now_iso()
     unified_rows = []
     conflicts = []
 
-    for _, grp in facts.groupby(FACT_DEDUP_FIELDS, dropna=False):
+    group_fields = [
+        "ticker",
+        "fiscal_year",
+        "period",
+        "_resolution_standard",
+        "statement_type",
+        "line_item_std",
+        "currency",
+    ]
+    for _, grp in facts.groupby(group_fields, dropna=False):
         candidates = [SourceCandidate.from_mapping(row.to_dict()) for _, row in grp.iterrows()]
         resolved = resolve_best_value(candidates)
         best = resolved["best"]
@@ -52,7 +67,7 @@ def unify_financial_data(root: Path = REPO_ROOT) -> dict:
             "company_name": first.get("company_name"),
             "fiscal_year": first.get("fiscal_year"),
             "period": None if first.get("period") is None else str(first.get("period")),
-            "reporting_standard": first.get("reporting_standard"),
+            "reporting_standard": first.get("_resolution_standard"),
             "statement_type": first.get("statement_type"),
             "line_item_std": first.get("line_item_std"),
             "currency": currency,
@@ -145,6 +160,19 @@ def deduplicate_source_rows(facts: pd.DataFrame) -> tuple[pd.DataFrame, int]:
     subset = [c for c in candidate_cols if c in facts.columns]
     out = facts.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
     return out, len(facts) - len(out)
+
+
+def resolution_standard(row: pd.Series) -> str:
+    standard = str(row.get("reporting_standard") or "").strip().upper()
+    source_type = str(row.get("source_type") or "").strip().lower()
+    source_name = str(row.get("source_name") or "").strip().lower()
+    if standard in {"RAS", "РСБУ"}:
+        return "RAS"
+    if standard in {"IFRS", "МСФО"}:
+        return "IFRS"
+    if source_type == "aggregator" or source_name == "smartlab":
+        return "IFRS"
+    return standard or "UNKNOWN"
 
 
 def build_wide(unified: pd.DataFrame) -> pd.DataFrame:

@@ -10,6 +10,7 @@ from src.paths import REPO_ROOT, ensure_dir
 from src.pipeline.audit_existing_data import audit_existing_data
 from src.pipeline.build_site_data import build_site_data
 from src.pipeline.discover_companies import discover_companies
+from src.pipeline.extract_financials import extract_financials
 from src.pipeline.fetch_reports import fetch_reports
 from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
 from src.pipeline.unify_financial_data import unify_financial_data
@@ -23,6 +24,7 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
     skipped = []
     discover = {"new_companies_added": None, "source_rows": 0}
     reports = {"reports_found": 0, "reports_downloaded": 0}
+    extraction = {"reports_extracted": 0, "reports_failed": 0, "facts_from_ifrs": 0}
     if smartlab_only:
         skipped += ["discover_companies", "fetch_reports", "extract_financials", "validate_financials"]
     elif skip_ocr:
@@ -35,6 +37,7 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             ticker=kwargs.get("ticker"),
             no_network=kwargs.get("no_network", True),
         )
+        extraction = extract_financials(root, skip_ocr=skip_ocr)
     unify = unify_financial_data(root)
     site = build_site_data(root)
     registry_counts = _registry_counts(root)
@@ -53,11 +56,11 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "source_rows": discover.get("source_rows", 0),
         "reports_found": reports.get("reports_found", 0),
         "reports_downloaded": reports.get("reports_downloaded", 0),
-        "reports_extracted": 0,
-        "reports_failed": 0,
+        "reports_extracted": extraction.get("reports_extracted", 0),
+        "reports_failed": extraction.get("reports_failed", 0),
         "ocr_pages_processed": 0,
         "facts_from_smartlab": migration["facts_written"],
-        "facts_from_ifrs": 0,
+        "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
         "facts_from_manual_override": 0,
         "conflicts_count": unify["conflicts_count"],
         "duplicates_removed": unify["duplicates_removed"],

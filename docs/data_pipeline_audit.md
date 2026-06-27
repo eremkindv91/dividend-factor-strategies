@@ -24,6 +24,7 @@
 - `data/panels_final/panel_russia_final.csv` — базовая историческая панель.
 - `data/company_sources.csv` — управляемый реестр официальных страниц/ручных ссылок на отчёты. Пустые или отсутствующие URL не заменяются синтетикой.
 - `data/report_index.parquet` — generated metadata-only индекс найденных отчётов; не хранит PDF и не публикуется как источник истины без последующего parse/validation.
+- `data/processed/ifrs_financial_facts.parquet` — generated official IFRS facts из структурированных CSV/XLSX файлов, указанных в `report_index.file_path`; произвольные PDF/OCR пока не парсятся.
 - `data/manual_review/report_source_errors.csv` — ошибки source URL: неверная схема, недоступный HTTP metadata check, пустые/битые ссылки.
 - `scripts/smartlab_fetch.py` — точечный HTML fetch SmartLab `/q/{TICKER}/f/y/` с вежливой задержкой и alias-логикой.
 - `scripts/smartlab_reconcile.py` — сверка и безопасное дозаполнение панели; исходный `panel_russia_final.csv` не перезаписывается.
@@ -109,6 +110,7 @@
 - Базовая дедупликация и source resolver.
 - Manual override layer: `data/manual_overrides/financial_facts.csv` при наличии перебивает SmartLab/IFRS и фиксируется как `source_name=manual_override`.
 - Metadata-only discovery: `data/company_sources.csv` → `data/report_index.parquet` без скачивания PDF/OCR. При `--allow-network` выполняется только HEAD/metadata-check URL, без сохранения файлов; ошибки уходят в manual review.
+- Structured extraction: если `report_index.file_path` указывает на локальный CSV/XLSX с колонками `line_item_raw`, `value`, `currency`, `unit_multiplier`, pipeline строит `ifrs_financial_facts.parquet` с `source_name=official_ifrs_structured_file`.
 - Unified layer поверх уже имеющегося SmartLab baseline.
 - JSON для будущего сайта: `site_financials.json` и `site_coverage.json`.
 - Frontend-блок «Покрытие и качество данных» во вкладке «Методология», без замены старых расчётов.
