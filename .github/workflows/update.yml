@@ -62,9 +62,10 @@ jobs:
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 
-      - name: Сборка unified financial layer (SmartLab baseline, без OCR)
+      - name: Сборка unified financial layer (SmartLab baseline + metadata-only IFRS, без OCR)
         # дополнительный слой прозрачности источников; не заменяет старый data.json-контракт
-        run: python -m src.pipeline.run_all --smartlab-only --skip-ocr
+        # если IFRS/disclosure ветка падает, run_all продолжает на SmartLab baseline и пишет ifrs_failures в summary
+        run: python -m src.pipeline.run_all --skip-ocr
 
       - name: Валидация unified financial layer
         run: python -m src.pipeline.validate_financials

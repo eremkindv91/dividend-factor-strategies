@@ -39,17 +39,14 @@ jobs:
       - name: Audit existing data
         run: python -m src.pipeline.audit_existing_data
 
-      - name: Run SmartLab baseline pipeline
+      - name: Run safe financial pipeline
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: |
           if [ -z "${MISTRAL_API_KEY:-}" ]; then
             echo "::warning::MISTRAL_API_KEY is not configured; OCR is skipped"
           fi
-          python -m src.pipeline.run_all --smartlab-only --skip-ocr
-
-      - name: Run metadata-only report discovery
-        run: python -m src.pipeline.run_all --ifrs-only --skip-ocr
+          python -m src.pipeline.run_all --skip-ocr
 
       - name: Validate unified financials
         run: python -m src.pipeline.validate_financials

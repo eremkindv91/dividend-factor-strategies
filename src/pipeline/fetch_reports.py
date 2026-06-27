@@ -28,6 +28,7 @@ def fetch_reports(
     from_year: int | None = None,
     to_year: int | None = None,
     ticker: str | None = None,
+    limit_companies: int | None = None,
     no_network: bool = True,
     metadata_checker=None,
     *_args,
@@ -51,6 +52,17 @@ def fetch_reports(
         src = src[src.get("active", "true").astype(str).str.lower().isin(["", "true", "1", "yes"])]
         if ticker:
             src = src[src["ticker"].astype(str).str.upper() == str(ticker).upper()]
+        elif limit_companies is not None and limit_companies > 0 and "ticker" in src:
+            tickers = []
+            seen = set()
+            for raw in src["ticker"].astype(str):
+                value = raw.strip().upper()
+                if value and value not in seen:
+                    seen.add(value)
+                    tickers.append(value)
+                if len(tickers) >= limit_companies:
+                    break
+            src = src[src["ticker"].astype(str).str.upper().isin(set(tickers))]
         report_like = src["source_type"].isin(["manual_report", "report_pdf", "report_xlsx", "ifrs_report"])
         src = src[report_like]
         if src.empty and path.exists():
@@ -200,10 +212,18 @@ def main() -> int:
     parser.add_argument("--from-year", type=int)
     parser.add_argument("--to-year", type=int)
     parser.add_argument("--ticker")
+    parser.add_argument("--limit-companies", type=int)
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--allow-network", action="store_true", help="Reserved for a later downloader stage; current implementation remains metadata-only.")
     args = parser.parse_args()
-    res = fetch_reports(Path(args.repo_root), from_year=args.from_year, to_year=args.to_year, ticker=args.ticker, no_network=args.no_network or not args.allow_network)
+    res = fetch_reports(
+        Path(args.repo_root),
+        from_year=args.from_year,
+        to_year=args.to_year,
+        ticker=args.ticker,
+        limit_companies=args.limit_companies,
+        no_network=args.no_network or not args.allow_network,
+    )
     print(f"[fetch-reports] reports_downloaded={res['reports_downloaded']} mode={res['mode']}")
     return 0
 

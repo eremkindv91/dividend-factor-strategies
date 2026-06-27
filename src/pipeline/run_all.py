@@ -14,6 +14,7 @@ from src.pipeline.extract_financials import extract_financials
 from src.pipeline.fetch_reports import fetch_reports
 from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
 from src.pipeline.unify_financial_data import unify_financial_data
+from src.pipeline.validate_financials import validate_financials
 
 
 def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool = True, **kwargs) -> dict:
@@ -25,20 +26,33 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
     discover = {"new_companies_added": None, "source_rows": 0}
     reports = {"reports_found": 0, "reports_downloaded": 0}
     extraction = {"reports_extracted": 0, "reports_failed": 0, "facts_from_ifrs": 0}
+    ifrs_failures = []
     if smartlab_only:
         skipped += ["discover_companies", "fetch_reports", "extract_financials", "validate_financials"]
-    elif skip_ocr:
-        skipped.append("ocr")
-        discover = discover_companies(root)
-        reports = fetch_reports(
-            root,
-            from_year=kwargs.get("from_year"),
-            to_year=kwargs.get("to_year"),
-            ticker=kwargs.get("ticker"),
-            no_network=kwargs.get("no_network", True),
-        )
-        extraction = extract_financials(root, skip_ocr=skip_ocr)
+    else:
+        if skip_ocr:
+            skipped.append("ocr")
+        try:
+            discover = discover_companies(root)
+        except Exception as e:  # noqa: BLE001
+            ifrs_failures.append({"step": "discover_companies", "error": str(e)})
+        try:
+            reports = fetch_reports(
+                root,
+                from_year=kwargs.get("from_year"),
+                to_year=kwargs.get("to_year"),
+                ticker=kwargs.get("ticker"),
+                limit_companies=kwargs.get("limit_companies"),
+                no_network=kwargs.get("no_network", True),
+            )
+        except Exception as e:  # noqa: BLE001
+            ifrs_failures.append({"step": "fetch_reports", "error": str(e)})
+        try:
+            extraction = extract_financials(root, skip_ocr=skip_ocr)
+        except Exception as e:  # noqa: BLE001
+            ifrs_failures.append({"step": "extract_financials", "error": str(e)})
     unify = unify_financial_data(root)
+    validation = validate_financials(root)
     site = build_site_data(root)
     registry_counts = _registry_counts(root)
     avg_quality = _average_quality(root)
@@ -58,13 +72,15 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "reports_downloaded": reports.get("reports_downloaded", 0),
         "reports_extracted": extraction.get("reports_extracted", 0),
         "reports_failed": extraction.get("reports_failed", 0),
+        "ifrs_failures": ifrs_failures,
+        "validation_errors": validation.get("errors", 0),
         "ocr_pages_processed": 0,
         "facts_from_smartlab": migration["facts_written"],
         "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
         "facts_from_manual_override": 0,
         "conflicts_count": unify["conflicts_count"],
         "duplicates_removed": unify["duplicates_removed"],
-        "manual_review_count": migration["issues"] + unify["conflicts_count"],
+        "manual_review_count": migration["issues"] + unify["conflicts_count"] + len(ifrs_failures) + validation.get("errors", 0),
         "average_quality_score": avg_quality,
         "estimated_ocr_cost": 0,
         "last_successful_run": utc_now_iso(),
@@ -82,7 +98,8 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             f"reports_extracted={summary['reports_extracted']} ocr_pages={summary['ocr_pages_processed']} "
             f"smartlab_facts={summary['facts_from_smartlab']} ifrs_facts={summary['facts_from_ifrs']} "
             f"conflicts={summary['conflicts_count']} duplicates_removed={summary['duplicates_removed']} "
-            f"manual_review={summary['manual_review_count']} estimated_ocr_cost={summary['estimated_ocr_cost']}\n"
+            f"manual_review={summary['manual_review_count']} validation_errors={summary['validation_errors']} "
+            f"ifrs_failures={len(ifrs_failures)} estimated_ocr_cost={summary['estimated_ocr_cost']}\n"
         )
     return summary
 
@@ -126,7 +143,7 @@ def main() -> int:
         return 0
     summary = run_all(
         Path(args.repo_root),
-        smartlab_only=args.smartlab_only or not args.ifrs_only,
+        smartlab_only=args.smartlab_only,
         skip_ocr=args.skip_ocr,
         limit_companies=args.limit_companies,
         ticker=args.ticker,

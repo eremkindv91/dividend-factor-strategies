@@ -61,6 +61,45 @@ def test_fetch_reports_builds_report_index_from_manual_sources(tmp_path: Path):
     assert idx.loc[0, "reporting_standard"] == "IFRS"
 
 
+def test_fetch_reports_limit_companies_filters_current_run_only(tmp_path: Path):
+    data = tmp_path / "data"
+    data.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "AAA",
+            "source_type": "manual_report",
+            "source_url": "https://issuer.example/reports/aaa-2025-ifrs.pdf",
+            "document_title": "AAA IFRS 2025",
+            "document_type": "IFRS annual",
+            "reporting_standard": "IFRS",
+            "fiscal_year": 2025,
+            "period": "2025",
+            "period_type": "annual",
+            "active": "true",
+        },
+        {
+            "ticker": "BBB",
+            "source_type": "manual_report",
+            "source_url": "https://issuer.example/reports/bbb-2025-ifrs.pdf",
+            "document_title": "BBB IFRS 2025",
+            "document_type": "IFRS annual",
+            "reporting_standard": "IFRS",
+            "fiscal_year": 2025,
+            "period": "2025",
+            "period_type": "annual",
+            "active": "true",
+        },
+    ]).to_csv(data / "company_sources.csv", index=False)
+
+    summary = fetch_reports(tmp_path, limit_companies=1, no_network=True)
+    idx = pd.read_parquet(data / "report_index.parquet")
+    sources = pd.read_csv(data / "company_sources.csv")
+
+    assert summary["reports_found"] == 1
+    assert set(idx["ticker"]) == {"AAA"}
+    assert set(sources["ticker"]) == {"AAA", "BBB"}
+
+
 def test_run_all_default_stage2_keeps_smartlab_baseline_when_no_reports(tmp_path: Path):
     panel_dir = tmp_path / "data" / "panels_final"
     panel_dir.mkdir(parents=True)

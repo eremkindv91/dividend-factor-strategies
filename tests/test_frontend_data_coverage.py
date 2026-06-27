@@ -18,7 +18,22 @@ def test_frontend_has_data_coverage_block_and_loader():
 def test_daily_deploy_builds_and_publishes_coverage_json():
     workflow = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
 
-    assert "python -m src.pipeline.run_all --smartlab-only --skip-ocr" in workflow
+    assert "python -m src.pipeline.run_all --skip-ocr" in workflow
     assert "python -m src.pipeline.validate_financials" in workflow
     assert "site/site_coverage.json" in workflow
     assert "site/site_financials.json" in workflow
+
+
+def test_manual_deploy_publishes_additive_site_json_layers():
+    deploy = (ROOT / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
+
+    assert "python3 -m src.pipeline.run_all --skip-ocr" in deploy
+    assert "python3 scripts/validate_site_data.py" in deploy
+    assert "site/methodology.json" in deploy
+    assert "site/marketsaw.json" in deploy
+    assert "site/marlamov.json" in deploy
+    assert "site/site_coverage.json" in deploy
+    assert "site/site_financials.json" in deploy
+    assert "site/bonds/*.json" in deploy
+    assert "app.js?v=" in deploy
+    assert "styles.css?v=" in deploy
