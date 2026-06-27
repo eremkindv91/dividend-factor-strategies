@@ -1631,7 +1631,6 @@ function renderMarketKPI() {
   const nStocks = DATA && DATA.meta ? (DATA.meta.n_ok || DATA.meta.n_total) : null;
   const nBonds = bn && isNum(bn.n) ? bn.n : null;
   el.innerHTML = [
-    kpiCard('Фаза рынка (MCFTR)', cp ? esc(cp.label) : dash, cp ? 'phase-' + cp.risk_level : ''),
     kpiCard('Движение от экстремума', move),
     kpiCard('Историческая частота', reach),
     kpiCard('RFR (КБД 1Y)', rfr),
