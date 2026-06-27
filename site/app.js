@@ -62,6 +62,7 @@ wireMarketSaw();   // блок «Помощник фазы рынка» неза
 wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
 wireMarlamov();    // блок «Форвардная доходность» (таблица Марламова) — грузит marlamov.json
 wireMethodology(); // блок «Методология» (4 раздела) — грузит methodology.json
+wireNav();         // навигация Акции/Облигации/Стратегии/Рынок (скролл + раскрытие, без переписи логики)
 
 function init(data) {
   DATA = data;
@@ -1533,4 +1534,39 @@ function methodologyHTML(j) {
   </div>`).join('');
   return `<div class="method-grid">${secs}</div>
     <div class="method-disc-all">${esc(j.disclaimer || '')}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Навигация: 4 раздела (Акции/Облигации/Стратегии/Рынок) НАД существующими блоками.
+// Безопасный слой: клик раскрывает <details> и скроллит к секции; логика блоков не тронута.
+// ══════════════════════════════════════════════════════════════════════════
+function wireNav() {
+  const nav = document.getElementById('site-nav');
+  if (!nav) return;
+  nav.hidden = false;
+  const tabs = [...nav.querySelectorAll('.nav-tab')];
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const openId = tab.dataset.open;
+      if (openId) { const d = document.getElementById(openId); if (d && !d.open) d.open = true; }
+      const el = document.getElementById(tab.dataset.target);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 58;   // запас под sticky-nav
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+    });
+  });
+  // подсветка активного таба по позиции прокрутки
+  const map = { ranks: tabs[0], bonds: tabs[1], pf: tabs[2], marketsaw: tabs[3] };
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && map[e.target.id]) {
+          tabs.forEach((t) => t.classList.remove('active'));
+          map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-55px 0px -70% 0px', threshold: 0 });
+    Object.keys(map).forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+  }
 }

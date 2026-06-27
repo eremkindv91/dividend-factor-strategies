@@ -533,3 +533,14 @@ td.empty { text-align: center; }
 .method-disc-all { margin-top: 14px; font-size: .8rem; color: var(--ink-faint);
   border-top: 1px solid var(--line); padding-top: 10px; line-height: 1.5; }
 @media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; } }
+
+/* ══ Навигация по 4 разделам (sticky) ══ */
+.site-nav { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px; flex-wrap: wrap;
+  background: rgba(247,248,250,.92); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 8px 0; margin: 0 0 14px; border-bottom: 1px solid var(--line); }
+.nav-tab { font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--accent-deep);
+  border-radius: 999px; padding: 7px 16px; box-shadow: var(--shadow); transition: background .12s, color .12s; }
+.nav-tab:hover { border-color: var(--accent); }
+.nav-tab.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
+@media (max-width: 760px) { .nav-tab { flex: 1 1 auto; padding: 8px 6px; text-align: center; font-size: .82rem; } }
