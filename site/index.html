@@ -3,121 +3,151 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Прогноз дивидендов РФ на год вперёд</title>
-  <meta name="description" content="Прогноз дивидендов российских эмитентов на год вперёд: устойчивость выплаты, риск невыплаты, прогнозный дивиденд, payout, дивидендная доходность. ML-модель магистерской ВКР.">
+  <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
+  <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="wrap">
     <header class="site">
-      <h1>Прогноз дивидендов российских эмитентов</h1>
-      <p class="sub">Прогноз на следующий год: устойчивость выплаты, риск невыплаты, размер дивиденда и дивидендная доходность. Прогноза цены и полной доходности нет.</p>
-      <div class="dates" id="dates"></div>
+      <h1>Аналитика рынка РФ: дивиденды · акции · облигации · фаза рынка</h1>
+      <p class="sub">Исследовательский дашборд на реальных данных MOEX ISS и SmartLab. Не индивидуальная инвестиционная рекомендация.</p>
+      <div class="data-status" id="data-status"><span class="muted">Загрузка данных…</span></div>
       <div id="banner"></div>
     </header>
 
-    <nav class="site-nav" id="site-nav" hidden>
-      <button class="nav-tab" data-target="ranks">Акции</button>
-      <button class="nav-tab" data-target="bonds" data-open="bonds">Облигации</button>
-      <button class="nav-tab" data-target="pf" data-open="pf">Стратегии</button>
-      <button class="nav-tab" data-target="marketsaw" data-open="marketsaw">Рынок</button>
+    <nav class="section-tabs" id="section-tabs">
+      <button class="section-tab" data-section="market">Текущий рынок</button>
+      <button class="section-tab" data-section="stocks">Акции</button>
+      <button class="section-tab" data-section="strategies">Стратегии</button>
+      <button class="section-tab" data-section="bonds">Облигации</button>
+      <button class="section-tab" data-section="methodology">Методология</button>
     </nav>
 
-    <div class="controls" id="controls" hidden>
-      <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
-      <select id="sector"><option value="">Все отрасли</option></select>
-      <select id="statusFilter">
-        <option value="">Все статусы</option>
-        <option value="ok">Только с полными данными</option>
-        <option value="insufficient_data">Только неполные</option>
-      </select>
-      <span class="spacer"></span>
-      <span class="count" id="count"></span>
-      <button class="btn" id="csv">Экспорт CSV</button>
-    </div>
+    <main class="sections">
+      <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
+      <section class="app-section" data-section="market">
+        <p class="section-intro">Сводка рыночного режима по индексу полной доходности MCFTR, безрисковой ставке (RFR) и доступным рыночным данным. Это индикаторы контекста, а не прогноз.</p>
+        <div class="kpi-grid" id="market-kpi"></div>
 
-    <div class="ranks" id="ranks" hidden>
-      <span class="ranks-lbl" data-tooltip="Итоговый рейтинг. По умолчанию таблица отсортирована по убыванию ожидаемой дивидендной доходности E[DY], скорректированной на фактор устойчивости.">Рейтинг ↓</span>
-    </div>
+        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+          <summary>Помощник фазы рынка <span class="muted">(где рынок относительно последнего экстремума MCFTR)</span></summary>
+          <div class="saw-body" id="saw-body">
+            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
+          </div>
+        </details>
+      </section>
 
-    <details class="mapwrap" id="mapwrap" hidden>
-      <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>
-      <div id="map"></div>
-    </details>
+      <!-- ─────────── АКЦИИ ─────────── -->
+      <section class="app-section" data-section="stocks" hidden>
+        <p class="section-intro">Акции: ML-модель оценивает вероятность выплаты и размер ближайшего дивиденда. Цены MOEX обновляются ежедневно; фундаментальные данные и сама модель — реже.</p>
+        <div class="dates" id="dates"></div>
 
-    <details class="mapwrap saw-wrap" id="marketsaw" hidden>
-      <summary>Помощник фазы рынка <span class="muted">(где рынок относительно последнего экстремума MCFTR)</span></summary>
-      <div class="saw-body" id="saw-body">
-        <div class="saw-loading muted">Раскройте блок — загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
-      </div>
-    </details>
-
-    <details class="mapwrap pfwrap" id="pf" hidden>
-      <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
-      <div class="pf-body">
-        <div class="pf-controls">
-          <label>Стратегия<select id="pf-method">
-            <option value="quality">Quality (Barra, 3-дескр)</option>
-            <option value="momentum" disabled>Momentum (скоро)</option>
-            <option value="optmv">Оптимум: мин. риск</option>
-            <option value="optms">Оптимум: макс-Шарп (quality-тилт)</option>
-            <option value="optrp">Оптимум: risk-parity</option>
-            <option value="optiv">Оптимум: inverse-vol</option>
-          </select></label>
-          <label>Бумаг<select id="pf-n"><option>10</option><option selected>15</option><option>20</option></select></label>
-          <label>Взвешивание<select id="pf-weight">
-            <option value="equal">Равные доли</option>
-            <option value="score">По фактору</option>
-            <option value="mcap">По капитализации</option>
-            <option value="invvol">Обратная волатильность</option>
-          </select></label>
-          <label>Макс/бумагу %<input type="number" id="pf-cap" value="20" min="5" max="100" step="5"></label>
-          <label>Секторный кап %<input type="number" id="pf-seccap" value="40" min="10" max="100" step="10"></label>
-          <label>Капитал ₽<input type="number" id="pf-capital" value="1000000" min="0" step="100000"></label>
-          <button class="btn" id="pf-gen">Сгенерировать</button>
+        <div class="controls" id="controls" hidden>
+          <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
+          <select id="sector"><option value="">Все отрасли</option></select>
+          <select id="statusFilter">
+            <option value="">Все статусы</option>
+            <option value="ok">Только с полными данными</option>
+            <option value="insufficient_data">Только неполные</option>
+          </select>
+          <span class="spacer"></span>
+          <span class="count" id="count"></span>
+          <button class="btn" id="csv">Экспорт CSV</button>
         </div>
-        <div id="pf-out"></div>
-      </div>
-    </details>
 
-    <details class="mapwrap bonds-wrap" id="bonds" hidden>
-      <summary>Облигации <span class="muted">(скринер · кривая КБД · калькулятор портфеля)</span></summary>
-      <div class="bonds-body" id="bonds-body">
-        <div class="bonds-loading muted">Раскройте блок — загрузим квантовый скринер облигаций…</div>
-      </div>
-    </details>
+        <div class="ranks" id="ranks" hidden>
+          <span class="ranks-lbl" data-tooltip="Итоговый рейтинг. По умолчанию таблица отсортирована по убыванию ожидаемой дивидендной доходности E[DY], скорректированной на фактор устойчивости.">Рейтинг ↓</span>
+        </div>
 
-    <details class="mapwrap ml-wrap" id="marlamov" hidden>
-      <summary>Форвардная доходность <span class="muted">(2 года, очищенная база · Spread к RFR · режим рынка)</span></summary>
-      <div class="ml-body" id="ml-body">
-        <div class="ml-loading muted">Раскройте блок — посчитаем 2-летнюю форвардную дивдоходность…</div>
-      </div>
-    </details>
+        <details class="mapwrap" id="mapwrap" hidden>
+          <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>
+          <div id="map"></div>
+        </details>
 
-    <details class="mapwrap method-wrap" id="methodology" hidden>
-      <summary>Методология <span class="muted">(Акции · Облигации · Стратегии · Рынок — допущения и ограничения)</span></summary>
-      <div class="method-body" id="method-body">
-        <div class="muted" style="padding:10px 2px">Раскройте — методология и ограничения по разделам…</div>
-      </div>
-    </details>
+        <div id="app">
+          <div class="loading">Загрузка данных…</div>
+        </div>
+      </section>
 
-    <div id="app">
-      <div class="loading">Загрузка данных…</div>
-    </div>
+      <!-- ─────────── СТРАТЕГИИ ─────────── -->
+      <section class="app-section" data-section="strategies" hidden>
+        <p class="section-intro">Стратегии: портфельные и сценарные инструменты поверх данных по акциям. Это исследовательские расчёты, а не готовые рекомендации.</p>
 
-    <footer class="method" id="method" hidden>
-      <h3>Методология</h3>
-      <ul>
-        <li><b>Источник прогноза</b> — двухэтапная ML-модель магистерской ВКР (НИУ ВШЭ). Stage&nbsp;1: классификация факта выплаты в следующем году (калиброванный изотонической регрессией ансамбль top-3 — CatBoost/XGBoost/LightGBM, walk-forward OOF, ROC-AUC&nbsp;≈&nbsp;<span id="auc"></span>). Stage&nbsp;2: регрессия размера дивиденда.</li>
-        <li><b>Риск невыплаты</b> = 1&nbsp;−&nbsp;P(выплата). <b>Устойчивость</b> = 0,6·P&nbsp;+&nbsp;0,4·(серия лет выплат&nbsp;/&nbsp;макс.). Лейбла «снижения на&nbsp;X%» в модели нет.</li>
-        <li><b>Дивидендная доходность</b> на дату пересчёта цены: <b>ожидаемая</b> = P&nbsp;·&nbsp;прогнозный дивиденд&nbsp;/&nbsp;цена; <b>при выплате</b> = прогнозный дивиденд&nbsp;/&nbsp;цена. Цена — spot (закрытие), MOEX&nbsp;ISS.</li>
-        <li><b>Payout</b> — последний известный факт (год указан), не прогноз.</li>
-        <li><b>SHAP</b> в карточке показывает, что реально влияет на вероятность выплаты: вклад признаков усреднён по моделям ансамбля (top-3) и нормирован построчно. Направление и значимость факторов точны, абсолютные величины приближённые (калибровка вероятности монотонна).</li>
-        <li><b>Две даты:</b> прогноз модели заморожен на дату прогона ВКР; ежедневно обновляется только рыночная цена и дивидендная доходность.</li>
-      </ul>
-      <div class="disc" id="disclaimer"></div>
-      <p class="attrib" id="attrib"></p>
-    </footer>
+        <details class="mapwrap pfwrap" id="pf" hidden>
+          <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
+          <div class="pf-body">
+            <div class="pf-controls">
+              <label>Стратегия<select id="pf-method">
+                <option value="quality">Quality (Barra, 3-дескр)</option>
+                <option value="momentum" disabled>Momentum (скоро)</option>
+                <option value="optmv">Оптимум: мин. риск</option>
+                <option value="optms">Оптимум: макс-Шарп (quality-тилт)</option>
+                <option value="optrp">Оптимум: risk-parity</option>
+                <option value="optiv">Оптимум: inverse-vol</option>
+              </select></label>
+              <label>Бумаг<select id="pf-n"><option>10</option><option selected>15</option><option>20</option></select></label>
+              <label>Взвешивание<select id="pf-weight">
+                <option value="equal">Равные доли</option>
+                <option value="score">По фактору</option>
+                <option value="mcap">По капитализации</option>
+                <option value="invvol">Обратная волатильность</option>
+              </select></label>
+              <label>Макс/бумагу %<input type="number" id="pf-cap" value="20" min="5" max="100" step="5"></label>
+              <label>Секторный кап %<input type="number" id="pf-seccap" value="40" min="10" max="100" step="10"></label>
+              <label>Капитал ₽<input type="number" id="pf-capital" value="1000000" min="0" step="100000"></label>
+              <button class="btn" id="pf-gen">Сгенерировать</button>
+            </div>
+            <div id="pf-out"></div>
+          </div>
+        </details>
+
+        <details class="mapwrap ml-wrap" id="marlamov" hidden>
+          <summary>Форвардная доходность <span class="muted">(2 года, очищенная база · Spread к RFR · режим рынка)</span></summary>
+          <div class="ml-body" id="ml-body">
+            <div class="ml-loading muted">Посчитаем 2-летнюю форвардную дивдоходность…</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ─────────── ОБЛИГАЦИИ ─────────── -->
+      <section class="app-section" data-section="bonds" hidden>
+        <p class="section-intro">Облигации: скринер рублёвых корпоративных выпусков MOEX. Fair-value считается от G-кривой и модельного спреда; у рейтингов и ликвидности есть ограничения.</p>
+
+        <details class="mapwrap bonds-wrap" id="bonds" hidden>
+          <summary>Облигации <span class="muted">(скринер · кривая КБД · калькулятор портфеля)</span></summary>
+          <div class="bonds-body" id="bonds-body">
+            <div class="bonds-loading muted">Загрузим квантовый скринер облигаций…</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->
+      <section class="app-section" data-section="methodology" hidden>
+        <p class="section-intro">Методология, источники данных и ограничения по каждому разделу. Все расчёты модельные; это не индивидуальная инвестиционная рекомендация.</p>
+
+        <details class="mapwrap method-wrap" id="methodology" hidden open>
+          <summary>Допущения и ограничения по разделам <span class="muted">(Акции · Облигации · Стратегии · Рынок)</span></summary>
+          <div class="method-body" id="method-body">
+            <div class="muted" style="padding:10px 2px">Загрузка методологии…</div>
+          </div>
+        </details>
+
+        <div class="method" id="method" hidden>
+          <h3>Модель акций — детали · данные · дисклеймер</h3>
+          <ul>
+            <li><b>Источник прогноза</b> — двухэтапная ML-модель магистерской ВКР (НИУ ВШЭ). Stage&nbsp;1: классификация факта выплаты в следующем году (калиброванный изотонической регрессией ансамбль top-3 — CatBoost/XGBoost/LightGBM, walk-forward OOF, ROC-AUC&nbsp;≈&nbsp;<span id="auc"></span>). Stage&nbsp;2: регрессия размера дивиденда.</li>
+            <li><b>Риск невыплаты</b> = 1&nbsp;−&nbsp;P(выплата). <b>Устойчивость</b> = 0,6·P&nbsp;+&nbsp;0,4·(серия лет выплат&nbsp;/&nbsp;макс.). Лейбла «снижения на&nbsp;X%» в модели нет.</li>
+            <li><b>Дивидендная доходность</b> на дату пересчёта цены: <b>ожидаемая</b> = P&nbsp;·&nbsp;прогнозный дивиденд&nbsp;/&nbsp;цена; <b>при выплате</b> = прогнозный дивиденд&nbsp;/&nbsp;цена. Цена — spot (закрытие), MOEX&nbsp;ISS.</li>
+            <li><b>Payout</b> — последний известный факт (год указан), не прогноз.</li>
+            <li><b>SHAP</b> в карточке показывает, что реально влияет на вероятность выплаты: вклад признаков усреднён по моделям ансамбля (top-3) и нормирован построчно. Направление и значимость факторов точны, абсолютные величины приближённые (калибровка вероятности монотонна).</li>
+            <li><b>Две даты:</b> прогноз модели заморожен на дату прогона ВКР; ежедневно обновляется только рыночная цена и дивидендная доходность.</li>
+          </ul>
+          <div class="disc" id="disclaimer"></div>
+          <p class="attrib" id="attrib"></p>
+        </div>
+      </section>
+    </main>
   </div>
   <script src="app.js"></script>
 </body>

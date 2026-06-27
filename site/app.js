@@ -62,7 +62,7 @@ wireMarketSaw();   // блок «Помощник фазы рынка» неза
 wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
 wireMarlamov();    // блок «Форвардная доходность» (таблица Марламова) — грузит marlamov.json
 wireMethodology(); // блок «Методология» (4 раздела) — грузит methodology.json
-wireNav();         // навигация Акции/Облигации/Стратегии/Рынок (скролл + раскрытие, без переписи логики)
+// навигация по разделам — в initRouter() в конце файла (после let-объявлений)
 
 function init(data) {
   DATA = data;
@@ -105,6 +105,8 @@ function init(data) {
   loadReturns(() => { const o = document.getElementById('pf-out'); if (o && o.dataset.shown) renderPortfolio(); });  // жадно грузим историю → мгновенный результат
 
   render();
+  if (typeof updateDataStatus === 'function') updateDataStatus();   // даты цен/прогноза в global status bar
+  if (typeof renderMarketKPI === 'function') renderMarketKPI();     // KPI «Акций в скринере» и т.д.
 }
 
 // ── фильтрация + сортировка ──
@@ -1540,33 +1542,98 @@ function methodologyHTML(j) {
 // Навигация: 4 раздела (Акции/Облигации/Стратегии/Рынок) НАД существующими блоками.
 // Безопасный слой: клик раскрывает <details> и скроллит к секции; логика блоков не тронута.
 // ══════════════════════════════════════════════════════════════════════════
-function wireNav() {
-  const nav = document.getElementById('site-nav');
-  if (!nav) return;
-  nav.hidden = false;
-  const tabs = [...nav.querySelectorAll('.nav-tab')];
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const openId = tab.dataset.open;
-      if (openId) { const d = document.getElementById(openId); if (d && !d.open) d.open = true; }
-      const el = document.getElementById(tab.dataset.target);
-      if (el) {
-        const y = el.getBoundingClientRect().top + window.scrollY - 58;   // запас под sticky-nav
-        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-      }
-    });
-  });
-  // подсветка активного таба по позиции прокрутки
-  const map = { ranks: tabs[0], bonds: tabs[1], pf: tabs[2], marketsaw: tabs[3] };
-  if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting && map[e.target.id]) {
-          tabs.forEach((t) => t.classList.remove('active'));
-          map[e.target.id].classList.add('active');
-        }
-      });
-    }, { rootMargin: '-55px 0px -70% 0px', threshold: 0 });
-    Object.keys(map).forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
-  }
+// ══════════════════════════════════════════════════════════════════════════
+// Роутер 5 разделов (hash-навигация) + global data status bar + KPI «Текущий рынок».
+// Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
+// нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
+// ══════════════════════════════════════════════════════════════════════════
+const SECTIONS = ['market', 'stocks', 'strategies', 'bonds', 'methodology'];
+
+function getSectionFromHash() {
+  const h = (location.hash || '').replace('#', '');
+  return SECTIONS.includes(h) ? h : 'market';
 }
+
+function openDetails(id) {
+  const d = document.getElementById(id);
+  if (d && d.tagName === 'DETAILS') { d.hidden = false; if (!d.open) d.open = true; }
+}
+
+function onSectionShown(sec) {
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketKPI(); }
+  else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
+  else if (sec === 'bonds') { openDetails('bonds'); }
+  else if (sec === 'methodology') { openDetails('methodology'); }
+  // stocks: контролы/таблица рендерятся в init() при загрузке data.json (независимо от секции)
+}
+
+function setActiveSection(sec) {
+  document.querySelectorAll('main.sections > section.app-section').forEach((s) => {
+    s.hidden = (s.dataset.section !== sec);
+  });
+  document.querySelectorAll('.section-tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.section === sec);
+  });
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  onSectionShown(sec);
+}
+
+function initRouter() {
+  document.querySelectorAll('.section-tab').forEach((t) => {
+    t.addEventListener('click', () => { location.hash = t.dataset.section; });
+  });
+  window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
+  setActiveSection(getSectionFromHash());
+}
+
+// ── global data status bar (даты ТОЛЬКО из реальных JSON, не Date.now()) ──
+function updateDataStatus() {
+  const el = document.getElementById('data-status');
+  if (!el) return;
+  const d10 = (s) => (s ? String(s).slice(0, 10) : null);
+  const price = DATA && DATA.meta ? d10(DATA.meta.price_asof) : null;
+  const fc = DATA && DATA.meta ? d10(DATA.meta.forecast_asof) : null;
+  const saw = SAW_DATA ? d10(SAW_DATA.data_last) : null;
+  const bonds = (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
+  const item = (lbl, v) => `<span class="ds-item"><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
+  el.innerHTML = item('Цены MOEX', price) + item('Прогноз акций', fc)
+    + item('MCFTR', saw) + item('Облигации', bonds)
+    + '<span class="ds-item ds-disc">Не ИИР</span>';
+}
+
+// ── KPI «Текущий рынок» ──
+function ensureKpiData() {
+  if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketKPI(); updateDataStatus(); });
+  if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); updateDataStatus(); });
+  if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
+}
+
+function kpiCard(label, value, cls) {
+  return `<div class="kpi-card ${cls || ''}"><span class="kpi-lbl">${label}</span><span class="kpi-val">${value}</span></div>`;
+}
+
+function renderMarketKPI() {
+  const el = document.getElementById('market-kpi');
+  if (!el) return;
+  const dash = '<span class="muted">—</span>';
+  const cp = SAW_DATA ? SAW_DATA.current_phase : null;
+  const ml = MARLAMOV ? MARLAMOV.meta : null;
+  const bn = (BONDS && BONDS.meta) ? BONDS.meta : null;
+  const move = cp && isNum(cp.move_pct) ? ((cp.move_pct >= 0 ? '+' : '') + (cp.move_pct * 100).toFixed(1) + '%') : dash;
+  const reach = cp && cp.historical_reach_probability != null ? (cp.historical_reach_probability * 100).toFixed(0) + '%' : dash;
+  const rfr = ml && isNum(ml.rfr) ? (ml.rfr * 100).toFixed(1) + '%' : dash;
+  const regime = ml && ml.regime ? esc(ml.regime) : dash;
+  const nStocks = DATA && DATA.meta ? (DATA.meta.n_ok || DATA.meta.n_total) : null;
+  const nBonds = bn && isNum(bn.n) ? bn.n : null;
+  el.innerHTML = [
+    kpiCard('Фаза рынка (MCFTR)', cp ? esc(cp.label) : dash, cp ? 'phase-' + cp.risk_level : ''),
+    kpiCard('Движение от экстремума', move),
+    kpiCard('Историческая частота', reach),
+    kpiCard('RFR (КБД 1Y)', rfr),
+    kpiCard('Режим рынка', regime),
+    kpiCard('Акций в скринере', nStocks != null ? nStocks : dash),
+    kpiCard('Облигаций в скринере', nBonds != null ? nBonds : dash),
+  ].join('');
+}
+
+initRouter();   // вызывается в конце файла: к этому моменту все let-глобалы инициализированы

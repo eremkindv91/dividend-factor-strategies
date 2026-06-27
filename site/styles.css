@@ -534,13 +534,39 @@ td.empty { text-align: center; }
   border-top: 1px solid var(--line); padding-top: 10px; line-height: 1.5; }
 @media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; } }
 
-/* ══ Навигация по 4 разделам (sticky) ══ */
-.site-nav { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px; flex-wrap: wrap;
-  background: rgba(247,248,250,.92); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  padding: 8px 0; margin: 0 0 14px; border-bottom: 1px solid var(--line); }
-.nav-tab { font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer;
-  border: 1px solid var(--line); background: var(--surface); color: var(--accent-deep);
-  border-radius: 999px; padding: 7px 16px; box-shadow: var(--shadow); transition: background .12s, color .12s; }
-.nav-tab:hover { border-color: var(--accent); }
-.nav-tab.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
-@media (max-width: 760px) { .nav-tab { flex: 1 1 auto; padding: 8px 6px; text-align: center; font-size: .82rem; } }
+/* ══ Tabbed dashboard: вкладки разделов (sticky, на мобайле скроллятся) ══ */
+.section-tabs { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px;
+  background: rgba(247,248,250,.94); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 8px 0; margin: 0 0 16px; border-bottom: 1px solid var(--line);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.section-tabs::-webkit-scrollbar { display: none; }
+.section-tab { font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); color: var(--accent-deep);
+  border-radius: 999px; padding: 8px 16px; box-shadow: var(--shadow); transition: background .12s, color .12s; }
+.section-tab:hover { border-color: var(--accent); }
+.section-tab.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
+
+.app-section[hidden] { display: none; }
+.section-intro { color: var(--ink-soft); font-size: .92rem; line-height: 1.55; margin: 0 0 14px; max-width: 900px; }
+
+/* глобальная строка статуса данных */
+.data-status { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: .82rem; }
+.ds-item { color: var(--ink-soft); }
+.ds-lbl { color: var(--ink-faint); }
+.ds-item b { color: var(--accent-deep); font-variant-numeric: tabular-nums; }
+.ds-disc { color: var(--risk-ink); font-weight: 600; }
+
+/* KPI-карточки (вкладка «Текущий рынок») */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 16px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 11px 13px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow); }
+.kpi-lbl { font-size: .72rem; color: var(--ink-faint); }
+.kpi-val { font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.kpi-card[class*="phase-"] { border-left: 4px solid var(--pc, var(--accent)); }
+.kpi-card[class*="phase-"] .kpi-val { color: var(--pi, var(--ink)); font-size: .92rem; }
+
+@media (max-width: 760px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .section-tab { font-size: .84rem; padding: 8px 13px; }
+  .data-status { font-size: .78rem; gap: 4px 10px; }
+}
