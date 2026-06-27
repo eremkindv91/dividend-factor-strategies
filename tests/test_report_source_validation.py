@@ -5,6 +5,23 @@ import pandas as pd
 from src.pipeline.fetch_reports import fetch_reports
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_curated_company_sources_include_verified_financial_report_pages():
+    sources = pd.read_csv(ROOT / "data" / "company_sources.csv", dtype=str).fillna("")
+    pages = sources[
+        (sources["source_type"] == "financial_reports_page")
+        & sources["active"].str.lower().isin(["true", "1", "yes"])
+    ]
+
+    assert len(pages) >= 10
+    assert pages["source_url"].str.startswith("https://").all()
+    assert set(pages["document_type"]) == {"financial_reports_page"}
+    assert set(pages["reporting_standard"]) == {"MIXED"}
+    assert pages["notes"].str.contains("verified_http_200=2026-06-28").all()
+
+
 def test_invalid_report_url_goes_to_manual_review(tmp_path: Path):
     data = tmp_path / "data"
     data.mkdir(parents=True)

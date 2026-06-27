@@ -110,6 +110,7 @@
 - Базовая дедупликация и source resolver.
 - Manual override layer: `data/manual_overrides/financial_facts.csv` при наличии перебивает SmartLab/IFRS и фиксируется как `source_name=manual_override`.
 - Metadata-only discovery: `data/company_sources.csv` → `data/report_index.parquet` без скачивания PDF/OCR. При `--allow-network` выполняется только HEAD/metadata-check URL, без сохранения файлов; ошибки уходят в manual review.
+- Curated official source seed: `data/company_sources.csv` содержит первые проверенные официальные страницы отчётности (`financial_reports_page`, HTTP 200 на 2026-06-28). Список и исключения описаны в `docs/data_sources.md`.
 - Structured extraction: если `report_index.file_path` указывает на локальный CSV/XLSX с колонками `line_item_raw`, `value`, `currency`, `unit_multiplier`, pipeline строит `ifrs_financial_facts.parquet` с `source_name=official_ifrs_structured_file`.
 - Unified layer поверх уже имеющегося SmartLab baseline.
 - JSON для будущего сайта: `site_financials.json` и `site_coverage.json`.

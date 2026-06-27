@@ -63,7 +63,14 @@ def fetch_reports(
                 if len(tickers) >= limit_companies:
                     break
             src = src[src["ticker"].astype(str).str.upper().isin(set(tickers))]
-        report_like = src["source_type"].isin(["manual_report", "report_pdf", "report_xlsx", "ifrs_report"])
+        report_like = src["source_type"].isin([
+            "manual_report",
+            "report_pdf",
+            "report_xlsx",
+            "ifrs_report",
+            "financial_reports_page",
+            "report_page",
+        ])
         src = src[report_like]
         if src.empty and path.exists():
             existing = pd.read_parquet(path)

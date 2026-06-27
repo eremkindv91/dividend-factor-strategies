@@ -61,6 +61,39 @@ def test_fetch_reports_builds_report_index_from_manual_sources(tmp_path: Path):
     assert idx.loc[0, "reporting_standard"] == "IFRS"
 
 
+def test_fetch_reports_indexes_official_financial_reports_page(tmp_path: Path):
+    data = tmp_path / "data"
+    data.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "inn": "",
+            "company_name": "TEST",
+            "source_type": "financial_reports_page",
+            "source_url": "https://issuer.example/investors/results/",
+            "document_title": "TEST official financial reports page",
+            "document_type": "financial_reports_page",
+            "reporting_standard": "MIXED",
+            "fiscal_year": "",
+            "period": "",
+            "period_type": "page",
+            "priority": 6,
+            "active": "true",
+            "notes": "official issuer page",
+        }
+    ]).to_csv(data / "company_sources.csv", index=False)
+
+    summary = fetch_reports(tmp_path, no_network=True)
+    idx = pd.read_parquet(data / "report_index.parquet")
+
+    assert summary["reports_found"] == 1
+    assert idx.loc[0, "download_status"] == "metadata_only"
+    assert idx.loc[0, "source_name"] == "financial_reports_page"
+    assert idx.loc[0, "document_type"] == "financial_reports_page"
+    assert idx.loc[0, "reporting_standard"] == "MIXED"
+    assert idx.loc[0, "period_type"] == "page"
+
+
 def test_fetch_reports_limit_companies_filters_current_run_only(tmp_path: Path):
     data = tmp_path / "data"
     data.mkdir(parents=True)
