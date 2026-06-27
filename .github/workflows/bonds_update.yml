@@ -1,20 +1,22 @@
 name: bonds update (скринер облигаций РФ, квантовый расчёт)
 
 # Считает скринер облигаций по реальному ISS MOEX (G-кривая + дисконт потоков + linprog-портфели)
-# и кладёт результат в site/bonds/*.json. Публикует на сайт существующий update.yml (единый
-# паблишер gh-pages — он копирует site/bonds в orphan-push). Тяжёлые зависимости (pandas/numpy/
-# scipy) — только тут, в дневной stdlib-публикации их нет.
+# и кладёт результат в site/bonds/*.json. Коммитит их в ветку И additive-публикует ТОЛЬКО bonds/
+# в gh-pages (не трогая остальной сайт) — чтобы свежие облигации были на сайте сразу, не дожидаясь
+# дневного update.yml. update.yml тоже включает bonds в orphan-push (двойная гарантия, согласованно,
+# т.к. bonds коммитятся). Тяжёлые зависимости (pandas/numpy/scipy) — только тут.
 on:
   schedule:
     - cron: "50 20 * * *"     # ежедневно 20:50 UTC (после закрытия вечерней сессии MOEX)
   workflow_dispatch:
 
 permissions:
-  contents: write             # бот коммитит site/bonds/*.json обратно в ветку
+  contents: write             # бот коммитит site/bonds/*.json и пушит bonds/ в gh-pages
 
 concurrency:
-  group: bonds-update
-  cancel-in-progress: true
+  # общая группа с update.yml: сериализует записи в gh-pages (orphan-push vs additive bonds) → без гонок
+  group: gh-pages-publish
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -32,6 +34,10 @@ jobs:
       - name: Квантовый расчёт скринера (реальный ISS MOEX)
         run: python bonds/update_bonds.py     # exit!=0 (пустой результат/ISS недоступен) → коммита нет
 
+      - name: Валидация bonds-контрактов
+        # критическая ошибка → exit 1 → коммита и публикации НЕ будет (не публикуем битое)
+        run: python scripts/validate_site_data.py bonds
+
       - name: Коммит site/bonds/*.json в ветку
         run: |
           if [ -z "$(git status --porcelain site/bonds)" ]; then
@@ -42,3 +48,25 @@ jobs:
           git add site/bonds/*.json
           git commit -m "data(bonds): автообновление скринера облигаций (cron)"
           git push
+
+      - name: Публикация bonds → gh-pages (additive, не трогая остальной сайт)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[bonds] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
+          fi
+          mkdir -p "$TMP/bonds"
+          cp site/bonds/*.json "$TMP/bonds/"
+          git -C "$TMP" add bonds
+          if git -C "$TMP" diff --cached --quiet; then
+            echo "[bonds] на gh-pages без изменений"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "publish(bonds): additive обновление скринера облигаций"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

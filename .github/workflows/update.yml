@@ -14,8 +14,10 @@ permissions:
   contents: write            # нужно для push в ветку gh-pages
 
 concurrency:
-  group: deploy-gh-pages
-  cancel-in-progress: true
+  # общая группа со bonds_update.yml: сериализует все записи в gh-pages (orphan-push + additive bonds),
+  # чтобы публикации не гонялись друг с другом. cancel-in-progress: false — не рвать push на полпути.
+  group: gh-pages-publish
+  cancel-in-progress: false
 
 jobs:
   build-deploy:
@@ -57,6 +59,10 @@ jobs:
         # читает site/data.json (создан шагом выше); сбой не блокирует деплой
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
+
+      - name: Валидация контрактов JSON перед публикацией
+        # критическая ошибка контракта → exit 1 → шаг публикации НЕ выполнится (не публикуем битое)
+        run: python scripts/validate_site_data.py
 
       - name: Публикация site/ → gh-pages (orphan, как scripts/deploy_ghpages.sh)
         env:
