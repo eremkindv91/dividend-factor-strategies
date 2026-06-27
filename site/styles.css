@@ -520,3 +520,16 @@ td.empty { text-align: center; }
 .ml-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 8px; }
 
 @media (max-width: 760px) { .ml-table { font-size: .8rem; } }
+
+/* ══ Методология (4 раздела из methodology.json) ══ */
+.method-body { padding: 6px 0 12px; }
+.method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.method-sec { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.method-sec h4 { margin: 0 0 6px; font-size: .95rem; color: var(--accent-deep); }
+.method-sec dl { margin: 0; }
+.method-sec dt { font-weight: 600; font-size: .82rem; color: var(--ink); margin-top: 9px; }
+.method-sec dt:first-of-type { margin-top: 0; }
+.method-sec dd { margin: 2px 0 0; font-size: .82rem; color: var(--ink-soft); line-height: 1.5; }
+.method-disc-all { margin-top: 14px; font-size: .8rem; color: var(--ink-faint);
+  border-top: 1px solid var(--line); padding-top: 10px; line-height: 1.5; }
+@media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; } }

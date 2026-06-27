@@ -61,6 +61,7 @@ fetch('data.json', { cache: 'no-store' })
 wireMarketSaw();   // блок «Помощник фазы рынка» независим от data.json (грузит свой marketsaw.json)
 wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
 wireMarlamov();    // блок «Форвардная доходность» (таблица Марламова) — грузит marlamov.json
+wireMethodology(); // блок «Методология» (4 раздела) — грузит methodology.json
 
 function init(data) {
   DATA = data;
@@ -1499,4 +1500,37 @@ function mlTableHTML(rows) {
       <th data-tooltip="Spread = Доходность 2 года − RFR (безриск ОФЗ)">Спред</th>
       <th>Сигнал</th><th>Примечание</th>
     </tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Методология (4 раздела) — из site/methodology.json. Единый честный источник
+// допущений/ограничений вместо разрозненных UI-текстов.
+// ══════════════════════════════════════════════════════════════════════════
+let METHODOLOGY = null;
+
+function wireMethodology() {
+  const el = document.getElementById('methodology');
+  if (!el) return;
+  el.hidden = false;
+  el.addEventListener('toggle', function () {
+    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderMethodology(); }
+  });
+}
+
+function renderMethodology() {
+  const body = document.getElementById('method-body');
+  if (METHODOLOGY) { body.innerHTML = methodologyHTML(METHODOLOGY); return; }
+  fetch('methodology.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { METHODOLOGY = j; body.innerHTML = methodologyHTML(j); })
+    .catch((e) => { console.error('[methodology]', e); body.innerHTML = '<div class="muted" style="padding:10px 2px">Методология временно недоступна.</div>'; });
+}
+
+function methodologyHTML(j) {
+  const secs = (j.sections || []).map((s) => `<div class="method-sec">
+    <h4>${esc(s.title)}</h4>
+    <dl>${(s.items || []).map((it) => `<dt>${esc(it.label)}</dt><dd>${esc(it.text)}</dd>`).join('')}</dl>
+  </div>`).join('');
+  return `<div class="method-grid">${secs}</div>
+    <div class="method-disc-all">${esc(j.disclaimer || '')}</div>`;
 }
