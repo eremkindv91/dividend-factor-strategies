@@ -1563,7 +1563,12 @@ function onSectionShown(sec) {
   if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketKPI(); }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); }
-  else if (sec === 'methodology') { openDetails('methodology'); }
+  else if (sec === 'methodology') {
+    openDetails('methodology');
+    const d = document.getElementById('methodology');
+    if (d) d.dataset.shown = '1';
+    renderMethodology();
+  }
   // stocks: контролы/таблица рендерятся в init() при загрузке data.json (независимо от секции)
 }
 
