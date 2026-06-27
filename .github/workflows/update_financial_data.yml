@@ -46,7 +46,7 @@ jobs:
           if [ -z "${MISTRAL_API_KEY:-}" ]; then
             echo "::warning::MISTRAL_API_KEY is not configured; OCR is skipped"
           fi
-          python -m src.pipeline.run_all --skip-ocr
+          python -m src.pipeline.run_all --skip-ocr --allow-network
 
       - name: Validate unified financials
         run: python -m src.pipeline.validate_financials

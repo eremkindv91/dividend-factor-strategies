@@ -17,7 +17,7 @@ echo "[deploy] пересборка data.json (свежие цены)…"
 python3 scripts/build_data.py   # exit!=0 (нет цен/артефакта) прервёт деплой
 python3 market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл, если он есть"
 python3 scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
-python3 -m src.pipeline.run_all --skip-ocr
+python3 -m src.pipeline.run_all --skip-ocr --allow-network
 python3 -m src.pipeline.validate_financials
 python3 scripts/validate_site_data.py
 

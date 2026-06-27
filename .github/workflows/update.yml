@@ -65,7 +65,7 @@ jobs:
       - name: Сборка unified financial layer (SmartLab baseline + metadata-only IFRS, без OCR)
         # дополнительный слой прозрачности источников; не заменяет старый data.json-контракт
         # если IFRS/disclosure ветка падает, run_all продолжает на SmartLab baseline и пишет ifrs_failures в summary
-        run: python -m src.pipeline.run_all --skip-ocr
+        run: python -m src.pipeline.run_all --skip-ocr --allow-network
 
       - name: Валидация unified financial layer
         run: python -m src.pipeline.validate_financials

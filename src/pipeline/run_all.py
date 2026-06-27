@@ -9,7 +9,7 @@ from src.io_utils import utc_now_iso, write_json
 from src.paths import REPO_ROOT, ensure_dir
 from src.pipeline.audit_existing_data import audit_existing_data
 from src.pipeline.build_site_data import build_site_data
-from src.pipeline.discover_companies import discover_companies
+from src.pipeline.discover_companies import discover_companies, registry_count
 from src.pipeline.extract_financials import extract_financials
 from src.pipeline.fetch_reports import fetch_reports
 from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
@@ -20,6 +20,7 @@ from src.pipeline.validate_financials import validate_financials
 def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool = True, **kwargs) -> dict:
     start = utc_now_iso()
     ensure_dir(root / "logs")
+    no_network = kwargs.get("no_network", True)
     audit = audit_existing_data(root)
     migration = migrate_smartlab(root, make_backup=True)
     skipped = []
@@ -33,7 +34,10 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         if skip_ocr:
             skipped.append("ocr")
         try:
-            discover = discover_companies(root)
+            discover_kwargs = {"use_moex": kwargs.get("use_moex_discovery", not no_network)}
+            if "moex_securities" in kwargs:
+                discover_kwargs["moex_securities"] = kwargs["moex_securities"]
+            discover = discover_companies(root, **discover_kwargs)
         except Exception as e:  # noqa: BLE001
             ifrs_failures.append({"step": "discover_companies", "error": str(e)})
         try:
@@ -43,7 +47,8 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
                 to_year=kwargs.get("to_year"),
                 ticker=kwargs.get("ticker"),
                 limit_companies=kwargs.get("limit_companies"),
-                no_network=kwargs.get("no_network", True),
+                no_network=no_network,
+                download=kwargs.get("download_reports", False),
             )
         except Exception as e:  # noqa: BLE001
             ifrs_failures.append({"step": "fetch_reports", "error": str(e)})
@@ -55,13 +60,14 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
     validation = validate_financials(root)
     site = build_site_data(root)
     registry_counts = _registry_counts(root)
+    registry_total = registry_count(root)
     avg_quality = _average_quality(root)
     summary = {
         "run_date": start,
         "mode": "smartlab_only" if smartlab_only else "default",
         "skip_ocr": skip_ocr,
         "skipped_steps": skipped,
-        "companies_total": migration["registry"]["companies"],
+        "companies_total": registry_total,
         "companies_active": registry_counts.get("active", 0),
         "companies_smartlab_only": registry_counts.get("smartlab_only", 0),
         "companies_ifrs_confirmed": registry_counts.get("ifrs_confirmed", 0),
@@ -132,6 +138,8 @@ def main() -> int:
     parser.add_argument("--from-year", type=int)
     parser.add_argument("--to-year", type=int)
     parser.add_argument("--skip-ocr", action="store_true")
+    parser.add_argument("--allow-network", action="store_true", help="Allow MOEX company discovery and report-page URL metadata/link discovery.")
+    parser.add_argument("--download-reports", action="store_true", help="Download direct discovered report files into data/raw_reports.")
     parser.add_argument("--force-refresh", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--manual-review-only", action="store_true")
@@ -149,6 +157,8 @@ def main() -> int:
         ticker=args.ticker,
         from_year=args.from_year,
         to_year=args.to_year,
+        no_network=not args.allow_network,
+        download_reports=args.download_reports,
         force_refresh=args.force_refresh,
         manual_review_only=args.manual_review_only,
         ifrs_only=args.ifrs_only,

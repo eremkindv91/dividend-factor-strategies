@@ -60,6 +60,7 @@ data/backups/
 data/manual_review/*.csv
 data/pipeline_summary.json
 data/processed/*.parquet
+data/raw_reports/
 data/report_index.parquet
 data/unified/*.parquet
 data/unified/site_coverage.json

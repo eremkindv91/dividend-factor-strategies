@@ -1,269 +1,276 @@
 ticker,secid,short_name,full_name,inn,ogrn,sector,industry,moex_board,is_public,is_traded,has_smartlab_data,has_ifrs,has_ras,disclosure_page_url,e_disclosure_company_id,issuer_website,source_priority,status,coverage_status,last_report_period,last_successful_update,notes
-ABIO,ABIO,ABIO,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ABRD,ABRD,ABRD,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-AFKS,AFKS,AFKS,,,,Конгломерат,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-AFLT,AFLT,AFLT,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ABIO,ABIO,ABIO,"ПАО ""Артген""",,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ABRD,ABRD,ABRD,Абрау-Дюрсо ПАО ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+AFKS,AFKS,AFKS,"АФК ""Система"" ПАО ао",,,Конгломерат,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+AFLT,AFLT,AFLT,Аэрофлот-росс.авиалин(ПАО)ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 AGRO,AGRO,AGRO,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-AKRN,AKRN,AKRN,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ALRS,ALRS,ALRS,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+AKRN,AKRN,AKRN,Акрон ПАО ао,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ALRS,ALRS,ALRS,АЛРОСА ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 AMEZ,AMEZ,AMEZ,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-APRI,APRI,APRI,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-APTK,APTK,APTK,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-AQUA,AQUA,AQUA,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ARSA,ARSA,ARSA,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ASSB,ASSB,ASSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ASTR,ASTR,ASTR,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-AVAN,AVAN,AVAN,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BANE,BANE,BANE,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BANEP,BANEP,BANEP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BAZA,BAZA,BAZA,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BELU,BELU,BELU,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BISVP,BISVP,BISVP,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BLNG,BLNG,BLNG,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BRZL,BRZL,BRZL,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BSPB,BSPB,BSPB,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-BSPBP,BSPBP,BSPBP,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CARM,CARM,CARM,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CBOM,CBOM,CBOM,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CHGZ,CHGZ,CHGZ,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CHKZ,CHKZ,CHKZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CHMF,CHMF,CHMF,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CNRU,CNRU,CNRU,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CNTL,CNTL,CNTL,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-CNTLP,CNTLP,CNTLP,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DATA,DATA,DATA,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DELI,DELI,DELI,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DIAS,DIAS,DIAS,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DIOD,DIOD,DIOD,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DOMRF,DOMRF,DOMRF,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DVEC,DVEC,DVEC,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DZRD,DZRD,DZRD,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-DZRDP,DZRDP,DZRDP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-EELT,EELT,EELT,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ELFV,ELFV,ELFV,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ELMT,ELMT,ELMT,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ENPG,ENPG,ENPG,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+APRI,APRI,APRI,АПРИ,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+APTK,APTK,APTK,"ПАО ""Аптечная сеть 36,6"" ао",,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+AQUA,AQUA,AQUA,ПАО ИНАРКТИКА,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ARSA,ARSA,ARSA,УК Арсагера ПАО-ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ASSB,ASSB,ASSB,"""Астраханская ЭСК"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ASTR,ASTR,ASTR,Группа Астра ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+AVAN,AVAN,AVAN,"АКБ ""АВАНГАРД"" ПАО ао",,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BANE,BANE,BANE,Башнефть АНК ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BANEP,BANEP,BANEP,Башнефть АНК ап,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BAZA,BAZA,BAZA,ГК БАЗИС,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BELU,BELU,BELU,НоваБев Групп ПАО ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BISVP,BISVP,BISVP,Башинформсвязь(ПАО) ап,,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BLNG,BLNG,BLNG,Белон ОАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BRZL,BRZL,BRZL,Бурятзолото ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BSPB,BSPB,BSPB,"ПАО ""Банк ""Санкт-Петербург"" ао",,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BSPBP,BSPBP,BSPBP,Банк Санкт-Петербург ап,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+BTBR,BTBR,В2В-РТС,В2В-РТС,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+CARM,CARM,CARM,СТГ ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CBOM,CBOM,CBOM,"""МКБ"" ПАО ао",,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CHGZ,CHGZ,CHGZ,РН-Западная Сибирь ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CHKZ,CHKZ,CHKZ,"""ЧКПЗ"" ПАО ао",,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CHMF,CHMF,CHMF,Северсталь (ПАО)ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CHMK,CHMK,ЧМК ао,"""ЧМК"" ПАО ао",,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+CNRU,CNRU,CNRU,"МКПАО ""Циан""",,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CNTL,CNTL,CNTL,"""Центральный Телеграф"" ПАО ао",,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+CNTLP,CNTLP,CNTLP,"""Центральный Телеграф"" ПАО ап",,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DATA,DATA,DATA,Группа Аренадата,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DELI,DELI,DELI,Каршеринг Руссия ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DIAS,DIAS,DIAS,Диасофт ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DIOD,DIOD,DIOD,Завод ДИОД ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DOMRF,DOMRF,DOMRF,ПАО ДОМ.РФ,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DVEC,DVEC,DVEC,"""ДЭК"" ПАО ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DZRD,DZRD,DZRD,Донской завод радиодеталей ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+DZRDP,DZRDP,DZRDP,Донской завод радиодеталей ап,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+EELT,EELT,EELT,"""ЕвропЭлектротехника"" ПАО ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ELFV,ELFV,ELFV,"""ЭЛ5-Энерго"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ELMT,ELMT,ELMT,Элемент,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ENPG,ENPG,ENPG,МКПАО ЭН+ ГРУП ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 ENRU,ENRU,ENRU,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ETLN,ETLN,ETLN,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-EUTR,EUTR,EUTR,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-FEES,FEES,FEES,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-FESH,FESH,FESH,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ETLN,ETLN,ETLN,МКПАО Эталон Груп,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+EUTR,EUTR,EUTR,ЕвроТранс ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+EVRZ,EVRZ,ЕВРАЗ,ПАО ЕВРАЗ,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+FEES,FEES,FEES,"""ФСК - Россети"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+FESH,FESH,FESH,ДВ морское пароходство ПАО ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 FIVE,FIVE,FIVE,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 FIXP,FIXP,FIXP,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-FIXR,FIXR,FIXR,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-FLOT,FLOT,FLOT,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GAZA,GAZA,GAZA,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2017,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GAZAP,GAZAP,GAZAP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2017,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GAZP,GAZP,GAZP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GAZT,GAZT,GAZT,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GCHE,GCHE,GCHE,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GECO,GECO,GECO,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GEMA,GEMA,GEMA,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2022,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GEMC,GEMC,GEMC,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GLRX,GLRX,GLRX,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+FIXR,FIXR,FIXR,ПАО Фикс Прайс,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+FLOT,FLOT,FLOT,Совкомфлот ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GAZA,GAZA,GAZA,ГАЗ ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2017,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GAZAP,GAZAP,GAZAP,ГАЗ ПАО ап,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2017,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GAZC,GAZC,ГАЗКОН-ао,ГАЗКОН (ПАО) ао,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+GAZP,GAZP,GAZP,"""Газпром"" (ПАО) ао",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GAZS,GAZS,ГАЗ-сервис,ГАЗ-сервис (ПАО) ао,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+GAZT,GAZT,GAZT,ГАЗ-Тек ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GCHE,GCHE,GCHE,Группа Черкизово ПАО-ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GECO,GECO,GECO,ЦГРМ ГЕНЕТИКО ао,,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GEMA,GEMA,GEMA,ПАО ММЦБ ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2022,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GEMC,GEMC,GEMC,Юнайтед Медикал Груп ПАО,,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GLRX,GLRX,GLRX,ПАО ГЛОРАКС,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 GLTR,GLTR,GLTR,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GMKN,GMKN,GMKN,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-GTRK,GTRK,GTRK,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-HEAD,HEAD,HEAD,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-HIMCP,HIMCP,HIMCP,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-HNFG,HNFG,HNFG,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-HYDR,HYDR,HYDR,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-IGST,IGST,IGST,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-IGSTP,IGSTP,IGSTP,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-IRAO,IRAO,IRAO,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-IRKT,IRKT,IRKT,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-IVAT,IVAT,IVAT,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-JNOS,JNOS,JNOS,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-JNOSP,JNOSP,JNOSP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KAZT,KAZT,KAZT,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KAZTP,KAZTP,KAZTP,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KBSB,KBSB,KBSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KCHE,KCHE,KCHE,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KCHEP,KCHEP,KCHEP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KFBA,KFBA,KFBA,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KGKC,KGKC,KGKC,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KGKCP,KGKCP,KGKCP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KLSB,KLSB,KLSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KLVZ,KLVZ,KLVZ,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KMAZ,KMAZ,KMAZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KMEZ,KMEZ,KMEZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KOGK,KOGK,KOGK,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KRKN,KRKN,KRKN,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KRKNP,KRKNP,KRKNP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KRKOP,KRKOP,KRKOP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KROT,KROT,KROT,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KROTP,KROTP,KROTP,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KRSB,KRSB,KRSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KRSBP,KRSBP,KRSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KUZB,KUZB,KUZB,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KZOS,KZOS,KZOS,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-KZOSP,KZOSP,KZOSP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LEAS,LEAS,LEAS,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LENT,LENT,LENT,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LIFE,LIFE,LIFE,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LKOH,LKOH,LKOH,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LMBZ,LMBZ,LMBZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GMKN,GMKN,GMKN,"ГМК ""Нор.Никель"" ПАО ао",,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+GTRK,GTRK,GTRK,"ПАО ""ГТМ"" ао",,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+HEAD,HEAD,HEAD,МКПАО Хэдхантер,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+HIMCP,HIMCP,HIMCP,Химпром ПАО ап,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+HNFG,HNFG,HNFG,ХЭНДЕРСОН ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+HYDR,HYDR,HYDR,"ПАО ""РусГидро""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+IGST,IGST,IGST,Ижсталь ПАО ао 2в.,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+IGSTP,IGSTP,IGSTP,Ижсталь ПАО ап,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+INCB,INCB,Инкаб,Инкаб Холдинг,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+IRAO,IRAO,IRAO,"""Интер РАО"" ПАО ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+IRKT,IRKT,IRKT,"""Яковлев"" ПАО ак.об.-3",,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+IVAT,IVAT,IVAT,ПАО ИВА ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+JNOS,JNOS,JNOS,Славнефть-ЯНОС (ПАО) ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+JNOSP,JNOSP,JNOSP,Славнефть-ЯНОС (ПАО) ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KAZT,KAZT,KAZT,Куйбышевазот ПАО ао,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KAZTP,KAZTP,KAZTP,Куйбышевазот ПАО ап,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KBSB,KBSB,KBSB,ТНС энерго Кубань ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KCHE,KCHE,KCHE,Камчатскэнерго ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KCHEP,KCHEP,KCHEP,Камчатскэнерго ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KFBA,KFBA,KFBA,ИНГРАД ПАО ао,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KGKC,KGKC,KGKC,Курганская генер.комп.ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KGKCP,KGKCP,KGKCP,Курганская генер. комп. ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KLSB,KLSB,KLSB,"ао""Калужская сбыт.комп.""ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KLVZ,KLVZ,KLVZ,Алкогольная Группа Кристалл,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KMAZ,KMAZ,KMAZ,КАМАЗ ПАО,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KMEZ,KMEZ,KMEZ,Ковровский механический завод,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KOGK,KOGK,KOGK,Коршуновский ГОК ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KRKN,KRKN,KRKN,Саратовский НПЗ ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KRKNP,KRKNP,KRKNP,Саратовский НПЗ ПАО ап,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KRKOP,KRKOP,KRKOP,ТКЗ Красный котельщик ПАО ап,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KROT,KROT,KROT,"""КрасныйОктябрь"" ПАО - ао",,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KROTP,KROTP,KROTP,КрасныйОктябрь-1п,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KRSB,KRSB,KRSB,Красноярскэнергосбыт ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KRSBP,KRSBP,KRSBP,Красноярскэнергосбыт ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KUZB,KUZB,KUZB,"Банк ""Кузнецкий"" ПАО ао",,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KZOS,KZOS,KZOS,"ПАО ""Органический синтез"" ао",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+KZOSP,KZOSP,KZOSP,"ПАО ""Органический синтез"" ап",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LEAS,LEAS,LEAS,ПАО «ЛК «Европлан»,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LENT,LENT,LENT,Лента МКПАО ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LIFE,LIFE,LIFE,Фармсинтез ПАО ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LKOH,LKOH,LKOH,НК ЛУКОЙЛ (ПАО) - ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LMBZ,LMBZ,LMBZ,Ламбумиз,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 LNTA,LNTA,LNTA,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 LNZL,LNZL,LNZL,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 LNZLP,LNZLP,LNZLP,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LPSB,LPSB,LPSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LSNG,LSNG,LSNG,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LSNGP,LSNGP,LSNGP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LSRG,LSRG,LSRG,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-LVHK,LVHK,LVHK,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MAGE,MAGE,MAGE,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MAGEP,MAGEP,MAGEP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MAGN,MAGN,MAGN,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MBNK,MBNK,MBNK,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MDMG,MDMG,MDMG,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MFGS,MFGS,MFGS,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MFGSP,MFGSP,MFGSP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LPSB,LPSB,LPSB,Липецкая энергосбыт.ком.ОАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LSNG,LSNG,LSNG,Россети Ленэнерго ПАО-ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LSNGP,LSNGP,LSNGP,Россети Ленэнерго ПАО-ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LSRG,LSRG,LSRG,Группа ЛСР ПАО ао,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+LVHK,LVHK,LVHK,Левенгук ПАО ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MAGE,MAGE,MAGE,"""Магаданэнерго"" ПАО ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MAGEP,MAGEP,MAGEP,"""Магаданэнерго"" ПАО ап",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MAGN,MAGN,MAGN,"""Магнитогорск.мет.комб"" ПАО ао",,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MBNK,MBNK,MBNK,МТС-Банк ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MDMG,MDMG,MDMG,МКПАО «МД Медикал Груп»,,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MFGS,MFGS,MFGS,"ао ""Славнефть-Мегионнефтегаз""",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MFGSP,MFGSP,MFGSP,ап Мегионнефтегаз,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 MFON,MFON,MFON,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MGKL,MGKL,MGKL,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MGNT,MGNT,MGNT,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MGNZ,MGNZ,MGNZ,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MGTS,MGTS,MGTS,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MGTSP,MGTSP,MGTSP,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MISB,MISB,MISB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MISBP,MISBP,MISBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MOEX,MOEX,MOEX,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKC,MRKC,MRKC,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKK,MRKK,MRKK,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKP,MRKP,MRKP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKS,MRKS,MRKS,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKU,MRKU,MRKU,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKV,MRKV,MRKV,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKY,MRKY,MRKY,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRKZ,MRKZ,MRKZ,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MRSB,MRSB,MRSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MSNG,MSNG,MSNG,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MSRS,MSRS,MSRS,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MSTT,MSTT,MSTT,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MTLR,MTLR,MTLR,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MTLRP,MTLRP,MTLRP,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MTSS,MTSS,MTSS,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-MVID,MVID,MVID,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NAUK,NAUK,NAUK,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NFAZ,NFAZ,NFAZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NKHP,NKHP,NKHP,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NKNC,NKNC,NKNC,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NKNCP,NKNCP,NKNCP,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NKSH,NKSH,NKSH,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NLMK,NLMK,NLMK,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NMTP,NMTP,NMTP,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NNSB,NNSB,NNSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NNSBP,NNSBP,NNSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NSVZ,NSVZ,NSVZ,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-NVTK,NVTK,NVTK,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-OGKB,OGKB,OGKB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-OKEY,OKEY,OKEY,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-OMZZP,OMZZP,OMZZP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-OZON,OZON,OZON,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-OZPH,OZPH,OZPH,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PAZA,PAZA,PAZA,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PHOR,PHOR,PHOR,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PIKK,PIKK,PIKK,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PLZL,PLZL,PLZL,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PMSB,PMSB,PMSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PMSBP,PMSBP,PMSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-POSI,POSI,POSI,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PRFN,PRFN,PRFN,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PRMB,PRMB,PRMB,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-PRMD,PRMD,PRMD,,,,Здравоохранение,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MGKL,MGKL,MGKL,МГКЛ ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MGNT,MGNT,MGNT,"""Магнит"" ПАО ао",,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MGNZ,MGNZ,MGNZ,Соликамский магн.завод(ОАО)ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MGTS,MGTS,MGTS,"ПАО ""МГТС"" ао (5 в)",,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MGTSP,MGTSP,MGTSP,"ПАО ""МГТС"" ап (4 в)",,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MISB,MISB,MISB,ТНС энерго Марий Эл ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MISBP,MISBP,MISBP,ТНС энерго Марий Эл ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MOEX,MOEX,MOEX,ПАО Московская Биржа,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKC,MRKC,MRKC,"ПАО ""Россети Центр"" ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKK,MRKK,MRKK,Россети Сев. Кавказ ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKP,MRKP,MRKP,Россети Центр и Приволжье ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKS,MRKS,MRKS,Россети Сибирь ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKU,MRKU,MRKU,Россети Урал (ПАО) ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKV,MRKV,MRKV,Россети Волга ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKY,MRKY,MRKY,Россети Юг  (ПАО) ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRKZ,MRKZ,MRKZ,ПАО Россети Северо-Запад ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MRSB,MRSB,MRSB,Мордовск.энергсбыт.комп.ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MSNG,MSNG,MSNG,МосЭнерго акции обыкн.,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MSRS,MSRS,MSRS,ПАО Россети Моск.рег. ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MSTT,MSTT,MSTT,"ПАО ""МОСТОТРЕСТ"" ао",,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MTLR,MTLR,MTLR,Мечел ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MTLRP,MTLRP,MTLRP,Мечел ПАО ап,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MTSS,MTSS,MTSS,Мобильные ТелеСистемы ПАО ао,,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+MVID,MVID,MVID,"""М.видео"" ПАО ао",,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NAUK,NAUK,NAUK,НПО Наука ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NFAZ,NFAZ,NFAZ,НЕФАЗ ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NKHP,NKHP,NKHP,НКХП ПАО ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NKNC,NKNC,NKNC,"""Нижнекамскнефтехим"" ПАО ао",,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NKNCP,NKNCP,NKNCP,"""Нижнекамскнефтехим"" ПАО ап",,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NKSH,NKSH,NKSH,Нижнекамскшина ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NLMK,NLMK,NLMK,"ПАО ""НЛМК"" ао",,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NMTP,NMTP,NMTP,НМТП (ПАО) ао,,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NNSB,NNSB,NNSB,ТНС энерго Нижний Новг.ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NNSBP,NNSBP,NNSBP,ТНС энерго Нижний Новг.ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NSVZ,NSVZ,NSVZ,Наука-Связь ПАО ао,,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+NVTK,NVTK,NVTK,"ПАО ""НОВАТЭК"" ао",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+OGKB,OGKB,OGKB,ОГК-2 ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+OKEY,OKEY,OKEY,ГДР OKEY Group S.A. ORD SHS,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+OMZZP,OMZZP,OMZZP,"ап""Объединён.  маш. заводы""",,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+OZON,OZON,OZON,МКПАО Озон,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+OZPH,OZPH,OZPH,Озон Фармацевтика,,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PAZA,PAZA,PAZA,Павловский автобус ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PHOR,PHOR,PHOR,ФосАгро ПАО ао,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PIKK,PIKK,PIKK,ПИК СЗ (ПАО) ао,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PLZL,PLZL,PLZL,Полюс ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PMSB,PMSB,PMSB,"""Пермэнергосбыт"" ПАО ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PMSBP,PMSBP,PMSBP,"""Пермэнергосбыт"" ПАО ап",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+POSI,POSI,POSI,Группа Позитив ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PRFN,PRFN,PRFN,ТЕПЛАНТ восток (ПАО) ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PRMB,PRMB,PRMB,"АКБ ""Приморье"" ао",,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+PRMD,PRMD,PRMD,ПРОМОМЕД,,,Здравоохранение,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 QIWI,QIWI,QIWI,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RAGR,RAGR,RAGR,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RASP,RASP,RASP,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RBCM,RBCM,RBCM,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RDRB,RDRB,RDRB,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RENI,RENI,RENI,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RGSS,RGSS,RGSS,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RKKE,RKKE,RKKE,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RNFT,RNFT,RNFT,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ROLO,ROLO,ROLO,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ROSN,ROSN,ROSN,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RAGR,RAGR,RAGR,Группа Русагро,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RASP,RASP,RASP,ПАО Распадская ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RBCM,RBCM,RBCM,ГК РБК ПАО ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RDRB,RDRB,RDRB,РоссийскийДорож Банк ПАО ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RENI,RENI,RENI,Ренессанс Страхование ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RGSS,RGSS,RGSS,Росгосстрах СК ПАО ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RKKE,RKKE,RKKE,РКК Энергия им.С.П.Королева ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RNFT,RNFT,RNFT,РуссНефть НК ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ROLO,ROLO,ROLO,"""Русолово"" ПАО ао",,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ROSN,ROSN,ROSN,ПАО НК Роснефть,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 ROSSETI,ROSSETI,ROSSETI,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ROST,ROST,ROST,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RTGZ,RTGZ,RTGZ,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RTKM,RTKM,RTKM,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RTKMP,RTKMP,RTKMP,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RTSB,RTSB,RTSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RTSBP,RTSBP,RTSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RUAL,RUAL,RUAL,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RUSI,RUSI,RUSI,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-RZSB,RZSB,RZSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SAGO,SAGO,SAGO,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SAGOP,SAGOP,SAGOP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SARE,SARE,SARE,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SAREP,SAREP,SAREP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SBER,SBER,SBER,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SBERP,SBERP,SBERP,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SELG,SELG,SELG,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SFIN,SFIN,SFIN,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SGZH,SGZH,SGZH,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SIBN,SIBN,SIBN,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SLEN,SLEN,SLEN,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SMLT,SMLT,SMLT,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SNGS,SNGS,SNGS,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SNGSP,SNGSP,SNGSP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SOFL,SOFL,SOFL,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SPBE,SPBE,SPBE,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-STSB,STSB,STSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-STSBP,STSBP,STSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SVAV,SVAV,SVAV,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SVCB,SVCB,SVCB,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SVET,SVET,SVET,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-SVETP,SVETP,SVETP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-T,T,T,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TASB,TASB,TASB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TASBP,TASBP,TASBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TATN,TATN,TATN,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TATNP,TATNP,TATNP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ROST,ROST,ROST,РОСИНТЕР РЕСТОРАНТС (ПАО),,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RTGZ,RTGZ,RTGZ,Газпром газорасп Р-н-Д ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RTKM,RTKM,RTKM,Ростелеком (ПАО) ао.,,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RTKMP,RTKMP,RTKMP,Ростелеком (ПАО) ап.,,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RTSB,RTSB,RTSB,ТНС энерго Ростов. ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RTSBP,RTSBP,RTSBP,ТНС энерго Ростов. ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RUAL,RUAL,RUAL,РУСАЛ ОК МКПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RUSI,RUSI,RUSI,РУСС-ИНВЕСТ ИК ПАО ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+RZSB,RZSB,RZSB,"""Рязанская энергосб.комп"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SAGO,SAGO,SAGO,Самараэнерго (ПАО) - ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SAGOP,SAGOP,SAGOP,Самараэнерго (ПАО) - ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SARE,SARE,SARE,Саратовэнерго(ПАО)-ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SAREP,SAREP,SAREP,Саратовэнерго(ПАО)-ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SBER,SBER,SBER,Сбербанк России ПАО ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SBERP,SBERP,SBERP,Сбербанк России ПАО ап,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SELG,SELG,SELG,"ПАО ""Селигдар""  ао",,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SFIN,SFIN,SFIN,ЭсЭфАй ПАО ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SGZH,SGZH,SGZH,Сегежа ао,,,Химия,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SIBN,SIBN,SIBN,Газпром нефть ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SLEN,SLEN,SLEN,"ПАО ""Сахалинэнерго"" ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SMLT,SMLT,SMLT,ГК Самолет ао,,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SNGS,SNGS,SNGS,Сургутнефтегаз ПАО акции об.,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SNGSP,SNGSP,SNGSP,Сургутнефтегаз ПАО ап,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SOFL,SOFL,SOFL,Софтлайн ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SPBE,SPBE,SPBE,СПБ Биржа ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+STSB,STSB,STSB,Ставрополэнергосбыт ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+STSBP,STSBP,STSBP,Ставрополэнергосбыт ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SVAV,SVAV,SVAV,"ПАО ""СОЛЛЕРС""",,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SVCB,SVCB,SVCB,Совкомбанк ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SVET,SVET,SVET,Светофор Групп ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+SVETP,SVETP,SVETP,Светофор Групп ап,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2020,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+T,T,T,Т-Технологии МКПАО ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TASB,TASB,TASB,"ао""Тамбов.энергсбыт.комп.""ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TASBP,TASBP,TASBP,"ап""Тамбов.энергсбыт.комп.""ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2023,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TATN,TATN,TATN,"ПАО ""Татнефть"" ао",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TATNP,TATNP,TATNP,"ПАО ""Татнефть"" ап 3 вып.",,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 TCSG,TCSG,TCSG,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TGKA,TGKA,TGKA,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TGKB,TGKB,TGKB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TGKBP,TGKBP,TGKBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TGKN,TGKN,TGKN,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TNSE,TNSE,TNSE,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TORS,TORS,TORS,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TORSP,TORSP,TORSP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TRMK,TRMK,TRMK,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TRNFP,TRNFP,TRNFP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TTLK,TTLK,TTLK,,,,Телекоммуникации,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-TUZA,TUZA,TUZA,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UGLD,UGLD,UGLD,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UKUZ,UKUZ,UKUZ,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UNAC,UNAC,UNAC,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UNKL,UNKL,UNKL,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UPRO,UPRO,UPRO,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TGKA,TGKA,TGKA,"ао ПАО ""ТГК-1""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2021,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TGKB,TGKB,TGKB,"ао ПАО ""ТГК-2""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TGKBP,TGKBP,TGKBP,"ап ПАО ""ТГК-2""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TGKN,TGKN,TGKN,"ао ПАО ""ТГК-14""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TNSE,TNSE,TNSE,"ПАО ГК ""ТНС энерго"" ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TORS,TORS,TORS,"ао ПАО ""Россети Томск""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TORSP,TORSP,TORSP,"ап ПАО ""Россети Томск""",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TRMK,TRMK,TRMK,ПАО ТМК,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TRNFP,TRNFP,TRNFP,Транснефть ПАО акц.пр.,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TTLK,TTLK,TTLK,"""Таттелеком"" ПАО ао",,,Телекоммуникации,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+TUZA,TUZA,TUZA,Туймаз. завод автобетоновозов,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UGLD,UGLD,UGLD,ЮГК,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UKUZ,UKUZ,UKUZ,Южный Кузбасс ПАО ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UNAC,UNAC,UNAC,Об.авиастр.корп. ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UNKL,UNKL,UNKL,Южно-Уральский никел. комб. ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UPRO,UPRO,UPRO,Юнипро ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 URKA,URKA,URKA,,,,Химия,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-URKZ,URKZ,URKZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-USBN,USBN,USBN,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UTAR,UTAR,UTAR,,,,Транспорт,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-UWGN,UWGN,UWGN,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VGSB,VGSB,VGSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VGSBP,VGSBP,VGSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VJGZ,VJGZ,VJGZ,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VJGZP,VJGZP,VJGZP,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VKCO,VKCO,VKCO,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VLHZ,VLHZ,VLHZ,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VRSB,VRSB,VRSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VRSBP,VRSBP,VRSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VSEH,VSEH,VSEH,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VSMO,VSMO,VSMO,,,,Металлы и добыча,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VSYD,VSYD,VSYD,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VSYDP,VSYDP,VSYDP,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-VTBR,VTBR,VTBR,,,,Финансы (Банки),,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-WTCM,WTCM,WTCM,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-WTCMP,WTCMP,WTCMP,,,,Недвижимость,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-WUSH,WUSH,WUSH,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-X5,X5,X5,,,,Потребительский сектор,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YAKG,YAKG,YAKG,,,,Нефть и газ,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YDEX,YDEX,YDEX,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YKEN,YKEN,YKEN,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YKENP,YKENP,YKENP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+URKZ,URKZ,URKZ,"ПАО ""Уральская кузница"" ао",,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+USBN,USBN,USBN,БАНК УРАЛСИБ ПАО ао,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UTAR,UTAR,UTAR,"Авиакомпания ""ЮТэйр"" (ПАО) ао",,,Транспорт,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+UWGN,UWGN,UWGN,ПАО НПК ОВК ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VEON-RX,VEON-RX,VEON,VEON Ltd. ORD SHS,,,,,TQBR,true,true,false,,,,,,8,needs_mapping,candidate,,2026-06-27T21:29:02+00:00,created_from_moex_discovery
+VGSB,VGSB,VGSB,"""Волгоград.энергосбыткомп"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VGSBP,VGSBP,VGSBP,"""Волгоград.энергосбыткомп"" ПАО",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VJGZ,VJGZ,VJGZ,ННК-Варьеганнефтегаз ПАО ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VJGZP,VJGZP,VJGZP,ННК-Варьеганнефтегаз ПАО ап,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VKCO,VKCO,VKCO,Международная компания ПАО ВК,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VLHZ,VLHZ,VLHZ,Владимирский химич.з-д(ПАО) ао,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VRSB,VRSB,VRSB,ТНС энерго Воронеж ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VRSBP,VRSBP,VRSBP,ТНС энерго Воронеж ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VSEH,VSEH,VSEH,ВИ.ру,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VSMO,VSMO,VSMO,Корп. ВСМПО-АВИСМА (ПАО) ао,,,Металлы и добыча,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VSYD,VSYD,VSYD,Выборгский Суд.Завод ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VSYDP,VSYDP,VSYDP,Выборгский Суд.Завод ПАО ап,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+VTBR,VTBR,VTBR,ао ПАО Банк ВТБ,,,Финансы (Банки),,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+WTCM,WTCM,WTCM,"""Центр междун. торговли""ПАО ао",,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+WTCMP,WTCMP,WTCMP,"""Центр междун. торговли""ПАО ап",,,Недвижимость,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+WUSH,WUSH,WUSH,ВУШ Холдинг ао,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+X5,X5,X5,Корпоративный центр ИКС 5,,,Потребительский сектор,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YAKG,YAKG,YAKG,Якутская топл.-энерг. комп. ао,,,Нефть и газ,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YDEX,YDEX,YDEX,МКПАО ЯНДЕКС,,,IT,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YKEN,YKEN,YKEN,"АК ""Якутскэнерго"" (ПАО) ао",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YKENP,YKENP,YKENP,"АК ""Якутскэнерго"" (ПАО) ап",,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
 YNDX,YNDX,YNDX,,,,IT,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YRSB,YRSB,YRSB,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-YRSBP,YRSBP,YRSBP,,,,Энергетика,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ZAYM,ZAYM,ZAYM,,,,Финансы,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ZILL,ZILL,ZILL,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
-ZVEZ,ZVEZ,ZVEZ,,,,Промышленность,,,true,,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YRSB,YRSB,YRSB,ТНС энерго Ярославль ПАО ао,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+YRSBP,YRSBP,YRSBP,ТНС энерго Ярославль ПАО ап,,,Энергетика,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ZAYM,ZAYM,ZAYM,Займер ао,,,Финансы,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ZILL,ZILL,ZILL,Завод им. И.А.Лихачева ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2024,2026-06-27T16:32:37+00:00,created_from_smartlab_panel
+ZVEZ,ZVEZ,ZVEZ,ЗВЕЗДА ПАО ао,,,Промышленность,,TQBR,true,true,true,,,,,,7,ok,smartlab_only,2025,2026-06-27T16:32:37+00:00,created_from_smartlab_panel

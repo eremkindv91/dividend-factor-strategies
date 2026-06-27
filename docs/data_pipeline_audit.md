@@ -60,7 +60,7 @@
 ### Workflows
 
 - `.github/workflows/update.yml` — ежедневный build/deploy `site/` в `gh-pages`; уже содержит JSON validation step.
-- `.github/workflows/update.yml` также собирает unified financial layer в безопасном режиме: SmartLab baseline + metadata-only IFRS без OCR. Если IFRS/disclosure шаг падает, `run_all` продолжает на SmartLab baseline, пишет `ifrs_failures` в summary, валидирует слой и публикует `site_coverage.json` / `site_financials.json` как additive JSON.
+- `.github/workflows/update.yml` также собирает unified financial layer в безопасном режиме: SmartLab baseline + MOEX company discovery + metadata-only IFRS без OCR и без скачивания отчетов. Если IFRS/disclosure шаг падает, `run_all` продолжает на SmartLab baseline, пишет `ifrs_failures` в summary, валидирует слой и публикует `site_coverage.json` / `site_financials.json` как additive JSON.
 - `.github/workflows/bonds_update.yml` — отдельный тяжёлый workflow облигаций с additive publish.
 - `.github/workflows/update_financial_data.yml` — отдельный CI/scheduled smoke workflow для audit, SmartLab migration, unified layer, tests и upload artifacts без второго деплоя.
 - `.github/workflows/train.yml`, `refresh.yml`, `momentum.yml` — дополнительные research/update workflows.
@@ -115,7 +115,7 @@
 - Unified layer поверх уже имеющегося SmartLab baseline.
 - JSON для будущего сайта: `site_financials.json` и `site_coverage.json`.
 - Frontend-блок «Покрытие и качество данных» во вкладке «Методология», без замены старых расчётов.
-- `run_all --skip-ocr`, который делает полный безопасный проход без OCR/API keys; `run_all --smartlab-only` остаётся быстрым аварийным режимом без внешних источников.
+- `run_all --skip-ocr --allow-network`, который делает полный безопасный проход без OCR/API keys: SmartLab baseline, MOEX discovery и metadata-only проверка официальных страниц; `run_all --skip-ocr` без `--allow-network` и `run_all --smartlab-only` остаются быстрыми аварийными режимами без внешних источников.
 - Тесты на migration, deduplication, source resolver, numeric normalization и smoke pipeline.
 
 ## Файлы, которые будут созданы
