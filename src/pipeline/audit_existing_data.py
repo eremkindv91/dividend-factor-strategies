@@ -31,6 +31,7 @@ MANUAL_REVIEW_FILES = {
     "company_mapping_issues.csv": ["ticker", "company_name", "issue", "created_at"],
     "smartlab_migration_issues.csv": ["file_path", "ticker", "year", "field", "issue", "created_at"],
     "report_classification_issues.csv": ["report_id", "ticker", "document_title", "issue", "created_at"],
+    "report_source_errors.csv": ["ticker", "source_type", "source_url", "issue", "detail", "created_at"],
     "extraction_low_confidence.csv": ["report_id", "ticker", "line_item_raw", "confidence_score", "created_at"],
     "financial_validation_errors.csv": ["ticker", "period", "line_item_std", "issue", "created_at"],
     "suspicious_outliers.csv": ["ticker", "period", "line_item_std", "value", "issue", "created_at"],
@@ -106,4 +107,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -24,6 +24,7 @@
 - `data/panels_final/panel_russia_final.csv` — базовая историческая панель.
 - `data/company_sources.csv` — управляемый реестр официальных страниц/ручных ссылок на отчёты. Пустые или отсутствующие URL не заменяются синтетикой.
 - `data/report_index.parquet` — generated metadata-only индекс найденных отчётов; не хранит PDF и не публикуется как источник истины без последующего parse/validation.
+- `data/manual_review/report_source_errors.csv` — ошибки source URL: неверная схема, недоступный HTTP metadata check, пустые/битые ссылки.
 - `scripts/smartlab_fetch.py` — точечный HTML fetch SmartLab `/q/{TICKER}/f/y/` с вежливой задержкой и alias-логикой.
 - `scripts/smartlab_reconcile.py` — сверка и безопасное дозаполнение панели; исходный `panel_russia_final.csv` не перезаписывается.
 
@@ -107,7 +108,7 @@
 - Миграция SmartLab в processed layer: `python -m src.pipeline.migrate_existing_smartlab_data`
 - Базовая дедупликация и source resolver.
 - Manual override layer: `data/manual_overrides/financial_facts.csv` при наличии перебивает SmartLab/IFRS и фиксируется как `source_name=manual_override`.
-- Metadata-only discovery: `data/company_sources.csv` → `data/report_index.parquet` без скачивания PDF/OCR. Это готовит official IFRS слой, но не подменяет SmartLab baseline.
+- Metadata-only discovery: `data/company_sources.csv` → `data/report_index.parquet` без скачивания PDF/OCR. При `--allow-network` выполняется только HEAD/metadata-check URL, без сохранения файлов; ошибки уходят в manual review.
 - Unified layer поверх уже имеющегося SmartLab baseline.
 - JSON для будущего сайта: `site_financials.json` и `site_coverage.json`.
 - Frontend-блок «Покрытие и качество данных» во вкладке «Методология», без замены старых расчётов.

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pandas as pd
 
-from src.io_utils import stable_id, utc_now_iso, write_parquet
+from src.io_utils import stable_id, utc_now_iso, write_csv, write_parquet
 from src.paths import REPO_ROOT
 
 
@@ -13,7 +14,12 @@ REPORT_COLUMNS = [
     "report_id", "ticker", "inn", "company_name", "period", "period_type", "fiscal_year",
     "publication_date", "document_title", "document_type", "reporting_standard", "file_path",
     "source_url", "source_name", "file_hash", "download_status", "parse_status",
-    "extraction_status", "quality_status", "created_at", "updated_at",
+    "extraction_status", "quality_status", "url_status", "http_status", "content_type",
+    "content_length", "final_url", "url_checked_at", "created_at", "updated_at",
+]
+
+SOURCE_ERROR_COLUMNS = [
+    "ticker", "source_type", "source_url", "issue", "detail", "created_at",
 ]
 
 
@@ -23,6 +29,7 @@ def fetch_reports(
     to_year: int | None = None,
     ticker: str | None = None,
     no_network: bool = True,
+    metadata_checker=None,
     *_args,
     **_kwargs,
 ) -> dict:
@@ -30,6 +37,7 @@ def fetch_reports(
     path = root / "data" / "report_index.parquet"
     now = utc_now_iso()
     rows = []
+    errors = []
     if source_path.exists():
         src = pd.read_csv(source_path, dtype=str).fillna("")
         src = src[src.get("active", "true").astype(str).str.lower().isin(["", "true", "1", "yes"])]
@@ -46,8 +54,40 @@ def fetch_reports(
             source_url = str(r.get("source_url", "")).strip()
             if not source_url:
                 continue
+            issue = validate_source_url(source_url)
+            if issue:
+                errors.append({
+                    "ticker": str(r.get("ticker", "")).strip().upper(),
+                    "source_type": r.get("source_type", ""),
+                    "source_url": source_url,
+                    "issue": issue,
+                    "detail": "",
+                    "created_at": now,
+                })
+                continue
+            meta = {
+                "ok": None,
+                "http_status": None,
+                "content_type": "",
+                "content_length": None,
+                "final_url": source_url,
+                "error": "",
+            }
+            if not no_network:
+                checker = metadata_checker or check_url_metadata
+                meta = checker(source_url)
+                if not meta.get("ok"):
+                    errors.append({
+                        "ticker": str(r.get("ticker", "")).strip().upper(),
+                        "source_type": r.get("source_type", ""),
+                        "source_url": source_url,
+                        "issue": "url_metadata_error",
+                        "detail": str(meta.get("error") or meta.get("http_status") or ""),
+                        "created_at": now,
+                    })
             title = r.get("document_title") or f"{r.get('ticker')} report {r.get('period') or r.get('fiscal_year')}"
             report_id = stable_id("report", r.get("ticker"), r.get("period"), r.get("reporting_standard"), source_url)
+            url_ok = bool(meta.get("ok")) if not no_network else None
             rows.append({
                 "report_id": report_id,
                 "ticker": str(r.get("ticker", "")).strip().upper(),
@@ -64,21 +104,69 @@ def fetch_reports(
                 "source_url": source_url,
                 "source_name": r.get("source_type") or "manual_report",
                 "file_hash": "",
-                "download_status": "metadata_only" if no_network else "pending_download",
+                "download_status": "metadata_only" if no_network else ("metadata_checked" if url_ok else "url_error"),
                 "parse_status": "not_parsed",
                 "extraction_status": "not_extracted",
-                "quality_status": "not_checked",
+                "quality_status": "not_checked" if no_network else ("source_url_ok" if url_ok else "source_url_error"),
+                "url_status": "not_checked" if no_network else ("ok" if url_ok else "error"),
+                "http_status": meta.get("http_status"),
+                "content_type": meta.get("content_type") or "",
+                "content_length": meta.get("content_length"),
+                "final_url": meta.get("final_url") or source_url,
+                "url_checked_at": "" if no_network else now,
                 "created_at": now,
                 "updated_at": now,
             })
 
     out = pd.DataFrame(rows, columns=REPORT_COLUMNS).drop_duplicates("report_id") if rows else pd.DataFrame(columns=REPORT_COLUMNS)
     write_parquet(path, out)
+    write_csv(root / "data" / "manual_review" / "report_source_errors.csv", errors, SOURCE_ERROR_COLUMNS)
     return {
         "reports_found": int(len(out)),
         "reports_downloaded": 0,
+        "source_errors": len(errors),
         "mode": "metadata_only_no_network" if no_network else "metadata_pending_download",
     }
+
+
+def validate_source_url(url: str) -> str | None:
+    parsed = urlparse(str(url or "").strip())
+    if parsed.scheme not in {"http", "https"}:
+        return "invalid_url_scheme"
+    if not parsed.netloc:
+        return "missing_url_host"
+    return None
+
+
+def check_url_metadata(url: str, timeout: int = 10) -> dict:
+    try:
+        import requests
+
+        headers = {"User-Agent": "dividend-factor-strategies/metadata-check"}
+        resp = requests.head(url, allow_redirects=True, timeout=timeout, headers=headers)
+        if resp.status_code in {405, 403}:
+            resp = requests.get(url, allow_redirects=True, timeout=timeout, headers={**headers, "Range": "bytes=0-0"}, stream=True)
+            resp.close()
+        content_length = resp.headers.get("content-length")
+        return {
+            "url": url,
+            "ok": 200 <= resp.status_code < 400,
+            "http_status": int(resp.status_code),
+            "content_type": resp.headers.get("content-type", ""),
+            "content_length": _int_or_none(content_length),
+            "final_url": resp.url,
+            "error": "",
+        }
+    except Exception as e:  # noqa: BLE001
+        return {
+            "url": url,
+            "ok": False,
+            "http_status": None,
+            "content_type": "",
+            "content_length": None,
+            "final_url": url,
+            "error": str(e),
+        }
 
 
 def _int_or_none(value) -> int | None:
