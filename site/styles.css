@@ -93,7 +93,7 @@ header.site { padding: 8px 0 18px; }
 
 /* ── Таблица ── */
 .table-card { background: var(--surface); border-radius: var(--radius);
-  box-shadow: var(--shadow); }
+  box-shadow: var(--shadow); overflow-x: auto; }
 table { width: 100%; border-collapse: separate; border-spacing: 0; }
 thead th {
   position: sticky; top: 0; z-index: 5;
@@ -295,7 +295,7 @@ td.empty { text-align: center; }
 [data-tooltip] { position: relative; }
 [data-tooltip]::after, [data-tooltip]::before {
   position: absolute; left: 0; bottom: calc(100% + 10px);
-  opacity: 0; visibility: hidden; pointer-events: none;
+  display: none; opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(4px); transition: opacity .18s ease, transform .18s ease; z-index: 50;
 }
 [data-tooltip]::after {                              /* пузырь с текстом */
@@ -311,7 +311,7 @@ td.empty { text-align: center; }
 }
 [data-tooltip]:hover::after, [data-tooltip]:hover::before,
 [data-tooltip]:focus-visible::after, [data-tooltip]:focus-visible::before {
-  opacity: 1; visibility: visible; transform: translateY(0);
+  display: block; opacity: 1; visibility: visible; transform: translateY(0);
 }
 /* «Рейтинг ↓»: намёк на интерактивность, стрелка сортировки остаётся читаемой */
 .ranks-lbl[data-tooltip] { cursor: help; border-bottom: 1px dotted var(--ink-faint); padding-bottom: 1px; }
@@ -394,6 +394,7 @@ td.empty { text-align: center; }
 .saw-distro-wrap { margin: 4px 0 16px; }
 .saw-distro-title { font-weight: 600; font-size: .92rem; }
 .saw-distro-cap { font-size: .78rem; color: var(--ink-faint); margin: 2px 0 8px; line-height: 1.45; }
+.saw-distro { max-width: 100%; overflow-x: hidden; }
 .sd-svg { width: 100%; height: auto; display: block; }
 .sd-grid { stroke: #EEF1F6; stroke-width: 1; }
 .sd-zero { stroke: #C7CEDC; stroke-width: 1; }
@@ -421,8 +422,22 @@ td.empty { text-align: center; }
   .saw-chart-col, .saw-distro-col { width: 100%; }
 }
 @media (max-width: 760px) {
+  [data-tooltip]::after { max-width: min(260px, calc(100vw - 32px)); }
+
+  .saw-wrap, .saw-body, .saw-card, .saw-sub, .saw-interp, .saw-charts-row, .saw-col, .saw-method {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .saw-help { white-space: normal; }
   .saw-phase-grid { grid-template-columns: repeat(2, 1fr); }
+  .saw-metric { min-width: 0; }
+  .saw-metric .k, .saw-metric .v { overflow-wrap: anywhere; }
   #saw-chart { height: 260px; }
+  .sd-svg { overflow: hidden; }
+  .sd-tick, .sd-axis-y { font-size: 11px; }
+  .sd-side, .sd-now-t { font-size: 12px; }
+  .saw-method-list { overflow-wrap: anywhere; }
   .saw-seg-lbl { font-size: .56rem; padding: 0 2px; }
 }
 
