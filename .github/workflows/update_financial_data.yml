@@ -10,6 +10,7 @@ on:
       - ".github/workflows/update.yml"
       - ".gitignore"
       - "data/companies_registry.csv"
+      - "data/company_sources.csv"
       - "data/mapping/**"
       - "docs/data_pipeline_audit.md"
       - "site/**"
@@ -47,6 +48,9 @@ jobs:
           fi
           python -m src.pipeline.run_all --smartlab-only --skip-ocr
 
+      - name: Run metadata-only report discovery
+        run: python -m src.pipeline.run_all --ifrs-only --skip-ocr
+
       - name: Validate unified financials
         run: python -m src.pipeline.validate_financials
 
@@ -59,6 +63,8 @@ jobs:
           name: financial-data-pipeline
           path: |
             data/companies_registry.csv
+            data/company_sources.csv
+            data/report_index.parquet
             data/pipeline_summary.json
             data/manual_review/*.csv
             data/processed/*.parquet

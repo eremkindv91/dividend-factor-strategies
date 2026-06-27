@@ -22,6 +22,8 @@
 - `results/smartlab/reconcile.csv` — отчёт сверки SmartLab с панелью; сейчас файл уже грязный в рабочем дереве и не должен включаться в новые коммиты без отдельной команды.
 - `data/panels_final/panel_russia_final_smartlab.csv` — gitignored итоговая панель с дозаполнением SmartLab.
 - `data/panels_final/panel_russia_final.csv` — базовая историческая панель.
+- `data/company_sources.csv` — управляемый реестр официальных страниц/ручных ссылок на отчёты. Пустые или отсутствующие URL не заменяются синтетикой.
+- `data/report_index.parquet` — generated metadata-only индекс найденных отчётов; не хранит PDF и не публикуется как источник истины без последующего parse/validation.
 - `scripts/smartlab_fetch.py` — точечный HTML fetch SmartLab `/q/{TICKER}/f/y/` с вежливой задержкой и alias-логикой.
 - `scripts/smartlab_reconcile.py` — сверка и безопасное дозаполнение панели; исходный `panel_russia_final.csv` не перезаписывается.
 
@@ -97,6 +99,7 @@
 - `update.yml` публикует только заранее перечисленные файлы; новые `site_coverage.json`/`site_financials.json` не попадут в Pages, пока workflow не будет расширен.
 - OCR/LLM нельзя включать до появления provenance, confidence и manual_review-gates.
 - SmartLab и IFRS могут различаться по единицам, валюте, стандарту отчётности и трактовке долга/EBITDA.
+- Stage 2 report discovery сейчас metadata-only: если в `data/company_sources.csv` нет реальных URL, результат честно остаётся пустым.
 
 ## Что будет добавлено первым инкрементом
 
@@ -104,6 +107,7 @@
 - Миграция SmartLab в processed layer: `python -m src.pipeline.migrate_existing_smartlab_data`
 - Базовая дедупликация и source resolver.
 - Manual override layer: `data/manual_overrides/financial_facts.csv` при наличии перебивает SmartLab/IFRS и фиксируется как `source_name=manual_override`.
+- Metadata-only discovery: `data/company_sources.csv` → `data/report_index.parquet` без скачивания PDF/OCR. Это готовит official IFRS слой, но не подменяет SmartLab baseline.
 - Unified layer поверх уже имеющегося SmartLab baseline.
 - JSON для будущего сайта: `site_financials.json` и `site_coverage.json`.
 - Frontend-блок «Покрытие и качество данных» во вкладке «Методология», без замены старых расчётов.

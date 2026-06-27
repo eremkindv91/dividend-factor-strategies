@@ -9,6 +9,8 @@ from src.io_utils import utc_now_iso, write_json
 from src.paths import REPO_ROOT, ensure_dir
 from src.pipeline.audit_existing_data import audit_existing_data
 from src.pipeline.build_site_data import build_site_data
+from src.pipeline.discover_companies import discover_companies
+from src.pipeline.fetch_reports import fetch_reports
 from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
 from src.pipeline.unify_financial_data import unify_financial_data
 
@@ -19,10 +21,20 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
     audit = audit_existing_data(root)
     migration = migrate_smartlab(root, make_backup=True)
     skipped = []
+    discover = {"new_companies_added": None, "source_rows": 0}
+    reports = {"reports_found": 0, "reports_downloaded": 0}
     if smartlab_only:
         skipped += ["discover_companies", "fetch_reports", "extract_financials", "validate_financials"]
     elif skip_ocr:
         skipped.append("ocr")
+        discover = discover_companies(root)
+        reports = fetch_reports(
+            root,
+            from_year=kwargs.get("from_year"),
+            to_year=kwargs.get("to_year"),
+            ticker=kwargs.get("ticker"),
+            no_network=kwargs.get("no_network", True),
+        )
     unify = unify_financial_data(root)
     site = build_site_data(root)
     registry_counts = _registry_counts(root)
@@ -37,9 +49,10 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "companies_smartlab_only": registry_counts.get("smartlab_only", 0),
         "companies_ifrs_confirmed": registry_counts.get("ifrs_confirmed", 0),
         "companies_partial": registry_counts.get("partial", 0),
-        "new_companies_added": None,
-        "reports_found": 0,
-        "reports_downloaded": 0,
+        "new_companies_added": discover.get("new_companies_added"),
+        "source_rows": discover.get("source_rows", 0),
+        "reports_found": reports.get("reports_found", 0),
+        "reports_downloaded": reports.get("reports_downloaded", 0),
         "reports_extracted": 0,
         "reports_failed": 0,
         "ocr_pages_processed": 0,
