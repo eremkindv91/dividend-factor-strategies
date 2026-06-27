@@ -38,7 +38,7 @@ def write_json(path: Path, obj: object) -> None:
 def write_csv(path: Path, rows: Iterable[dict], fieldnames: list[str]) -> None:
     ensure_dir(path.parent)
     with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         w.writeheader()
         for row in rows:
             w.writerow({k: row.get(k) for k in fieldnames})
@@ -70,4 +70,3 @@ def backup_files(files: list[Path], backup_root: Path) -> Path:
         })
     write_json(out / "manifest.json", {"created_at": utc_now_iso(), "files": manifest})
     return out
-
