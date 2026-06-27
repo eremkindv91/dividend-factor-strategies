@@ -1,0 +1,90 @@
+revenue:
+  canonical_name: revenue
+  statement_type: income_statement
+  aliases_ru:
+    - Выручка
+    - Доходы
+    - Выручка от реализации
+  aliases_en:
+    - Revenue
+    - Sales
+    - Revenue from contracts with customers
+  sign_convention: positive
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+net_income:
+  canonical_name: net_income
+  statement_type: income_statement
+  aliases_ru:
+    - Чистая прибыль
+    - Прибыль за период
+  aliases_en:
+    - Net income
+    - Net profit
+    - Profit for the period
+  sign_convention: as_reported
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+total_assets:
+  canonical_name: total_assets
+  statement_type: balance_sheet
+  aliases_ru:
+    - Активы
+    - Итого активы
+  aliases_en:
+    - Total assets
+  sign_convention: positive
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+total_equity:
+  canonical_name: total_equity
+  statement_type: balance_sheet
+  aliases_ru:
+    - Капитал
+    - Итого капитал
+  aliases_en:
+    - Total equity
+  sign_convention: as_reported
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+operating_cash_flow:
+  canonical_name: operating_cash_flow
+  statement_type: cash_flow
+  aliases_ru:
+    - Операционный денежный поток
+    - Денежные средства от операционной деятельности
+  aliases_en:
+    - Operating cash flow
+    - Net cash from operating activities
+  sign_convention: as_reported
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+capex:
+  canonical_name: capex
+  statement_type: cash_flow
+  aliases_ru:
+    - Капитальные затраты
+    - Приобретение основных средств
+  aliases_en:
+    - CAPEX
+    - Capital expenditures
+  sign_convention: as_reported
+  unit: currency
+  priority: 2
+  formula_if_calculated: null
+free_cash_flow:
+  canonical_name: free_cash_flow
+  statement_type: cash_flow
+  aliases_ru:
+    - Свободный денежный поток
+  aliases_en:
+    - Free cash flow
+  sign_convention: as_reported
+  unit: currency
+  priority: 3
+  formula_if_calculated: operating_cash_flow - abs(capex)

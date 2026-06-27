@@ -54,3 +54,16 @@ site/marketsaw.json
 site/marlamov.json
 # Пила рынка: промежуточные parquet регенерятся research-пайплайном (коммитим winner_model.json + отчёт)
 market_saw/data/*.parquet
+
+# Financial data pipeline: воспроизводимые артефакты локальных/CI прогонов
+data/backups/
+data/manual_review/*.csv
+data/pipeline_summary.json
+data/processed/*.parquet
+data/report_index.parquet
+data/unified/*.parquet
+data/unified/site_coverage.json
+data/unified/site_financials.json
+logs/pipeline_run_*.log
+site/site_coverage.json
+site/site_financials.json

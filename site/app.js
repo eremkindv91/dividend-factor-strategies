@@ -62,6 +62,7 @@ wireMarketSaw();   // блок «Помощник фазы рынка» неза
 wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
 wireMarlamov();    // блок «Форвардная доходность» (таблица Марламова) — грузит marlamov.json
 wireMethodology(); // блок «Методология» (4 раздела) — грузит methodology.json
+wireDataCoverage(); // блок прозрачности источников — грузит site_coverage.json, если он опубликован
 // навигация по разделам — в initRouter() в конце файла (после let-объявлений)
 
 function init(data) {
@@ -107,6 +108,7 @@ function init(data) {
   render();
   if (typeof updateDataStatus === 'function') updateDataStatus();   // даты цен/прогноза в global status bar
   if (typeof renderMarketKPI === 'function') renderMarketKPI();     // KPI «Акций в скринере» и т.д.
+  if (typeof loadDataCoverage === 'function') loadDataCoverage(() => updateDataStatus());
 }
 
 // ── фильтрация + сортировка ──
@@ -1510,6 +1512,7 @@ function mlTableHTML(rows) {
 // допущений/ограничений вместо разрозненных UI-текстов.
 // ══════════════════════════════════════════════════════════════════════════
 let METHODOLOGY = null;
+let DATA_COVERAGE = null;
 
 function wireMethodology() {
   const el = document.getElementById('methodology');
@@ -1538,6 +1541,55 @@ function methodologyHTML(j) {
     <div class="method-disc-all">${esc(j.disclaimer || '')}</div>`;
 }
 
+function wireDataCoverage() {
+  const el = document.getElementById('data-coverage');
+  if (!el) return;
+  el.hidden = false;
+  el.addEventListener('toggle', function () {
+    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderDataCoverage(); }
+  });
+}
+
+function loadDataCoverage(cb) {
+  if (DATA_COVERAGE) { cb && cb(); return; }
+  fetch('site_coverage.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { DATA_COVERAGE = j; cb && cb(); })
+    .catch((e) => { cb && cb(e); });
+}
+
+function renderDataCoverage() {
+  const body = document.getElementById('coverage-body');
+  if (!body) return;
+  body.innerHTML = '<div class="muted" style="padding:10px 2px">Загрузка покрытия данных…</div>';
+  loadDataCoverage((err) => {
+    if (err || !DATA_COVERAGE) {
+      body.innerHTML = '<div class="muted" style="padding:10px 2px">Покрытие данных пока не опубликовано. Старый рабочий контракт сайта остаётся активным.</div>';
+      return;
+    }
+    const m = DATA_COVERAGE.meta || {};
+    const q = DATA_COVERAGE.quality || {};
+    const c = DATA_COVERAGE.coverage_status_counts || {};
+    const sources = m.source_counts || {};
+    const card = (lbl, val, note) => `<div class="coverage-card"><span>${esc(lbl)}</span><b>${esc(val == null ? '—' : val)}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
+    const sourceRows = Object.keys(sources).sort().map((k) =>
+      `<div class="coverage-source"><span>${esc(k)}</span><b>${esc(sources[k])}</b></div>`).join('');
+    body.innerHTML = `<div class="coverage-grid">
+        ${card('Компаний в реестре', m.companies_total, 'registry')}
+        ${card('SmartLab baseline', c.smartlab_only || 0, 'агрегатор')}
+        ${card('Reliable facts', q.reliable || 0, 'готово к публикации')}
+        ${card('Manual review', q.manual_review || 0, 'нужна проверка')}
+        ${card('Конфликты источников', m.conflicts_count || 0, 'SmartLab vs IFRS')}
+        ${card('Средний quality score', m.average_quality_score == null ? '—' : m.average_quality_score, '0-100')}
+      </div>
+      <div class="coverage-sources">
+        <h4>Источники unified layer</h4>
+        ${sourceRows || '<div class="muted">Источники пока не опубликованы.</div>'}
+      </div>
+      <div class="coverage-note muted">SmartLab сейчас используется как baseline. Official IFRS/OCR слой включается только через provenance, confidence score и manual review.</div>`;
+  });
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 // Навигация: 4 раздела (Акции/Облигации/Стратегии/Рынок) НАД существующими блоками.
 // Безопасный слой: клик раскрывает <details> и скроллит к секции; логика блоков не тронута.
@@ -1564,6 +1616,10 @@ function onSectionShown(sec) {
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); }
   else if (sec === 'methodology') {
+    openDetails('data-coverage');
+    const c = document.getElementById('data-coverage');
+    if (c) c.dataset.shown = '1';
+    renderDataCoverage();
     openDetails('methodology');
     const d = document.getElementById('methodology');
     if (d) d.dataset.shown = '1';
@@ -1600,9 +1656,10 @@ function updateDataStatus() {
   const fc = DATA && DATA.meta ? d10(DATA.meta.forecast_asof) : null;
   const saw = SAW_DATA ? d10(SAW_DATA.data_last) : null;
   const bonds = (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
+  const fin = (DATA_COVERAGE && DATA_COVERAGE.meta) ? d10(DATA_COVERAGE.meta.generated_at) : null;
   const item = (lbl, v) => `<span class="ds-item"><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
   el.innerHTML = item('Цены MOEX', price) + item('Прогноз акций', fc)
-    + item('MCFTR', saw) + item('Облигации', bonds)
+    + item('MCFTR', saw) + item('Облигации', bonds) + item('Фундамент', fin)
     + '<span class="ds-item ds-disc">Не ИИР</span>';
 }
 

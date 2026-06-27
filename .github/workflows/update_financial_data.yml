@@ -1,0 +1,71 @@
+name: financial data pipeline
+
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/update_financial_data.yml"
+      - ".github/workflows/update.yml"
+      - ".gitignore"
+      - "data/companies_registry.csv"
+      - "data/mapping/**"
+      - "docs/data_pipeline_audit.md"
+      - "site/**"
+      - "src/**"
+      - "tests/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install --quiet pandas pyarrow pytest pyyaml
+
+      - name: Compile pipeline modules
+        run: python -m py_compile $(find src -name '*.py' | sort)
+
+      - name: Audit existing data
+        run: python -m src.pipeline.audit_existing_data
+
+      - name: Run SmartLab baseline pipeline
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          if [ -z "${MISTRAL_API_KEY:-}" ]; then
+            echo "::warning::MISTRAL_API_KEY is not configured; OCR is skipped"
+          fi
+          python -m src.pipeline.run_all --smartlab-only --skip-ocr
+
+      - name: Validate unified financials
+        run: python -m src.pipeline.validate_financials
+
+      - name: Run tests
+        run: pytest -q tests market_saw/tests
+
+      - name: Upload generated data artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: financial-data-pipeline
+          path: |
+            data/companies_registry.csv
+            data/pipeline_summary.json
+            data/manual_review/*.csv
+            data/processed/*.parquet
+            data/unified/*.parquet
+            data/unified/site_coverage.json
+            data/unified/site_financials.json
+            site/site_coverage.json
+            site/site_financials.json
+            logs/pipeline_run_*.log
+          if-no-files-found: error

@@ -28,7 +28,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          # build_data.py / moex_iss.py — только stdlib, pip install не требуется
+
+      - name: Установка зависимостей financial data layer
+        run: python -m pip install --quiet pandas pyarrow pyyaml
 
       # кэш последних валидных цен между запусками (фолбэк при недоступности ISS)
       - uses: actions/cache@v4
@@ -60,6 +62,13 @@ jobs:
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 
+      - name: Сборка unified financial layer (SmartLab baseline, без OCR)
+        # дополнительный слой прозрачности источников; не заменяет старый data.json-контракт
+        run: python -m src.pipeline.run_all --smartlab-only --skip-ocr
+
+      - name: Валидация unified financial layer
+        run: python -m src.pipeline.validate_financials
+
       - name: Валидация контрактов JSON перед публикацией
         # критическая ошибка контракта → exit 1 → шаг публикации НЕ выполнится (не публикуем битое)
         run: python scripts/validate_site_data.py
@@ -74,6 +83,8 @@ jobs:
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
+          [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
+          [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)

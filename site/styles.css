@@ -549,6 +549,22 @@ td.empty { text-align: center; }
   border-top: 1px solid var(--line); padding-top: 10px; line-height: 1.5; }
 @media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; } }
 
+/* ══ Покрытие и качество данных ══ */
+.coverage-body { padding: 6px 0 12px; }
+.coverage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+.coverage-card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.coverage-card span { font-size: .72rem; color: var(--ink-faint); }
+.coverage-card b { font-size: 1.05rem; color: var(--accent-deep); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.coverage-card em { font-style: normal; font-size: .72rem; color: var(--ink-faint); }
+.coverage-sources { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.coverage-sources h4 { margin: 0 0 8px; font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint); }
+.coverage-source { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: .85rem; border-top: 1px solid var(--line); }
+.coverage-source:first-of-type { border-top: 0; }
+.coverage-source b { font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.coverage-note { font-size: .78rem; line-height: 1.45; margin-top: 10px; }
+@media (max-width: 760px) { .coverage-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* ══ Tabbed dashboard: вкладки разделов (sticky, на мобайле скроллятся) ══ */
 .section-tabs { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px;
   background: rgba(247,248,250,.94); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);

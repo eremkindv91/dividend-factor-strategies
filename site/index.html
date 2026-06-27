@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
   <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -125,6 +126,13 @@
       <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->
       <section class="app-section" data-section="methodology" hidden>
         <p class="section-intro">Методология, источники данных и ограничения по каждому разделу. Все расчёты модельные; это не индивидуальная инвестиционная рекомендация.</p>
+
+        <details class="mapwrap coverage-wrap" id="data-coverage" hidden open>
+          <summary>Покрытие и качество данных <span class="muted">(SmartLab baseline · unified layer · manual review)</span></summary>
+          <div class="coverage-body" id="coverage-body">
+            <div class="muted" style="padding:10px 2px">Загрузка покрытия данных…</div>
+          </div>
+        </details>
 
         <details class="mapwrap method-wrap" id="methodology" hidden open>
           <summary>Допущения и ограничения по разделам <span class="muted">(Акции · Облигации · Стратегии · Рынок)</span></summary>
