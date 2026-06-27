@@ -70,6 +70,7 @@ jobs:
         run: |
           TMP="$(mktemp -d)"
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
+          [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"   # методология (4 раздела, в репо)
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
