@@ -31,7 +31,7 @@ ISS_BOARD_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
     "?iss.meta=off&iss.only=securities,marketdata"
     "&securities.columns=SECID,SHORTNAME,PREVPRICE,PREVDATE"
-    "&marketdata.columns=SECID,LAST,LCLOSEPRICE"
+    "&marketdata.columns=SECID,LAST,LCLOSEPRICE,SYSTIME"
 )
 ISS_CANDLES_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{tk}/candles.json"
@@ -71,11 +71,15 @@ def _rows(block: dict) -> List[dict]:
     return [dict(zip(cols, r)) for r in block["data"]]
 
 
-def fetch_board_prices(timeout: int = 25, retries: int = 4) -> Dict[str, dict]:
-    """Вернуть {SECID: {price, price_field, name, prev_date}} по всему борду TQBR."""
+def fetch_board_prices(timeout: int = 25, retries: int = 4) -> Tuple[Dict[str, dict], Optional[str]]:
+    """Вернуть ({SECID: {price, price_field, name, prev_date}}, systime) по всему борду TQBR.
+    systime — серверное время ISS (МСК, 'YYYY-MM-DD HH:MM:SS'): нужно, чтобы честно датировать
+    LCLOSEPRICE/LAST (сегодняшний close доступен только ПОСЛЕ закрытия основной сессии)."""
     payload = _http_get_json(ISS_BOARD_URL, timeout=timeout, retries=retries)
     sec = {r["SECID"]: r for r in _rows(payload["securities"])}
-    mkt = {r["SECID"]: r for r in _rows(payload["marketdata"])}
+    mkt_rows = _rows(payload["marketdata"])
+    mkt = {r["SECID"]: r for r in mkt_rows}
+    systime = next((r.get("SYSTIME") for r in mkt_rows if r.get("SYSTIME")), None)
     out: Dict[str, dict] = {}
     for secid, s in sec.items():
         m = mkt.get(secid, {})
@@ -92,7 +96,26 @@ def fetch_board_prices(timeout: int = 25, retries: int = 4) -> Dict[str, dict]:
             "name": s.get("SHORTNAME"),
             "prev_date": s.get("PREVDATE"),
         }
-    return out
+    return out, systime
+
+
+def _session_close_date(systime: Optional[str]) -> Optional[str]:
+    """Дата сегодняшнего закрытия, если основная сессия TQBR (~18:50 МСК) уже закрылась; иначе None.
+    Тогда LCLOSEPRICE/LAST = сегодняшний close. До закрытия они отражают ПРЕДЫДУЩУЮ сессию (=PREVDATE)."""
+    if not systime:
+        return None
+    try:
+        dt = datetime.strptime(systime, "%Y-%m-%d %H:%M:%S")
+    except (ValueError, TypeError):
+        return None
+    return dt.date().isoformat() if dt.hour >= 19 else None
+
+
+def _price_asof(field: Optional[str], prev_date: Optional[str], close_date: Optional[str]) -> Optional[str]:
+    """Честная дата цены: PREVPRICE → PREVDATE; LCLOSEPRICE/LAST → сегодня только если сессия закрыта."""
+    if field == "PREVPRICE":
+        return prev_date
+    return close_date or prev_date
 
 
 def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int = 25,
@@ -151,17 +174,18 @@ def get_prices(tickers: List[str], allow_cache: bool = True) -> dict:
     Стратегия: один bulk-запрос; при сбое — кэш (fresh=False). Тикеры без цены и без
     кэша остаются с price=None (инференс пометит «нет данных»).
     """
-    today = date.today().isoformat()
     cache = _load_cache()
     fresh_prices: Dict[str, dict] = {}
     source_ok = True
     try:
-        board = fetch_board_prices()
+        board, systime = fetch_board_prices()
+        close_date = _session_close_date(systime)     # дата сегодняшнего close или None (до закрытия)
         for tk in tickers:
             row = board.get(tk)
             if row and row["price"] is not None:
+                asof = _price_asof(row["price_field"], row.get("prev_date"), close_date)
                 fresh_prices[tk] = {"price": row["price"], "name": row["name"],
-                                    "price_field": row["price_field"], "asof": today}
+                                    "price_field": row["price_field"], "asof": asof}
     except Exception as e:  # noqa: BLE001
         source_ok = False
         sys.stderr.write(f"[moex_iss] ИСТОЧНИК НЕДОСТУПЕН: {e}\n")
@@ -185,10 +209,13 @@ def get_prices(tickers: List[str], allow_cache: bool = True) -> dict:
                           "price_field": None, "asof": None, "fresh": False}
             n_missing += 1
 
+    # price_asof = реальная торговая дата данных (максимум по фактически использованным),
+    # а НЕ дата запуска скрипта. Свежие — по их asof; иначе — самая свежая дата из кэша.
+    fresh_asofs = [v.get("asof") for v in fresh_prices.values() if v.get("asof")]
+    cache_asofs = [v.get("asof") for v in cache.values() if v.get("asof")]
     meta = {
         "source_ok": source_ok,
-        "price_asof": today if n_fresh else (max(
-            [v.get("asof") for v in cache.values() if v.get("asof")], default=None)),
+        "price_asof": (max(fresh_asofs) if fresh_asofs else (max(cache_asofs) if cache_asofs else None)),
         "n_fresh": n_fresh, "n_cached": n_cached, "n_missing": n_missing,
         "fetched_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
     }
