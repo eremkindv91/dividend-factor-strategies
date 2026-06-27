@@ -60,6 +60,7 @@ fetch('data.json', { cache: 'no-store' })
 
 wireMarketSaw();   // блок «Помощник фазы рынка» независим от data.json (грузит свой marketsaw.json)
 wireBonds();       // блок «Облигации» независим от data.json (грузит свои bonds/*.json)
+wireMarlamov();    // блок «Форвардная доходность» (таблица Марламова) — грузит marlamov.json
 
 function init(data) {
   DATA = data;
@@ -1414,4 +1415,88 @@ function bondsCalc() {
       <tbody>${rows}</tbody></table></div>
     ${capped ? '<div class="bonds-calc-note muted">⚠️ Часть позиций ограничена 5% дневного оборота бумаги (ликвидность) → остаток ушёл в кэш.</div>' : ''}
     <div class="bonds-calc-note muted">Лоты округлены вниз до целого; цена лота — чистая (без НКД). Инструкция справочная, не ИИР.</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Форвардная доходность (таблица Марламова, 2 года). Всё из site/marlamov.json
+// (генерит scripts/build_forward_yield.py). Yield2 — от ОЧИЩЕННОЙ базы P_adj=P−Div1·0.87.
+// ══════════════════════════════════════════════════════════════════════════
+let MARLAMOV = null;
+const ML_SIG = { 'ACCUMULATE': 'good', 'HOLD': 'neut', 'FIX PROFIT': 'risk', '—': 'neut' };
+
+function wireMarlamov() {
+  const el = document.getElementById('marlamov');
+  if (!el) return;
+  el.hidden = false;
+  el.addEventListener('toggle', function () {
+    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderMarlamov(); }
+  });
+}
+
+function loadMarlamov(cb) {
+  if (MARLAMOV) { cb(); return; }
+  fetch('marlamov.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.rows) throw new Error('пустой marlamov.json'); MARLAMOV = j; cb(); })
+    .catch((e) => { console.error('[marlamov] не загрузился:', e); cb(e); });
+}
+
+function renderMarlamov() {
+  const body = document.getElementById('ml-body');
+  body.innerHTML = '<div class="ml-loading muted">Загрузка форвардной доходности…</div>';
+  loadMarlamov((err) => {
+    body.innerHTML = (err || !MARLAMOV) ? mlErrorHTML() : mlUIHTML(MARLAMOV);
+  });
+}
+
+function mlErrorHTML() {
+  return `<div class="ml-fallback"><b>Данные форвардной доходности недоступны.</b>
+    <div class="ml-disc">Не индивидуальная инвестиционная рекомендация.</div></div>`;
+}
+
+function mlUIHTML(d) {
+  const m = d.meta;
+  const regimeCls = m.regime === 'Risk-On' ? 'good' : m.regime === 'Risk-Off' ? 'risk' : 'neut';
+  const upd = (m.updated || '').replace('T', ' ').slice(0, 16);
+  const placeholders = d.rows.filter((r) => /заглушк/i.test(r.note || '')).length;
+  const TT = 'Доходность 2-го года считается от ОЧИЩЕННОЙ базы: P_adj = Цена − Div1·0.87 (после получения первого чистого дивиденда ваша база затрат снижается).';
+  return `
+    <div class="ml-macro">
+      <span class="ml-chip ${regimeCls}">Режим рынка: <b>${esc(m.regime || '—')}</b></span>
+      <span class="ml-chip neut">IMOEX <b>${m.imoex != null ? ru(m.imoex, 0) : '—'}</b> / SMA200 <b>${m.sma200 != null ? ru(m.sma200, 0) : '—'}</b></span>
+      <span class="ml-chip neut">RFR (КБД 1Y) <b>${(m.rfr * 100).toFixed(1)}%</b></span>
+      <span class="ml-chip neut">Налог <b>${Math.round((1 - m.net_tax) * 100)}%</b></span>
+    </div>
+    <p class="ml-sub">Чистая (после НДФЛ) дивдоходность на 2 года вперёд по авторским прогнозам. Доходность 2-го года — от <span class="ml-help" data-tooltip="${esc(TT)}">очищенной базы ⓘ</span>. Сигнал — спред <b>Yield2 − RFR</b>: ACCUMULATE (&gt;+1пп) / HOLD / FIX PROFIT (&lt;0).</p>
+    ${placeholders ? `<div class="ml-banner">⚠️ Прогнозы Div2 сейчас — <b>заглушки (=Div1, без роста)</b> для ${placeholders} бумаг, поэтому при RFR ${(m.rfr * 100).toFixed(1)}% почти всё = FIX PROFIT. Впиши свои прогнозы роста дивидендов на 2-й год в <code>my_dividend_forecasts.json</code> — недооценённые по форвард-доходности станут ACCUMULATE.</div>` : ''}
+    ${mlTableHTML(d.rows)}
+    <div class="ml-fresh muted">Обновлено: ${esc(upd)} · бумаг: ${m.n} (с прогнозом Div2: ${m.n_with_div2}) · источник: MOEX ISS + модель</div>
+    <div class="ml-disc">Не индивидуальная инвестиционная рекомендация. Div1 — прогноз модели, Div2 — авторский ввод; форвардная доходность зависит от точности прогнозов. Сигнал сравнивает 2-летнюю чистую дивдоходность с безрисковой ставкой ОФЗ.</div>
+  `;
+}
+
+function mlTableHTML(rows) {
+  const pct = (x, d = 1) => isNum(x) ? (x * 100).toFixed(d) + '%' : ND;
+  const pp = (x) => isNum(x) ? (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + 'пп' : ND;
+  const body = rows.map((r) => `<tr>
+    <td class="ml-name"><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name || '')}</span></td>
+    <td class="tnum">${isNum(r.price) ? ru(r.price, 2) : ND}</td>
+    <td class="tnum">${isNum(r.div1) ? ru(r.div1, 2) : ND}</td>
+    <td class="tnum">${isNum(r.div2) ? ru(r.div2, 2) : ND}</td>
+    <td class="tnum">${pct(r.yield1)}</td>
+    <td class="tnum ml-y2">${pct(r.yield2)}</td>
+    <td class="tnum">${pct(r.total2)}</td>
+    <td class="tnum ${isNum(r.spread) ? (r.spread >= 0 ? 'ml-up' : 'ml-down') : ''}">${pp(r.spread)}</td>
+    <td><span class="ml-sig s-${ML_SIG[r.signal] || 'neut'}">${esc(r.signal)}</span></td>
+    <td class="ml-note muted">${esc(r.note || '')}</td>
+  </tr>`).join('');
+  return `<div class="ml-table-wrap"><table class="ml-table">
+    <thead><tr>
+      <th>Бумага</th><th>Цена</th><th>Div 1</th><th>Div 2</th>
+      <th data-tooltip="Чистая дивдоходность 1-го года: Div1·0.87 / Цена">Дох. 1 год</th>
+      <th class="ml-y2" data-tooltip="Чистая дивдоходность 2-го года от ОЧИЩЕННОЙ базы: Div2·0.87 / (Цена − Div1·0.87)">Дох. 2 год</th>
+      <th data-tooltip="Сумма чистых дивидендов за 2 выплаты к исходной цене">За 2 выпл.</th>
+      <th data-tooltip="Spread = Доходность 2 года − RFR (безриск ОФЗ)">Спред</th>
+      <th>Сигнал</th><th>Примечание</th>
+    </tr></thead><tbody>${body}</tbody></table></div>`;
 }

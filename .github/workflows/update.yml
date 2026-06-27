@@ -53,6 +53,11 @@ jobs:
         run: |
           python market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл (кэш)"
 
+      - name: Сборка marlamov.json (форвардная дивдоходность, 2 года + макро-режим)
+        # читает site/data.json (создан шагом выше); сбой не блокирует деплой
+        run: |
+          python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
+
       - name: Публикация site/ → gh-pages (orphan, как scripts/deploy_ghpages.sh)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,6 +66,7 @@ jobs:
           cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
+          [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)

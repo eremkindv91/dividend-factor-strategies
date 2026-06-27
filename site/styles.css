@@ -480,3 +480,43 @@ td.empty { text-align: center; }
   .bonds-chart-wrap { height: 300px; }
   .bonds-calc-controls input[type="number"] { width: 130px; }
 }
+
+/* ══ Форвардная доходность (таблица Марламова) ══ */
+.ml-body { padding: 6px 0 14px; }
+.ml-loading { padding: 14px 2px; font-size: .9rem; }
+.ml-macro { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.ml-chip { display: inline-flex; align-items: baseline; gap: 5px; border-radius: 999px;
+  padding: 5px 12px; font-size: .82rem; border: 1px solid var(--line); background: var(--surface); }
+.ml-chip.good { background: var(--good-fill); color: var(--good-ink); border-color: #Bfe3d0; }
+.ml-chip.risk { background: var(--risk-fill); color: var(--risk-ink); border-color: #E2A48C; }
+.ml-chip.neut { background: var(--surface); color: var(--ink-soft); }
+.ml-chip b { color: inherit; }
+.ml-sub { color: var(--ink-soft); font-size: .9rem; margin: 4px 0 10px; line-height: 1.5; }
+.ml-help { cursor: help; color: var(--accent-deep); border-bottom: 1px dotted var(--accent); }
+.ml-banner { background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0;
+  border-radius: 10px; padding: 10px 12px; font-size: .82rem; line-height: 1.5; margin-bottom: 12px; }
+.ml-banner code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 5px; font-family: var(--mono); }
+.ml-fallback { background: var(--risk-fill); color: var(--risk-ink); border: 1px solid #E2A48C;
+  border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; }
+
+.ml-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.ml-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.ml-table th, .ml-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.ml-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem; cursor: help; }
+.ml-table th:first-child, .ml-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+.ml-table th:first-child { background: var(--bg); }
+.ml-table tbody tr:hover td { background: #F3F5FA; }
+.ml-table tbody tr:hover td:first-child { background: #F3F5FA; }
+.ml-table .ml-y2 { background: var(--warn-fill); }           /* акцент на доходности 2-го года */
+.ml-table th.ml-y2 { background: #F0E2C6; color: var(--warn-ink); }
+.ml-table .ml-up { color: var(--good-ink); font-weight: 600; }
+.ml-table .ml-down { color: var(--risk-ink); }
+.ml-table .ml-note { max-width: 200px; overflow: hidden; text-overflow: ellipsis; font-size: .78rem; }
+.ml-sig { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .76rem; font-weight: 700; }
+.ml-sig.s-good { background: var(--good-fill); color: var(--good-ink); }
+.ml-sig.s-risk { background: var(--risk-fill); color: var(--risk-ink); }
+.ml-sig.s-neut { background: var(--neut-fill); color: var(--neut-ink); }
+.ml-fresh { font-size: .78rem; margin-top: 8px; }
+.ml-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 8px; }
+
+@media (max-width: 760px) { .ml-table { font-size: .8rem; } }
