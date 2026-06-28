@@ -7,6 +7,7 @@ import pandas as pd
 
 from src.io_utils import utc_now_iso, write_json
 from src.paths import REPO_ROOT
+from src.quality.audit_official_ifrs import build_official_ifrs_audit, official_ifrs_audit_summary
 
 
 def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
@@ -16,6 +17,8 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
         raise FileNotFoundError("Unified parquet files are missing. Run unify_financial_data first.")
     wide = pd.read_parquet(wide_path)
     facts = pd.read_parquet(facts_path)
+    official_audit = build_official_ifrs_audit(root)
+    official_summary = official_ifrs_audit_summary(official_audit)
     now = utc_now_iso()
 
     rows = []
@@ -65,12 +68,18 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
             "reliable_facts": reliable,
             "manual_review_facts": manual_review,
             "average_quality_score": round(avg_quality, 2) if avg_quality is not None else None,
+            "official_ifrs_facts": official_summary["official_ifrs_facts"],
+            "official_ifrs_missing_facts": official_summary["missing_official_facts"],
+            "official_ifrs_role_counts": official_summary["role_counts"],
+            "official_ifrs_status_counts": official_summary["source_status_counts"],
+            "official_ifrs_year_status_counts": official_summary["year_status_counts"],
             "note": "Unified financials are an additive data layer. Current legacy dashboard remains backward compatible.",
         },
         "rows": rows,
+        "official_facts": official_fact_rows(official_audit),
     }
 
-    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality)
+    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality, official_summary)
     out_fin = root / "data" / "unified" / "site_financials.json"
     out_cov = root / "data" / "unified" / "site_coverage.json"
     write_json(out_fin, site_financials)
@@ -81,7 +90,23 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
     return {"site_financials": str(out_fin.relative_to(root)), "site_coverage": str(out_cov.relative_to(root)), "rows": len(rows)}
 
 
-def build_coverage(root: Path, facts: pd.DataFrame, now: str, source_counts: dict, source_status_counts: dict, conflicts: int, avg_quality: float | None) -> dict:
+def build_coverage(
+    root: Path,
+    facts: pd.DataFrame,
+    now: str,
+    source_counts: dict,
+    source_status_counts: dict,
+    conflicts: int,
+    avg_quality: float | None,
+    official_summary: dict | None = None,
+) -> dict:
+    official_summary = official_summary or {
+        "official_ifrs_facts": 0,
+        "missing_official_facts": 0,
+        "role_counts": {},
+        "source_status_counts": {},
+        "year_status_counts": {},
+    }
     reg_path = root / "data" / "companies_registry.csv"
     if reg_path.exists():
         reg = pd.read_csv(reg_path, dtype=str).fillna("")
@@ -101,9 +126,17 @@ def build_coverage(root: Path, facts: pd.DataFrame, now: str, source_counts: dic
             "reliable_facts": int(facts.get("is_reliable", pd.Series(dtype=bool)).sum()) if not facts.empty else 0,
             "manual_review_facts": int(facts.get("needs_manual_review", pd.Series(dtype=bool)).sum()) if not facts.empty else 0,
             "average_quality_score": round(avg_quality, 2) if avg_quality is not None else None,
+            "official_ifrs_facts": official_summary["official_ifrs_facts"],
+            "official_ifrs_missing_facts": official_summary["missing_official_facts"],
+            "official_ifrs_role_counts": official_summary["role_counts"],
+            "official_ifrs_status_counts": official_summary["source_status_counts"],
+            "official_ifrs_year_status_counts": official_summary["year_status_counts"],
         },
         "coverage_status_counts": counts,
         "source_status_counts": source_status_counts,
+        "official_ifrs_status_counts": official_summary["source_status_counts"],
+        "official_ifrs_role_counts": official_summary["role_counts"],
+        "official_ifrs_year_status_counts": official_summary["year_status_counts"],
         "quality": {
             "reliable": int(facts.get("is_reliable", pd.Series(dtype=bool)).sum()) if not facts.empty else 0,
             "good": int((facts.get("best_quality_score", pd.Series(dtype=float)) >= 90).sum()) if not facts.empty else 0,
@@ -134,6 +167,32 @@ def source_status_from_row(row: pd.Series) -> str:
     if "smartlab" in source:
         return "SmartLab fallback"
     return "Needs review"
+
+
+def official_fact_rows(audit: pd.DataFrame) -> list[dict]:
+    rows: list[dict] = []
+    if audit.empty:
+        return rows
+    for _, r in audit.sort_values(["ticker", "fiscal_year", "period", "metric"]).iterrows():
+        rows.append({
+            "ticker": r.get("ticker"),
+            "fiscal_year": int(r.get("fiscal_year")) if pd.notna(r.get("fiscal_year")) else None,
+            "period": str(r.get("period")),
+            "year_status": r.get("year_status"),
+            "metric": r.get("metric"),
+            "currency": r.get("currency"),
+            "official_ifrs_value": _num(r.get("official_ifrs_value")),
+            "smartlab_value": _num(r.get("smartlab_value")),
+            "selected_value": _num(r.get("selected_value")),
+            "source_status": r.get("source_status"),
+            "conflict_flag": _bool(r.get("conflict_flag")),
+            "needs_manual_review": _bool(r.get("needs_manual_review")),
+            "source_url": r.get("source_url"),
+            "quality_score": _num(r.get("quality_score")),
+            "selected_reason": r.get("selected_reason"),
+            "official_fact_role": r.get("official_fact_role"),
+        })
+    return rows
 
 
 def main() -> int:

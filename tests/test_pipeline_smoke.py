@@ -3,6 +3,7 @@ import json
 
 import pandas as pd
 
+from src.pipeline.extract_financials import IFRS_COLUMNS
 from src.pipeline.run_all import run_all
 
 
@@ -115,3 +116,56 @@ def test_run_all_no_network_disables_moex_discovery(tmp_path: Path, monkeypatch)
 
     assert summary["mode"] == "default"
     assert summary["ifrs_failures"] == []
+
+
+def test_run_all_summary_includes_official_ifrs_audit_counts(tmp_path: Path):
+    data_dir = tmp_path / "data"
+    panel_dir = data_dir / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "year": 2025,
+            "sector": "IT",
+            "revenue_mln": 100,
+        }
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+    seed = {col: "" for col in IFRS_COLUMNS}
+    seed.update({
+        "fact_id": "seed-test-revenue",
+        "report_id": "report-test",
+        "ticker": "TEST",
+        "company_name": "Test Co",
+        "fiscal_year": 2025,
+        "period": "2025",
+        "period_type": "annual",
+        "reporting_standard": "IFRS",
+        "statement_type": "income_statement",
+        "line_item_raw": "Revenue",
+        "line_item_std": "revenue",
+        "value_raw": 100000000.0,
+        "value_normalized": 100000000.0,
+        "currency": "RUB",
+        "unit_type": "currency",
+        "unit_multiplier": 1,
+        "is_calculated": False,
+        "source_url": "https://example.com/test.pdf",
+        "source_name": "official_ifrs_verified_seed",
+        "source_type": "official_ifrs",
+        "source_priority": 2,
+        "extraction_method": "verified_seed",
+        "confidence_score": 0.98,
+        "quality_score": 96,
+        "validation_status": "verified_seed",
+        "created_at": "2026-06-28T00:00:00+00:00",
+    })
+    pd.DataFrame([seed], columns=IFRS_COLUMNS).to_csv(data_dir / "official_ifrs_facts.csv", index=False)
+
+    summary = run_all(tmp_path, smartlab_only=False, skip_ocr=True, no_network=True)
+    published = json.loads((tmp_path / "site" / "site_financials.json").read_text(encoding="utf-8"))
+
+    assert summary["facts_from_ifrs"] == 1
+    assert summary["official_ifrs_facts"] == 1
+    assert summary["official_ifrs_missing_facts"] == 0
+    assert summary["official_ifrs_role_counts"] == {"best_value": 1}
+    assert published["official_facts"][0]["selected_reason"] == "official_ifrs_confirmed_by_smartlab"
