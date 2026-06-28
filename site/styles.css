@@ -585,6 +585,13 @@ td.empty { text-align: center; }
 .section-tab:hover { border-color: var(--accent); }
 .section-tab.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
 
+.section-tab[data-section="bonds"] { background: #16a34a; color: #ffffff; border-color: #15803d; }
+.section-tab[data-section="bonds"]:hover { background: #15803d; border-color: #166534; }
+.section-tab[data-section="bonds"].active,
+.section-tab.active[data-section="bonds"] { background: #16a34a; color: #ffffff; border-color: #15803d; }
+.section-tab[data-section="bonds"].active:hover,
+.section-tab.active[data-section="bonds"]:hover { background: #15803d; border-color: #166534; }
+
 .app-section[hidden] { display: none; }
 .section-intro { color: var(--ink-soft); font-size: .92rem; line-height: 1.55; margin: 0 0 14px; max-width: 900px; }
 
