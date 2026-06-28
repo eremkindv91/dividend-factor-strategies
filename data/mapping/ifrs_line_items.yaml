@@ -51,6 +51,39 @@ total_equity:
   unit: currency
   priority: 1
   formula_if_calculated: null
+total_debt:
+  canonical_name: total_debt
+  statement_type: balance_sheet
+  aliases_ru:
+    - Долг
+    - Общий долг
+    - Итого долг
+    - Кредиты и займы
+  aliases_en:
+    - Total debt
+    - Debt
+    - Borrowings
+    - Loans and borrowings
+    - Total borrowings
+  sign_convention: positive
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
+cash_and_equivalents:
+  canonical_name: cash_and_equivalents
+  statement_type: balance_sheet
+  aliases_ru:
+    - Денежные средства и их эквиваленты
+    - Денежные средства
+  aliases_en:
+    - Cash and cash equivalents
+    - Cash and cash equivalents at the end of the period
+    - Cash and balances with central banks
+    - Cash
+  sign_convention: positive
+  unit: currency
+  priority: 1
+  formula_if_calculated: null
 operating_cash_flow:
   canonical_name: operating_cash_flow
   statement_type: cash_flow
@@ -88,3 +121,17 @@ free_cash_flow:
   unit: currency
   priority: 3
   formula_if_calculated: operating_cash_flow - abs(capex)
+dividends_paid:
+  canonical_name: dividends_paid
+  statement_type: cash_flow
+  aliases_ru:
+    - Выплаченные дивиденды
+    - Дивиденды выплаченные
+  aliases_en:
+    - Dividends paid
+    - Payment of dividends
+    - Dividends
+  sign_convention: positive
+  unit: currency
+  priority: 3
+  formula_if_calculated: null

@@ -1571,7 +1571,13 @@ function renderDataCoverage() {
     const q = DATA_COVERAGE.quality || {};
     const c = DATA_COVERAGE.coverage_status_counts || {};
     const sources = m.source_counts || {};
+    const statuses = DATA_COVERAGE.source_status_counts || m.source_status_counts || {};
     const card = (lbl, val, note) => `<div class="coverage-card"><span>${esc(lbl)}</span><b>${esc(val == null ? '—' : val)}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
+    const statusOrder = ['Official IFRS', 'SmartLab fallback', 'Conflict', 'Needs review', 'OCR candidate'];
+    const badgeRows = statusOrder.map((k) => {
+      const cls = k.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      return `<div class="coverage-badge coverage-badge-${cls}"><span>${esc(k)}</span><b>${esc(statuses[k] || 0)}</b></div>`;
+    }).join('');
     const sourceRows = Object.keys(sources).sort().map((k) =>
       `<div class="coverage-source"><span>${esc(k)}</span><b>${esc(sources[k])}</b></div>`).join('');
     body.innerHTML = `<div class="coverage-grid">
@@ -1581,6 +1587,9 @@ function renderDataCoverage() {
         ${card('Manual review', q.manual_review || 0, 'нужна проверка')}
         ${card('Конфликты источников', m.conflicts_count || 0, 'SmartLab vs IFRS')}
         ${card('Средний quality score', m.average_quality_score == null ? '—' : m.average_quality_score, '0-100')}
+      </div>
+      <div class="coverage-statuses">
+        ${badgeRows}
       </div>
       <div class="coverage-sources">
         <h4>Источники unified layer</h4>

@@ -219,6 +219,61 @@ def test_fetch_reports_discovers_report_links_from_official_page(tmp_path: Path)
     assert set(reports["fiscal_year"]) == {2025}
 
 
+def test_fetch_reports_discovers_context_only_links_and_keeps_only_checked_urls(tmp_path: Path):
+    data = tmp_path / "data"
+    data.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "source_type": "financial_reports_page",
+            "source_url": "https://issuer.example/reports/",
+            "document_title": "TEST reports",
+            "document_type": "financial_reports_page",
+            "reporting_standard": "MIXED",
+            "period_type": "page",
+            "active": "true",
+        }
+    ]).to_csv(data / "company_sources.csv", index=False)
+    html = """
+    <div>IFRS annual report 2025 <a href="/FileSystem/9/581063.xlsx">download</a></div>
+    <div>IFRS annual report 2024 <a href="/FileSystem/9/broken.pdf">download</a></div>
+    """
+
+    def checker(url: str) -> dict:
+        if url.endswith("broken.pdf"):
+            return {
+                "ok": False,
+                "http_status": 404,
+                "content_type": "application/pdf",
+                "content_length": 0,
+                "final_url": url,
+                "error": "HTTP 404",
+            }
+        return {
+            "ok": True,
+            "http_status": 200,
+            "content_type": "text/html" if url.endswith("/reports/") else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "content_length": 123,
+            "final_url": url,
+            "error": "",
+        }
+
+    summary = fetch_reports(
+        tmp_path,
+        no_network=False,
+        metadata_checker=checker,
+        page_fetcher=lambda _url: html,
+    )
+    idx = pd.read_parquet(data / "report_index.parquet")
+    reports = idx[idx["source_name"] == "official_page_link"]
+
+    assert summary["reports_found"] == 2
+    assert reports["source_url"].tolist() == ["https://issuer.example/FileSystem/9/581063.xlsx"]
+    assert reports.loc[reports.index[0], "document_type"] == "IFRS annual"
+    assert reports.loc[reports.index[0], "url_status"] == "ok"
+    assert reports.loc[reports.index[0], "http_status"] == 200
+
+
 def test_fetch_reports_applies_year_window_to_discovered_report_links(tmp_path: Path):
     data = tmp_path / "data"
     data.mkdir(parents=True)

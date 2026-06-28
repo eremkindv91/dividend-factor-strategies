@@ -78,3 +78,19 @@ def test_unified_layer_does_not_mix_ras_with_ifrs_or_smartlab(tmp_path: Path):
 
     assert summary["facts_unified"] == 2
     assert set(unified["reporting_standard"]) == {"IFRS", "RAS"}
+
+
+def test_company_financials_wide_keeps_different_currencies_separate(tmp_path: Path):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    rub = _fact("smartlab", "aggregator", 100.0, 70, 7)
+    rub["currency"] = "RUB"
+    usd = _fact("official_ifrs_xlsx", "official_ifrs", 1.0, 92, 2)
+    usd["currency"] = "USD"
+    pd.DataFrame([rub, usd]).to_parquet(processed / "smartlab_fundamentals.parquet", index=False)
+
+    unify_financial_data(tmp_path)
+    wide = pd.read_parquet(tmp_path / "data" / "unified" / "company_financials_unified.parquet")
+
+    assert len(wide) == 2
+    assert set(wide["currency"]) == {"RUB", "USD"}

@@ -6,6 +6,7 @@ from typing import Iterable
 
 SOURCE_PRIORITY = {
     "manual_override": 1,
+    "official_ifrs_verified_seed": 2,
     "official_ifrs_xlsx": 2,
     "official_ifrs_pdf_text": 3,
     "official_ifrs_pdf_table": 4,
@@ -89,7 +90,7 @@ def resolve_best_value(candidates: Iterable[SourceCandidate]) -> dict:
             return _resolved(best_off, "official_ifrs_confirmed_by_smartlab", False, None, False)
         if diff <= 0.05:
             return _resolved(best_off, "official_ifrs_warning_diff_1_5pct", True, "minor_source_diff", False)
-        return _resolved(best_smart, "conflict_gt_5pct_keep_smartlab_until_review", True, "value_conflict_gt_5pct", True)
+        return _resolved(best_off, "official_ifrs_conflict_gt_5pct_needs_review", True, "value_conflict_gt_5pct", True)
 
     viable = [c for c in rows if c.quality_score >= 70 and c.source_url]
     pool = viable or rows

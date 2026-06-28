@@ -13,6 +13,11 @@ def test_frontend_has_data_coverage_block_and_loader():
     assert "site_coverage.json" in js
     assert "renderDataCoverage" in js
     assert ".coverage-grid" in css
+    assert "source_status_counts" in js
+    assert "Official IFRS" in js
+    assert "SmartLab fallback" in js
+    assert "Conflict" in js
+    assert ".coverage-badge" in css
 
 
 def test_daily_deploy_builds_and_publishes_coverage_json():

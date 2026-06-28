@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html as html_lib
 import re
 from html.parser import HTMLParser
 from pathlib import Path
@@ -38,6 +39,7 @@ def fetch_reports(
     metadata_checker=None,
     page_fetcher=None,
     downloader=None,
+    max_child_links: int | None = 40,
     *_args,
     **_kwargs,
 ) -> dict:
@@ -168,14 +170,39 @@ def fetch_reports(
                 try:
                     fetcher = page_fetcher or fetch_page_html
                     html = fetcher(meta.get("final_url") or source_url)
-                    for child in discover_report_links(
+                    discovered = discover_report_links(
                         html,
                         base_url=meta.get("final_url") or source_url,
                         source_row=r.to_dict(),
                         now=now,
                         from_year=from_year,
                         to_year=to_year,
-                    ):
+                    )
+                    if max_child_links is not None and max_child_links > 0:
+                        discovered = discovered[:max_child_links]
+                    for child in discovered:
+                        child_meta = (
+                            metadata_checker(child["source_url"])
+                            if metadata_checker
+                            else check_url_metadata(child["source_url"], timeout=5)
+                        )
+                        if not child_meta.get("ok"):
+                            errors.append({
+                                "ticker": str(r.get("ticker", "")).strip().upper(),
+                                "source_type": "official_page_link",
+                                "source_url": child["source_url"],
+                                "issue": "url_metadata_error",
+                                "detail": str(child_meta.get("error") or child_meta.get("http_status") or ""),
+                                "created_at": now,
+                            })
+                            continue
+                        child["http_status"] = child_meta.get("http_status")
+                        child["content_type"] = child_meta.get("content_type") or ""
+                        child["content_length"] = child_meta.get("content_length")
+                        child["final_url"] = child_meta.get("final_url") or child["source_url"]
+                        child["url_checked_at"] = now
+                        child["url_status"] = "ok"
+                        child["quality_status"] = "source_url_ok"
                         rows.append(child)
                 except Exception as e:  # noqa: BLE001
                     errors.append({
@@ -299,7 +326,10 @@ class LinkExtractor(HTMLParser):
         attr = {k.lower(): v for k, v in attrs}
         href = attr.get("href")
         if href:
-            self._current = {"href": href, "text": ""}
+            self._current = {
+                "href": href,
+                "text": " ".join(str(attr.get(k) or "") for k in ("title", "aria-label", "download")).strip(),
+            }
 
     def handle_data(self, data: str) -> None:
         if self._current is not None:
@@ -319,17 +349,20 @@ def discover_report_links(
     from_year: int | None = None,
     to_year: int | None = None,
 ) -> list[dict]:
+    html = html or ""
     parser = LinkExtractor()
-    parser.feed(html or "")
+    parser.feed(html)
     out: list[dict] = []
     seen: set[str] = set()
-    for link in parser.links:
+    raw_links = parser.links + extract_context_links(html)
+    for link in raw_links:
         href = str(link.get("href") or "").strip()
         text = " ".join(str(link.get("text") or "").split())
         full_url = urljoin(base_url, href)
-        if full_url in seen or not is_report_link(full_url, text):
+        dedup_key = normalize_report_url(full_url)
+        if dedup_key in seen or not is_report_link(full_url, text):
             continue
-        seen.add(full_url)
+        seen.add(dedup_key)
         fiscal_year = infer_fiscal_year(f"{text} {full_url}")
         if from_year is not None and fiscal_year is not None and fiscal_year < from_year:
             continue
@@ -372,12 +405,39 @@ def discover_report_links(
     return out
 
 
+def normalize_report_url(url: str) -> str:
+    parsed = urlparse(url)
+    query = "" if parsed.query.lower() in {"dl=1", "download=1"} else parsed.query
+    return parsed._replace(query=query, fragment="").geturl()
+
+
+def extract_context_links(html: str) -> list[dict]:
+    out: list[dict] = []
+    for match in re.finditer(r"""href\s*=\s*["']([^"']+)["']""", html or "", flags=re.I):
+        href = html_lib.unescape(match.group(1))
+        out.append({"href": href, "text": link_context(html, match.start())})
+    return out
+
+
+def link_context(html: str, pos: int) -> str:
+    starts = [html.rfind(tag, 0, pos) for tag in ("<tr", "<li", "<div", "<p")]
+    start = max([s for s in starts if s >= 0], default=max(0, pos - 300))
+    ends = [html.find(tag, pos) for tag in ("</tr>", "</li>", "</div>", "</p>")]
+    end = min([e + len("</div>") for e in ends if e >= 0], default=min(len(html), pos + 300))
+    fragment = html[start:end]
+    fragment = re.sub(r"<script[\s\S]*?</script>", " ", fragment, flags=re.I)
+    fragment = re.sub(r"<style[\s\S]*?</style>", " ", fragment, flags=re.I)
+    fragment = re.sub(r"<[^>]+>", " ", fragment)
+    return " ".join(html_lib.unescape(fragment).split())
+
+
 def is_report_link(url: str, text: str = "") -> bool:
     hay = f"{url} {text}".lower()
     if any(ext in urlparse(url).path.lower() for ext in (".pdf", ".xls", ".xlsx", ".html", ".htm")):
         return any(marker in hay for marker in (
             "ifrs", "мсфо", "rsbu", "рсбу", "financial", "statements", "отчет", "отчёт",
-            "presentation", "презентац", "results", "annual",
+            "отчетность", "финансов", "presentation", "презентац", "results", "annual",
+            "consolidated", "databook", "fy", "4q", "3q", "2q", "1q",
         ))
     return False
 
@@ -399,7 +459,7 @@ def infer_reporting_standard(text: str, document_type: str) -> str:
 def fetch_page_html(url: str, timeout: int = 15) -> str:
     import requests
 
-    headers = {"User-Agent": "dividend-factor-strategies/report-discovery"}
+    headers = {"User-Agent": "Mozilla/5.0"}
     resp = requests.get(url, allow_redirects=True, timeout=timeout, headers=headers)
     resp.raise_for_status()
     return resp.text
@@ -420,7 +480,7 @@ def check_url_metadata(url: str, timeout: int = 10) -> dict:
 
         headers = {"User-Agent": "dividend-factor-strategies/metadata-check"}
         resp = requests.head(url, allow_redirects=True, timeout=timeout, headers=headers)
-        if resp.status_code in {405, 403}:
+        if resp.status_code in {403, 404, 405} or not (200 <= resp.status_code < 400):
             resp = requests.get(url, allow_redirects=True, timeout=timeout, headers={**headers, "Range": "bytes=0-0"}, stream=True)
             resp.close()
         content_length = resp.headers.get("content-length")
@@ -464,6 +524,7 @@ def main() -> int:
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--download", action="store_true", help="Download direct discovered report files into data/raw_reports.")
     parser.add_argument("--allow-network", action="store_true", help="Allow URL metadata checks and report-page link discovery.")
+    parser.add_argument("--max-child-links", type=int, default=40, help="Max report links to verify per report page; use 0 for no cap.")
     args = parser.parse_args()
     res = fetch_reports(
         Path(args.repo_root),
@@ -471,8 +532,9 @@ def main() -> int:
         to_year=args.to_year,
         ticker=args.ticker,
         limit_companies=args.limit_companies,
-        no_network=args.no_network or not args.allow_network,
+        no_network=args.no_network or (not args.allow_network and not args.download),
         download=args.download,
+        max_child_links=None if args.max_child_links == 0 else args.max_child_links,
     )
     print(f"[fetch-reports] reports_downloaded={res['reports_downloaded']} mode={res['mode']}")
     return 0

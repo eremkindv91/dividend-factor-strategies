@@ -11,4 +11,12 @@ def test_classifies_ifrs_annual_report():
 def test_classifies_ras_separately_from_ifrs():
     res = classify_document("Бухгалтерская отчетность РСБУ", "")
 
-    assert res["document_type"] == "RAS quarterly"
+    assert res["document_type"] == "RAS"
+
+
+def test_classifies_english_annual_and_interim_ifrs_reports():
+    annual = classify_document("Consolidated Financial Statements for the year ended 31 December 2025", "")
+    interim = classify_document("Consolidated interim condensed financial statements for the six months ended 30 June 2025", "")
+
+    assert annual["document_type"] == "IFRS annual"
+    assert interim["document_type"] == "IFRS interim"

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.pipeline.fetch_reports import fetch_reports
+from src.pipeline.fetch_reports import check_url_metadata, fetch_reports
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,3 +88,34 @@ def test_network_metadata_check_records_headers_without_download(tmp_path: Path)
     assert idx.loc[0, "http_status"] == 200
     assert idx.loc[0, "content_type"] == "application/pdf"
     assert idx.loc[0, "content_length"] == 12345
+
+
+def test_metadata_checker_falls_back_to_range_get_when_head_is_false_negative(monkeypatch):
+    class FakeResponse:
+        def __init__(self, status_code: int, headers: dict[str, str], url: str):
+            self.status_code = status_code
+            self.headers = headers
+            self.url = url
+
+        def close(self):
+            pass
+
+    calls = []
+
+    def fake_head(url, **_kwargs):
+        calls.append("head")
+        return FakeResponse(404, {"content-length": "0"}, url)
+
+    def fake_get(url, **_kwargs):
+        calls.append("get")
+        return FakeResponse(200, {"content-type": "application/pdf", "content-length": "123"}, url)
+
+    monkeypatch.setattr("requests.head", fake_head)
+    monkeypatch.setattr("requests.get", fake_get)
+
+    meta = check_url_metadata("https://issuer.example/FileSystem/report.pdf")
+
+    assert calls == ["head", "get"]
+    assert meta["ok"] is True
+    assert meta["http_status"] == 200
+    assert meta["content_type"] == "application/pdf"

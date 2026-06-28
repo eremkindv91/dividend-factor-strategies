@@ -178,14 +178,31 @@ def resolution_standard(row: pd.Series) -> str:
 def build_wide(unified: pd.DataFrame) -> pd.DataFrame:
     if unified.empty:
         return pd.DataFrame()
-    base_cols = ["ticker", "fiscal_year", "period"]
+    base_cols = ["ticker", "fiscal_year", "period", "currency"]
     piv = unified.pivot_table(index=base_cols, columns="line_item_std", values="best_value", aggfunc="first").reset_index()
     piv.columns.name = None
     quality = unified.groupby(base_cols, dropna=False)["best_quality_score"].mean().reset_index(name="quality_score")
     source = unified.groupby(base_cols, dropna=False)["best_source_name"].agg(lambda s: ",".join(sorted(set(str(x) for x in s if pd.notna(x))))).reset_index(name="source")
     conflicts = unified.groupby(base_cols, dropna=False)["conflict_flag"].any().reset_index(name="conflict_flag")
-    out = piv.merge(quality, on=base_cols, how="left").merge(source, on=base_cols, how="left").merge(conflicts, on=base_cols, how="left")
+    review = unified.groupby(base_cols, dropna=False)["needs_manual_review"].any().reset_index(name="needs_manual_review")
+    ocr = unified.groupby(base_cols, dropna=False).apply(has_ocr_candidate, include_groups=False).reset_index(name="ocr_candidate")
+    out = (
+        piv
+        .merge(quality, on=base_cols, how="left")
+        .merge(source, on=base_cols, how="left")
+        .merge(conflicts, on=base_cols, how="left")
+        .merge(review, on=base_cols, how="left")
+        .merge(ocr, on=base_cols, how="left")
+    )
     return out
+
+
+def has_ocr_candidate(group: pd.DataFrame) -> bool:
+    text = " ".join(
+        group.get(col, pd.Series(dtype=str)).fillna("").astype(str).str.lower().str.cat(sep=" ")
+        for col in ["best_source_name", "selected_reason", "conflict_type"]
+    )
+    return "ocr" in text
 
 
 def is_reliable_candidate(candidate: SourceCandidate) -> bool:

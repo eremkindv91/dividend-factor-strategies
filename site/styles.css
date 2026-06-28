@@ -557,6 +557,14 @@ td.empty { text-align: center; }
 .coverage-card span { font-size: .72rem; color: var(--ink-faint); }
 .coverage-card b { font-size: 1.05rem; color: var(--accent-deep); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .coverage-card em { font-style: normal; font-size: .72rem; color: var(--ink-faint); }
+.coverage-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.coverage-badge { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 5px 10px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font-size: .78rem; color: var(--ink-soft); }
+.coverage-badge b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.coverage-badge-official-ifrs { border-color: #87c7aa; color: #17623f; background: #eef9f3; }
+.coverage-badge-smartlab-fallback { border-color: #c7cfdf; color: var(--ink-soft); background: #f7f8fb; }
+.coverage-badge-conflict { border-color: #d99b88; color: #8c3520; background: #fff3ee; }
+.coverage-badge-needs-review, .coverage-badge-ocr-candidate { border-color: #d8c083; color: #7c5a0b; background: #fff8df; }
 .coverage-sources { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 .coverage-sources h4 { margin: 0 0 8px; font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint); }
 .coverage-source { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: .85rem; border-top: 1px solid var(--line); }
