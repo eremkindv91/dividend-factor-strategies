@@ -57,6 +57,7 @@ market_saw/data/*.parquet
 
 # Financial data pipeline: воспроизводимые артефакты локальных/CI прогонов
 data/backups/
+data/audited_download_summary.json
 data/disclosure_summary.json
 data/manual_review/*.csv
 data/pipeline_summary.json

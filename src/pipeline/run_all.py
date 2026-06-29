@@ -11,11 +11,13 @@ from src.paths import REPO_ROOT, ensure_dir
 from src.pipeline.audit_existing_data import audit_existing_data
 from src.pipeline.build_site_data import build_site_data
 from src.pipeline.discover_companies import discover_companies, registry_count
+from src.pipeline.download_audited_reports import download_audited_reports
 from src.pipeline.extract_financials import extract_financials
 from src.pipeline.fetch_reports import fetch_reports
 from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
 from src.pipeline.unify_financial_data import unify_financial_data
 from src.pipeline.validate_financials import validate_financials
+from src.quality.audit_disclosure_links import audit_report_index
 from src.quality.audit_official_ifrs import write_official_ifrs_audit
 
 
@@ -35,6 +37,8 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "last_disclosure_check": None,
         "report_index_updated_at": None,
     }
+    disclosure_audit = {}
+    audited_download = {"reports_downloaded": 0, "download_failed": 0, "eligible_reports": 0}
     extraction = {"reports_extracted": 0, "reports_failed": 0, "facts_from_ifrs": 0}
     ifrs_failures = []
     if smartlab_only:
@@ -63,6 +67,17 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             ifrs_failures.append({"step": "fetch_reports", "error": str(e)})
             reports = record_disclosure_failure(root, str(e))
         write_json(root / "data" / "disclosure_summary.json", disclosure_summary_from_reports(reports))
+        if kwargs.get("download_audited_reports", False):
+            try:
+                disclosure_audit = audit_report_index(root)
+            except Exception as e:  # noqa: BLE001
+                ifrs_failures.append({"step": "audit_disclosure_links", "error": str(e)})
+            else:
+                try:
+                    audited_download = download_audited_reports(root)
+                    reports["reports_downloaded"] = audited_download.get("reports_downloaded", 0)
+                except Exception as e:  # noqa: BLE001
+                    ifrs_failures.append({"step": "download_audited_reports", "error": str(e)})
         try:
             extraction = extract_financials(root, skip_ocr=skip_ocr)
         except Exception as e:  # noqa: BLE001
@@ -89,6 +104,11 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "reports_found": reports.get("reports_found", 0),
         "reports_found_from_disclosure": reports.get("reports_found_from_disclosure", reports.get("reports_found", 0)),
         "reports_downloaded": reports.get("reports_downloaded", 0),
+        "audited_reports_eligible": audited_download.get("eligible_reports", 0),
+        "audited_reports_downloaded": audited_download.get("reports_downloaded", 0),
+        "audited_download_failed": audited_download.get("download_failed", 0),
+        "disclosure_audit_ok": disclosure_audit.get("ok"),
+        "disclosure_audit_needs_review": disclosure_audit.get("needs_review"),
         "reports_extracted": extraction.get("reports_extracted", 0),
         "reports_failed": extraction.get("reports_failed", 0),
         "disclosure_errors_count": reports.get("disclosure_errors_count", reports.get("source_errors", 0)),
@@ -199,6 +219,7 @@ def main() -> int:
     parser.add_argument("--skip-ocr", action="store_true")
     parser.add_argument("--allow-network", action="store_true", help="Allow MOEX company discovery and report-page URL metadata/link discovery.")
     parser.add_argument("--download-reports", action="store_true", help="Download direct discovered report files into data/raw_reports.")
+    parser.add_argument("--download-audited-reports", action="store_true", help="Audit disclosure links and download only audit_status=ok report files into data/raw_reports.")
     parser.add_argument("--force-refresh", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--manual-review-only", action="store_true")
@@ -218,6 +239,7 @@ def main() -> int:
         to_year=args.to_year,
         no_network=not args.allow_network,
         download_reports=args.download_reports,
+        download_audited_reports=args.download_audited_reports,
         force_refresh=args.force_refresh,
         manual_review_only=args.manual_review_only,
         ifrs_only=args.ifrs_only,

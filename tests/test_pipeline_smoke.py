@@ -205,3 +205,49 @@ def test_run_all_summary_and_site_coverage_include_disclosure_counters(tmp_path:
     assert coverage["meta"]["reports_found_from_disclosure"] == 2
     assert coverage["meta"]["disclosure_errors_count"] == 1
     assert coverage["meta"]["last_disclosure_check"] == "2026-06-29T00:00:00+00:00"
+
+
+def test_run_all_downloads_audited_reports_only_when_flag_enabled(tmp_path: Path, monkeypatch):
+    panel_dir = tmp_path / "data" / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {"ticker": "TEST", "year": 2025, "sector": "IT", "revenue_mln": 100},
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    calls = []
+
+    def fake_fetch_reports(*_args, **_kwargs):
+        return {
+            "reports_found": 1,
+            "reports_found_from_disclosure": 1,
+            "reports_downloaded": 0,
+            "disclosure_errors_count": 0,
+            "last_disclosure_check": "2026-06-29T00:00:00+00:00",
+            "report_index_updated_at": "2026-06-29T00:00:00+00:00",
+        }
+
+    def fake_audit_report_index(*_args, **_kwargs):
+        calls.append("audit")
+        return {"total_links": 1, "ok": 1, "blocked": 0, "failed": 0, "rejected": 0, "needs_review": 0}
+
+    def fake_download_audited_reports(*_args, **_kwargs):
+        calls.append("download")
+        return {
+            "eligible_reports": 1,
+            "reports_downloaded": 1,
+            "download_failed": 0,
+            "skipped_not_ok": 0,
+            "skipped_non_file_ok": 0,
+            "errors": [],
+        }
+
+    monkeypatch.setattr("src.pipeline.run_all.fetch_reports", fake_fetch_reports)
+    monkeypatch.setattr("src.pipeline.run_all.audit_report_index", fake_audit_report_index)
+    monkeypatch.setattr("src.pipeline.run_all.download_audited_reports", fake_download_audited_reports)
+
+    summary = run_all(tmp_path, smartlab_only=False, skip_ocr=True, no_network=True, download_audited_reports=True)
+
+    assert calls == ["audit", "download"]
+    assert summary["reports_downloaded"] == 1
+    assert summary["audited_reports_downloaded"] == 1
+    assert summary["audited_download_failed"] == 0
