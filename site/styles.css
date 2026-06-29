@@ -551,6 +551,15 @@ td.empty { text-align: center; }
 
 /* ══ Покрытие и качество данных ══ */
 .coverage-body { padding: 6px 0 12px; }
+.quality-funnel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 4px 0 12px; }
+.quality-card { background: #FBFCFE; border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.quality-card span { font-size: .72rem; color: var(--ink-faint); }
+.quality-card b { font-size: 1.08rem; color: var(--accent-deep); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.quality-card em { font-style: normal; font-size: .72rem; color: var(--ink-faint); line-height: 1.25; }
+.quality-explainer { background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 12px; margin: 0 0 12px; font-size: .82rem; line-height: 1.45; color: var(--ink-soft); }
+.quality-explainer b { color: var(--ink); }
 .coverage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
 .coverage-card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
   padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -571,7 +580,8 @@ td.empty { text-align: center; }
 .coverage-source:first-of-type { border-top: 0; }
 .coverage-source b { font-variant-numeric: tabular-nums; color: var(--accent-deep); }
 .coverage-note { font-size: .78rem; line-height: 1.45; margin-top: 10px; }
-@media (max-width: 760px) { .coverage-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) { .quality-funnel, .coverage-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .quality-funnel, .coverage-grid { grid-template-columns: 1fr; } }
 
 /* ══ Tabbed dashboard: вкладки разделов (sticky, на мобайле скроллятся) ══ */
 .section-tabs { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px;

@@ -59,6 +59,7 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
     avg_quality = float(facts["best_quality_score"].dropna().mean()) if "best_quality_score" in facts and not facts.empty else None
     reliable = int(facts.get("is_reliable", pd.Series(dtype=bool)).sum()) if not facts.empty else 0
     manual_review = int(facts.get("needs_manual_review", pd.Series(dtype=bool)).sum()) if not facts.empty else 0
+    quality_funnel = build_data_quality_funnel(root, facts, conflicts, official_summary, disclosure_summary)
     site_financials = {
         "meta": {
             "generated_at": now,
@@ -79,13 +80,15 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
             "last_disclosure_check": disclosure_summary["last_disclosure_check"],
             "companies_with_official_report_links": disclosure_summary["companies_with_official_report_links"],
             "disclosure_errors_count": disclosure_summary["disclosure_errors_count"],
+            **quality_funnel,
+            "data_quality_funnel": quality_funnel,
             "note": "Unified financials are an additive data layer. Current legacy dashboard remains backward compatible.",
         },
         "rows": rows,
         "official_facts": official_fact_rows(official_audit),
     }
 
-    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality, official_summary, disclosure_summary)
+    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality, official_summary, disclosure_summary, quality_funnel)
     out_fin = root / "data" / "unified" / "site_financials.json"
     out_cov = root / "data" / "unified" / "site_coverage.json"
     write_json(out_fin, site_financials)
@@ -106,6 +109,7 @@ def build_coverage(
     avg_quality: float | None,
     official_summary: dict | None = None,
     disclosure_summary: dict | None = None,
+    quality_funnel: dict | None = None,
 ) -> dict:
     official_summary = official_summary or {
         "official_ifrs_facts": 0,
@@ -115,6 +119,7 @@ def build_coverage(
         "year_status_counts": {},
     }
     disclosure_summary = disclosure_summary or default_disclosure_summary()
+    quality_funnel = quality_funnel or build_data_quality_funnel(root, facts, conflicts, official_summary, disclosure_summary)
     reg_path = root / "data" / "companies_registry.csv"
     if reg_path.exists():
         reg = pd.read_csv(reg_path, dtype=str).fillna("")
@@ -143,6 +148,8 @@ def build_coverage(
             "last_disclosure_check": disclosure_summary["last_disclosure_check"],
             "companies_with_official_report_links": disclosure_summary["companies_with_official_report_links"],
             "disclosure_errors_count": disclosure_summary["disclosure_errors_count"],
+            **quality_funnel,
+            "data_quality_funnel": quality_funnel,
         },
         "coverage_status_counts": counts,
         "source_status_counts": source_status_counts,
@@ -156,6 +163,85 @@ def build_coverage(
             "manual_review": int(facts.get("needs_manual_review", pd.Series(dtype=bool)).sum()) if not facts.empty else 0,
         },
     }
+
+
+def build_data_quality_funnel(
+    root: Path,
+    facts: pd.DataFrame,
+    conflicts: int,
+    official_summary: dict,
+    disclosure_summary: dict,
+) -> dict:
+    smartlab_facts = count_processed_facts(
+        [
+            root / "data" / "processed" / "smartlab_fundamentals.parquet",
+            root / "data" / "processed" / "smartlab_financial_facts.parquet",
+        ],
+        facts,
+        "smartlab",
+    )
+    ifrs_processed = load_parquet_if_exists(root / "data" / "processed" / "ifrs_financial_facts.parquet")
+    if ifrs_processed is None:
+        ifrs_processed_facts = int(facts.get("best_source_name", pd.Series(dtype=str)).fillna("").astype(str).str.startswith("official_ifrs").sum()) if not facts.empty else 0
+        extracted_reports = 0
+    else:
+        ifrs_processed_facts = int(len(ifrs_processed))
+        source_names = ifrs_processed.get("source_name", pd.Series(dtype=str)).fillna("").astype(str)
+        extracted = ifrs_processed[source_names != "official_ifrs_verified_seed"]
+        report_ids = extracted.get("report_id", pd.Series(dtype=str)).dropna().astype(str)
+        extracted_reports = int(report_ids[report_ids != ""].nunique())
+
+    audit_summary = load_json_if_exists(root / "results" / "disclosure" / "report_index_audit_summary.json")
+    audited_links_ok = int(audit_summary.get("ok", 0)) if audit_summary else 0
+    downloaded_reports = count_downloaded_reports(root / "data" / "report_index.parquet")
+
+    return {
+        "smartlab_facts": int(smartlab_facts),
+        "official_ifrs_processed_facts": int(ifrs_processed_facts),
+        "verified_official_facts": int(official_summary["official_ifrs_facts"]),
+        "official_report_links_found": int(disclosure_summary["reports_found_from_disclosure"] or 0),
+        "audited_links_ok": int(audited_links_ok),
+        "downloaded_audited_reports": int(downloaded_reports),
+        "extracted_reports": int(extracted_reports),
+        "conflicts": int(conflicts),
+        "disclosure_errors": int(disclosure_summary["disclosure_errors_count"] or 0),
+    }
+
+
+def count_processed_facts(paths: list[Path], facts: pd.DataFrame, fallback_source_prefix: str) -> int:
+    for path in paths:
+        processed = load_parquet_if_exists(path)
+        if processed is not None:
+            return int(len(processed))
+    if facts.empty:
+        return 0
+    source_names = facts.get("best_source_name", pd.Series(dtype=str)).fillna("").astype(str)
+    return int(source_names.str.startswith(fallback_source_prefix).sum())
+
+
+def count_downloaded_reports(report_index_path: Path) -> int:
+    report_index = load_parquet_if_exists(report_index_path)
+    if report_index is None or "download_status" not in report_index:
+        return 0
+    return int((report_index["download_status"].fillna("").astype(str) == "downloaded").sum())
+
+
+def load_parquet_if_exists(path: Path) -> pd.DataFrame | None:
+    if not path.exists():
+        return None
+    try:
+        return pd.read_parquet(path)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def load_json_if_exists(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def load_disclosure_summary(root: Path) -> dict:

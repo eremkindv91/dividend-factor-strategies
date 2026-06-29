@@ -1572,7 +1572,10 @@ function renderDataCoverage() {
     const c = DATA_COVERAGE.coverage_status_counts || {};
     const sources = m.source_counts || {};
     const statuses = DATA_COVERAGE.source_status_counts || m.source_status_counts || {};
+    const funnel = m.data_quality_funnel || m;
+    const fmtCount = (v) => isNum(v) ? ru(v, 0) : (v == null ? '—' : String(v));
     const card = (lbl, val, note) => `<div class="coverage-card"><span>${esc(lbl)}</span><b>${esc(val == null ? '—' : val)}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
+    const funnelCard = (lbl, val, note) => `<div class="quality-card"><span>${esc(lbl)}</span><b>${esc(fmtCount(val))}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
     const statusOrder = ['Official IFRS', 'SmartLab fallback', 'Conflict', 'Needs review', 'OCR candidate'];
     const badgeRows = statusOrder.map((k) => {
       const cls = k.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1580,7 +1583,23 @@ function renderDataCoverage() {
     }).join('');
     const sourceRows = Object.keys(sources).sort().map((k) =>
       `<div class="coverage-source"><span>${esc(k)}</span><b>${esc(sources[k])}</b></div>`).join('');
-    body.innerHTML = `<div class="coverage-grid">
+    body.innerHTML = `<div class="quality-funnel">
+        ${funnelCard('SmartLab facts', funnel.smartlab_facts, 'baseline')}
+        ${funnelCard('Official IFRS processed facts', funnel.official_ifrs_processed_facts, 'не обязательно verified')}
+        ${funnelCard('Verified official facts', funnel.verified_official_facts, 'проверенный слой')}
+        ${funnelCard('Official report links found', funnel.official_report_links_found, 'metadata')}
+        ${funnelCard('Audited links OK', funnel.audited_links_ok, 'link audit')}
+        ${funnelCard('Downloaded reports', funnel.downloaded_audited_reports, 'controlled opt-in download')}
+        ${funnelCard('Extracted reports', funnel.extracted_reports, 'факты уже извлечены')}
+        ${funnelCard('Conflicts', funnel.conflicts, 'SmartLab vs IFRS')}
+        ${funnelCard('Disclosure errors', funnel.disclosure_errors, 'timeout/WAF/404')}
+      </div>
+      <div class="quality-explainer">
+        <b>Как читать воронку:</b> Official IFRS processed facts — это обработанный слой, но не обязательно verified.
+        Verified official facts — проверенный seed. Downloaded reports появляются только в controlled opt-in download,
+        а Extracted reports — только там, где из файла уже извлечены факты. Official links не считаются verified reports автоматически.
+      </div>
+      <div class="coverage-grid">
         ${card('Компаний в реестре', m.companies_total, 'registry')}
         ${card('SmartLab baseline', c.smartlab_only || 0, 'агрегатор')}
         ${card('Reliable facts', q.reliable || 0, 'готово к публикации')}

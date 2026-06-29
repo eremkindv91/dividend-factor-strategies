@@ -17,7 +17,13 @@ def test_frontend_has_data_coverage_block_and_loader():
     assert "Official IFRS" in js
     assert "SmartLab fallback" in js
     assert "Conflict" in js
+    assert "Official IFRS processed facts" in js
+    assert "Verified official facts" in js
+    assert "Downloaded reports" in js
+    assert "не обязательно verified" in js
+    assert "controlled opt-in download" in js
     assert ".coverage-badge" in css
+    assert ".quality-funnel" in css
 
 
 def test_daily_deploy_builds_and_publishes_coverage_json():
