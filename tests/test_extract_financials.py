@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.pipeline.extract_financials import extract_financials
+from src.normalization.ifrs_mapper import load_ifrs_mapping
+from src.pipeline.extract_financials import extract_financials, extract_text_facts
 from src.pipeline.run_all import run_all
 
 
@@ -83,6 +84,82 @@ def test_extract_financials_from_wide_xlsx_report(tmp_path: Path):
     assert facts.loc[facts["line_item_std"] == "revenue", "value_normalized"].iloc[0] == 100_500_000
     assert set(facts["source_name"]) == {"official_ifrs_xlsx"}
     assert set(facts["extraction_method"]) == {"wide_xlsx"}
+
+
+def test_extract_financials_prefers_full_year_column_over_quarter_in_wide_xlsx(tmp_path: Path):
+    facts_path = tmp_path / "reports" / "test_ifrs_2024_full_year.xlsx"
+    facts_path.parent.mkdir(parents=True)
+    pd.DataFrame([
+        [None, None, "2024", None, None, None, None],
+        ["RUB million", "line", "Q1", "Q2", "Q3", "Q4", "Full year"],
+        [None, "Total revenue", 10.0, 20.0, 30.0, 40.0, 100.0],
+        [None, "Net profit", 1.0, 2.0, 3.0, 4.0, 10.0],
+    ]).to_excel(facts_path, index=False, header=False)
+    _write_report_index(tmp_path, facts_path)
+
+    summary = extract_financials(tmp_path, skip_ocr=True)
+    facts = pd.read_parquet(tmp_path / "data" / "processed" / "ifrs_financial_facts.parquet")
+
+    assert summary["reports_extracted"] == 1
+    assert facts.loc[facts["line_item_std"] == "revenue", "value_normalized"].iloc[0] == 100_000_000
+    assert facts.loc[facts["line_item_std"] == "net_income", "value_normalized"].iloc[0] == 10_000_000
+
+
+def test_extract_financials_prefers_12m_column_over_quarter_in_wide_xlsx(tmp_path: Path):
+    facts_path = tmp_path / "reports" / "test_ifrs_2021_12m.xlsx"
+    facts_path.parent.mkdir(parents=True)
+    pd.DataFrame([
+        ["USD million", None, None, None, None],
+        ["line", "Q1 2021", "Q2 2021", "Q4 2021", "12M 2021"],
+        ["Revenue", 25.0, 30.0, 40.0, 150.0],
+        ["Total assets", 300.0, 310.0, 320.0, 400.0],
+    ]).to_excel(facts_path, index=False, header=False)
+    _write_report_index(tmp_path, facts_path)
+
+    summary = extract_financials(tmp_path, skip_ocr=True)
+    facts = pd.read_parquet(tmp_path / "data" / "processed" / "ifrs_financial_facts.parquet")
+
+    assert summary["reports_extracted"] == 1
+    assert facts.loc[facts["line_item_std"] == "revenue", "value_normalized"].iloc[0] == 150_000_000
+    assert facts.loc[facts["line_item_std"] == "total_assets", "value_normalized"].iloc[0] == 400_000_000
+
+
+def test_extract_financials_prefers_total_revenue_over_component_revenue(tmp_path: Path):
+    facts_path = tmp_path / "reports" / "test_ifrs_2024_revenue_components.xlsx"
+    facts_path.parent.mkdir(parents=True)
+    pd.DataFrame([
+        [None, None, "2024", None],
+        ["RUB million", "line", "Q4", "Full year"],
+        [None, "Service revenue", 40.0, 80.0],
+        [None, "Sales of goods", 10.0, 20.0],
+        [None, "Total revenue", 50.0, 100.0],
+    ]).to_excel(facts_path, index=False, header=False)
+    _write_report_index(tmp_path, facts_path)
+
+    summary = extract_financials(tmp_path, skip_ocr=True)
+    facts = pd.read_parquet(tmp_path / "data" / "processed" / "ifrs_financial_facts.parquet")
+
+    assert summary["reports_extracted"] == 1
+    assert facts.loc[facts["line_item_std"] == "revenue", "line_item_raw"].iloc[0] == "Total revenue"
+    assert facts.loc[facts["line_item_std"] == "revenue", "value_normalized"].iloc[0] == 100_000_000
+
+
+def test_extract_text_facts_uses_current_period_value_after_note_number():
+    mapping = load_ifrs_mapping(Path("data/mapping/ifrs_line_items.yaml"))
+    report = {"report_id": "pdf-report", "ticker": "PDF", "fiscal_year": 2025, "period": "2025", "source_url": "https://issuer.example/report.pdf"}
+    text = "\n".join([
+        "RUB million",
+        "Revenues 5 573,628 507,689",
+        "Profit for the year 114,243 84,469",
+        "Total assets 13 027 819,1 12 092 628,5",
+    ])
+
+    facts = extract_text_facts(report, text, mapping, "2026-06-29T00:00:00+00:00")
+    values = {row["line_item_std"]: row["value_normalized"] for row in facts}
+
+    assert values["revenue"] == 573_628_000_000
+    assert values["net_income"] == 114_243_000_000
+    assert values["total_assets"] == 13_027_819_100_000
 
 
 def test_extract_financials_keeps_committed_official_seed_without_raw_downloads(tmp_path: Path):

@@ -220,8 +220,7 @@ def extract_structured_report(root: Path, report: dict, file_path: Path, mapping
 
 def extract_wide_xlsx(root: Path, report: dict, file_path: Path, mapping: dict, now: str) -> list[dict]:
     sheets = pd.read_excel(file_path, sheet_name=None, header=None)
-    rows: list[dict] = []
-    seen: set[str] = set()
+    candidates: dict[str, tuple[int, dict]] = {}
     fiscal_year = _int_or_none(report.get("fiscal_year"))
     for sheet_name, sheet in sheets.items():
         if sheet.empty:
@@ -235,13 +234,13 @@ def extract_wide_xlsx(root: Path, report: dict, file_path: Path, mapping: dict, 
             value_raw = rec.iloc[value_col] if value_col < len(rec) else None
             raw_label = row_label_before_value(rec, value_col)
             canonical = map_line_item_loose(raw_label, mapping)
-            if not canonical or canonical in seen:
+            if not canonical:
                 continue
             spec = mapping.get(canonical, {})
             value_normalized = normalize_numeric_value(value_raw, multiplier, spec.get("sign_convention", "as_reported"))
             if value_normalized is None:
                 continue
-            rows.append(make_fact_row(
+            row = make_fact_row(
                 report=report,
                 ticker=str(report.get("ticker") or "").strip().upper(),
                 fiscal_year=fiscal_year,
@@ -258,9 +257,32 @@ def extract_wide_xlsx(root: Path, report: dict, file_path: Path, mapping: dict, 
                 statement_type=spec.get("statement_type") or "",
                 source_table_id=str(sheet_name),
                 now=now,
-            ))
-            seen.add(canonical)
-    return rows
+            )
+            score = line_item_candidate_score(canonical, raw_label)
+            existing = candidates.get(canonical)
+            if existing is None or score > existing[0]:
+                candidates[canonical] = (score, row)
+    return [row for _score, row in candidates.values()]
+
+
+def line_item_candidate_score(canonical: str, raw_label: str) -> int:
+    norm = normalize_label(raw_label)
+    canonical_label = canonical.replace("_", " ")
+    score = 0
+    if norm == canonical_label:
+        score += 100
+    if norm == f"total {canonical_label}":
+        score += 120
+    if norm.startswith("total "):
+        score += 40
+    if canonical == "revenue":
+        if norm == "total revenue":
+            score += 140
+        if any(marker in norm for marker in ("service revenue", "sales of goods", "third parties", "related parties")):
+            score -= 80
+    if canonical == "total_debt" and any(marker in norm for marker in ("long term", "short term", "current", "lease")):
+        score -= 30
+    return score
 
 
 def extract_html_tables(root: Path, report: dict, file_path: Path, mapping: dict, now: str) -> list[dict]:
@@ -306,23 +328,21 @@ def extract_pdf_text_tables(root: Path, report: dict, file_path: Path, mapping: 
 
 
 def extract_text_facts(report: dict, text: str, mapping: dict, now: str) -> list[dict]:
-    rows: list[dict] = []
+    candidates: dict[str, tuple[int, dict]] = {}
     fiscal_year = _int_or_none(report.get("fiscal_year"))
     multiplier = infer_unit_multiplier_from_text(text)
-    seen: set[str] = set()
     for line in text.splitlines():
         canonical = map_line_item_loose(line, mapping)
-        if not canonical or canonical in seen:
+        if not canonical:
             continue
-        numbers = re.findall(r"[-(]?\d[\d\s,.\u00a0\u202f]*\)?", line)
-        if not numbers:
+        value_raw = current_period_number_from_line(line)
+        if value_raw is None:
             continue
         spec = mapping.get(canonical, {})
-        value_raw = numbers[-1]
         value_normalized = normalize_numeric_value(value_raw, multiplier, spec.get("sign_convention", "as_reported"))
         if value_normalized is None:
             continue
-        rows.append(make_fact_row(
+        row = make_fact_row(
             report=report,
             ticker=str(report.get("ticker") or "").strip().upper(),
             fiscal_year=fiscal_year,
@@ -339,9 +359,83 @@ def extract_text_facts(report: dict, text: str, mapping: dict, now: str) -> list
             statement_type=spec.get("statement_type") or "",
             source_table_id=None,
             now=now,
-        ))
-        seen.add(canonical)
-    return rows
+        )
+        score = line_item_candidate_score(canonical, line)
+        existing = candidates.get(canonical)
+        if existing is None or score > existing[0]:
+            candidates[canonical] = (score, row)
+    return [row for _score, row in candidates.values()]
+
+
+def current_period_number_from_line(line: str) -> str | None:
+    tokens = numeric_tokens(line)
+    if not tokens:
+        return None
+    if looks_like_note_number(tokens):
+        tokens = tokens[1:]
+    groups = numeric_value_groups(tokens)
+    return groups[0] if groups else None
+
+
+def numeric_tokens(line: str) -> list[str]:
+    raw_tokens = str(line).replace("\xa0", " ").replace("\u202f", " ").split()
+    tokens: list[str] = []
+    for token in raw_tokens:
+        cleaned = token.strip().strip(";:")
+        cleaned = cleaned.replace("−", "-")
+        if re.fullmatch(r"\(?-?\d[\d,.\s]*\)?", cleaned):
+            tokens.append(cleaned)
+    return tokens
+
+
+def looks_like_note_number(tokens: list[str]) -> bool:
+    if len(tokens) < 3:
+        return False
+    first = tokens[0].strip("()")
+    if not re.fullmatch(r"\d{1,2}", first):
+        return False
+    second = tokens[1].strip("()")
+    if re.fullmatch(r"0\d{2}", second):
+        return False
+    return len(numeric_value_groups(tokens[1:])) >= 2
+
+
+def numeric_value_groups(tokens: list[str]) -> list[str]:
+    groups: list[str] = []
+    i = 0
+    while i < len(tokens):
+        group = [tokens[i]]
+        first_has_separator = numeric_token_has_separator(tokens[i])
+        i += 1
+        if first_has_separator:
+            groups.append(normalize_pdf_number_group(" ".join(group)))
+            continue
+        while i < len(tokens) and is_numeric_continuation(tokens[i]):
+            group.append(tokens[i])
+            has_separator = numeric_token_has_separator(tokens[i])
+            i += 1
+            if has_separator:
+                break
+        groups.append(normalize_pdf_number_group(" ".join(group)))
+    return groups
+
+
+def normalize_pdf_number_group(value: str) -> str:
+    text = value.strip()
+    neg_wrap = text.startswith("(") and text.endswith(")")
+    core = text[1:-1] if neg_wrap else text
+    if " " not in core and "." not in core and re.fullmatch(r"-?\d{1,3}(,\d{3})+", core):
+        core = core.replace(",", "")
+    return f"({core})" if neg_wrap else core
+
+
+def numeric_token_has_separator(token: str) -> bool:
+    return bool(re.search(r"[,.]", token))
+
+
+def is_numeric_continuation(token: str) -> bool:
+    core = token.strip().strip("()")
+    return bool(re.fullmatch(r"\d{3}([,.]\d+)?", core))
 
 
 def make_fact_row(
@@ -409,12 +503,50 @@ def find_year_value_column(sheet: pd.DataFrame, fiscal_year: int | None) -> tupl
         if not year_cols:
             continue
         if fiscal_year is not None:
-            matches = [col for col, year in year_cols if year == fiscal_year]
+            matches = [(col, year) for col, year in year_cols if year == fiscal_year]
             if matches:
-                return idx, matches[0]
-        col, _year = sorted(year_cols, key=lambda item: item[1], reverse=True)[0]
-        return idx, col
+                return idx, choose_annual_value_column(sheet, idx, year_cols, matches)
+        latest_col, latest_year = sorted(year_cols, key=lambda item: item[1], reverse=True)[0]
+        latest_matches = [(col, year) for col, year in year_cols if year == latest_year]
+        return idx, choose_annual_value_column(sheet, idx, year_cols, latest_matches)
     return None, None
+
+
+def choose_annual_value_column(
+    sheet: pd.DataFrame,
+    header_idx: int,
+    year_cols: list[tuple[int, int]],
+    matches: list[tuple[int, int]],
+) -> int:
+    max_col = max(0, sheet.shape[1] - 1)
+    year_cols_sorted = sorted(year_cols, key=lambda item: item[0])
+    candidates: set[int] = set()
+    for col, _year in matches:
+        later_year_cols = [next_col for next_col, _ in year_cols_sorted if next_col > col]
+        end = min((later_year_cols[0] - 1) if later_year_cols else max_col, max_col)
+        candidates.update(range(col, end + 1))
+    if not candidates:
+        return matches[0][0]
+    return max(candidates, key=lambda col: (annual_column_score(sheet, header_idx, col), col))
+
+
+def annual_column_score(sheet: pd.DataFrame, header_idx: int, col: int) -> int:
+    texts: list[str] = []
+    for row_idx in range(max(0, header_idx - 1), min(len(sheet), header_idx + 3)):
+        value = sheet.iat[row_idx, col] if col < sheet.shape[1] else None
+        if not pd.isna(value):
+            texts.append(str(value))
+    label = normalize_label(" ".join(texts))
+    score = 0
+    if any(marker in label for marker in ("full year", "fullyear", "12m", "fy", "annual", "year ended", "for the year")):
+        score += 100
+    if any(marker in label for marker in ("dec 31", "31 dec", "december 31", "31 december")):
+        score += 90
+    if any(marker in label for marker in ("q4", "4q")):
+        score += 30
+    if any(marker in label for marker in ("q1", "q2", "q3", "3m", "6m", "9m")):
+        score -= 20
+    return score
 
 
 def row_label_before_value(row: pd.Series, value_col: int) -> str:

@@ -7,6 +7,7 @@ revenue:
     - Выручка от реализации
   aliases_en:
     - Revenue
+    - Revenues
     - Sales
     - Revenue from contracts with customers
   sign_convention: positive
@@ -23,6 +24,7 @@ net_income:
     - Net income
     - Net profit
     - Profit for the period
+    - Profit for the year
   sign_convention: as_reported
   unit: currency
   priority: 1
