@@ -63,6 +63,23 @@ def test_extract_financials_from_structured_csv_report(tmp_path: Path):
     assert set(facts["source_name"]) == {"official_ifrs_structured_file"}
 
 
+def test_extract_financials_marks_report_index_extracted(tmp_path: Path):
+    facts_path = tmp_path / "reports" / "test_ifrs_2025.csv"
+    facts_path.parent.mkdir(parents=True)
+    pd.DataFrame([
+        {"line_item_raw": "Revenue", "value": 100.5, "currency": "RUB", "unit_multiplier": 1_000_000},
+    ]).to_csv(facts_path, index=False)
+    _write_report_index(tmp_path, facts_path)
+
+    summary = extract_financials(tmp_path, skip_ocr=True)
+    report_index = pd.read_parquet(tmp_path / "data" / "report_index.parquet")
+
+    assert summary["reports_extracted"] == 1
+    assert report_index.loc[0, "extraction_status"] == "extracted"
+    assert report_index.loc[0, "parse_status"] == "parsed"
+    assert report_index.loc[0, "quality_status"] == "structured_extracted"
+
+
 def test_extract_financials_from_wide_xlsx_report(tmp_path: Path):
     facts_path = tmp_path / "reports" / "test_ifrs_2025.xlsx"
     facts_path.parent.mkdir(parents=True)
@@ -296,6 +313,10 @@ def test_extract_financials_does_not_reparse_reports_covered_by_verified_seed(tm
     assert summary["reports_extracted"] == 0
     assert summary["reports_skipped_by_seed"] == 1
     assert set(facts["line_item_std"]) == {"revenue"}
+    report_index = pd.read_parquet(tmp_path / "data" / "report_index.parquet")
+    assert report_index.loc[0, "extraction_status"] == "skipped_verified_seed"
+    assert report_index.loc[0, "parse_status"] == "skipped"
+    assert report_index.loc[0, "quality_status"] == "verified_seed_present"
 
 
 def test_run_all_uses_structured_ifrs_facts_when_confirmed_by_smartlab(tmp_path: Path):

@@ -50,9 +50,20 @@ def extract_financials(root: Path = REPO_ROOT, skip_ocr: bool = True) -> dict:
 
     if report_index.exists():
         reports = pd.read_parquet(report_index)
+        report_index_updated = False
         for _, report in reports.iterrows():
+            idx = report.name
             if str(report.get("report_id") or "") in seed_report_ids:
                 reports_skipped_by_seed += 1
+                mark_report_index_status(
+                    reports,
+                    idx,
+                    extraction_status="skipped_verified_seed",
+                    parse_status="skipped",
+                    quality_status="verified_seed_present",
+                    now=now,
+                )
+                report_index_updated = True
                 continue
             file_path = str(report.get("file_path") or "").strip()
             if not file_path:
@@ -69,10 +80,40 @@ def extract_financials(root: Path = REPO_ROOT, skip_ocr: bool = True) -> dict:
                     "confidence_score": 0,
                     "created_at": f"{now} extraction_error={e}",
                 })
+                mark_report_index_status(
+                    reports,
+                    idx,
+                    extraction_status="extraction_error",
+                    parse_status="error",
+                    quality_status="extraction_error",
+                    now=now,
+                )
+                report_index_updated = True
                 continue
             if extracted:
                 reports_extracted += 1
                 facts.extend(extracted)
+                mark_report_index_status(
+                    reports,
+                    idx,
+                    extraction_status="extracted",
+                    parse_status="parsed",
+                    quality_status="structured_extracted",
+                    now=now,
+                )
+                report_index_updated = True
+            else:
+                mark_report_index_status(
+                    reports,
+                    idx,
+                    extraction_status="no_facts_extracted",
+                    parse_status="parsed_empty",
+                    quality_status="no_facts_extracted",
+                    now=now,
+                )
+                report_index_updated = True
+        if report_index_updated:
+            write_parquet(report_index, reports)
 
     out = pd.DataFrame(facts, columns=IFRS_COLUMNS) if facts else pd.DataFrame(columns=IFRS_COLUMNS)
     if not out.empty:
@@ -89,6 +130,24 @@ def extract_financials(root: Path = REPO_ROOT, skip_ocr: bool = True) -> dict:
         "ocr_skipped": skip_ocr,
         "mode": "structured_files_only",
     }
+
+
+def mark_report_index_status(
+    reports: pd.DataFrame,
+    idx,
+    *,
+    extraction_status: str,
+    parse_status: str,
+    quality_status: str,
+    now: str,
+) -> None:
+    for col in ("extraction_status", "parse_status", "quality_status", "updated_at"):
+        if col not in reports:
+            reports[col] = ""
+    reports.at[idx, "extraction_status"] = extraction_status
+    reports.at[idx, "parse_status"] = parse_status
+    reports.at[idx, "quality_status"] = quality_status
+    reports.at[idx, "updated_at"] = now
 
 
 def normalize_ifrs_output(df: pd.DataFrame) -> pd.DataFrame:
