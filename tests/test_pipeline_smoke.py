@@ -251,3 +251,28 @@ def test_run_all_downloads_audited_reports_only_when_flag_enabled(tmp_path: Path
     assert summary["reports_downloaded"] == 1
     assert summary["audited_reports_downloaded"] == 1
     assert summary["audited_download_failed"] == 0
+
+
+def test_run_all_summary_includes_extracted_ifrs_review_counts(tmp_path: Path, monkeypatch):
+    panel_dir = tmp_path / "data" / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {"ticker": "TEST", "year": 2025, "sector": "IT", "revenue_mln": 100},
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    def fake_extracted_ifrs_audit(*_args, **_kwargs):
+        return {
+            "extracted_ifrs_facts": 2,
+            "needs_manual_review": 1,
+            "status_counts": {"confirmed_by_smartlab": 1, "needs_review": 1},
+            "source_counts": {"official_ifrs_xlsx": 2},
+            "companies": ["TEST"],
+        }
+
+    monkeypatch.setattr("src.pipeline.run_all.write_extracted_ifrs_audit", fake_extracted_ifrs_audit)
+
+    summary = run_all(tmp_path, smartlab_only=False, skip_ocr=True, no_network=True)
+
+    assert summary["extracted_ifrs_facts"] == 2
+    assert summary["extracted_ifrs_needs_review"] == 1
+    assert summary["extracted_ifrs_status_counts"] == {"confirmed_by_smartlab": 1, "needs_review": 1}

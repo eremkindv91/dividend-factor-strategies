@@ -18,6 +18,7 @@ from src.pipeline.migrate_existing_smartlab_data import migrate_smartlab
 from src.pipeline.unify_financial_data import unify_financial_data
 from src.pipeline.validate_financials import validate_financials
 from src.quality.audit_disclosure_links import audit_report_index
+from src.quality.audit_extracted_ifrs import write_extracted_ifrs_audit
 from src.quality.audit_official_ifrs import write_official_ifrs_audit
 
 
@@ -83,6 +84,17 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         except Exception as e:  # noqa: BLE001
             ifrs_failures.append({"step": "extract_financials", "error": str(e)})
     unify = unify_financial_data(root)
+    extracted_ifrs_audit = {
+        "extracted_ifrs_facts": 0,
+        "needs_manual_review": 0,
+        "status_counts": {},
+        "source_counts": {},
+        "companies": [],
+    }
+    try:
+        extracted_ifrs_audit = write_extracted_ifrs_audit(root)
+    except Exception as e:  # noqa: BLE001
+        ifrs_failures.append({"step": "audit_extracted_ifrs", "error": str(e)})
     official_audit = write_official_ifrs_audit(root)
     validation = validate_financials(root)
     site = build_site_data(root)
@@ -119,6 +131,11 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "ocr_pages_processed": 0,
         "facts_from_smartlab": migration["facts_written"],
         "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
+        "extracted_ifrs_facts": extracted_ifrs_audit.get("extracted_ifrs_facts", 0),
+        "extracted_ifrs_needs_review": extracted_ifrs_audit.get("needs_manual_review", 0),
+        "extracted_ifrs_status_counts": extracted_ifrs_audit.get("status_counts", {}),
+        "extracted_ifrs_source_counts": extracted_ifrs_audit.get("source_counts", {}),
+        "extracted_ifrs_companies": extracted_ifrs_audit.get("companies", []),
         "official_ifrs_facts": official_audit["official_ifrs_facts"],
         "official_ifrs_missing_facts": official_audit["missing_official_facts"],
         "official_ifrs_role_counts": official_audit["role_counts"],
@@ -127,7 +144,13 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "facts_from_manual_override": 0,
         "conflicts_count": unify["conflicts_count"],
         "duplicates_removed": unify["duplicates_removed"],
-        "manual_review_count": migration["issues"] + unify["conflicts_count"] + len(ifrs_failures) + validation.get("errors", 0),
+        "manual_review_count": (
+            migration["issues"]
+            + unify["conflicts_count"]
+            + int(extracted_ifrs_audit.get("needs_manual_review", 0))
+            + len(ifrs_failures)
+            + validation.get("errors", 0)
+        ),
         "average_quality_score": avg_quality,
         "estimated_ocr_cost": 0,
         "last_successful_run": utc_now_iso(),

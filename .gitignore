@@ -60,6 +60,7 @@ data/backups/
 data/audited_download_summary.json
 data/disclosure_summary.json
 data/manual_review/*.csv
+data/manual_review/*.json
 data/pipeline_summary.json
 data/processed/*.parquet
 data/raw_reports/
