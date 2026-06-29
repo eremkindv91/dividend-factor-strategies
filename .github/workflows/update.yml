@@ -62,13 +62,17 @@ jobs:
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 
-      - name: Сборка unified financial layer (SmartLab baseline + metadata-only IFRS, без OCR)
-        # дополнительный слой прозрачности источников; не заменяет старый data.json-контракт
-        # если IFRS/disclosure ветка падает, run_all продолжает на SmartLab baseline и пишет ifrs_failures в summary
-        run: python -m src.pipeline.run_all --skip-ocr --allow-network
-
-      - name: Валидация unified financial layer
-        run: python -m src.pipeline.validate_financials
+      - name: Сборка unified financial layer и disclosure metadata loop
+        # Явный daily loop: обновляет registry/source metadata, ищет IFRS/МСФО отчеты
+        # на e-disclosure/issuer pages, не скачивает тяжелые PDF/XLSX без --download,
+        # сохраняет SmartLab fallback и публикует additive JSON layer.
+        run: |
+          python -m src.pipeline.discover_companies
+          python -m src.pipeline.fetch_reports --from-year 2024 --to-year 2026
+          python -m src.pipeline.extract_financials --skip-ocr
+          python -m src.pipeline.validate_financials
+          python -m src.pipeline.unify_financial_data
+          python -m src.pipeline.build_site_data
 
       - name: Валидация контрактов JSON перед публикацией
         # критическая ошибка контракта → exit 1 → шаг публикации НЕ выполнится (не публикуем битое)

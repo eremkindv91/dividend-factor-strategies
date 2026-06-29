@@ -169,3 +169,39 @@ def test_run_all_summary_includes_official_ifrs_audit_counts(tmp_path: Path):
     assert summary["official_ifrs_missing_facts"] == 0
     assert summary["official_ifrs_role_counts"] == {"best_value": 1}
     assert published["official_facts"][0]["selected_reason"] == "official_ifrs_confirmed_by_smartlab"
+
+
+def test_run_all_summary_and_site_coverage_include_disclosure_counters(tmp_path: Path, monkeypatch):
+    panel_dir = tmp_path / "data" / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "year": 2025,
+            "sector": "IT",
+            "revenue_mln": 100,
+        }
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    def fake_fetch_reports(*_args, **_kwargs):
+        return {
+            "reports_found": 2,
+            "reports_found_from_disclosure": 2,
+            "reports_downloaded": 0,
+            "disclosure_errors_count": 1,
+            "last_disclosure_check": "2026-06-29T00:00:00+00:00",
+            "report_index_updated_at": "2026-06-29T00:00:01+00:00",
+        }
+
+    monkeypatch.setattr("src.pipeline.run_all.fetch_reports", fake_fetch_reports)
+
+    summary = run_all(tmp_path, smartlab_only=False, skip_ocr=True, no_network=False)
+    coverage = json.loads((tmp_path / "site" / "site_coverage.json").read_text())
+
+    assert summary["reports_found_from_disclosure"] == 2
+    assert summary["disclosure_errors_count"] == 1
+    assert summary["last_disclosure_check"] == "2026-06-29T00:00:00+00:00"
+    assert summary["report_index_updated_at"] == "2026-06-29T00:00:01+00:00"
+    assert coverage["meta"]["reports_found_from_disclosure"] == 2
+    assert coverage["meta"]["disclosure_errors_count"] == 1
+    assert coverage["meta"]["last_disclosure_check"] == "2026-06-29T00:00:00+00:00"

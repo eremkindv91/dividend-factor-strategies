@@ -207,15 +207,10 @@ def test_fetch_reports_discovers_report_links_from_official_page(tmp_path: Path)
     idx = pd.read_parquet(data / "report_index.parquet")
     reports = idx[idx["source_name"] == "official_page_link"]
 
-    assert summary["reports_found"] == 4
-    assert set(reports["source_url"]) == {
-        "https://issuer.example/files/test-ifrs-2025.pdf",
-        "https://issuer.example/investors/results/presentation-2025.pdf",
-        "https://issuer.example/files/test-rsbu-2025.pdf",
-    }
+    assert summary["reports_found"] == 2
+    assert set(reports["source_url"]) == {"https://issuer.example/files/test-ifrs-2025.pdf"}
     assert set(reports["download_status"]) == {"link_discovered"}
     assert reports.loc[reports["source_url"].str.contains("ifrs"), "reporting_standard"].iloc[0] == "IFRS"
-    assert reports.loc[reports["source_url"].str.contains("rsbu"), "reporting_standard"].iloc[0] == "RAS"
     assert set(reports["fiscal_year"]) == {2025}
 
 

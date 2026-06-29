@@ -5,7 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.io_utils import utc_now_iso, write_json
+from src.data_sources.disclosure_adapter import DISCLOSURE_ERROR_COLUMNS
+from src.io_utils import utc_now_iso, write_csv, write_json
 from src.paths import REPO_ROOT, ensure_dir
 from src.pipeline.audit_existing_data import audit_existing_data
 from src.pipeline.build_site_data import build_site_data
@@ -21,12 +22,19 @@ from src.quality.audit_official_ifrs import write_official_ifrs_audit
 def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool = True, **kwargs) -> dict:
     start = utc_now_iso()
     ensure_dir(root / "logs")
-    no_network = kwargs.get("no_network", True)
+    no_network = kwargs.get("no_network", False)
     audit = audit_existing_data(root)
     migration = migrate_smartlab(root, make_backup=True)
     skipped = []
     discover = {"new_companies_added": None, "source_rows": 0}
-    reports = {"reports_found": 0, "reports_downloaded": 0}
+    reports = {
+        "reports_found": 0,
+        "reports_found_from_disclosure": 0,
+        "reports_downloaded": 0,
+        "disclosure_errors_count": 0,
+        "last_disclosure_check": None,
+        "report_index_updated_at": None,
+    }
     extraction = {"reports_extracted": 0, "reports_failed": 0, "facts_from_ifrs": 0}
     ifrs_failures = []
     if smartlab_only:
@@ -53,6 +61,8 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             )
         except Exception as e:  # noqa: BLE001
             ifrs_failures.append({"step": "fetch_reports", "error": str(e)})
+            reports = record_disclosure_failure(root, str(e))
+        write_json(root / "data" / "disclosure_summary.json", disclosure_summary_from_reports(reports))
         try:
             extraction = extract_financials(root, skip_ocr=skip_ocr)
         except Exception as e:  # noqa: BLE001
@@ -77,9 +87,13 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "new_companies_added": discover.get("new_companies_added"),
         "source_rows": discover.get("source_rows", 0),
         "reports_found": reports.get("reports_found", 0),
+        "reports_found_from_disclosure": reports.get("reports_found_from_disclosure", reports.get("reports_found", 0)),
         "reports_downloaded": reports.get("reports_downloaded", 0),
         "reports_extracted": extraction.get("reports_extracted", 0),
         "reports_failed": extraction.get("reports_failed", 0),
+        "disclosure_errors_count": reports.get("disclosure_errors_count", reports.get("source_errors", 0)),
+        "last_disclosure_check": reports.get("last_disclosure_check"),
+        "report_index_updated_at": reports.get("report_index_updated_at"),
         "ifrs_failures": ifrs_failures,
         "validation_errors": validation.get("errors", 0),
         "ocr_pages_processed": 0,
@@ -115,6 +129,44 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             f"ifrs_failures={len(ifrs_failures)} estimated_ocr_cost={summary['estimated_ocr_cost']}\n"
         )
     return summary
+
+
+def record_disclosure_failure(root: Path, detail: str) -> dict:
+    now = utc_now_iso()
+    rows = [{
+        "ticker": "",
+        "inn": "",
+        "company_name": "",
+        "source_type": "pipeline",
+        "source_url": "",
+        "issue": "fetch_reports_exception",
+        "detail": detail,
+        "created_at": now,
+    }]
+    write_csv(root / "data" / "manual_review" / "disclosure_errors.csv", rows, DISCLOSURE_ERROR_COLUMNS)
+    summary = {
+        "reports_found": 0,
+        "reports_found_from_disclosure": 0,
+        "reports_downloaded": 0,
+        "disclosure_errors_count": 1,
+        "last_disclosure_check": now,
+        "report_index_updated_at": None,
+        "mode": "fetch_reports_exception",
+    }
+    write_json(root / "data" / "disclosure_summary.json", summary)
+    return summary
+
+
+def disclosure_summary_from_reports(reports: dict) -> dict:
+    return {
+        "reports_found": reports.get("reports_found", 0),
+        "reports_found_from_disclosure": reports.get("reports_found_from_disclosure", reports.get("reports_found", 0)),
+        "reports_downloaded": reports.get("reports_downloaded", 0),
+        "disclosure_errors_count": reports.get("disclosure_errors_count", reports.get("source_errors", 0)),
+        "last_disclosure_check": reports.get("last_disclosure_check"),
+        "report_index_updated_at": reports.get("report_index_updated_at"),
+        "mode": reports.get("mode", "run_all"),
+    }
 
 
 def _registry_counts(root: Path) -> dict[str, int]:

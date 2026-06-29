@@ -23,8 +23,12 @@ def test_frontend_has_data_coverage_block_and_loader():
 def test_daily_deploy_builds_and_publishes_coverage_json():
     workflow = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
 
-    assert "python -m src.pipeline.run_all --skip-ocr" in workflow
+    assert "python -m src.pipeline.discover_companies" in workflow
+    assert "python -m src.pipeline.fetch_reports --from-year 2024 --to-year 2026" in workflow
+    assert "python -m src.pipeline.extract_financials" in workflow
     assert "python -m src.pipeline.validate_financials" in workflow
+    assert "python -m src.pipeline.unify_financial_data" in workflow
+    assert "python -m src.pipeline.build_site_data" in workflow
     assert "site/site_coverage.json" in workflow
     assert "site/site_financials.json" in workflow
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,7 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
     facts = pd.read_parquet(facts_path)
     official_audit = build_official_ifrs_audit(root)
     official_summary = official_ifrs_audit_summary(official_audit)
+    disclosure_summary = load_disclosure_summary(root)
     now = utc_now_iso()
 
     rows = []
@@ -73,13 +75,17 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
             "official_ifrs_role_counts": official_summary["role_counts"],
             "official_ifrs_status_counts": official_summary["source_status_counts"],
             "official_ifrs_year_status_counts": official_summary["year_status_counts"],
+            "reports_found_from_disclosure": disclosure_summary["reports_found_from_disclosure"],
+            "last_disclosure_check": disclosure_summary["last_disclosure_check"],
+            "companies_with_official_report_links": disclosure_summary["companies_with_official_report_links"],
+            "disclosure_errors_count": disclosure_summary["disclosure_errors_count"],
             "note": "Unified financials are an additive data layer. Current legacy dashboard remains backward compatible.",
         },
         "rows": rows,
         "official_facts": official_fact_rows(official_audit),
     }
 
-    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality, official_summary)
+    coverage = build_coverage(root, facts, now, source_counts, source_status_counts, conflicts, avg_quality, official_summary, disclosure_summary)
     out_fin = root / "data" / "unified" / "site_financials.json"
     out_cov = root / "data" / "unified" / "site_coverage.json"
     write_json(out_fin, site_financials)
@@ -99,6 +105,7 @@ def build_coverage(
     conflicts: int,
     avg_quality: float | None,
     official_summary: dict | None = None,
+    disclosure_summary: dict | None = None,
 ) -> dict:
     official_summary = official_summary or {
         "official_ifrs_facts": 0,
@@ -107,6 +114,7 @@ def build_coverage(
         "source_status_counts": {},
         "year_status_counts": {},
     }
+    disclosure_summary = disclosure_summary or default_disclosure_summary()
     reg_path = root / "data" / "companies_registry.csv"
     if reg_path.exists():
         reg = pd.read_csv(reg_path, dtype=str).fillna("")
@@ -131,6 +139,10 @@ def build_coverage(
             "official_ifrs_role_counts": official_summary["role_counts"],
             "official_ifrs_status_counts": official_summary["source_status_counts"],
             "official_ifrs_year_status_counts": official_summary["year_status_counts"],
+            "reports_found_from_disclosure": disclosure_summary["reports_found_from_disclosure"],
+            "last_disclosure_check": disclosure_summary["last_disclosure_check"],
+            "companies_with_official_report_links": disclosure_summary["companies_with_official_report_links"],
+            "disclosure_errors_count": disclosure_summary["disclosure_errors_count"],
         },
         "coverage_status_counts": counts,
         "source_status_counts": source_status_counts,
@@ -143,6 +155,51 @@ def build_coverage(
             "acceptable": int(((facts.get("best_quality_score", pd.Series(dtype=float)) >= 70) & (facts.get("best_quality_score", pd.Series(dtype=float)) < 90)).sum()) if not facts.empty else 0,
             "manual_review": int(facts.get("needs_manual_review", pd.Series(dtype=bool)).sum()) if not facts.empty else 0,
         },
+    }
+
+
+def load_disclosure_summary(root: Path) -> dict:
+    summary = default_disclosure_summary()
+    summary_path = root / "data" / "disclosure_summary.json"
+    if summary_path.exists():
+        try:
+            raw = json.loads(summary_path.read_text(encoding="utf-8"))
+            summary.update({k: raw.get(k, summary[k]) for k in summary if k in raw})
+        except (OSError, json.JSONDecodeError):
+            pass
+    report_index = root / "data" / "report_index.parquet"
+    if report_index.exists():
+        try:
+            idx = pd.read_parquet(report_index)
+            if not idx.empty:
+                summary["reports_found_from_disclosure"] = int(summary.get("reports_found_from_disclosure") or len(idx))
+                link_mask = idx.get("source_name", pd.Series(dtype=str)).astype(str).isin([
+                    "official_page_link", "manual_report", "report_pdf", "report_xlsx", "ifrs_report",
+                ])
+                urls = idx.get("source_url", pd.Series(dtype=str)).fillna("").astype(str).str.strip() != ""
+                summary["companies_with_official_report_links"] = int(idx[link_mask & urls]["ticker"].dropna().astype(str).str.upper().nunique())
+                updated = idx.get("updated_at", pd.Series(dtype=str)).dropna().astype(str)
+                if summary.get("report_index_updated_at") in (None, "") and not updated.empty:
+                    summary["report_index_updated_at"] = updated.max()
+        except Exception:  # noqa: BLE001
+            pass
+    errors_path = root / "data" / "manual_review" / "disclosure_errors.csv"
+    if errors_path.exists():
+        try:
+            errors = pd.read_csv(errors_path)
+            summary["disclosure_errors_count"] = int(len(errors))
+        except Exception:  # noqa: BLE001
+            pass
+    return summary
+
+
+def default_disclosure_summary() -> dict:
+    return {
+        "reports_found_from_disclosure": 0,
+        "last_disclosure_check": None,
+        "report_index_updated_at": None,
+        "companies_with_official_report_links": 0,
+        "disclosure_errors_count": 0,
     }
 
 

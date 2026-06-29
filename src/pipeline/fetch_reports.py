@@ -10,8 +10,9 @@ from urllib.parse import urljoin, urlparse
 
 import pandas as pd
 
+from src.data_sources import disclosure_adapter as disclosure
 from src.extraction.document_classifier import classify_document
-from src.io_utils import stable_id, utc_now_iso, write_csv, write_parquet
+from src.io_utils import stable_id, utc_now_iso, write_csv, write_json, write_parquet
 from src.paths import REPO_ROOT, ensure_dir
 
 
@@ -43,190 +44,61 @@ def fetch_reports(
     *_args,
     **_kwargs,
 ) -> dict:
-    source_path = root / "data" / "company_sources.csv"
     path = root / "data" / "report_index.parquet"
     now = utc_now_iso()
-    rows = []
-    errors = []
-    if not source_path.exists() and path.exists():
+    rows, errors = disclosure.discover_disclosure_reports(
+        root,
+        from_year=from_year,
+        to_year=to_year,
+        ticker=ticker,
+        limit_companies=limit_companies,
+        no_network=no_network,
+        metadata_checker=metadata_checker,
+        page_fetcher=page_fetcher,
+        max_child_links=max_child_links,
+        checked_at=now,
+    )
+    if not rows and not errors and path.exists():
         existing = pd.read_parquet(path)
-        return {
+        updated = None
+        if "updated_at" in existing and not existing.empty:
+            updated_values = existing["updated_at"].dropna().astype(str)
+            updated = updated_values.max() if not updated_values.empty else None
+        summary = {
             "reports_found": int(len(existing)),
+            "reports_found_from_disclosure": int(len(existing)),
             "reports_downloaded": 0,
             "source_errors": 0,
+            "disclosure_errors_count": 0,
+            "last_disclosure_check": now,
+            "report_index_updated_at": updated or now,
             "mode": "existing_report_index",
         }
-    if source_path.exists():
-        src = pd.read_csv(source_path, dtype=str).fillna("")
-        src = src[src.get("active", "true").astype(str).str.lower().isin(["", "true", "1", "yes"])]
-        if ticker:
-            src = src[src["ticker"].astype(str).str.upper() == str(ticker).upper()]
-        elif limit_companies is not None and limit_companies > 0 and "ticker" in src:
-            tickers = []
-            seen = set()
-            for raw in src["ticker"].astype(str):
-                value = raw.strip().upper()
-                if value and value not in seen:
-                    seen.add(value)
-                    tickers.append(value)
-                if len(tickers) >= limit_companies:
-                    break
-            src = src[src["ticker"].astype(str).str.upper().isin(set(tickers))]
-        report_like = src["source_type"].isin([
-            "manual_report",
-            "report_pdf",
-            "report_xlsx",
-            "ifrs_report",
-            "financial_reports_page",
-            "report_page",
-        ])
-        src = src[report_like]
-        if src.empty and path.exists():
-            existing = pd.read_parquet(path)
-            return {
-                "reports_found": int(len(existing)),
-                "reports_downloaded": 0,
-                "source_errors": 0,
-                "mode": "existing_report_index",
-            }
-        for _, r in src.iterrows():
-            fy = _int_or_none(r.get("fiscal_year"))
-            if from_year is not None and fy is not None and fy < from_year:
-                continue
-            if to_year is not None and fy is not None and fy > to_year:
-                continue
-            source_url = str(r.get("source_url", "")).strip()
-            if not source_url:
-                continue
-            issue = validate_source_url(source_url)
-            if issue:
-                errors.append({
-                    "ticker": str(r.get("ticker", "")).strip().upper(),
-                    "source_type": r.get("source_type", ""),
-                    "source_url": source_url,
-                    "issue": issue,
-                    "detail": "",
-                    "created_at": now,
-                })
-                continue
-            meta = {
-                "ok": None,
-                "http_status": None,
-                "content_type": "",
-                "content_length": None,
-                "final_url": source_url,
-                "error": "",
-            }
-            if not no_network:
-                checker = metadata_checker or check_url_metadata
-                meta = checker(source_url)
-                if not meta.get("ok"):
-                    errors.append({
-                        "ticker": str(r.get("ticker", "")).strip().upper(),
-                        "source_type": r.get("source_type", ""),
-                        "source_url": source_url,
-                        "issue": "url_metadata_error",
-                        "detail": str(meta.get("error") or meta.get("http_status") or ""),
-                        "created_at": now,
-                    })
-            title = r.get("document_title") or f"{r.get('ticker')} report {r.get('period') or r.get('fiscal_year')}"
-            report_id = stable_id("report", r.get("ticker"), r.get("period"), r.get("reporting_standard"), source_url)
-            url_ok = bool(meta.get("ok")) if not no_network else None
-            rows.append({
-                "report_id": report_id,
-                "ticker": str(r.get("ticker", "")).strip().upper(),
-                "inn": r.get("inn", ""),
-                "company_name": r.get("company_name", ""),
-                "period": r.get("period") or (str(fy) if fy is not None else ""),
-                "period_type": r.get("period_type") or "annual",
-                "fiscal_year": fy,
-                "publication_date": "",
-                "document_title": title,
-                "document_type": r.get("document_type") or "unknown",
-                "reporting_standard": r.get("reporting_standard") or "UNKNOWN",
-                "file_path": "",
-                "source_url": source_url,
-                "source_name": r.get("source_type") or "manual_report",
-                "file_hash": "",
-                "download_status": "metadata_only" if no_network else ("metadata_checked" if url_ok else "url_error"),
-                "parse_status": "not_parsed",
-                "extraction_status": "not_extracted",
-                "quality_status": "not_checked" if no_network else ("source_url_ok" if url_ok else "source_url_error"),
-                "url_status": "not_checked" if no_network else ("ok" if url_ok else "error"),
-                "http_status": meta.get("http_status"),
-                "content_type": meta.get("content_type") or "",
-                "content_length": meta.get("content_length"),
-                "final_url": meta.get("final_url") or source_url,
-                "url_checked_at": "" if no_network else now,
-                "created_at": now,
-                "updated_at": now,
-            })
-            if (
-                not no_network
-                and str(r.get("source_type", "")).strip() in {"financial_reports_page", "report_page"}
-                and meta.get("ok")
-                and "html" in str(meta.get("content_type") or "").lower()
-            ):
-                try:
-                    fetcher = page_fetcher or fetch_page_html
-                    html = fetcher(meta.get("final_url") or source_url)
-                    discovered = discover_report_links(
-                        html,
-                        base_url=meta.get("final_url") or source_url,
-                        source_row=r.to_dict(),
-                        now=now,
-                        from_year=from_year,
-                        to_year=to_year,
-                    )
-                    if max_child_links is not None and max_child_links > 0:
-                        discovered = discovered[:max_child_links]
-                    for child in discovered:
-                        child_meta = (
-                            metadata_checker(child["source_url"])
-                            if metadata_checker
-                            else check_url_metadata(child["source_url"], timeout=5)
-                        )
-                        if not child_meta.get("ok"):
-                            errors.append({
-                                "ticker": str(r.get("ticker", "")).strip().upper(),
-                                "source_type": "official_page_link",
-                                "source_url": child["source_url"],
-                                "issue": "url_metadata_error",
-                                "detail": str(child_meta.get("error") or child_meta.get("http_status") or ""),
-                                "created_at": now,
-                            })
-                            continue
-                        child["http_status"] = child_meta.get("http_status")
-                        child["content_type"] = child_meta.get("content_type") or ""
-                        child["content_length"] = child_meta.get("content_length")
-                        child["final_url"] = child_meta.get("final_url") or child["source_url"]
-                        child["url_checked_at"] = now
-                        child["url_status"] = "ok"
-                        child["quality_status"] = "source_url_ok"
-                        rows.append(child)
-                except Exception as e:  # noqa: BLE001
-                    errors.append({
-                        "ticker": str(r.get("ticker", "")).strip().upper(),
-                        "source_type": r.get("source_type", ""),
-                        "source_url": source_url,
-                        "issue": "report_page_parse_error",
-                        "detail": str(e),
-                        "created_at": now,
-                    })
+        write_csv(root / "data" / "manual_review" / "disclosure_errors.csv", [], disclosure.DISCLOSURE_ERROR_COLUMNS)
+        write_csv(root / "data" / "manual_review" / "report_source_errors.csv", [], SOURCE_ERROR_COLUMNS)
+        write_json(root / "data" / "disclosure_summary.json", summary)
+        return summary
 
     out = pd.DataFrame(rows, columns=REPORT_COLUMNS).drop_duplicates("report_id") if rows else pd.DataFrame(columns=REPORT_COLUMNS)
     reports_downloaded = 0
     if download and not no_network and not out.empty:
         out, reports_downloaded, download_errors = download_report_files(root, out, downloader=downloader, now=now)
         errors.extend(download_errors)
-    write_parquet(path, out)
-    write_csv(root / "data" / "manual_review" / "report_source_errors.csv", errors, SOURCE_ERROR_COLUMNS)
-    return {
+    summary = {
         "reports_found": int(len(out)),
+        "reports_found_from_disclosure": int(len(out)),
         "reports_downloaded": reports_downloaded,
         "source_errors": len(errors),
-        "mode": "metadata_only_no_network" if no_network else "metadata_pending_download",
+        "disclosure_errors_count": len(errors),
+        "last_disclosure_check": now,
+        "report_index_updated_at": now,
+        "mode": "metadata_only_no_network" if no_network else "disclosure_metadata_update",
     }
+    write_parquet(path, out)
+    write_csv(root / "data" / "manual_review" / "disclosure_errors.csv", errors, disclosure.DISCLOSURE_ERROR_COLUMNS)
+    write_csv(root / "data" / "manual_review" / "report_source_errors.csv", errors, SOURCE_ERROR_COLUMNS)
+    write_json(root / "data" / "disclosure_summary.json", summary)
+    return summary
 
 
 def download_report_files(root: Path, reports: pd.DataFrame, downloader=None, now: str | None = None) -> tuple[pd.DataFrame, int, list[dict]]:
@@ -521,9 +393,9 @@ def main() -> int:
     parser.add_argument("--to-year", type=int)
     parser.add_argument("--ticker")
     parser.add_argument("--limit-companies", type=int)
-    parser.add_argument("--no-network", action="store_true")
+    parser.add_argument("--no-network", action="store_true", help="Disable network metadata checks and page discovery.")
     parser.add_argument("--download", action="store_true", help="Download direct discovered report files into data/raw_reports.")
-    parser.add_argument("--allow-network", action="store_true", help="Allow URL metadata checks and report-page link discovery.")
+    parser.add_argument("--allow-network", action="store_true", help="Deprecated compatibility flag; network discovery is enabled by default.")
     parser.add_argument("--max-child-links", type=int, default=40, help="Max report links to verify per report page; use 0 for no cap.")
     args = parser.parse_args()
     res = fetch_reports(
@@ -532,11 +404,14 @@ def main() -> int:
         to_year=args.to_year,
         ticker=args.ticker,
         limit_companies=args.limit_companies,
-        no_network=args.no_network or (not args.allow_network and not args.download),
+        no_network=args.no_network,
         download=args.download,
         max_child_links=None if args.max_child_links == 0 else args.max_child_links,
     )
-    print(f"[fetch-reports] reports_downloaded={res['reports_downloaded']} mode={res['mode']}")
+    print(
+        f"[fetch-reports] reports_found_from_disclosure={res['reports_found_from_disclosure']} "
+        f"reports_downloaded={res['reports_downloaded']} errors={res['disclosure_errors_count']} mode={res['mode']}"
+    )
     return 0
 
 
