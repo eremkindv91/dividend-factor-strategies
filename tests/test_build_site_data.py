@@ -185,6 +185,50 @@ def test_build_site_data_exposes_cleaned_smartlab_fundamentals_without_promoting
     assert ratio["values"][0]["excluded_from_site"] is True
 
 
+def test_build_site_data_generates_cleaned_fundamentals_when_deploy_checkout_has_no_processed_layer(tmp_path: Path):
+    data_dir = tmp_path / "data"
+    unified_dir = data_dir / "unified"
+    panel_dir = data_dir / "panels_final"
+    unified_dir.mkdir(parents=True)
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "fiscal_year": 2025,
+            "period": "2025",
+            "revenue": 100.0,
+            "quality_score": 70.0,
+            "source": "smartlab",
+            "conflict_flag": False,
+            "needs_manual_review": False,
+            "ocr_candidate": False,
+        }
+    ]).to_parquet(unified_dir / "company_financials_unified.parquet", index=False)
+    pd.DataFrame([
+        {
+            "ticker": "TEST",
+            "fiscal_year": 2025,
+            "period": "2025",
+            "line_item_std": "revenue",
+            "best_source_name": "smartlab",
+            "best_quality_score": 70.0,
+            "conflict_flag": False,
+            "needs_manual_review": False,
+            "is_reliable": True,
+        },
+    ]).to_parquet(unified_dir / "financial_facts_unified.parquet", index=False)
+    pd.DataFrame([
+        {"ticker": "TEST", "year": 2025, "revenue_mln": 100.0, "net_profit_mln": 10.0, "assets_mln": 250.0},
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    build_site_data(tmp_path)
+    financials = json.loads((unified_dir / "site_financials.json").read_text(encoding="utf-8"))
+
+    assert (data_dir / "processed" / "smartlab_fundamentals_cleaned.parquet").exists()
+    assert financials["meta"]["smartlab_fundamental_values_total"] > 0
+    assert financials["fundamentals"]["TEST"]["income"][0]["field"] == "revenue"
+
+
 def test_build_site_data_exposes_visible_source_statuses(tmp_path: Path):
     unified_dir = tmp_path / "data" / "unified"
     unified_dir.mkdir(parents=True)

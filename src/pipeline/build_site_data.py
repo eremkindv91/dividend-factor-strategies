@@ -22,6 +22,7 @@ def build_site_data(root: Path = REPO_ROOT, copy_to_site: bool = True) -> dict:
     official_audit = build_official_ifrs_audit(root)
     official_summary = official_ifrs_audit_summary(official_audit)
     disclosure_summary = load_disclosure_summary(root)
+    ensure_smartlab_fundamentals_cleaned(root)
     smartlab_cleaned_summary = load_smartlab_cleaned_summary(root)
     smartlab_fundamentals = build_site_fundamentals(load_parquet_if_exists(root / "data" / "processed" / "smartlab_fundamentals_cleaned.parquet"))
     now = utc_now_iso()
@@ -486,6 +487,21 @@ def load_smartlab_cleaned_summary(root: Path) -> dict:
     raw = load_json_if_exists(root / "data" / "quality" / "smartlab_cleaned_layer_summary.json")
     summary.update({k: raw.get(k, summary[k]) for k in summary if k in raw})
     return summary
+
+
+def ensure_smartlab_fundamentals_cleaned(root: Path) -> None:
+    cleaned_path = root / "data" / "processed" / "smartlab_fundamentals_cleaned.parquet"
+    summary_path = root / "data" / "quality" / "smartlab_cleaned_layer_summary.json"
+    if cleaned_path.exists() and summary_path.exists():
+        return
+    try:
+        from src.quality.audit_fundamental_values import write_smartlab_fundamentals_cleaned
+
+        write_smartlab_fundamentals_cleaned(root)
+    except Exception:  # noqa: BLE001
+        # Site data remains publishable with empty fundamentals if SmartLab panel
+        # is absent in a constrained deploy environment.
+        return
 
 
 def build_site_fundamentals(cleaned: pd.DataFrame | None) -> dict:
