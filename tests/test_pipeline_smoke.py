@@ -276,3 +276,24 @@ def test_run_all_summary_includes_extracted_ifrs_review_counts(tmp_path: Path, m
     assert summary["extracted_ifrs_facts"] == 2
     assert summary["extracted_ifrs_needs_review"] == 1
     assert summary["extracted_ifrs_status_counts"] == {"confirmed_by_smartlab": 1, "needs_review": 1}
+
+
+def test_run_all_summary_includes_smartlab_panel_outlier_counts(tmp_path: Path):
+    panel_dir = tmp_path / "data" / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "BAD",
+            "year": 2024,
+            "sector": "Retail",
+            "revenue_mln": -10,
+            "assets_mln": 100,
+            "cash_mln": 10,
+        }
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    summary = run_all(tmp_path, smartlab_only=False, skip_ocr=True, no_network=True)
+
+    assert summary["smartlab_panel_outliers_count"] == 1
+    assert summary["smartlab_panel_outliers_by_issue"] == {"negative_value": 1}
+    assert (tmp_path / "data" / "manual_review" / "smartlab_panel_outliers.csv").exists()

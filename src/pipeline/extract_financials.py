@@ -321,6 +321,7 @@ def extract_wide_xlsx(root: Path, report: dict, file_path: Path, mapping: dict, 
             existing = candidates.get(canonical)
             if existing is None or score > existing[0]:
                 candidates[canonical] = (score, row)
+    add_calculated_cash_flow_facts(candidates, report, now)
     return [row for _score, row in candidates.values()]
 
 
@@ -339,9 +340,56 @@ def line_item_candidate_score(canonical: str, raw_label: str) -> int:
             score += 140
         if any(marker in norm for marker in ("service revenue", "sales of goods", "third parties", "related parties")):
             score -= 80
+    if canonical == "net_income":
+        if norm in {
+            "profit for the period",
+            "profit loss for the period",
+            "profit for the year",
+            "profit loss for the year",
+            "net income",
+            "net profit",
+        }:
+            score += 150
+        if any(marker in norm for marker in ("continuing operations", "discontinued operation", "attributable", "non controlling")):
+            score -= 100
     if canonical == "total_debt" and any(marker in norm for marker in ("long term", "short term", "current", "lease")):
         score -= 30
     return score
+
+
+def add_calculated_cash_flow_facts(candidates: dict[str, tuple[int, dict]], report: dict, now: str) -> None:
+    operating = candidates.get("operating_cash_flow")
+    capex = candidates.get("capex")
+    if operating is None or capex is None:
+        return
+    operating_row = operating[1]
+    capex_row = capex[1]
+    operating_value = operating_row.get("value_normalized")
+    capex_value = capex_row.get("value_normalized")
+    if operating_value is None or capex_value is None:
+        return
+    value_normalized = float(operating_value) + float(capex_value)
+    row = make_fact_row(
+        report=report,
+        ticker=str(report.get("ticker") or "").strip().upper(),
+        fiscal_year=_int_or_none(report.get("fiscal_year")),
+        period=str(report.get("period") or report.get("fiscal_year") or ""),
+        raw="Net cash from operating activities + capex",
+        canonical="free_cash_flow",
+        value_raw=value_normalized,
+        value_normalized=value_normalized,
+        unit_multiplier=1,
+        source_name="official_ifrs_xlsx",
+        extraction_method="wide_xlsx_calculated",
+        quality_score=90,
+        confidence_score=0.93,
+        statement_type="cash_flow",
+        source_table_id="calculated:operating_cash_flow_plus_capex",
+        now=now,
+    )
+    row["is_calculated"] = True
+    row["formula"] = "operating_cash_flow + capex"
+    candidates["free_cash_flow"] = (1_000, row)
 
 
 def extract_html_tables(root: Path, report: dict, file_path: Path, mapping: dict, now: str) -> list[dict]:

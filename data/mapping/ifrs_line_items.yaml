@@ -24,7 +24,9 @@ net_income:
     - Net income
     - Net profit
     - Profit for the period
+    - Profit/(loss) for the period
     - Profit for the year
+    - Profit/(loss) for the year
   sign_convention: as_reported
   unit: currency
   priority: 1
@@ -95,6 +97,8 @@ operating_cash_flow:
   aliases_en:
     - Operating cash flow
     - Net cash from operating activities
+    - Net cash provided by operating activities
+    - Net cash flow from operating activities
   sign_convention: as_reported
   unit: currency
   priority: 1
@@ -108,7 +112,7 @@ capex:
   aliases_en:
     - CAPEX
     - Capital expenditures
-  sign_convention: as_reported
+  sign_convention: negative
   unit: currency
   priority: 2
   formula_if_calculated: null

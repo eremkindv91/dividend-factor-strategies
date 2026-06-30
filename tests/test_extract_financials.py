@@ -161,6 +161,42 @@ def test_extract_financials_prefers_total_revenue_over_component_revenue(tmp_pat
     assert facts.loc[facts["line_item_std"] == "revenue", "value_normalized"].iloc[0] == 100_000_000
 
 
+def test_extract_financials_resolves_mts_like_profit_capex_and_fcf_conflicts(tmp_path: Path):
+    facts_path = tmp_path / "reports" / "mts_2024_summary.xlsx"
+    facts_path.parent.mkdir(parents=True)
+    with pd.ExcelWriter(facts_path) as writer:
+        pd.DataFrame([
+            ["RUB million", "Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024", "FY 2024"],
+            ["Profit for the period from continuing operations", 1.0, 2.0, 3.0, 4.0, 31_518.0],
+            ["Profit/(loss) for the period", 1.0, 2.0, 3.0, 4.0, 51_299.0],
+        ]).to_excel(writer, sheet_name="Statement of profit or loss", index=False, header=False)
+        pd.DataFrame([
+            ["RUB million", "Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024", "FY 2024"],
+            ["Net cash from operating activities", 1.0, 2.0, 3.0, 4.0, 158_958.0],
+        ]).to_excel(writer, sheet_name="Statement of cash flows", index=False, header=False)
+        pd.DataFrame([
+            ["RUB million", "Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024", "FY 2024"],
+            ["CAPEX", 1.0, 2.0, 3.0, 4.0, 132_373.0],
+        ]).to_excel(writer, sheet_name="Financial and operational data", index=False, header=False)
+        pd.DataFrame([
+            ["RUB million", "Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024", "FY 2024"],
+            ["Free cash flow", 1.0, 2.0, 3.0, 4.0, 35_256.0],
+        ]).to_excel(writer, sheet_name="Group reconciliations", index=False, header=False)
+    _write_report_index(tmp_path, facts_path)
+
+    summary = extract_financials(tmp_path, skip_ocr=True)
+    facts = pd.read_parquet(tmp_path / "data" / "processed" / "ifrs_financial_facts.parquet")
+    values = facts.set_index("line_item_std")["value_normalized"].to_dict()
+    raw_labels = facts.set_index("line_item_std")["line_item_raw"].to_dict()
+
+    assert summary["reports_extracted"] == 1
+    assert values["net_income"] == 51_299_000_000
+    assert raw_labels["net_income"] == "Profit/(loss) for the period"
+    assert values["capex"] == -132_373_000_000
+    assert values["free_cash_flow"] == 26_585_000_000
+    assert raw_labels["free_cash_flow"] == "Net cash from operating activities + capex"
+
+
 def test_extract_text_facts_uses_current_period_value_after_note_number():
     mapping = load_ifrs_mapping(Path("data/mapping/ifrs_line_items.yaml"))
     report = {"report_id": "pdf-report", "ticker": "PDF", "fiscal_year": 2025, "period": "2025", "source_url": "https://issuer.example/report.pdf"}

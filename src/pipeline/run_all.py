@@ -20,6 +20,7 @@ from src.pipeline.validate_financials import validate_financials
 from src.quality.audit_disclosure_links import audit_report_index
 from src.quality.audit_extracted_ifrs import write_extracted_ifrs_audit
 from src.quality.audit_official_ifrs import write_official_ifrs_audit
+from src.quality.audit_smartlab_outliers import write_smartlab_outlier_audit
 
 
 def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool = True, **kwargs) -> dict:
@@ -28,6 +29,26 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
     no_network = kwargs.get("no_network", False)
     audit = audit_existing_data(root)
     migration = migrate_smartlab(root, make_backup=True)
+    smartlab_outliers = {
+        "total_outliers": 0,
+        "high_severity": 0,
+        "medium_severity": 0,
+        "by_issue": {},
+        "by_field": {},
+        "companies": [],
+    }
+    try:
+        smartlab_outliers = write_smartlab_outlier_audit(root)
+    except Exception as e:  # noqa: BLE001
+        smartlab_outliers = {
+            "total_outliers": 0,
+            "high_severity": 0,
+            "medium_severity": 0,
+            "by_issue": {},
+            "by_field": {},
+            "companies": [],
+            "error": str(e),
+        }
     skipped = []
     discover = {"new_companies_added": None, "source_rows": 0}
     reports = {
@@ -130,6 +151,12 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "validation_errors": validation.get("errors", 0),
         "ocr_pages_processed": 0,
         "facts_from_smartlab": migration["facts_written"],
+        "smartlab_panel_outliers_count": smartlab_outliers.get("total_outliers", 0),
+        "smartlab_panel_outliers_high": smartlab_outliers.get("high_severity", 0),
+        "smartlab_panel_outliers_by_issue": smartlab_outliers.get("by_issue", {}),
+        "smartlab_panel_outliers_by_field": smartlab_outliers.get("by_field", {}),
+        "smartlab_panel_outliers_companies": smartlab_outliers.get("companies", []),
+        "smartlab_panel_outliers_error": smartlab_outliers.get("error"),
         "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
         "extracted_ifrs_facts": extracted_ifrs_audit.get("extracted_ifrs_facts", 0),
         "extracted_ifrs_needs_review": extracted_ifrs_audit.get("needs_manual_review", 0),
