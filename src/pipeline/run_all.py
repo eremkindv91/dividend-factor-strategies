@@ -19,6 +19,7 @@ from src.pipeline.unify_financial_data import unify_financial_data
 from src.pipeline.validate_financials import validate_financials
 from src.quality.audit_disclosure_links import audit_report_index
 from src.quality.audit_extracted_ifrs import write_extracted_ifrs_audit
+from src.quality.audit_fundamental_values import write_smartlab_fundamentals_cleaned
 from src.quality.audit_official_ifrs import write_official_ifrs_audit
 from src.quality.audit_smartlab_outliers import write_smartlab_outlier_audit, write_smartlab_outlier_triage
 
@@ -87,6 +88,22 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             "companies": [],
             "error": str(e),
         }
+    smartlab_cleaned = {
+        "smartlab_fields_loaded": 0,
+        "smartlab_companies_loaded": 0,
+        "smartlab_company_year_rows": 0,
+        "smartlab_fundamental_values_total": 0,
+        "smartlab_fundamental_values_clean": 0,
+        "smartlab_fundamental_values_excluded": 0,
+        "smartlab_ratio_values_blocked": 0,
+        "smartlab_values_needs_review": 0,
+        "smartlab_missing_values": 0,
+        "smartlab_corrected_confirmed": 0,
+    }
+    try:
+        smartlab_cleaned = write_smartlab_fundamentals_cleaned(root)
+    except Exception as e:  # noqa: BLE001
+        smartlab_cleaned["smartlab_cleaned_layer_error"] = str(e)
     skipped = []
     discover = {"new_companies_added": None, "source_rows": 0}
     reports = {
@@ -209,6 +226,17 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "smartlab_panel_unit_mismatch_override_candidate_companies": smartlab_outlier_triage.get("override_candidate_companies", []),
         "smartlab_panel_triage_by_status": smartlab_outlier_triage.get("by_status", {}),
         "smartlab_panel_triage_error": smartlab_outlier_triage.get("error"),
+        "smartlab_fields_loaded": smartlab_cleaned.get("smartlab_fields_loaded", 0),
+        "smartlab_companies_loaded": smartlab_cleaned.get("smartlab_companies_loaded", 0),
+        "smartlab_company_year_rows": smartlab_cleaned.get("smartlab_company_year_rows", 0),
+        "smartlab_fundamental_values_total": smartlab_cleaned.get("smartlab_fundamental_values_total", 0),
+        "smartlab_fundamental_values_clean": smartlab_cleaned.get("smartlab_fundamental_values_clean", 0),
+        "smartlab_fundamental_values_excluded": smartlab_cleaned.get("smartlab_fundamental_values_excluded", 0),
+        "smartlab_ratio_values_blocked": smartlab_cleaned.get("smartlab_ratio_values_blocked", 0),
+        "smartlab_values_needs_review": smartlab_cleaned.get("smartlab_values_needs_review", 0),
+        "smartlab_missing_values": smartlab_cleaned.get("smartlab_missing_values", 0),
+        "smartlab_corrected_confirmed": smartlab_cleaned.get("smartlab_corrected_confirmed", 0),
+        "smartlab_cleaned_layer_error": smartlab_cleaned.get("smartlab_cleaned_layer_error"),
         "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
         "extracted_ifrs_facts": extracted_ifrs_audit.get("extracted_ifrs_facts", 0),
         "extracted_ifrs_needs_review": extracted_ifrs_audit.get("needs_manual_review", 0),

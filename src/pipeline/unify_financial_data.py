@@ -7,6 +7,7 @@ import pandas as pd
 
 from src.data_sources.manual_adapter import read_manual_override
 from src.io_utils import stable_id, utc_now_iso, write_csv, write_json, write_parquet
+from src.normalization.tickers import canonicalize_ticker_series
 from src.paths import REPO_ROOT
 from src.unification.deduplication import FACT_DEDUP_FIELDS, fact_dedup_key
 from src.unification.source_resolver import SourceCandidate, relative_diff, resolve_best_value
@@ -32,6 +33,8 @@ def unify_financial_data(root: Path = REPO_ROOT) -> dict:
         raise FileNotFoundError("No processed financial facts found. Run migrate_existing_smartlab_data first.")
 
     facts = pd.concat(sources, ignore_index=True, sort=False)
+    if "ticker" in facts:
+        facts["ticker"] = canonicalize_ticker_series(facts["ticker"], root)
     facts, duplicates_removed = deduplicate_source_rows(facts)
     facts = facts.copy()
     facts["_resolution_standard"] = facts.apply(resolution_standard, axis=1)

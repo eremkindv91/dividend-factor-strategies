@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from src.io_utils import write_csv, write_json
+from src.normalization.tickers import canonicalize_ticker_series
 from src.paths import REPO_ROOT
 
 
@@ -47,7 +48,7 @@ def build_official_ifrs_audit(root: Path = REPO_ROOT) -> pd.DataFrame:
             seed[col] = None
     if "year_status" not in seed:
         seed["year_status"] = seed["fiscal_year"].map(_year_status)
-    seed["ticker"] = seed["ticker"].astype(str).str.upper().str.strip()
+    seed["ticker"] = canonicalize_ticker_series(seed["ticker"], root)
     seed["period"] = seed["period"].astype(str)
     seed["line_item_std"] = seed["line_item_std"].astype(str)
     seed["currency"] = seed["currency"].astype(str)
@@ -74,7 +75,7 @@ def build_official_ifrs_audit(root: Path = REPO_ROOT) -> pd.DataFrame:
         for col in keys:
             if col not in unified:
                 unified[col] = None
-        unified["ticker"] = unified["ticker"].astype(str).str.upper().str.strip()
+        unified["ticker"] = canonicalize_ticker_series(unified["ticker"], root)
         unified["period"] = unified["period"].astype(str)
         unified["line_item_std"] = unified["line_item_std"].astype(str)
         unified["currency"] = unified["currency"].astype(str)

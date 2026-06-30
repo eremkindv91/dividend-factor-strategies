@@ -9,6 +9,7 @@ import pandas as pd
 from src.io_utils import stable_id, utc_now_iso, write_csv, write_parquet
 from src.normalization.ifrs_mapper import load_ifrs_mapping, map_line_item
 from src.normalization.numeric import normalize_numeric_value
+from src.normalization.tickers import canonical_ticker, canonicalize_ticker_series
 from src.paths import REPO_ROOT
 
 
@@ -172,6 +173,8 @@ def normalize_ifrs_output(df: pd.DataFrame) -> pd.DataFrame:
     for col in bool_cols:
         if col in out:
             out[col] = out[col].map(lambda v: False if pd.isna(v) else bool(v))
+    if "ticker" in out:
+        out["ticker"] = canonicalize_ticker_series(out["ticker"])
     return out
 
 
@@ -239,7 +242,7 @@ def extract_structured_report(root: Path, report: dict, file_path: Path, mapping
             continue
         fiscal_year = _int_or_none(report.get("fiscal_year"))
         period = str(report.get("period") or fiscal_year or "")
-        ticker = str(report.get("ticker") or "").strip().upper()
+        ticker = canonical_ticker(report.get("ticker"))
         fact_id = stable_id("official_ifrs", report.get("report_id"), ticker, period, canonical, raw)
         rows.append({
             "fact_id": fact_id,
@@ -301,7 +304,7 @@ def extract_wide_xlsx(root: Path, report: dict, file_path: Path, mapping: dict, 
                 continue
             row = make_fact_row(
                 report=report,
-                ticker=str(report.get("ticker") or "").strip().upper(),
+                ticker=canonical_ticker(report.get("ticker")),
                 fiscal_year=fiscal_year,
                 period=str(report.get("period") or fiscal_year or ""),
                 raw=raw_label,
@@ -371,7 +374,7 @@ def add_calculated_cash_flow_facts(candidates: dict[str, tuple[int, dict]], repo
     value_normalized = float(operating_value) + float(capex_value)
     row = make_fact_row(
         report=report,
-        ticker=str(report.get("ticker") or "").strip().upper(),
+        ticker=canonical_ticker(report.get("ticker")),
         fiscal_year=_int_or_none(report.get("fiscal_year")),
         period=str(report.get("period") or report.get("fiscal_year") or ""),
         raw="Net cash from operating activities + capex",
@@ -451,7 +454,7 @@ def extract_text_facts(report: dict, text: str, mapping: dict, now: str) -> list
             continue
         row = make_fact_row(
             report=report,
-            ticker=str(report.get("ticker") or "").strip().upper(),
+            ticker=canonical_ticker(report.get("ticker")),
             fiscal_year=fiscal_year,
             period=str(report.get("period") or fiscal_year or ""),
             raw=line.strip(),

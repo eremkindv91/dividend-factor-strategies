@@ -108,6 +108,7 @@ function init(data) {
   render();
   if (typeof updateDataStatus === 'function') updateDataStatus();   // даты цен/прогноза в global status bar
   if (typeof renderMarketKPI === 'function') renderMarketKPI();     // KPI «Акций в скринере» и т.д.
+  if (typeof loadSiteFinancials === 'function') loadSiteFinancials(() => render());
   if (typeof loadDataCoverage === 'function') loadDataCoverage(() => updateDataStatus());
 }
 
@@ -361,6 +362,102 @@ function historyHTML(h) {
   return `<div class="charts">${csBlock}<div class="ch-block"><div class="ch-title">Динамика показателей</div>${perfMultiples(h)}</div></div>`;
 }
 
+function fundamentalsOrHistoryHTML(t) {
+  const html = fundamentalsHTML(t && t.ticker);
+  return html || historyHTML(t && t.history);
+}
+
+function fundamentalsHTML(ticker) {
+  const fundamentals = SITE_FINANCIALS && SITE_FINANCIALS.fundamentals;
+  if (!fundamentals || !ticker || !fundamentals[ticker]) return '';
+  const labels = {
+    income: 'Финрезультаты',
+    balance: 'Баланс',
+    cashflow: 'Денежный поток',
+    dividends: 'Дивиденды',
+    ratios: 'Рентабельность и долг',
+    valuation: 'Оценка',
+    per_share: 'На акцию',
+  };
+  const groups = ['income', 'balance', 'cashflow', 'dividends', 'ratios', 'valuation', 'per_share'];
+  const sections = groups.map((g) => {
+    const metrics = fundamentals[ticker][g] || [];
+    if (!metrics.length) return '';
+    return `<div class="fund-group"><div class="fund-title">${esc(labels[g] || g)}</div>${metrics.map(fundMetricHTML).join('')}</div>`;
+  }).join('');
+  if (!sections) return '';
+  return `<div class="fund">
+    <div class="fund-note">SmartLab cleaned layer: значения проходят audit rules; заблокированные outliers не публикуются как clean value, но raw/status оставлены для проверки источника.</div>
+    ${sections}
+  </div>`;
+}
+
+function fundMetricHTML(metric) {
+  const vals = metric.values || [];
+  const last = [...vals].reverse().find((v) => v.value != null || v.raw_value != null) || {};
+  const blocked = vals.some((v) => v.excluded_from_site);
+  const review = vals.some((v) => v.needs_manual_review);
+  const cls = blocked ? 'fund-bad' : (review ? 'fund-review' : 'fund-ok');
+  const status = blocked ? 'blocked' : (review ? 'review' : 'clean');
+  return `<div class="fund-row">
+    <div class="fund-meta">
+      <span class="fund-name">${esc(metric.name_ru || metric.field)}</span>
+      <span class="fund-source">SmartLab · ${esc(last.source_status || 'smartlab_fallback')}</span>
+    </div>
+    <div class="fund-bars">${fundBars(vals, metric.display_format)}</div>
+    <div class="fund-last">
+      <b>${esc(fmtFund(last.value, metric.display_format))}</b>
+      <span class="fund-status ${cls}" title="${esc(last.quality_reason || status)}">${esc(status)}</span>
+    </div>
+  </div>`;
+}
+
+function fundBars(vals, format) {
+  const points = (vals || []).map((v) => ({
+    year: v.year,
+    value: isNum(v.value) ? v.value : null,
+    raw: isNum(v.raw_value) ? v.raw_value : null,
+    blocked: !!v.excluded_from_site,
+    review: !!v.needs_manual_review,
+  }));
+  if (!points.length) return '<div class="fund-empty">нет ряда</div>';
+  const clean = points.map((p) => p.value).filter((v) => v != null);
+  if (!clean.length) {
+    return `<div class="fund-blocked-row">${points.map((p) => `<span title="${esc(p.year || '')}: raw ${esc(fmtFund(p.raw, format))}">×</span>`).join('')}</div>`;
+  }
+  let min = Math.min(0, ...clean), max = Math.max(0, ...clean);
+  if (min === max) { min -= 1; max += 1; }
+  const range = max - min;
+  const W = Math.max(points.length * 30, 150), H = 54, pad = 6;
+  const zero = H - pad - (0 - min) / range * (H - 2 * pad);
+  const bw = Math.min(18, (W - pad * 2) / points.length * 0.62);
+  const bars = points.map((p, i) => {
+    const cx = pad + (i + 0.5) / points.length * (W - pad * 2);
+    if (p.value == null) {
+      return `<circle cx="${cx.toFixed(1)}" cy="${zero.toFixed(1)}" r="2.7" class="${p.blocked ? 'fb-blocked' : 'fb-missing'}"><title>${esc(p.year || '')}: raw ${esc(fmtFund(p.raw, format))}</title></circle>`;
+    }
+    const y = H - pad - (p.value - min) / range * (H - 2 * pad);
+    const top = Math.min(y, zero), h = Math.max(2, Math.abs(zero - y));
+    const klass = p.value >= 0 ? 'fb-pos' : 'fb-neg';
+    return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" class="${klass}"><title>${esc(p.year || '')}: ${esc(fmtFund(p.value, format))}</title></rect>`;
+  }).join('');
+  const labels = points.map((p, i) => {
+    const cx = pad + (i + 0.5) / points.length * (W - pad * 2);
+    return `<text x="${cx.toFixed(1)}" y="${H - 1}" text-anchor="middle" class="fb-year">${esc(String(p.year || '').slice(-2))}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="fund-svg" preserveAspectRatio="none"><line x1="${pad}" y1="${zero.toFixed(1)}" x2="${W - pad}" y2="${zero.toFixed(1)}" class="fb-zero"/>${bars}${labels}</svg>`;
+}
+
+function fmtFund(v, format) {
+  if (!isNum(v)) return '—';
+  if (format === 'percent') return ru(v, 1) + '%';
+  if (format === 'multiple') return ru(v, 2) + '×';
+  if (format === 'rub') return ru(v, 2) + ' ₽';
+  if (format === 'shares') return v >= 1e9 ? ru(v / 1e9, 2) + ' млрд' : (v >= 1e6 ? ru(v / 1e6, 1) + ' млн' : ru(v, 0));
+  if (format === 'money_mln') return fmtShort(v);
+  return ru(v, 2);
+}
+
 function wireCharts(root) {                      // кросхейр по small-multiples (по диапазону данных каждой строки)
   root.querySelectorAll('.pm').forEach((pm) => {
     const rows = [...pm.querySelectorAll('.pm-row')].map((r) => {
@@ -475,7 +572,7 @@ function toggleDetail(tr, t) {
   dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail">
     <div><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
     <div><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
-    <div><h4>Динамика показателей</h4>${historyHTML(t.history)}</div>
+    <div><h4>Фундаментальные показатели</h4>${fundamentalsOrHistoryHTML(t)}</div>
     <div><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
     <div><h4>Детали</h4>${detailKV(t)}</div>
   </div></td>`;
@@ -513,7 +610,7 @@ function renderCards() {
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
     const t = VIEW[+this.dataset.i];
-    box.innerHTML = valuationHTML(t.valuation) + sectorPercentilesHTML(t) + historyHTML(t.history) + shapHTML(t) + detailKV(t);
+    box.innerHTML = valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
   }));
@@ -1513,6 +1610,15 @@ function mlTableHTML(rows) {
 // ══════════════════════════════════════════════════════════════════════════
 let METHODOLOGY = null;
 let DATA_COVERAGE = null;
+let SITE_FINANCIALS = null;
+
+function loadSiteFinancials(cb) {
+  if (SITE_FINANCIALS) { cb && cb(); return; }
+  fetch('site_financials.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { SITE_FINANCIALS = j; cb && cb(); })
+    .catch((e) => { console.warn('[site_financials]', e); cb && cb(e); });
+}
 
 function wireMethodology() {
   const el = document.getElementById('methodology');
@@ -1593,6 +1699,10 @@ function renderDataCoverage() {
         ${funnelCard('Extracted reports', funnel.extracted_reports, 'факты уже извлечены')}
         ${funnelCard('Conflicts', funnel.conflicts, 'SmartLab vs IFRS')}
         ${funnelCard('Disclosure errors', funnel.disclosure_errors, 'timeout/WAF/404')}
+        ${funnelCard('Fundamental values', m.smartlab_fundamental_values_total, 'SmartLab cleaned layer')}
+        ${funnelCard('Fundamentals clean', m.smartlab_fundamental_values_clean, 'passed sanity checks')}
+        ${funnelCard('Fundamentals hidden', m.smartlab_fundamental_values_excluded, 'excluded from site')}
+        ${funnelCard('Fundamentals review', m.smartlab_values_needs_review, 'source-check backlog')}
       </div>
       <div class="quality-explainer">
         <b>Как читать воронку:</b> Official IFRS processed facts — это обработанный слой, но не обязательно verified.

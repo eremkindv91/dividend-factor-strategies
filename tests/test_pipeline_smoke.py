@@ -305,3 +305,42 @@ def test_run_all_summary_includes_smartlab_panel_outlier_counts(tmp_path: Path):
     assert summary["smartlab_panel_unit_mismatch_override_candidate_ready"] == 0
     assert (tmp_path / "data" / "manual_review" / "smartlab_panel_outliers.csv").exists()
     assert (tmp_path / "data" / "manual_review" / "smartlab_panel_outlier_triage.csv").exists()
+
+
+def test_run_all_summary_includes_cleaned_smartlab_fundamentals_counts(tmp_path: Path):
+    panel_dir = tmp_path / "data" / "panels_final"
+    panel_dir.mkdir(parents=True)
+    pd.DataFrame([
+        {
+            "ticker": "BAD",
+            "year": 2024,
+            "sector": "Retail",
+            "revenue_mln": -10,
+            "net_profit_mln": -2,
+            "assets_mln": 100,
+            "roe_pct": 189000,
+            "div_yield_pct": 120,
+        },
+        {
+            "ticker": "GOOD",
+            "year": 2024,
+            "sector": "Retail",
+            "revenue_mln": 100,
+            "net_profit_mln": -2,
+            "assets_mln": 150,
+            "roe_pct": -5,
+            "div_yield_pct": 8,
+        },
+    ]).to_csv(panel_dir / "panel_russia_final_smartlab.csv", index=False)
+
+    summary = run_all(tmp_path, smartlab_only=True, skip_ocr=True)
+    coverage = json.loads((tmp_path / "site" / "site_coverage.json").read_text())
+    financials = json.loads((tmp_path / "site" / "site_financials.json").read_text())
+
+    assert summary["smartlab_fundamental_values_excluded"] == 3
+    assert summary["smartlab_ratio_values_blocked"] == 2
+    assert summary["smartlab_values_needs_review"] == 3
+    assert coverage["meta"]["smartlab_fundamental_values_excluded"] == 3
+    assert "GOOD" in financials["fundamentals"]
+    assert (tmp_path / "data" / "processed" / "smartlab_fundamentals_cleaned.parquet").exists()
+    assert (tmp_path / "data" / "manual_review" / "fundamental_data_issues.csv").exists()

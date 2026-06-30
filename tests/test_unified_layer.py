@@ -94,3 +94,23 @@ def test_company_financials_wide_keeps_different_currencies_separate(tmp_path: P
 
     assert len(wide) == 2
     assert set(wide["currency"]) == {"RUB", "USD"}
+
+
+def test_unified_layer_canonicalizes_mts_alias_to_mtss(tmp_path: Path):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    smartlab = _fact("smartlab", "aggregator", 100.0, 70, 7)
+    smartlab["ticker"] = "MTSS"
+    official = _fact("official_ifrs_xlsx", "official_ifrs", 100.0, 92, 2)
+    official["ticker"] = "MTS"
+    pd.DataFrame([smartlab]).to_parquet(processed / "smartlab_fundamentals.parquet", index=False)
+    pd.DataFrame([official]).to_parquet(processed / "ifrs_financial_facts.parquet", index=False)
+
+    summary = unify_financial_data(tmp_path)
+    unified = pd.read_parquet(tmp_path / "data" / "unified" / "financial_facts_unified.parquet")
+
+    assert summary["facts_unified"] == 1
+    assert unified.loc[0, "ticker"] == "MTSS"
+    assert unified.loc[0, "best_source_name"] == "official_ifrs_xlsx"
+    assert unified.loc[0, "official_ifrs_value"] == 100.0
+    assert unified.loc[0, "smartlab_value"] == 100.0

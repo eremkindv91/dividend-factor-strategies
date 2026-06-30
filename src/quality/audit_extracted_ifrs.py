@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from src.io_utils import utc_now_iso, write_csv, write_json
+from src.normalization.tickers import canonical_ticker
 from src.paths import REPO_ROOT
 
 
@@ -63,7 +64,7 @@ def build_extracted_ifrs_audit(root: Path = REPO_ROOT) -> pd.DataFrame:
         selected_value = _num_or_none(unified_row.get("best_value")) if unified_row else None
         status, needs_review, reason = classify_extracted_fact(extracted_value, seed_value, smartlab_value)
         rows.append({
-            "ticker": str(fact.get("ticker") or "").upper(),
+            "ticker": canonical_ticker(fact.get("ticker"), root),
             "company_name": fact.get("company_name"),
             "fiscal_year": _int_or_none(fact.get("fiscal_year")),
             "period": str(fact.get("period") or ""),
@@ -160,7 +161,7 @@ def load_unified_lookup(root: Path) -> dict[tuple, dict]:
 
 def fact_key(row) -> tuple:
     return (
-        str(row.get("ticker") or "").upper().strip(),
+        canonical_ticker(row.get("ticker")),
         _int_or_none(row.get("fiscal_year")),
         str(row.get("period") or ""),
         str(row.get("currency") or ""),
