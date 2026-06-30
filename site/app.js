@@ -399,10 +399,11 @@ function fundMetricHTML(metric) {
   const review = vals.some((v) => v.needs_manual_review);
   const cls = blocked ? 'fund-bad' : (review ? 'fund-review' : 'fund-ok');
   const status = blocked ? 'blocked' : (review ? 'review' : 'clean');
+  const sourceStatus = metric.source_status || last.source_status || 'smartlab_fallback';
   return `<div class="fund-row">
     <div class="fund-meta">
       <span class="fund-name">${esc(metric.name_ru || metric.field)}</span>
-      <span class="fund-source">SmartLab · ${esc(last.source_status || 'smartlab_fallback')}</span>
+      <span class="fund-source">${esc(metric.source_name || 'SmartLab')} · ${esc(sourceStatus)}</span>
     </div>
     <div class="fund-bars">${fundBars(vals, metric.display_format)}</div>
     <div class="fund-last">
@@ -417,13 +418,15 @@ function fundBars(vals, format) {
     year: v.year,
     value: isNum(v.value) ? v.value : null,
     raw: isNum(v.raw_value) ? v.raw_value : null,
+    status: v.quality_status || 'clean',
+    reason: v.quality_reason || '',
     blocked: !!v.excluded_from_site,
     review: !!v.needs_manual_review,
   }));
   if (!points.length) return '<div class="fund-empty">нет ряда</div>';
   const clean = points.map((p) => p.value).filter((v) => v != null);
   if (!clean.length) {
-    return `<div class="fund-blocked-row">${points.map((p) => `<span title="${esc(p.year || '')}: raw ${esc(fmtFund(p.raw, format))}">×</span>`).join('')}</div>`;
+    return `<div class="fund-blocked-row">${points.map((p) => `<span title="${esc(fundPointTitle(p, format))}">×</span>`).join('')}</div>`;
   }
   let min = Math.min(0, ...clean), max = Math.max(0, ...clean);
   if (min === max) { min -= 1; max += 1; }
@@ -434,18 +437,25 @@ function fundBars(vals, format) {
   const bars = points.map((p, i) => {
     const cx = pad + (i + 0.5) / points.length * (W - pad * 2);
     if (p.value == null) {
-      return `<circle cx="${cx.toFixed(1)}" cy="${zero.toFixed(1)}" r="2.7" class="${p.blocked ? 'fb-blocked' : 'fb-missing'}"><title>${esc(p.year || '')}: raw ${esc(fmtFund(p.raw, format))}</title></circle>`;
+      return `<circle cx="${cx.toFixed(1)}" cy="${zero.toFixed(1)}" r="2.7" class="${p.blocked ? 'fb-blocked' : 'fb-missing'}"><title>${esc(fundPointTitle(p, format))}</title></circle>`;
     }
     const y = H - pad - (p.value - min) / range * (H - 2 * pad);
     const top = Math.min(y, zero), h = Math.max(2, Math.abs(zero - y));
     const klass = p.value >= 0 ? 'fb-pos' : 'fb-neg';
-    return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" class="${klass}"><title>${esc(p.year || '')}: ${esc(fmtFund(p.value, format))}</title></rect>`;
+    return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" class="${klass}"><title>${esc(fundPointTitle(p, format))}</title></rect>`;
   }).join('');
   const labels = points.map((p, i) => {
     const cx = pad + (i + 0.5) / points.length * (W - pad * 2);
     return `<text x="${cx.toFixed(1)}" y="${H - 1}" text-anchor="middle" class="fb-year">${esc(String(p.year || '').slice(-2))}</text>`;
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" class="fund-svg" preserveAspectRatio="none"><line x1="${pad}" y1="${zero.toFixed(1)}" x2="${W - pad}" y2="${zero.toFixed(1)}" class="fb-zero"/>${bars}${labels}</svg>`;
+}
+
+function fundPointTitle(p, format) {
+  const shown = p.value == null ? `raw ${fmtFund(p.raw, format)}` : fmtFund(p.value, format);
+  const status = p.status ? ` · ${p.status}` : '';
+  const reason = p.reason ? ` · ${p.reason}` : '';
+  return `${p.year || ''}: ${shown}${status}${reason}`;
 }
 
 function fmtFund(v, format) {

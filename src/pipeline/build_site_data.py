@@ -521,19 +521,22 @@ def build_site_fundamentals(cleaned: pd.DataFrame | None) -> dict:
             values = []
             for _, r in metric_df.sort_values("year").iterrows():
                 excluded = _bool(r.get("excluded_from_site"))
-                values.append({
+                quality_status = r.get("quality_status") or "unknown"
+                needs_review = _bool(r.get("needs_manual_review"))
+                noisy_value = excluded or needs_review or quality_status != "clean"
+                item = {
                     "year": int(r.get("year")) if pd.notna(r.get("year")) else None,
-                    "period": str(r.get("period")) if pd.notna(r.get("period")) else "",
                     "value": None if excluded else _num(r.get("clean_value")),
-                    "raw_value": _num(r.get("raw_value")),
-                    "quality_status": r.get("quality_status") or "unknown",
-                    "quality_reason": r.get("quality_reason") or "",
-                    "source_name": r.get("source_name") or "SmartLab",
-                    "source_status": r.get("source_status") or "smartlab_fallback",
-                    "source_url": r.get("source_url") or "",
-                    "needs_manual_review": _bool(r.get("needs_manual_review")),
-                    "excluded_from_site": excluded,
-                })
+                }
+                if noisy_value:
+                    item.update({
+                        "raw_value": _num(r.get("raw_value")),
+                        "quality_status": quality_status,
+                        "quality_reason": r.get("quality_reason") or "",
+                        "needs_manual_review": needs_review,
+                        "excluded_from_site": excluded,
+                    })
+                values.append(item)
             first = metric_df.iloc[0]
             company.setdefault(str(group), []).append({
                 "field": str(field),
@@ -545,6 +548,9 @@ def build_site_fundamentals(cleaned: pd.DataFrame | None) -> dict:
                 "scale": int(first.get("scale")) if pd.notna(first.get("scale")) else 1,
                 "sort_order": int(first.get("sort_order")) if pd.notna(first.get("sort_order")) else 999,
                 "chart_type": "bar",
+                "source_name": first.get("source_name") or "SmartLab",
+                "source_status": first.get("source_status") or "smartlab_fallback",
+                "source_url": first.get("source_url") or "",
                 "values": values,
             })
         out[canonical_ticker(ticker)] = {k: v for k, v in company.items() if v}
