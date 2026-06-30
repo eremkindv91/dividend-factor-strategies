@@ -20,7 +20,7 @@ from src.pipeline.validate_financials import validate_financials
 from src.quality.audit_disclosure_links import audit_report_index
 from src.quality.audit_extracted_ifrs import write_extracted_ifrs_audit
 from src.quality.audit_official_ifrs import write_official_ifrs_audit
-from src.quality.audit_smartlab_outliers import write_smartlab_outlier_audit
+from src.quality.audit_smartlab_outliers import write_smartlab_outlier_audit, write_smartlab_outlier_triage
 
 
 def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool = True, **kwargs) -> dict:
@@ -46,6 +46,44 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
             "medium_severity": 0,
             "by_issue": {},
             "by_field": {},
+            "companies": [],
+            "error": str(e),
+        }
+    smartlab_outlier_triage = {
+        "total_triage_rows": 0,
+        "suspected_unit_mismatch": 0,
+        "high_priority": 0,
+        "batch_count": 0,
+        "review_batches": 0,
+        "review_probable_full_company_unit_mismatch": 0,
+        "review_single_field_needs_source_check": 0,
+        "review_candidate_rows": 0,
+        "review_do_not_auto_correct": True,
+        "override_candidate_rows": 0,
+        "override_candidate_ready": 0,
+        "override_candidate_companies": [],
+        "by_status": {},
+        "by_issue": {},
+        "companies": [],
+    }
+    try:
+        smartlab_outlier_triage = write_smartlab_outlier_triage(root)
+    except Exception as e:  # noqa: BLE001
+        smartlab_outlier_triage = {
+            "total_triage_rows": 0,
+            "suspected_unit_mismatch": 0,
+            "high_priority": 0,
+            "batch_count": 0,
+            "review_batches": 0,
+            "review_probable_full_company_unit_mismatch": 0,
+            "review_single_field_needs_source_check": 0,
+            "review_candidate_rows": 0,
+            "review_do_not_auto_correct": True,
+            "override_candidate_rows": 0,
+            "override_candidate_ready": 0,
+            "override_candidate_companies": [],
+            "by_status": {},
+            "by_issue": {},
             "companies": [],
             "error": str(e),
         }
@@ -157,6 +195,20 @@ def run_all(root: Path = REPO_ROOT, smartlab_only: bool = False, skip_ocr: bool 
         "smartlab_panel_outliers_by_field": smartlab_outliers.get("by_field", {}),
         "smartlab_panel_outliers_companies": smartlab_outliers.get("companies", []),
         "smartlab_panel_outliers_error": smartlab_outliers.get("error"),
+        "smartlab_panel_triage_rows": smartlab_outlier_triage.get("total_triage_rows", 0),
+        "smartlab_panel_triage_suspected_unit_mismatch": smartlab_outlier_triage.get("suspected_unit_mismatch", 0),
+        "smartlab_panel_triage_high_priority": smartlab_outlier_triage.get("high_priority", 0),
+        "smartlab_panel_triage_batch_count": smartlab_outlier_triage.get("batch_count", 0),
+        "smartlab_panel_unit_mismatch_review_batches": smartlab_outlier_triage.get("review_batches", 0),
+        "smartlab_panel_unit_mismatch_probable_full_company": smartlab_outlier_triage.get("review_probable_full_company_unit_mismatch", 0),
+        "smartlab_panel_unit_mismatch_single_field": smartlab_outlier_triage.get("review_single_field_needs_source_check", 0),
+        "smartlab_panel_unit_mismatch_candidate_rows": smartlab_outlier_triage.get("review_candidate_rows", 0),
+        "smartlab_panel_unit_mismatch_do_not_auto_correct": smartlab_outlier_triage.get("review_do_not_auto_correct", True),
+        "smartlab_panel_unit_mismatch_override_candidate_rows": smartlab_outlier_triage.get("override_candidate_rows", 0),
+        "smartlab_panel_unit_mismatch_override_candidate_ready": smartlab_outlier_triage.get("override_candidate_ready", 0),
+        "smartlab_panel_unit_mismatch_override_candidate_companies": smartlab_outlier_triage.get("override_candidate_companies", []),
+        "smartlab_panel_triage_by_status": smartlab_outlier_triage.get("by_status", {}),
+        "smartlab_panel_triage_error": smartlab_outlier_triage.get("error"),
         "facts_from_ifrs": extraction.get("facts_from_ifrs", 0),
         "extracted_ifrs_facts": extracted_ifrs_audit.get("extracted_ifrs_facts", 0),
         "extracted_ifrs_needs_review": extracted_ifrs_audit.get("needs_manual_review", 0),

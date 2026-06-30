@@ -296,4 +296,12 @@ def test_run_all_summary_includes_smartlab_panel_outlier_counts(tmp_path: Path):
 
     assert summary["smartlab_panel_outliers_count"] == 1
     assert summary["smartlab_panel_outliers_by_issue"] == {"negative_value": 1}
+    assert summary["smartlab_panel_triage_rows"] == 1
+    assert summary["smartlab_panel_triage_suspected_unit_mismatch"] == 0
+    assert summary["smartlab_panel_triage_by_status"] == {"invalid_negative_review": 1}
+    assert summary["smartlab_panel_unit_mismatch_review_batches"] == 0
+    assert summary["smartlab_panel_unit_mismatch_do_not_auto_correct"] is True
+    assert summary["smartlab_panel_unit_mismatch_override_candidate_rows"] == 0
+    assert summary["smartlab_panel_unit_mismatch_override_candidate_ready"] == 0
     assert (tmp_path / "data" / "manual_review" / "smartlab_panel_outliers.csv").exists()
+    assert (tmp_path / "data" / "manual_review" / "smartlab_panel_outlier_triage.csv").exists()

@@ -29,6 +29,11 @@ def read_manual_override(path: Path) -> pd.DataFrame:
 
     now = utc_now_iso()
     out = df.copy()
+    if "ready_for_manual_override" in out:
+        ready = out["ready_for_manual_override"].apply(_truthy)
+        out = out[ready].copy()
+        if out.empty:
+            return pd.DataFrame()
     out["ticker"] = out["ticker"].astype(str).str.strip().str.upper()
     out["period"] = out["period"].astype(str).str.strip()
     out["fact_id"] = out.apply(
@@ -54,3 +59,10 @@ def read_manual_override(path: Path) -> pd.DataFrame:
     if "created_at" not in out:
         out["created_at"] = now
     return out
+
+
+def _truthy(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    return text in {"1", "true", "yes", "y"}
