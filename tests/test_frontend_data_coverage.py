@@ -52,3 +52,30 @@ def test_manual_deploy_publishes_additive_site_json_layers():
     assert "site/bonds/*.json" in deploy
     assert "app.js?v=" in deploy
     assert "styles.css?v=" in deploy
+
+
+def test_frontend_has_local_portfolio_health_workbench():
+    html = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+    js = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
+    css = (ROOT / "site" / "styles.css").read_text(encoding="utf-8")
+
+    assert 'data-section="my-portfolio"' in html
+    assert 'id="my-portfolio"' in html
+    assert 'id="mp-input"' in html
+    assert 'id="mp-sample"' in html
+    assert 'id="mp-import"' in html
+    assert 'id="mp-out"' in html
+
+    assert "MY_PORTFOLIO_STORAGE_KEY" in js
+    assert "localStorage" in js
+    assert "renderMyPortfolio" in js
+    assert "myPortfolioMetrics" in js
+    assert "myPortfolioActions" in js
+    assert "parseMyPortfolioInput" in js
+    assert "navigator.sendBeacon" not in js
+    assert "fetch('my-portfolio" not in js
+    assert 'fetch("my-portfolio' not in js
+
+    assert ".mp-health" in css
+    assert ".mp-action" in css
+    assert ".mp-editor" in css

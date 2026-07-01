@@ -103,14 +103,16 @@ function init(data) {
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
   wirePortfolio();
+  wireMyPortfolio();
   loadReturns(() => { const o = document.getElementById('pf-out'); if (o && o.dataset.shown) renderPortfolio(); });  // жадно грузим историю → мгновенный результат
 
   render();
   if (typeof updateDataStatus === 'function') updateDataStatus();   // даты цен/прогноза в global status bar
   if (typeof renderMarketKPI === 'function') renderMarketKPI();     // KPI «Акций в скринере» и т.д.
   if (typeof renderMarketSignals === 'function') renderMarketSignals();
-  if (typeof loadSiteFinancials === 'function') loadSiteFinancials(() => render());
+  if (typeof loadSiteFinancials === 'function') loadSiteFinancials(() => { render(); renderMyPortfolio(); });
   if (typeof loadDataCoverage === 'function') loadDataCoverage(() => updateDataStatus());
+  if (getSectionFromHash && getSectionFromHash() === 'my-portfolio') renderMyPortfolio();
 }
 
 // ── фильтрация + сортировка ──
@@ -1008,6 +1010,235 @@ function exportPortfolioCSV() {
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'portfolio.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+const MY_PORTFOLIO_STORAGE_KEY = 'dividendFactorStrategies.myPortfolio.v1';
+const MY_PORTFOLIO_SAMPLE = 'SBER; 100; 310\nLKOH; 5; 6800\nMOEX; 50; 210\nNVTK; 8; 1250\nPHOR; 3; 6200';
+
+function parseMyPortfolioInput(text) {
+  return String(text || '').split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .map((line) => {
+      const parts = line.split(/[;,\t ]+/).map((x) => x.trim()).filter(Boolean);
+      const ticker = String(parts[0] || '').toUpperCase().replace(/[^A-Z0-9._-]/g, '');
+      const qty = Number(String(parts[1] || '').replace(',', '.'));
+      const avg = Number(String(parts[2] || '').replace(',', '.'));
+      return { ticker, quantity: qty, avg_price: avg };
+    })
+    .filter((p) => p.ticker && isFinite(p.quantity) && p.quantity > 0 && isFinite(p.avg_price) && p.avg_price >= 0);
+}
+
+function myPortfolioText(rows) {
+  return (rows || []).map((p) => `${p.ticker}; ${p.quantity}; ${p.avg_price}`).join('\n');
+}
+
+function myPortfolioLoad() {
+  try {
+    const raw = localStorage.getItem(MY_PORTFOLIO_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_e) {
+    return [];
+  }
+}
+
+function myPortfolioSave(rows) {
+  try {
+    localStorage.setItem(MY_PORTFOLIO_STORAGE_KEY, JSON.stringify(rows || []));
+  } catch (_e) {
+    // localStorage может быть отключен; расчет все равно покажем в текущей сессии.
+  }
+}
+
+function myPortfolioTickerMap() {
+  const map = {};
+  (DATA && DATA.tickers ? DATA.tickers : []).forEach((t) => { map[t.ticker] = t; });
+  return map;
+}
+
+function myPortfolioRfrPct() {
+  if (MARLAMOV && MARLAMOV.meta && isNum(MARLAMOV.meta.rfr)) return MARLAMOV.meta.rfr * 100;
+  if (DATA && DATA.meta && isNum(DATA.meta.rf_ofz)) return DATA.meta.rf_ofz * 100;
+  return null;
+}
+
+function myPortfolioDataQuality(ticker) {
+  const rows = SITE_FINANCIALS && SITE_FINANCIALS.rows ? SITE_FINANCIALS.rows.filter((r) => r.ticker === ticker) : [];
+  if (!rows.length) return { status: 'missing', label: 'нет фундаментального слоя', score: 40 };
+  const statuses = new Set(rows.map((r) => r.source_status).filter(Boolean));
+  const scores = rows.map((r) => r.quality_score).filter(isNum);
+  const score = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 70;
+  if (statuses.has('Conflict')) return { status: 'conflict', label: 'есть конфликт источников', score };
+  if (statuses.has('Official IFRS')) return { status: 'official', label: 'есть official IFRS слой', score };
+  return { status: 'smartlab', label: 'SmartLab fallback', score };
+}
+
+function myPortfolioEnrich(rows) {
+  const map = myPortfolioTickerMap();
+  return (rows || []).map((p) => {
+    const t = map[p.ticker] || null;
+    const currentPrice = t && isNum(t.price) ? t.price : null;
+    const value = currentPrice != null ? currentPrice * p.quantity : p.avg_price * p.quantity;
+    const cost = p.avg_price * p.quantity;
+    const y = t && isNum(t.dividend_yield_expected) ? t.dividend_yield_expected
+      : (t && isNum(t.dividend_yield_if_paid) ? t.dividend_yield_if_paid : null);
+    return {
+      ...p,
+      t,
+      sector: t ? (t.sector || ND) : 'нет в покрытии',
+      current_price: currentPrice,
+      value,
+      cost,
+      pnl_pct: currentPrice != null && p.avg_price > 0 ? currentPrice / p.avg_price - 1 : null,
+      dividend_yield: y,
+      data_quality: myPortfolioDataQuality(p.ticker),
+    };
+  });
+}
+
+function myPortfolioMetrics(rows) {
+  const positions = myPortfolioEnrich(rows);
+  const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
+  positions.forEach((p) => { p.weight = total > 0 ? p.value / total : 0; });
+  const known = positions.filter((p) => p.t);
+  const sectors = {};
+  positions.forEach((p) => { sectors[p.sector] = (sectors[p.sector] || 0) + p.weight; });
+  const topWeight = positions.reduce((m, p) => Math.max(m, p.weight || 0), 0);
+  const topSector = Object.entries(sectors).sort((a, b) => b[1] - a[1])[0] || ['—', 0];
+  const grossYield = positions.reduce((s, p) => s + (isNum(p.dividend_yield) ? p.weight * p.dividend_yield : 0), 0);
+  const netYield = grossYield * NET_OF_TAX;
+  const stability = positions.reduce((s, p) => s + (p.t && isNum(p.t.stability_score) ? p.weight * p.t.stability_score : 0), 0);
+  const conflictWeight = positions.reduce((s, p) => s + (p.data_quality.status === 'conflict' ? p.weight : 0), 0);
+  const missingWeight = positions.reduce((s, p) => s + (!p.t ? p.weight : 0), 0);
+  const riskWeight = positions.reduce((s, p) => s + (p.t && p.t.verdict && p.t.verdict.color === 'risk' ? p.weight : 0), 0);
+  const rfr = myPortfolioRfrPct();
+  const stress = SAW_DATA ? marketStressFromSaw(SAW_DATA) : null;
+  let score = 100;
+  score -= Math.max(0, topWeight - 0.20) * 120;
+  score -= Math.max(0, topSector[1] - 0.40) * 90;
+  score -= riskWeight * 35;
+  score -= conflictWeight * 20;
+  score -= missingWeight * 35;
+  if (rfr != null && grossYield < rfr) score -= Math.min(20, (rfr - grossYield) * 0.8);
+  if (stress && stress.score >= 70) score -= 8;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return {
+    positions,
+    total,
+    known_count: known.length,
+    gross_yield: grossYield,
+    net_yield: netYield,
+    income_net: total * netYield / 100,
+    stability,
+    sectors: Object.entries(sectors).sort((a, b) => b[1] - a[1]),
+    top_weight: topWeight,
+    top_sector: topSector,
+    conflict_weight: conflictWeight,
+    missing_weight: missingWeight,
+    risk_weight: riskWeight,
+    rfr,
+    spread_to_rfr: rfr != null ? grossYield - rfr : null,
+    stress,
+    score,
+  };
+}
+
+function myPortfolioActions(m) {
+  const actions = [];
+  const add = (tone, title, body) => actions.push({ tone, title, body });
+  if (!m.positions.length) return actions;
+  if (m.top_weight > 0.25) {
+    const p = m.positions.slice().sort((a, b) => b.weight - a.weight)[0];
+    add('risk', 'Концентрация в одной бумаге', `${p.ticker}: ${ru(p.weight * 100, 0)}% портфеля. Проверь лимит на эмитента.`);
+  }
+  if (m.top_sector[1] > 0.40) {
+    add('warn', 'Секторная концентрация', `${m.top_sector[0]}: ${ru(m.top_sector[1] * 100, 0)}% портфеля.`);
+  }
+  if (m.spread_to_rfr != null && m.spread_to_rfr < 0) {
+    add('risk', 'Дивидендный case слабее RFR', `Ожидаемая gross yield ниже RFR на ${ru(Math.abs(m.spread_to_rfr), 1)} п.п.`);
+  }
+  m.positions.filter((p) => p.t && p.t.verdict && p.t.verdict.color === 'risk').slice(0, 4)
+    .forEach((p) => add('risk', `Проверить ${p.ticker}`, `${p.t.verdict.label || 'risk verdict'} · вес ${ru(p.weight * 100, 1)}%.`));
+  m.positions.filter((p) => p.data_quality.status === 'conflict').slice(0, 4)
+    .forEach((p) => add('warn', `Данные ${p.ticker} требуют сверки`, 'В финансовом слое есть конфликт SmartLab / official IFRS.'));
+  m.positions.filter((p) => !p.t).slice(0, 4)
+    .forEach((p) => add('warn', `Нет покрытия ${p.ticker}`, 'Тикер не найден в текущем data.json; вес считается по средней цене.'));
+  if (m.stress && m.stress.score >= 70) {
+    add('warn', 'Рыночное напряжение высокое', `Market stress ${m.stress.score}/100: новые действия лучше сверять с ликвидностью и горизонтом.`);
+  }
+  if (!actions.length) add('good', 'Критичных проверок нет', 'Портфель выглядит сбалансированно по текущим правилам MVP.');
+  return actions.slice(0, 8);
+}
+
+function renderMyPortfolio() {
+  const out = document.getElementById('mp-out');
+  const input = document.getElementById('mp-input');
+  if (!out || !input) return;
+  if (!DATA) {
+    out.innerHTML = '<div class="mp-empty muted">Загрузка data.json...</div>';
+    return;
+  }
+  const rows = parseMyPortfolioInput(input.value);
+  if (!rows.length) {
+    out.innerHTML = '<div class="mp-empty muted">Добавь позиции или загрузи пример, чтобы увидеть health score и action feed.</div>';
+    return;
+  }
+  const m = myPortfolioMetrics(rows);
+  myPortfolioSave(rows);
+  const tone = m.score >= 75 ? 'good' : (m.score >= 50 ? 'warn' : 'risk');
+  const sectorRows = m.sectors.map(([s, w]) => `<div class="mp-secrow"><span>${esc(s)}</span><i><b style="width:${Math.min(100, w * 100).toFixed(0)}%"></b></i><em>${ru(w * 100, 0)}%</em></div>`).join('');
+  const positionRows = m.positions.map((p) => {
+    const pnl = p.pnl_pct == null ? mdash : `<span class="${p.pnl_pct >= 0 ? 'saw-up' : 'saw-down'}">${sawPct(p.pnl_pct)}</span>`;
+    const verdict = p.t ? verdictChip(p.t.verdict, false) : '<span class="badge b-neut">нет данных</span>';
+    return `<tr><td class="left"><b>${esc(p.ticker)}</b><span class="muted"> ${esc(p.sector)}</span></td>
+      <td class="tnum">${ru(p.weight * 100, 1)}%</td>
+      <td class="tnum">${fmtRub(Math.round(p.value))}</td>
+      <td class="tnum">${p.current_price != null ? fmtRub(p.current_price) : mdash}</td>
+      <td class="tnum">${pnl}</td>
+      <td class="tnum">${isNum(p.dividend_yield) ? fmtPct(p.dividend_yield, 1) : mdash}</td>
+      <td class="left">${verdict}</td>
+      <td class="left"><span class="mp-dq mp-dq-${p.data_quality.status}">${esc(p.data_quality.label)}</span></td></tr>`;
+  }).join('');
+  const actions = myPortfolioActions(m).map((a) => `<div class="mp-action mp-action-${a.tone}"><b>${esc(a.title)}</b><span>${esc(a.body)}</span></div>`).join('');
+  out.innerHTML = `<div class="mp-health mp-health-${tone}">
+      <div class="mp-score"><span>Health score</span><b>${m.score}/100</b><em>исследовательский скор, не ИИР</em></div>
+      <div class="mp-kpis">
+        <div><span>Стоимость</span><b>${fmtRub(Math.round(m.total))}</b></div>
+        <div><span>Див. доходность gross</span><b>${fmtPct(m.gross_yield, 1)}</b><em>${m.spread_to_rfr == null ? 'RFR н/д' : `spread к RFR: ${ru(m.spread_to_rfr, 1)} п.п.`}</em></div>
+        <div><span>Доход/год net</span><b>${fmtRub(Math.round(m.income_net))}</b></div>
+        <div><span>Устойчивость</span><b>${fmtPct(m.stability * 100, 0)}</b></div>
+      </div>
+    </div>
+    <div class="mp-layout">
+      <div class="mp-panel"><h3>Что проверить сегодня</h3><div class="mp-actions-list">${actions}</div></div>
+      <div class="mp-panel"><h3>Секторная структура</h3>${sectorRows || '<div class="muted">нет данных</div>'}</div>
+    </div>
+    <div class="mp-panel"><h3>Позиции</h3>
+      <table class="mp-table"><thead><tr><th class="left">Бумага</th><th>Вес</th><th>Стоимость</th><th>Цена</th><th>P/L</th><th>DY</th><th class="left">Вердикт</th><th class="left">Данные</th></tr></thead><tbody>${positionRows}</tbody></table>
+    </div>`;
+}
+
+function wireMyPortfolio() {
+  const input = document.getElementById('mp-input');
+  if (!input) return;
+  const saved = myPortfolioLoad();
+  if (saved.length && !input.value.trim()) input.value = myPortfolioText(saved);
+  const saveBtn = document.getElementById('mp-save');
+  const sampleBtn = document.getElementById('mp-sample');
+  const clearBtn = document.getElementById('mp-clear');
+  const importInput = document.getElementById('mp-import');
+  if (saveBtn) saveBtn.addEventListener('click', renderMyPortfolio);
+  input.addEventListener('input', debounce(renderMyPortfolio, 250));
+  if (sampleBtn) sampleBtn.addEventListener('click', () => { input.value = MY_PORTFOLIO_SAMPLE; renderMyPortfolio(); });
+  if (clearBtn) clearBtn.addEventListener('click', () => { input.value = ''; myPortfolioSave([]); renderMyPortfolio(); });
+  if (importInput) importInput.addEventListener('change', () => {
+    const file = importInput.files && importInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { input.value = String(reader.result || ''); renderMyPortfolio(); };
+    reader.readAsText(file);
+  });
+  renderMyPortfolio();
 }
 
 function syncWeightControl() {   // «Взвешивание» неприменимо к оптимизаторам — они сами считают веса
@@ -1939,11 +2170,11 @@ function renderDataCoverage() {
 // Безопасный слой: клик раскрывает <details> и скроллит к секции; логика блоков не тронута.
 // ══════════════════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════════════════
-// Роутер 5 разделов (hash-навигация) + global data status bar + KPI «Текущий рынок».
+// Роутер разделов (hash-навигация) + global data status bar + KPI «Текущий рынок».
 // Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
 // нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
 // ══════════════════════════════════════════════════════════════════════════
-const SECTIONS = ['market', 'stocks', 'strategies', 'bonds', 'methodology'];
+const SECTIONS = ['market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'methodology'];
 
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
@@ -1957,6 +2188,11 @@ function openDetails(id) {
 
 function onSectionShown(sec) {
   if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); }
+  else if (sec === 'my-portfolio') {
+    ensureKpiData();
+    if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
+    renderMyPortfolio();
+  }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); }
   else if (sec === 'methodology') {

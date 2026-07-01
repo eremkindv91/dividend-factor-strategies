@@ -6,7 +6,7 @@
   <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
   <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=20260701-market-pulse">
+  <link rel="stylesheet" href="styles.css?v=20260701-portfolio-health">
 </head>
 <body>
   <div class="wrap">
@@ -19,6 +19,7 @@
 
     <nav class="section-tabs" id="section-tabs">
       <button class="section-tab" data-section="market">Текущий рынок</button>
+      <button class="section-tab" data-section="my-portfolio">Портфель</button>
       <button class="section-tab" data-section="stocks">Акции</button>
       <button class="section-tab" data-section="strategies">Стратегии</button>
       <button class="section-tab" data-section="bonds">Облигации</button>
@@ -43,6 +44,28 @@
             <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
           </div>
         </details>
+      </section>
+
+      <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->
+      <section class="app-section" data-section="my-portfolio" hidden>
+        <p class="section-intro">Локальный разбор портфеля: концентрация, дивидендный spread к RFR, качество данных и список проверок на сегодня. Позиции хранятся только в браузере.</p>
+        <div class="my-portfolio" id="my-portfolio">
+          <div class="mp-editor">
+            <div class="mp-input-wrap">
+              <label for="mp-input">Позиции <span class="muted">тикер; количество; средняя цена</span></label>
+              <textarea id="mp-input" spellcheck="false" placeholder="SBER; 100; 310&#10;LKOH; 5; 6800&#10;MOEX; 50; 210"></textarea>
+            </div>
+            <div class="mp-actions">
+              <button class="btn" id="mp-save">Посчитать</button>
+              <button class="btn btn-secondary" id="mp-sample">Пример</button>
+              <label class="btn btn-secondary mp-import-label">Импорт CSV<input type="file" id="mp-import" accept=".csv,.txt"></label>
+              <button class="btn btn-secondary" id="mp-clear">Очистить</button>
+            </div>
+          </div>
+          <div id="mp-out">
+            <div class="mp-empty muted">Добавь позиции или загрузи пример, чтобы увидеть health score и action feed.</div>
+          </div>
+        </div>
       </section>
 
       <!-- ─────────── АКЦИИ ─────────── -->
@@ -163,6 +186,6 @@
       </section>
     </main>
   </div>
-  <script src="app.js?v=20260701-market-pulse"></script>
+  <script src="app.js?v=20260701-portfolio-health"></script>
 </body>
 </html>
