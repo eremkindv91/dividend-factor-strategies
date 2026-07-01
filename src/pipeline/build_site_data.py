@@ -479,6 +479,14 @@ def default_smartlab_cleaned_summary() -> dict:
         "smartlab_values_needs_review": 0,
         "smartlab_missing_values": 0,
         "smartlab_corrected_confirmed": 0,
+        "smartlab_backfilled_values": 0,
+        "smartlab_calculated_values": 0,
+        "smartlab_backfill_failed": 0,
+        "smartlab_gap_total_expected_values": 0,
+        "smartlab_gap_present_in_site": 0,
+        "smartlab_gap_missing_in_site": 0,
+        "smartlab_gap_missing_can_be_calculated": 0,
+        "smartlab_gap_missing_needs_backfill": 0,
     }
 
 

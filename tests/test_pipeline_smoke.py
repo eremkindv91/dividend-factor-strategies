@@ -340,7 +340,14 @@ def test_run_all_summary_includes_cleaned_smartlab_fundamentals_counts(tmp_path:
     assert summary["smartlab_fundamental_values_excluded"] == 3
     assert summary["smartlab_ratio_values_blocked"] == 2
     assert summary["smartlab_values_needs_review"] == 3
+    assert summary["smartlab_gap_total_expected_values"] > 0
+    assert summary["smartlab_gap_missing_in_site"] >= 0
+    assert summary["smartlab_calculated_values"] >= 0
     assert coverage["meta"]["smartlab_fundamental_values_excluded"] == 3
+    assert "smartlab_gap_total_expected_values" in coverage["meta"]
     assert "GOOD" in financials["fundamentals"]
     assert (tmp_path / "data" / "processed" / "smartlab_fundamentals_cleaned.parquet").exists()
+    assert (tmp_path / "data" / "processed" / "smartlab_fundamentals_backfilled.parquet").exists()
     assert (tmp_path / "data" / "manual_review" / "fundamental_data_issues.csv").exists()
+    assert (tmp_path / "data" / "quality" / "smartlab_fundamentals_gap_report.csv").exists()
+    assert (tmp_path / "data" / "quality" / "smartlab_fundamentals_gap_summary.json").exists()

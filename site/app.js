@@ -387,7 +387,7 @@ function fundamentalsHTML(ticker) {
   }).join('');
   if (!sections) return '';
   return `<div class="fund">
-    <div class="fund-note">SmartLab cleaned layer: значения проходят audit rules; заблокированные outliers не публикуются как clean value, но raw/status оставлены для проверки источника.</div>
+    <div class="fund-note">SmartLab cleaned layer: raw values, mapped fields and derived metrics from clean base facts; blocked outliers are not published as clean values.</div>
     ${sections}
   </div>`;
 }
@@ -399,7 +399,7 @@ function fundMetricHTML(metric) {
   const review = vals.some((v) => v.needs_manual_review);
   const cls = blocked ? 'fund-bad' : (review ? 'fund-review' : 'fund-ok');
   const status = blocked ? 'blocked' : (review ? 'review' : 'clean');
-  const sourceStatus = metric.source_status || last.source_status || 'smartlab_fallback';
+  const sourceStatus = formatFundSourceStatus(metric.source_status || last.source_status || 'smartlab_fallback');
   return `<div class="fund-row">
     <div class="fund-meta">
       <span class="fund-name">${esc(metric.name_ru || metric.field)}</span>
@@ -411,6 +411,16 @@ function fundMetricHTML(metric) {
       <span class="fund-status ${cls}" title="${esc(last.quality_reason || status)}">${esc(status)}</span>
     </div>
   </div>`;
+}
+
+function formatFundSourceStatus(status) {
+  const labels = {
+    smartlab_fallback: 'SmartLab fallback',
+    mapped_from_raw_existing: 'mapped from existing SmartLab field',
+    calculated_from_clean_base_facts: 'calculated from clean base facts',
+    calculated_from_smartlab_base_facts: 'calculated from SmartLab base facts',
+  };
+  return labels[status] || status || 'SmartLab fallback';
 }
 
 function fundBars(vals, format) {
