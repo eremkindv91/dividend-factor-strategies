@@ -108,6 +108,7 @@ function init(data) {
   render();
   if (typeof updateDataStatus === 'function') updateDataStatus();   // даты цен/прогноза в global status bar
   if (typeof renderMarketKPI === 'function') renderMarketKPI();     // KPI «Акций в скринере» и т.д.
+  if (typeof renderMarketSignals === 'function') renderMarketSignals();
   if (typeof loadSiteFinancials === 'function') loadSiteFinancials(() => render());
   if (typeof loadDataCoverage === 'function') loadDataCoverage(() => updateDataStatus());
 }
@@ -1072,6 +1073,191 @@ function loadMarketSaw(cb) {
     .catch((e) => { console.error('[saw] marketsaw.json не загрузился:', e); cb(e); });
 }
 
+function marketStressFromSaw(d) {
+  const points = (d && d.series ? d.series : [])
+    .map((p) => ({ date: p[0], value: Number(p[1]) }))
+    .filter((p) => isFinite(p.value) && p.value > 0);
+  if (points.length < 45) return null;
+  const rets = [];
+  for (let i = 1; i < points.length; i++) {
+    rets.push({ date: points[i].date, ret: points[i].value / points[i - 1].value - 1 });
+  }
+  const volWindow = (slice) => {
+    const vals = slice.map((x) => x.ret).filter(isFinite);
+    if (vals.length < 10) return null;
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+    return Math.sqrt(variance) * Math.sqrt(252);
+  };
+  const vols = [];
+  for (let i = 19; i < rets.length; i++) {
+    const v = volWindow(rets.slice(i - 19, i + 1));
+    if (v != null) vols.push(v);
+  }
+  if (!vols.length) return null;
+  const current = vols[vols.length - 1];
+  const below = vols.filter((v) => v <= current).length;
+  const percentile = below / vols.length;
+  const score = Math.round(percentile * 100);
+  const last5 = rets.slice(-5);
+  const weekMove = last5.length ? last5.reduce((acc, x) => acc * (1 + x.ret), 1) - 1 : null;
+  let level = 'calm', label = 'Спокойно', tone = 'good';
+  if (score >= 80) { level = 'panic'; label = 'Паническая зона'; tone = 'risk'; }
+  else if (score >= 60) { level = 'high'; label = 'Повышенное напряжение'; tone = 'warn'; }
+  else if (score >= 30) { level = 'normal'; label = 'Обычная волатильность'; tone = 'neut'; }
+  return {
+    current_vol: current,
+    percentile,
+    score,
+    level,
+    label,
+    tone,
+    week_move: weekMove,
+    last_date: points[points.length - 1].date,
+  };
+}
+
+function marketSeriesPoints(d) {
+  return (d && d.series ? d.series : [])
+    .map((p) => ({ date: p[0], value: Number(p[1]) }))
+    .filter((p) => isFinite(p.value) && p.value > 0);
+}
+
+function trailingMove(points, sessions) {
+  if (!points || points.length <= sessions) return null;
+  const current = points[points.length - 1].value;
+  const past = points[points.length - 1 - sessions].value;
+  return past > 0 ? current / past - 1 : null;
+}
+
+function marketDrawdown(points, sessions) {
+  if (!points || points.length < 2) return null;
+  const slice = points.slice(Math.max(0, points.length - sessions));
+  const high = Math.max(...slice.map((p) => p.value));
+  const current = points[points.length - 1].value;
+  return high > 0 ? current / high - 1 : null;
+}
+
+function signalTone(value, goodWhenPositive, warnLevel, riskLevel) {
+  if (!isNum(value)) return 'neut';
+  if (goodWhenPositive) {
+    if (value <= riskLevel) return 'risk';
+    if (value <= warnLevel) return 'warn';
+    return 'good';
+  }
+  if (value >= riskLevel) return 'risk';
+  if (value >= warnLevel) return 'warn';
+  return 'good';
+}
+
+function marketPulseHTML(d) {
+  if (!d || !d.current_phase) {
+    return '<div class="pulse-loading muted">Рыночный пульс недоступен: нет MCFTR.</div>';
+  }
+  const cp = d.current_phase;
+  const stress = marketStressFromSaw(d);
+  const moveCls = cp.move_pct >= 0 ? 'saw-up' : 'saw-down';
+  const prob = cp.historical_reach_probability;
+  const probStr = prob == null ? '—' : (prob * 100).toFixed(0) + '%';
+  const score = stress ? stress.score : 0;
+  const stressCls = stress ? `stress-${stress.tone}` : 'stress-neut';
+  const stressLabel = stress ? stress.label : 'Нет данных';
+  const stressVol = stress ? fmtPct(stress.current_vol * 100, 1) : '—';
+  const weekMove = stress && stress.week_move != null ? sawPct(stress.week_move) : '—';
+  const phaseLabel = cp.label || 'Фаза не определена';
+  return `
+    <div class="pulse-main phase-${esc(cp.risk_level || 'neutral')}">
+      <div class="pulse-copy">
+        <span class="pulse-eyebrow">Market pulse</span>
+        <h2>${esc(phaseLabel)}</h2>
+        <p>${esc(cp.explanation || 'Индикатор показывает положение рынка относительно последнего подтвержденного экстремума MCFTR.')}</p>
+      </div>
+      <div class="pulse-stress ${stressCls}">
+        <div class="stress-head">
+          <span>Рыночное напряжение</span>
+          <b>${stress ? score : '—'}${stress ? '/100' : ''}</b>
+        </div>
+        <div class="stress-track" aria-label="Индикатор рыночного напряжения">
+          <span style="width:${stress ? Math.max(3, Math.min(100, score)) : 0}%"></span>
+        </div>
+        <div class="stress-foot">
+          <span>${esc(stressLabel)}</span>
+          <span>vol 20d: ${stressVol}</span>
+        </div>
+      </div>
+    </div>
+    <div class="pulse-strip">
+      <div class="pulse-item"><span>MCFTR</span><b class="tnum">${ru(cp.current_price, 0)}</b><em>${esc(sawDate(cp.current_date))}</em></div>
+      <div class="pulse-item"><span>От экстремума</span><b class="tnum ${moveCls}">${sawPct(cp.move_pct)}</b><em>${esc(sawDate(cp.anchor_date))}</em></div>
+      <div class="pulse-item"><span>Историческая частота</span><b class="tnum">${probStr}</b><em>волны такой глубины</em></div>
+      <div class="pulse-item"><span>5 торговых дней</span><b class="tnum ${String(weekMove).startsWith('-') ? 'saw-down' : 'saw-up'}">${weekMove}</b><em>по MCFTR</em></div>
+    </div>
+  `;
+}
+
+function marketSignalsHTML() {
+  const points = marketSeriesPoints(SAW_DATA);
+  const move20 = trailingMove(points, 20);
+  const move60 = trailingMove(points, 60);
+  const dd1y = marketDrawdown(points, 252);
+  const mlRows = MARLAMOV && MARLAMOV.rows ? MARLAMOV.rows : [];
+  const spreads = mlRows.map((r) => r.spread).filter(isNum);
+  const positiveSpread = spreads.filter((v) => v > 0).length;
+  const sortedSpreads = spreads.slice().sort((a, b) => a - b);
+  const mid = Math.floor(sortedSpreads.length / 2);
+  const medianSpread = sortedSpreads.length
+    ? (sortedSpreads.length % 2 ? sortedSpreads[mid] : (sortedSpreads[mid - 1] + sortedSpreads[mid]) / 2)
+    : null;
+  const meta = DATA && DATA.meta ? DATA.meta : {};
+  const fresh = isNum(meta.n_price_fresh) ? meta.n_price_fresh : null;
+  const total = isNum(meta.n_total) ? meta.n_total : null;
+  const stale = Boolean(meta.prices_stale);
+  const freshShare = fresh != null && total ? fresh / total : null;
+  const goodVerdicts = DATA && DATA.tickers ? DATA.tickers.filter((t) => (t.verdict || {}).color === 'good').length : null;
+  const okTickers = DATA && DATA.tickers ? DATA.tickers.filter((t) => t.status === 'ok').length : null;
+  const card = (label, value, note, tone) => `
+    <div class="signal-card signal-${tone || 'neut'}">
+      <span>${esc(label)}</span>
+      <b>${value}</b>
+      <em>${esc(note || '')}</em>
+    </div>`;
+  if (!SAW_DATA && !DATA && !MARLAMOV) {
+    return '<div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>';
+  }
+  return [
+    card(
+      'Импульс MCFTR',
+      move20 == null ? '—' : sawPct(move20),
+      move60 == null ? '20 торговых дней' : `60 дней: ${sawPct(move60)}`,
+      signalTone(move20, true, -0.03, -0.08)
+    ),
+    card(
+      'Просадка от 1Y high',
+      dd1y == null ? '—' : sawPct(dd1y),
+      'по индексу полной доходности',
+      signalTone(dd1y, true, -0.07, -0.15)
+    ),
+    card(
+      'Дивидендный спред',
+      spreads.length ? `${positiveSpread}/${spreads.length} выше RFR` : '—',
+      medianSpread == null ? 'нужен marlamov.json' : `медиана: ${sawPct(medianSpread)}`,
+      positiveSpread > 0 ? 'warn' : 'risk'
+    ),
+    card(
+      'Свежесть цен',
+      fresh != null && total != null ? `${fresh}/${total}` : '—',
+      stale ? 'часть цен устарела' : (freshShare != null ? `${fmtPct(freshShare * 100, 0)} бумаг со свежей ценой` : 'MOEX snapshot'),
+      stale ? 'warn' : 'good'
+    ),
+    card(
+      'Сильные карточки',
+      goodVerdicts != null && okTickers != null ? `${goodVerdicts}/${okTickers}` : '—',
+      'вердикт good среди бумаг с данными',
+      goodVerdicts && okTickers && goodVerdicts / okTickers >= 0.2 ? 'good' : 'neut'
+    ),
+  ].join('');
+}
+
 function loadLWC(cb) {
   if (window.LightweightCharts) { cb(); return; }
   if (window.__lwc) { window.__lwc.push(cb); return; }
@@ -1770,7 +1956,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketKPI(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); }
   else if (sec === 'methodology') {
@@ -1823,13 +2009,29 @@ function updateDataStatus() {
 
 // ── KPI «Текущий рынок» ──
 function ensureKpiData() {
-  if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketKPI(); updateDataStatus(); });
-  if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); updateDataStatus(); });
+  if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
+  if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
 }
 
-function kpiCard(label, value, cls) {
-  return `<div class="kpi-card ${cls || ''}"><span class="kpi-lbl">${label}</span><span class="kpi-val">${value}</span></div>`;
+function kpiCard(label, value, cls, note) {
+  return `<div class="kpi-card ${cls || ''}"><span class="kpi-lbl">${label}</span><span class="kpi-val">${value}</span>${note ? `<span class="kpi-note">${note}</span>` : ''}</div>`;
+}
+
+function renderMarketPulse() {
+  const el = document.getElementById('market-pulse');
+  if (!el) return;
+  if (!SAW_DATA) {
+    el.innerHTML = '<div class="pulse-loading muted">Загрузка рыночного пульса...</div>';
+    return;
+  }
+  el.innerHTML = marketPulseHTML(SAW_DATA);
+}
+
+function renderMarketSignals() {
+  const el = document.getElementById('market-signals');
+  if (!el) return;
+  el.innerHTML = marketSignalsHTML();
 }
 
 function renderMarketKPI() {
@@ -1842,11 +2044,14 @@ function renderMarketKPI() {
   const regime = ml && ml.regime ? esc(ml.regime) : dash;
   const nStocks = DATA && DATA.meta ? (DATA.meta.n_ok || DATA.meta.n_total) : null;
   const nBonds = bn && isNum(bn.n) ? bn.n : null;
+  const stress = SAW_DATA ? marketStressFromSaw(SAW_DATA) : null;
+  const volValue = stress ? fmtPct(stress.current_vol * 100, 1) : dash;
+  const volNote = stress ? `${stress.score}/100 · ${esc(stress.label)}` : '';
   el.innerHTML = [
+    kpiCard('Волатильность MCFTR 20d', volValue, stress ? `stress-card stress-${stress.tone}` : '', volNote),
     kpiCard('RFR (КБД 1Y)', rfr),
     kpiCard('Режим рынка', regime),
-    kpiCard('Акций в скринере', nStocks != null ? nStocks : dash),
-    kpiCard('Облигаций в скринере', nBonds != null ? nBonds : dash),
+    kpiCard('Акций / облигаций', `${nStocks != null ? nStocks : '—'} / ${nBonds != null ? nBonds : '—'}`),
   ].join('');
 }
 
