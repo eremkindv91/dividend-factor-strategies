@@ -2331,17 +2331,17 @@ function renderCbr() {
     if (err || !CBR_DATA) { body.innerHTML = '<div class="cbr-fallback"><b>Данные ЦБ временно недоступны.</b> Раздел не обновлён. <div class="cbr-disc">Не ИИР.</div></div>'; return; }
     body.innerHTML = cbrUIHTML(CBR_DATA);
     body.dataset.shown = '1';
-    ['cbr-bank', 'cbr-filter', 'cbr-metric', 'cbr-from', 'cbr-to'].forEach((id) => {
+    ['cbr-bank', 'cbr-filter', 'cbr-metric', 'cbr-mode', 'cbr-from', 'cbr-to'].forEach((id) => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => { if (id === 'cbr-filter') cbrRefreshBanks(); cbrDraw(); });
+      if (el) el.addEventListener('change', () => {
+        if (id === 'cbr-filter') cbrRefreshBanks();
+        if (id === 'cbr-bank' || id === 'cbr-metric' || id === 'cbr-filter') cbrRefreshDates();
+        cbrDraw();
+      });
     });
     const xb = document.getElementById('cbr-xlsx'); if (xb) xb.addEventListener('click', cbrExcel);
-    const dts = CBR_DATA.meta.dates_probed || [];
-    if (dts.length) {                                   // по умолчанию — весь доступный период
-      document.getElementById('cbr-from').value = dts[0];
-      document.getElementById('cbr-to').value = dts[dts.length - 1];
-    }
     cbrRefreshBanks();
+    cbrRefreshDates();                                  // даты — из реальных точек выбранного ряда
     loadChartJS(() => cbrDraw());
   });
 }
@@ -2361,22 +2361,29 @@ function cbrRefreshBanks() {
 
 function cbrUIHTML(d) {
   const m = d.meta;
-  const metricOpts = d.mapping.metrics.map((x) => `<option value="${x.metric_id}">${esc(x.display_name_ru)}</option>`).join('');
-  const dates = m.dates_probed || [];
-  const dateOpts = dates.map((dt) => `<option value="${dt}">${esc(cbrMon(dt))}</option>`).join('');
+  // метрики сгруппированы по формам (optgroup)
+  const groups = {};
+  d.mapping.metrics.forEach((x) => { (groups[x.group || 'Метрики'] = groups[x.group || 'Метрики'] || []).push(x); });
+  const metricOpts = Object.entries(groups).map(([g, ms]) =>
+    `<optgroup label="${esc(g)}">${ms.map((x) => `<option value="${x.metric_id}">${esc(x.display_name_ru)}</option>`).join('')}</optgroup>`).join('');
   const upd = (m.generated_at || '').replace('T', ' ').slice(0, 16);
+  const lrd = m.last_report_dates || {};
   return `
     <div class="cbr-controls">
       <label>Банк<select id="cbr-bank"></select></label>
       <label>Фильтр<select id="cbr-filter"><option value="sib">Системно значимые ★</option><option value="all">Все активные</option></select></label>
       <label>Метрика<select id="cbr-metric">${metricOpts}</select></label>
-      <label>С<select id="cbr-from">${dateOpts}</select></label>
-      <label>По<select id="cbr-to">${dateOpts}</select></label>
+      <label id="cbr-mode-wrap">Режим<select id="cbr-mode">
+        <option value="cum">Накопленным итогом</option>
+        <option value="q">За период (расчёт)</option>
+      </select></label>
+      <label>С<select id="cbr-from"></select></label>
+      <label>По<select id="cbr-to"></select></label>
       <button class="btn" id="cbr-xlsx">Скачать Excel</button>
     </div>
     <div class="cbr-meta">
-      <span class="cbr-chip"><span class="k">Источник:</span> <b>ЦБ РФ · форма 102</b></span>
-      <span class="cbr-chip"><span class="k">Последняя отчётная дата:</span> <b>${esc(m.last_report_date || '—')}</b></span>
+      <span class="cbr-chip"><span class="k">Источник:</span> <b>ЦБ РФ · формы 102/123/135</b></span>
+      <span class="cbr-chip"><span class="k">Отчётные даты:</span> <b>Ф.102 ${esc(lrd['102'] || '—')} · Ф.123 ${esc(lrd['123'] || '—')} · Ф.135 ${esc(lrd['135'] || '—')}</b></span>
       <span class="cbr-chip"><span class="k">Проверка (Actions):</span> <b>${esc(upd)}</b></span>
       <span class="cbr-chip"><span class="k">Банков:</span> <b>${d.dq.banks_active}</b> · знач. <b>${d.dq.values_loaded}</b></span>
     </div>
@@ -2384,8 +2391,26 @@ function cbrUIHTML(d) {
     <div class="cbr-chart-wrap"><canvas id="cbr-chart"></canvas></div>
     <div id="cbr-table-wrap"></div>
     ${cbrQualityHTML(d.dq)}
-    <div class="cbr-disc">Значения — официальная отчётность ЦБ РФ (форма 102), тыс. руб. накопленным итогом с начала года; каждый показатель трассируется до символа Ф.102. Не индивидуальная инвестиционная рекомендация.</div>
+    <div class="cbr-disc">Значения — официальная отчётность ЦБ РФ (формы 102/123/135); каждая точка трассируется до символа/кода формы. «За период» — расчётная разность соседних накопленных значений Ф.102 (calculated_from_official). Не индивидуальная инвестиционная рекомендация.</div>
   `;
+}
+
+function cbrRefreshDates() {
+  // варианты «С/По» — из реальных дат точек выбранного ряда; дефолт — весь диапазон
+  const reg = document.getElementById('cbr-bank').value;
+  const metric = document.getElementById('cbr-metric').value;
+  const mm = CBR_DATA.mapping.metrics.find((x) => x.metric_id === metric) || {};
+  const all = ((CBR_DATA.ts[reg] || {})[metric]) || [];
+  const dates = all.map((p) => p.date);
+  const opts = dates.map((dt) => `<option value="${dt}">${esc(cbrMon(dt))}</option>`).join('');
+  const from = document.getElementById('cbr-from'), to = document.getElementById('cbr-to');
+  const oldF = from.value, oldT = to.value;
+  from.innerHTML = opts; to.innerHTML = opts;
+  from.value = dates.includes(oldF) ? oldF : (dates[0] || '');
+  to.value = dates.includes(oldT) ? oldT : (dates[dates.length - 1] || '');
+  // режим «за квартал» — только для накопленных метрик (Ф.102)
+  const mw = document.getElementById('cbr-mode-wrap');
+  if (mw) mw.style.display = mm.cumulative ? '' : 'none';
 }
 
 function cbrSeries() {
@@ -2399,47 +2424,61 @@ function cbrSeries() {
   const rows = all.filter((p) => (!lo || p.date >= lo) && (!hi || p.date <= hi));
   const mm = CBR_DATA.mapping.metrics.find((x) => x.metric_id === metric) || {};
   const bank = CBR_DATA.banks.find((b) => String(b.reg_num) === String(reg)) || {};
-  return { rows, metricName: mm.display_name_ru || metric, bank, symbol: mm.symbol };
+  const modeSel = document.getElementById('cbr-mode');
+  const mode = (mm.cumulative && modeSel && modeSel.value === 'q') ? 'q' : 'cum';
+  const unit = mm.unit || 'тыс. руб.';
+  // отображаемое значение: «за квартал» = расчётная разность накопленных (value_q)
+  const disp = rows.map((p) => ({ ...p,
+    v: mode === 'q' ? (isNum(p.value_q) ? p.value_q : p.value) : p.value,
+    status: mode === 'q' ? (p.value_q_method || 'calculated_from_official') : p.quality_status }));
+  return { rows: disp, metricName: mm.display_name_ru || metric, bank, symbol: mm.symbol, unit, mode,
+           modeLabel: mode === 'q' ? ' · за период' : (mm.cumulative ? ' · накопл. итогом' : '') };
 }
 
 function cbrDraw() {
-  const { rows, metricName, bank, symbol } = cbrSeries();
+  const s = cbrSeries();
+  const { rows, metricName, bank, unit } = s;
   const tw = document.getElementById('cbr-table-wrap');
   if (!rows.length) {
     if (tw) tw.innerHTML = '<div class="cbr-nodata muted">Нет данных по выбранному банку/метрике/периоду.</div>';
     if (window.__cbrChart) { try { window.__cbrChart.destroy(); } catch (e) { /* noop */ } window.__cbrChart = null; }
     return;
   }
-  cbrChartDraw(rows, metricName);
+  const isPct = unit === '%';
+  const fmt = (v) => isPct ? (isNum(v) ? v.toFixed(2) + '%' : ND) : cbrBn(v);
+  cbrChartDraw(s);
   tw.innerHTML = `<div class="cbr-table-scroll"><table class="cbr-table">
     <thead><tr><th>Дата</th><th>Банк</th><th>Метрика</th><th>Значение</th><th>Ед.</th><th>Форма ЦБ</th><th>Символ</th><th>Статус</th></tr></thead>
     <tbody>${rows.slice().reverse().map((p) => `<tr>
-      <td>${esc(cbrMon(p.date))}</td><td class="cbr-bname">${esc(bank.name || '')}</td><td>${esc(metricName)}</td>
-      <td class="tnum ${p.value >= 0 ? 'cbr-up' : 'cbr-down'}">${cbrBn(p.value)}</td>
-      <td>тыс.₽ (сыро: ${ru(p.value, 0)})</td><td>Ф.${esc(p.form)}</td><td>${esc(p.symbol)}</td>
-      <td><span class="cbr-status s-${esc(p.quality_status)}">${esc(p.quality_status)}</span></td>
+      <td>${esc(cbrMon(p.date))}</td><td class="cbr-bname">${esc(bank.name || '')}</td><td>${esc(metricName)}${esc(s.modeLabel)}</td>
+      <td class="tnum ${p.v >= 0 ? 'cbr-up' : 'cbr-down'}">${fmt(p.v)}</td>
+      <td>${isPct ? '%' : 'тыс.₽ (сыро: ' + ru(p.v, 0) + ')'}</td><td>Ф.${esc(p.form)}</td><td>${esc(p.symbol)}</td>
+      <td><span class="cbr-status s-${esc(p.status)}">${esc(p.status)}</span></td>
     </tr>`).join('')}</tbody></table></div>`;
 }
 
-function cbrChartDraw(rows, metricName) {
+function cbrChartDraw(s) {
   const ctx = document.getElementById('cbr-chart');
   if (!ctx || !window.Chart) return;
   if (window.__cbrChart) { try { window.__cbrChart.destroy(); } catch (e) { /* noop */ } }
-  const labels = rows.map((p) => cbrMon(p.date));
-  const vals = rows.map((p) => p.value / 1e6);
+  const isPct = s.unit === '%';
+  const labels = s.rows.map((p) => cbrMon(p.date));
+  const vals = s.rows.map((p) => isPct ? p.v : p.v / 1e6);
   const colors = vals.map((v) => v >= 0 ? '#1E6F4C' : '#A2452C');
+  const yTitle = isPct ? '%' : 'млрд ₽';
+  const form = s.rows[0] ? s.rows[0].form : '';
   window.__cbrChart = new window.Chart(ctx, {
     type: 'bar',
-    data: { labels, datasets: [{ label: metricName + ', млрд ₽', data: vals, backgroundColor: colors, borderRadius: 4 }] },
+    data: { labels, datasets: [{ label: s.metricName + s.modeLabel + ', ' + yTitle, data: vals, backgroundColor: colors, borderRadius: 4 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
         x: { grid: { display: false }, ticks: { color: '#5A6472' } },
-        y: { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' }, title: { display: true, text: 'млрд ₽' } },
+        y: { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' }, title: { display: true, text: yTitle } },
       },
       plugins: {
         legend: { labels: { color: '#5A6472' } },
-        tooltip: { callbacks: { label: (i) => `${metricName}: ${i.parsed.y.toFixed(1)} млрд ₽ (Ф.102, ЦБ РФ)` } },
+        tooltip: { callbacks: { label: (i) => `${s.metricName}${s.modeLabel}: ${i.parsed.y.toFixed(isPct ? 2 : 1)} ${yTitle} (Ф.${form}, ЦБ РФ)` } },
       },
     },
   });
@@ -2456,9 +2495,9 @@ function cbrQualityHTML(dq) {
 function cbrExcel() {
   loadXLSX((err) => {
     if (err || !window.XLSX) { alert('Не удалось загрузить библиотеку Excel.'); return; }
-    const { rows, metricName, bank, symbol } = cbrSeries();
+    const { rows, metricName, bank, unit } = cbrSeries();
     const X = window.XLSX, wb = X.utils.book_new();
-    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(rows.map((p) => ({ Дата: p.date, Банк: bank.name, Метрика: metricName, 'Значение_тыс_руб': p.value, Форма: p.form, Символ: p.symbol, Статус: p.quality_status, Источник: p.source }))), 'timeseries');
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(rows.map((p) => ({ Дата: p.date, Банк: bank.name, Метрика: metricName, ['Значение_' + (unit === '%' ? 'проц' : 'тыс_руб')]: p.value, ...(isNum(p.value_q) ? { 'За_период_расчет': p.value_q } : {}), Форма: p.form, Символ: p.symbol, Статус: p.quality_status, Источник: p.source }))), 'timeseries');
     X.utils.book_append_sheet(wb, X.utils.json_to_sheet(CBR_DATA.banks), 'banks');
     X.utils.book_append_sheet(wb, X.utils.json_to_sheet(CBR_DATA.mapping.metrics), 'metrics');
     X.utils.book_append_sheet(wb, X.utils.json_to_sheet([CBR_DATA.meta]), 'metadata');

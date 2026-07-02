@@ -30,7 +30,7 @@ def _local(tag: str) -> str:
     return tag.split("}")[-1]
 
 
-def soap_post(action: str, inner_xml: str, retries: int = 4, timeout: int = 90) -> str:
+def soap_post(action: str, inner_xml: str, retries: int = 6, timeout: int = 90) -> str:
     env = ('<?xml version="1.0" encoding="utf-8"?>'
            '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">'
            f"<soap:Body>{inner_xml}</soap:Body></soap:Envelope>")
@@ -87,6 +87,58 @@ def data102f(reg_num: int, dt: str) -> dict | None:
     if not rows:
         return None
     return {"reg_num": reg_num, "name": name, "dt": dt, "rows": rows}
+
+
+def get_dates_for_form(form: str, reg_num: int) -> list[str]:
+    """Реальные доступные отчётные даты формы ('101'/'102'/'123'/'134'/'135') по банку (GetDatesForFxxx).
+    ГОЧА: имя параметра в WSDL — CredprgNumber (опечатка ЦБ, не CredorgNumber)."""
+    action = f"GetDatesForF{form}"
+    r = soap_post(action, f'<{action} xmlns="{NS}"><CredprgNumber>{reg_num}</CredprgNumber></{action}>')
+    return sorted({m.split("T")[0] for m in
+                   (el.text for el in ET.fromstring(r.encode("utf-8")).iter() if _local(el.tag) == "dateTime")
+                   if m})
+
+
+def data123(reg_num: int, dt: str) -> dict | None:
+    """Форма 123 (капитал, Базель III) на дату. Вернуть {reg_num, dt, rows:[{code, name, value}]} или None.
+    Значения тыс. руб. Проверено: код 000=капитал итого, 102=базовый, 203=дополнительный."""
+    r = soap_post("Data123FormFull",
+                  f'<Data123FormFull xmlns="{NS}"><CredorgNumber>{reg_num}</CredorgNumber><OnDate>{dt}</OnDate></Data123FormFull>')
+    rows = []
+    for row in ET.fromstring(r.encode("utf-8")).iter():
+        if _local(row.tag) != "F123":
+            continue
+        d = {_local(c.tag): (c.text or "").strip() for c in row}
+        code, val = d.get("CODE"), d.get("VALUE")
+        if not code:
+            continue
+        try:
+            v = float(val) if val not in (None, "") else None
+        except ValueError:
+            v = None
+        rows.append({"code": code, "name": d.get("NAME", ""), "value": v})
+    return {"reg_num": reg_num, "dt": dt, "rows": rows} if rows else None
+
+
+def data135(reg_num: int, dt: str) -> dict | None:
+    """Форма 135, раздел 3 (обязательные нормативы) на дату. Вернуть {reg_num, dt, rows:[{code, value(%)}]}.
+    Проверено: строки F135_3 с C3 (Н1.0/Н1.1/Н1.2/Н2/Н3/Н4...) и V3 (значение в %)."""
+    r = soap_post("Data135FormFull",
+                  f'<Data135FormFull xmlns="{NS}"><CredorgNumber>{reg_num}</CredorgNumber><OnDate>{dt}</OnDate></Data135FormFull>')
+    rows = []
+    for row in ET.fromstring(r.encode("utf-8")).iter():
+        if _local(row.tag) != "F135_3":
+            continue
+        d = {_local(c.tag): (c.text or "").strip() for c in row}
+        code, val = d.get("C3"), d.get("V3")
+        if not code:
+            continue
+        try:
+            v = float(val) if val not in (None, "") else None
+        except ValueError:
+            v = None
+        rows.append({"code": code, "value": v})
+    return {"reg_num": reg_num, "dt": dt, "rows": rows} if rows else None
 
 
 if __name__ == "__main__":

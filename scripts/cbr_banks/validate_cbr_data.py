@@ -84,6 +84,16 @@ def main() -> int:
                 # символ точки должен совпадать с маппингом метрики (нет подмены)
                 if metric_id in sym_by_metric and str(p.get("symbol")) != str(sym_by_metric[metric_id]):
                     err(f"ts {reg}/{metric_id}: symbol {p.get('symbol')} ≠ маппингу {sym_by_metric[metric_id]}")
+                # расчётная дельта «за период»: если есть — число + помечена методом
+                if "value_q" in p:
+                    vq = p["value_q"]
+                    if not isinstance(vq, (int, float)) or (isinstance(vq, float) and math.isnan(vq)):
+                        err(f"ts {reg}/{metric_id} {p.get('date')}: value_q не число ({vq})")
+                    if p.get("value_q_method") != "calculated_from_official":
+                        err(f"ts {reg}/{metric_id}: value_q без пометки calculated_from_official")
+                # нормативы (%) — sanity-диапазон
+                if p.get("unit") == "%" and isinstance(v, (int, float)) and not (0 <= v <= 10000):
+                    err(f"ts {reg}/{metric_id} {p.get('date')}: норматив вне [0,10000]%: {v}")   # Н2/Н3 у сворачивающихся банков бывают в тысячи %
 
     if n_points == 0:
         err("bank_timeseries: ноль точек")
