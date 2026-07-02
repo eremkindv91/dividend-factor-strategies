@@ -6,7 +6,7 @@
   <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
   <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=20260701-portfolio-health">
+  <link rel="stylesheet" href="styles.css?v=20260702-cbr-banks">
 </head>
 <body>
   <div class="wrap">
@@ -23,6 +23,7 @@
       <button class="section-tab" data-section="stocks">Акции</button>
       <button class="section-tab" data-section="strategies">Стратегии</button>
       <button class="section-tab" data-section="bonds">Облигации</button>
+      <button class="section-tab" data-section="cbr">Банки РФ</button>
       <button class="section-tab" data-section="methodology">Методология</button>
     </nav>
 
@@ -152,6 +153,14 @@
         </details>
       </section>
 
+      <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
+      <section class="app-section" data-section="cbr" hidden>
+        <p class="section-intro">Банки РФ: официальная отчётность Банка России (форма 102, отчёт о финансовых результатах). Данные квартальные, накопленным итогом с начала года. Только реальные значения ЦБ. Не ИИР.</p>
+        <div class="cbr-body" id="cbr-body">
+          <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
+        </div>
+      </section>
+
       <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->
       <section class="app-section" data-section="methodology" hidden>
         <p class="section-intro">Методология, источники данных и ограничения по каждому разделу. Все расчёты модельные; это не индивидуальная инвестиционная рекомендация.</p>
@@ -186,6 +195,6 @@
       </section>
     </main>
   </div>
-  <script src="app.js?v=20260701-portfolio-health"></script>
+  <script src="app.js?v=20260702-cbr-banks"></script>
 </body>
 </html>

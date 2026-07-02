@@ -91,6 +91,7 @@ jobs:
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
+          [ -d site/cbr ] && mkdir -p "$TMP/cbr" && cp site/cbr/*.json "$TMP/cbr/"   # данные банков ЦБ РФ (форма 102)
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"

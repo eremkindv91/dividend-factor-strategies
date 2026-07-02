@@ -772,3 +772,40 @@ td.empty { text-align: center; }
   .pulse-strip { grid-template-columns: 1fr; }
   .market-signals { grid-template-columns: 1fr; }
 }
+
+/* ══ Банки РФ / ЦБ РФ ══ */
+.cbr-loading { padding: 14px 2px; font-size: .9rem; }
+.cbr-fallback { background: var(--risk-fill); color: var(--risk-ink); border: 1px solid #E2A48C;
+  border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; }
+.cbr-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-bottom: 12px; }
+.cbr-controls label { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--ink-faint); font-weight: 600; }
+.cbr-controls select { font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; max-width: 300px; }
+.cbr-controls .btn { align-self: flex-end; }
+.cbr-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 8px; }
+.cbr-chip { display: inline-flex; align-items: baseline; gap: 5px; border-radius: 999px;
+  padding: 5px 11px; font-size: .8rem; border: 1px solid var(--line); background: var(--surface); }
+.cbr-chip .k { color: var(--ink-faint); }
+.cbr-chip b { color: var(--accent-deep); font-variant-numeric: tabular-nums; }
+.cbr-note { font-size: .8rem; color: var(--ink-soft); background: var(--bg); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 12px; line-height: 1.5; }
+.cbr-chart-wrap { position: relative; height: 340px; margin-bottom: 14px; }
+.cbr-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.cbr-nodata { padding: 20px; text-align: center; background: var(--bg); border-radius: 10px; }
+.cbr-table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.cbr-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.cbr-table th, .cbr-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.cbr-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem; }
+.cbr-table th:first-child, .cbr-table td:first-child { text-align: left; }
+.cbr-table .cbr-bname { text-align: left; font-weight: 600; }
+.cbr-table tbody tr:hover td { background: #F3F5FA; }
+.cbr-up { color: var(--good-ink); font-weight: 600; }
+.cbr-down { color: var(--risk-ink); font-weight: 600; }
+.cbr-status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+.cbr-status.s-official_direct, .cbr-status.s-ok { background: var(--good-fill); color: var(--good-ink); }
+.cbr-status.s-calculated { background: var(--warn-fill); color: var(--warn-ink); }
+.cbr-status.s-missing, .cbr-status.s-parse_error, .cbr-status.s-source_unavailable { background: var(--risk-fill); color: var(--risk-ink); }
+.cbr-dq { margin-top: 14px; }
+.cbr-dq > summary { cursor: pointer; color: var(--accent-deep); font-size: .88rem; font-weight: 600; padding: 6px 0; }
+.cbr-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
+@media (max-width: 760px) { .cbr-chart-wrap { height: 280px; } .cbr-controls select { max-width: 100%; } }

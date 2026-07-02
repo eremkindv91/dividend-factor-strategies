@@ -1,0 +1,69 @@
+name: update cbr banks (данные ЦБ РФ, форма 102)
+
+# Ежедневно проверяет отчётность банков в ЦБ (SOAP CreditOrgInfo, форма 102) и обновляет
+# site/cbr/*.json. Отчётность ЦБ квартальная — если новых данных нет, JSON просто не меняется
+# → нет коммита (workflow success). При недоступности/ошибке ЦБ прошлая версия остаётся.
+# Пайплайн — чистый stdlib, тяжёлые зависимости не нужны.
+on:
+  schedule:
+    - cron: "0 3 * * *"      # 03:00 UTC ≈ 06:00 МСК, ежедневная проверка
+  workflow_dispatch:
+
+permissions:
+  contents: write            # коммит site/cbr/*.json и push cbr/ в gh-pages
+
+concurrency:
+  # общая группа с update.yml/bonds_update.yml: сериализует записи в gh-pages (без гонок)
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # build_cbr_banks.py / cbr_soap.py — только stdlib, pip install не требуется
+
+      - name: Сбор данных ЦБ (форма 102, SOAP)
+        # exit!=0 (ЦБ недоступен/пусто) → коммита нет, прошлая версия на сайте остаётся
+        run: python scripts/cbr_banks/build_cbr_banks.py
+
+      - name: Валидация данных ЦБ (трассируемость, нет синтетики)
+        run: python scripts/cbr_banks/validate_cbr_data.py
+
+      - name: Коммит site/cbr/*.json (только если изменилось)
+        run: |
+          if [ -z "$(git status --porcelain site/cbr)" ]; then
+            echo "новых данных ЦБ нет — коммита нет"; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/cbr/*.json
+          git commit -m "data(cbr): автообновление данных банков ЦБ РФ (форма 102)"
+          git push
+
+      - name: Публикация cbr/ → gh-pages (additive, не трогая остальной сайт)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[cbr] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
+          fi
+          mkdir -p "$TMP/cbr"
+          cp site/cbr/*.json "$TMP/cbr/"
+          git -C "$TMP" add cbr
+          if git -C "$TMP" diff --cached --quiet; then
+            echo "[cbr] на gh-pages без изменений"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "publish(cbr): additive обновление данных банков ЦБ"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

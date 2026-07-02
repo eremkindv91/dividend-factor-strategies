@@ -2174,7 +2174,7 @@ function renderDataCoverage() {
 // Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
 // нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
 // ══════════════════════════════════════════════════════════════════════════
-const SECTIONS = ['market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'methodology'];
+const SECTIONS = ['market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology'];
 
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
@@ -2195,6 +2195,7 @@ function onSectionShown(sec) {
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); }
+  else if (sec === 'cbr') { renderCbr(); }
   else if (sec === 'methodology') {
     openDetails('data-coverage');
     const c = document.getElementById('data-coverage');
@@ -2291,4 +2292,180 @@ function renderMarketKPI() {
   ].join('');
 }
 
-initRouter();   // вызывается в конце файла: к этому моменту все let-глобалы инициализированы
+// initRouter() вызывается в самом конце файла (после ВСЕХ модулей и их let-глобалов) — см. низ app.js
+
+// ══════════════════════════════════════════════════════════════════════════
+// Банки РФ / данные ЦБ РФ. Всё из site/cbr/*.json (форма 102, реальные значения ЦБ).
+// Bar chart (Chart.js), таблица, Excel (SheetJS), metadata + data-quality. Не ИИР.
+// ══════════════════════════════════════════════════════════════════════════
+let CBR_DATA = null;
+const XLSX_SRC = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/package/dist/xlsx.full.min.js';
+const CBR_MONTHS = ['', 'янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+const cbrMon = (iso) => { const [y, m] = String(iso).split('-'); return CBR_MONTHS[+m] + ' ' + y; };
+const cbrBn = (v) => isNum(v) ? (v / 1e6).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' млрд ₽' : ND;
+
+function loadCbr(cb) {
+  if (CBR_DATA) { cb(); return; }
+  const t = Date.now();
+  const f = (n) => fetch('cbr/' + n + '?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
+  Promise.all([f('banks.json'), f('bank_timeseries.json'), f('metadata.json'), f('data_quality.json'), f('metric_mapping.json')])
+    .then(([banks, ts, meta, dq, mapping]) => { CBR_DATA = { banks, ts, meta, dq, mapping }; cb(); })
+    .catch((e) => { console.error('[cbr] не загрузился:', e); cb(e); });
+}
+
+function loadXLSX(cb) {
+  if (window.XLSX) { cb(); return; }
+  if (window.__xlsx) { window.__xlsx.push(cb); return; }
+  window.__xlsx = [cb];
+  const s = document.createElement('script'); s.src = XLSX_SRC; s.async = true;
+  s.onload = () => { const q = window.__xlsx; window.__xlsx = null; q.forEach((f) => f()); };
+  s.onerror = () => { const q = window.__xlsx; window.__xlsx = null; q.forEach((f) => f(new Error('XLSX'))); };
+  document.head.appendChild(s);
+}
+
+function renderCbr() {
+  const body = document.getElementById('cbr-body');
+  if (!body || body.dataset.shown === '1' && CBR_DATA) { cbrDraw(); return; }
+  body.innerHTML = '<div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>';
+  loadCbr((err) => {
+    if (err || !CBR_DATA) { body.innerHTML = '<div class="cbr-fallback"><b>Данные ЦБ временно недоступны.</b> Раздел не обновлён. <div class="cbr-disc">Не ИИР.</div></div>'; return; }
+    body.innerHTML = cbrUIHTML(CBR_DATA);
+    body.dataset.shown = '1';
+    ['cbr-bank', 'cbr-filter', 'cbr-metric', 'cbr-from', 'cbr-to'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => { if (id === 'cbr-filter') cbrRefreshBanks(); cbrDraw(); });
+    });
+    const xb = document.getElementById('cbr-xlsx'); if (xb) xb.addEventListener('click', cbrExcel);
+    const dts = CBR_DATA.meta.dates_probed || [];
+    if (dts.length) {                                   // по умолчанию — весь доступный период
+      document.getElementById('cbr-from').value = dts[0];
+      document.getElementById('cbr-to').value = dts[dts.length - 1];
+    }
+    cbrRefreshBanks();
+    loadChartJS(() => cbrDraw());
+  });
+}
+
+function cbrBankOptions(sibOnly) {
+  return CBR_DATA.banks.filter((b) => b.is_active && (!sibOnly || b.is_systemically_important))
+    .map((b) => `<option value="${b.reg_num}">${esc(b.name)}${b.is_systemically_important ? ' ★' : ''}</option>`).join('');
+}
+
+function cbrRefreshBanks() {
+  const sel = document.getElementById('cbr-bank');
+  const sibOnly = document.getElementById('cbr-filter').value === 'sib';
+  const cur = sel.value;
+  sel.innerHTML = cbrBankOptions(sibOnly);
+  if ([...sel.options].some((o) => o.value === cur)) sel.value = cur;
+}
+
+function cbrUIHTML(d) {
+  const m = d.meta;
+  const metricOpts = d.mapping.metrics.map((x) => `<option value="${x.metric_id}">${esc(x.display_name_ru)}</option>`).join('');
+  const dates = m.dates_probed || [];
+  const dateOpts = dates.map((dt) => `<option value="${dt}">${esc(cbrMon(dt))}</option>`).join('');
+  const upd = (m.generated_at || '').replace('T', ' ').slice(0, 16);
+  return `
+    <div class="cbr-controls">
+      <label>Банк<select id="cbr-bank"></select></label>
+      <label>Фильтр<select id="cbr-filter"><option value="sib">Системно значимые ★</option><option value="all">Все активные</option></select></label>
+      <label>Метрика<select id="cbr-metric">${metricOpts}</select></label>
+      <label>С<select id="cbr-from">${dateOpts}</select></label>
+      <label>По<select id="cbr-to">${dateOpts}</select></label>
+      <button class="btn" id="cbr-xlsx">Скачать Excel</button>
+    </div>
+    <div class="cbr-meta">
+      <span class="cbr-chip"><span class="k">Источник:</span> <b>ЦБ РФ · форма 102</b></span>
+      <span class="cbr-chip"><span class="k">Последняя отчётная дата:</span> <b>${esc(m.last_report_date || '—')}</b></span>
+      <span class="cbr-chip"><span class="k">Проверка (Actions):</span> <b>${esc(upd)}</b></span>
+      <span class="cbr-chip"><span class="k">Банков:</span> <b>${d.dq.banks_active}</b> · знач. <b>${d.dq.values_loaded}</b></span>
+    </div>
+    <div class="cbr-note">${esc(m.note || '')}</div>
+    <div class="cbr-chart-wrap"><canvas id="cbr-chart"></canvas></div>
+    <div id="cbr-table-wrap"></div>
+    ${cbrQualityHTML(d.dq)}
+    <div class="cbr-disc">Значения — официальная отчётность ЦБ РФ (форма 102), тыс. руб. накопленным итогом с начала года; каждый показатель трассируется до символа Ф.102. Не индивидуальная инвестиционная рекомендация.</div>
+  `;
+}
+
+function cbrSeries() {
+  const reg = document.getElementById('cbr-bank').value;
+  const metric = document.getElementById('cbr-metric').value;
+  const from = document.getElementById('cbr-from').value;
+  const to = document.getElementById('cbr-to').value;
+  const all = ((CBR_DATA.ts[reg] || {})[metric]) || [];
+  const lo = from && to && from <= to ? from : (all[0] && all[0].date);
+  const hi = from && to && from <= to ? to : (all.length && all[all.length - 1].date);
+  const rows = all.filter((p) => (!lo || p.date >= lo) && (!hi || p.date <= hi));
+  const mm = CBR_DATA.mapping.metrics.find((x) => x.metric_id === metric) || {};
+  const bank = CBR_DATA.banks.find((b) => String(b.reg_num) === String(reg)) || {};
+  return { rows, metricName: mm.display_name_ru || metric, bank, symbol: mm.symbol };
+}
+
+function cbrDraw() {
+  const { rows, metricName, bank, symbol } = cbrSeries();
+  const tw = document.getElementById('cbr-table-wrap');
+  if (!rows.length) {
+    if (tw) tw.innerHTML = '<div class="cbr-nodata muted">Нет данных по выбранному банку/метрике/периоду.</div>';
+    if (window.__cbrChart) { try { window.__cbrChart.destroy(); } catch (e) { /* noop */ } window.__cbrChart = null; }
+    return;
+  }
+  cbrChartDraw(rows, metricName);
+  tw.innerHTML = `<div class="cbr-table-scroll"><table class="cbr-table">
+    <thead><tr><th>Дата</th><th>Банк</th><th>Метрика</th><th>Значение</th><th>Ед.</th><th>Форма ЦБ</th><th>Символ</th><th>Статус</th></tr></thead>
+    <tbody>${rows.slice().reverse().map((p) => `<tr>
+      <td>${esc(cbrMon(p.date))}</td><td class="cbr-bname">${esc(bank.name || '')}</td><td>${esc(metricName)}</td>
+      <td class="tnum ${p.value >= 0 ? 'cbr-up' : 'cbr-down'}">${cbrBn(p.value)}</td>
+      <td>тыс.₽ (сыро: ${ru(p.value, 0)})</td><td>Ф.${esc(p.form)}</td><td>${esc(p.symbol)}</td>
+      <td><span class="cbr-status s-${esc(p.quality_status)}">${esc(p.quality_status)}</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+function cbrChartDraw(rows, metricName) {
+  const ctx = document.getElementById('cbr-chart');
+  if (!ctx || !window.Chart) return;
+  if (window.__cbrChart) { try { window.__cbrChart.destroy(); } catch (e) { /* noop */ } }
+  const labels = rows.map((p) => cbrMon(p.date));
+  const vals = rows.map((p) => p.value / 1e6);
+  const colors = vals.map((v) => v >= 0 ? '#1E6F4C' : '#A2452C');
+  window.__cbrChart = new window.Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: metricName + ', млрд ₽', data: vals, backgroundColor: colors, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A6472' } },
+        y: { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' }, title: { display: true, text: 'млрд ₽' } },
+      },
+      plugins: {
+        legend: { labels: { color: '#5A6472' } },
+        tooltip: { callbacks: { label: (i) => `${metricName}: ${i.parsed.y.toFixed(1)} млрд ₽ (Ф.102, ЦБ РФ)` } },
+      },
+    },
+  });
+}
+
+function cbrQualityHTML(dq) {
+  const rows = (dq.banks || []).map((b) => `<tr><td class="cbr-bname">${esc(b.name)}</td>
+    <td><span class="cbr-status s-${esc(b.status)}">${esc(b.status)}</span></td>
+    <td>${(b.metrics_with_data || []).length}</td></tr>`).join('');
+  return `<details class="cbr-dq"><summary>Качество данных <span class="muted">(${dq.banks_active}/${dq.banks_total} активны · ${dq.banks_sib} СЗКО · ${dq.values_loaded} значений · ${dq.missing} пропусков)</span></summary>
+    <div class="cbr-table-scroll"><table class="cbr-table"><thead><tr><th>Банк</th><th>Статус</th><th>Метрик с данными</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+}
+
+function cbrExcel() {
+  loadXLSX((err) => {
+    if (err || !window.XLSX) { alert('Не удалось загрузить библиотеку Excel.'); return; }
+    const { rows, metricName, bank, symbol } = cbrSeries();
+    const X = window.XLSX, wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(rows.map((p) => ({ Дата: p.date, Банк: bank.name, Метрика: metricName, 'Значение_тыс_руб': p.value, Форма: p.form, Символ: p.symbol, Статус: p.quality_status, Источник: p.source }))), 'timeseries');
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(CBR_DATA.banks), 'banks');
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(CBR_DATA.mapping.metrics), 'metrics');
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet([CBR_DATA.meta]), 'metadata');
+    X.utils.book_append_sheet(wb, X.utils.json_to_sheet(CBR_DATA.dq.banks), 'data_quality');
+    const from = document.getElementById('cbr-from').value, to = document.getElementById('cbr-to').value;
+    X.writeFile(wb, `cbr_banks_${bank.reg_num}_${document.getElementById('cbr-metric').value}_${from}_${to}.xlsx`);
+  });
+}
+
+initRouter();   // ПОСЛЕ всех модулей (marketsaw/bonds/marlamov/methodology/cbr) — все let-глобалы инициализированы
