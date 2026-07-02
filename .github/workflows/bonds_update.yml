@@ -34,18 +34,24 @@ jobs:
       - name: Квантовый расчёт скринера (реальный ISS MOEX)
         run: python bonds/update_bonds.py     # exit!=0 (пустой результат/ISS недоступен) → коммита нет
 
+      - name: Bond Finder (месячный шорт-лист кандидатов)
+        # переиспользует данные ISS; при сбое скринер уже собран — не блокируем, но фиксируем
+        run: |
+          python bonds/bond_finder.py || echo "[finder] пропуск — предыдущий finder.json остаётся"
+
       - name: Валидация bonds-контрактов
         # критическая ошибка → exit 1 → коммита и публикации НЕ будет (не публикуем битое)
         run: python scripts/validate_site_data.py bonds
 
       - name: Коммит site/bonds/*.json в ветку
         run: |
-          if [ -z "$(git status --porcelain site/bonds)" ]; then
+          if [ -z "$(git status --porcelain site/bonds data/bond_finder)" ]; then
             echo "нет изменений в site/bonds — пропуск коммита"; exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add site/bonds/*.json
+          [ -d data/bond_finder ] && git add data/bond_finder/*.json
           git commit -m "data(bonds): автообновление скринера облигаций (cron)"
           git push
 

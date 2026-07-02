@@ -199,6 +199,23 @@ def check_bonds() -> None:
                 s = sum(b.get("weight", 0) for b in port["bonds"])
                 if abs(s - 1.0) > 0.02:
                     warn(f"bonds/portfolios.json: '{name}' сумма весов {s:.3f} ≠ 1.0")
+    fnd = load("bonds/finder.json")
+    if fnd is not None:
+        fm = fnd.get("meta") or {}
+        if not isinstance(fm.get("warnings"), list):
+            err("finder.json: meta.warnings не список (глушится слой качества данных)")
+        profs = fnd.get("profiles") or {}
+        if not profs:
+            err("finder.json: нет profiles")
+        for pid, p in profs.items():
+            picks = p.get("picks") or []
+            ws = sum(x.get("weight", 0) for x in picks)
+            if picks and abs(ws - 1.0) > 0.02:
+                err(f"finder.json: профиль {pid} — сумма весов {ws:.3f} ≠ 1")
+            for x in picks:
+                if x.get("ytm") is not None and not (0 < x["ytm"] < 100):
+                    err(f"finder.json: {pid}/{x.get('secid')} — абсурдный ytm {x['ytm']}")
+        print(f"  finder.json: профили {[ (k, len((v or {}).get('picks', []))) for k, v in profs.items() ]}")
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 
 

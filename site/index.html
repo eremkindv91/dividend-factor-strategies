@@ -145,8 +145,15 @@
       <section class="app-section" data-section="bonds" hidden>
         <p class="section-intro">Облигации: скринер рублёвых корпоративных выпусков MOEX. Fair-value считается от G-кривой и модельного спреда; у рейтингов и ликвидности есть ограничения.</p>
 
+        <details class="mapwrap finder-wrap" id="finder" open>
+          <summary>Bond Finder <span class="muted">(месячный шорт-лист кандидатов для ручной проверки — не сигналы)</span></summary>
+          <div class="finder-body" id="finder-body">
+            <div class="finder-loading muted">Загрузка шорт-листа Bond Finder…</div>
+          </div>
+        </details>
+
         <details class="mapwrap bonds-wrap" id="bonds" hidden>
-          <summary>Облигации <span class="muted">(скринер · кривая КБД · калькулятор портфеля)</span></summary>
+          <summary>Скринер облигаций <span class="muted">(вся выборка · кривая КБД · калькулятор портфеля)</span></summary>
           <div class="bonds-body" id="bonds-body">
             <div class="bonds-loading muted">Загрузим квантовый скринер облигаций…</div>
           </div>

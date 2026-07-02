@@ -809,3 +809,48 @@ td.empty { text-align: center; }
 .cbr-dq > summary { cursor: pointer; color: var(--accent-deep); font-size: .88rem; font-weight: 600; padding: 6px 0; }
 .cbr-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
 @media (max-width: 760px) { .cbr-chart-wrap { height: 280px; } .cbr-controls select { max-width: 100%; } }
+
+/* ══ MOEX Bond Finder (шорт-лист кандидатов) ══ */
+.finder-body { padding: 6px 0 12px; }
+.finder-loading { padding: 12px 2px; font-size: .9rem; }
+.finder-fallback { background: var(--neut-fill); color: var(--neut-ink); border-radius: 10px; padding: 12px 14px; font-size: .88rem; }
+.fnd-warns { background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0;
+  border-radius: 10px; padding: 10px 14px; font-size: .82rem; margin-bottom: 12px; line-height: 1.5; }
+.fnd-warns ul { margin: 4px 0 0; padding-left: 18px; }
+.fnd-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-bottom: 10px; }
+.fnd-controls label { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--ink-faint); font-weight: 600; }
+.fnd-controls select, .fnd-controls input { font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; }
+.fnd-controls input[type="number"] { width: 150px; font-variant-numeric: tabular-nums; }
+.fnd-chip { display: inline-flex; align-items: baseline; gap: 5px; border-radius: 999px; align-self: flex-end;
+  padding: 6px 11px; font-size: .78rem; border: 1px solid var(--line); background: var(--surface); }
+.fnd-chip .k { color: var(--ink-faint); }
+.fnd-chip b { color: var(--accent-deep); font-variant-numeric: tabular-nums; }
+.fnd-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 4px 0 12px; }
+.fnd-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.fnd-kpi .k { display: block; font-size: .72rem; color: var(--ink-faint); }
+.fnd-kpi .v { font-weight: 700; font-size: 1.02rem; font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.fnd-note { grid-column: 1 / -1; background: var(--warn-fill); color: var(--warn-ink);
+  border-radius: 10px; padding: 8px 12px; font-size: .82rem; }
+.fnd-table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.fnd-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.fnd-table th, .fnd-table td { padding: 6px 9px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.fnd-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .74rem; cursor: pointer; user-select: none; }
+.fnd-table th.fnd-sorted { color: var(--accent-deep); }
+.fnd-table th:first-child, .fnd-table td:first-child,
+.fnd-table td.fnd-name, .fnd-table th:nth-child(2), .fnd-table th:nth-child(3) { text-align: left; }
+.fnd-table tbody tr:hover td { background: #F3F5FA; }
+.fnd-links a { color: var(--accent-deep); font-weight: 600; text-decoration: none; }
+.fnd-links a.muted { font-weight: 400; font-size: .74rem; margin-left: 4px; }
+.fnd-score { font-weight: 700; }
+.fnd-new { background: var(--good-fill); color: var(--good-ink); border-radius: 999px; padding: 1px 7px; font-size: .68rem; font-weight: 700; }
+.fnd-qual { background: var(--warn-fill); color: var(--warn-ink); border-radius: 999px; padding: 1px 7px; font-size: .68rem; font-weight: 700; }
+.fnd-empty { padding: 18px; text-align: center; background: var(--bg); border-radius: 10px; }
+.fnd-sec { margin-top: 12px; }
+.fnd-sec > summary { cursor: pointer; color: var(--accent-deep); font-size: .88rem; font-weight: 600; padding: 6px 0; }
+.fnd-events { margin: 8px 0 0; padding-left: 18px; font-size: .84rem; line-height: 1.6; }
+.fnd-method { font-size: .8rem; color: var(--ink-soft); background: var(--bg); border-radius: 10px;
+  padding: 10px 12px; margin-top: 14px; line-height: 1.5; }
+.fnd-disc { font-size: .8rem; color: var(--risk-ink); font-weight: 600; border-top: 1px solid var(--line);
+  padding-top: 10px; margin-top: 10px; }
+@media (max-width: 760px) { .fnd-summary { grid-template-columns: repeat(2, 1fr); } }

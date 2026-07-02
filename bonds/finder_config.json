@@ -1,0 +1,90 @@
+{
+  "_note": "MOEX Bond Finder config: score weights and risk profiles. CLI/JS never hardcode these.",
+  "max_candidates": 60,
+  "max_offer_candidates": 20,
+  "throttle_workers": 3,
+  "score_weights": {
+    "z_spread": 1.0,
+    "risk_proxy": 0.4,
+    "z_volume": 0.3,
+    "cheapening_bonus": 0.3,
+    "z_rating": 0.5
+  },
+  "risk_proxy": {
+    "listlevel": {
+      "1": 0.3,
+      "2": 0.0,
+      "3": -0.4,
+      "missing": -0.2
+    },
+    "qualified_only_penalty": -0.5,
+    "issue_below_1bn": -0.2,
+    "issue_above_3bn": 0.1
+  },
+  "cheapening": {
+    "min_history_obs": 60,
+    "bonus_percentile": 80,
+    "bonus": 0.3
+  },
+  "duration_buckets_years": [
+    1,
+    2,
+    3,
+    5
+  ],
+  "tax_rate": 0.13,
+  "ytm_sanity": [
+    5.0,
+    60.0
+  ],
+  "profiles": {
+    "conservative": {
+      "title": "Консервативный",
+      "max_duration_years": 2.5,
+      "listlevels": [
+        1,
+        2
+      ],
+      "exclude_qualified_only": true,
+      "min_issue_rub": 3000000000,
+      "top_n": 8,
+      "score_new_placements": false
+    },
+    "balanced": {
+      "title": "Сбалансированный",
+      "max_duration_years": 4.0,
+      "listlevels": [
+        1,
+        2,
+        3
+      ],
+      "exclude_qualified_only": false,
+      "min_issue_rub": 1000000000,
+      "top_n": 12,
+      "score_new_placements": false
+    },
+    "aggressive": {
+      "title": "Агрессивный",
+      "max_duration_years": 6.0,
+      "listlevels": [
+        1,
+        2,
+        3
+      ],
+      "exclude_qualified_only": false,
+      "min_issue_rub": 0,
+      "top_n": 15,
+      "score_new_placements": true
+    }
+  },
+  "portfolio": {
+    "cap_per_bond": 0.15,
+    "cap_per_issuer": 0.25,
+    "min_issuers_meaningful": 6
+  },
+  "journal": {
+    "max_entries": 24,
+    "review_max_entries": 12
+  },
+  "min_median_volume_rub": 100000
+}

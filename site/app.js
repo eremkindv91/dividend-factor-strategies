@@ -2194,7 +2194,7 @@ function onSectionShown(sec) {
     renderMyPortfolio();
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
-  else if (sec === 'bonds') { openDetails('bonds'); }
+  else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
   else if (sec === 'cbr') { renderCbr(); }
   else if (sec === 'methodology') {
     openDetails('data-coverage');
@@ -2505,6 +2505,169 @@ function cbrExcel() {
     const from = document.getElementById('cbr-from').value, to = document.getElementById('cbr-to').value;
     X.writeFile(wb, `cbr_banks_${bank.reg_num}_${document.getElementById('cbr-metric').value}_${from}_${to}.xlsx`);
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// MOEX Bond Finder — месячный шорт-лист кандидатов (НЕ сигналы). Всё из
+// site/bonds/finder.json (bonds/bond_finder.py). Предупреждения — всегда сверху.
+// ══════════════════════════════════════════════════════════════════════════
+let FINDER = null;
+let FINDER_SORT = { key: 'score', dir: -1 };
+
+function loadFinder(cb) {
+  if (FINDER) { cb(); return; }
+  fetch('bonds/finder.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.profiles) throw new Error('пустой finder.json'); FINDER = j; cb(); })
+    .catch((e) => { console.error('[finder]', e); cb(e); });
+}
+
+function renderFinder() {
+  const body = document.getElementById('finder-body');
+  if (!body) return;
+  if (body.dataset.shown === '1' && FINDER) { finderDraw(); return; }
+  body.innerHTML = '<div class="finder-loading muted">Загрузка шорт-листа Bond Finder…</div>';
+  loadFinder((err) => {
+    if (err || !FINDER) {
+      body.innerHTML = '<div class="finder-fallback"><b>Bond Finder недоступен</b> — файл ещё не сгенерирован или источник упал. Скринер ниже работает независимо.</div>';
+      return;
+    }
+    body.innerHTML = finderShellHTML(FINDER);
+    body.dataset.shown = '1';
+    const ps = document.getElementById('fnd-profile');
+    const bd = document.getElementById('fnd-budget');
+    if (ps) ps.addEventListener('change', finderDraw);
+    if (bd) bd.addEventListener('input', debounce(finderDraw, 250));
+    finderDraw();
+  });
+}
+
+function finderShellHTML(d) {
+  const m = d.meta;
+  const warns = (m.warnings || []).map((w) => `<li>${esc(w)}</li>`).join('');
+  const profOpts = Object.entries(d.profiles).map(([id, p]) =>
+    `<option value="${id}"${id === 'balanced' ? ' selected' : ''}>${esc(p.title)}</option>`).join('');
+  const c = m.counts || {};
+  return `
+    ${warns ? `<div class="fnd-warns"><b>Предупреждения качества данных:</b><ul>${warns}</ul></div>` : ''}
+    <div class="fnd-controls">
+      <label>Профиль<select id="fnd-profile">${profOpts}</select></label>
+      <label>Бюджет, ₽<input type="number" id="fnd-budget" value="1000000" min="0" step="100000"></label>
+      <span class="fnd-chip"><span class="k">Срез данных:</span> <b>${esc(m.snapshot_date || '—')}</b></span>
+      <span class="fnd-chip"><span class="k">Вселенная:</span> <b>${c.universe_clean ?? '—'}</b> · искл. FX <b>${c.fx ?? 0}</b> · ПИР <b>${c.pir_board ?? 0}</b> · колл <b>${c.call_only ?? 0}</b></span>
+    </div>
+    <div class="fnd-summary" id="fnd-summary"></div>
+    <div id="fnd-table"></div>
+    <div id="fnd-extra"></div>
+    <div class="fnd-method"><b>Методика (коротко):</b> ${esc(m.methodology || '')}</div>
+    <div class="fnd-disc">${esc(m.disclaimer || '')}</div>`;
+}
+
+function finderRows() {
+  const pid = (document.getElementById('fnd-profile') || {}).value || 'balanced';
+  const prof = FINDER.profiles[pid] || { picks: [], aggregates: {} };
+  const budget = Math.max(0, +(document.getElementById('fnd-budget') || {}).value || 0);
+  const rows = prof.picks.map((p) => {
+    const alloc = p.weight * budget;
+    const pieces = p.dirty_price > 0 ? Math.floor(alloc / p.dirty_price) : 0;
+    return { ...p, pieces, cost: pieces * p.dirty_price };
+  });
+  return { pid, prof, budget, rows };
+}
+
+function finderDraw() {
+  const { prof, budget, rows } = finderRows();
+  const sumEl = document.getElementById('fnd-summary');
+  const tblEl = document.getElementById('fnd-table');
+  if (!sumEl || !tblEl) return;
+  const a = prof.aggregates || {};
+  const spent = rows.reduce((s, r) => s + r.cost, 0);
+  sumEl.innerHTML = [
+    ['Дох. после налога (взвеш.)', a.ytm_net_wavg != null ? a.ytm_net_wavg.toFixed(2) + '%' : '—'],
+    ['Дюрация (взвеш.)', a.duration_wavg != null ? a.duration_wavg.toFixed(2) + ' г' : '—'],
+    ['Эмитентов', a.issuers ?? '—'],
+    ['Задействовано', rub0(spent) + ' из ' + rub0(budget)],
+  ].map(([k, v]) => `<div class="fnd-kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
+  + (a.note ? `<div class="fnd-note">⚠️ ${esc(a.note)}</div>` : '');
+
+  const key = FINDER_SORT.key, dir = FINDER_SORT.dir;
+  rows.sort((x, y) => {
+    const a = x[key] ?? -1e18, b = y[key] ?? -1e18;
+    return (a > b ? 1 : a < b ? -1 : 0) * dir;
+  });
+  const cols = [['secid', 'SECID'], ['name', 'Бумага'], ['issuer', 'Эмитент'], ['price', 'Цена'],
+    ['dirty_price', 'Грязная'], ['ytm', 'YTM'], ['ytm_net', 'После налога'], ['g_spread', 'G-спред'],
+    ['spread_pctl', 'Спред-пцл'], ['duration_years', 'Дюр., г'], ['score', 'Скор'],
+    ['pieces', 'Штук'], ['cost', 'Сумма']];
+  const th = cols.map(([k, t]) =>
+    `<th data-key="${k}" class="${key === k ? 'fnd-sorted' : ''}">${t}${key === k ? (dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('');
+  const trs = rows.map((r) => `<tr>
+    <td class="fnd-links"><a href="https://www.moex.com/ru/issue.aspx?code=${esc(r.secid)}" target="_blank" rel="noopener">${esc(r.secid)}</a>
+      <a class="muted" href="https://smart-lab.ru/q/bonds/${esc(r.secid)}/" target="_blank" rel="noopener">sl</a></td>
+    <td class="fnd-name">${esc(r.name || '')}${r.new_placement ? ' <span class="fnd-new">новый</span>' : ''}${r.qual_only ? ' <span class="fnd-qual">квал</span>' : ''}</td>
+    <td class="fnd-name muted">${esc(String(r.issuer || '').slice(0, 28))}</td>
+    <td class="tnum">${isNum(r.price) ? r.price.toFixed(2) : ND}</td>
+    <td class="tnum">${isNum(r.dirty_price) ? ru(r.dirty_price, 0) : ND}</td>
+    <td class="tnum">${isNum(r.ytm) ? r.ytm.toFixed(2) + '%' : ND}</td>
+    <td class="tnum">${isNum(r.ytm_net) ? r.ytm_net.toFixed(2) + '%' : ND}</td>
+    <td class="tnum">${isNum(r.g_spread) ? (r.g_spread >= 0 ? '+' : '') + r.g_spread.toFixed(2) + 'пп' : ND}</td>
+    <td class="tnum">${r.spread_pctl != null ? r.spread_pctl.toFixed(0) + '%' : '<span class="muted" title="история короче 60 сессий">—</span>'}</td>
+    <td class="tnum">${isNum(r.duration_years) ? r.duration_years.toFixed(2) : ND}</td>
+    <td class="tnum fnd-score">${isNum(r.score) ? r.score.toFixed(2) : ND}</td>
+    <td class="tnum"><b>${r.pieces}</b></td>
+    <td class="tnum">${rub0(r.cost)}</td>
+  </tr>`).join('');
+  tblEl.innerHTML = rows.length
+    ? `<div class="fnd-table-scroll"><table class="fnd-table"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`
+    : '<div class="fnd-empty muted">Ничего не найдено — ослабьте фильтры (профиль «Агрессивный»).</div>';
+  tblEl.querySelectorAll('th[data-key]').forEach((el) => el.addEventListener('click', () => {
+    const k = el.dataset.key;
+    FINDER_SORT = { key: k, dir: FINDER_SORT.key === k ? -FINDER_SORT.dir : -1 };
+    finderDraw();
+  }));
+  finderExtra();
+}
+
+function finderExtra() {
+  const el = document.getElementById('fnd-extra');
+  if (!el || el.dataset.done) return;
+  el.dataset.done = '1';
+  const d = FINDER;
+  const sec = [];
+  if ((d.new_placements || []).length) {
+    sec.push(`<details class="fnd-sec"><summary>Новые выпуски <span class="muted">(${d.new_placements.length} · нет истории торгов — ликвидность не проверена)</span></summary>
+      <div class="fnd-table-scroll"><table class="fnd-table"><thead><tr><th>SECID</th><th>Бумага</th><th>YTM</th><th>После налога</th><th>G-спред</th><th>Дюр., г</th></tr></thead><tbody>
+      ${d.new_placements.map((r) => `<tr><td><a href="https://www.moex.com/ru/issue.aspx?code=${esc(r.secid)}" target="_blank" rel="noopener">${esc(r.secid)}</a></td>
+        <td class="fnd-name">${esc(r.name || '')}</td><td class="tnum">${isNum(r.ytm) ? r.ytm.toFixed(2) + '%' : ND}</td>
+        <td class="tnum">${isNum(r.ytm_net) ? r.ytm_net.toFixed(2) + '%' : ND}</td>
+        <td class="tnum">${isNum(r.g_spread) ? r.g_spread.toFixed(2) + 'пп' : ND}</td>
+        <td class="tnum">${isNum(r.duration_years) ? r.duration_years.toFixed(2) : ND}</td></tr>`).join('')}
+      </tbody></table></div></details>`);
+  }
+  if ((d.with_offer || []).length) {
+    sec.push(`<details class="fnd-sec"><summary>С офертой <span class="muted">(${d.with_offer.length} · доходность к оферте)</span></summary>
+      <div class="fnd-table-scroll"><table class="fnd-table"><thead><tr><th>SECID</th><th>Бумага</th><th>Оферта</th><th>Дох. к оферте</th><th>YTM к погаш.</th><th>Дюр., г</th></tr></thead><tbody>
+      ${d.with_offer.map((r) => `<tr><td><a href="https://www.moex.com/ru/issue.aspx?code=${esc(r.secid)}" target="_blank" rel="noopener">${esc(r.secid)}</a></td>
+        <td class="fnd-name">${esc(r.name || '')}</td><td class="tnum">${esc(r.offer_date || '—')}</td>
+        <td class="tnum">${isNum(r.ytm_to_offer) ? (+r.ytm_to_offer).toFixed(2) + '%' : '—'}</td>
+        <td class="tnum">${isNum(r.ytm) ? r.ytm.toFixed(2) + '%' : ND}</td>
+        <td class="tnum">${isNum(r.duration_years) ? r.duration_years.toFixed(2) : ND}</td></tr>`).join('')}
+      </tbody></table></div></details>`);
+  }
+  if ((d.events || []).length) {
+    sec.push(`<details class="fnd-sec"><summary>События <span class="muted">(новые размещения и спред-события с прошлого прогона)</span></summary>
+      <ul class="fnd-events">${d.events.map((e) => `<li><span class="muted">${esc(e.date)}</span> ${esc(e.text)}</li>`).join('')}</ul></details>`);
+  }
+  if ((d.journal_review || []).length) {
+    sec.push(`<details class="fnd-sec"><summary>Проверка себя <span class="muted">(журнал прошлых шорт-листов против RUCBTRNS)</span></summary>
+      <div class="fnd-table-scroll"><table class="fnd-table"><thead><tr><th>Дата списка</th><th>Дней</th><th>Бумаг</th><th>Портфель</th><th>RUCBTRNS</th></tr></thead><tbody>
+      ${d.journal_review.map((r) => `<tr><td>${esc(r.entry_date)}</td><td class="tnum">${r.held_days}</td><td class="tnum">${r.n_reviewed}</td>
+        <td class="tnum ${r.portfolio_return_pct >= 0 ? 'cbr-up' : 'cbr-down'}">${r.portfolio_return_pct >= 0 ? '+' : ''}${r.portfolio_return_pct}%</td>
+        <td class="tnum">${r.rucbtrns_return_pct != null ? (r.rucbtrns_return_pct >= 0 ? '+' : '') + r.rucbtrns_return_pct + '%' : '—'}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="muted" style="font-size:.76rem;padding:6px 2px">${esc((d.journal_review[0] || {}).method || '')}</div></details>`);
+  }
+  el.innerHTML = sec.join('');
 }
 
 initRouter();   // ПОСЛЕ всех модулей (marketsaw/bonds/marlamov/methodology/cbr) — все let-глобалы инициализированы
