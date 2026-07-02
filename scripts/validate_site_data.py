@@ -207,6 +207,8 @@ def check_bonds() -> None:
         profs = fnd.get("profiles") or {}
         if not profs:
             err("finder.json: нет profiles")
+        allowed_rt = {"AAA", "AA+", "AA", "AA-", "A+", "A", "A-", "BBB+", "BBB", "BBB-",
+                      "BB+", "BB", "BB-", "B+", "B", None}
         for pid, p in profs.items():
             picks = p.get("picks") or []
             ws = sum(x.get("weight", 0) for x in picks)
@@ -215,6 +217,10 @@ def check_bonds() -> None:
             for x in picks:
                 if x.get("ytm") is not None and not (0 < x["ytm"] < 100):
                     err(f"finder.json: {pid}/{x.get('secid')} — абсурдный ytm {x['ytm']}")
+                if x.get("rating") not in allowed_rt:
+                    err(f"finder.json: {pid}/{x.get('secid')} — неизвестный рейтинг {x.get('rating')}")
+                if pid == "conservative" and x.get("rating") is None:
+                    err(f"finder.json: консервативный профиль содержит бумагу без рейтинга {x.get('secid')}")
         print(f"  finder.json: профили {[ (k, len((v or {}).get('picks', []))) for k, v in profs.items() ]}")
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 

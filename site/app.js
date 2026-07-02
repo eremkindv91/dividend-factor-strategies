@@ -2295,7 +2295,7 @@ function renderMarketKPI() {
 // initRouter() вызывается в самом конце файла (после ВСЕХ модулей и их let-глобалов) — см. низ app.js
 
 // ══════════════════════════════════════════════════════════════════════════
-// Банки РФ / данные ЦБ РФ. Всё из site/cbr/*.json (форма 102, реальные значения ЦБ).
+// Банки РФ / данные ЦБ РФ. Всё из site/cbr/*.json (формы 102/123/135, реальные значения ЦБ).
 // Bar chart (Chart.js), таблица, Excel (SheetJS), metadata + data-quality. Не ИИР.
 // ══════════════════════════════════════════════════════════════════════════
 let CBR_DATA = null;
@@ -2342,6 +2342,7 @@ function renderCbr() {
     const xb = document.getElementById('cbr-xlsx'); if (xb) xb.addEventListener('click', cbrExcel);
     cbrRefreshBanks();
     cbrRefreshDates();                                  // даты — из реальных точек выбранного ряда
+    cbrDraw();                                          // таблица не должна зависеть от CDN Chart.js
     loadChartJS(() => cbrDraw());
   });
 }
@@ -2457,6 +2458,29 @@ function cbrDraw() {
     </tr>`).join('')}</tbody></table></div>`;
 }
 
+// инлайн-плагин: цифровые значения над столбиками (без внешнего chartjs-plugin-datalabels)
+const cbrBarLabels = {
+  id: 'cbrBarLabels',
+  afterDatasetsDraw(chart, _args, opts) {
+    const { ctx } = chart;
+    const meta = chart.getDatasetMeta(0);
+    const data = chart.data.datasets[0].data;
+    ctx.save();
+    ctx.font = '600 10px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#5A6472';
+    ctx.textAlign = 'center';
+    meta.data.forEach((bar, i) => {
+      const v = data[i];
+      if (v == null || !bar || bar.width < 14) return;   // тесные бары (мобайл) — без подписи
+      const txt = opts.isPct ? v.toFixed(2) : ru(v, Math.abs(v) >= 100 ? 0 : 1);
+      const above = v >= 0;
+      ctx.textBaseline = above ? 'bottom' : 'top';
+      ctx.fillText(txt, bar.x, above ? bar.y - 4 : bar.y + 4);
+    });
+    ctx.restore();
+  },
+};
+
 function cbrChartDraw(s) {
   const ctx = document.getElementById('cbr-chart');
   if (!ctx || !window.Chart) return;
@@ -2472,6 +2496,7 @@ function cbrChartDraw(s) {
     data: { labels, datasets: [{ label: s.metricName + s.modeLabel + ', ' + yTitle, data: vals, backgroundColor: colors, borderRadius: 4 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 16 } },                 // место под подписи над столбиками
       scales: {
         x: { grid: { display: false }, ticks: { color: '#5A6472' } },
         y: { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' }, title: { display: true, text: yTitle } },
@@ -2479,8 +2504,10 @@ function cbrChartDraw(s) {
       plugins: {
         legend: { labels: { color: '#5A6472' } },
         tooltip: { callbacks: { label: (i) => `${s.metricName}${s.modeLabel}: ${i.parsed.y.toFixed(isPct ? 2 : 1)} ${yTitle} (Ф.${form}, ЦБ РФ)` } },
+        cbrBarLabels: { isPct },
       },
     },
+    plugins: [cbrBarLabels],
   });
 }
 
@@ -2595,7 +2622,7 @@ function finderDraw() {
     const a = x[key] ?? -1e18, b = y[key] ?? -1e18;
     return (a > b ? 1 : a < b ? -1 : 0) * dir;
   });
-  const cols = [['secid', 'SECID'], ['name', 'Бумага'], ['issuer', 'Эмитент'], ['price', 'Цена'],
+  const cols = [['secid', 'SECID'], ['name', 'Бумага'], ['issuer', 'Эмитент'], ['rating_rank', 'Рейтинг≈'], ['price', 'Цена'],
     ['dirty_price', 'Грязная'], ['ytm', 'YTM'], ['ytm_net', 'После налога'], ['g_spread', 'G-спред'],
     ['spread_pctl', 'Спред-пцл'], ['duration_years', 'Дюр., г'], ['score', 'Скор'],
     ['pieces', 'Штук'], ['cost', 'Сумма']];
@@ -2606,6 +2633,7 @@ function finderDraw() {
       <a class="muted" href="https://smart-lab.ru/q/bonds/${esc(r.secid)}/" target="_blank" rel="noopener">sl</a></td>
     <td class="fnd-name">${esc(r.name || '')}${r.new_placement ? ' <span class="fnd-new">новый</span>' : ''}${r.qual_only ? ' <span class="fnd-qual">квал</span>' : ''}</td>
     <td class="fnd-name muted">${esc(String(r.issuer || '').slice(0, 28))}</td>
+    <td class="fnd-rating">${r.rating ? `<span class="fnd-rt r-${RATING_GROUP(r.rating)}" title="${r.rating_source === 'csv' ? 'из ratings.csv' : 'снапшот-маппинг по эмитенту — проверьте на АКРА/Эксперт РА'}">${esc(r.rating)}${r.rating_source === 'issuer_map' ? '≈' : ''}</span>` : '<span class="muted" title="рейтинг не найден в маппинге">—</span>'}</td>
     <td class="tnum">${isNum(r.price) ? r.price.toFixed(2) : ND}</td>
     <td class="tnum">${isNum(r.dirty_price) ? ru(r.dirty_price, 0) : ND}</td>
     <td class="tnum">${isNum(r.ytm) ? r.ytm.toFixed(2) + '%' : ND}</td>

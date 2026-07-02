@@ -48,7 +48,9 @@
       "exclude_qualified_only": true,
       "min_issue_rub": 3000000000,
       "top_n": 8,
-      "score_new_placements": false
+      "score_new_placements": false,
+      "min_rating": "A-",
+      "allow_unrated": false
     },
     "balanced": {
       "title": "Сбалансированный",
@@ -61,7 +63,9 @@
       "exclude_qualified_only": false,
       "min_issue_rub": 1000000000,
       "top_n": 12,
-      "score_new_placements": false
+      "score_new_placements": false,
+      "min_rating": "BBB-",
+      "allow_unrated": true
     },
     "aggressive": {
       "title": "Агрессивный",
@@ -74,7 +78,9 @@
       "exclude_qualified_only": false,
       "min_issue_rub": 0,
       "top_n": 15,
-      "score_new_placements": true
+      "score_new_placements": true,
+      "min_rating": null,
+      "allow_unrated": true
     }
   },
   "portfolio": {

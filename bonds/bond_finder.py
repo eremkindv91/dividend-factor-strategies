@@ -33,7 +33,8 @@ from datetime import date, datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from update_bonds import (  # noqa: E402  (verified v2 logic reused, see schema notes)
-    ISS, TAX, block_rows, gcurve_rate, has_date, http_json, load_board, load_gcurve, solve_ytm,
+    ISS, RATING_RANK, TAX, block_rows, gcurve_rate, has_date, http_json, load_board,
+    load_gcurve, rating_for, solve_ytm,
 )
 
 REPO = os.path.dirname(HERE)
@@ -326,23 +327,43 @@ def bucket_of(dur: float, edges: list[float]) -> int:
     return len(edges)
 
 
-def load_ratings() -> dict:
-    if not os.path.exists(RATINGS_CSV):
-        warn("Рейтинги не подключены — кредитный риск оценён только косвенно (listlevel/размер выпуска)")
-        return {}
+def load_ratings_override() -> dict:
+    """Manual per-SECID rating override (data/bond_finder/ratings.csv: SECID,RATING)."""
     out = {}
-    scale = {"AAA": 10, "AA+": 9, "AA": 8, "AA-": 7, "A+": 6, "A": 5, "A-": 4,
-             "BBB+": 3, "BBB": 2, "BBB-": 1, "BB+": 0, "BB": -1, "BB-": -2, "B+": -3, "B": -4}
-    with open(RATINGS_CSV, encoding="utf-8") as f:
-        for line in f:
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) >= 2 and parts[1].upper() in scale:
-                out[parts[0]] = scale[parts[1].upper()]
-    log(f"ratings.csv подключён: {len(out)} бумаг")
+    if os.path.exists(RATINGS_CSV):
+        with open(RATINGS_CSV, encoding="utf-8") as f:
+            for line in f:
+                parts = [p.strip() for p in line.split(",")]
+                if len(parts) >= 2 and parts[1].upper() in RATING_RANK:
+                    out[parts[0]] = parts[1].upper()
+        log(f"ratings.csv подключён: {len(out)} бумаг (оверрайд)")
     return out
 
 
-def score_all(cands: list[dict], cfg: dict, ratings: dict) -> None:
+def attach_rating(rec: dict, override: dict) -> None:
+    """Rating: manual CSV first, else built-in issuer-name snapshot map (reused from screener).
+    Approximation by design — ISS publishes no credit ratings (see schema notes)."""
+    sid = rec["secid"]
+    if sid in override:
+        rec["rating"], rec["rating_source"] = override[sid], "csv"
+    else:
+        rt = rating_for(sid, rec.get("name") or "", rec.get("issuer") or rec.get("secname") or "",
+                        rec.get("board") or "")
+        if rt:
+            rec["rating"], rec["rating_source"] = rt, "issuer_map"
+    rec["rating_rank"] = RATING_RANK.get(rec.get("rating"))
+
+
+def rating_meets_profile(rec: dict, profile: dict) -> bool:
+    floor = RATING_RANK.get(profile.get("min_rating")) if profile.get("min_rating") else None
+    if floor is None:
+        return True
+    if rec.get("rating_rank") is None:
+        return bool(profile.get("allow_unrated"))
+    return rec["rating_rank"] >= floor
+
+
+def score_all(cands: list[dict], cfg: dict) -> None:
     w = cfg["score_weights"]
     rp = cfg["risk_proxy"]
     edges = cfg["duration_buckets_years"]
@@ -370,7 +391,7 @@ def score_all(cands: list[dict], cfg: dict, ratings: dict) -> None:
         for i, z in zip(idx, zs):
             cands[i]["z_spread"] = round(z, 3)
     zv = zscores([math.log1p(r["median_vol"]) if not r["new_placement"] else None for r in cands])
-    zr = zscores([ratings.get(r["secid"]) for r in cands]) if ratings else [0.0] * len(cands)
+    zr = zscores([r.get("rating_rank") for r in cands])   # unrated → z=0 (нейтрально в скоре)
     for r, zvol, zrat in zip(cands, zv, zr):
         cheap = cfg["cheapening"]["bonus"] if (r.get("spread_pctl") or 0) >= cfg["cheapening"]["bonus_percentile"] else 0.0
         r["cheap_bonus"] = cheap
@@ -378,7 +399,7 @@ def score_all(cands: list[dict], cfg: dict, ratings: dict) -> None:
                            + w["risk_proxy"] * r["risk_proxy"]
                            + w["z_volume"] * zvol
                            + w["cheapening_bonus"] * cheap
-                           + (w["z_rating"] * zrat if ratings else 0.0), 3)
+                           + w["z_rating"] * zrat, 3)
 
 
 def allocate(picks: list[dict], cfg: dict) -> dict:
@@ -573,10 +594,18 @@ def main() -> int:
         cands = [r for r in cands if r["new_placement"] or r["median_vol"] >= min_vol]
         log(f"фильтр ликвидности: исключено {len(illiq)} бумаг (медиана < {min_vol:,.0f} ₽/день)")
 
-    ratings = load_ratings()
+    override = load_ratings_override()
+    for r in cands + offers_ok:
+        attach_rating(r, override)
+    n_unrated = sum(1 for r in cands if r.get("rating_rank") is None)
+    warn("Рейтинги — встроенный снапшот-маппинг по имени эмитента (~40 имён) + ratings.csv, "
+         "НЕ официальная лента АКРА/Эксперт РА: проверяйте рейтинг и проспект вручную")
+    if n_unrated:
+        warn(f"без рейтинга {n_unrated} из {len(cands)} кандидатов — в скоре они нейтральны, "
+             "в консервативный профиль не попадают")
     scored = [r for r in cands if not r["new_placement"]]
     newpl = [r for r in cands if r["new_placement"]]
-    score_all(scored + newpl, cfg, ratings)              # new placements scored too (no vol z)
+    score_all(scored + newpl, cfg)                       # new placements scored too (no vol z)
     for r in newpl:
         r["new_note"] = "нет истории торгов (<20 сессий) — ликвидность не проверена"
 
@@ -587,10 +616,12 @@ def main() -> int:
                 if r["duration_years"] <= p["max_duration_years"]
                 and (int(r["listlevel"]) if str(r.get("listlevel") or "").isdigit() else 3) in p["listlevels"]
                 and (not p["exclude_qualified_only"] or not r.get("qual_only"))
-                and r["issue_rub"] >= p["min_issue_rub"]]
+                and r["issue_rub"] >= p["min_issue_rub"]
+                and rating_meets_profile(r, p)]
         top = sorted(pool, key=lambda r: -r["score"])[:p["top_n"]]
         alloc = allocate(top, cfg)
-        keys = ("secid", "board", "name", "issuer", "inn", "price", "dirty_price", "accrued", "face", "coupon_pct",
+        keys = ("secid", "board", "name", "issuer", "inn", "rating", "rating_source", "rating_rank",
+                "price", "dirty_price", "accrued", "face", "coupon_pct",
                 "lot_value", "ytm", "ytm_net", "g_spread", "spread_pctl", "spread_pctl_src",
                 "duration_years", "median_vol", "sessions", "listlevel", "issue_rub", "risk_proxy",
                 "z_spread", "cheap_bonus", "score", "qual_only", "new_placement", "matdate",
@@ -630,13 +661,15 @@ def main() -> int:
             "snapshot_date": snapshot,
             "warnings": WARNINGS,
             "counts": {**counts, "excluded_fine": excl, "enriched": len(cands)},
-            "ratings_connected": bool(ratings),
+            "ratings_source": ("csv+issuer_map" if override else "issuer_map"),
             "disclaimer": "Это шорт-лист для ручной проверки, не инвестиционная рекомендация. "
                           "Рейтинг и проспект каждой бумаги нужно проверить самостоятельно.",
             "methodology": "Две стадии: дешёвый префильтр всех торгуемых бордов, затем обогащение топ-60 "
                            "(график купонов, описание, история 130 сессий). Скор = z(G-спред в дюрационной "
                            "корзине) + 0.4·риск-прокси(листинг/квал/размер) + 0.3·z(медианный объём) + "
-                           "0.3·бонус за спред у верхней границы своей истории. Налог 13% — приближение "
+                           "0.3·бонус за спред у верхней границы истории + 0.5·z(рейтинг: снапшот-маппинг "
+                           "эмитента, оверрайд ratings.csv). Профили режут по мин-рейтингу "
+                           "(консервативный ≥ A-, сбалансированный ≥ BBB-). Налог 13% — приближение "
                            "для ранжирования, не налоговый калькулятор. Флоатеры, амортизация, ПИР "
                            "(HIGHRISK), колл-опционы исключены; оферта — отдельным списком к дате оферты.",
         },

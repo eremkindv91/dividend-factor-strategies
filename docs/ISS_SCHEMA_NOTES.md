@@ -114,3 +114,14 @@ cashflow YTM, bondization-based floater/amort detection, tax layer).
 Monthly full run ≈ 12 board requests + 1 ZCYC + (3 × 60) fine-stage requests + ≤26 weekly curve
 snapshots + 1 index ≈ **220 requests**, throttled (3 workers, retry/backoff 6). Daily change scan
 uses the board listing + stored previous universe only (≈13 requests, no per-bond enrichment).
+
+## 8. Credit ratings (negative finding)
+
+ISS does **not** publish agency credit ratings anywhere we could find: the per-security
+`description` block (§4) carries no rating field (verified live on TQCB/TQRD issues), and neither
+ACRA nor Expert RA expose a public machine-readable feed. Consequence: the Finder's rating layer is
+(a) a manual `data/bond_finder/ratings.csv` override (SECID,RATING), then (b) a built-in
+issuer-name snapshot map (~40 large issuers, reused from `bonds/update_bonds.py:ISSUER_RATING`) —
+always rendered with the `≈` marker and a standing warning that it is NOT an official rating feed.
+Unrated bonds are neutral in the score, excluded from the conservative profile (min A-), and the
+balanced profile floors rated names at BBB-.

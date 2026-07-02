@@ -1,7 +1,7 @@
-name: update cbr banks (данные ЦБ РФ, форма 102)
+name: update cbr banks (данные ЦБ РФ, формы 102/123/135)
 
-# Ежедневно проверяет отчётность банков в ЦБ (SOAP CreditOrgInfo, форма 102) и обновляет
-# site/cbr/*.json. Отчётность ЦБ квартальная — если новых данных нет, JSON просто не меняется
+# Ежедневно проверяет отчётность банков в ЦБ (SOAP CreditOrgInfo, формы 102/123/135) и обновляет
+# site/cbr/*.json. Если новых данных нет, JSON просто не меняется
 # → нет коммита (workflow success). При недоступности/ошибке ЦБ прошлая версия остаётся.
 # Пайплайн — чистый stdlib, тяжёлые зависимости не нужны.
 on:
@@ -28,7 +28,7 @@ jobs:
           python-version: "3.11"
           # build_cbr_banks.py / cbr_soap.py — только stdlib, pip install не требуется
 
-      - name: Сбор данных ЦБ (форма 102, SOAP)
+      - name: Сбор данных ЦБ (формы 102/123/135, SOAP)
         # exit!=0 (ЦБ недоступен/пусто) → коммита нет, прошлая версия на сайте остаётся
         run: python scripts/cbr_banks/build_cbr_banks.py
 
@@ -43,7 +43,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add site/cbr/*.json
-          git commit -m "data(cbr): автообновление данных банков ЦБ РФ (форма 102)"
+          git commit -m "data(cbr): автообновление данных банков ЦБ РФ (102/123/135)"
           git push
 
       - name: Публикация cbr/ → gh-pages (additive, не трогая остальной сайт)

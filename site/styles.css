@@ -854,3 +854,7 @@ td.empty { text-align: center; }
 .fnd-disc { font-size: .8rem; color: var(--risk-ink); font-weight: 600; border-top: 1px solid var(--line);
   padding-top: 10px; margin-top: 10px; }
 @media (max-width: 760px) { .fnd-summary { grid-template-columns: repeat(2, 1fr); } }
+
+/* рейтинг-чип в Bond Finder (≈ = снапшот-маппинг, не официальная лента) */
+.fnd-rating { text-align: left; }
+.fnd-rt { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .7rem; font-weight: 700; color: #fff; cursor: help; }
