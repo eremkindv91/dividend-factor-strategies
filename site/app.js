@@ -2221,7 +2221,9 @@ function setActiveSection(sec) {
     s.hidden = (s.dataset.section !== sec);
   });
   document.querySelectorAll('.section-tab').forEach((t) => {
-    t.classList.toggle('active', t.dataset.section === sec);
+    const active = t.dataset.section === sec;
+    t.classList.toggle('active', active);
+    t.setAttribute('aria-current', active ? 'page' : 'false');
   });
   window.scrollTo({ top: 0, behavior: 'auto' });
   onSectionShown(sec);
@@ -2401,6 +2403,12 @@ function cbrUIHTML(d) {
       <label>По<select id="cbr-to"></select></label>
       <button class="btn" id="cbr-xlsx">Скачать Excel</button>
     </div>
+    <div class="cbr-guide">
+      <div><b>Ф.102</b><span>прибыль и P&L банка</span></div>
+      <div><b>Ф.123</b><span>капитал для оценки P/BV</span></div>
+      <div><b>Ф.135</b><span>Н1.0 и запас капитала</span></div>
+      <div><b>История</b><span>проверка устойчивости, не сигнал покупки</span></div>
+    </div>
     <div class="cbr-meta">
       <span class="cbr-chip"><span class="k">Источник:</span> <b>ЦБ РФ · формы 102/123/135</b></span>
       <span class="cbr-chip"><span class="k">Отчётные даты:</span> <b>Ф.102 ${esc(lrd['102'] || '—')} · Ф.123 ${esc(lrd['123'] || '—')} · Ф.135 ${esc(lrd['135'] || '—')}</b></span>
@@ -2409,6 +2417,7 @@ function cbrUIHTML(d) {
     </div>
     <div class="cbr-chart-wrap"><canvas id="cbr-chart"></canvas></div>
     <div id="cbr-table-wrap"></div>
+    <div class="cbr-disc">Факт ЦБ РФ. «За период» — расчетная разность накопленных значений Ф.102. Не индивидуальная инвестиционная рекомендация.</div>
   `;
 }
 
@@ -2764,6 +2773,12 @@ function bvalShellHTML(d) {
   const [lo, hi] = m.coe_range || [0.12, 0.30];
   return `
     <div class="bval-freshness">данные: <b>ЦБ на ${dt(m.cbr_asof)}</b> · <b>MOEX на ${dt(m.moex_asof)}</b>${m.has_forecasts ? ' · есть ручной прогноз' : ''}</div>
+    <div class="bval-guide">
+      <div><b>ROE × P/BV</b><span>прибыльность против цены капитала</span></div>
+      <div><b>Н1.0</b><span>запас капитала к нормативу</span></div>
+      <div><b>Payout</b><span>сколько прибыли ушло в дивиденды</span></div>
+      <div><b>Warnings</b><span>периметр и качество источников</span></div>
+    </div>
     <div id="bval-table-wrap"></div>
     <details class="bval-howto"><summary>Как читать таблицу</summary><dl class="bval-dl">${howto}</dl>
       <div class="muted" style="font-size:.78rem;margin-top:6px">${esc(m.reg_min_note || '')}</div></details>

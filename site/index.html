@@ -17,14 +17,14 @@
       <div id="banner"></div>
     </header>
 
-    <nav class="section-tabs" id="section-tabs">
-      <button class="section-tab" data-section="market">Текущий рынок</button>
-      <button class="section-tab" data-section="my-portfolio">Портфель</button>
-      <button class="section-tab" data-section="stocks">Акции</button>
-      <button class="section-tab" data-section="strategies">Стратегии</button>
-      <button class="section-tab" data-section="bonds">Облигации</button>
-      <button class="section-tab" data-section="cbr">Банки РФ</button>
-      <button class="section-tab" data-section="methodology">Методология</button>
+    <nav class="section-tabs" id="section-tabs" aria-label="Разделы сайта">
+      <button class="section-tab" type="button" data-section="market">Текущий рынок</button>
+      <button class="section-tab" type="button" data-section="my-portfolio">Портфель</button>
+      <button class="section-tab" type="button" data-section="stocks">Акции</button>
+      <button class="section-tab" type="button" data-section="strategies">Стратегии</button>
+      <button class="section-tab" type="button" data-section="bonds">Облигации</button>
+      <button class="section-tab" type="button" data-section="cbr">Банки РФ</button>
+      <button class="section-tab" type="button" data-section="methodology">Методология</button>
     </nav>
 
     <main class="sections">
@@ -162,7 +162,18 @@
 
       <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
       <section class="app-section" data-section="cbr" hidden>
-        <p class="section-intro">Банки РФ: секторная оценка публичных банков (P/BV, ROE, пэйаут, Н1.0) на данных ЦБ (РСБУ соло) и MOEX, плюс историческая отчётность из форм 102/123/135. Только реальные значения, каждая цифра со своей датой. Не ИИР.</p>
+        <div class="section-hero cbr-hero">
+          <div>
+            <span class="section-kicker">Банки РФ</span>
+            <h2>Секторная оценка и история ЦБ</h2>
+            <p>Публичные банки: P/BV, ROE, payout, Н1.0, данные MOEX и формы ЦБ 102/123/135.</p>
+          </div>
+          <div class="section-tags" aria-label="Ограничения данных">
+            <span>Не ИИР</span>
+            <span>РСБУ соло</span>
+            <span>Каждая цифра с датой</span>
+          </div>
+        </div>
 
         <details class="mapwrap bval-wrap" id="banks-valuation" open>
           <summary>Оценка сектора <span class="muted">(мультипликаторы банков · ROE × P/BV · справедливая линия)</span></summary>
