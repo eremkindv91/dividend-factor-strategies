@@ -2195,7 +2195,14 @@ function onSectionShown(sec) {
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
   else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
-  else if (sec === 'cbr') { renderCbr(); }
+  else if (sec === 'cbr') {
+    renderBanksValuation();
+    const ts = document.getElementById('cbr-timeseries');
+    if (ts && !ts.dataset.wired) {
+      ts.dataset.wired = '1';
+      ts.addEventListener('toggle', function () { if (this.open) renderCbr(); });
+    }
+  }
   else if (sec === 'methodology') {
     openDetails('data-coverage');
     const c = document.getElementById('data-coverage');
@@ -2696,6 +2703,167 @@ function finderExtra() {
       <div class="muted" style="font-size:.76rem;padding:6px 2px">${esc((d.journal_review[0] || {}).method || '')}</div></details>`);
   }
   el.innerHTML = sec.join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Банки РФ — секторная оценка (P/BV, ROE, пэйаут, Н1.0) + ROE×P/BV scatter с
+// справедливой линией P/BV=ROE/COE. Всё из site/cbr/valuation.json. Не ИИР.
+// ══════════════════════════════════════════════════════════════════════════
+let BVAL = null;
+let BVAL_COE = 20;                 // percent, slider-driven
+let BVAL_SORT = { key: 'mcap_rub', dir: -1 };
+
+function loadBanksValuation(cb) {
+  if (BVAL) { cb(); return; }
+  fetch('cbr/valuation.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.banks) throw new Error('empty'); BVAL = j; cb(); })
+    .catch((e) => { console.error('[bval]', e); cb(e); });
+}
+
+function renderBanksValuation() {
+  const body = document.getElementById('bval-body');
+  if (!body) return;
+  if (body.dataset.shown === '1' && BVAL) return;
+  body.innerHTML = '<div class="bval-loading muted">Загрузка оценки банковского сектора…</div>';
+  loadBanksValuation((err) => {
+    if (err || !BVAL) { body.innerHTML = '<div class="bval-fallback">Оценка сектора недоступна — файл ещё не сгенерирован.</div>'; return; }
+    BVAL_COE = Math.round((BVAL.meta.coe_default || 0.20) * 100);
+    body.innerHTML = bvalShellHTML(BVAL);
+    body.dataset.shown = '1';
+    bvalTable();
+    const sl = document.getElementById('bval-coe');
+    if (sl) sl.addEventListener('input', () => {
+      BVAL_COE = +sl.value;
+      document.getElementById('bval-coe-val').textContent = BVAL_COE;
+      bvalScatterDraw();
+    });
+    loadChartJS(() => bvalScatterDraw());
+  });
+}
+
+function bvalShellHTML(d) {
+  const m = d.meta;
+  const dt = (s) => (s ? String(s).slice(0, 10) : '—');
+  const tips = m.tooltips || {};
+  const howto = [
+    ['P/BV', tips.p_bv], ['ROE', tips.roe], ['P/E', tips.p_e], ['Пэйаут', tips.payout],
+    ['Дивдоходность', tips.div_yield], ['Н1.0', tips.n10], ['Прибыль', tips.profit],
+  ].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v || '')}</dd>`).join('');
+  const [lo, hi] = m.coe_range || [0.12, 0.30];
+  return `
+    <div class="bval-freshness">данные: <b>ЦБ на ${dt(m.cbr_asof)}</b> · <b>MOEX на ${dt(m.moex_asof)}</b>${m.has_forecasts ? ' · есть ручной прогноз' : ''}</div>
+    <div id="bval-table-wrap"></div>
+    <details class="bval-howto"><summary>Как читать таблицу</summary><dl class="bval-dl">${howto}</dl>
+      <div class="muted" style="font-size:.78rem;margin-top:6px">${esc(m.reg_min_note || '')}</div></details>
+
+    <div class="bval-scatter-box">
+      <div class="bval-scatter-head">
+        <b>ROE × P/BV</b>
+        <label class="bval-coe">COE <input type="range" id="bval-coe" min="${Math.round(lo * 100)}" max="${Math.round(hi * 100)}" step="1" value="${BVAL_COE}"><span><b id="bval-coe-val">${BVAL_COE}</b>%</span></label>
+      </div>
+      <div class="bval-scatter-wrap"><canvas id="bval-scatter"></canvas></div>
+      <div class="bval-caption muted">Линия — справедливый P/BV при COE = <b id="bval-cap-coe">${BVAL_COE}</b>%: точки <b>выше</b> линии дёшевы относительно своей прибыльности, <b>ниже</b> — дороги. P/BV = ROE / COE.</div>
+    </div>
+    <div class="bval-disc">${esc(m.disclaimer || '')}</div>`;
+}
+
+function bvalRows() {
+  const rows = (BVAL.banks || []).slice();
+  const { key, dir } = BVAL_SORT;
+  rows.sort((a, b) => { const x = a[key] ?? -1e18, y = b[key] ?? -1e18; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+  return rows;
+}
+
+function bvalTable() {
+  const wrap = document.getElementById('bval-table-wrap');
+  if (!wrap) return;
+  const num = (v, s = '') => (isNum(v) ? v.toFixed(v >= 100 ? 0 : (s === '%' ? 1 : 2)) + s : '<span class="muted">—</span>');
+  const cols = [
+    ['name', 'Банк', 'l'], ['price', 'Цена', 'r'], ['p_bv', 'P/BV', 'r'], ['roe', 'ROE', 'r'],
+    ['p_e', 'P/E', 'r'], ['payout', 'Пэйаут', 'r'], ['div_yield', 'Дивдох', 'r'], ['n10', 'Н1.0', 'r'],
+  ];
+  const tip = { p_bv: (BVAL.meta.tooltips || {}).p_bv, roe: (BVAL.meta.tooltips || {}).roe, p_e: (BVAL.meta.tooltips || {}).p_e, payout: (BVAL.meta.tooltips || {}).payout, div_yield: (BVAL.meta.tooltips || {}).div_yield, n10: (BVAL.meta.tooltips || {}).n10 };
+  const th = cols.map(([k, t, al]) => `<th data-key="${k}" class="al-${al} ${BVAL_SORT.key === k ? 'bval-sorted' : ''}"${tip[k] ? ` title="${esc(tip[k])}"` : ''}>${t}${tip[k] ? ' ⓘ' : ''}${BVAL_SORT.key === k ? (BVAL_SORT.dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('');
+  const rows = bvalRows().map((b, i) => {
+    const warn = (b.warnings || []).length;
+    const pctl = (k) => num(b[k], k === 'roe' || k === 'payout' || k === 'div_yield' || k === 'n10' ? '%' : '');
+    const fc = b.forecast;
+    const main = `<tr class="bval-row" data-i="${i}">
+      <td class="al-l bval-bname"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span>${esc(b.name)}<span class="bval-tk">${esc(b.ticker)}</span>${warn ? ` <span class="bval-warn-badge" title="${esc((b.warnings || []).join(' · '))}">⚠${warn}</span>` : ''}</td>
+      <td class="al-r tnum">${num(b.price)}</td>
+      <td class="al-r tnum bval-strong">${num(b.p_bv)}</td>
+      <td class="al-r tnum">${pctl('roe')}</td>
+      <td class="al-r tnum">${num(b.p_e)}</td>
+      <td class="al-r tnum">${pctl('payout')}</td>
+      <td class="al-r tnum">${pctl('div_yield')}</td>
+      <td class="al-r tnum">${num(b.n10, '%')}${isNum(b.n10_headroom) ? ` <span class="bval-head ${b.n10_headroom >= 0 ? 'ok' : 'bad'}">${b.n10_headroom >= 0 ? '+' : ''}${b.n10_headroom.toFixed(1)}</span>` : ''}</td>
+    </tr>`;
+    const vin = b.vintages || {};
+    const dh = (b.div_history || []).map((x) => `${esc(x.date)}: ${x.value}₽`).join(' · ');
+    const detail = `<tr class="bval-detail" data-i="${i}" hidden><td colspan="8">
+      <div class="bval-detail-grid">
+        <div><span class="k">Даты данных</span> MOEX ${esc(vin.moex || '—')} · Ф.102 ${esc(vin.cbr_102 || '—')} · Ф.123 ${esc(vin.cbr_123 || '—')} · Ф.135 ${esc(vin.cbr_135 || '—')}</div>
+        ${dh ? `<div><span class="k">Дивиденды</span> ${dh}</div>` : ''}
+        ${fc ? `<div class="bval-fc"><span class="k">Прогноз — ручной ввод</span> ${esc(JSON.stringify(fc))}</div>` : ''}
+        ${(b.warnings || []).map((w) => `<div class="bval-wline">⚠ ${esc(w)}</div>`).join('')}
+      </div></td></tr>`;
+    return main + detail;
+  }).join('');
+  wrap.innerHTML = `<div class="bval-table-scroll"><table class="bval-table"><thead><tr>${th}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  wrap.querySelectorAll('th[data-key]').forEach((el) => el.addEventListener('click', () => {
+    const k = el.dataset.key;
+    BVAL_SORT = { key: k, dir: BVAL_SORT.key === k ? -BVAL_SORT.dir : -1 };
+    bvalTable();
+  }));
+  wrap.querySelectorAll('tr.bval-row').forEach((tr) => tr.addEventListener('click', () => {
+    const d = wrap.querySelector(`tr.bval-detail[data-i="${tr.dataset.i}"]`);
+    if (d) d.hidden = !d.hidden;
+  }));
+}
+
+function bvalScatterDraw() {
+  const ctx = document.getElementById('bval-scatter');
+  if (!ctx || !window.Chart) return;
+  const cap = document.getElementById('bval-cap-coe'); if (cap) cap.textContent = BVAL_COE;
+  if (window.__bvalChart) { try { window.__bvalChart.destroy(); } catch (e) { /* noop */ } }
+  const pts = (BVAL.banks || []).filter((b) => isNum(b.p_bv) && isNum(b.roe));
+  const xmax = Math.max(1.3, ...pts.map((b) => b.p_bv)) * 1.15;
+  const coe = BVAL_COE;
+  const labelPlugin = {
+    id: 'bvalLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx: c } = chart;
+      const meta = chart.getDatasetMeta(0);
+      c.save(); c.font = '600 11px system-ui,sans-serif'; c.fillStyle = '#3A424E'; c.textAlign = 'left';
+      pts.forEach((b, i) => { const el = meta.data[i]; if (el) c.fillText(b.ticker, el.x + 7, el.y + 4); });
+      c.restore();
+    },
+  };
+  window.__bvalChart = new window.Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        { label: 'Банки', data: pts.map((b) => ({ x: b.p_bv, y: b.roe })),
+          pointBackgroundColor: pts.map((b) => b.color || '#4A6DA7'), pointRadius: 7, pointHoverRadius: 9, order: 2 },
+        { type: 'line', label: `справедливый P/BV при COE ${coe}%`, order: 1,
+          data: [{ x: 0, y: 0 }, { x: xmax, y: coe * xmax }],
+          borderColor: '#A2452C', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { min: 0, max: xmax, title: { display: true, text: 'P/BV', color: '#5A6472' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
+        y: { min: 0, title: { display: true, text: 'ROE, %', color: '#5A6472' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (it) => { const b = pts[it.dataIndex]; return b ? `${b.name}: P/BV ${b.p_bv}, ROE ${b.roe}%` : ''; }, filter: (it) => it.datasetIndex === 0 } },
+      },
+    },
+    plugins: [labelPlugin],
+  });
 }
 
 initRouter();   // ПОСЛЕ всех модулей (marketsaw/bonds/marlamov/methodology/cbr) — все let-глобалы инициализированы

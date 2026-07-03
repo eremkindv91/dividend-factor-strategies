@@ -32,6 +32,13 @@ jobs:
         # exit!=0 (ЦБ недоступен/пусто) → коммита нет, прошлая версия на сайте остаётся
         run: python scripts/cbr_banks/build_cbr_banks.py
 
+      - name: Секторная оценка банков (P/BV/ROE/пэйаут, MOEX ISS + ЦБ)
+        # чистый stdlib (urllib + cbr_soap); при сбое MOEX прошлый valuation.json остаётся
+        run: python scripts/cbr_banks/build_banks_valuation.py || echo "[banks] пропуск — прошлый valuation.json остаётся"
+
+      - name: Юнит-тесты метрик оценки
+        run: python scripts/cbr_banks/test_banks_valuation.py
+
       - name: Валидация данных ЦБ (трассируемость, нет синтетики)
         run: python scripts/cbr_banks/validate_cbr_data.py
 

@@ -108,6 +108,26 @@ def main() -> int:
         err(f"data_quality.banks_total={dq.get('banks_total')} ≠ banks {len(banks)}")
 
     print(f"  банков: {len(banks)} | точек: {n_points} | last_report_date: {meta.get('last_report_date')}")
+
+    # valuation.json (секторная оценка) — необязателен, но если есть, проверяем контракт
+    val = load("valuation.json")
+    if val is not None:
+        vm = val.get("meta") or {}
+        if not isinstance(vm.get("disclaimer"), str) or not vm.get("disclaimer"):
+            err("valuation.json: нет фиксированного дисклеймера")
+        vb = val.get("banks") or []
+        if not vb:
+            err("valuation.json: banks пуст")
+        for b in vb:
+            if not isinstance(b.get("warnings"), list):
+                err(f"valuation.json: {b.get('ticker')} — warnings не список (глушится слой качества)")
+            for k, lo, hi in (("p_bv", 0.05, 5), ("roe", -50, 80), ("n10", 0, 100), ("payout", -10, 300)):
+                v = b.get(k)
+                if isinstance(v, (int, float)) and not (lo <= v <= hi):
+                    err(f"valuation.json: {b.get('ticker')} {k}={v} вне разумного диапазона")
+        print(f"  valuation.json: {vm.get('banks_valued')}/{vm.get('banks_count')} банков, "
+              f"ЦБ {vm.get('cbr_asof')} · MOEX {vm.get('moex_asof')}")
+
     if ERRORS:
         for e in ERRORS:
             print("  ERROR:", e)

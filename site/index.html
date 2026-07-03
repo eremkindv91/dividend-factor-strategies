@@ -162,10 +162,21 @@
 
       <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
       <section class="app-section" data-section="cbr" hidden>
-        <p class="section-intro">Банки РФ: официальная отчётность Банка России — прибыль (Ф.102, накопленным итогом или за период), капитал Базель III (Ф.123) и обязательные нормативы Н1/Н2/Н3/Н4 (Ф.135). Только реальные значения ЦБ, каждая точка трассируется до кода формы. Не ИИР.</p>
-        <div class="cbr-body" id="cbr-body">
-          <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
-        </div>
+        <p class="section-intro">Банки РФ: секторная оценка публичных банков (P/BV, ROE, пэйаут, Н1.0) на данных ЦБ (РСБУ соло) и MOEX, плюс историческая отчётность из форм 102/123/135. Только реальные значения, каждая цифра со своей датой. Не ИИР.</p>
+
+        <details class="mapwrap bval-wrap" id="banks-valuation" open>
+          <summary>Оценка сектора <span class="muted">(мультипликаторы банков · ROE × P/BV · справедливая линия)</span></summary>
+          <div class="bval-body" id="bval-body">
+            <div class="bval-loading muted">Загрузка оценки банковского сектора…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap cbr-ts-wrap" id="cbr-timeseries">
+          <summary>Историческая отчётность <span class="muted">(прибыль Ф.102 · капитал Ф.123 · нормативы Ф.135 по месяцам)</span></summary>
+          <div class="cbr-body" id="cbr-body">
+            <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
+          </div>
+        </details>
       </section>
 
       <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->

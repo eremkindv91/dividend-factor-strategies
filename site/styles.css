@@ -858,3 +858,45 @@ td.empty { text-align: center; }
 /* рейтинг-чип в Bond Finder (≈ = снапшот-маппинг, не официальная лента) */
 .fnd-rating { text-align: left; }
 .fnd-rt { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .7rem; font-weight: 700; color: #fff; cursor: help; }
+
+/* ══ Банки РФ — секторная оценка (P/BV, ROE, scatter) ══ */
+.bval-loading { padding: 12px 2px; font-size: .9rem; }
+.bval-fallback { background: var(--neut-fill); color: var(--neut-ink); border-radius: 10px; padding: 12px 14px; font-size: .88rem; }
+.bval-freshness { font-size: .8rem; color: var(--ink-soft); margin-bottom: 10px; }
+.bval-freshness b { color: var(--accent-deep); }
+.bval-table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.bval-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.bval-table th, .bval-table td { padding: 8px 10px; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.bval-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem; cursor: pointer; user-select: none; }
+.bval-table th.bval-sorted { color: var(--accent-deep); }
+.bval-table th.al-l, .bval-table td.al-l { text-align: left; }
+.bval-table th.al-r, .bval-table td.al-r { text-align: right; }
+.bval-table tbody tr.bval-row { cursor: pointer; }
+.bval-table tbody tr.bval-row:hover td { background: #F3F5FA; }
+.bval-bname { font-weight: 600; }
+.bval-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+.bval-tk { color: var(--ink-faint); font-weight: 400; font-size: .74rem; margin-left: 6px; }
+.bval-strong { font-weight: 700; color: var(--accent-deep); }
+.bval-warn-badge { color: var(--warn-ink); font-size: .72rem; font-weight: 700; cursor: help; }
+.bval-head { font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 0 5px; }
+.bval-head.ok { background: var(--good-fill); color: var(--good-ink); }
+.bval-head.bad { background: var(--risk-fill); color: var(--risk-ink); }
+.bval-detail td { background: var(--bg); }
+.bval-detail-grid { display: flex; flex-direction: column; gap: 5px; font-size: .8rem; color: var(--ink-soft); padding: 4px 2px; }
+.bval-detail-grid .k { color: var(--ink-faint); font-weight: 600; margin-right: 6px; }
+.bval-wline { color: var(--warn-ink); }
+.bval-fc .k { color: var(--accent-deep); }
+.bval-howto { margin: 12px 0; }
+.bval-howto > summary { cursor: pointer; color: var(--accent-deep); font-size: .86rem; font-weight: 600; padding: 6px 0; }
+.bval-dl { margin: 6px 0 0; }
+.bval-dl dt { font-weight: 700; font-size: .82rem; color: var(--ink); margin-top: 8px; }
+.bval-dl dd { margin: 2px 0 0; font-size: .82rem; color: var(--ink-soft); line-height: 1.5; }
+.bval-scatter-box { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface); }
+.bval-scatter-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.bval-coe { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--ink-faint); font-weight: 600; }
+.bval-coe input[type="range"] { accent-color: var(--accent-deep); width: 140px; }
+.bval-scatter-wrap { position: relative; height: 340px; }
+.bval-caption { font-size: .8rem; line-height: 1.5; margin-top: 8px; }
+.bval-caption b { color: var(--accent-deep); }
+.bval-disc { font-size: .8rem; color: var(--risk-ink); font-weight: 600; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
+@media (max-width: 760px) { .bval-scatter-wrap { height: 300px; } .bval-coe input[type="range"] { width: 100px; } }
