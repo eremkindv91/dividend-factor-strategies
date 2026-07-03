@@ -11,6 +11,7 @@
     {"ticker": "T", "regnum": 2673, "name": "Т-Банк (Т-Технологии)", "pref": null, "color": "#FFDD2D", "sib": true, "ifrs_gap": "material", "expected_name": "ТБанк", "perimeter_note": "Листингованный эмитент — холдинг Т-Технологии; периметр шире банка Ф.РСБУ (небанковский бизнес)"},
     {"ticker": "SVCB", "regnum": 963, "name": "Совкомбанк", "pref": null, "color": "#E4002B", "sib": true, "ifrs_gap": "moderate", "expected_name": "Совкомбанк"},
     {"ticker": "BSPB", "regnum": 436, "name": "Банк Санкт-Петербург", "pref": "BSPBP", "color": "#004C97", "sib": false, "ifrs_gap": "low", "expected_name": "САНКТ"},
-    {"ticker": "MBNK", "regnum": 2268, "name": "МТС Банк", "pref": null, "color": "#E30611", "sib": false, "ifrs_gap": "moderate", "expected_name": "МТС-Банк"}
+    {"ticker": "MBNK", "regnum": 2268, "name": "МТС Банк", "pref": null, "color": "#E30611", "sib": false, "ifrs_gap": "moderate", "expected_name": "МТС-Банк"},
+    {"ticker": "DOMRF", "regnum": 2312, "name": "ДОМ.РФ", "pref": null, "color": "#00A3E0", "sib": true, "ifrs_gap": "material", "expected_name": "ДОМ.РФ", "perimeter_note": "Листингованный эмитент — ПАО ДОМ.РФ; ЦБ-метрики относятся к АО «Банк ДОМ.РФ», периметр группы и банка не совпадает"}
   ]
 }

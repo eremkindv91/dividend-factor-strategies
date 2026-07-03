@@ -11,6 +11,19 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_banks_valuation as bv  # noqa: E402
 
 
+class BanksConfig(unittest.TestCase):
+    def test_domrf_is_in_public_bank_valuation_universe_with_perimeter_warning(self):
+        with open(bv.CONFIG, encoding="utf-8") as f:
+            cfg = bv.json.load(f)
+
+        dom = next((b for b in cfg["banks"] if b["ticker"] == "DOMRF"), None)
+
+        self.assertIsNotNone(dom)
+        self.assertEqual(dom["regnum"], 2312)
+        self.assertIn("ДОМ.РФ", dom["expected_name"])
+        self.assertIn("периметр", dom["perimeter_note"].lower())
+
+
 class ProfitTTM(unittest.TestCase):
     def test_ttm_formula(self):
         # accum monthly form 102: ttm(D) = accum(D) + accum(FYprev) - accum(D-12m)

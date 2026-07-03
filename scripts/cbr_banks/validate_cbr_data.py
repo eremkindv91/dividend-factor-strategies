@@ -19,6 +19,7 @@ import sys
 from datetime import date
 
 CBR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "site", "cbr")
+CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "banks_config.json")
 ERRORS: list[str] = []
 ALLOWED_RELIABILITY = {"official_direct", "calculated_from_official", "calculated"}
 
@@ -118,6 +119,15 @@ def main() -> int:
         vb = val.get("banks") or []
         if not vb:
             err("valuation.json: banks пуст")
+        try:
+            with open(CONFIG, encoding="utf-8") as f:
+                expected_tickers = {str(b.get("ticker")) for b in json.load(f).get("banks", []) if b.get("ticker")}
+            actual_tickers = {str(b.get("ticker")) for b in vb if b.get("ticker")}
+            missing = sorted(expected_tickers - actual_tickers)
+            if missing:
+                err(f"valuation.json: отсутствуют банки из banks_config.json: {missing}")
+        except (OSError, ValueError) as e:
+            err(f"banks_config.json: не удалось проверить universe ({e})")
         for b in vb:
             if not isinstance(b.get("warnings"), list):
                 err(f"valuation.json: {b.get('ticker')} — warnings не список (глушится слой качества)")
