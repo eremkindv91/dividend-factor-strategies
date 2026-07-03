@@ -2936,9 +2936,11 @@ function bvalHistDraw() {
   const cap = document.getElementById('bval-hist-cap');
   if (cap) {
     const warn = b.warn ? `<div class="bh-warn">⚠ ${esc(b.warn)}</div>` : '';
-    const clamp = b.split_clamp ? ` · окно с ${esc(b.split_clamp)} (сплит/реорганизация)` : '';
+    const clamp = b.split_clamp ? ` · окно с ${esc(b.split_clamp)} (необъяснённый разрыв цены)` : '';
+    const spl = (b.splits_applied || []).length
+      ? ` · цены до сплита приведены к текущей базе акций (${b.splits_applied.map((s) => `${esc(s.ratio)} от ${esc(s.date)}`).join(', ')}, реестр MOEX)` : '';
     cap.innerHTML = `Зелёная зона — цена ниже капитала (P/BV&nbsp;&lt;&nbsp;1, потенциально дёшево), красная — выше.
-      Капитал на акцию = регуляторный капитал Ф.123&nbsp;/&nbsp;число акций; окно ${esc(pts[0].d)}–${esc(pts[pts.length - 1].d)}${clamp}.${warn}`;
+      Капитал на акцию = регуляторный капитал Ф.123&nbsp;/&nbsp;число акций; окно ${esc(pts[0].d)}–${esc(pts[pts.length - 1].d)}${clamp}${spl}.${warn}`;
   }
 
   if (window.__bhChart) { try { window.__bhChart.destroy(); } catch (e) { /* noop */ } }

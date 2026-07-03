@@ -96,6 +96,38 @@ def fetch_dividends(secid: str) -> list[dict]:
             for r in block(d, "dividends") if r.get("value") is not None]
 
 
+def fetch_splits() -> dict[str, list[dict]]:
+    """Official MOEX splits registry: {secid: [{date, before, after}]}. One request, ~55 rows."""
+    try:
+        d = http_json(f"{ISS}/statistics/engines/stock/splits.json?iss.meta=off")
+    except (urllib.error.URLError, TimeoutError, ValueError) as e:
+        log(f"справочник сплитов недоступен: {str(e)[:50]}")
+        return {}
+    out: dict[str, list[dict]] = {}
+    for r in block(d, "splits"):
+        out.setdefault(r["secid"], []).append(r)
+    for v in out.values():
+        v.sort(key=lambda s: s["tradedate"])
+    return out
+
+
+def adjust_divs_for_splits(divs: list[dict], splits: list[dict]) -> tuple[list[dict], bool]:
+    """DPS paid before a split belongs to the OLD share; bring it to the current share base
+    (value × before/after per later split). Without this T's 33₽ pre-split dividend against the
+    258₽ post-split price fabricates a 12.8% yield — the honest figure is 3.3₽ → ~1.3%."""
+    if not splits:
+        return divs, False
+    adj, touched = [], False
+    for dv in divs:
+        v = float(dv["value"])
+        for s in splits:
+            if dv["date"] and dv["date"] < s["tradedate"]:
+                v *= s["before"] / s["after"]
+                touched = True
+        adj.append({**dv, "value": round(v, 4)} if v != dv["value"] else dv)
+    return adj, touched
+
+
 def div_ttm(divs: list[dict]) -> tuple[float, list]:
     """Trailing-12m dividend per share + the contributing records."""
     cutoff = date(TODAY.year - 1, TODAY.month, TODAY.day).isoformat()
@@ -146,7 +178,7 @@ def year_ago(dt: str) -> str:
 
 
 # ── per-bank valuation ───────────────────────────────────────────────────────
-def value_bank(b: dict, cache: dict) -> dict:
+def value_bank(b: dict, cache: dict, splits: list[dict] | None = None) -> dict:
     tk, rn = b["ticker"], b["regnum"]
     row = {"ticker": tk, "regnum": rn, "name": b["name"], "color": b["color"],
            "sib": b.get("sib"), "warnings": [], "vintages": {}}
@@ -176,10 +208,19 @@ def value_bank(b: dict, cache: dict) -> dict:
     row["mcap_rub"] = round(mcap, 0) if mcap else None
 
     divs = fetch_dividends(tk)
+    divs, div_adj = adjust_divs_for_splits(divs, splits or [])
     dttm, drecs = div_ttm(divs)
     row["div_ttm"] = dttm or None
     row["div_yield"] = round(100 * dttm / price, 2) if (dttm and price) else None
     row["div_history"] = sorted(divs, key=lambda x: x["date"] or "")[-6:]
+    if div_adj:
+        rt = " · ".join(f"{s['before']}:{s['after']} ({s['tradedate']})" for s in (splits or []))
+        row["warnings"].append(f"Дивиденды до сплита приведены к текущей базе акций (сплит {rt}, реестр MOEX)")
+    if not dttm:
+        last_div = max((d for d in divs if d["date"]), key=lambda x: x["date"], default=None)
+        row["warnings"].append(
+            f"Дивдоходность/пэйаут «—»: последняя выплата {last_div['date']} ({last_div['value']}₽) — вне 12-мес окна"
+            if last_div else "Дивдоходность/пэйаут «—»: в реестре ISS нет выплаченных дивидендов")
 
     # CBR: capital, profit ttm, Н1.0
     d123_dates = get_dates_for_form("123", rn) if d102_dates else []
@@ -245,12 +286,13 @@ def main() -> int:
     with open(CONFIG, encoding="utf-8") as f:
         cfg = json.load(f)
     forecasts = load_forecasts()
+    all_splits = fetch_splits()
     cache: dict = {}
     banks = []
     for b in cfg["banks"]:
         b["cfg_reg_min"] = cfg["reg_min_n10_sib"] if b.get("sib") else cfg["reg_min_n10_other"]
         try:
-            row = value_bank(b, cache)
+            row = value_bank(b, cache, all_splits.get(b["ticker"]))
         except Exception as e:  # noqa: BLE001
             log(f"{b['ticker']}: сбой {str(e)[:60]} — строка с прочерками")
             row = {"ticker": b["ticker"], "name": b["name"], "color": b["color"],

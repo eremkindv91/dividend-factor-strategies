@@ -119,7 +119,9 @@ def capital_rub(regnum: int, dt: str) -> float | None:
 def detect_split_clamp(px: dict[str, float], hi: float = 5.0) -> str | None:
     """Month after the last price discontinuity (split / reverse-split / reorg). A ≥`hi`× or
     ≤1/`hi`× month-over-month jump is never organic for a large bank but would make current
-    shares_eff nonsensical vs pre-event prices. Tight threshold clears the worst 2022 crash (~-55%/mo)."""
+    shares_eff nonsensical vs pre-event prices. Tight threshold clears the worst 2022 crash (~-55%/mo).
+    Safety net only: known splits are first neutralised via the official MOEX registry
+    (adjust_for_splits), so this fires only on events the registry does not know about."""
     months = sorted(px)
     clamp = None
     for i in range(1, len(months)):
@@ -129,8 +131,46 @@ def detect_split_clamp(px: dict[str, float], hi: float = 5.0) -> str | None:
     return clamp
 
 
+def fetch_splits() -> dict[str, list[dict]]:
+    """Official MOEX splits registry (~55 rows total, one request for all banks):
+    {secid: [{date, before, after}]} chronological. T 2026-04-17 1→10, VTBR 2024-07-15 5000→1."""
+    try:
+        d = http_json(f"{ISS}/statistics/engines/stock/splits.json?iss.meta=off")
+    except (urllib.error.URLError, TimeoutError, ValueError) as e:
+        log(f"справочник сплитов MOEX недоступен: {str(e)[:50]} — без коррекции")
+        return {}
+    b = d.get("splits") or {}
+    ci = {c: i for i, c in enumerate(b.get("columns") or [])}
+    out: dict[str, list[dict]] = {}
+    for r in b.get("data") or []:
+        out.setdefault(r[ci["secid"]], []).append(
+            {"date": r[ci["tradedate"]], "before": r[ci["before"]], "after": r[ci["after"]]})
+    for v in out.values():
+        v.sort(key=lambda s: s["date"])
+    return out
+
+
+def adjust_for_splits(px: dict[str, float], splits: list[dict]) -> tuple[dict[str, float], list[dict]]:
+    """Bring pre-split prices to the CURRENT share base: months strictly before the split month
+    get price × before/after (cumulative over multiple splits). The split month itself is left
+    as-is — the monthly CLOSE prints at month-end, already after the event. T: ÷10 before 2026-04;
+    VTBR: ×5000 before 2024-07. Official registry data, not synthetics."""
+    adj = dict(px)
+    applied = []
+    for s in splits:
+        ym, k = s["date"][:7], s["before"] / s["after"]
+        touched = False
+        for m in adj:
+            if m < ym:
+                adj[m] *= k
+                touched = True
+        if touched:
+            applied.append({"date": s["date"], "ratio": f"{s['before']}:{s['after']}"})
+    return adj, applied
+
+
 # ── assemble one bank ────────────────────────────────────────────────────────
-def build_bank(b: dict, val_row: dict | None, prev: dict | None) -> dict:
+def build_bank(b: dict, val_row: dict | None, prev: dict | None, splits: list[dict] | None = None) -> dict:
     tk, rn = b["ticker"], b["regnum"]
     frm = b.get("history_from", "2018-01-01")
     out = {"ticker": tk, "name": b["name"], "color": b.get("color"),
@@ -179,7 +219,11 @@ def build_bank(b: dict, val_row: dict | None, prev: dict | None) -> dict:
         out["warn"] = (out.get("warn") + " · " if out.get("warn") else "") + "нет истории цены MOEX"
         return out
 
-    # auto-clamp after the last split / reverse-split / reorg (see detect_split_clamp)
+    # neutralise known splits via the official MOEX registry (prices → current share base),
+    # then auto-clamp only what the registry does not explain
+    px, applied = adjust_for_splits(px, splits or [])
+    if applied:
+        out["splits_applied"] = applied
     split_at = detect_split_clamp(px)
     if split_at:
         out["split_clamp"] = split_at
@@ -230,10 +274,11 @@ def main() -> int:
         except (ValueError, OSError):
             log("history.json битый — полный бэкфилл")
 
+    all_splits = fetch_splits()
     banks = []
     for b in cfg["banks"]:
         try:
-            banks.append(build_bank(b, val.get(b["ticker"]), prev.get(b["ticker"])))
+            banks.append(build_bank(b, val.get(b["ticker"]), prev.get(b["ticker"]), all_splits.get(b["ticker"])))
         except Exception as e:  # noqa: BLE001
             log(f"{b['ticker']}: сбой {str(e)[:60]}")
             banks.append({"ticker": b["ticker"], "name": b["name"], "color": b.get("color"),
@@ -250,7 +295,7 @@ def main() -> int:
             "caveats": [
                 "Капитал — регуляторный Ф.123 (Базель III, с субордами), не бухгалтерский equity → P/BV смещён вниз",
                 "ЦБ не раскрывал отчётность банков большую часть 2022 — капитал на графике держится плоско в этот период (forward-fill)",
-                "Число акций взято текущим и применено ко всей истории окна — после сплита/доп.эмиссии окно клампится (history_from), см. пометку банка",
+                "Число акций взято текущим; официальные сплиты (реестр MOEX) скорректированы в ценах, доп.эмиссии акций — нет (см. пометку банка)",
             ],
             "disclaimer": "Ориентир для тайминга, не инвестиционная рекомендация. Перед решением сверяйте с МСФО-отчётностью банка.",
         },

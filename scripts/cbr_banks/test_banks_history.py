@@ -44,6 +44,45 @@ class SplitClamp(unittest.TestCase):
         self.assertIsNone(bh.detect_split_clamp(px))
 
 
+class SplitAdjust(unittest.TestCase):
+    def test_t_split_1_to_10_divides_pre_split_prices(self):
+        # T 2026-04-17 1→10: months strictly before 2026-04 ÷10; April close is already post-split
+        px = {"2026-02": 3463.6, "2026-03": 3229.6, "2026-04": 305.36, "2026-05": 301.14}
+        adj, applied = bh.adjust_for_splits(px, [{"date": "2026-04-17", "before": 1, "after": 10}])
+        self.assertAlmostEqual(adj["2026-03"], 322.96, places=2)
+        self.assertEqual(adj["2026-04"], 305.36)                    # untouched
+        self.assertEqual(applied, [{"date": "2026-04-17", "ratio": "1:10"}])
+
+    def test_vtbr_reverse_split_multiplies(self):
+        px = {"2024-06": 0.02, "2024-07": 95.0}
+        adj, applied = bh.adjust_for_splits(px, [{"date": "2024-07-15", "before": 5000, "after": 1}])
+        self.assertAlmostEqual(adj["2024-06"], 100.0, places=2)
+        self.assertEqual(adj["2024-07"], 95.0)
+        self.assertEqual(applied[0]["ratio"], "5000:1")
+
+    def test_cumulative_two_splits(self):
+        # a month before BOTH splits gets both factors
+        px = {"2020-01": 100.0, "2022-06": 40.0, "2024-06": 30.0}
+        splits = [{"date": "2022-01-10", "before": 1, "after": 2},
+                  {"date": "2024-01-10", "before": 1, "after": 5}]
+        adj, _ = bh.adjust_for_splits(px, splits)
+        self.assertAlmostEqual(adj["2020-01"], 100.0 * 0.5 * 0.2, places=6)
+        self.assertAlmostEqual(adj["2022-06"], 40.0 * 0.2, places=6)
+        self.assertEqual(adj["2024-06"], 30.0)
+
+    def test_adjustment_removes_clamp(self):
+        # after official-registry adjustment the discontinuity disappears → no safety clamp
+        px = {"2026-02": 3463.6, "2026-03": 3229.6, "2026-04": 305.36, "2026-05": 301.14}
+        adj, _ = bh.adjust_for_splits(px, [{"date": "2026-04-17", "before": 1, "after": 10}])
+        self.assertIsNone(bh.detect_split_clamp(adj))
+
+    def test_no_splits_noop(self):
+        px = {"2020-01": 100.0}
+        adj, applied = bh.adjust_for_splits(px, [])
+        self.assertEqual(adj, px)
+        self.assertEqual(applied, [])
+
+
 class PbvMath(unittest.TestCase):
     def test_bvps_and_pbv_units(self):
         # capital_rub already in RUB; shares_eff in shares. BVPS = cap/shares; P/BV = price/BVPS.

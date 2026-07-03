@@ -73,6 +73,31 @@ class Multiples(unittest.TestCase):
         self.assertEqual(bv.year_ago("2026-06-01"), "2025-06-01")
 
 
+class DivSplitAdjust(unittest.TestCase):
+    T_SPLITS = [{"tradedate": "2026-04-17", "before": 1, "after": 10}]
+
+    def test_t_pre_split_dividend_divided_by_10(self):
+        # 33₽ paid 2025-07-17 on the OLD share; against the 258₽ post-split price the honest DPS is 3.3₽
+        divs = [{"date": "2025-07-17", "value": 33.0}]
+        adj, touched = bv.adjust_divs_for_splits(divs, self.T_SPLITS)
+        self.assertTrue(touched)
+        self.assertAlmostEqual(adj[0]["value"], 3.3, places=4)
+        # yield sanity: 3.3/258 ≈ 1.3%, NOT 33/258 ≈ 12.8%
+        self.assertLess(100 * adj[0]["value"] / 258.0, 2.0)
+
+    def test_post_split_dividend_untouched(self):
+        divs = [{"date": "2026-06-01", "value": 12.0}]
+        adj, touched = bv.adjust_divs_for_splits(divs, self.T_SPLITS)
+        self.assertFalse(touched)
+        self.assertEqual(adj[0]["value"], 12.0)
+
+    def test_no_splits_noop(self):
+        divs = [{"date": "2025-07-17", "value": 33.0}]
+        adj, touched = bv.adjust_divs_for_splits(divs, [])
+        self.assertFalse(touched)
+        self.assertEqual(adj, divs)
+
+
 class DivergenceFlag(unittest.TestCase):
     def test_relative_divergence(self):
         # >20% relative divergence between two sources is information, not error
