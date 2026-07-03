@@ -5,13 +5,15 @@
   "reg_min_n10_sib": 11.5,
   "reg_min_n10_other": 10.5,
   "reg_min_note": "Регуляторный минимум Н1.0: базовый 8% + надбавка поддержания достаточности 2.5% + для СЗКО надбавка за системную значимость 1.0% = 11.5% (СЗКО) / 10.5% (прочие). Запас = Н1.0 − минимум.",
+  "_history_note": "history_from — начало окна графика «цена vs капитал». Клампится там, где текущее число акций (shares_eff) применимо к прошлым ценам: банки со стабильным числом акций — длинное окно; после сплита/реорганизации/крупной доп.эмиссии — окно с даты новой структуры. history_warn — честная пометка о смещении P/BV на графике.",
+  "history_cap_cadence": "quarterly",
   "banks": [
-    {"ticker": "SBER", "regnum": 1481, "name": "Сбербанк", "pref": "SBERP", "color": "#21A038", "sib": true, "ifrs_gap": "moderate", "expected_name": "Сбербанк"},
-    {"ticker": "VTBR", "regnum": 1000, "name": "ВТБ", "pref": null, "color": "#0A2896", "sib": true, "ifrs_gap": "material", "expected_name": "ВТБ"},
-    {"ticker": "T", "regnum": 2673, "name": "Т-Банк (Т-Технологии)", "pref": null, "color": "#FFDD2D", "sib": true, "ifrs_gap": "material", "expected_name": "ТБанк", "perimeter_note": "Листингованный эмитент — холдинг Т-Технологии; периметр шире банка Ф.РСБУ (небанковский бизнес)"},
-    {"ticker": "SVCB", "regnum": 963, "name": "Совкомбанк", "pref": null, "color": "#E4002B", "sib": true, "ifrs_gap": "moderate", "expected_name": "Совкомбанк"},
-    {"ticker": "BSPB", "regnum": 436, "name": "Банк Санкт-Петербург", "pref": "BSPBP", "color": "#004C97", "sib": false, "ifrs_gap": "low", "expected_name": "САНКТ"},
-    {"ticker": "MBNK", "regnum": 2268, "name": "МТС Банк", "pref": null, "color": "#E30611", "sib": false, "ifrs_gap": "moderate", "expected_name": "МТС-Банк"},
-    {"ticker": "DOMRF", "regnum": 2312, "name": "ДОМ.РФ", "pref": null, "color": "#00A3E0", "sib": true, "ifrs_gap": "material", "expected_name": "ДОМ.РФ", "perimeter_note": "Листингованный эмитент — ПАО ДОМ.РФ; ЦБ-метрики относятся к АО «Банк ДОМ.РФ», периметр группы и банка не совпадает"}
+    {"ticker": "SBER", "regnum": 1481, "name": "Сбербанк", "pref": "SBERP", "color": "#21A038", "sib": true, "ifrs_gap": "moderate", "expected_name": "Сбербанк", "history_from": "2018-01-01"},
+    {"ticker": "VTBR", "regnum": 1000, "name": "ВТБ", "pref": null, "color": "#0A2896", "sib": true, "ifrs_gap": "material", "expected_name": "ВТБ", "history_from": "2018-01-01", "history_warn": "Доп.эмиссии 2023/2025 увеличили число акций — P/BV на графике до этих дат завышен (историческая капитализация переоценена текущим числом акций)"},
+    {"ticker": "T", "regnum": 2673, "name": "Т-Банк (Т-Технологии)", "pref": null, "color": "#FFDD2D", "sib": true, "ifrs_gap": "material", "expected_name": "ТБанк", "perimeter_note": "Листингованный эмитент — холдинг Т-Технологии; периметр шире банка Ф.РСБУ (небанковский бизнес)", "history_from": "2026-01-01", "history_warn": "Окно с 2026 — до реорганизации Т-Технологий (редомициляция, изменение числа акций) историческая цена несопоставима с текущим числом акций"},
+    {"ticker": "SVCB", "regnum": 963, "name": "Совкомбанк", "pref": null, "color": "#E4002B", "sib": true, "ifrs_gap": "moderate", "expected_name": "Совкомбанк", "history_from": "2024-01-01", "history_warn": "IPO декабрь 2023 — история цены только с листинга"},
+    {"ticker": "BSPB", "regnum": 436, "name": "Банк Санкт-Петербург", "pref": "BSPBP", "color": "#004C97", "sib": false, "ifrs_gap": "low", "expected_name": "САНКТ", "history_from": "2018-01-01"},
+    {"ticker": "MBNK", "regnum": 2268, "name": "МТС Банк", "pref": null, "color": "#E30611", "sib": false, "ifrs_gap": "moderate", "expected_name": "МТС-Банк", "history_from": "2024-04-01", "history_warn": "IPO апрель 2024 — история цены только с листинга"},
+    {"ticker": "DOMRF", "regnum": 2312, "name": "ДОМ.РФ", "pref": null, "color": "#00A3E0", "sib": true, "ifrs_gap": "material", "expected_name": "ДОМ.РФ", "perimeter_note": "Листингованный эмитент — ПАО ДОМ.РФ; ЦБ-метрики относятся к АО «Банк ДОМ.РФ», периметр группы и банка не совпадает", "history_from": "2025-01-01", "history_warn": "Недавний листинг — короткая история цены"}
   ]
 }

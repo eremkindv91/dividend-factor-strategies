@@ -36,8 +36,16 @@ jobs:
         # чистый stdlib (urllib + cbr_soap); при сбое MOEX прошлый valuation.json остаётся
         run: python scripts/cbr_banks/build_banks_valuation.py || echo "[banks] пропуск — прошлый valuation.json остаётся"
 
+      - name: История «цена vs капитал» (месячная цена MOEX + капитал Ф.123)
+        # инкрементально: закоммиченный history.json — кэш капитала, тянутся только новые кварталы;
+        # читает valuation.json (shares_eff), поэтому ПОСЛЕ оценки. При сбое прошлый history.json остаётся
+        run: python scripts/cbr_banks/build_banks_history.py || echo "[banks-hist] пропуск — прошлый history.json остаётся"
+
       - name: Юнит-тесты метрик оценки
         run: python scripts/cbr_banks/test_banks_valuation.py
+
+      - name: Юнит-тесты истории «цена vs капитал»
+        run: python scripts/cbr_banks/test_banks_history.py
 
       - name: Валидация данных ЦБ (трассируемость, нет синтетики)
         run: python scripts/cbr_banks/validate_cbr_data.py

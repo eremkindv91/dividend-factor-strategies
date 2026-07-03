@@ -2303,7 +2303,7 @@ function renderMarketKPI() {
 
 // ══════════════════════════════════════════════════════════════════════════
 // Банки РФ / данные ЦБ РФ. Всё из site/cbr/*.json (формы 102/123/135, реальные значения ЦБ).
-// Bar chart (Chart.js), таблица, Excel (SheetJS), metadata + data-quality. Не ИИР.
+// Bar chart (Chart.js), таблица, Excel (SheetJS), metadata. Не ИИР.
 // ══════════════════════════════════════════════════════════════════════════
 let CBR_DATA = null;
 const XLSX_SRC = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/package/dist/xlsx.full.min.js';
@@ -2336,26 +2336,38 @@ function renderCbr() {
   body.innerHTML = '<div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>';
   loadCbr((err) => {
     if (err || !CBR_DATA) { body.innerHTML = '<div class="cbr-fallback"><b>Данные ЦБ временно недоступны.</b> Раздел не обновлён. <div class="cbr-disc">Не ИИР.</div></div>'; return; }
-    body.innerHTML = cbrUIHTML(CBR_DATA);
-    body.dataset.shown = '1';
-    ['cbr-bank', 'cbr-filter', 'cbr-metric', 'cbr-mode', 'cbr-from', 'cbr-to'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => {
-        if (id === 'cbr-filter') cbrRefreshBanks();
-        if (id === 'cbr-bank' || id === 'cbr-metric' || id === 'cbr-filter') cbrRefreshDates();
-        cbrDraw();
+    loadBanksValuation(() => {
+      body.innerHTML = cbrUIHTML(CBR_DATA);
+      body.dataset.shown = '1';
+      ['cbr-bank', 'cbr-filter', 'cbr-metric', 'cbr-mode', 'cbr-from', 'cbr-to'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', () => {
+          if (id === 'cbr-filter') cbrRefreshBanks();
+          if (id === 'cbr-bank' || id === 'cbr-metric' || id === 'cbr-filter') cbrRefreshDates();
+          cbrDraw();
+        });
       });
+      const xb = document.getElementById('cbr-xlsx'); if (xb) xb.addEventListener('click', cbrExcel);
+      cbrRefreshBanks();
+      cbrRefreshDates();                                  // даты — из реальных точек выбранного ряда
+      cbrDraw();                                          // таблица не должна зависеть от CDN Chart.js
+      loadChartJS(() => cbrDraw());
     });
-    const xb = document.getElementById('cbr-xlsx'); if (xb) xb.addEventListener('click', cbrExcel);
-    cbrRefreshBanks();
-    cbrRefreshDates();                                  // даты — из реальных точек выбранного ряда
-    cbrDraw();                                          // таблица не должна зависеть от CDN Chart.js
-    loadChartJS(() => cbrDraw());
   });
+}
+
+function cbrBankRank(bank) {
+  const listed = ((BVAL && BVAL.banks) || []).find((b) => String(b.regnum) === String(bank.reg_num));
+  if (listed && isNum(listed.mcap_rub)) return [0, -listed.mcap_rub, bank.name || ''];
+  return [bank.is_systemically_important ? 1 : 2, 0, bank.name || ''];
 }
 
 function cbrBankOptions(sibOnly) {
   return CBR_DATA.banks.filter((b) => b.is_active && (!sibOnly || b.is_systemically_important))
+    .sort((a, b) => {
+      const ra = cbrBankRank(a), rb = cbrBankRank(b);
+      return ra[0] - rb[0] || ra[1] - rb[1] || String(ra[2]).localeCompare(String(rb[2]), 'ru');
+    })
     .map((b) => `<option value="${b.reg_num}">${esc(b.name)}${b.is_systemically_important ? ' ★' : ''}</option>`).join('');
 }
 
@@ -2395,11 +2407,8 @@ function cbrUIHTML(d) {
       <span class="cbr-chip"><span class="k">Проверка (Actions):</span> <b>${esc(upd)}</b></span>
       <span class="cbr-chip"><span class="k">Банков:</span> <b>${d.dq.banks_active}</b> · знач. <b>${d.dq.values_loaded}</b></span>
     </div>
-    <div class="cbr-note">${esc(m.note || '')}</div>
     <div class="cbr-chart-wrap"><canvas id="cbr-chart"></canvas></div>
     <div id="cbr-table-wrap"></div>
-    ${cbrQualityHTML(d.dq)}
-    <div class="cbr-disc">Значения — официальная отчётность ЦБ РФ (формы 102/123/135); каждая точка трассируется до символа/кода формы. «За период» — расчётная разность соседних накопленных значений Ф.102 (calculated_from_official). Не индивидуальная инвестиционная рекомендация.</div>
   `;
 }
 
@@ -2516,14 +2525,6 @@ function cbrChartDraw(s) {
     },
     plugins: [cbrBarLabels],
   });
-}
-
-function cbrQualityHTML(dq) {
-  const rows = (dq.banks || []).map((b) => `<tr><td class="cbr-bname">${esc(b.name)}</td>
-    <td><span class="cbr-status s-${esc(b.status)}">${esc(b.status)}</span></td>
-    <td>${(b.metrics_with_data || []).length}</td></tr>`).join('');
-  return `<details class="cbr-dq"><summary>Качество данных <span class="muted">(${dq.banks_active}/${dq.banks_total} активны · ${dq.banks_sib} СЗКО · ${dq.values_loaded} значений · ${dq.missing} пропусков)</span></summary>
-    <div class="cbr-table-scroll"><table class="cbr-table"><thead><tr><th>Банк</th><th>Статус</th><th>Метрик с данными</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
 }
 
 function cbrExcel() {
@@ -2712,6 +2713,8 @@ function finderExtra() {
 let BVAL = null;
 let BVAL_COE = 20;                 // percent, slider-driven
 let BVAL_SORT = { key: 'mcap_rub', dir: -1 };
+let BHIST = null;                  // site/cbr/history.json (price-vs-capital trajectory)
+let BHIST_SEL = null;             // currently selected ticker in the history chart
 
 function loadBanksValuation(cb) {
   if (BVAL) { cb(); return; }
@@ -2719,6 +2722,14 @@ function loadBanksValuation(cb) {
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.banks) throw new Error('empty'); BVAL = j; cb(); })
     .catch((e) => { console.error('[bval]', e); cb(e); });
+}
+
+function loadBanksHistory(cb) {
+  if (BHIST) { cb(); return; }
+  fetch('cbr/history.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.banks) throw new Error('empty'); BHIST = j; cb(); })
+    .catch((e) => { console.error('[bhist]', e); cb(e); });
 }
 
 function renderBanksValuation() {
@@ -2738,7 +2749,7 @@ function renderBanksValuation() {
       document.getElementById('bval-coe-val').textContent = BVAL_COE;
       bvalScatterDraw();
     });
-    loadChartJS(() => bvalScatterDraw());
+    loadChartJS(() => { bvalScatterDraw(); renderBvalHistory(); });
   });
 }
 
@@ -2756,6 +2767,14 @@ function bvalShellHTML(d) {
     <div id="bval-table-wrap"></div>
     <details class="bval-howto"><summary>Как читать таблицу</summary><dl class="bval-dl">${howto}</dl>
       <div class="muted" style="font-size:.78rem;margin-top:6px">${esc(m.reg_min_note || '')}</div></details>
+
+    <div class="bval-hist-box" id="bval-hist">
+      <div class="bval-hist-head"><b>Цена vs. капитал</b><span class="muted"> — когда линия цены ныряет под линию капитала, банк торгуется дешевле одного капитала (P/BV &lt; 1)</span></div>
+      <div class="bval-hist-chips" id="bval-hist-chips"></div>
+      <div class="bval-hist-stat" id="bval-hist-stat"></div>
+      <div class="bval-hist-wrap"><canvas id="bval-hist-canvas"></canvas></div>
+      <div class="bval-hist-cap muted" id="bval-hist-cap"></div>
+    </div>
 
     <div class="bval-scatter-box">
       <div class="bval-scatter-head">
@@ -2863,6 +2882,94 @@ function bvalScatterDraw() {
       },
     },
     plugins: [labelPlugin],
+  });
+}
+
+// ── price-vs-capital trajectory (site/cbr/history.json) ──────────────────────
+function renderBvalHistory() {
+  const box = document.getElementById('bval-hist');
+  if (!box) return;
+  loadBanksHistory((err) => {
+    const chips = document.getElementById('bval-hist-chips');
+    if (err || !BHIST) { box.style.display = 'none'; return; }
+    const banks = (BHIST.banks || []).filter((b) => (b.points || []).length);
+    if (!banks.length) { box.style.display = 'none'; return; }
+    if (!BHIST_SEL || !banks.some((b) => b.ticker === BHIST_SEL)) BHIST_SEL = banks[0].ticker;
+    chips.innerHTML = banks.map((b) => {
+      const cheap = b.cheap ? ' <span class="bh-cheap">&lt;1</span>' : '';
+      return `<button class="bh-chip${b.ticker === BHIST_SEL ? ' on' : ''}" data-tk="${esc(b.ticker)}" title="${esc(b.name)}">
+        <span class="bval-dot" style="background:${esc(b.color || '#888')}"></span>${esc(b.ticker)}${cheap}</button>`;
+    }).join('');
+    chips.querySelectorAll('.bh-chip').forEach((el) => el.addEventListener('click', () => {
+      BHIST_SEL = el.dataset.tk;
+      chips.querySelectorAll('.bh-chip').forEach((c) => c.classList.toggle('on', c.dataset.tk === BHIST_SEL));
+      bvalHistDraw();
+    }));
+    bvalHistDraw();
+  });
+}
+
+function bvalHistDraw() {
+  const canvas = document.getElementById('bval-hist-canvas');
+  if (!canvas || !window.Chart || !BHIST) return;
+  const b = (BHIST.banks || []).find((x) => x.ticker === BHIST_SEL);
+  if (!b || !(b.points || []).length) return;
+  const pts = b.points;
+  const labels = pts.map((p) => p.d);
+  const price = pts.map((p) => p.p);
+  const bvps = pts.map((p) => p.bv);
+  const cheapN = pts.filter((p) => p.pbv < 1).length;
+  const cheapPct = Math.round(100 * cheapN / pts.length);
+  const cur = isNum(b.last_pbv) ? b.last_pbv : pts[pts.length - 1].pbv;
+
+  // header stat: current verdict + how often it has been below one capital
+  const stat = document.getElementById('bval-hist-stat');
+  if (stat) {
+    const verdict = cur < 1
+      ? `<span class="bh-verdict cheap">дешевле капитала · P/BV ${cur.toFixed(2)}</span>`
+      : `<span class="bh-verdict rich">дороже капитала · P/BV ${cur.toFixed(2)}</span>`;
+    stat.innerHTML = `<span class="bh-name" style="border-color:${esc(b.color || '#888')}">${esc(b.name)}</span>${verdict}
+      <span class="muted">ниже 1 капитала: ${cheapPct}% времени окна (${cheapN}/${pts.length} мес.)</span>`;
+  }
+
+  // caption: window / warn / method
+  const cap = document.getElementById('bval-hist-cap');
+  if (cap) {
+    const warn = b.warn ? `<div class="bh-warn">⚠ ${esc(b.warn)}</div>` : '';
+    const clamp = b.split_clamp ? ` · окно с ${esc(b.split_clamp)} (сплит/реорганизация)` : '';
+    cap.innerHTML = `Зелёная зона — цена ниже капитала (P/BV&nbsp;&lt;&nbsp;1, потенциально дёшево), красная — выше.
+      Капитал на акцию = регуляторный капитал Ф.123&nbsp;/&nbsp;число акций; окно ${esc(pts[0].d)}–${esc(pts[pts.length - 1].d)}${clamp}.${warn}`;
+  }
+
+  if (window.__bhChart) { try { window.__bhChart.destroy(); } catch (e) { /* noop */ } }
+  window.__bhChart = new window.Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Цена, ₽', data: price, borderColor: b.color || '#2C6E9B', backgroundColor: b.color || '#2C6E9B',
+          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.15, order: 1,
+          fill: { target: 1, above: 'rgba(200,60,50,0.10)', below: 'rgba(33,160,56,0.16)' } },
+        { label: 'Капитал на акцию (P/BV = 1)', data: bvps, borderColor: '#7A8598', backgroundColor: '#7A8598',
+          borderWidth: 1.5, borderDash: [5, 4], pointRadius: 0, pointHoverRadius: 0, tension: 0.15, order: 2, fill: false },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A6472', maxTicksLimit: 9, autoSkip: true, maxRotation: 0 } },
+        y: { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' }, title: { display: true, text: '₽ на акцию', color: '#5A6472' } },
+      },
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 22, color: '#3A424E', font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (it) => `${it.dataset.label}: ${Number(it.raw).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`,
+            afterBody: (items) => { const p = pts[items[0].dataIndex]; return p ? `P/BV: ${p.pbv.toFixed(2)}${p.pbv < 1 ? '  — дешевле капитала' : ''}` : ''; },
+          },
+        },
+      },
+    },
   });
 }
 
