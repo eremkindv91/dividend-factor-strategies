@@ -17,13 +17,14 @@ from __future__ import annotations
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, datetime
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(REPO, "site")
 
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
+CURRENT_SEL = "all"
 
 
 def err(msg: str) -> None:
@@ -53,6 +54,13 @@ def is_num_or_na(x) -> bool:
 def as_date(s):
     try:
         return date.fromisoformat(str(s)[:10])
+    except (ValueError, TypeError):
+        return None
+
+
+def as_datetime(s):
+    try:
+        return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
     except (ValueError, TypeError):
         return None
 
@@ -225,12 +233,103 @@ def check_bonds() -> None:
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 
 
+def check_news() -> None:
+    d = load("news.json")
+    if d is None:
+        if CURRENT_SEL == "news":
+            err("news.json отсутствует")
+        else:
+            warn("news.json отсутствует — пропуск news")
+        return
+
+    required = {
+        "date": str,
+        "generated_at": str,
+        "session_open": str,
+        "external_backdrop": str,
+        "market_snapshot": list,
+        "overnight": list,
+        "yesterday": list,
+        "today_agenda": list,
+    }
+    for key, typ in required.items():
+        if not isinstance(d.get(key), typ):
+            err(f"news.json: {key} должен быть {typ.__name__}")
+
+    if as_date(d.get("date")) is None:
+        err(f"news.json: date не ISO date: {d.get('date')!r}")
+    if as_datetime(d.get("generated_at")) is None:
+        err(f"news.json: generated_at не ISO datetime: {d.get('generated_at')!r}")
+
+    market_groups = {"global_equity", "commodity", "fx", "ru_equity"}
+    for idx, row in enumerate(d.get("market_snapshot") or []):
+        if not isinstance(row, dict):
+            err(f"news.json: market_snapshot[{idx}] не object")
+            continue
+        for key in ("name", "value", "change_pct", "as_of", "group"):
+            if not isinstance(row.get(key), str):
+                err(f"news.json: market_snapshot[{idx}].{key} должен быть string")
+        if row.get("group") not in market_groups:
+            err(f"news.json: market_snapshot[{idx}].group неизвестен: {row.get('group')}")
+
+    categories = {"cb_policy", "banks", "markets", "macro", "corporate", "tech", "geopolitics"}
+    for section in ("overnight", "yesterday"):
+        for idx, item in enumerate(d.get(section) or []):
+            if not isinstance(item, dict):
+                err(f"news.json: {section}[{idx}] не object")
+                continue
+            for key in ("id", "headline", "context", "category", "published_at"):
+                if not isinstance(item.get(key), str):
+                    err(f"news.json: {section}[{idx}].{key} должен быть string")
+            if item.get("category") not in categories:
+                err(f"news.json: {section}[{idx}].category неизвестна: {item.get('category')}")
+            if not isinstance(item.get("investment_relevant"), bool):
+                err(f"news.json: {section}[{idx}].investment_relevant должен быть bool")
+            imp = item.get("importance")
+            if not isinstance(imp, int) or not (1 <= imp <= 5):
+                err(f"news.json: {section}[{idx}].importance должен быть int 1..5")
+            if as_datetime(item.get("published_at")) is None:
+                err(f"news.json: {section}[{idx}].published_at не ISO datetime")
+            sources = item.get("sources")
+            if not isinstance(sources, list) or not sources:
+                err(f"news.json: {section}[{idx}].sources пуст/не список")
+            else:
+                for sidx, src in enumerate(sources):
+                    if not isinstance(src, dict):
+                        err(f"news.json: {section}[{idx}].sources[{sidx}] не object")
+                        continue
+                    if not isinstance(src.get("name"), str) or not isinstance(src.get("url"), str):
+                        err(f"news.json: {section}[{idx}].sources[{sidx}] без name/url string")
+
+    agenda_types = {"dividend_cutoff", "earnings", "ofz_auction", "cb_minfin", "macro"}
+    for idx, item in enumerate(d.get("today_agenda") or []):
+        if not isinstance(item, dict):
+            err(f"news.json: today_agenda[{idx}] не object")
+            continue
+        for key in ("time", "event", "ticker", "type"):
+            if not isinstance(item.get(key), str):
+                err(f"news.json: today_agenda[{idx}].{key} должен быть string")
+        if item.get("type") not in agenda_types:
+            err(f"news.json: today_agenda[{idx}].type неизвестен: {item.get('type')}")
+        imp = item.get("importance")
+        if not isinstance(imp, int) or not (1 <= imp <= 5):
+            err(f"news.json: today_agenda[{idx}].importance должен быть int 1..5")
+
+    print(
+        f"  news.json: snapshot={len(d.get('market_snapshot') or [])}, "
+        f"overnight={len(d.get('overnight') or [])}, "
+        f"yesterday={len(d.get('yesterday') or [])}, agenda={len(d.get('today_agenda') or [])}"
+    )
+
+
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
-          "marlamov": [check_marlamov], "bonds": [check_bonds]}
+          "marlamov": [check_marlamov], "bonds": [check_bonds], "news": [check_news]}
 
 
 def main() -> int:
+    global CURRENT_SEL
     sel = sys.argv[1] if len(sys.argv) > 1 else "all"
+    CURRENT_SEL = sel
     groups = CHECKS if sel == "all" else {sel: CHECKS.get(sel, [])}
     print(f"=== validate_site_data: {sel} ===")
     for fns in groups.values():

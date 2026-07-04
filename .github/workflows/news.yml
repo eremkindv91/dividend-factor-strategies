@@ -1,0 +1,73 @@
+name: news (утренний блок рынка РФ)
+
+on:
+  schedule:
+    - cron: "30 5 * * 1-5"   # 08:30 МСК, по будням
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Общая группа с основными деплоями: все записи в gh-pages идут последовательно.
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build-news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Установка зависимостей news pipeline
+        run: python -m pip install --quiet -r news/requirements.txt
+
+      - name: Генерация site/news.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION: ${{ secrets.TG_SESSION }}
+        run: python -m news.generate_news
+
+      - name: Валидация news.json
+        run: |
+          test -f site/news.json
+          python scripts/validate_site_data.py news
+
+      - name: Commit site/news.json в source branch
+        run: |
+          if [ -z "$(git status --porcelain -- site/news.json)" ]; then
+            echo "[news] site/news.json без изменений"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/news.json
+          git commit -m "data(news): автообновление утреннего блока"
+          git push
+
+      - name: Additive publish news.json → gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --quiet --branch gh-pages --single-branch \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          cp site/news.json "$TMP/news.json"
+          touch "$TMP/.nojekyll"
+          if [ -z "$(git -C "$TMP" status --porcelain -- news.json .nojekyll)" ]; then
+            echo "[news] gh-pages/news.json без изменений"
+            rm -rf "$TMP"
+            exit 0
+          fi
+          git -C "$TMP" config user.name "github-actions[bot]"
+          git -C "$TMP" config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C "$TMP" add news.json .nojekyll
+          git -C "$TMP" commit -m "deploy(news): обновление утреннего блока"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

@@ -90,6 +90,7 @@ jobs:
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
+          [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           [ -d site/cbr ] && mkdir -p "$TMP/cbr" && cp site/cbr/*.json "$TMP/cbr/"   # данные банков ЦБ РФ (формы 102/123/135)
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js

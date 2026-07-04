@@ -1,0 +1,25 @@
+telegram:
+  # 1. Оперативные новости / раскрытие
+  - {handle: "@interfax_news",    tier: A, cat: news}
+  - {handle: "@markettwits",      tier: A, cat: news}
+  - {handle: "@rbc_investments",  tier: A, cat: news}
+  - {handle: "@smartlabru",       tier: A, cat: corp}
+  - {handle: "@if_market_news",   tier: A, cat: news}
+  # 2. Макро / ЦБ / ликвидность
+  - {handle: "@mmi_ru",           tier: A, cat: macro}
+  - {handle: "@dohod",            tier: A, cat: macro}
+  - {handle: "@spydell_finance",  tier: B, cat: macro}
+  # 3. Корпоративный анализ
+  - {handle: "@firm_research",    tier: B, cat: corp}
+  - {handle: "@e_financials",     tier: B, cat: corp}
+  - {handle: "@Vataphor",         tier: B, cat: corp}
+  - {handle: "@mozgovikresearch", tier: B, cat: corp}
+  # Frank Media
+  - {handle: "@frank_media",        tier: A, cat: news}
+  - {handle: "@frank_media_invest", tier: A, cat: corp}
+rss:
+  # Проверять периодически: URL у российских медиа меняются, часть фидов может быть пустой.
+  - {name: "Коммерсантъ", tier: A, url: "https://www.kommersant.ru/RSS/news.xml"}
+  - {name: "РБК",         tier: A, url: "https://rssexport.rbc.ru/rbcnews/news/30/full.rss"}
+  - {name: "Ведомости",   tier: A, url: "https://www.vedomosti.ru/rss/news"}
+  - {name: "Frank Media", tier: A, url: "https://frankmedia.ru/feed"}
