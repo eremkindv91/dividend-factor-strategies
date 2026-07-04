@@ -11,6 +11,9 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const mdash = '<span class="muted" title="нет данных">—</span>';
 const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+// хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
+// top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
+let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -912,7 +915,7 @@ function portfolioMetrics(items, capital) {
 // time-varying безрисковая: средняя ключевая ставка ЦБ по годам (а не одна цифра — период 2019-26 ставка гуляла 4-21%)
 const RF_BY_YEAR = { 2019: 0.074, 2020: 0.051, 2021: 0.058, 2022: 0.106, 2023: 0.095, 2024: 0.175, 2025: 0.19, 2026: 0.165 };
 const RET_WINSOR = 0.40;       // винзоризация месячных доходностей ±40% — гасит артефакт закрытия MOEX (фев-мар 2022)
-let PF_RETURNS = null;
+PF_RETURNS = null;
 let PF_RET_LOADING = false;
 function loadReturns(cb) {
   if (PF_RETURNS) { if (cb) cb(); return; }
@@ -1211,57 +1214,512 @@ function myPortfolioActions(m) {
   return actions.slice(0, 8);
 }
 
+let PFX_STATE = null;              // последний расчёт (для кнопок экспорт/копирование)
+
 function renderMyPortfolio() {
   const out = document.getElementById('mp-out');
   const input = document.getElementById('mp-input');
   if (!out || !input) return;
-  if (!DATA) {
-    out.innerHTML = '<div class="mp-empty muted">Загрузка data.json...</div>';
-    return;
-  }
+  if (!DATA) { out.innerHTML = '<div class="mp-empty muted">Загрузка data.json…</div>'; return; }
   const rows = parseMyPortfolioInput(input.value);
   if (!rows.length) {
     out.innerHTML = `<div class="mp-empty mp-empty-rich">
       <b>Портфель пока пуст</b>
-      <span>Вставь позиции строками или загрузи пример.</span>
-      <code>SBER; 100; 310</code>
-      <em>Расчёт локальный: файл не отправляется на сервер.</em>
+      <span>Вставьте позиции строками или загрузите пример. Формат: <code>тикер; количество; средняя цена</code></span>
+      <em>Расчёт локальный, в браузере: файл никуда не отправляется. Не ИИР.</em>
     </div>`;
     return;
   }
-  const m = myPortfolioMetrics(rows);
+  // риск-движок требует returns.json + MCFTR (marketsaw) + RFR (marlamov) — грузим лениво
+  if (!PF_RETURNS && typeof loadReturns === 'function') { loadReturns(() => renderMyPortfolio()); }
+  if (!SAW_DATA && typeof loadMarketSaw === 'function') { loadMarketSaw(() => renderMyPortfolio()); }
+  if (!MARLAMOV && typeof loadMarlamov === 'function') { loadMarlamov(() => renderMyPortfolio()); }
+  const c = pfxCompute(rows);
+  PFX_STATE = c;
   myPortfolioSave(rows);
-  const tone = m.score >= 75 ? 'good' : (m.score >= 50 ? 'warn' : 'risk');
-  const sectorRows = m.sectors.map(([s, w]) => `<div class="mp-secrow"><span>${esc(s)}</span><i><b style="width:${Math.min(100, w * 100).toFixed(0)}%"></b></i><em>${ru(w * 100, 0)}%</em></div>`).join('');
-  const positionRows = m.positions.map((p) => {
-    const pnl = p.pnl_pct == null ? mdash : `<span class="${p.pnl_pct >= 0 ? 'saw-up' : 'saw-down'}">${sawPct(p.pnl_pct)}</span>`;
-    const verdict = p.t ? verdictChip(p.t.verdict, false) : '<span class="badge b-neut">нет данных</span>';
-    return `<tr><td class="left"><b>${esc(p.ticker)}</b><span class="muted"> ${esc(p.sector)}</span></td>
-      <td class="tnum">${ru(p.weight * 100, 1)}%</td>
-      <td class="tnum">${fmtRub(Math.round(p.value))}</td>
-      <td class="tnum">${p.current_price != null ? fmtRub(p.current_price) : mdash}</td>
-      <td class="tnum">${pnl}</td>
-      <td class="tnum">${isNum(p.dividend_yield) ? fmtPct(p.dividend_yield, 1) : mdash}</td>
-      <td class="left">${verdict}</td>
-      <td class="left"><span class="mp-dq mp-dq-${p.data_quality.status}">${esc(p.data_quality.label)}</span></td></tr>`;
+  out.innerHTML = pfxRenderHTML(c);
+  pfxDrawCharts(c);
+  pfxWireButtons(c);
+}
+
+// ── формат-хелперы (frac = доля; PU = уже проценты) ──────────────────────────
+const PP = (frac, d) => (isNum(frac) ? ((frac >= 0 ? '+' : '') + ru(frac * 100, d == null ? 1 : d) + '%') : mdash);
+const PN = (frac, d) => (isNum(frac) ? (ru(frac * 100, d == null ? 1 : d) + '%') : mdash);   // без знака
+const PU = (v, d) => (isNum(v) ? ru(v, d == null ? 2 : d) : mdash);
+const NA = '<span class="pfx-na">недоступно</span>';
+function pfxKpi(label, value, sub, tone) {
+  return `<div class="pfx-kpi${tone ? ' pfx-' + tone : ''}"><span class="pfx-kl">${label}</span><b class="pfx-kv">${value}</b>${sub ? `<em class="pfx-ks">${sub}</em>` : ''}</div>`;
+}
+function pfxConfBadge(level) {
+  const m = { high: ['высокая', 'good'], medium: ['средняя', 'neut'], low: ['низкая', 'warn'], very_low: ['очень низкая', 'risk'], unavailable: ['недоступно', 'risk'] };
+  const v = m[level] || m.medium; return `<span class="pfx-conf pfx-${v[1]}">confidence: ${v[0]}</span>`;
+}
+function pfxDetails(title, sub, inner, open) {
+  return `<details class="mapwrap pfx-mod"${open ? ' open' : ''}><summary>${esc(title)}${sub ? ` <span class="muted">${esc(sub)}</span>` : ''}</summary><div class="pfx-mod-body">${inner}</div></details>`;
+}
+
+// пересчёт метрик для набора весов (для сравнения current vs suggested)
+function pfxScenarioMetrics(tickers, weights, bench, rf) {
+  const series = [];
+  const trs = tickers.map((tk) => pfxTickerTotalReturns(tk));
+  if (trs.some((x) => !x)) return null;
+  const minLen = Math.min(...trs.map((x) => x.length));
+  for (let m = 0; m < minLen; m++) { let r = 0; trs.forEach((tr, i) => { r += weights[i] * tr[tr.length - minLen + m]; }); series.push(r); }
+  const perf = pfxPerf(series, rf.monthly);
+  const vaR = pfxVaR(series);
+  const capm = bench ? pfxCapm(series, bench, rf.monthly) : null;
+  const top1 = Math.max(...weights), top3 = weights.slice().sort((a, b) => b - a).slice(0, 3).reduce((a, b) => a + b, 0);
+  return { perf, vaR, capm, top1, top3, series };
+}
+
+// ── главный рендер ───────────────────────────────────────────────────────────
+function pfxRenderHTML(c) {
+  const diag = pfxDiagnosis(c);
+  const benchPerf = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
+  let html = '';
+
+  // 0. Заголовок + дисклеймеры
+  html += `<div class="pfx-top">
+    <div class="pfx-type pfx-${c.cls.tone}">${esc(c.cls.type)}</div>
+    <div class="pfx-diag">${esc(diag)}</div>
+    <div class="pfx-btns">
+      <button class="btn btn-secondary" id="pfx-copy">Скопировать отчёт</button>
+      <button class="btn btn-secondary" id="pfx-export">Экспорт диагностики CSV</button>
+    </div>
+  </div>
+  <div class="pfx-disc">Backfilled-портфель по <b>текущему составу</b> и историческим месячным ретёрнам — это НЕ фактическая история ваших сделок. Данные месячные (${c.pf ? c.pf.n + ' мес' : 'н/д'}); дневной риск не оценивается. Не индивидуальная инвестиционная рекомендация.</div>`;
+
+  // 1. Portfolio X-Ray — KPI grid
+  const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
+  const g = [];
+  g.push(pfxKpi('Стоимость', rub0(c.total)));
+  g.push(pfxKpi('Вложено (по средней)', rub0(c.cost)));
+  g.push(pfxKpi('Нереализ. P&L', rub0(pnlAbs), PP(pnlPct), pnlAbs >= 0 ? 'good' : 'risk'));
+  g.push(pfxKpi('Ожид. дивдоходность', PU(c.grossYield, 1) + '%', 'gross', 'neut'));
+  g.push(pfxKpi('Ожид. дивдоход/год', c.div ? rub0(c.div.baseIncome) : NA, 'risk-adj ' + (c.div ? rub0(c.div.riskAdj) : '')));
+  g.push(pfxKpi('Beta к MCFTR', c.capm && c.capm.ok ? PU(c.capm.beta, 2) : NA, c.capm && c.capm.ok ? pfxBetaBucket(c.capm.beta) : ''));
+  g.push(pfxKpi('Alpha (ист., год)', c.capm && c.capm.ok ? PP(c.capm.alphaAnn) : NA));
+  g.push(pfxKpi('Sharpe', c.perf && isNum(c.perf.sharpe) ? PU(c.perf.sharpe, 2) : NA, c.rf.ok ? '' : 'RFR н/д'));
+  g.push(pfxKpi('Sortino', c.perf && isNum(c.perf.sortino) ? PU(c.perf.sortino, 2) : NA));
+  g.push(pfxKpi('Calmar', c.perf && isNum(c.perf.calmar) ? PU(c.perf.calmar, 2) : NA));
+  g.push(pfxKpi('Max Drawdown', c.perf ? PN(c.perf.mdd) : NA, c.perf && c.perf.recovery != null ? `восст. ${c.perf.recovery} мес` : '', 'risk'));
+  g.push(pfxKpi('VaR 95% (мес)', c.vaR && c.vaR.ok ? PN(c.vaR.hist95) : NA, c.vaR && c.vaR.ok ? rub0(c.vaR.hist95 * c.total) : '', 'risk'));
+  g.push(pfxKpi('CVaR 95% (мес)', c.vaR && c.vaR.ok ? PN(c.vaR.cvar95) : NA, c.vaR && c.vaR.ok ? rub0(c.vaR.cvar95 * c.total) : '', 'risk'));
+  g.push(pfxKpi('Tracking Error', c.capm && c.capm.ok ? PN(c.capm.te) : NA));
+  g.push(pfxKpi('Information Ratio', c.capm && c.capm.ok && isNum(c.capm.ir) ? PU(c.capm.ir, 2) : NA));
+  g.push(pfxKpi('Downside Capture', c.capm && c.capm.ok && isNum(c.capm.dnCapture) ? PN(c.capm.dnCapture, 0) : NA));
+  g.push(pfxKpi('Top-3 концентрация', PN(c.top3, 0), '', c.top3 > 0.6 ? 'risk' : c.top3 > 0.45 ? 'warn' : 'good'));
+  g.push(pfxKpi('Эфф. число бумаг', PU(c.effN, 1), `из ${c.positions.length}`));
+  g.push(pfxKpi('Data Quality', c.dq.score + '/100', '', c.dq.score >= 70 ? 'good' : c.dq.score >= 45 ? 'warn' : 'risk'));
+  html += pfxDetails('Portfolio X-Ray', '(верхняя диагностика портфеля)', `<div class="pfx-grid">${g.join('')}</div>`, true);
+
+  // 2. Performance vs MCFTR
+  html += pfxDetails('Performance vs MCFTR', '(total return, риск-adjusted)', pfxPerfHTML(c, benchPerf));
+
+  // 3. Alpha / Beta
+  html += pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
+
+  // 4. Dynamic Risk Engine (VaR)
+  html += pfxDetails('Динамический риск: VaR / CVaR', '(месячная база — дневной VaR недоступен)', pfxVaRHTML(c));
+
+  // 5. Risk Budget
+  html += pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c));
+
+  // 6. Dividend Stress Test
+  html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
+
+  // 7. Bootstrap
+  html += pfxDetails('Bootstrap Scenario Lab', '(resampling истории, не прогноз)', pfxBootHTML(c));
+
+  // 8. Smart Rebalancer
+  html += pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
+
+  // 9. Allocation
+  html += pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c));
+
+  // 10. Position Diagnostics
+  html += pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c));
+
+  // 11. Investment Committee Memo
+  const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
+  html += pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`);
+
+  // 12. Data Quality
+  html += pfxDetails('Data Quality Layer', '(confidence по бумагам)', pfxDQHTML(c));
+
+  // 13. Methodology
+  html += pfxDetails('Методология и предупреждения', '', pfxMethodHTML());
+  return html;
+}
+
+function pfxDiagnosis(c) {
+  const parts = [];
+  parts.push(`Портфель классифицирован как «${c.cls.type}»`);
+  if (c.capm && c.capm.ok) parts.push(`beta к MCFTR = ${ru(c.capm.beta, 2)}`);
+  parts.push(`top-3 = ${ru(c.top3 * 100, 0)}% портфеля`);
+  if (c.riskBudget && c.riskBudget.ok) parts.push(`главный risk driver — ${c.riskBudget.rows[0].ticker} (${ru(c.riskBudget.rows[0].share * 100, 0)}% риска)`);
+  if (c.capm && c.capm.ok && isNum(c.capm.dnCapture)) parts.push(`downside capture = ${ru(c.capm.dnCapture * 100, 0)}%`);
+  if (c.div && c.div.baseIncome > 0) { const cutShare = c.div.topRisk.reduce((s, it) => s + it.base * (it.cr || 0), 0) / c.div.baseIncome;
+    if (cutShare > 0.2) parts.push(`~${ru(cutShare * 100, 0)}% дивпотока — бумаги с повышенным cut risk`); }
+  return parts.join('; ') + '.';
+}
+
+// ── модуль 2: Performance vs MCFTR ───────────────────────────────────────────
+function pfxPerfHTML(c, bp) {
+  if (!c.perf) return `<div class="pfx-note">${NA}: недостаточно истории по бумагам портфеля для перформанс-метрик.</div>`;
+  const p = c.perf;
+  const row = (lbl, a, b) => `<tr><td class="left">${lbl}</td><td class="tnum">${a}</td><td class="tnum">${b}</td></tr>`;
+  const warn = p.n < 24 ? `<div class="pfx-warn">История ${p.n} мес (&lt; 2 лет): годовые метрики нестабильны.</div>` : '';
+  const covered = c.pf && c.pf.covered < 0.99 ? `<div class="pfx-warn">Риск-метрики покрывают ${ru(c.pf.covered * 100, 0)}% веса (бумаги без истории исключены).</div>` : '';
+  const t = `<table class="pfx-tbl"><thead><tr><th class="left">Метрика</th><th>Портфель</th><th>MCFTR</th></tr></thead><tbody>
+    ${row('Total return (окно)', PP(p.totalRet), bp ? PP(bp.totalRet) : NA)}
+    ${row('CAGR', PP(p.cagr), bp ? PP(bp.cagr) : NA)}
+    ${row('Ann. volatility', PN(p.volAnn), bp ? PN(bp.volAnn) : NA)}
+    ${row('Sharpe', PU(p.sharpe, 2), bp ? PU(bp.sharpe, 2) : NA)}
+    ${row('Sortino', PU(p.sortino, 2), bp ? PU(bp.sortino, 2) : NA)}
+    ${row('Calmar', PU(p.calmar, 2), bp ? PU(bp.calmar, 2) : NA)}
+    ${row('Max Drawdown', PN(p.mdd), bp ? PN(bp.mdd) : NA)}
+    ${row('Восстановление, мес', p.recovery == null ? 'не восстановился' : p.recovery, bp && bp.recovery != null ? bp.recovery : '—')}
+    ${row('Win months', PN(p.winPct, 0), bp ? PN(bp.winPct, 0) : NA)}
+    ${row('Лучший / худший мес', PP(p.best) + ' / ' + PP(p.worst), bp ? PP(bp.best) + ' / ' + PP(bp.worst) : NA)}
+    ${row('1M / 3M / 6M', [p.ret1m, p.ret3m, p.ret6m].map((x) => PP(x)).join(' / '), '')}
+    ${row('1Y / 3Y', [p.ret1y, p.ret3y].map((x) => PP(x)).join(' / '), '')}
+  </tbody></table>`;
+  return `${warn}${covered}<div class="pfx-2col">${t}<div class="pfx-charts">
+    <div class="pfx-chart-wrap"><canvas id="pfx-equity"></canvas></div>
+    <div class="pfx-chart-wrap"><canvas id="pfx-drawdown"></canvas></div></div></div>
+    <div class="pfx-note muted">Total return = ценовой ретёрн + реальные месячные дивиденды (returns.json). MCFTR — индекс полной доходности, сопоставим корректно.</div>`;
+}
+
+// ── модуль 3: Alpha / Beta ───────────────────────────────────────────────────
+function pfxCapmHTML(c) {
+  if (!c.capm || !c.capm.ok) return `<div class="pfx-note">${NA}: ${c.bench ? (c.capm && c.capm.reason || 'мало наблюдений') : 'нет выравнивания с MCFTR'} — alpha/beta не считаются.</div>`;
+  const m = c.capm;
+  const cell = (l, v) => `<div class="pfx-mc"><span>${l}</span><b>${v}</b></div>`;
+  let interp;
+  if (m.beta > 1.4) interp = 'high beta / leveraged-like: в падениях просадка сильнее рынка';
+  else if (m.beta > 1.1) interp = 'aggressive: выше рыночного риска';
+  else if (m.beta < 0.8) interp = 'defensive: ниже рыночного риска';
+  else interp = 'market-like';
+  let al;
+  if (m.alphaAnn > 0 && isNum(m.ir) && m.ir > 0.5) al = 'положительная alpha при IR>0.5 — заметное активное отклонение (исторически)';
+  else if (m.alphaAnn > 0 && m.r2 < 0.5) al = 'положительная alpha при низком R² — результат может быть idiosyncratic, осторожно';
+  else if (m.alphaAnn < 0 && m.beta > 1.1) al = 'отрицательная alpha при высокой beta — слабый профиль риск/доходность';
+  else al = m.alphaAnn >= 0 ? 'положительная историческая alpha' : 'отрицательная историческая alpha';
+  return `<div class="pfx-mcgrid">
+    ${cell('Beta', PU(m.beta, 2))}${cell('Alpha (год)', PP(m.alphaAnn))}${cell('t-stat alpha', isNum(m.tAlpha) ? PU(m.tAlpha, 2) : mdash)}
+    ${cell('R²', PU(m.r2, 2))}${cell('Корреляция', PU(m.corr, 2))}${cell('Residual vol', PN(m.residVolAnn))}
+    ${cell('Tracking Error', PN(m.te))}${cell('Information Ratio', isNum(m.ir) ? PU(m.ir, 2) : mdash)}${cell('Treynor', isNum(m.treynor) ? PP(m.treynor) : mdash)}
+    ${cell('Upside capture', isNum(m.upCapture) ? PN(m.upCapture, 0) : mdash)}${cell('Downside capture', isNum(m.dnCapture) ? PN(m.dnCapture, 0) : mdash)}${cell('Bull / Bear (год)', PP(m.bull) + ' / ' + PP(m.bear))}
+  </div>
+  <div class="pfx-interp"><b>Beta:</b> ${esc(interp)}. <b>Alpha:</b> ${esc(al)}.</div>
+  <div class="pfx-note muted">Alpha рассчитана исторически на ${m.n} мес и не является прогнозом будущей доходности.</div>`;
+}
+
+// ── модуль 4: VaR ────────────────────────────────────────────────────────────
+function pfxVaRHTML(c) {
+  if (!c.vaR || !c.vaR.ok) return `<div class="pfx-note">${NA}: недостаточно истории для VaR.</div>`;
+  const v = c.vaR, T = c.total;
+  const card = (lbl, frac) => `<div class="pfx-varcard"><span>${lbl}</span><b>${PN(frac)}</b><em>${rub0(frac * T)}</em></div>`;
+  const cards = [
+    card('Historical VaR 95%', v.hist95), card('Historical VaR 99%', v.hist99),
+    card('Historical CVaR 95%', v.cvar95), card('Historical CVaR 99%', v.cvar99),
+    card('Parametric Gaussian 95%', v.gauss95), card('Cornish-Fisher 95%', v.cf95),
+  ].join('');
+  const bt = c.backtest && c.backtest.ok
+    ? `Backtest (rolling 24-мес VaR 95%): ${c.backtest.breaches} пробитий из ${c.backtest.obs} (${ru(c.backtest.freq * 100, 1)}% при ожидаемых 5%). ${c.backtest.freq > 0.09 ? 'VaR может недооценивать риск.' : c.backtest.freq < 0.02 ? 'VaR консервативен.' : 'В пределах ожидания.'} ${c.backtest.obs < 24 ? 'Мало наблюдений — low confidence.' : ''}`
+    : 'Backtest: недостаточно истории.';
+  // risk regime по drawdown + текущей vol
+  let regime = 'Data Insufficient', rtone = 'neut';
+  if (c.perf) {
+    const curDD = c.perf.cum[c.perf.cum.length - 1] / Math.max(...c.perf.cum) - 1;
+    if (curDD < -0.15) { regime = 'Stress Regime'; rtone = 'risk'; }
+    else if (v.sd > 0 && Math.abs(v.hist95) > Math.abs(v.mu) + 2.2 * v.sd) { regime = 'High Risk'; rtone = 'risk'; }
+    else if (curDD < -0.08) { regime = 'Elevated Risk'; rtone = 'warn'; }
+    else { regime = 'Normal Risk'; rtone = 'good'; }
+  }
+  const activeVar = (c.bench && c.pf) ? pfxPercentile(c.pf.series.map((r, i) => r - c.bench[c.bench.length - c.pf.series.length + i]), 0.05) : null;
+  return `<div class="pfx-varcards">${cards}</div>
+    <div class="pfx-varmeta">
+      <div class="pfx-regime pfx-${rtone}">Режим риска: <b>${regime}</b></div>
+      ${pfxConfBadge(v.conf)}
+      <span>Active VaR vs MCFTR 95%: <b>${activeVar != null ? PN(activeVar) : NA}</b></span>
+      <span>skew ${PU(v.skew, 2)} · kurt ${PU(v.kurt, 2)}</span>
+    </div>
+    <div class="pfx-note">${esc(bt)}</div>
+    ${v.conf === 'low' || v.conf === 'very_low' ? `<div class="pfx-warn">VaR рассчитан на короткой истории (${v.n} мес); хвостовой риск может быть недооценён.</div>` : ''}
+    <div class="pfx-note muted">Данные месячные: дневной VaR, rolling 63/126/252-дн, EWMA λ=0.94 daily и дневной backtest — <b>недоступны</b> (нет дневных рядов по бумагам). VaR не показывает максимальный возможный убыток; CVaR информативнее (средний убыток за порогом).</div>`;
+}
+
+// ── модуль 5: Risk Budget ────────────────────────────────────────────────────
+function pfxRiskBudgetHTML(c) {
+  const rb = c.riskBudget;
+  if (!rb || !rb.ok) return `<div class="pfx-note">${NA}: нужно ≥2 бумаги с историей ≥12 мес.</div>`;
+  const rows = rb.rows.map((r) => {
+    const flag = r.share > 0.25 ? '<span class="pfx-tag risk">main risk driver</span>'
+      : (r.share > r.weight * 1.3 ? '<span class="pfx-tag warn">hidden risk driver</span>' : '');
+    return `<tr><td class="left"><b>${esc(r.ticker)}</b></td><td class="tnum">${PN(r.weight, 1)}</td>
+      <td class="tnum">${PN(r.share, 1)}</td><td class="tnum">${PN(r.indivVol)}</td><td class="left">${flag}</td></tr>`;
   }).join('');
-  const actions = myPortfolioActions(m).map((a) => `<div class="mp-action mp-action-${a.tone}"><b>${esc(a.title)}</b><span>${esc(a.body)}</span></div>`).join('');
-  out.innerHTML = `<div class="mp-health mp-health-${tone}">
-      <div class="mp-score"><span>Health score</span><b>${m.score}/100</b><em>исследовательский скор, не ИИР</em></div>
-      <div class="mp-kpis">
-        <div><span>Стоимость</span><b>${fmtRub(Math.round(m.total))}</b></div>
-        <div><span>Див. доходность gross</span><b>${fmtPct(m.gross_yield, 1)}</b><em>${m.spread_to_rfr == null ? 'RFR н/д' : `spread к RFR: ${ru(m.spread_to_rfr, 1)} п.п.`}</em></div>
-        <div><span>Доход/год net</span><b>${fmtRub(Math.round(m.income_net))}</b></div>
-        <div><span>Устойчивость</span><b>${fmtPct(m.stability * 100, 0)}</b></div>
-      </div>
+  return `${rb.approx ? '<div class="pfx-warn">Risk contribution approximated: ковариация усажена из-за короткой истории.</div>' : ''}
+    <div class="pfx-2col"><div class="pfx-chart-wrap"><canvas id="pfx-riskbudget"></canvas></div>
+    <table class="pfx-tbl"><thead><tr><th class="left">Бумага</th><th>Вес</th><th>Вклад в риск</th><th>Индив. vol</th><th class="left">Флаг</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="pfx-note muted">Component risk contribution: RCᵢ = wᵢ·(Σw)ᵢ / (w'Σw). Портфельная волатильность ${PN(rb.sigmaAnn)} годовых.</div>`;
+}
+
+// ── модуль 6: Dividend Stress ────────────────────────────────────────────────
+function pfxDivHTML(c) {
+  const d = c.div;
+  if (!d || d.baseIncome <= 0) return `<div class="pfx-note">${NA}: нет дивпрогноза по бумагам портфеля.</div>`;
+  const sc = (lbl, val, tone) => `<div class="pfx-scen pfx-${tone}"><span>${lbl}</span><b>${rub0(val)}</b><em>${PN(val / d.baseIncome - 1)} к base</em></div>`;
+  const scen = sc('Base', d.scen.base, 'good') + sc('Conservative', d.scen.conservative, 'neut') + sc('Stress', d.scen.stress, 'warn') + sc('Crisis', d.scen.crisis, 'risk');
+  const topInc = d.topIncome.map((it) => `<li><b>${esc(it.ticker)}</b> ${rub0(it.base)} <span class="muted">(${PN(it.share, 0)})</span></li>`).join('');
+  const topRisk = d.topRisk.map((it) => `<li><b>${esc(it.ticker)}</b> cut risk ${PN(it.cr, 0)} · ${rub0(it.base)}</li>`).join('');
+  const traps = d.traps.length ? `<div class="pfx-warn">Yield trap risk (высокая доходность + высокий cut risk): ${d.traps.map(esc).join(', ')}.</div>` : '';
+  const dep = d.topShare > 0.25 ? `<div class="pfx-warn">Зависимость от одного эмитента: ${esc(d.topIncome[0].ticker)} даёт ${PN(d.topShare, 0)} дивпотока.</div>` : '';
+  return `<div class="pfx-scens">${scen}</div>
+    <div class="pfx-riskrow"><div class="pfx-chart-wrap"><canvas id="pfx-divwater"></canvas></div>
+    <div class="pfx-divlists"><div><h4>Top-5 дивпоток</h4><ul>${topInc}</ul></div><div><h4>Top-5 дивриск</h4><ul>${topRisk || '<li class="muted">н/д</li>'}</ul></div></div></div>
+    <div class="pfx-kpi-inline">Income at risk: <b class="pfx-risk-ink">${rub0(d.atRisk)}</b> (base ${rub0(d.baseIncome)} → risk-adjusted ${rub0(d.riskAdj)})</div>
+    ${traps}${dep}
+    ${d.noData.length ? `<div class="pfx-note muted">Без дивданных: ${d.noData.slice(0, 8).map(esc).join(', ')}${d.noData.length > 8 ? '…' : ''}.</div>` : ''}
+    <div class="pfx-note muted">payout probability = 1 − cut_risk (ML-оценка проекта). Сценарии — диагностические, не прогноз выплат.</div>`;
+}
+
+// ── модуль 7: Bootstrap ──────────────────────────────────────────────────────
+function pfxBootHTML(c) {
+  const b = c.boot;
+  if (!b || !b.ok) return `<div class="pfx-note">${NA}: ${b && b.reason ? b.reason : 'нет бенчмарка/истории'}.</div>`;
+  const frag = Math.round(100 * (0.35 * (1 - b.pBeat) + 0.2 * b.pNegExcess + 0.15 * Math.min(1, Math.abs(b.mdd[0]) / 0.4) + 0.15 * Math.min(1, c.top3) + 0.15 * (c.vaR && c.vaR.ok ? Math.min(1, Math.abs(c.vaR.hist95) / 0.15) : 0.3)));
+  const prob = (lbl, p) => `<div class="pfx-prob"><span>${lbl}</span><b>${ru(p * 100, 0)}%</b></div>`;
+  const perc = (lbl, arr, fmt) => `<tr><td class="left">${lbl}</td><td class="tnum">${fmt(arr[0])}</td><td class="tnum">${fmt(arr[1])}</td><td class="tnum">${fmt(arr[2])}</td></tr>`;
+  return `<div class="pfx-probs">
+    ${prob('Обойти MCFTR (доходность)', b.pBeat)}${prob('Меньшая просадка чем MCFTR', b.pLowerDD)}${prob('Отрицат. excess return', b.pNegExcess)}
+    <div class="pfx-prob pfx-${frag > 60 ? 'risk' : frag > 40 ? 'warn' : 'good'}"><span>Fragility score</span><b>${frag}/100</b></div>
     </div>
-    <div class="mp-layout">
-      <div class="mp-panel"><h3>Что проверить сегодня</h3><div class="mp-actions-list">${actions}</div></div>
-      <div class="mp-panel"><h3>Секторная структура</h3>${sectorRows || '<div class="muted">нет данных</div>'}</div>
-    </div>
-    <div class="mp-panel"><h3>Позиции</h3>
-      <table class="mp-table"><thead><tr><th class="left">Бумага</th><th>Вес</th><th>Стоимость</th><th>Цена</th><th>P/L</th><th>DY</th><th class="left">Вердикт</th><th class="left">Данные</th></tr></thead><tbody>${positionRows}</tbody></table>
-    </div>`;
+    <div class="pfx-2col"><div class="pfx-chart-wrap"><canvas id="pfx-boothist"></canvas></div>
+    <table class="pfx-tbl"><thead><tr><th class="left">Перцентиль (1 год)</th><th>P5</th><th>P50</th><th>P95</th></tr></thead><tbody>
+      ${perc('CAGR', b.cagr, PP)}${perc('Max Drawdown', b.mdd, PN)}${perc('Sharpe', b.sharpe, (x) => PU(x, 2))}
+    </tbody></table></div>
+    <div class="pfx-note muted">${b.sims} симуляций, resample месячных доходностей на 12 мес. Bootstrap — оценка устойчивости по истории, НЕ прогноз будущей доходности.</div>`;
+}
+
+// ── модуль 8: Smart Rebalancer ───────────────────────────────────────────────
+function pfxRebalHTML(c) {
+  const modes = [['lowrisk', 'Lower Risk'], ['sharpe', 'Better Sharpe'], ['dividend', 'Dividend Stability']];
+  c._rebal = {};
+  modes.forEach(([m]) => { const r = pfxRebalance(c.positions, m); if (r) { r.metrics = pfxScenarioMetrics(r.tickers, r.weights, c.bench, c.rf); c._rebal[m] = r; } });
+  if (!Object.keys(c._rebal).length) return `<div class="pfx-note">${NA}: нужно ≥2 бумаги с данными.</div>`;
+  const btns = modes.filter(([m]) => c._rebal[m]).map(([m, l], i) => `<button class="pfx-rbtn${i === 0 ? ' on' : ''}" data-mode="${m}">${l}</button>`).join('');
+  return `<div class="pfx-rbtns">${btns}</div><div id="pfx-rebal-body">${pfxRebalScenarioHTML(c, modes.find(([m]) => c._rebal[m])[0])}</div>
+    <div class="pfx-note muted">Suggested Diagnostic Weights — аналитический сценарий (эвристический скоринг + лимит 15%/бумага), НЕ индивидуальная инвестиционная рекомендация.</div>`;
+}
+function pfxRebalScenarioHTML(c, mode) {
+  const r = c._rebal[mode]; if (!r) return '';
+  const cur = c.perf, m = r.metrics;
+  const cmp = (l, a, b, fmt) => `<tr><td class="left">${l}</td><td class="tnum">${fmt(a)}</td><td class="tnum">${fmt(b)}</td></tr>`;
+  const comp = m ? `<table class="pfx-tbl"><thead><tr><th class="left">Метрика</th><th>Текущий</th><th>Сценарий</th></tr></thead><tbody>
+    ${cmp('CAGR', cur && cur.cagr, m.perf.cagr, PP)}${cmp('Ann. vol', cur && cur.volAnn, m.perf.volAnn, PN)}
+    ${cmp('Sharpe', cur && cur.sharpe, m.perf.sharpe, (x) => PU(x, 2))}${cmp('Max DD', cur && cur.mdd, m.perf.mdd, PN)}
+    ${cmp('VaR 95%', c.vaR && c.vaR.hist95, m.vaR && m.vaR.hist95, PN)}${cmp('Beta', c.capm && c.capm.beta, m.capm && m.capm.beta, (x) => PU(x, 2))}
+    ${cmp('Top-1 / Top-3', null, null, () => '')}
+    <tr><td class="left">Top-3 концентрация</td><td class="tnum">${PN(c.top3, 0)}</td><td class="tnum">${PN(m.top3, 0)}</td></tr>
+    <tr><td class="left">Turnover</td><td class="tnum">—</td><td class="tnum">${PN(r.turnover, 0)}</td></tr>
+  </tbody></table>` : `<div class="pfx-note">${NA} сравнение метрик сценария.</div>`;
+  const chg = r.changes.filter((x) => Math.abs(x.delta) > 0.005).slice(0, 12).map((x) =>
+    `<tr><td class="left"><b>${esc(x.ticker)}</b></td><td class="tnum">${PN(x.cur, 1)}</td><td class="tnum">${PN(x.sug, 1)}</td>
+     <td class="tnum ${x.delta >= 0 ? 'saw-up' : 'saw-down'}">${PP(x.delta, 1)}</td><td class="left muted">${esc(x.reason)}</td></tr>`).join('');
+  return `<div class="pfx-2col">${comp}
+    <table class="pfx-tbl"><thead><tr><th class="left">Бумага</th><th>Тек.</th><th>Сцен.</th><th>Δ</th><th class="left">Причина</th></tr></thead><tbody>${chg}</tbody></table></div>`;
+}
+
+// ── модуль 9: Allocation ─────────────────────────────────────────────────────
+function pfxAllocHTML(c) {
+  const bucketBlock = (title, entries) => {
+    const rows = entries.map(([k, w]) => `<div class="pfx-secrow"><span>${esc(k)}</span><i><b style="width:${Math.min(100, w * 100).toFixed(0)}%"></b></i><em>${PN(w, 0)}</em></div>`).join('');
+    return `<div class="pfx-alloc-block"><h4>${esc(title)}</h4>${rows}</div>`;
+  };
+  const sectors = pfxBuckets(c.positions, (p) => p.sector || 'Unknown');
+  const cutB = pfxBuckets(c.positions, (p) => pfxCutBucketLabel(p.t && isNum(p.t.cut_risk) ? p.t.cut_risk : null), ['low cut risk', 'medium cut risk', 'high cut risk', 'н/д']);
+  const betaB = pfxBuckets(c.positions, (p) => pfxBetaBucket(p._beta));
+  const yieldB = pfxBuckets(c.positions, (p) => pfxYieldBucket(p.dividend_yield), ['<3%', '3–6%', '6–9%', '≥9%', 'н/д']);
+  const advB = pfxBuckets(c.positions, pfxAdvBucket);
+  const flags = [];
+  const top1 = Math.max(...c.positions.map((p) => p.weight));
+  if (top1 > 0.15) flags.push(`один эмитент ${PN(top1, 0)} > 15%`);
+  if (sectors[0] && sectors[0][1] > 0.35) flags.push(`сектор «${sectors[0][0]}» ${PN(sectors[0][1], 0)} > 35%`);
+  if (c.top3 > 0.5) flags.push(`top-3 ${PN(c.top3, 0)} > 50%`);
+  if (isNum(c.wBeta) && c.wBeta > 1.2) flags.push(`взвеш. beta ${PU(c.wBeta, 2)} > 1.2`);
+  const highCut = c.positions.reduce((s, p) => s + (p.t && isNum(p.t.cut_risk) && p.t.cut_risk >= 0.6 ? p.weight : 0), 0);
+  if (highCut > 0.3) flags.push(`high cut risk ${PN(highCut, 0)} > 30%`);
+  const flagHtml = flags.length ? `<div class="pfx-warn">Лимиты: ${flags.join('; ')}.</div>` : '<div class="pfx-note pfx-good-ink">Портфель в пределах базовых лимитов.</div>';
+  return `${flagHtml}<div class="pfx-alloc">${bucketBlock('Секторы', sectors)}${bucketBlock('Cut risk', cutB)}${bucketBlock('Beta', betaB)}${bucketBlock('Дивдоходность', yieldB)}${bucketBlock('Ликвидность (ADV)', advB)}</div>`;
+}
+
+// ── модуль 10: Position Diagnostics ──────────────────────────────────────────
+function pfxPosHTML(c) {
+  const rows = c.sorted.map((p) => {
+    const flag = pfxPosFlag(p, c);
+    const pnl = p.pnl_pct == null ? mdash : `<span class="${p.pnl_pct >= 0 ? 'saw-up' : 'saw-down'}">${PP(p.pnl_pct)}</span>`;
+    return `<tr>
+      <td class="left"><b>${esc(p.ticker)}</b><span class="muted"> ${esc(p.sector)}</span></td>
+      <td class="tnum">${PN(p.weight, 1)}</td>
+      <td class="tnum">${rub0(p.value)}</td>
+      <td class="tnum">${pnl}</td>
+      <td class="tnum">${isNum(p.dividend_yield) ? PU(p.dividend_yield, 1) + '%' : mdash}</td>
+      <td class="tnum">${p.t && isNum(p.t.cut_risk) ? PN(p.t.cut_risk, 0) : mdash}</td>
+      <td class="tnum">${isNum(p._beta) ? PU(p._beta, 2) : mdash}</td>
+      <td class="tnum">${isNum(p._ivol) ? PN(p._ivol) : mdash}</td>
+      <td class="tnum">${isNum(p._ivar) ? PN(p._ivar) : mdash}</td>
+      <td class="tnum">${isNum(p._riskShare) ? PN(p._riskShare, 0) : mdash}</td>
+      <td class="left"><span class="pfx-conf pfx-${p._dq.level === 'high' ? 'good' : p._dq.level === 'medium' ? 'neut' : p._dq.level === 'low' ? 'warn' : 'risk'}">${p._dq.level}</span></td>
+      <td class="left">${flag}</td></tr>`;
+  }).join('');
+  return `<div class="pfx-tbl-scroll"><table class="pfx-tbl pfx-postbl"><thead><tr>
+    <th class="left">Бумага</th><th>Вес</th><th>Стоим.</th><th>P&L</th><th>DY</th><th>Cut risk</th><th>Beta</th><th>Vol</th><th>VaR95</th><th>Risk share</th><th class="left">Данные</th><th class="left">Флаг</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="pfx-note muted">Флаг — диагностический статус, не рекомендация. VaR/vol — индивидуальные месячные. Экспорт всей диагностики — кнопкой вверху.</div>`;
+}
+function pfxPosFlag(p, c) {
+  const t = p.t || {};
+  const tags = [];
+  if (p.weight > 0.15) tags.push('<span class="pfx-tag risk">concentration</span>');
+  if (isNum(p._riskShare) && p._riskShare > 0.25) tags.push('<span class="pfx-tag risk">main VaR contributor</span>');
+  if (isNum(p._beta) && p._beta > 1.3) tags.push('<span class="pfx-tag warn">high beta</span>');
+  if (isNum(p.dividend_yield) && p.dividend_yield >= 8 && isNum(t.cut_risk) && t.cut_risk >= 0.5) tags.push('<span class="pfx-tag risk">yield trap</span>');
+  if (p._dq.level === 'low' || p._dq.level === 'unavailable') tags.push('<span class="pfx-tag warn">low data</span>');
+  if (isNum(t.cut_risk) && t.cut_risk < 0.3 && isNum(p.dividend_yield) && p.dividend_yield >= 5) tags.push('<span class="pfx-tag good">defensive income</span>');
+  if (!tags.length) tags.push('<span class="pfx-tag neut">core holding</span>');
+  return tags.join(' ');
+}
+
+// ── модуль 12: Data Quality ──────────────────────────────────────────────────
+function pfxDQHTML(c) {
+  const warn = c.dq.lowWeight > 0.3 ? `<div class="pfx-warn">Часть выводов ограничена качеством данных: ${PN(c.dq.lowWeight, 0)} веса портфеля — бумаги с неполной историей или отсутствующими метриками.</div>` : '';
+  const src = `<div class="pfx-note">Источники: цены/сектор/дивпрогноз/cut_risk — data.json (asof ${esc((DATA && DATA.meta && DATA.meta.price_asof) || '—')}); история ретёрнов — returns.json (${c.pf ? c.pf.n : 0} мес); бенчмарк — MCFTR (${c.bench ? 'есть' : NA}); RFR — ${c.rf.ok ? PU(c.rf.annual, 1) + '% (константа, истории нет)' : NA}.</div>`;
+  const rows = c.positions.map((p) => `<tr><td class="left"><b>${esc(p.ticker)}</b></td>
+    <td class="tnum">${p._dq.hist} мес</td>
+    <td class="left"><span class="pfx-conf pfx-${p._dq.level === 'high' ? 'good' : p._dq.level === 'medium' ? 'neut' : p._dq.level === 'low' ? 'warn' : 'risk'}">${p._dq.level}</span></td>
+    <td class="left muted">${p._dq.miss.length ? esc(p._dq.miss.join(', ')) : '—'}</td></tr>`).join('');
+  return `${warn}${src}<table class="pfx-tbl"><thead><tr><th class="left">Бумага</th><th>История</th><th class="left">Confidence</th><th class="left">Пробелы</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ── модуль 13: Methodology ───────────────────────────────────────────────────
+function pfxMethodHTML() {
+  const defs = [
+    ['Sharpe', 'избыточная доходность над RFR на единицу общей волатильности'],
+    ['Sortino', 'как Sharpe, но в знаменателе только downside-волатильность'],
+    ['Calmar', 'CAGR / |max drawdown| — доходность на единицу худшей просадки'],
+    ['Beta', 'чувствительность к рынку (MCFTR); >1 — сильнее рынка'],
+    ['Alpha', 'доходность сверх объяснённой рынком (CAPM); историческая'],
+    ['Tracking Error', 'волатильность активного отклонения от бенчмарка'],
+    ['Information Ratio', 'активная доходность / tracking error'],
+    ['VaR 95%', 'убыток, который не превышается в 95% месяцев'],
+    ['CVaR 95%', 'средний убыток в худших 5% месяцев (за порогом VaR)'],
+    ['Cornish-Fisher VaR', 'VaR с поправкой на асимметрию и толстые хвосты'],
+    ['Component VaR / Risk Contribution', 'вклад бумаги в общий риск портфеля с учётом корреляций'],
+    ['Downside Capture', 'доля падения рынка, которую забирает портфель; >100% — хуже рынка в падениях'],
+    ['Income at Risk', 'ожидаемый дивпоток минус risk-adjusted (× payout probability)'],
+    ['Bootstrap', 'resampling исторических доходностей для оценки диапазона исходов'],
+    ['Data Quality Score', 'взвешенная по капиталу оценка полноты данных и длины истории'],
+  ].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
+  const warns = [
+    'Историческая доходность не гарантирует будущую.',
+    'VaR не показывает максимальный возможный убыток.',
+    'CVaR показывает средний убыток за пределами VaR-порога.',
+    'Alpha историческая, не прогнозная.',
+    'Bootstrap — resampling истории, не предсказание.',
+    'Suggested weights — диагностический сценарий, не ИИР.',
+    'Backfilled-портфель по текущему составу ≠ фактическая история сделок.',
+    'Price return и total return не смешиваются: total = цена + дивиденд, подписано.',
+    'Данные месячные — дневной VaR и rolling-дни недоступны, а не заменены синтетикой.',
+  ].map((w) => `<li>${esc(w)}</li>`).join('');
+  return `<dl class="pfx-defs">${defs}</dl><ul class="pfx-warns">${warns}</ul>`;
+}
+
+// ── графики (Chart.js) ───────────────────────────────────────────────────────
+function pfxDrawCharts(c) {
+  loadChartJS((err) => {
+    if (err || !window.Chart) return;
+    (window.__pfxCharts || []).forEach((ch) => { try { ch.destroy(); } catch (e) { /* noop */ } });
+    window.__pfxCharts = [];
+    const mk = (id, cfg) => { const el = document.getElementById(id); if (!el) return; window.__pfxCharts.push(new window.Chart(el, cfg)); };
+    const AX = { grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472', maxTicksLimit: 8, autoSkip: true, maxRotation: 0 } };
+    const base = { responsive: true, maintainAspectRatio: false, elements: { point: { radius: 0 } }, plugins: { legend: { labels: { boxWidth: 18, color: '#3A424E', font: { size: 11 } } } } };
+    // equity + drawdown
+    if (c.perf && c.pf) {
+      const labels = c.pf.months;
+      const pe = c.perf.cum.map((v) => v * 100);
+      const bEq = c.bench ? pfxEquity(c.bench).map((v) => v * 100) : null;
+      mk('pfx-equity', { type: 'line', data: { labels, datasets: [
+        { label: 'Портфель', data: pe, borderColor: '#4C5C86', borderWidth: 2, tension: 0.1 },
+        ...(bEq ? [{ label: 'MCFTR', data: bEq, borderColor: '#8A93A3', borderWidth: 1.5, borderDash: [5, 4], tension: 0.1 }] : []),
+      ] }, options: { ...base, scales: { x: AX, y: { ...AX, title: { display: true, text: 'старт = 100', color: '#5A6472' } } } } });
+      const ddP = pfxDD(c.perf.cum);
+      const ddB = c.bench ? pfxDD(pfxEquity(c.bench)) : null;
+      mk('pfx-drawdown', { type: 'line', data: { labels, datasets: [
+        { label: 'Просадка портфеля', data: ddP, borderColor: '#A2452C', backgroundColor: 'rgba(200,60,50,.12)', fill: true, borderWidth: 1.5 },
+        ...(ddB ? [{ label: 'MCFTR', data: ddB, borderColor: '#8A93A3', borderWidth: 1, borderDash: [5, 4] }] : []),
+      ] }, options: { ...base, scales: { x: AX, y: { ...AX, ticks: { ...AX.ticks, callback: (v) => v + '%' } } } } });
+    }
+    // risk budget bar
+    if (c.riskBudget && c.riskBudget.ok) {
+      const rb = c.riskBudget.rows.slice(0, 12);
+      mk('pfx-riskbudget', { type: 'bar', data: { labels: rb.map((r) => r.ticker), datasets: [
+        { label: 'Вес', data: rb.map((r) => r.weight * 100), backgroundColor: '#A9B7D9' },
+        { label: 'Вклад в риск', data: rb.map((r) => r.share * 100), backgroundColor: '#A2452C' },
+      ] }, options: { ...base, scales: { x: AX, y: { ...AX, ticks: { ...AX.ticks, callback: (v) => v + '%' } } } } });
+    }
+    // dividend waterfall (scenarios)
+    if (c.div && c.div.baseIncome > 0) {
+      const s = c.div.scen;
+      mk('pfx-divwater', { type: 'bar', data: { labels: ['Base', 'Conservative', 'Stress', 'Crisis'],
+        datasets: [{ label: 'Дивпоток, ₽', data: [s.base, s.conservative, s.stress, s.crisis],
+          backgroundColor: ['#1E6F4C', '#4C5C86', '#8A6224', '#A2452C'] }] },
+        options: { ...base, plugins: { ...base.plugins, legend: { display: false } }, scales: { x: AX, y: AX } } });
+    }
+    // bootstrap histogram (excess returns)
+    if (c.boot && c.boot.ok) {
+      const ex = c.boot.excesses, bins = 24;
+      const lo = Math.min(...ex), hi = Math.max(...ex), w = (hi - lo) / bins || 1;
+      const counts = new Array(bins).fill(0);
+      ex.forEach((x) => { let b = Math.floor((x - lo) / w); if (b >= bins) b = bins - 1; if (b < 0) b = 0; counts[b]++; });
+      const labels = counts.map((_, i) => ((lo + (i + 0.5) * w) * 100).toFixed(0) + '%');
+      mk('pfx-boothist', { type: 'bar', data: { labels, datasets: [{ label: 'Excess return vs MCFTR (1 год)',
+        data: counts, backgroundColor: labels.map((l) => parseFloat(l) < 0 ? '#E2A48C' : '#A8D5C2') }] },
+        options: { ...base, plugins: { ...base.plugins, legend: { display: false } }, scales: { x: AX, y: AX } } });
+    }
+    // перерисовать при открытии свёрнутого модуля (иначе canvas 0-width)
+    document.querySelectorAll('.pfx-mod').forEach((d) => {
+      if (d.dataset.pfxWired) return; d.dataset.pfxWired = '1';
+      d.addEventListener('toggle', () => { if (d.open) (window.__pfxCharts || []).forEach((ch) => { try { ch.resize(); } catch (e) { /* noop */ } }); });
+    });
+  });
+}
+function pfxDD(cum) { let peak = cum[0]; return cum.map((v) => { if (v > peak) peak = v; return (v / peak - 1) * 100; }); }
+
+// ── кнопки: копировать отчёт / экспорт CSV / переключение сценария ребаланса ──
+function pfxWireButtons(c) {
+  const copyBtn = document.getElementById('pfx-copy');
+  if (copyBtn) copyBtn.addEventListener('click', () => {
+    const lines = [`Portfolio X-Ray — ${c.cls.type}`, pfxDiagnosis(c), ''];
+    pfxMemo(c).forEach(([h, b]) => { lines.push('## ' + h, b, ''); });
+    const txt = lines.join('\n');
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => { copyBtn.textContent = 'Скопировано ✓'; setTimeout(() => { copyBtn.textContent = 'Скопировать отчёт'; }, 1500); });
+  });
+  const expBtn = document.getElementById('pfx-export');
+  if (expBtn) expBtn.addEventListener('click', () => {
+    const head = ['ticker', 'sector', 'quantity', 'avg_price', 'current_price', 'market_value', 'weight', 'pnl_pct', 'div_yield', 'cut_risk', 'beta', 'indiv_vol', 'indiv_var95', 'risk_share', 'data_conf'];
+    const rows = c.sorted.map((p) => [p.ticker, p.sector, p.quantity, p.avg_price, p.current_price ?? '', Math.round(p.value), (p.weight * 100).toFixed(2), p.pnl_pct != null ? (p.pnl_pct * 100).toFixed(2) : '', isNum(p.dividend_yield) ? p.dividend_yield.toFixed(2) : '', p.t && isNum(p.t.cut_risk) ? p.t.cut_risk.toFixed(3) : '', isNum(p._beta) ? p._beta.toFixed(2) : '', isNum(p._ivol) ? (p._ivol * 100).toFixed(1) : '', isNum(p._ivar) ? (p._ivar * 100).toFixed(1) : '', isNum(p._riskShare) ? (p._riskShare * 100).toFixed(1) : '', p._dq.level].join(','));
+    const csv = [head.join(','), ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'portfolio_diagnostics.csv'; a.click();
+  });
+  document.querySelectorAll('.pfx-rbtn').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('.pfx-rbtn').forEach((b) => b.classList.toggle('on', b === btn));
+    const body = document.getElementById('pfx-rebal-body');
+    if (body && PFX_STATE) body.innerHTML = pfxRebalScenarioHTML(PFX_STATE, btn.dataset.mode);
+  }));
 }
 
 function wireMyPortfolio() {
@@ -1323,7 +1781,7 @@ function wirePortfolio() {
 // Помощник фазы рынка (swing/zigzag по MCFTR). Все значения — из marketsaw.json
 // (генерит CI), никакого hardcode/пересчёта на фронте. Это индикатор фазы, не прогноз.
 // ══════════════════════════════════════════════════════════════════════════
-let SAW_DATA = null;
+SAW_DATA = null;
 const LWC_SRC = 'https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js';
 
 const sawPct = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
@@ -2007,7 +2465,7 @@ function bondsCalc() {
 // Форвардная доходность (таблица Марламова, 2 года). Всё из site/marlamov.json
 // (генерит scripts/build_forward_yield.py). Yield2 — от ОЧИЩЕННОЙ базы P_adj=P−Div1·0.87.
 // ══════════════════════════════════════════════════════════════════════════
-let MARLAMOV = null;
+MARLAMOV = null;
 const ML_SIG = { 'ACCUMULATE': 'good', 'HOLD': 'neut', 'FIX PROFIT': 'risk', '—': 'neut' };
 
 function wireMarlamov() {
@@ -2093,7 +2551,7 @@ function mlTableHTML(rows) {
 // ══════════════════════════════════════════════════════════════════════════
 let METHODOLOGY = null;
 let DATA_COVERAGE = null;
-let SITE_FINANCIALS = null;
+SITE_FINANCIALS = null;
 
 function loadSiteFinancials(cb) {
   if (SITE_FINANCIALS) { cb && cb(); return; }
@@ -3339,6 +3797,509 @@ function renderNews() {
     body.dataset.shown = '1';
     newsWire();
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// PORTFOLIO X-RAY & REBALANCE LAB (#my-portfolio) — проф. риск/перформанс-терминал
+// Данные ТОЛЬКО реальные: returns.json (месячный ценовой ретёрн + див), MCFTR (marketsaw),
+// data.json (дивпрогноз/cut_risk/сектор/качество), RFR-константа. Нет synthetic/mock/target price.
+// Ограничение: данные МЕСЯЧНЫЕ → дневной VaR/rolling-дни/EWMA-daily честно недоступны.
+// Не ИИР. Все сценарии — диагностические.
+// ══════════════════════════════════════════════════════════════════════════
+const PFX = { Z95: 1.6448536, Z99: 2.3263479, TAX: 0.87, LAMBDA: 0.94 };
+
+// ── чистая математика ────────────────────────────────────────────────────────
+function pfxMean(a) { return a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0; }
+function pfxStd(a, sample) {
+  if (a.length < 2) return 0;
+  const m = pfxMean(a), n = a.length - (sample === false ? 0 : 1);
+  return Math.sqrt(a.reduce((s, x) => s + (x - m) * (x - m), 0) / n);
+}
+function pfxPercentile(a, p) {              // p в [0,1], линейная интерполяция
+  if (!a.length) return null;
+  const s = a.slice().sort((x, y) => x - y), idx = p * (s.length - 1);
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  return lo === hi ? s[lo] : s[lo] + (s[hi] - s[lo]) * (idx - lo);
+}
+function pfxSkew(a) {
+  const n = a.length; if (n < 3) return 0;
+  const m = pfxMean(a), sd = pfxStd(a);
+  if (sd === 0) return 0;
+  return a.reduce((s, x) => s + Math.pow((x - m) / sd, 3), 0) / n;
+}
+function pfxKurt(a) {                       // excess kurtosis
+  const n = a.length; if (n < 4) return 0;
+  const m = pfxMean(a), sd = pfxStd(a);
+  if (sd === 0) return 0;
+  return a.reduce((s, x) => s + Math.pow((x - m) / sd, 4), 0) / n - 3;
+}
+function pfxMaxDrawdown(cum) {              // cum = кумулятивная equity (старт 1)
+  let peak = cum[0] || 1, mdd = 0, peakIdx = 0, troughIdx = 0, curPeakIdx = 0;
+  for (let i = 0; i < cum.length; i++) {
+    if (cum[i] > peak) { peak = cum[i]; curPeakIdx = i; }
+    const dd = cum[i] / peak - 1;
+    if (dd < mdd) { mdd = dd; peakIdx = curPeakIdx; troughIdx = i; }
+  }
+  // время восстановления: месяцев от trough до возврата к пику
+  let recovery = null;
+  for (let i = troughIdx; i < cum.length; i++) { if (cum[i] >= cum[peakIdx]) { recovery = i - troughIdx; break; } }
+  return { mdd, peakIdx, troughIdx, recovery };
+}
+function pfxEquity(rets) { const c = []; let v = 1; for (const r of rets) { v *= (1 + r); c.push(v); } return c; }
+
+// ── слой данных: месячные ряды портфеля / бенчмарка / RFR ────────────────────
+// total return бумаги за месяц = ценовой (data) + дивдоходность (div). Явно разделено.
+function pfxTickerTotalReturns(ticker) {
+  if (!PF_RETURNS || !PF_RETURNS.data) return null;
+  const pr = PF_RETURNS.data[ticker];
+  if (!pr) return null;
+  const dv = (PF_RETURNS.div && PF_RETURNS.div[ticker]) || null;
+  return pr.map((r, i) => r + (dv && isNum(dv[i]) ? dv[i] : 0));
+}
+
+// backfilled portfolio по ТЕКУЩИМ весам (фикс.), НЕ история сделок. Считаем на общем «хвосте»
+// истории, где у всех включённых бумаг есть данные.
+function pfxPortfolioSeries(positions) {
+  const months = (PF_RETURNS && PF_RETURNS.months) || [];
+  const withHist = positions.filter((p) => p._tr && p._tr.length);
+  if (!withHist.length || !months.length) return null;
+  const minLen = Math.min(...withHist.map((p) => p._tr.length), months.length);
+  if (minLen < 6) return null;
+  const wsum = withHist.reduce((s, p) => s + p.value, 0);
+  if (wsum <= 0) return null;
+  const w = withHist.map((p) => p.value / wsum);        // веса нормированы на бумаги-с-историей
+  const series = [];
+  for (let m = 0; m < minLen; m++) {
+    let r = 0;
+    withHist.forEach((p, i) => { r += w[i] * p._tr[p._tr.length - minLen + m]; });
+    series.push(r);
+  }
+  const covered = wsum / positions.reduce((s, p) => s + p.value, 0);
+  return { series, months: months.slice(months.length - minLen), n: minLen, covered, weights: w, tickers: withHist.map((p) => p.ticker) };
+}
+
+// MCFTR (дневной уровень) → месячные total-return, выровнены по месяцам портфеля
+function pfxBenchmarkMonthly(alignMonths) {
+  if (!SAW_DATA || !SAW_DATA.series || !SAW_DATA.series.length) return null;
+  const monthEnd = {};                                   // YYYY-MM → последний уровень месяца
+  SAW_DATA.series.forEach(([d, v]) => { if (isNum(v)) monthEnd[String(d).slice(0, 7)] = v; });
+  const keys = Object.keys(monthEnd).sort();
+  const lvl = alignMonths.map((ym) => {
+    if (monthEnd[ym] != null) return monthEnd[ym];
+    const prior = keys.filter((k) => k <= ym); return prior.length ? monthEnd[prior[prior.length - 1]] : null;
+  });
+  const rets = [];
+  for (let i = 1; i < lvl.length; i++) rets.push((lvl[i] != null && lvl[i - 1]) ? lvl[i] / lvl[i - 1] - 1 : 0);
+  // первый месяц окна не имеет предыдущего уровня внутри окна → берём из полного ряда
+  if (lvl[0] != null) {
+    const i0 = keys.indexOf(alignMonths[0]);
+    if (i0 > 0) rets.unshift(monthEnd[keys[i0]] / monthEnd[keys[i0 - 1]] - 1); else rets.unshift(0);
+  } else rets.unshift(0);
+  return rets.slice(0, alignMonths.length);
+}
+
+function pfxRfrMonthlyPct() {                             // текущая RFR как константа (истории нет)
+  const a = myPortfolioRfrPct();
+  return a != null ? { annual: a, monthly: a / 100 / 12, ok: true } : { annual: null, monthly: 0, ok: false };
+}
+
+// ── перформанс (месячная база, аннуализация ×12 / ×√12) ──────────────────────
+function pfxPerf(rets, rfMonthly) {
+  const n = rets.length;
+  const cum = pfxEquity(rets), totalRet = cum[n - 1] - 1;
+  const years = n / 12;
+  const cagr = years > 0 ? Math.pow(1 + totalRet, 1 / years) - 1 : null;
+  const volM = pfxStd(rets), volAnn = volM * Math.sqrt(12);
+  const dd = pfxMaxDrawdown(cum);
+  const meanM = pfxMean(rets);
+  const excess = rets.map((r) => r - rfMonthly);
+  const sharpe = volM > 0 ? (pfxMean(excess) / volM) * Math.sqrt(12) : null;
+  const downside = rets.filter((r) => r < rfMonthly).map((r) => r - rfMonthly);
+  const dStd = downside.length ? Math.sqrt(downside.reduce((s, x) => s + x * x, 0) / rets.length) : 0;
+  const sortino = dStd > 0 ? (pfxMean(excess) / dStd) * Math.sqrt(12) : null;
+  const calmar = (cagr != null && dd.mdd < 0) ? cagr / Math.abs(dd.mdd) : null;
+  const wins = rets.filter((r) => r > 0).length;
+  const period = (k) => { if (n < k) return null; const s = rets.slice(n - k); return pfxEquity(s)[k - 1] - 1; };
+  return {
+    n, totalRet, cagr, volAnn, meanAnn: meanM * 12, mdd: dd.mdd, recovery: dd.recovery,
+    sharpe, sortino, calmar, winPct: wins / n, best: Math.max(...rets), worst: Math.min(...rets),
+    ret1m: period(1), ret3m: period(3), ret6m: period(6), ret1y: period(12), ret3y: period(36), cum,
+  };
+}
+
+// ── CAPM: Rp-Rf = alpha + beta*(Rm-Rf) ───────────────────────────────────────
+function pfxCapm(port, bench, rfMonthly) {
+  const n = Math.min(port.length, bench.length);
+  if (n < 12) return { ok: false, reason: 'нужно ≥12 месяцев' };
+  const p = port.slice(port.length - n), b = bench.slice(bench.length - n);
+  const xs = b.map((r) => r - rfMonthly), ys = p.map((r) => r - rfMonthly);
+  const mx = pfxMean(xs), my = pfxMean(ys);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+  const beta = sxx > 0 ? sxy / sxx : null;
+  const alphaM = my - (beta != null ? beta * mx : 0);
+  const r2 = (sxx > 0 && syy > 0) ? (sxy * sxy) / (sxx * syy) : null;
+  const corr = (sxx > 0 && syy > 0) ? sxy / Math.sqrt(sxx * syy) : null;
+  // остатки, t-stat alpha
+  const resid = ys.map((y, i) => y - (alphaM + (beta || 0) * xs[i]));
+  const residStd = pfxStd(resid);
+  const seAlpha = residStd * Math.sqrt(1 / n + (mx * mx) / (sxx || 1));
+  const tAlpha = seAlpha > 0 ? alphaM / seAlpha : null;
+  // tracking error / IR (актив к бенчу, без RFR)
+  const active = p.map((r, i) => r - b[i]);
+  const te = pfxStd(active) * Math.sqrt(12);
+  const ir = te > 0 ? (pfxMean(active) * 12) / te : null;
+  const treynor = (beta && beta !== 0) ? (pfxMean(ys) * 12) / beta : null;
+  // capture ratios
+  const up = [], upB = [], dn = [], dnB = [];
+  for (let i = 0; i < n; i++) { if (b[i] > 0) { up.push(p[i]); upB.push(b[i]); } else if (b[i] < 0) { dn.push(p[i]); dnB.push(b[i]); } }
+  const upCap = upB.length && pfxMean(upB) !== 0 ? pfxMean(up) / pfxMean(upB) : null;
+  const dnCap = dnB.length && pfxMean(dnB) !== 0 ? pfxMean(dn) / pfxMean(dnB) : null;
+  return {
+    ok: true, n, beta, alphaAnn: alphaM * 12, r2, corr, residVolAnn: residStd * Math.sqrt(12),
+    te, ir, treynor, tAlpha, upCapture: upCap, dnCapture: dnCap,
+    bull: up.length ? pfxMean(up) * 12 : null, bear: dn.length ? pfxMean(dn) * 12 : null,
+  };
+}
+
+// ── VaR-движок (МЕСЯЧНАЯ база; дневной — недоступен) ─────────────────────────
+function pfxVaR(rets) {
+  const n = rets.length;
+  if (n < 6) return { ok: false };
+  const conf = n >= 60 ? 'high' : n >= 36 ? 'medium' : n >= 18 ? 'low' : 'very_low';
+  const mu = pfxMean(rets), sd = pfxStd(rets), S = pfxSkew(rets), K = pfxKurt(rets);
+  const hist = (p) => pfxPercentile(rets, p);
+  const cvar = (thr) => { const tail = rets.filter((r) => r <= thr); return tail.length ? pfxMean(tail) : thr; };
+  const h95 = hist(0.05), h99 = hist(0.01);
+  const gauss = (z) => mu - z * sd;
+  // Cornish-Fisher скорректированный квантиль (клампим экстремальный хвост)
+  const cf = (z) => {
+    let zc = z + (1 / 6) * (z * z - 1) * S + (1 / 24) * (z * z * z - 3 * z) * K - (1 / 36) * (2 * z * z * z - 5 * z) * S * S;
+    if (!isFinite(zc) || zc < z * 0.4 || zc > z * 3) zc = z;   // защита от «взрыва» на коротком ряде
+    return mu - zc * sd;
+  };
+  return {
+    ok: true, n, conf, mu, sd, skew: S, kurt: K,
+    hist95: h95, hist99: h99, cvar95: cvar(h95), cvar99: cvar(h99),
+    gauss95: gauss(PFX.Z95), gauss99: gauss(PFX.Z99),
+    cf95: cf(PFX.Z95), cf99: cf(PFX.Z99),
+  };
+}
+
+// VaR-backtest на месячных: сколько раз факт-убыток пробивал rolling-историч. VaR
+function pfxVaRBacktest(rets, win) {
+  win = win || 24;
+  if (rets.length < win + 6) return { ok: false };
+  let breaches = 0, obs = 0, worst = 0, lastIdx = null;
+  for (let i = win; i < rets.length; i++) {
+    const varT = pfxPercentile(rets.slice(i - win, i), 0.05);
+    obs++;
+    if (rets[i] < varT) { breaches++; lastIdx = i; if (rets[i] - varT < worst) worst = rets[i] - varT; }
+  }
+  return { ok: true, obs, breaches, freq: breaches / obs, expected: 0.05, worst, lastIdx };
+}
+
+// ── ковариация + shrinkage → component/marginal VaR, risk budget ─────────────
+// Ledoit-Wolf-подобный shrink к диагонали: 232 бумаги на 90 мес → выборочная ковариация
+// сингулярна, поэтому усадка обязательна. Возвращаем approx-флаг при короткой истории.
+function pfxCovariance(seriesList) {
+  const k = seriesList.length;
+  const minLen = Math.min(...seriesList.map((s) => s.length));
+  const approx = minLen < k + 12;                          // недостаточно наблюдений для устойчивой матрицы
+  const X = seriesList.map((s) => s.slice(s.length - minLen));
+  const means = X.map(pfxMean);
+  const S = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (let i = 0; i < k; i++) for (let j = i; j < k; j++) {
+    let c = 0; for (let t = 0; t < minLen; t++) c += (X[i][t] - means[i]) * (X[j][t] - means[j]);
+    c /= Math.max(1, minLen - 1); S[i][j] = c; S[j][i] = c;
+  }
+  const avgVar = pfxMean(S.map((row, i) => S[i][i]));
+  const lambda = approx ? 0.5 : Math.min(0.4, 12 / minLen);  // сильнее усадка при короткой истории
+  for (let i = 0; i < k; i++) for (let j = 0; j < k; j++) {
+    const target = i === j ? avgVar : 0;
+    S[i][j] = (1 - lambda) * S[i][j] + lambda * target;
+  }
+  return { S, minLen, approx };
+}
+function pfxMatVec(S, w) { return S.map((row) => row.reduce((s, v, j) => s + v * w[j], 0)); }
+
+function pfxRiskBudget(positions) {
+  const withHist = positions.filter((p) => p._tr && p._tr.length >= 12);
+  if (withHist.length < 2) return { ok: false };
+  const wsum = withHist.reduce((s, p) => s + p.value, 0);
+  const w = withHist.map((p) => p.value / wsum);
+  const cov = pfxCovariance(withHist.map((p) => p._tr));
+  const Sw = pfxMatVec(cov.S, w);
+  const varP = w.reduce((s, wi, i) => s + wi * Sw[i], 0);
+  const sigmaP = Math.sqrt(Math.max(varP, 1e-12));
+  const rows = withHist.map((p, i) => {
+    const marginal = Sw[i] / sigmaP;                       // marginal risk
+    const component = w[i] * marginal;                     // component risk (₽-нейтрально, доля σ)
+    return {
+      ticker: p.ticker, weight: w[i], marginal, component,
+      share: component / sigmaP, indivVol: pfxStd(p._tr) * Math.sqrt(12),
+    };
+  });
+  rows.sort((a, b) => b.share - a.share);
+  return { ok: true, sigmaAnn: sigmaP * Math.sqrt(12), rows, approx: cov.approx };
+}
+
+// ── дивидендный стресс-тест: base/conservative/stress/crisis ─────────────────
+// income = Σ shares×DPS(dividend_forecast); payout_prob = 1 − cut_risk. cut-бакет по cut_risk.
+function pfxCutBucket(cr) { return cr == null ? 'unknown' : cr >= 0.6 ? 'high' : cr >= 0.35 ? 'medium' : 'low'; }
+function pfxDividendStress(positions) {
+  const items = positions.map((p) => {
+    const t = p.t; const dps = t && isNum(t.dividend_forecast) ? t.dividend_forecast : null;
+    const cr = t && isNum(t.cut_risk) ? t.cut_risk : null;
+    const base = dps != null ? dps * p.quantity : 0;
+    return { ticker: p.ticker, base, cr, bucket: pfxCutBucket(cr), prob: cr != null ? 1 - cr : null,
+      yield: p.dividend_yield, hasData: dps != null && cr != null };
+  });
+  const F = { base: { low: 1, medium: 1, high: 1 }, conservative: { low: 1, medium: 0.75, high: 0.5 },
+    stress: { low: 0.75, medium: 0.5, high: 0.15 }, crisis: { low: 0.75, medium: 0.25, high: 0 } };
+  const scen = {};
+  ['base', 'conservative', 'stress', 'crisis'].forEach((k) => {
+    scen[k] = items.reduce((s, it) => s + it.base * (F[k][it.bucket] != null ? F[k][it.bucket] : (it.prob != null ? it.prob : 0)), 0);
+  });
+  const baseIncome = scen.base;
+  const riskAdj = items.reduce((s, it) => s + it.base * (it.prob != null ? it.prob : 0), 0);
+  const totalBase = items.reduce((s, it) => s + it.base, 0) || 1;
+  items.forEach((it) => { it.share = it.base / totalBase; });
+  const topIncome = items.filter((it) => it.base > 0).sort((a, b) => b.base - a.base).slice(0, 5);
+  const topRisk = items.filter((it) => it.base > 0 && it.cr != null).sort((a, b) => (b.base * b.cr) - (a.base * a.cr)).slice(0, 5);
+  // yield trap: высокая ожидаемая доходность + высокий cut risk
+  const traps = items.filter((it) => isNum(it.yield) && it.yield >= 8 && it.cr != null && it.cr >= 0.5)
+    .map((it) => it.ticker);
+  const noData = items.filter((it) => !it.hasData).map((it) => it.ticker);
+  return { items, scen, baseIncome, riskAdj, atRisk: baseIncome - riskAdj, topIncome, topRisk,
+    traps, noData, topShare: topIncome.length ? topIncome[0].share : 0 };
+}
+
+// ── bootstrap устойчивости (месячный resample, горизонт 12 мес) ──────────────
+function pfxBootstrap(port, bench, rfMonthly, sims) {
+  const n = Math.min(port.length, bench.length);
+  if (n < 18) return { ok: false, reason: 'нужно ≥18 месяцев' };
+  sims = sims || 1000; const H = 12;
+  const p = port.slice(port.length - n), b = bench.slice(bench.length - n);
+  const cagrs = [], mdds = [], sharpes = [], excesses = []; let beatRet = 0, lowerDD = 0, negExc = 0;
+  const benchCum = pfxEquity(b), benchCagr = Math.pow(benchCum[n - 1], 12 / n) - 1;
+  for (let s = 0; s < sims; s++) {
+    const rp = [], rb = [];
+    for (let h = 0; h < H; h++) { const idx = Math.floor(Math.random() * n); rp.push(p[idx]); rb.push(b[idx]); }
+    const cp = pfxEquity(rp), cb = pfxEquity(rb);
+    const cagrP = cp[H - 1] - 1, cagrB = cb[H - 1] - 1;
+    const volP = pfxStd(rp) || 1e-9;
+    const shP = (pfxMean(rp) - rfMonthly) / volP * Math.sqrt(12);
+    const ddP = pfxMaxDrawdown(cp).mdd, ddB = pfxMaxDrawdown(cb).mdd;
+    cagrs.push(cagrP); mdds.push(ddP); sharpes.push(shP); excesses.push(cagrP - cagrB);
+    if (cagrP > cagrB) beatRet++; if (ddP > ddB) lowerDD++; if (cagrP - cagrB < 0) negExc++;
+  }
+  const pct = (a, q) => pfxPercentile(a, q);
+  return { ok: true, sims, benchCagr,
+    pBeat: beatRet / sims, pLowerDD: lowerDD / sims, pNegExcess: negExc / sims,
+    cagr: [pct(cagrs, 0.05), pct(cagrs, 0.5), pct(cagrs, 0.95)],
+    mdd: [pct(mdds, 0.05), pct(mdds, 0.5), pct(mdds, 0.95)],
+    sharpe: [pct(sharpes, 0.05), pct(sharpes, 0.5), pct(sharpes, 0.95)],
+    excesses };
+}
+
+// ── data-quality по позиции и портфелю ───────────────────────────────────────
+function pfxPositionDQ(p) {
+  const hist = p._tr ? p._tr.length : 0;
+  let level, hlabel;
+  if (!p.t || !p.current_price) { level = 'unavailable'; }
+  else if (hist >= 60) level = 'high'; else if (hist >= 36) level = 'medium'; else if (hist >= 12) level = 'low'; else level = 'unavailable';
+  const miss = [];
+  if (!p.t) miss.push('нет в data.json');
+  if (!p._tr) miss.push('нет истории цены');
+  else if (hist < 36) miss.push(`история ${hist} мес`);
+  if (p.t && !isNum(p.t.dividend_forecast)) miss.push('нет дивпрогноза');
+  if (p.t && !isNum(p.t.cut_risk)) miss.push('нет cut risk');
+  if (p.t && (!p.sector || p.sector === ND || p.sector === 'нет в покрытии')) miss.push('нет сектора');
+  return { level, hist, miss };
+}
+function pfxDataQuality(positions) {
+  positions.forEach((p) => { p._dq = pfxPositionDQ(p); });
+  const total = positions.reduce((s, p) => s + p.value, 0) || 1;
+  const lowW = positions.filter((p) => p._dq.level === 'low' || p._dq.level === 'unavailable').reduce((s, p) => s + p.value, 0) / total;
+  const wmap = { high: 1, medium: 0.75, low: 0.45, unavailable: 0.1 };
+  const score = Math.round(100 * positions.reduce((s, p) => s + (p.value / total) * wmap[p._dq.level], 0));
+  return { score, lowWeight: lowW, hasBench: !!(SAW_DATA && SAW_DATA.series), hasRfr: pfxRfrMonthlyPct().ok };
+}
+
+// ── аллокация / exposure бакеты ──────────────────────────────────────────────
+function pfxBuckets(positions, keyFn, order) {
+  const total = positions.reduce((s, p) => s + p.value, 0) || 1;
+  const map = {};
+  positions.forEach((p) => { const k = keyFn(p); map[k] = (map[k] || 0) + p.value / total; });
+  const entries = Object.entries(map);
+  entries.sort((a, b) => (order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1] - a[1]));
+  return entries;
+}
+function pfxBetaBucket(b) { return b == null ? 'н/д' : b < 0.8 ? 'defensive <0.8' : b <= 1.1 ? 'market 0.8–1.1' : b <= 1.4 ? 'aggressive 1.1–1.4' : 'high >1.4'; }
+function pfxYieldBucket(y) { return !isNum(y) ? 'н/д' : y < 3 ? '<3%' : y < 6 ? '3–6%' : y < 9 ? '6–9%' : '≥9%'; }
+function pfxCutBucketLabel(cr) { const b = pfxCutBucket(cr); return { low: 'low cut risk', medium: 'medium cut risk', high: 'high cut risk', unknown: 'н/д' }[b]; }
+function pfxAdvBucket(p) { const adv = p.t && isNum(p.t.adv) ? p.t.adv : null; return adv == null ? 'н/д' : adv >= 1e9 ? 'высокая (>1 млрд/д)' : adv >= 1e8 ? 'средняя' : 'низкая (<100 млн/д)'; }
+
+// ── эвристический ребаланс (Suggested Diagnostic Weights, НЕ рекомендация) ────
+function pfxScore(p, mode) {
+  const t = p.t || {};
+  const yield_ = isNum(p.dividend_yield) ? Math.min(p.dividend_yield / 12, 1) : 0.3;
+  const q = isNum(t.quality_barra) ? t.quality_barra : 0.5;
+  const stab = isNum(t.stability_score) ? t.stability_score : 0.5;
+  const cut = isNum(t.cut_risk) ? t.cut_risk : 0.5;
+  const vol = isNum(t.vol_ann) ? Math.min(t.vol_ann, 1) : 0.5;
+  const beta = isNum(p._beta) ? p._beta : 1;
+  const dq = p._dq ? { high: 1, medium: 0.7, low: 0.4, unavailable: 0.1 }[p._dq.level] : 0.5;
+  const risk = isNum(p._riskShare) ? p._riskShare : 0.1;
+  let s = q * 0.2 + stab * 0.15 + dq * 0.1 + yield_ * 0.15;
+  s -= vol * 0.12 + cut * 0.13 + risk * 0.15;
+  if (mode === 'lowrisk') { s -= vol * 0.25 + Math.max(0, beta - 1) * 0.2 + risk * 0.2; }
+  if (mode === 'sharpe') { s += q * 0.15; s -= vol * 0.2 + risk * 0.15; }
+  if (mode === 'dividend') { s += yield_ * 0.2 + stab * 0.15; s -= cut * 0.35; }
+  return Math.max(0.001, s);
+}
+function pfxRebalance(positions, mode) {
+  const elig = positions.filter((p) => p.t && p.current_price);
+  if (elig.length < 2) return null;
+  const scores = elig.map((p) => pfxScore(p, mode));
+  const ssum = scores.reduce((a, b) => a + b, 0);
+  let w = scores.map((s) => s / ssum);
+  // constraints: max 15% на бумагу, простая итеративная нормировка с капом
+  for (let it = 0; it < 20; it++) {
+    let over = 0, under = 0;
+    w = w.map((x) => { if (x > 0.15) { over += x - 0.15; return 0.15; } under += (0.15 - x); return x; });
+    if (over < 1e-6) break;
+    w = w.map((x) => x < 0.15 ? x + over * ((0.15 - x) / (under || 1)) : x);
+  }
+  const cur = elig.map((p) => p.weight);
+  const turnover = 0.5 * w.reduce((s, x, i) => s + Math.abs(x - cur[i]), 0);
+  const changes = elig.map((p, i) => ({ ticker: p.ticker, cur: cur[i], sug: w[i], delta: w[i] - cur[i],
+    reason: pfxRebalanceReason(p, w[i] - cur[i], mode) }));
+  changes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  return { mode, weights: w, tickers: elig.map((p) => p.ticker), positions: elig, turnover, changes };
+}
+function pfxRebalanceReason(p, delta, mode) {
+  const t = p.t || {};
+  if (delta < -0.01) {
+    if (p.weight > 0.15) return 'снизить концентрацию';
+    if (isNum(p._beta) && p._beta > 1.3) return 'снизить high-beta вклад';
+    if (isNum(p._riskShare) && p._riskShare > 0.15) return 'снизить вклад в риск';
+    if (isNum(t.cut_risk) && t.cut_risk > 0.5) return 'высокий cut risk';
+    if (isNum(t.vol_ann) && t.vol_ann > 0.5) return 'высокая волатильность';
+    return 'диверсификация';
+  }
+  if (delta > 0.01) {
+    if (mode === 'dividend' && isNum(t.cut_risk) && t.cut_risk < 0.35) return 'стабильный дивиденд';
+    if (isNum(t.quality_barra) && t.quality_barra > 0.6) return 'высокое качество';
+    return 'улучшить диверсификацию';
+  }
+  return '≈ без изменений';
+}
+
+// ── классификация типа портфеля + rule-based диагноз ─────────────────────────
+function pfxClassify(x) {
+  const { dq, capm, perf, div, riskBudget } = x;
+  if (dq.score < 45 || dq.lowWeight > 0.5) return { type: 'Low Data Quality', tone: 'warn' };
+  if (!perf) return { type: 'Data Insufficient', tone: 'warn' };
+  const beta = capm && capm.ok ? capm.beta : null;
+  const top3 = x.top3;
+  const highYield = div && isNum(x.grossYield) && x.grossYield > (x.rfr || 8);
+  const highCutShare = div ? (div.topRisk.reduce((s, it) => s + it.base, 0) / (div.baseIncome || 1)) : 0;
+  if (top3 > 0.6) return { type: 'Concentrated Bet', tone: 'risk' };
+  if (highYield && highCutShare > 0.35) return { type: 'Yield Trap Risk', tone: 'risk' };
+  if (beta != null && beta > 1.25 && highYield) return { type: 'High Beta Dividend Tilt', tone: 'warn' };
+  if (beta != null && beta > 1.3) return { type: 'Aggressive Growth / High Beta', tone: 'warn' };
+  if (beta != null && beta < 0.85 && highYield) return { type: 'Defensive Income', tone: 'good' };
+  return { type: 'Market-like', tone: 'neut' };
+}
+
+// ── оркестратор: собрать полный набор метрик ─────────────────────────────────
+function pfxEnrich(rows) {
+  const positions = myPortfolioEnrich(rows);           // value/weight/sector/pnl/data_quality из data.json
+  positions.forEach((p) => { p._tr = pfxTickerTotalReturns(p.ticker); });
+  const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
+  positions.forEach((p) => { p.weight = total > 0 ? p.value / total : 0; });
+  return { positions, total };
+}
+function pfxCompute(rows) {
+  const { positions, total } = pfxEnrich(rows);
+  const rf = pfxRfrMonthlyPct();
+  const pf = pfxPortfolioSeries(positions);
+  let bench = null, capm = null, perf = null, vaR = null, backtest = null, boot = null;
+  if (pf) {
+    bench = pfxBenchmarkMonthly(pf.months);
+    perf = pfxPerf(pf.series, rf.monthly);
+    vaR = pfxVaR(pf.series);
+    backtest = pfxVaRBacktest(pf.series, 24);
+    if (bench) { capm = pfxCapm(pf.series, bench, rf.monthly); boot = pfxBootstrap(pf.series, bench, rf.monthly); }
+  }
+  // per-position beta (регрессия total returns бумаги на бенч)
+  if (bench) positions.forEach((p) => {
+    if (p._tr && p._tr.length >= 12) {
+      const c = pfxCapm(p._tr, bench, rf.monthly);       // pfxCapm выравнивает по хвостам (общие последние месяцы)
+      p._beta = c.ok ? c.beta : null;
+    } else p._beta = null;
+  });
+  positions.forEach((p) => { p._ivol = p._tr && p._tr.length >= 6 ? pfxStd(p._tr) * Math.sqrt(12) : null;
+    p._ivar = p._tr && p._tr.length >= 6 ? pfxPercentile(p._tr, 0.05) : null; });
+  const riskBudget = pfxRiskBudget(positions);
+  if (riskBudget.ok) riskBudget.rows.forEach((r) => { const p = positions.find((x) => x.ticker === r.ticker); if (p) p._riskShare = r.share; });
+  const div = pfxDividendStress(positions);
+  const dq = pfxDataQuality(positions);
+  // агрегаты
+  const sorted = positions.slice().sort((a, b) => b.weight - a.weight);
+  const top3 = sorted.slice(0, 3).reduce((s, p) => s + p.weight, 0);
+  const effN = positions.length ? 1 / positions.reduce((s, p) => s + p.weight * p.weight, 0) : 0;
+  const grossYield = positions.reduce((s, p) => s + (isNum(p.dividend_yield) ? p.weight * p.dividend_yield : 0), 0);
+  const wBeta = positions.reduce((s, p) => s + (isNum(p._beta) ? p.weight * p._beta : 0), 0);
+  const cost = positions.reduce((s, p) => s + p.cost, 0);
+  const cls = pfxClassify({ dq, capm, perf, div, riskBudget, top3, grossYield, rfr: rf.annual });
+  return { positions, total, cost, rf, pf, bench, perf, capm, vaR, backtest, boot, riskBudget, div, dq,
+    top3, effN, grossYield, wBeta, cls, sorted };
+}
+
+// ── rule-based investment committee memo ─────────────────────────────────────
+function pfxMemo(c) {
+  const L = [];
+  const pctv = (x, d) => isNum(x) ? (x >= 0 ? '+' : '') + ru(x * 100, d == null ? 1 : d) + '%' : 'н/д';
+  L.push(['Executive Summary', `Портфель классифицирован как «${c.cls.type}». Стоимость ${rub0(c.total)}, ` +
+    `${c.positions.length} позиций, эффективное число бумаг ${ru(c.effN, 1)}. ` +
+    (c.capm && c.capm.ok ? `Историческая beta к MCFTR ${ru(c.capm.beta, 2)}, ` : 'Beta недоступна, ') +
+    `top-3 концентрация ${ru(c.top3 * 100, 0)}%. Выводы — по доступным данным, не ИИР.`]);
+  if (c.perf && c.bench) {
+    const b = pfxPerf(c.bench, c.rf.monthly);
+    L.push(['Performance vs MCFTR', `За окно ${c.pf.n} мес total return портфеля ${pctv(c.perf.totalRet)} против MCFTR ` +
+      `${pctv(b.totalRet)} (активный ${pctv(c.perf.totalRet - b.totalRet)}). Ann.vol ${pctv(c.perf.volAnn)}, ` +
+      `max drawdown ${pctv(c.perf.mdd)}. ${c.perf.n < 24 ? 'Короткая история — годовые метрики нестабильны.' : ''}`]);
+  }
+  if (c.capm && c.capm.ok) {
+    const capt = isNum(c.capm.dnCapture) ? `downside capture ${ru(c.capm.dnCapture * 100, 0)}%` : '';
+    L.push(['Alpha / Beta', `Beta ${ru(c.capm.beta, 2)} (${pfxBetaBucket(c.capm.beta)}), ист. alpha ${pctv(c.capm.alphaAnn)}/год, ` +
+      `R² ${ru(c.capm.r2, 2)}, IR ${isNum(c.capm.ir) ? ru(c.capm.ir, 2) : 'н/д'}. ${capt}. Alpha историческая, не прогноз.`]);
+  }
+  if (c.vaR && c.vaR.ok) L.push(['Динамический риск / VaR', `Месячный historical VaR 95% ${pctv(c.vaR.hist95)} ` +
+    `(${rub0(c.vaR.hist95 * c.total)}), CVaR 95% ${pctv(c.vaR.cvar95)}. Уверенность: ${c.vaR.conf}. ` +
+    `VaR — не максимальный убыток; на месячной базе, дневной хвост не оценивается.`]);
+  if (c.riskBudget && c.riskBudget.ok) { const t = c.riskBudget.rows[0];
+    L.push(['Risk Drivers', `Главный вклад в риск: ${t.ticker} (${ru(t.share * 100, 0)}% риска при весе ${ru(t.weight * 100, 0)}%). ` +
+      (c.riskBudget.approx ? 'Ковариация усажена из-за короткой истории (approx).' : '')]); }
+  if (c.div) L.push(['Дивидендная устойчивость', `Ожидаемый дивпоток ${rub0(c.div.baseIncome)}/год, risk-adjusted ` +
+    `${rub0(c.div.riskAdj)} (income at risk ${rub0(c.div.atRisk)}). ` +
+    (c.div.traps.length ? `Yield-trap риск: ${c.div.traps.join(', ')}. ` : '') +
+    (c.div.topShare > 0.25 ? `Один эмитент даёт ${ru(c.div.topShare * 100, 0)}% дивпотока.` : '')]);
+  if (c.top3 > 0.5) L.push(['Концентрация', `Top-3 позиции — ${ru(c.top3 * 100, 0)}% портфеля. ` +
+    `Основная задача — снизить их вклад в риск и VaR, а не добавлять ещё одну похожую бумагу.`]);
+  if (c.boot && c.boot.ok) L.push(['Bootstrap-сценарии', `Вероятность обойти MCFTR по доходности на 1 год ` +
+    `${ru(c.boot.pBeat * 100, 0)}%, получить меньшую просадку ${ru(c.boot.pLowerDD * 100, 0)}%. ` +
+    `Bootstrap — resampling истории, не прогноз.`]);
+  const lim = [];
+  if (c.dq.lowWeight > 0.3) lim.push(`${ru(c.dq.lowWeight * 100, 0)}% веса — бумаги с неполной историей/данными`);
+  if (!c.bench) lim.push('нет выравнивания с MCFTR — alpha/beta недоступны');
+  if (!c.rf.ok) lim.push('RFR недоступна — excess-метрики без безрисковой ставки');
+  lim.push('данные месячные — дневной VaR и rolling-дни не считаются');
+  L.push(['Ограничения данных', lim.join('; ') + '.']);
+  return L;
 }
 
 initRouter();   // ПОСЛЕ всех модулей (marketsaw/bonds/marlamov/methodology/cbr) — все let-глобалы инициализированы
