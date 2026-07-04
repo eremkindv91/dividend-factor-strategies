@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import sys
 import time
 import urllib.error
@@ -45,17 +46,19 @@ CONFIG = os.path.join(HERE, "banks_config.json")
 ISS = "https://iss.moex.com/iss"
 UA = {"User-Agent": "dividend-site/banks-history", "Accept": "application/json"}
 TODAY = date.today()
+NETWORK_TIMEOUT_SECONDS = 12
+socket.setdefaulttimeout(NETWORK_TIMEOUT_SECONDS)
 
 
 def log(m): sys.stderr.write(f"[banks-hist] {m}\n")
 
 
-def http_json(url: str, retries: int = 4) -> dict:
+def http_json(url: str, retries: int = 2) -> dict:
     last = None
     for a in range(retries):
         try:
             req = urllib.request.Request(url, headers=UA)
-            with urllib.request.urlopen(req, timeout=40) as r:
+            with urllib.request.urlopen(req, timeout=NETWORK_TIMEOUT_SECONDS) as r:
                 return json.loads(r.read().decode("utf-8"))
         except Exception as e:  # noqa: BLE001  (ISS is flaky; retry with backoff)
             last = e
@@ -64,14 +67,15 @@ def http_json(url: str, retries: int = 4) -> dict:
 
 
 # ── MOEX monthly price history ───────────────────────────────────────────────
-def monthly_close(secid: str, frm: str) -> dict[str, float]:
+def monthly_close(secid: str, frm: str, till: str | None = None) -> dict[str, float]:
     """{'YYYY-MM': close} from the TQBR monthly candles, paginated (start ignored-safe loop)."""
     out: dict[str, float] = {}
     start = 0
+    till_q = f"&till={till}" if till else ""
     while True:
         try:
             d = http_json(f"{ISS}/history/engines/stock/markets/shares/boards/TQBR/securities/"
-                          f"{secid}/monthly.json?iss.meta=off&iss.only=history&from={frm}&start={start}")
+                          f"{secid}/monthly.json?iss.meta=off&iss.only=history&from={frm}{till_q}&start={start}")
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             log(f"MOEX {secid} @start={start}: {str(e)[:60]}")
             break
@@ -88,6 +92,57 @@ def monthly_close(secid: str, frm: str) -> dict[str, float]:
             break
         start += 100
     return out
+
+
+def combined_monthly_close(bank: dict, fetcher=monthly_close) -> tuple[dict[str, float], list[str]]:
+    """Merge configured MOEX price sources in order. Later sources win on overlapping months."""
+    frm = bank.get("history_from", "2018-01-01")
+    sources = bank.get("price_history") or [{"ticker": bank["ticker"]}]
+    out: dict[str, float] = {}
+    labels: list[str] = []
+    for src in sources:
+        secid = src["ticker"]
+        src_from = max(frm, src.get("from", frm))
+        src_till = src.get("until")
+        out.update(fetcher(secid, src_from, src_till))
+        if src_till:
+            labels.append(f"{secid} до {src_till}")
+        elif src.get("from"):
+            labels.append(f"{secid} с {src['from']}")
+        else:
+            labels.append(secid)
+    return out, labels
+
+
+def cached_point_prices(prev: dict | None, frm: str) -> dict[str, float]:
+    """Previously published adjusted prices from history.json, used only as a network fallback."""
+    floor = frm[:7]
+    out: dict[str, float] = {}
+    for p in (prev or {}).get("points") or []:
+        ym, price = p.get("d"), p.get("p")
+        if ym and ym >= floor and price is not None:
+            out[ym] = float(price)
+    return out
+
+
+def cached_splits(prev: dict | None) -> list[dict]:
+    """Previously applied official MOEX splits from history.json, used if the registry is down."""
+    out = []
+    for s in (prev or {}).get("splits_applied") or []:
+        ratio = str(s.get("ratio") or "")
+        if ":" not in ratio or not s.get("date"):
+            continue
+        before, after = ratio.split(":", 1)
+        try:
+            out.append({"date": s["date"], "before": float(before), "after": float(after)})
+        except ValueError:
+            continue
+    return out
+
+
+def cache_preferred_months(bank: dict) -> set[str]:
+    """Transition months where cached current-ticker prices are safer than alias-source rows."""
+    return {src["from"][:7] for src in bank.get("price_history") or [] if src.get("from")}
 
 
 def issue_size(secid: str) -> float | None:
@@ -157,6 +212,9 @@ def adjust_for_splits(px: dict[str, float], splits: list[dict]) -> tuple[dict[st
     VTBR: ×5000 before 2024-07. Official registry data, not synthetics."""
     adj = dict(px)
     applied = []
+    def fmt_ratio_part(v: float) -> str:
+        return str(int(v)) if float(v).is_integer() else str(v)
+
     for s in splits:
         ym, k = s["date"][:7], s["before"] / s["after"]
         touched = False
@@ -165,7 +223,7 @@ def adjust_for_splits(px: dict[str, float], splits: list[dict]) -> tuple[dict[st
                 adj[m] *= k
                 touched = True
         if touched:
-            applied.append({"date": s["date"], "ratio": f"{s['before']}:{s['after']}"})
+            applied.append({"date": s["date"], "ratio": f"{fmt_ratio_part(s['before'])}:{fmt_ratio_part(s['after'])}"})
     return adj, applied
 
 
@@ -214,16 +272,30 @@ def build_bank(b: dict, val_row: dict | None, prev: dict | None, splits: list[di
             out["capital"][ym] = c
 
     # price history
-    px = monthly_close(tk, frm)
-    if not px:
-        out["warn"] = (out.get("warn") + " · " if out.get("warn") else "") + "нет истории цены MOEX"
-        return out
+    px, price_sources = combined_monthly_close(b)
+    if b.get("price_history"):
+        out["price_sources"] = price_sources
 
     # neutralise known splits via the official MOEX registry (prices → current share base),
     # then auto-clamp only what the registry does not explain
     px, applied = adjust_for_splits(px, splits or [])
     if applied:
         out["splits_applied"] = applied
+    cached_px = cached_point_prices(prev, frm)
+    fallback_months = 0
+    for ym, price in cached_px.items():
+        if ym not in px:
+            px[ym] = price
+            fallback_months += 1
+    for ym in cache_preferred_months(b):
+        if ym in cached_px and px.get(ym) != cached_px[ym]:
+            px[ym] = cached_px[ym]
+            fallback_months += 1
+    if fallback_months:
+        out["price_cache_fallback_months"] = fallback_months
+    if not px:
+        out["warn"] = (out.get("warn") + " · " if out.get("warn") else "") + "нет истории цены MOEX"
+        return out
     split_at = detect_split_clamp(px)
     if split_at:
         out["split_clamp"] = split_at
@@ -278,7 +350,9 @@ def main() -> int:
     banks = []
     for b in cfg["banks"]:
         try:
-            banks.append(build_bank(b, val.get(b["ticker"]), prev.get(b["ticker"]), all_splits.get(b["ticker"])))
+            prev_bank = prev.get(b["ticker"])
+            splits = all_splits.get(b["ticker"]) or cached_splits(prev_bank)
+            banks.append(build_bank(b, val.get(b["ticker"]), prev_bank, splits))
         except Exception as e:  # noqa: BLE001
             log(f"{b['ticker']}: сбой {str(e)[:60]}")
             banks.append({"ticker": b["ticker"], "name": b["name"], "color": b.get("color"),

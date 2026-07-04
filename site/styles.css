@@ -848,6 +848,196 @@ td.empty { text-align: center; }
 .cbr-loading { padding: 14px 2px; font-size: .9rem; }
 .cbr-fallback { background: var(--risk-fill); color: var(--risk-ink); border: 1px solid #E2A48C;
   border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; }
+.cbr-bank-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cbr-bank-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  min-height: 92px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--bank-color, var(--accent));
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(32, 42, 57, .05);
+}
+.cbr-bank-card:hover { border-color: #CAD3E2; background: #FAFBFD; }
+.cbr-bank-card.on {
+  border-color: var(--bank-color, var(--accent));
+  background: #F7FAFC;
+  box-shadow: 0 6px 18px rgba(35, 48, 68, .10);
+}
+.cbr-bank-card-top,
+.cbr-bank-card-metrics {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cbr-bank-card-top b { font-size: .98rem; line-height: 1; }
+.cbr-bank-card-top span,
+.cbr-bank-card-name,
+.cbr-bank-card-metrics {
+  color: var(--ink-faint);
+  font-size: .74rem;
+  line-height: 1.2;
+}
+.cbr-bank-card-name {
+  min-height: 28px;
+  color: var(--ink-soft);
+  overflow: hidden;
+}
+.cbr-bank-card-metrics span {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  font-weight: 700;
+}
+.cbr-bank-summary {
+  margin: 0 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.cbr-bank-summary-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(0, 2fr);
+  gap: 12px;
+  padding: 12px;
+}
+.cbr-bank-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.cbr-bank-title b {
+  display: block;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.cbr-bank-title span {
+  color: var(--ink-faint);
+  font-size: .78rem;
+}
+.cbr-bank-dot {
+  width: 12px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--bank-color, var(--accent));
+  flex: 0 0 auto;
+}
+.cbr-bank-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 8px;
+}
+.cbr-bank-kpis div {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+.cbr-bank-kpis span {
+  display: block;
+  color: var(--ink-faint);
+  font-size: .7rem;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbr-bank-kpis b {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cbr-bank-kpis b.cheap,
+.cbr-bank-card-metrics .cheap { color: var(--good-ink); }
+.cbr-bank-kpis b.rich,
+.cbr-bank-card-metrics .rich { color: var(--warn-ink); }
+.cbr-bank-kpis b.ok { color: var(--good-ink); }
+.cbr-bank-kpis b.bad { color: var(--risk-ink); }
+.cbr-bank-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 12px 12px;
+}
+.cbr-bank-warnings span {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--warn-fill);
+  color: var(--warn-ink);
+  font-size: .74rem;
+  font-weight: 700;
+}
+.cbr-quick-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cbr-qchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.cbr-qchip:hover { background: #FAFBFD; }
+.cbr-qchip.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+.cbr-qchip span { font-weight: 700; }
+.cbr-qchip b {
+  color: var(--ink);
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+}
+.cbr-advanced {
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+.cbr-advanced summary {
+  padding: 9px 12px;
+  color: var(--ink-soft);
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cbr-advanced .cbr-controls {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 12px 12px;
+}
 .cbr-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-bottom: 12px; }
 .cbr-controls label { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--ink-faint); font-weight: 600; }
 .cbr-controls select { font: inherit; color: var(--ink); background: var(--surface);
@@ -865,7 +1055,9 @@ td.empty { text-align: center; }
 .cbr-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
 .cbr-table th, .cbr-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
 .cbr-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem; }
-.cbr-table th:first-child, .cbr-table td:first-child { text-align: left; }
+.cbr-table th:first-child, .cbr-table td:first-child,
+.cbr-table th:nth-child(2), .cbr-table td:nth-child(2),
+.cbr-table th:nth-child(3), .cbr-table td:nth-child(3) { text-align: left; }
 .cbr-table .cbr-bname { text-align: left; font-weight: 600; }
 .cbr-table tbody tr:hover td { background: #F3F5FA; }
 .cbr-up { color: var(--good-ink); font-weight: 600; }
@@ -875,7 +1067,22 @@ td.empty { text-align: center; }
 .cbr-status.s-calculated { background: var(--warn-fill); color: var(--warn-ink); }
 .cbr-status.s-missing, .cbr-status.s-parse_error, .cbr-status.s-source_unavailable { background: var(--risk-fill); color: var(--risk-ink); }
 .cbr-disc { font-size: .78rem; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
-@media (max-width: 760px) { .cbr-chart-wrap { height: 280px; } .cbr-controls select { max-width: 100%; } }
+@media (max-width: 760px) {
+  .cbr-bank-deck {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+  .cbr-bank-card {
+    min-width: 172px;
+    scroll-snap-align: start;
+  }
+  .cbr-bank-summary-main,
+  .cbr-bank-kpis { grid-template-columns: 1fr; }
+  .cbr-chart-wrap { height: 280px; }
+  .cbr-controls select { max-width: 100%; }
+}
 
 /* ══ MOEX Bond Finder (шорт-лист кандидатов) ══ */
 .finder-body { padding: 6px 0 12px; }

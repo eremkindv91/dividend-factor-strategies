@@ -83,6 +83,56 @@ class SplitAdjust(unittest.TestCase):
         self.assertEqual(applied, [])
 
 
+class PriceSources(unittest.TestCase):
+    def test_combines_t_alias_history_and_prefers_new_ticker_on_overlap_month(self):
+        bank = {
+            "ticker": "T",
+            "history_from": "2024-05-01",
+            "price_history": [
+                {"ticker": "TCSG", "until": "2024-11-27"},
+                {"ticker": "T", "from": "2024-11-28"},
+            ],
+        }
+        calls = []
+
+        def fake_monthly_close(secid, frm, till=None):
+            calls.append((secid, frm, till))
+            if secid == "TCSG":
+                return {"2024-05": 2909.5, "2024-10": 2875.4, "2024-11": 2384.8}
+            return {"2024-11": 2387.8, "2024-12": 2752.2}
+
+        px, sources = bh.combined_monthly_close(bank, fake_monthly_close)
+
+        self.assertEqual(calls, [("TCSG", "2024-05-01", "2024-11-27"), ("T", "2024-11-28", None)])
+        self.assertEqual(px["2024-05"], 2909.5)
+        self.assertEqual(px["2024-11"], 2387.8)  # new ticker wins for the transition month
+        self.assertEqual(px["2024-12"], 2752.2)
+        self.assertEqual(sources, ["TCSG до 2024-11-27", "T с 2024-11-28"])
+
+    def test_default_price_source_is_bank_ticker(self):
+        bank = {"ticker": "SBER", "history_from": "2018-01-01"}
+
+        px, sources = bh.combined_monthly_close(bank, lambda secid, frm, till=None: {"2018-01": 100.0})
+
+        self.assertEqual(px, {"2018-01": 100.0})
+        self.assertEqual(sources, ["SBER"])
+
+    def test_cached_point_prices_keep_only_window_months(self):
+        prev = {"points": [{"d": "2024-04", "p": 100.0}, {"d": "2024-05", "p": 110.0}]}
+
+        self.assertEqual(bh.cached_point_prices(prev, "2024-05-01"), {"2024-05": 110.0})
+
+    def test_cached_splits_parse_previous_official_registry_records(self):
+        prev = {"splits_applied": [{"date": "2026-04-17", "ratio": "1:10"}]}
+
+        self.assertEqual(bh.cached_splits(prev), [{"date": "2026-04-17", "before": 1.0, "after": 10.0}])
+
+    def test_cache_preferred_months_mark_ticker_transition_month(self):
+        bank = {"price_history": [{"ticker": "TCSG", "until": "2024-11-27"}, {"ticker": "T", "from": "2024-11-28"}]}
+
+        self.assertEqual(bh.cache_preferred_months(bank), {"2024-11"})
+
+
 class PbvMath(unittest.TestCase):
     def test_bvps_and_pbv_units(self):
         # capital_rub already in RUB; shares_eff in shares. BVPS = cap/shares; P/BV = price/BVPS.
@@ -107,6 +157,15 @@ class ConfigHistoryFrom(unittest.TestCase):
         for b in cfg["banks"]:
             self.assertIn("history_from", b, f"{b['ticker']} без history_from")
             self.assertRegex(b["history_from"], r"^\d{4}-\d{2}-\d{2}$")
+
+    def test_t_uses_tcsg_alias_before_ticker_change(self):
+        with open(bh.CONFIG, encoding="utf-8") as f:
+            cfg = json.load(f)
+        t = next(b for b in cfg["banks"] if b["ticker"] == "T")
+        self.assertEqual(t["history_from"], "2024-05-01")
+        self.assertEqual([s["ticker"] for s in t["price_history"]], ["TCSG", "T"])
+        self.assertEqual(t["price_history"][0]["until"], "2024-11-27")
+        self.assertEqual(t["price_history"][1]["from"], "2024-11-28")
 
 
 class OutputContract(unittest.TestCase):
