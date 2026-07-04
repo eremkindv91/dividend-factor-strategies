@@ -1,116 +1,130 @@
 {
   "date": "2026-07-04",
-  "generated_at": "2026-07-04T15:12:58+03:00",
+  "generated_at": "2026-07-04T16:33:40+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские рынки и золото выросли, нефть Brent укрепилась до 72.13 доллара за баррель",
+  "external_backdrop": "Азиатские индексы Nikkei 225 и Hang Seng закрылись ростом, в то время как фьючерсы на Brent и золото также продемонстрировали положительную динамику.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7483.24",
-      "change_pct": "+0.00%",
-      "as_of": "2026-07-02",
+      "change_pct": "+0.0001%",
+      "as_of": "закрытие 02.07",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25832.67",
       "change_pct": "-0.80%",
-      "as_of": "2026-07-02",
+      "as_of": "закрытие 02.07",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "69744.07",
       "change_pct": "+1.47%",
-      "as_of": "2026-07-03",
+      "as_of": "03.07",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
       "value": "23350.03",
       "change_pct": "+1.28%",
-      "as_of": "2026-07-03",
+      "as_of": "03.07",
       "group": "global_equity"
     },
     {
       "name": "Brent",
       "value": "72.13",
       "change_pct": "+0.46%",
-      "as_of": "2026-07-03",
+      "as_of": "03.07",
       "group": "commodity"
     },
     {
       "name": "Золото",
       "value": "4187.30",
       "change_pct": "+1.81%",
-      "as_of": "2026-07-03",
+      "as_of": "03.07",
       "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2242.84",
+      "change_pct": "-0.59%",
+      "as_of": "закрытие 03.07",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "914.90",
+      "change_pct": "+0.32%",
+      "as_of": "закрытие 03.07",
+      "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "78.32",
-      "change_pct": "+0.00%",
-      "as_of": "2026-07-03 23:55:00",
+      "change_pct": "+0.10%",
+      "as_of": "23:55 03.07",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "11.49",
-      "change_pct": "+0.00%",
-      "as_of": "2026-07-03 23:50:03",
+      "change_pct": "+0.24%",
+      "as_of": "23:50 03.07",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minenergo-diesel-normative",
-      "headline": "Минэнерго планирует снизить норматив биржевых продаж дизельного топлива до десяти процентов",
-      "context": "Профильные ведомства готовят решение о снижении норматива продаж дизеля на бирже с 16% до 10% от объема производства.",
+      "id": "diesel-exchange-normative",
+      "headline": "Минэнерго планирует снизить норматив биржевых продаж дизельного топлива с 16% до 10%",
+      "context": "Решение готовится профильными ведомствами для стабилизации ситуации на внутреннем рынке.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8796115"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1101027"
         }
       ],
-      "published_at": "2026-07-03T20:06:00+03:00"
+      "published_at": "2026-07-03T19:52:00+03:00"
     },
     {
-      "id": "novak-regional-fuel-supplies",
+      "id": "novak-fuel-supplies",
       "headline": "Вице-премьер Александр Новак поручил нефтяным компаниям обеспечить дополнительные поставки топлива в регионы",
-      "context": "Особое внимание вице-премьер уделил ситуации с обеспечением топливом в Иркутской области и Забайкальском крае.",
+      "context": "Особое внимание уделено ситуации с топливообеспечением в Иркутской области и Забайкальском крае.",
       "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/03/1211133"
+          "url": "https://www.vedomosti.ru/business/news/2026/07/03/1211133-novak-postavki-topliva"
         }
       ],
       "published_at": "2026-07-03T19:25:00+03:00"
     },
     {
-      "id": "massive-uav-attack-russia",
-      "headline": "Российские силы противовоздушной обороны за ночь уничтожили триста восемьдесят девять беспилотников",
-      "context": "По данным Минобороны РФ, БПЛА были перехвачены над Белгородской, Брянской, Ленинградской, Московской и другими областями.",
-      "category": "geopolitics",
+      "id": "mintsifry-ai-regulator",
+      "headline": "Минцифры станет единым регулятором искусственного интеллекта в России",
+      "context": "Министерство получит 20 новых полномочий, под его регулирование подпадут 28 тысяч IT-компаний.",
+      "category": "tech",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8796490"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/education/18/06/2026/6a2af0009a79474fa3f58195"
         }
       ],
-      "published_at": "2026-07-04T07:55:00+03:00"
+      "published_at": "2026-07-04T16:08:00+03:00"
     },
     {
-      "id": "government-debt-writeoff-regions",
-      "headline": "Кабинет министров спишет две трети задолженности по бюджетным кредитам семнадцати регионам России",
-      "context": "Общая сумма списываемой задолженности составит 16,7 млрд рублей.",
+      "id": "regional-debt-writeoff",
+      "headline": "Правительство России спишет две трети задолженности по бюджетным кредитам 17 регионам",
+      "context": "Общая сумма списания долгов составит 16,7 миллиарда рублей.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
@@ -123,9 +137,39 @@
       "published_at": "2026-07-04T11:31:00+03:00"
     },
     {
-      "id": "state-tender-offer-limitation",
-      "headline": "Госдума рассмотрит законопроект об ограничении освобождения государства от оферты миноритариям акционерных обществ",
-      "context": "Законопроект, ограничивающий срок освобождения государства от обязательной оферты миноритариям полутора годами, будет рассмотрен 7 июля.",
+      "id": "petersburg-terminal-drone-attack",
+      "headline": "Нефтяной терминал в Кировском районе Санкт-Петербурга подвергся атаке беспилотников",
+      "context": "По заявлению губернатора Александра Беглова, техногенные последствия ликвидированы, пострадавших нет.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8796520"
+        }
+      ],
+      "published_at": "2026-07-04T10:15:00+03:00"
+    },
+    {
+      "id": "imoex-17-weeks-drop",
+      "headline": "Индекс Мосбиржи снизился по итогам недели семнадцатый раз подряд",
+      "context": "По итогам торгов в пятницу индекс закрылся на отметке 2242,84 пункта.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/83504"
+        }
+      ],
+      "published_at": "2026-07-03T22:07:00+03:00"
+    },
+    {
+      "id": "state-offer-limit",
+      "headline": "Освобождение государства от обязательной оферты миноритариям ограничат полутора годами",
+      "context": "Госдума рассмотрит доработанные поправки в закон об акционерных обществах 7 июля.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 4,
@@ -136,88 +180,43 @@
         }
       ],
       "published_at": "2026-07-03T19:43:00+03:00"
-    },
-    {
-      "id": "putin-military-meeting-konstantinovka",
-      "headline": "Президент Владимир Путин провел совещание с военным руководством по итогам взятия Константиновки",
-      "context": "Начальник Генштаба Валерий Герасимов доложил главе государства о переходе Константиновки под полный контроль российских войск.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8796163"
-        }
-      ],
-      "published_at": "2026-07-03T22:41:00+03:00"
-    },
-    {
-      "id": "revolut-stops-usdt-support",
-      "headline": "Финансовый сервис Revolut прекратит поддержку стейблкоина USDT с тридцать первого августа из-за регулирования",
-      "context": "Пользователи смогут покупать стейблкоин до 6 июля, а вывести активы необходимо до конца августа.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376552"
-        }
-      ],
-      "published_at": "2026-07-04T12:51:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "zabotkin-key-rate-forecast",
-      "headline": "Зампред Центробанка Алексей Заботкин заявил о неизбежном повышении прогноза траектории ключевой ставки",
-      "context": "Изменение прогноза траектории ставки в июле будет, однако степень его значимости пока не определена.",
+      "id": "zabotkin-no-deposit-freeze",
+      "headline": "Зампред Банка России Алексей Заботкин исключил возможность заморозки вкладов населения",
+      "context": "Регулятор назвал подобные теории абсолютно абсурдными при любых сценариях.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376472"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/03/1211080-nevozmozhna-zamorozka-vkladov"
         }
       ],
-      "published_at": "2026-07-03T11:38:00+03:00"
+      "published_at": "2026-07-03T17:02:00+03:00"
     },
     {
-      "id": "minfin-fx-purchases-reduction",
-      "headline": "Министерство финансов сократит ежедневные покупки иностранной валюты и золота почти в два раза",
-      "context": "С 7 июля по 6 августа ведомство будет направлять на покупку активов по 5,4 млрд рублей в день против 9,9 млрд рублей в июне.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8795811"
-        }
-      ],
-      "published_at": "2026-07-03T13:36:00+03:00"
-    },
-    {
-      "id": "vtb-dividend-payout-strategy",
-      "headline": "Банк ВТБ планирует заложить в стратегию ежегодное увеличение дивидендных выплат до половины прибыли",
-      "context": "При этом дивиденды за 2026 год точно не составят 50% от чистой прибыли, сообщил первый зампред правления Дмитрий Пьянов.",
+      "id": "vtb-profit-forecast-2026",
+      "headline": "ВТБ планирует получить чистую прибыль более 600 миллиардов рублей в 2026 году",
+      "context": "Глава банка Андрей Костин озвучил прогноз на встрече с президентом Владимиром Путиным.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376480"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/03/1211018-vtb-pribil-600-mlrd"
         }
       ],
-      "published_at": "2026-07-03T12:27:00+03:00"
+      "published_at": "2026-07-03T14:37:00+03:00"
     },
     {
-      "id": "eurotrans-technical-default-bond",
-      "headline": "Эмитент ЕвроТранс допустил технический дефолт по выплате семнадцатого купона биржевых облигаций",
-      "context": "Компания перевела в НРД лишь 0,86 рубля на одну облигацию серии БО-001Р-06 при обязательстве в размере 20,55 рубля.",
+      "id": "eurotrans-technical-default",
+      "headline": "Компания ЕвроТранс допустила технический дефолт по выплате купона облигаций",
+      "context": "Эмитент перевел в НРД лишь незначительную часть средств для выплаты 17-го купона серии БО-001Р-06.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -230,24 +229,54 @@
       "published_at": "2026-07-03T14:32:00+03:00"
     },
     {
-      "id": "rgbi-index-drop-below-112",
-      "headline": "Индекс государственных облигаций RGBI упал ниже ста двенадцати пунктов из-за жестких сигналов регулятора",
-      "context": "Рынок ОФЗ переоценивает доходности на фоне возросших проинфляционных рисков и ожиданий повышения ключевой ставки.",
-      "category": "markets",
+      "id": "minfin-fx-purchases-cut",
+      "headline": "Минфин России сократит ежедневные покупки валюты и золота почти вдвое",
+      "context": "С 7 июля по 6 августа объем ежедневных операций снизится до 5,4 миллиарда рублей.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376494"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8795811"
         }
       ],
-      "published_at": "2026-07-03T13:52:00+03:00"
+      "published_at": "2026-07-03T13:36:00+03:00"
     },
     {
-      "id": "mgkl-no-dividends-buyback",
-      "headline": "Акционеры компании МГКЛ проголосовали против выплаты дивидендов за прошлый год и одобрили байбэк",
-      "context": "Прибыль за 2025 год будет направлена на развитие бизнеса, а совет директоров одобрил программу обратного выкупа акций с открытого рынка.",
+      "id": "vtb-dividend-strategy",
+      "headline": "ВТБ планирует заложить в стратегию увеличение дивидендных выплат до 50% прибыли",
+      "context": "При этом за 2026 год выплаты точно не составят половину чистой прибыли.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376480"
+        }
+      ],
+      "published_at": "2026-07-03T12:27:00+03:00"
+    },
+    {
+      "id": "zabotkin-rate-forecast-revision",
+      "headline": "Банк России пересмотрит прогноз траектории ключевой ставки в июле",
+      "context": "Зампред ЦБ Алексей Заботкин сообщил, что изменение прогноза будет, но его значимость пока не определена.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376472"
+        }
+      ],
+      "published_at": "2026-07-03T11:38:00+03:00"
+    },
+    {
+      "id": "mgkl-no-dividends-2025",
+      "headline": "Акционеры группы МГКЛ проголосовали против выплаты дивидендов за 2025 год",
+      "context": "Чистая прибыль компании будет направлена на развитие бизнеса и усиление финансовой устойчивости.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -260,24 +289,69 @@
       "published_at": "2026-07-03T10:31:00+03:00"
     },
     {
-      "id": "vtb-record-profit-forecast",
-      "headline": "Глава ВТБ Андрей Костин спрогнозировал рекордную чистую прибыль банка свыше шестисот миллиардов рублей",
-      "context": "По словам руководителя кредитной организации, работа по ключевым проектам могла бы идти быстрее при снижении ключевой ставки.",
+      "id": "zabotkin-budget-rule-ruble",
+      "headline": "Снижение базовой цены нефти в бюджетном правиле может сместить диапазон рубля вверх",
+      "context": "Зампред ЦБ Алексей Заботкин отметил, что это приведет к некоторому смещению в сторону менее крепкого курса.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376524"
+        }
+      ],
+      "published_at": "2026-07-03T17:26:00+03:00"
+    },
+    {
+      "id": "sovcombank-nspk-privatization",
+      "headline": "Совкомбанк выразил готовность принять участие в приватизации НСПК",
+      "context": "Об этом сообщил представитель кредитной организации в кулуарах Финансового конгресса.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376509"
+        }
+      ],
+      "published_at": "2026-07-03T15:18:00+03:00"
+    },
+    {
+      "id": "novorossiysk-fuel-shortage",
+      "headline": "В Новороссийске приостанавливали свободную проданую бензина на автозаправочных станциях",
+      "context": "Позже продажа топлива без топливных карт была возобновлена на 15 АЗС города.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/07/03/1211018"
+          "url": "https://www.vedomosti.ru/society/news/2026/07/03/1211037-prodazhu-benzina"
         }
       ],
-      "published_at": "2026-07-03T14:37:00+03:00"
+      "published_at": "2026-07-03T15:17:00+03:00"
     },
     {
-      "id": "crypto-law-postponed-september",
-      "headline": "Вступление в силу закона о цифровой валюте перенесено на первое сентября две тысячи двадцать шестого года",
-      "context": "Перенос даты запуска связан с большим объемом поправок и затянувшимися согласованиями с ведомствами.",
+      "id": "gazprom-syndicated-loan",
+      "headline": "Газпром привлек дебютный синдицированный кредит на сумму 43 миллиарда рублей",
+      "context": "Организатором сделки выступил Совкомбанк.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/290357"
+        }
+      ],
+      "published_at": "2026-07-03T11:26:00+03:00"
+    },
+    {
+      "id": "crypto-law-postponed",
+      "headline": "Вступление в силу закона о цифровой валюте перенесено на 1 сентября",
+      "context": "Перенос даты с июля связан с большим объемом поправок и затянувшимися согласованиями.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
@@ -288,111 +362,6 @@
         }
       ],
       "published_at": "2026-07-03T07:40:00+03:00"
-    },
-    {
-      "id": "gazprom-syndicated-credit-sovcombank",
-      "headline": "Газпром привлек дебютный синдицированный кредит на сорок три миллиарда рублей через Совкомбанк",
-      "context": "Организатором сделки по предоставлению финансирования выступил Совкомбанк.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/290356"
-        }
-      ],
-      "published_at": "2026-07-03T11:26:00+03:00"
-    },
-    {
-      "id": "severstal-capex-reduction-2027",
-      "headline": "Северсталь может сократить инвестиционную программу в две тысячи двадцать седьмом году до восьмидесяти пяти миллиардов",
-      "context": "Капитальные затраты компании в 2026 году запланированы на уровне 112 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376482"
-        }
-      ],
-      "published_at": "2026-07-03T12:31:00+03:00"
-    },
-    {
-      "id": "services-pmi-drop-june",
-      "headline": "Спад деловой активности в сфере услуг Российской Федерации углубился по итогам июня",
-      "context": "Индекс деловой активности PMI в секторе услуг снизился до 48,2 пункта в июне по сравнению с 48,7 пункта в мае.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376439"
-        }
-      ],
-      "published_at": "2026-07-03T09:23:00+03:00"
-    },
-    {
-      "id": "food-suppliers-fine-moratorium",
-      "headline": "Поставщики продуктов питания просят ввести мораторий на штрафы торговых сетей из-за дефицита топлива",
-      "context": "Из-за дефицита бензина и дизеля поставщики начали чаще опаздывать с доставкой товаров в магазины.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/83483"
-        }
-      ],
-      "published_at": "2026-07-03T08:21:00+03:00"
-    },
-    {
-      "id": "t-bank-cash-demand-growth",
-      "headline": "Т-Банк зафиксировал рост спроса клиентов на снятие наличных денежных средств",
-      "context": "Вице-президент Т-Банка Сергей Хромов отметил увеличение объема наличности, но назвал динамику недраматичной.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1101015"
-        }
-      ],
-      "published_at": "2026-07-03T18:43:00+03:00"
-    },
-    {
-      "id": "delimobil-no-dividends-2025",
-      "headline": "Акционеры каршеринга Делимобиль приняли решение отказаться от выплаты дивидендов по итогам прошлого года",
-      "context": "Решение акционеров ПАО «ГТМ» соответствует рекомендациям совета директоров компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/376525"
-        }
-      ],
-      "published_at": "2026-07-03T17:34:00+03:00"
-    },
-    {
-      "id": "akron-no-final-dividends",
-      "headline": "Акционеры химического холдинга Акрон одобрили рекомендацию совета директоров не выплачивать финальные дивиденды",
-      "context": "Ранее компания выплатила дивиденды за девять месяцев прошлого года в размере 6,9 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8796009"
-        }
-      ],
-      "published_at": "2026-07-03T17:25:00+03:00"
     }
   ],
   "today_agenda": []
