@@ -3074,6 +3074,13 @@ function newsRelTime(iso) {
   return newsMskTime(iso, true);
 }
 
+// источники приходят из внешних лент/каналов (через Gemini) → доверять URL нельзя:
+// пропускаем ТОЛЬКО http(s), иначе ссылка не кликабельна (защита от javascript:/data: XSS)
+function newsSafeUrl(u) {
+  const s = String(u == null ? '' : u).trim();
+  return /^https?:\/\//i.test(s) ? s : null;
+}
+
 function newsChangeCls(pct) {
   const v = parseFloat(String(pct).replace('%', '').replace('+', ''));
   if (!isFinite(v) || v === 0) return 'flat';
@@ -3095,9 +3102,12 @@ function newsCardHTML(it, i, kind) {
   const cat = it.category ? `<span class="news-cat cat-${esc(it.category)}">${esc(NEWS_CAT[it.category] || it.category)}</span>` : '';
   const inv = it.investment_relevant ? '<span class="news-inv" title="инвестиционно значимо">₽</span>' : '';
   const rel = it.published_at ? `<span class="news-time">${esc(newsRelTime(it.published_at))}</span>` : '';
-  const srcs = (it.sources || []).map((s) => (s.url && s.url !== '-')
-    ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.name || 'источник')}</a>`
-    : `<span>${esc(s.name || '')}</span>`).join(' · ');
+  const srcs = (it.sources || []).map((s) => {
+    const u = newsSafeUrl(s.url);
+    return u
+      ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(s.name || 'источник')}</a>`
+      : `<span>${esc(s.name || '')}</span>`;
+  }).join(' · ');
   const ctx = it.context ? `<div class="news-ctx" id="nctx-${kind}-${i}" hidden>${esc(it.context)}</div>` : '';
   const expandable = it.context ? ' news-expandable' : '';
   return `<article class="news-card${expandable}" data-kind="${kind}" data-i="${i}">
