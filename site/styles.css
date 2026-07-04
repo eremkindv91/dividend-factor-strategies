@@ -1459,3 +1459,60 @@ tbody tr:hover td,
   .bval-guide div:first-child,
   .cbr-guide div:first-child { border-top: 0; }
 }
+
+/* ═══════════════ НОВОСТИ (#news) ═══════════════ */
+.news-body { display: flex; flex-direction: column; gap: 16px; }
+.news-loading, .news-fallback { padding: 20px 2px; }
+.news-fallback { color: var(--ink-soft); }
+.news-topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.news-updated { font-size: .84rem; color: var(--ink-soft); }
+.news-updated b { color: var(--ink); }
+.news-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 600; color: var(--ink-soft); cursor: pointer; user-select: none; }
+.news-toggle input { accent-color: var(--accent-deep); }
+.news-backdrop { font-size: .9rem; line-height: 1.5; color: var(--ink); background: var(--neut-fill); border-left: 3px solid var(--accent-deep); border-radius: 8px; padding: 10px 12px; }
+
+.news-snapshot { display: flex; flex-wrap: wrap; gap: 8px; }
+.news-chip { display: flex; flex-direction: column; gap: 1px; min-width: 104px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow); }
+.nc-name { font-size: .72rem; color: var(--ink-faint); font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+.nc-val { font-size: .96rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.nc-chg { font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.nc-chg.up { color: var(--good-ink); }
+.nc-chg.down { color: var(--risk-ink); }
+.nc-chg.flat { color: var(--ink-faint); }
+.nc-as { font-size: .68rem; color: var(--ink-faint); }
+
+.news-block { display: flex; flex-direction: column; gap: 8px; }
+.news-h { margin: 4px 0 2px; font-size: 1.02rem; color: var(--ink); font-weight: 700; }
+.news-list { display: flex; flex-direction: column; gap: 8px; }
+.news-empty { padding: 10px 2px; font-size: .86rem; }
+
+.news-card { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 11px 13px; transition: border-color .12s, box-shadow .12s; }
+.news-card.news-expandable { cursor: pointer; }
+.news-card.news-expandable:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.news-card.open { border-color: var(--accent-deep); }
+.news-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.news-hl { font-size: .92rem; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.news-cat { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; padding: 1px 7px; border-radius: 999px; background: var(--neut-fill); color: var(--neut-ink); white-space: nowrap; }
+.news-cat.cat-cb_policy, .news-cat.cat-cb_minfin { background: var(--warn-fill); color: var(--warn-ink); }
+.news-cat.cat-banks, .news-cat.cat-corporate, .news-cat.cat-earnings, .news-cat.cat-dividend_cutoff { background: var(--good-fill); color: var(--good-ink); }
+.news-cat.cat-geopolitics, .news-cat.cat-markets { background: var(--risk-fill); color: var(--risk-ink); }
+.news-star { color: #C9A227; font-size: .82rem; }
+.news-inv { color: var(--good-ink); font-weight: 800; font-size: .8rem; }
+.news-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font-size: .76rem; color: var(--ink-faint); }
+.news-time { font-variant-numeric: tabular-nums; }
+.news-src a { color: var(--accent-deep); text-decoration: none; }
+.news-src a:hover { text-decoration: underline; }
+.news-more { color: var(--accent-deep); font-weight: 600; }
+.news-ctx { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: .86rem; line-height: 1.55; color: var(--ink-soft); }
+
+.news-agenda { display: flex; flex-direction: column; gap: 6px; }
+.news-agenda-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: .86rem; }
+.news-agenda-time { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 46px; }
+.news-agenda-ev { color: var(--ink); }
+.news-agenda-tk { font-size: .74rem; font-weight: 700; color: var(--accent-deep); background: var(--neut-fill); border-radius: 4px; padding: 0 5px; }
+.news-disc { font-size: .78rem; line-height: 1.5; border-top: 1px solid var(--line); padding-top: 10px; }
+
+@media (max-width: 760px) {
+  .news-chip { min-width: calc(50% - 4px); flex: 1 1 calc(50% - 4px); }
+  .news-h { font-size: .96rem; }
+}

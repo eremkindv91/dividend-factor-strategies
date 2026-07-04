@@ -2220,7 +2220,7 @@ function renderDataCoverage() {
 // Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
 // нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
 // ══════════════════════════════════════════════════════════════════════════
-const SECTIONS = ['market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology'];
+const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology'];
 
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
@@ -2240,6 +2240,7 @@ function onSectionShown(sec) {
     renderMyPortfolio();
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
+  else if (sec === 'news') { renderNews(); }
   else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
   else if (sec === 'cbr') {
     renderBanksValuation();
@@ -3029,6 +3030,165 @@ function bvalHistDraw() {
         },
       },
     },
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// НОВОСТИ (#news) — утренний брифинг из site/news.json (CI + Gemini, статик). Не ИИР.
+// ══════════════════════════════════════════════════════════════════════════
+let NEWS = null;
+let NEWS_INVEST_ONLY = false;
+
+const NEWS_CAT = {
+  cb_policy: 'ЦБ', banks: 'Банки', markets: 'Рынки', macro: 'Макро',
+  corporate: 'Компании', tech: 'Технологии', geopolitics: 'Геополитика',
+};
+const NEWS_AGENDA_TYPE = {
+  dividend_cutoff: 'Отсечка', earnings: 'Отчёт', ofz_auction: 'Аукцион ОФЗ',
+  cb_minfin: 'ЦБ/Минфин', macro: 'Макро',
+};
+
+function loadNews(cb) {
+  if (NEWS) { cb(); return; }
+  fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.market_snapshot) throw new Error('empty'); NEWS = j; cb(); })
+    .catch((e) => { console.error('[news]', e); cb(e); });
+}
+
+function newsMskTime(iso, withDate) {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return '';
+  const opt = { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' };
+  if (withDate) { opt.day = '2-digit'; opt.month = '2-digit'; }
+  return new Date(t).toLocaleString('ru-RU', opt).replace(',', '');
+}
+
+function newsRelTime(iso) {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return '';
+  const diff = (Date.now() - t) / 1000;
+  if (diff < 0) return newsMskTime(iso, true);
+  if (diff < 3600) return Math.max(1, Math.round(diff / 60)) + ' мин назад';
+  if (diff < 86400) return Math.round(diff / 3600) + ' ч назад';
+  return newsMskTime(iso, true);
+}
+
+function newsChangeCls(pct) {
+  const v = parseFloat(String(pct).replace('%', '').replace('+', ''));
+  if (!isFinite(v) || v === 0) return 'flat';
+  return v > 0 ? 'up' : 'down';
+}
+
+function newsChipHTML(s) {
+  const cls = newsChangeCls(s.change_pct);
+  return `<div class="news-chip">
+    <span class="nc-name">${esc(s.name)}</span>
+    <span class="nc-val">${esc(s.value)}</span>
+    <span class="nc-chg ${cls}">${esc(s.change_pct || '—')}</span>
+    <span class="nc-as">${esc(s.as_of || '')}</span>
+  </div>`;
+}
+
+function newsCardHTML(it, i, kind) {
+  const star = (it.importance >= 4) ? '<span class="news-star" title="важное">★</span>' : '';
+  const cat = it.category ? `<span class="news-cat cat-${esc(it.category)}">${esc(NEWS_CAT[it.category] || it.category)}</span>` : '';
+  const inv = it.investment_relevant ? '<span class="news-inv" title="инвестиционно значимо">₽</span>' : '';
+  const rel = it.published_at ? `<span class="news-time">${esc(newsRelTime(it.published_at))}</span>` : '';
+  const srcs = (it.sources || []).map((s) => (s.url && s.url !== '-')
+    ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.name || 'источник')}</a>`
+    : `<span>${esc(s.name || '')}</span>`).join(' · ');
+  const ctx = it.context ? `<div class="news-ctx" id="nctx-${kind}-${i}" hidden>${esc(it.context)}</div>` : '';
+  const expandable = it.context ? ' news-expandable' : '';
+  return `<article class="news-card${expandable}" data-kind="${kind}" data-i="${i}">
+    <div class="news-head">
+      ${cat}${star}${inv}
+      <span class="news-hl">${esc(it.headline || '')}</span>
+    </div>
+    <div class="news-meta">${rel}${srcs ? `<span class="news-src">${srcs}</span>` : ''}${it.context ? '<span class="news-more">контекст ▾</span>' : ''}</div>
+    ${ctx}
+  </article>`;
+}
+
+function newsListHTML(items, kind) {
+  const list = (items || []).filter((it) => !NEWS_INVEST_ONLY || it.investment_relevant === true)
+    .slice().sort((a, b) => (b.importance || 0) - (a.importance || 0));
+  if (!list.length) return '<div class="news-empty muted">Пока без значимых новостей.</div>';
+  return list.map((it) => newsCardHTML(it, (items).indexOf(it), kind)).join('');
+}
+
+function newsAgendaHTML(items) {
+  const list = (items || []).slice().sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+  if (!list.length) return '<div class="news-empty muted">На сегодня событий в календаре нет.</div>';
+  return list.map((a) => {
+    const tp = a.type ? `<span class="news-cat cat-${esc(a.type)}">${esc(NEWS_AGENDA_TYPE[a.type] || a.type)}</span>` : '';
+    const star = (a.importance >= 4) ? '<span class="news-star">★</span>' : '';
+    const tk = a.ticker ? `<span class="news-agenda-tk">${esc(a.ticker)}</span>` : '';
+    return `<div class="news-agenda-row"><span class="news-agenda-time">${esc(a.time || '—')}</span>${tp}<span class="news-agenda-ev">${esc(a.event || '')}</span>${tk}${star}</div>`;
+  }).join('');
+}
+
+function newsShellHTML(d) {
+  const upd = newsMskTime(d.generated_at);
+  const back = d.external_backdrop ? `<div class="news-backdrop">${esc(d.external_backdrop)}</div>` : '';
+  const chips = (d.market_snapshot || []).map(newsChipHTML).join('');
+  return `
+    <div class="news-topbar">
+      <div class="news-updated">Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}</div>
+      <label class="news-toggle"><input type="checkbox" id="news-invest"${NEWS_INVEST_ONLY ? ' checked' : ''}> только инвестиции</label>
+    </div>
+    ${back}
+    <div class="news-snapshot" aria-label="Рыночный снапшот">${chips || '<span class="muted">снапшот недоступен</span>'}</div>
+
+    <section class="news-block">
+      <h3 class="news-h">За ночь</h3>
+      <div class="news-list" id="news-overnight">${newsListHTML(d.overnight, 'ov')}</div>
+    </section>
+    <section class="news-block">
+      <h3 class="news-h">Главное вчера</h3>
+      <div class="news-list" id="news-yesterday">${newsListHTML(d.yesterday, 'ys')}</div>
+    </section>
+    <section class="news-block">
+      <h3 class="news-h">Сегодня в календаре</h3>
+      <div class="news-agenda" id="news-agenda">${newsAgendaHTML(d.today_agenda)}</div>
+    </section>
+    <div class="news-disc muted">Источники — открытые ленты и каналы; формулировки структурированы автоматически. Не индивидуальная инвестиционная рекомендация.</div>`;
+}
+
+function newsWire() {
+  const body = document.getElementById('news-body');
+  if (!body) return;
+  const tgl = document.getElementById('news-invest');
+  if (tgl) tgl.addEventListener('change', () => {
+    NEWS_INVEST_ONLY = tgl.checked;
+    const ov = document.getElementById('news-overnight');
+    const ys = document.getElementById('news-yesterday');
+    if (ov) ov.innerHTML = newsListHTML(NEWS.overnight, 'ov');
+    if (ys) ys.innerHTML = newsListHTML(NEWS.yesterday, 'ys');
+  });
+  body.addEventListener('click', (e) => {
+    const card = e.target.closest('.news-expandable');
+    if (!card || e.target.closest('a')) return;
+    const ctx = card.querySelector('.news-ctx');
+    const more = card.querySelector('.news-more');
+    if (ctx) {
+      ctx.hidden = !ctx.hidden;
+      card.classList.toggle('open', !ctx.hidden);
+      if (more) more.textContent = ctx.hidden ? 'контекст ▾' : 'контекст ▴';
+    }
+  });
+}
+
+function renderNews() {
+  const body = document.getElementById('news-body');
+  if (!body) return;
+  if (body.dataset.shown === '1' && NEWS) return;
+  body.innerHTML = '<div class="news-loading muted">Загрузка новостного блока…</div>';
+  loadNews((err) => {
+    if (err || !NEWS) { body.innerHTML = '<div class="news-fallback">Новостной блок недоступен — файл ещё не сгенерирован.</div>'; return; }
+    body.innerHTML = newsShellHTML(NEWS);
+    body.dataset.shown = '1';
+    newsWire();
   });
 }
 

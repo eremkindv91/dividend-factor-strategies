@@ -18,6 +18,7 @@
     </header>
 
     <nav class="section-tabs" id="section-tabs" aria-label="Разделы сайта">
+      <button class="section-tab" type="button" data-section="news">Новости</button>
       <button class="section-tab" type="button" data-section="market">Текущий рынок</button>
       <button class="section-tab" type="button" data-section="my-portfolio">Портфель</button>
       <button class="section-tab" type="button" data-section="stocks">Акции</button>
@@ -28,6 +29,14 @@
     </nav>
 
     <main class="sections">
+      <!-- ─────────── НОВОСТИ ─────────── -->
+      <section class="app-section" data-section="news" hidden>
+        <p class="section-intro">Утренний брифинг рынка РФ: рыночный снапшот, ночные и вчерашние новости, календарь на сегодня. Данные собираются автоматически и структурируются; это не индивидуальная инвестиционная рекомендация.</p>
+        <div class="news-body" id="news-body">
+          <div class="news-loading muted">Загрузка новостного блока…</div>
+        </div>
+      </section>
+
       <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
       <section class="app-section" data-section="market">
         <p class="section-intro">Сводка рыночного режима по индексу полной доходности MCFTR, безрисковой ставке (RFR) и доступным рыночным данным. Это индикаторы контекста, а не прогноз.</p>
