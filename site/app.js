@@ -586,18 +586,61 @@ function detailKV(t) {
     + (flags.length ? `<div class="flagline">⚠ ${flags.map(esc).join('; ')}</div>` : '');
 }
 
+function statusChipHTML(t) {
+  return t.status === 'ok'
+    ? '<span class="status-chip s-ok">✓ полные</span>'
+    : '<span class="status-chip s-insuf">неполные</span>';
+}
+
+function stockDetailSummaryHTML(t) {
+  return `<div class="issuer-summary">
+    <div class="issuer-title">
+      <span class="issuer-ticker">${esc(t.ticker)}</span>
+      <div>
+        <b>${esc(t.name)}</b>
+        <span>${esc(t.sector || ND)}</span>
+      </div>
+    </div>
+    <div class="issuer-badges">
+      ${verdictChip(t.verdict, true)}
+      ${riskBadge(t.cut_risk)}
+      ${statusChipHTML(t)}
+    </div>
+    <div class="issuer-kpis">
+      <div><span>Устойчивость</span>${stabilityCell(t.stability_score)}</div>
+      <div><span>Доходность ожид.</span><b class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</b></div>
+      <div><span>Прогноз дивиденда</span><b class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</b></div>
+      <div><span>Цена</span><b class="tnum">${cellNum(t.price, fmtRub)}</b></div>
+    </div>
+  </div>`;
+}
+
+function dividendMetricsHTML(t) {
+  const payout = isNum(t.payout) ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}` : mdash;
+  const lohi = (isNum(t.dividend_forecast_lo) && isNum(t.dividend_forecast_hi))
+    ? `${ru(t.dividend_forecast_lo, 1)}–${ru(t.dividend_forecast_hi, 1)} ₽` : mdash;
+  return `<dl class="kv dividend-kv">
+    <dt>Доходность при выплате</dt><dd class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</dd>
+    <dt>Payout факт</dt><dd class="tnum">${payout}</dd>
+    <dt>Интервал прогноза</dt><dd class="tnum">${lohi}</dd>
+    <dt>Серия лет выплат</dt><dd class="tnum">${t.div_streak ?? mdash}</dd>
+  </dl>`;
+}
+
 function toggleDetail(tr, t) {
   const next = tr.nextElementSibling;
   if (next && next.classList.contains('detail-row')) { next.remove(); return; }
   document.querySelectorAll('tr.detail-row').forEach((r) => r.remove());
   const dr = document.createElement('tr');
   dr.className = 'detail-row';
-  dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail">
-    <div><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
-    <div><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
-    <div><h4>Фундаментальные показатели</h4>${fundamentalsOrHistoryHTML(t)}</div>
-    <div><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
-    <div><h4>Детали</h4>${detailKV(t)}</div>
+  dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail detail-investor">
+    ${stockDetailSummaryHTML(t)}
+    <div class="detail-card"><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
+    <div class="detail-card"><h4>Дивидендные метрики</h4>${dividendMetricsHTML(t)}</div>
+    <div class="detail-card"><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
+    <div class="detail-card"><h4>Фундаментальные показатели</h4>${fundamentalsOrHistoryHTML(t)}</div>
+    <div class="detail-card"><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
+    <div class="detail-card"><h4>Детали и флаги</h4>${detailKV(t)}</div>
   </div></td>`;
   tr.after(dr);
   wireCharts(dr);
@@ -607,9 +650,7 @@ function renderCards() {
   const el = document.getElementById('cards');
   if (!el) return;
   el.innerHTML = VIEW.length ? VIEW.map((t, i) => {
-    const statusChip = t.status === 'ok'
-      ? '<span class="status-chip s-ok">✓ полные</span>'
-      : '<span class="status-chip s-insuf">неполные</span>';
+    const statusChip = statusChipHTML(t);
     return `<div class="card">
       <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
       <div class="nm">${esc(t.name)} · ${esc(t.sector)}</div>
@@ -633,7 +674,7 @@ function renderCards() {
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
     const t = VIEW[+this.dataset.i];
-    box.innerHTML = valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
+    box.innerHTML = stockDetailSummaryHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
   }));
@@ -1180,7 +1221,12 @@ function renderMyPortfolio() {
   }
   const rows = parseMyPortfolioInput(input.value);
   if (!rows.length) {
-    out.innerHTML = '<div class="mp-empty muted">Добавь позиции или загрузи пример, чтобы увидеть health score и action feed.</div>';
+    out.innerHTML = `<div class="mp-empty mp-empty-rich">
+      <b>Портфель пока пуст</b>
+      <span>Вставь позиции строками или загрузи пример.</span>
+      <code>SBER; 100; 310</code>
+      <em>Расчёт локальный: файл не отправляется на сервер.</em>
+    </div>`;
     return;
   }
   const m = myPortfolioMetrics(rows);
@@ -2593,17 +2639,17 @@ function finderShellHTML(d) {
     `<option value="${id}"${id === 'balanced' ? ' selected' : ''}>${esc(p.title)}</option>`).join('');
   const c = m.counts || {};
   return `
-    ${warns ? `<div class="fnd-warns"><b>Предупреждения качества данных:</b><ul>${warns}</ul></div>` : ''}
+    ${warns ? `<details class="fnd-warns"><summary>Предупреждения качества данных <span class="muted">(${(m.warnings || []).length})</span></summary><ul>${warns}</ul></details>` : ''}
     <div class="fnd-controls">
       <label>Профиль<select id="fnd-profile">${profOpts}</select></label>
       <label>Бюджет, ₽<input type="number" id="fnd-budget" value="1000000" min="0" step="100000"></label>
-      <span class="fnd-chip"><span class="k">Срез данных:</span> <b>${esc(m.snapshot_date || '—')}</b></span>
-      <span class="fnd-chip"><span class="k">Вселенная:</span> <b>${c.universe_clean ?? '—'}</b> · искл. FX <b>${c.fx ?? 0}</b> · ПИР <b>${c.pir_board ?? 0}</b> · колл <b>${c.call_only ?? 0}</b></span>
+      <span class="fnd-chip"><span class="k">Срез</span> <b>${esc(m.snapshot_date || '—')}</b></span>
+      <span class="fnd-chip"><span class="k">Вселенная</span> <b>${c.universe_clean ?? '—'}</b> · FX <b>${c.fx ?? 0}</b> · ПИР <b>${c.pir_board ?? 0}</b> · call <b>${c.call_only ?? 0}</b></span>
     </div>
     <div class="fnd-summary" id="fnd-summary"></div>
     <div id="fnd-table"></div>
     <div id="fnd-extra"></div>
-    <div class="fnd-method"><b>Методика (коротко):</b> ${esc(m.methodology || '')}</div>
+    <details class="fnd-method"><summary>Методика и ограничения</summary><div>${esc(m.methodology || '')}</div></details>
     <div class="fnd-disc">${esc(m.disclaimer || '')}</div>`;
 }
 
@@ -2627,10 +2673,10 @@ function finderDraw() {
   const a = prof.aggregates || {};
   const spent = rows.reduce((s, r) => s + r.cost, 0);
   sumEl.innerHTML = [
-    ['Дох. после налога (взвеш.)', a.ytm_net_wavg != null ? a.ytm_net_wavg.toFixed(2) + '%' : '—'],
-    ['Дюрация (взвеш.)', a.duration_wavg != null ? a.duration_wavg.toFixed(2) + ' г' : '—'],
+    ['Net YTM', a.ytm_net_wavg != null ? a.ytm_net_wavg.toFixed(2) + '%' : '—'],
+    ['Дюрация', a.duration_wavg != null ? a.duration_wavg.toFixed(2) + ' г' : '—'],
     ['Эмитентов', a.issuers ?? '—'],
-    ['Задействовано', rub0(spent) + ' из ' + rub0(budget)],
+    ['Бюджет', rub0(spent) + ' из ' + rub0(budget)],
   ].map(([k, v]) => `<div class="fnd-kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
   + (a.note ? `<div class="fnd-note">⚠️ ${esc(a.note)}</div>` : '');
 
@@ -2639,21 +2685,17 @@ function finderDraw() {
     const a = x[key] ?? -1e18, b = y[key] ?? -1e18;
     return (a > b ? 1 : a < b ? -1 : 0) * dir;
   });
-  const cols = [['secid', 'SECID'], ['name', 'Бумага'], ['issuer', 'Эмитент'], ['rating_rank', 'Рейтинг≈'], ['price', 'Цена'],
-    ['dirty_price', 'Грязная'], ['ytm', 'YTM'], ['ytm_net', 'После налога'], ['g_spread', 'G-спред'],
-    ['spread_pctl', 'Спред-пцл'], ['duration_years', 'Дюр., г'], ['score', 'Скор'],
-    ['pieces', 'Штук'], ['cost', 'Сумма']];
+  const cols = [['secid', 'SECID'], ['name', 'Бумага'], ['rating_rank', 'Рейтинг'], ['dirty_price', 'Цена+НКД'],
+    ['ytm_net', 'Net YTM'], ['g_spread', 'G-спред'], ['spread_pctl', 'Пцл'],
+    ['duration_years', 'Дюр.'], ['score', 'Скор'], ['pieces', 'Шт.'], ['cost', 'Сумма']];
   const th = cols.map(([k, t]) =>
     `<th data-key="${k}" class="${key === k ? 'fnd-sorted' : ''}">${t}${key === k ? (dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('');
   const trs = rows.map((r) => `<tr>
     <td class="fnd-links"><a href="https://www.moex.com/ru/issue.aspx?code=${esc(r.secid)}" target="_blank" rel="noopener">${esc(r.secid)}</a>
       <a class="muted" href="https://smart-lab.ru/q/bonds/${esc(r.secid)}/" target="_blank" rel="noopener">sl</a></td>
-    <td class="fnd-name">${esc(r.name || '')}${r.new_placement ? ' <span class="fnd-new">новый</span>' : ''}${r.qual_only ? ' <span class="fnd-qual">квал</span>' : ''}</td>
-    <td class="fnd-name muted">${esc(String(r.issuer || '').slice(0, 28))}</td>
+    <td class="fnd-name"><b>${esc(r.name || '')}</b><span>${esc(String(r.issuer || '').slice(0, 36))}</span>${r.new_placement ? ' <i class="fnd-new">новый</i>' : ''}${r.qual_only ? ' <i class="fnd-qual">квал</i>' : ''}</td>
     <td class="fnd-rating">${r.rating ? `<span class="fnd-rt r-${RATING_GROUP(r.rating)}" title="${r.rating_source === 'csv' ? 'из ratings.csv' : 'снапшот-маппинг по эмитенту — проверьте на АКРА/Эксперт РА'}">${esc(r.rating)}${r.rating_source === 'issuer_map' ? '≈' : ''}</span>` : '<span class="muted" title="рейтинг не найден в маппинге">—</span>'}</td>
-    <td class="tnum">${isNum(r.price) ? r.price.toFixed(2) : ND}</td>
     <td class="tnum">${isNum(r.dirty_price) ? ru(r.dirty_price, 0) : ND}</td>
-    <td class="tnum">${isNum(r.ytm) ? r.ytm.toFixed(2) + '%' : ND}</td>
     <td class="tnum">${isNum(r.ytm_net) ? r.ytm_net.toFixed(2) + '%' : ND}</td>
     <td class="tnum">${isNum(r.g_spread) ? (r.g_spread >= 0 ? '+' : '') + r.g_spread.toFixed(2) + 'пп' : ND}</td>
     <td class="tnum">${r.spread_pctl != null ? r.spread_pctl.toFixed(0) + '%' : '<span class="muted" title="история короче 60 сессий">—</span>'}</td>

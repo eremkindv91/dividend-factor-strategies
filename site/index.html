@@ -49,11 +49,14 @@
 
       <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->
       <section class="app-section" data-section="my-portfolio" hidden>
-        <p class="section-intro">Локальный разбор портфеля: концентрация, дивидендный spread к RFR, качество данных и список проверок на сегодня. Позиции хранятся только в браузере.</p>
+        <p class="section-intro">Локальная проверка портфеля: концентрация, дивидендный spread к RFR, качество данных и список ручных проверок. Данные остаются в браузере.</p>
         <div class="my-portfolio" id="my-portfolio">
           <div class="mp-editor">
             <div class="mp-input-wrap">
-              <label for="mp-input">Позиции <span class="muted">тикер; количество; средняя цена</span></label>
+              <div class="mp-editor-head">
+                <label for="mp-input">Позиции</label>
+                <span>Формат строки: тикер; количество; средняя цена</span>
+              </div>
               <textarea id="mp-input" spellcheck="false" placeholder="SBER; 100; 310&#10;LKOH; 5; 6800&#10;MOEX; 50; 210"></textarea>
             </div>
             <div class="mp-actions">
@@ -64,7 +67,12 @@
             </div>
           </div>
           <div id="mp-out">
-            <div class="mp-empty muted">Добавь позиции или загрузи пример, чтобы увидеть health score и action feed.</div>
+            <div class="mp-empty mp-empty-rich">
+              <b>Портфель пока пуст</b>
+              <span>Вставь позиции строками или загрузи пример.</span>
+              <code>SBER; 100; 310</code>
+              <em>Расчёт локальный: файл не отправляется на сервер.</em>
+            </div>
           </div>
         </div>
       </section>
