@@ -1821,3 +1821,10 @@ tbody tr:hover td,
   .pfx-top { grid-template-columns: 1fr; }
   .pfx-2col, .pfx-riskrow, .pfx-divlists { grid-template-columns: 1fr; }
 }
+
+/* portfolio validation warnings panel */
+.pfx-warns-panel { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.pfx-wline { font-size: .8rem; padding: 6px 10px; border-radius: 8px; font-weight: 500; }
+.pfx-wline.pfx-w-risk { background: var(--risk-fill); color: var(--risk-ink); font-weight: 600; }
+.pfx-wline.pfx-w-warn { background: var(--warn-fill); color: var(--warn-ink); }
+.pfx-wline.pfx-w-neut { background: var(--neut-fill); color: var(--neut-ink); }
