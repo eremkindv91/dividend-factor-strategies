@@ -1,367 +1,350 @@
 {
-  "date": "2026-07-04",
-  "generated_at": "2026-07-04T16:33:40+03:00",
+  "date": "2026-07-06",
+  "generated_at": "2026-07-06T12:36:57+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские индексы Nikkei 225 и Hang Seng закрылись ростом, в то время как фьючерсы на Brent и золото также продемонстрировали положительную динамику.",
+  "external_backdrop": "Азиатские фондовые индексы показывают разнонаправленную динамику, золото растет, а нефть марки Brent снижается.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7483.24",
       "change_pct": "+0.0001%",
-      "as_of": "закрытие 02.07",
+      "as_of": "2026-07-02",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25832.67",
       "change_pct": "-0.80%",
-      "as_of": "закрытие 02.07",
+      "as_of": "2026-07-02",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "69744.07",
-      "change_pct": "+1.47%",
-      "as_of": "03.07",
+      "value": "69737.69",
+      "change_pct": "-0.01%",
+      "as_of": "2026-07-06",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23350.03",
-      "change_pct": "+1.28%",
-      "as_of": "03.07",
+      "value": "23616.32",
+      "change_pct": "+1.14%",
+      "as_of": "2026-07-06",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "72.13",
-      "change_pct": "+0.46%",
-      "as_of": "03.07",
+      "value": "71.71",
+      "change_pct": "-0.13%",
+      "as_of": "2026-07-06",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4187.30",
-      "change_pct": "+1.81%",
-      "as_of": "03.07",
+      "value": "4157.10",
+      "change_pct": "+1.08%",
+      "as_of": "2026-07-06",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2242.84",
-      "change_pct": "-0.59%",
-      "as_of": "закрытие 03.07",
+      "value": "2241.21",
+      "change_pct": "-0.07%",
+      "as_of": "2026-07-06 12:36:53",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "914.90",
-      "change_pct": "+0.32%",
-      "as_of": "закрытие 03.07",
+      "value": "914.21",
+      "change_pct": "-0.08%",
+      "as_of": "2026-07-06 12:36:54",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "78.32",
-      "change_pct": "+0.10%",
-      "as_of": "23:55 03.07",
+      "value": "78.20",
+      "change_pct": "-0.38%",
+      "as_of": "2026-07-06 12:36:49",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.49",
-      "change_pct": "+0.24%",
-      "as_of": "23:50 03.07",
+      "value": "11.44",
+      "change_pct": "-0.44%",
+      "as_of": "2026-07-06 12:36:56",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "diesel-exchange-normative",
-      "headline": "Минэнерго планирует снизить норматив биржевых продаж дизельного топлива с 16% до 10%",
-      "context": "Решение готовится профильными ведомствами для стабилизации ситуации на внутреннем рынке.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
+      "id": "cbr-minimum-ipo-size",
+      "headline": "Банк России предложил установить минимальный объем размещения акций при проведении IPO в три миллиарда рублей",
+      "context": "Требование планируется ввести для котировальных списков первого и второго уровней листинга.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1101027"
+          "url": "https://t.me/interfax_news/353804"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8797193"
         }
       ],
-      "published_at": "2026-07-03T19:52:00+03:00"
+      "published_at": "2026-07-06T11:55:00+03:00"
     },
     {
-      "id": "novak-fuel-supplies",
-      "headline": "Вице-премьер Александр Новак поручил нефтяным компаниям обеспечить дополнительные поставки топлива в регионы",
-      "context": "Особое внимание уделено ситуации с топливообеспечением в Иркутской области и Забайкальском крае.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
+      "id": "bts-most-paid-ugk-shares",
+      "headline": "Компания БТС-Мост Холдинг оплатила покупку контрольного пакета акций золотодобывающей группы ЮГК за девяносто три миллиарда рублей",
+      "context": "Сумма сделки за 67,2% акций составила 93,16 миллиарда рублей, что в 1,7 раза ниже начальной цены торгов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/03/1211133-novak-postavki-topliva"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/06/1211422"
         }
       ],
-      "published_at": "2026-07-03T19:25:00+03:00"
+      "published_at": "2026-07-06T10:41:00+03:00"
     },
     {
-      "id": "mintsifry-ai-regulator",
-      "headline": "Минцифры станет единым регулятором искусственного интеллекта в России",
-      "context": "Министерство получит 20 новых полномочий, под его регулирование подпадут 28 тысяч IT-компаний.",
-      "category": "tech",
-      "investment_relevant": false,
+      "id": "chmf-capex-reduction-2026",
+      "headline": "Северсталь сократила инвестиционную программу на две тысячи двадцать шестой год на двадцать четыре процента",
+      "context": "Объем инвестпрограммы снижен до 112 миллиардов рублей, а в 2027 году ожидается дальнейшее снижение до 85 миллиардов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/education/18/06/2026/6a2af0009a79474fa3f58195"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376653"
         }
       ],
-      "published_at": "2026-07-04T16:08:00+03:00"
+      "published_at": "2026-07-06T10:15:00+03:00"
     },
     {
-      "id": "regional-debt-writeoff",
-      "headline": "Правительство России спишет две трети задолженности по бюджетным кредитам 17 регионам",
-      "context": "Общая сумма списания долгов составит 16,7 миллиарда рублей.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "sber-crypto-wallet-launch",
+      "headline": "Сбербанк планирует запустить собственный криптокошелек и цифровой депозитарий в начале декабря две тысячи двадцать шестого года",
+      "context": "Запуск инфраструктуры ожидается после вступления в силу закона о цифровой валюте.",
+      "category": "banks",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1101146"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/83519"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/290568"
         }
       ],
-      "published_at": "2026-07-04T11:31:00+03:00"
+      "published_at": "2026-07-06T10:08:00+03:00"
     },
     {
-      "id": "petersburg-terminal-drone-attack",
-      "headline": "Нефтяной терминал в Кировском районе Санкт-Петербурга подвергся атаке беспилотников",
-      "context": "По заявлению губернатора Александра Беглова, техногенные последствия ликвидированы, пострадавших нет.",
+      "id": "astra-shipments-growth-1h2026",
+      "headline": "Отгрузки Группы Астра в первом полугодии две тысячи двадцать шестого года выросли на двадцать шесть процентов",
+      "context": "Показатель достиг 7,3 миллиарда рублей благодаря ускорению роста во втором квартале до 41%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/06/1211397"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/290602"
+        }
+      ],
+      "published_at": "2026-07-06T09:16:00+03:00"
+    },
+    {
+      "id": "ust-luga-vysotsk-ports-damaged",
+      "headline": "Порты Усть-Луга и Высоцк в Ленинградской области получили повреждения в результате атаки беспилотников",
+      "context": "В регионе зафиксированы повреждения объектов инфраструктуры после уничтожения пятидесяти шести беспилотных аппаратов.",
       "category": "geopolitics",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8796520"
+          "url": "https://www.kommersant.ru/doc/8797046"
         }
       ],
-      "published_at": "2026-07-04T10:15:00+03:00"
+      "published_at": "2026-07-06T09:10:00+03:00"
     },
     {
-      "id": "imoex-17-weeks-drop",
-      "headline": "Индекс Мосбиржи снизился по итогам недели семнадцатый раз подряд",
-      "context": "По итогам торгов в пятницу индекс закрылся на отметке 2242,84 пункта.",
+      "id": "ugld-no-dividends-2025",
+      "headline": "Акционеры Южуралзолота утвердили решение не выплачивать дивиденды по итогам две тысячи двадцать пятого года",
+      "context": "Решение о невыплате дивидендов было принято на общем собрании акционеров компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8797042"
+        },
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376628"
+        }
+      ],
+      "published_at": "2026-07-06T08:59:00+03:00"
+    },
+    {
+      "id": "ru-oil-gas-revenues-june",
+      "headline": "Нефтегазовые доходы России в июне выросли на тридцать восемь процентов в годовом выражении",
+      "context": "Показатель составил 684 миллиарда рублей, увеличившись на 38,2% по сравнению с июнем прошлого года.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "spydell_finance",
+          "url": "https://t.me/spydell_finance/9860"
+        }
+      ],
+      "published_at": "2026-07-06T07:37:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "opec-increase-quotas-august",
+      "headline": "Страны ОПЕК плюс договорились увеличить квоты на добычу нефти в августе",
+      "context": "Семь стран альянса приняли решение увеличить добычу нефти на 188 тысяч баррелей в сутки.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1101276"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8796803"
+        }
+      ],
+      "published_at": "2026-07-05T13:32:00+03:00"
+    },
+    {
+      "id": "putin-trump-phone-call",
+      "headline": "Президенты России и США провели полуторачасовой телефонный разговор по вопросам урегулирования конфликта",
+      "context": "Владимир Путин и Дональд Трамп обсудили ситуацию на Украине и договорились продолжить контакты в ближайшее время.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/83511"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8796693"
+        }
+      ],
+      "published_at": "2026-07-05T01:16:00+03:00"
+    },
+    {
+      "id": "hormuz-strait-shipping-drop",
+      "headline": "Судоходство через Ормузский пролив вдоль побережья Омана упало до минимального уровня",
+      "context": "Снижение трафика произошло после того, как несколько судов развернулись в этом районе в выходные.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/83504"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/05/1211280"
         }
       ],
-      "published_at": "2026-07-03T22:07:00+03:00"
+      "published_at": "2026-07-05T12:43:00+03:00"
     },
     {
-      "id": "state-offer-limit",
-      "headline": "Освобождение государства от обязательной оферты миноритариям ограничат полутора годами",
-      "context": "Госдума рассмотрит доработанные поправки в закон об акционерных обществах 7 июля.",
-      "category": "cb_policy",
+      "id": "ru-banks-raise-deposit-rates",
+      "headline": "Крупнейшие российские банки повысили процентные ставки по вкладам после решения Центробанка",
+      "context": "Повышение доходности по депозитам и счетам последовало за очередным заседанием Банка России по ключевой ставке.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/290537"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/376585"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/05/1211314"
         }
       ],
-      "published_at": "2026-07-03T19:43:00+03:00"
-    }
-  ],
-  "yesterday": [
+      "published_at": "2026-07-05T11:16:00+03:00"
+    },
     {
-      "id": "zabotkin-no-deposit-freeze",
-      "headline": "Зампред Банка России Алексей Заботкин исключил возможность заморозки вкладов населения",
-      "context": "Регулятор назвал подобные теории абсолютно абсурдными при любых сценариях.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
+      "id": "ru-scrap-metal-prices-peak",
+      "headline": "Цены на лом черных металлов в России достигли максимального годового значения",
+      "context": "Стоимость сырья для металлургических предприятий обновила локальный пик на внутреннем рынке.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/07/03/1211080-nevozmozhna-zamorozka-vkladov"
+          "url": "https://www.vedomosti.ru/business/news/2026/07/05/1211309"
         }
       ],
-      "published_at": "2026-07-03T17:02:00+03:00"
+      "published_at": "2026-07-05T16:49:00+03:00"
     },
     {
-      "id": "vtb-profit-forecast-2026",
-      "headline": "ВТБ планирует получить чистую прибыль более 600 миллиардов рублей в 2026 году",
-      "context": "Глава банка Андрей Костин озвучил прогноз на встрече с президентом Владимиром Путиным.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/07/03/1211018-vtb-pribil-600-mlrd"
-        }
-      ],
-      "published_at": "2026-07-03T14:37:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default",
-      "headline": "Компания ЕвроТранс допустила технический дефолт по выплате купона облигаций",
-      "context": "Эмитент перевел в НРД лишь незначительную часть средств для выплаты 17-го купона серии БО-001Р-06.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8795830"
-        }
-      ],
-      "published_at": "2026-07-03T14:32:00+03:00"
-    },
-    {
-      "id": "minfin-fx-purchases-cut",
-      "headline": "Минфин России сократит ежедневные покупки валюты и золота почти вдвое",
-      "context": "С 7 июля по 6 августа объем ежедневных операций снизится до 5,4 миллиарда рублей.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8795811"
-        }
-      ],
-      "published_at": "2026-07-03T13:36:00+03:00"
-    },
-    {
-      "id": "vtb-dividend-strategy",
-      "headline": "ВТБ планирует заложить в стратегию увеличение дивидендных выплат до 50% прибыли",
-      "context": "При этом за 2026 год выплаты точно не составят половину чистой прибыли.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/376480"
-        }
-      ],
-      "published_at": "2026-07-03T12:27:00+03:00"
-    },
-    {
-      "id": "zabotkin-rate-forecast-revision",
-      "headline": "Банк России пересмотрит прогноз траектории ключевой ставки в июле",
-      "context": "Зампред ЦБ Алексей Заботкин сообщил, что изменение прогноза будет, но его значимость пока не определена.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/376472"
-        }
-      ],
-      "published_at": "2026-07-03T11:38:00+03:00"
-    },
-    {
-      "id": "mgkl-no-dividends-2025",
-      "headline": "Акционеры группы МГКЛ проголосовали против выплаты дивидендов за 2025 год",
-      "context": "Чистая прибыль компании будет направлена на развитие бизнеса и усиление финансовой устойчивости.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8782436"
-        }
-      ],
-      "published_at": "2026-07-03T10:31:00+03:00"
-    },
-    {
-      "id": "zabotkin-budget-rule-ruble",
-      "headline": "Снижение базовой цены нефти в бюджетном правиле может сместить диапазон рубля вверх",
-      "context": "Зампред ЦБ Алексей Заботкин отметил, что это приведет к некоторому смещению в сторону менее крепкого курса.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/376524"
-        }
-      ],
-      "published_at": "2026-07-03T17:26:00+03:00"
-    },
-    {
-      "id": "sovcombank-nspk-privatization",
-      "headline": "Совкомбанк выразил готовность принять участие в приватизации НСПК",
-      "context": "Об этом сообщил представитель кредитной организации в кулуарах Финансового конгресса.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/376509"
-        }
-      ],
-      "published_at": "2026-07-03T15:18:00+03:00"
-    },
-    {
-      "id": "novorossiysk-fuel-shortage",
-      "headline": "В Новороссийске приостанавливали свободную проданую бензина на автозаправочных станциях",
-      "context": "Позже продажа топлива без топливных карт была возобновлена на 15 АЗС города.",
+      "id": "germany-increase-state-debt",
+      "headline": "Германия увеличит объем государственного долга из-за снижения налоговых поступлений в бюджет",
+      "context": "В две тысячи двадцать седьмом году ФРГ планирует занять дополнительные сто восемнадцать миллиардов евро.",
       "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/society/news/2026/07/03/1211037-prodazhu-benzina"
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/05/1211310"
         }
       ],
-      "published_at": "2026-07-03T15:17:00+03:00"
+      "published_at": "2026-07-05T16:43:00+03:00"
     },
     {
-      "id": "gazprom-syndicated-loan",
-      "headline": "Газпром привлек дебютный синдицированный кредит на сумму 43 миллиарда рублей",
-      "context": "Организатором сделки выступил Совкомбанк.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/290357"
-        }
-      ],
-      "published_at": "2026-07-03T11:26:00+03:00"
-    },
-    {
-      "id": "crypto-law-postponed",
-      "headline": "Вступление в силу закона о цифровой валюте перенесено на 1 сентября",
-      "context": "Перенос даты с июля связан с большим объемом поправок и затянувшимися согласованиями.",
-      "category": "cb_policy",
+      "id": "south-korea-chip-tax-fund",
+      "headline": "Южная Корея создаст специальный фонд развития за счет налогов от продажи полупроводников",
+      "context": "Средства от налогообложения производителей микросхем будут направлены на поддержку высокотехнологичного сектора.",
+      "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8782220"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/05/1211307"
         }
       ],
-      "published_at": "2026-07-03T07:40:00+03:00"
+      "published_at": "2026-07-05T16:13:00+03:00"
+    },
+    {
+      "id": "ru-gasoline-import-belarus-record",
+      "headline": "Россия увеличила импорт автомобильного бензина из Белоруссии до исторического максимума",
+      "context": "Резкий рост поставок белорусского топлива на российский рынок был зафиксирован по итогам июня.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1101275"
+        }
+      ],
+      "published_at": "2026-07-05T13:32:00+03:00"
     }
   ],
   "today_agenda": []
