@@ -1300,6 +1300,13 @@ function pfxRenderHTML(c) {
     html += `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>`;
   }
 
+  // P1: три главных риска человеческим языком (сразу под диагнозом)
+  const topRisks = pfxTopRisks(c);
+  if (topRisks.length) {
+    html += `<div class="pfx-toprisks"><div class="pfx-tr-head">Три главных риска портфеля</div>${
+      topRisks.map((r, i) => `<div class="pfx-tr pfx-tr-${r.tone}"><b>${i + 1}</b><span>${esc(r.text)}</span></div>`).join('')}</div>`;
+  }
+
   // 1. Portfolio X-Ray — KPI grid
   const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
   const g = [];
@@ -1340,6 +1347,9 @@ function pfxRenderHTML(c) {
 
   // 6. Dividend Stress Test
   html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
+
+  // 6b. Факторная диагностика (P1)
+  html += pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c));
 
   // 7. Bootstrap
   html += pfxDetails('Bootstrap Scenario Lab', '(resampling истории, не прогноз)', pfxBootHTML(c));
@@ -1501,6 +1511,24 @@ function pfxDivHTML(c) {
     ${traps}${dep}
     ${d.noData.length ? `<div class="pfx-note muted">Без дивданных: ${d.noData.slice(0, 8).map(esc).join(', ')}${d.noData.length > 8 ? '…' : ''}.</div>` : ''}
     <div class="pfx-note muted">payout probability = 1 − cut_risk (ML-оценка проекта). Сценарии — диагностические, не прогноз выплат.</div>`;
+}
+
+// ── модуль 6b: факторная диагностика (P1) ────────────────────────────────────
+function pfxFactorsHTML(c) {
+  const fx = pfxFactors(c);
+  const riskFactors = { debt: 1, cutrisk: 1, rate: 1 };   // высокий перцентиль = плохо (красный)
+  const rows = fx.factors.map((f) => {
+    if (f.pct == null) return `<div class="pfx-secrow"><span>${esc(f.label)}</span><i></i><em class="pfx-na">${esc(f.note || 'н/д')}</em></div>`;
+    const bad = riskFactors[f.key];
+    const cls = bad ? (f.pct >= 66 ? 'bar-risk' : f.pct >= 40 ? 'bar-warn' : 'bar-good')
+      : (f.pct >= 60 ? 'bar-good' : f.pct >= 34 ? 'bar-warn' : 'bar-risk');
+    return `<div class="pfx-secrow"><span title="перцентиль средневзвешенной экспозиции против всего рынка (50 = медиана)">${esc(f.label)}</span>
+      <i class="pfx-fbar"><b class="${cls}" style="width:${f.pct}%"></b></i><em>${f.pct}%</em></div>`;
+  }).join('');
+  const summary = fx.summary.map((s) => `<li>${esc(s)}</li>`).join('');
+  return `<div class="pfx-factors"><div class="pfx-factbars">${rows}</div>
+    <div class="pfx-factsum"><h4>Вывод</h4><ul>${summary}</ul></div></div>
+    <div class="pfx-note muted">Перцентиль — где средневзвешенная экспозиция портфеля относительно всех ${(DATA && DATA.tickers ? DATA.tickers.length : 0)} бумаг рынка (50% = медиана). Value = потенциал к справедливой цене (DCF), Safety = обратная волатильность, Rate Sensitivity — секторная оценка. Не ИИР.</div>`;
 }
 
 // ── модуль 7: Bootstrap ──────────────────────────────────────────────────────
@@ -1773,7 +1801,45 @@ function wireMyPortfolio() {
     reader.onload = () => { input.value = String(reader.result || ''); renderMyPortfolio(); };
     reader.readAsText(file);
   });
+  pfxWireAutocomplete();
   renderMyPortfolio();
+}
+
+// P1: autocomplete-ввод тикеров (поиск по data.json → добавить строку в портфель)
+function pfxWireAutocomplete() {
+  const search = document.getElementById('mp-ticker-search');
+  const box = document.getElementById('mp-suggest');
+  const input = document.getElementById('mp-input');
+  if (!search || !box || !input) return;
+  let active = -1, matches = [];
+  const close = () => { box.classList.remove('open'); box.innerHTML = ''; active = -1; };
+  const pick = (t) => {
+    const price = isNum(t.price) ? t.price : '';
+    const cur = input.value.replace(/\s+$/, '');
+    input.value = (cur ? cur + '\n' : '') + `${t.ticker}; 10; ${price}`;   // 10 — стартовое кол-во, отредактируйте
+    search.value = ''; close(); renderMyPortfolio(); input.focus();
+  };
+  const render = () => {
+    if (!matches.length) { close(); return; }
+    box.innerHTML = matches.map((t, i) => `<div class="mp-sug-item${i === active ? ' active' : ''}" data-i="${i}">
+      <b>${esc(t.ticker)}</b><span>${esc(t.name || '')}${isNum(t.price) ? ' · ' + ru(t.price, 2) + '₽' : ''}</span></div>`).join('');
+    box.classList.add('open');
+    box.querySelectorAll('.mp-sug-item').forEach((el) => el.addEventListener('mousedown', (e) => { e.preventDefault(); pick(matches[+el.dataset.i]); }));
+  };
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toUpperCase();
+    if (q.length < 1 || !(DATA && DATA.tickers)) { matches = []; close(); return; }
+    matches = DATA.tickers.filter((t) => t.ticker.startsWith(q) || (t.ticker.indexOf(q) >= 0) || (t.name && t.name.toUpperCase().indexOf(q) >= 0)).slice(0, 8);
+    active = -1; render();
+  });
+  search.addEventListener('keydown', (e) => {
+    if (!matches.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, matches.length - 1); render(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); render(); }
+    else if (e.key === 'Enter') { e.preventDefault(); pick(matches[active >= 0 ? active : 0]); }
+    else if (e.key === 'Escape') close();
+  });
+  search.addEventListener('blur', () => setTimeout(close, 150));
 }
 
 function syncWeightControl() {   // «Взвешивание» неприменимо к оптимизаторам — они сами считают веса
@@ -4314,6 +4380,96 @@ function pfxRiskScore(c) {
   s += Math.min(1, highCut / 0.3) * 18; if (highCut > 0.2) drivers.push('cut risk');
   s += (1 - c.dq.score / 100) * 10; if (c.dq.score < 55) drivers.push('качество данных');
   return { score: Math.round(Math.min(100, s)), label: drivers.length ? 'драйверы: ' + drivers.slice(0, 3).join(', ') : 'сбалансирован' };
+}
+
+// ── P1: факторная диагностика (взвеш. экспозиции + перцентиль vs универсум) ───
+const PFX_RATE_SENS = { 'Финансы': 0.9, 'Электроэнергетика': 0.8, 'Телеком': 0.7, 'Недвижимость': 0.85,
+  'Потребительский': 0.5, 'Нефтегаз': 0.3, 'Металлы и добыча': 0.35, 'Химия': 0.4, 'Транспорт': 0.5 };
+function pfxSectorRate(sec) {
+  if (!sec) return 0.5;
+  for (const k in PFX_RATE_SENS) if (sec.indexOf(k) >= 0) return PFX_RATE_SENS[k];
+  return 0.5;
+}
+function pfxFactorVal(t, key) {
+  if (!t) return null;
+  switch (key) {
+    case 'quality': return isNum(t.quality_barra) ? t.quality_barra : null;
+    case 'momentum': return isNum(t.mom_score) ? t.mom_score : null;
+    case 'divstab': return isNum(t.stability_score) ? t.stability_score : null;
+    case 'value': return (t.valuation && isNum(t.valuation.fair_price) && isNum(t.price) && t.price > 0) ? (t.valuation.fair_price / t.price - 1) : null;
+    case 'safety': return isNum(t.vol_ann) ? -t.vol_ann : null;         // выше = безопаснее (ниже vol)
+    case 'payout': return isNum(t.payout) ? t.payout : null;
+    case 'debt': return isNum(t.nd_ebitda) ? t.nd_ebitda : null;        // выше = больше долга
+    case 'cutrisk': return isNum(t.cut_risk) ? t.cut_risk : null;       // выше = выше риск среза
+    default: return null;
+  }
+}
+function pfxFactors(c) {
+  const uni = (DATA && DATA.tickers) ? DATA.tickers : [];
+  const defs = [
+    ['quality', 'Quality'], ['value', 'Value'], ['momentum', 'Momentum'], ['divstab', 'Dividend Stability'],
+    ['safety', 'Safety'], ['payout', 'Payout'], ['debt', 'Debt Risk'], ['cutrisk', 'Cut Risk'],
+  ];
+  const factors = defs.map(([key, label]) => {
+    let wsum = 0, acc = 0;
+    c.positions.forEach((p) => { const v = pfxFactorVal(p.t, key); if (v != null) { acc += p.weight * v; wsum += p.weight; } });
+    if (wsum < 0.3) return { key, label, pct: null, note: 'мало данных' };
+    const wavg = acc / wsum;
+    const dist = uni.map((t) => pfxFactorVal(t, key)).filter((x) => x != null).sort((a, b) => a - b);
+    const below = dist.filter((x) => x <= wavg).length;
+    const pct = dist.length ? Math.round(100 * below / dist.length) : null;   // перцентиль vs универсум
+    return { key, label, pct, wavg, cover: wsum };
+  });
+  // rate sensitivity — по секторам (нет прямого фактора)
+  const rate = c.positions.reduce((s, p) => s + p.weight * pfxSectorRate(p.sector), 0);
+  factors.push({ key: 'rate', label: 'Rate Sensitivity', pct: Math.round(rate * 100), note: 'секторная оценка' });
+
+  // человеко-язычный вывод
+  const say = [];
+  const f = (k) => factors.find((x) => x.key === k);
+  const topSec = c.sorted && c.sorted.length ? null : null;
+  const sectors = {}; c.positions.forEach((p) => { sectors[p.sector] = (sectors[p.sector] || 0) + p.weight; });
+  const secTop = Object.entries(sectors).sort((a, b) => b[1] - a[1])[0];
+  const cut = f('cutrisk'), q = f('quality'), db = f('debt'), mo = f('momentum'), sf = f('safety');
+  if (cut && cut.pct != null && cut.pct >= 65 && isNum(c.grossYield) && c.grossYield > 6)
+    say.push('Портфель перегружен дивидендными историями с повышенным риском среза выплат.');
+  if (secTop && secTop[1] > 0.35) say.push(`Портфель сильно зависит от сектора «${secTop[0]}» (${Math.round(secTop[1] * 100)}%).`);
+  if (q && q.pct != null && q.pct <= 30) say.push('Средневзвешенное качество бумаг ниже рынка.');
+  else if (q && q.pct != null && q.pct >= 70) say.push('Портфель смещён в качественные бумаги.');
+  if (db && db.pct != null && db.pct >= 70) say.push('Долговая нагрузка бумаг портфеля выше медианы рынка.');
+  if (mo && mo.pct != null && mo.pct <= 25) say.push('Моментум портфеля слабый (бумаги отставали от рынка).');
+  if (sf && sf.pct != null && sf.pct <= 25) say.push('Портфель смещён в волатильные бумаги (низкий Safety).');
+  if (f('rate') && f('rate').pct >= 65) say.push('Портфель чувствителен к ставке ЦБ (много банков/энергетики/недвижимости).');
+  if (c.dq && c.dq.lowWeight > 0.1) say.push(`Доля бумаг с неполными/устаревшими данными — ${Math.round(c.dq.lowWeight * 100)}%.`);
+  if (!say.length) say.push('Явных факторных перекосов не выявлено по доступным данным.');
+  return { factors, summary: say };
+}
+
+// ── P1: три главных риска человеческим языком ────────────────────────────────
+function pfxTopRisks(c) {
+  const risks = [];
+  const top = c.sorted && c.sorted[0];
+  if (top && top.weight > 0.2) risks.push({ sev: top.weight, tone: 'risk',
+    text: `Концентрация: ${top.ticker} занимает ${Math.round(top.weight * 100)}% портфеля — сильная зависимость от одной бумаги.` });
+  if (c.top3 > 0.5) risks.push({ sev: c.top3, tone: 'risk',
+    text: `Топ-3 позиции — ${Math.round(c.top3 * 100)}% портфеля; риск и результат определяются несколькими бумагами.` });
+  if (c.capm && c.capm.ok && c.capm.beta > 1.2) risks.push({ sev: (c.capm.beta - 1) * 0.6, tone: 'warn',
+    text: `Высокая beta к MCFTR (${ru(c.capm.beta, 2)}): в падениях рынка портфель просаживается сильнее индекса.` });
+  const highCut = c.positions.reduce((s, p) => s + (p.t && isNum(p.t.cut_risk) && p.t.cut_risk >= 0.6 ? p.weight : 0), 0);
+  if (highCut > 0.25) risks.push({ sev: highCut, tone: 'risk',
+    text: `${Math.round(highCut * 100)}% портфеля — бумаги с повышенным риском среза дивидендов; дивпоток нестабилен.` });
+  if (c.div && c.div.traps && c.div.traps.length) risks.push({ sev: 0.5, tone: 'risk',
+    text: `Возможные дивидендные ловушки (высокая доходность + высокий cut risk): ${c.div.traps.join(', ')}.` });
+  const sectors = {}; c.positions.forEach((p) => { sectors[p.sector] = (sectors[p.sector] || 0) + p.weight; });
+  const secTop = Object.entries(sectors).sort((a, b) => b[1] - a[1])[0];
+  if (secTop && secTop[1] > 0.4) risks.push({ sev: secTop[1] * 0.9, tone: 'warn',
+    text: `Секторная концентрация: «${secTop[0]}» — ${Math.round(secTop[1] * 100)}% портфеля.` });
+  if (c.vaR && c.vaR.ok && Math.abs(c.vaR.hist95) > 0.12) risks.push({ sev: Math.abs(c.vaR.hist95) * 3, tone: 'warn',
+    text: `Высокий месячный VaR 95%: ${PN(c.vaR.hist95)} (${rub0(c.vaR.hist95 * c.total)}) — заметный downside-риск.` });
+  if (c.dq && c.dq.lowWeight > 0.2) risks.push({ sev: c.dq.lowWeight, tone: 'warn',
+    text: `${Math.round(c.dq.lowWeight * 100)}% веса — бумаги с неполной историей/данными; часть выводов low confidence.` });
+  risks.sort((a, b) => b.sev - a.sev);
+  return risks.slice(0, 3);
 }
 
 // ── оркестратор: собрать полный набор метрик ─────────────────────────────────

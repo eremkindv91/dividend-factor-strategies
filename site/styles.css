@@ -1845,3 +1845,29 @@ tbody tr:hover td,
 .ds-health.ds-stale { background: var(--warn-fill); color: var(--warn-ink); }
 .ds-health.ds-fallback { background: #f6e4d0; color: #9a5b1e; }
 .ds-health.ds-broken { background: var(--risk-fill); color: var(--risk-ink); }
+
+/* P1: три главных риска + факторная диагностика + autocomplete */
+.pfx-toprisks { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 10px 14px; margin-bottom: 12px; }
+.pfx-tr-head { font-weight: 700; font-size: .9rem; color: var(--ink); margin-bottom: 6px; }
+.pfx-tr { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; padding: 5px 0; font-size: .86rem; line-height: 1.45; }
+.pfx-tr b { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; color: #fff; }
+.pfx-tr-risk b { background: var(--risk-ink); }
+.pfx-tr-warn b { background: var(--warn-ink); }
+.pfx-factors { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
+.pfx-factbars { display: flex; flex-direction: column; gap: 4px; }
+.pfx-fbar { position: relative; background: var(--neut-fill); border-radius: 4px; height: 10px; display: block; overflow: hidden; }
+.pfx-fbar b { display: block; height: 100%; border-radius: 4px; }
+.pfx-fbar .bar-good { background: var(--good-bar); }
+.pfx-fbar .bar-warn { background: var(--warn-bar); }
+.pfx-fbar .bar-risk { background: var(--risk-bar); }
+.pfx-factsum h4 { margin: 0 0 6px; font-size: .84rem; color: var(--ink); }
+.pfx-factsum ul { margin: 0; padding-left: 16px; font-size: .84rem; line-height: 1.6; color: var(--ink-soft); }
+.mp-search-wrap { position: relative; margin-bottom: 8px; }
+.mp-search { width: 100%; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: .86rem; box-sizing: border-box; }
+.mp-suggest { position: absolute; z-index: 20; left: 0; right: 0; top: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); max-height: 260px; overflow-y: auto; display: none; }
+.mp-suggest.open { display: block; }
+.mp-sug-item { padding: 6px 10px; font-size: .84rem; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
+.mp-sug-item:hover, .mp-sug-item.active { background: var(--neut-fill); }
+.mp-sug-item b { color: var(--ink); }
+.mp-sug-item span { color: var(--ink-faint); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .pfx-factors { grid-template-columns: 1fr; } }
