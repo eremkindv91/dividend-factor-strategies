@@ -97,7 +97,7 @@ jobs:
             python scripts/check_predeploy_contract.py   # повтор: битьё после fallback → job fail, gh-pages остаётся last-good
           fi
 
-      - name: P0 — site_status.json (Data Health: fresh/stale/fallback/broken)
+      - name: P0 — site_status.json (Data Health — свежесть блоков)
         run: python scripts/build_site_status.py
 
       - name: Валидация контрактов JSON перед публикацией
