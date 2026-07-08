@@ -72,6 +72,9 @@ data/unified/site_financials.json
 logs/pipeline_run_*.log
 site/site_coverage.json
 site/site_financials.json
+site/site_status.json
+site/_fallback.json
 
 # News pipeline: local collector/model inputs
 news/artifacts/
+.aider*

@@ -74,6 +74,32 @@ jobs:
           python -m src.pipeline.unify_financial_data
           python -m src.pipeline.build_site_data
 
+      - name: P0 — клон текущего gh-pages (last-good для fallback и rollback)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_GOOD="$(mktemp -d)"
+          if git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$LAST_GOOD" 2>/dev/null; then
+            echo "LAST_GOOD=$LAST_GOOD" >> "$GITHUB_ENV"
+          else
+            echo "[last-good] gh-pages ещё нет (первый деплой) — fallback/rollback недоступны"
+            rm -rf "$LAST_GOOD"
+          fi
+
+      - name: P0 — жёсткий pre-deploy контракт + last-good fallback
+        # пустой/битый обязательный блок (data.json/marketsaw) НЕ должен попасть на сайт.
+        # если битьё — подставляем last-good и помечаем fallback; если и это не спасло — exit≠0 → нет публикации.
+        run: |
+          if ! python scripts/check_predeploy_contract.py; then
+            echo "[gate] обязательный блок битый → пробую last-good fallback"
+            if [ -n "$LAST_GOOD" ]; then python scripts/restore_last_good_site_data.py --last-good "$LAST_GOOD"; fi
+            python scripts/check_predeploy_contract.py   # повтор: битьё после fallback → job fail, gh-pages остаётся last-good
+          fi
+
+      - name: P0 — site_status.json (Data Health: fresh/stale/fallback/broken)
+        run: python scripts/build_site_status.py
+
       - name: Валидация контрактов JSON перед публикацией
         # критическая ошибка контракта → exit 1 → шаг публикации НЕ выполнится (не публикуем битое)
         run: python scripts/validate_site_data.py
@@ -91,6 +117,8 @@ jobs:
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ
+          [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
+          [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           [ -d site/cbr ] && mkdir -p "$TMP/cbr" && cp site/cbr/*.json "$TMP/cbr/"   # данные банков ЦБ РФ (формы 102/123/135)
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
@@ -108,3 +136,25 @@ jobs:
           git -C "$TMP" push -f \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
           rm -rf "$TMP"
+
+      - name: P0 — public smoke-test (+ rollback к last-good при критичном битье)
+        # проверяет, что ЖИВОЙ сайт отдаёт непустые index/data/marketsaw. Критичное битьё → откат.
+        # site_status/лаг CDN не откатывают (--core-only); стойкость к лагу — ретраи внутри скрипта.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 30   # дать Pages CDN стартовать сборку
+          if python scripts/smoke_public_site.py --core-only --retries 10; then
+            python scripts/smoke_public_site.py --retries 3 || echo "[smoke] site_status ещё не пропагировался (не критично)"
+            echo "[smoke] публичный сайт OK"
+          else
+            echo "[smoke] КРИТИЧНОЕ битьё живого сайта → ROLLBACK к last-good"
+            if [ -n "$LAST_GOOD" ] && [ -d "$LAST_GOOD/.git" ]; then
+              git -C "$LAST_GOOD" push -f \
+                "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages
+              echo "[rollback] gh-pages возвращён к предыдущей рабочей версии"
+            else
+              echo "[rollback] last-good недоступен — ручное вмешательство"
+            fi
+            exit 1
+          fi

@@ -1828,3 +1828,20 @@ tbody tr:hover td,
 .pfx-wline.pfx-w-risk { background: var(--risk-fill); color: var(--risk-ink); font-weight: 600; }
 .pfx-wline.pfx-w-warn { background: var(--warn-fill); color: var(--warn-ink); }
 .pfx-wline.pfx-w-neut { background: var(--neut-fill); color: var(--neut-ink); }
+
+/* P0 Data Health — статусы свежести в верхней панели */
+.ds-health { font-weight: 700; font-size: .74rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
+.ds-item.ds-fresh b { color: var(--good-ink); }
+.ds-item.ds-stale b { color: var(--warn-ink); }
+.ds-item.ds-fallback b { color: #9a5b1e; }
+.ds-item.ds-broken b { color: var(--risk-ink); }
+.ds-item.ds-fresh .ds-lbl::before, .ds-item.ds-stale .ds-lbl::before,
+.ds-item.ds-fallback .ds-lbl::before, .ds-item.ds-broken .ds-lbl::before { content: '●'; margin-right: 4px; font-size: .7em; }
+.ds-item.ds-fresh .ds-lbl::before { color: var(--good-bar); }
+.ds-item.ds-stale .ds-lbl::before { color: var(--warn-bar); }
+.ds-item.ds-fallback .ds-lbl::before { color: #d98a3d; }
+.ds-item.ds-broken .ds-lbl::before { color: var(--risk-bar); }
+.ds-health.ds-fresh { background: var(--good-fill); color: var(--good-ink); }
+.ds-health.ds-stale { background: var(--warn-fill); color: var(--warn-ink); }
+.ds-health.ds-fallback { background: #f6e4d0; color: #9a5b1e; }
+.ds-health.ds-broken { background: var(--risk-fill); color: var(--risk-ink); }

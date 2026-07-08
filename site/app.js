@@ -13,7 +13,7 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null;
+let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -2776,18 +2776,41 @@ function initRouter() {
 }
 
 // ── global data status bar (даты ТОЛЬКО из реальных JSON, не Date.now()) ──
+function loadSiteStatus(cb) {
+  if (SITE_STATUS) { if (cb) cb(); return; }
+  fetch('site_status.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { SITE_STATUS = j; if (cb) cb(); })
+    .catch(() => { SITE_STATUS = { failed: true, blocks: {} }; if (cb) cb(); });   // нет файла → деградируем к датам
+}
+
+// P0 Data Health: верхняя панель свежести. Цвет каждого блока по site_status.json
+// (fresh/stale/fallback/broken); если файла нет — показываем даты как раньше (устойчиво).
 function updateDataStatus() {
   const el = document.getElementById('data-status');
   if (!el) return;
+  if (!SITE_STATUS) { loadSiteStatus(() => updateDataStatus()); }
   const d10 = (s) => (s ? String(s).slice(0, 10) : null);
+  const st = (SITE_STATUS && SITE_STATUS.blocks) ? SITE_STATUS.blocks : {};
+  const cls = { fresh: 'ds-fresh', stale: 'ds-stale', fallback: 'ds-fallback', broken: 'ds-broken' };
+  const item = (lbl, v, key) => {
+    const b = st[key]; const c = b ? (cls[b.status] || '') : '';
+    const tip = b ? `${b.title}: ${b.status}${b.note ? ' — ' + b.note : ''}` : '';
+    return `<span class="ds-item ${c}"${tip ? ` title="${esc(tip)}"` : ''}><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
+  };
   const price = DATA && DATA.meta ? d10(DATA.meta.price_asof) : null;
-  const fc = DATA && DATA.meta ? d10(DATA.meta.forecast_asof) : null;
   const saw = SAW_DATA ? d10(SAW_DATA.data_last) : null;
   const bonds = (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
   const fin = (DATA_COVERAGE && DATA_COVERAGE.meta) ? d10(DATA_COVERAGE.meta.generated_at) : null;
-  const item = (lbl, v) => `<span class="ds-item"><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
-  el.innerHTML = item('Цены MOEX', price) + item('Прогноз акций', fc)
-    + item('MCFTR', saw) + item('Облигации', bonds) + item('Фундамент', fin)
+  const news = (SITE_STATUS && st.news && st.news.asof) ? d10(st.news.asof) : null;
+  // overall health chip
+  const overall = SITE_STATUS && !SITE_STATUS.failed ? SITE_STATUS.overall : null;
+  const oLabel = { fresh: 'данные свежие', stale: 'данные устаревают', fallback: 'резервные данные', broken: 'сбой данных' };
+  const chip = overall
+    ? `<span class="ds-health ${cls[overall] || ''}" title="Data Health — свежесть по блокам">● ${oLabel[overall] || overall}</span>`
+    : '';
+  el.innerHTML = chip + item('Цены MOEX', price, 'market') + item('MCFTR', saw, 'marketsaw')
+    + item('Новости', news, 'news') + item('Облигации', bonds, 'bonds') + item('Фундамент', fin, 'financials')
     + '<span class="ds-item ds-disc">Не ИИР</span>';
 }
 
