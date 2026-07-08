@@ -23,3 +23,4 @@ rss:
   - {name: "РБК",         tier: A, url: "https://rssexport.rbc.ru/rbcnews/news/30/full.rss"}
   - {name: "Ведомости",   tier: A, url: "https://www.vedomosti.ru/rss/news"}
   - {name: "Frank Media", tier: A, url: "https://frankmedia.ru/feed"}
+  - {name: "SmartLab",    tier: A, url: "https://smart-lab.ru/news/rss/"}   # надёжный RSS вместо/в дополнение к TG @smartlabru; повторы схлопывает dedupe + Gemini
