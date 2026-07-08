@@ -1519,7 +1519,13 @@ function pfxDivHTML(c) {
     <div class="pfx-kpi-inline">Income at risk: <b class="pfx-risk-ink">${rub0(d.atRisk)}</b> (base ${rub0(d.baseIncome)} → risk-adjusted ${rub0(d.riskAdj)})</div>
     ${traps}${dep}
     ${d.noData.length ? `<div class="pfx-note muted">Без дивданных: ${d.noData.slice(0, 8).map(esc).join(', ')}${d.noData.length > 8 ? '…' : ''}.</div>` : ''}
-    <div class="pfx-note muted">payout probability = 1 − cut_risk (ML-оценка проекта). Сценарии — диагностические, не прогноз выплат.</div>`;
+    <div class="pfx-note muted">payout probability = 1 − cut_risk (ML-оценка проекта). Сценарии — диагностические, не прогноз выплат.</div>
+    ${(() => {
+      const payers = c.positions.filter((p) => p.t && isNum(p.t.dividend_forecast) && p.t.dividend_forecast > 0)
+        .sort((a, b) => (b.t.cut_risk || 0) - (a.t.cut_risk || 0));
+      return payers.length ? `<div class="pfx-dr-list"><h4>Почему такой дивидендный риск — разбор по бумагам (P3)</h4>
+        ${payers.map(pfxDivRiskCardHTML).join('')}</div>` : '';
+    })()}`;
 }
 
 // ── модуль 6b: факторная диагностика (P1) ────────────────────────────────────
@@ -1538,6 +1544,76 @@ function pfxFactorsHTML(c) {
   return `<div class="pfx-factors"><div class="pfx-factbars">${rows}</div>
     <div class="pfx-factsum"><h4>Вывод</h4><ul>${summary}</ul></div></div>
     <div class="pfx-note muted">Перцентиль — где средневзвешенная экспозиция портфеля относительно всех ${(DATA && DATA.tickers ? DATA.tickers.length : 0)} бумаг рынка (50% = медиана). Value = потенциал к справедливой цене (DCF), Safety = обратная волатильность, Rate Sensitivity — секторная оценка. Не ИИР.</div>`;
+}
+
+// ── P3: Explainable Dividend Risk — карточка «почему такой риск» ──────────────
+function pfxFinForTicker(tk) {
+  if (!SITE_FINANCIALS || !SITE_FINANCIALS.rows) return null;
+  const rows = SITE_FINANCIALS.rows.filter((r) => r.ticker === tk && isNum(r.fiscal_year));
+  if (!rows.length) return null;
+  rows.sort((a, b) => b.fiscal_year - a.fiscal_year);
+  return rows[0];
+}
+function pfxDivRiskExplain(p) {
+  const t = p.t || {};
+  const cr = isNum(t.cut_risk) ? t.cut_risk : null;
+  const level = cr == null ? null : cr >= 0.6 ? 'повышенный' : cr >= 0.35 ? 'умеренный' : 'низкий';
+  const tone = cr == null ? 'neut' : cr >= 0.6 ? 'risk' : cr >= 0.35 ? 'warn' : 'good';
+  const fin = pfxFinForTicker(p.ticker);
+  let fcfCov = null;
+  if (fin && isNum(fin.free_cash_flow) && isNum(fin.dividends_paid) && Math.abs(fin.dividends_paid) > 0)
+    fcfCov = fin.free_cash_flow / Math.abs(fin.dividends_paid);
+  const margin = (fin && isNum(fin.net_income) && isNum(fin.revenue) && fin.revenue > 0) ? fin.net_income / fin.revenue : null;
+  // rule-based причины (дополняют/заменяют SHAP)
+  const reasons = [];
+  if (isNum(t.div_streak) && t.div_streak === 0) reasons.push('выплаты нерегулярны (серия прервана)');
+  else if (isNum(t.div_streak) && t.div_streak >= 8) reasons.push(`длинная серия выплат (${t.div_streak} лет)`);
+  if (fcfCov != null && fcfCov < 1) reasons.push('дивиденд не покрыт свободным денежным потоком');
+  if (isNum(t.payout) && t.payout > 80) reasons.push(`высокий пэйаут (${Math.round(t.payout)}%)`);
+  if (isNum(t.nd_ebitda) && t.nd_ebitda > 3) reasons.push(`высокий долг (ND/EBITDA ${ru(t.nd_ebitda, 1)})`);
+  if (isNum(t.dividend_yield_expected) && t.dividend_yield_expected >= 9 && cr != null && cr >= 0.5) reasons.push('высокая доходность при высоком риске — возможная ловушка');
+  const verdict = level
+    ? `Модель оценивает риск среза как ${level} (cut risk ${Math.round(cr * 100)}%)${reasons.length ? ': ' + reasons.slice(0, 3).join(', ') : ''}.`
+    : 'Недостаточно данных для оценки риска среза.';
+  return { level, tone, cr, fin, fcfCov, margin, verdict, reasons };
+}
+function pfxDivRiskCardHTML(p) {
+  const t = p.t || {};
+  const ex = pfxDivRiskExplain(p);
+  const m = (lbl, v) => `<div class="pfx-drm"><span>${lbl}</span><b>${v}</b></div>`;
+  const dps = isNum(t.current_dps) ? ru(t.current_dps, 2) + '₽' : mdash;
+  const fc = isNum(t.dividend_forecast) ? ru(t.dividend_forecast, 2) + '₽' : mdash;
+  const metrics = [
+    m('Stability Score', isNum(t.stability_score) ? PN(t.stability_score, 0) : mdash),
+    m('Cut Risk', ex.cr != null ? PN(ex.cr, 0) : mdash),
+    m('Вероятн. выплаты', ex.cr != null ? PN(1 - ex.cr, 0) : mdash),
+    m('Последний дивиденд', dps),
+    m('Прогноз дивиденда', fc),
+    m('Ожид. доходность', isNum(t.dividend_yield_expected) ? PU(t.dividend_yield_expected, 1) + '%' : mdash),
+    m('Серия выплат', isNum(t.div_streak) ? t.div_streak + ' лет' : mdash),
+    m('Payout ratio', isNum(t.payout) ? Math.round(t.payout) + '%' : (ex.fin && isNum(ex.fin.payout_ratio) ? Math.round(ex.fin.payout_ratio * 100) + '%' : mdash)),
+    m('Покрытие FCF', ex.fcfCov != null ? ru(ex.fcfCov, 1) + '×' : mdash),
+    m('Долг ND/EBITDA', isNum(t.nd_ebitda) ? ru(t.nd_ebitda, 1) : mdash),
+    m('Чистая маржа', ex.margin != null ? PN(ex.margin, 0) : mdash),
+  ].join('');
+  const shap = (t.shap_top5 || []).map((s) => {
+    const up = /↑|повыш/.test(s.direction || '');
+    return `<div class="pfx-shap"><span>${esc(s.feature_ru || s.feature || '')}</span>
+      <i class="pfx-shbar ${up ? 'up' : 'down'}" style="width:${Math.min(100, Math.abs(s.impact || 0) * 300)}%"></i>
+      <em class="${up ? 'saw-up' : 'saw-down'}">${up ? '↑' : '↓'} ${ru(Math.abs(s.impact || 0), 3)}</em></div>`;
+  }).join('');
+  const shapBlock = shap
+    ? `<div class="pfx-dr-shap"><h5>Что повлияло на оценку (SHAP-факторы модели)</h5>${shap}</div>`
+    : `<div class="pfx-note muted">SHAP-факторы недоступны — оценка объяснена правилами выше.</div>`;
+  return `<details class="pfx-drcard"><summary><span class="pfx-tag ${ex.tone === 'good' ? 'good' : ex.tone === 'warn' ? 'warn' : 'risk'}">${ex.level || 'н/д'}</span>
+    <b>${esc(p.ticker)}</b> <span class="muted">${esc(t.name || p.sector || '')}</span> — почему такой дивидендный риск?</summary>
+    <div class="pfx-dr-body">
+      <div class="pfx-dr-verdict pfx-bi-${ex.tone}">${esc(ex.verdict)}</div>
+      <div class="pfx-drgrid">${metrics}</div>
+      ${shapBlock}
+      <div class="pfx-note muted">Данные: ${esc((p._dq && p._dq.level) || 'н/д')} · ${ex.fin ? 'фундамент ' + ex.fin.fiscal_year + ' (' + esc(ex.fin.source_status || ex.fin.source || '') + ')' : 'фундаментального слоя нет'}.
+      Ограничения: модель оценивает вероятность СРЕЗА дивиденда, не доходность; результат не гарантирует будущую выплату и не является рекомендацией.</div>
+    </div></details>`;
 }
 
 // ── модуль 7: Bootstrap ──────────────────────────────────────────────────────

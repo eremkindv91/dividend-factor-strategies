@@ -1881,3 +1881,25 @@ tbody tr:hover td,
 .pfx-bi-warn .pfx-bi-dot { background: var(--warn-bar); }
 .pfx-bi-good .pfx-bi-dot { background: var(--good-bar); }
 .pfx-brief-foot { font-size: .74rem; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+
+/* P3: Explainable Dividend Risk card */
+.pfx-dr-list { margin-top: 12px; }
+.pfx-dr-list h4 { margin: 0 0 8px; font-size: .88rem; color: var(--ink); }
+.pfx-drcard { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 6px; background: var(--surface); }
+.pfx-drcard > summary { cursor: pointer; padding: 8px 12px; font-size: .86rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pfx-drcard > summary b { color: var(--ink); }
+.pfx-dr-body { padding: 4px 12px 12px; }
+.pfx-dr-verdict { font-size: .87rem; line-height: 1.5; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--neut-bar); background: var(--neut-fill); }
+.pfx-dr-verdict.pfx-bi-risk { border-left-color: var(--risk-bar); background: var(--risk-fill); }
+.pfx-dr-verdict.pfx-bi-warn { border-left-color: var(--warn-bar); background: var(--warn-fill); }
+.pfx-dr-verdict.pfx-bi-good { border-left-color: var(--good-bar); background: var(--good-fill); }
+.pfx-drgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; margin-bottom: 10px; }
+.pfx-drm { border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
+.pfx-drm span { display: block; font-size: .68rem; color: var(--ink-faint); font-weight: 600; }
+.pfx-drm b { font-size: .92rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pfx-dr-shap h5 { margin: 4px 0 6px; font-size: .8rem; color: var(--ink-soft); }
+.pfx-shap { display: grid; grid-template-columns: 1fr 90px 62px; gap: 8px; align-items: center; font-size: .8rem; padding: 2px 0; }
+.pfx-shbar { height: 8px; border-radius: 4px; display: block; }
+.pfx-shbar.up { background: var(--good-bar); }
+.pfx-shbar.down { background: var(--risk-bar); }
+.pfx-shap em { text-align: right; font-style: normal; font-variant-numeric: tabular-nums; }
