@@ -13,7 +13,7 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null;
+let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -1235,6 +1235,7 @@ function renderMyPortfolio() {
   if (!PF_RETURNS && typeof loadReturns === 'function') { loadReturns(() => renderMyPortfolio()); }
   if (!SAW_DATA && typeof loadMarketSaw === 'function') { loadMarketSaw(() => renderMyPortfolio()); }
   if (!MARLAMOV && typeof loadMarlamov === 'function') { loadMarlamov(() => renderMyPortfolio()); }
+  if (!NEWS && typeof loadNews === 'function') { loadNews(() => renderMyPortfolio()); }   // P2: новости по тикерам
   const c = pfxCompute(rows);
   c._warnings = (parsed.warnings || []).slice();
   // пост-enrich предупреждения по качеству
@@ -1298,6 +1299,14 @@ function pfxRenderHTML(c) {
   <div class="pfx-disc">Backfilled-портфель по <b>текущему составу</b> и историческим месячным ретёрнам — это НЕ фактическая история ваших сделок. Данные месячные (${c.pf ? c.pf.n + ' мес' : 'н/д'}); дневной риск не оценивается. Не индивидуальная инвестиционная рекомендация.</div>`;
   if (c._warnings && c._warnings.length) {
     html += `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>`;
+  }
+
+  // P2: Daily Portfolio Brief — «сегодня важно для портфеля» (герой-блок)
+  const brief = pfxDailyBrief(c);
+  if (brief.length) {
+    html += `<div class="pfx-brief"><div class="pfx-brief-head">📌 Сегодня важно для портфеля</div>${
+      brief.map((b) => `<div class="pfx-brief-item pfx-bi-${b.tone}"><span class="pfx-bi-dot"></span><span>${esc(b.text)}</span></div>`).join('')}
+      <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. раздел дивидендов. Не ИИР.</div></div>`;
   }
 
   // P1: три главных риска человеческим языком (сразу под диагнозом)
@@ -3753,7 +3762,7 @@ function bvalHistDraw() {
 // ══════════════════════════════════════════════════════════════════════════
 // НОВОСТИ (#news) — утренний брифинг из site/news.json (CI + Gemini, статик). Не ИИР.
 // ══════════════════════════════════════════════════════════════════════════
-let NEWS = null;
+NEWS = null;
 let NEWS_INVEST_ONLY = false;
 
 const NEWS_CAT = {
@@ -4470,6 +4479,78 @@ function pfxTopRisks(c) {
     text: `${Math.round(c.dq.lowWeight * 100)}% веса — бумаги с неполной историей/данными; часть выводов low confidence.` });
   risks.sort((a, b) => b.sev - a.sev);
   return risks.slice(0, 3);
+}
+
+// ── P2: новости, связанные с тикерами портфеля (матч по названию компании) ───
+function pfxNameToken(name) {
+  if (!name) return null;
+  let s = String(name).toLowerCase().replace(/пао|оао|ао|пуб\.|«|»|"|'|\(.*?\)/g, ' ').replace(/[-–]/g, ' ');
+  const words = s.split(/\s+/).filter((w) => w.length >= 4 && !/^(банк|груп|холд|компан|россия|росс)$/.test(w));
+  words.sort((a, b) => b.length - a.length);
+  return words[0] || null;                             // самое длинное значимое слово названия
+}
+function pfxNewsForPortfolio(c) {
+  if (!NEWS || NEWS.failed) return [];
+  const items = [].concat(NEWS.overnight || [], NEWS.yesterday || []);
+  if (!items.length) return [];
+  const toks = [];
+  c.positions.forEach((p) => { const tk = pfxNameToken(p.t && p.t.name); if (tk) toks.push({ ticker: p.ticker, tok: tk, w: p.weight }); });
+  const hits = [], seen = new Set();
+  items.forEach((it) => {
+    const hay = ((it.headline || '') + ' ' + (it.context || '')).toLowerCase();
+    for (const t of toks) {
+      if (hay.indexOf(t.tok) >= 0 && !seen.has(it.id + t.ticker)) {
+        seen.add(it.id + t.ticker);
+        hits.push({ ticker: t.ticker, weight: t.w, headline: it.headline, importance: it.importance || 1, sources: it.sources || [] });
+      }
+    }
+  });
+  hits.sort((a, b) => (b.importance - a.importance) || (b.weight - a.weight));
+  return hits.slice(0, 4);
+}
+
+// ── P2: Daily Portfolio Brief — «Сегодня важно для портфеля» ─────────────────
+function pfxDailyBrief(c) {
+  const items = [];
+  // 1. рыночная фаза MCFTR
+  if (SAW_DATA && SAW_DATA.current_phase) {
+    const ph = SAW_DATA.current_phase;
+    const reg = (MARLAMOV && MARLAMOV.meta && MARLAMOV.meta.regime) ? MARLAMOV.meta.regime : (ph.risk_level || '');
+    const tone = ph.direction === 'down' ? (Math.abs(ph.move_pct || 0) > 0.15 ? 'risk' : 'warn') : 'good';
+    items.push({ tone, text: `Рынок (MCFTR): ${ph.label}${isNum(ph.move_pct) ? `, ${PN(ph.move_pct, 0)} от максимума` : ''}${reg ? ` · режим ${reg}` : ''}.` });
+  }
+  // 2. главный структурный риск дня
+  const tr = pfxTopRisks(c);
+  if (tr[0]) items.push({ tone: tr[0].tone, text: tr[0].text });
+  // 3. новости по бумагам портфеля
+  const news = pfxNewsForPortfolio(c);
+  news.slice(0, 2).forEach((h) => items.push({ tone: 'neut', text: `Новость по ${h.ticker}: ${h.headline}` }));
+  // 4. сильнейшее движение за последний месяц
+  let mover = null;
+  c.positions.forEach((p) => { if (p._tr && p._tr.length) { const r = p._tr[p._tr.length - 1]; if (!mover || Math.abs(r) > Math.abs(mover.r)) mover = { ticker: p.ticker, r }; } });
+  if (mover && Math.abs(mover.r) > 0.05) items.push({ tone: mover.r >= 0 ? 'good' : 'warn', text: `${mover.ticker}: ${PP(mover.r)} за последний месяц — сильнейшее движение в портфеле (месячные данные).` });
+  // 5. дивидендная зависимость
+  if (c.div && c.div.baseIncome > 0 && c.div.topShare > 0.3) items.push({ tone: 'warn', text: `${c.div.topIncome[0].ticker} даёт ${Math.round(c.div.topShare * 100)}% ожидаемого дивпотока — зависимость от одной выплаты.` });
+  // 6. ставка ЦБ / RFR
+  if (c.rf.ok) { const rateSens = c.positions.reduce((s, p) => s + p.weight * pfxSectorRate(p.sector), 0);
+    items.push({ tone: rateSens > 0.6 ? 'warn' : 'neut', text: `Ставка (RFR) ${PU(c.rf.annual, 1)}%${MARLAMOV && MARLAMOV.meta && MARLAMOV.meta.regime ? ` · режим ${MARLAMOV.meta.regime}` : ''}${rateSens > 0.6 ? ' — портфель чувствителен к ставке (много банков/энергетики)' : ''}.` }); }
+  // 7. устаревшие/неполные данные
+  const stale = c.positions.filter((p) => p._dq && (p._dq.level === 'low' || p._dq.level === 'unavailable'));
+  if (stale.length) items.push({ tone: 'warn', text: `Данные по ${stale.length} ${stale.length === 1 ? 'бумаге' : 'бумагам'} неполные/устаревшие (${stale.map((p) => p.ticker).slice(0, 4).join(', ')}) — доходность может быть искажена.` });
+  // 8. позитив
+  const pos = [];
+  if (isNum(c.grossYield) && c.rf.ok && c.grossYield > c.rf.annual) pos.push(`ожидаемая дивдоходность ${PU(c.grossYield, 1)}% выше RFR`);
+  if (c.capm && c.capm.ok && c.capm.alphaAnn > 0) pos.push(`историческая alpha положительна (+${PN(c.capm.alphaAnn, 1)})`);
+  if (c.effN >= 6) pos.push(`неплохая диверсификация (${PU(c.effN, 1)} эфф. бумаг)`);
+  if (pos.length) items.push({ tone: 'good', text: `Сильная сторона: ${pos[0]}.` });
+  // 9. что проверить дальше
+  const check = [];
+  if (c.top3 > 0.5) check.push('снизить вклад топ-3 позиций');
+  if (news.length) check.push(`новости по ${news[0].ticker}`);
+  if (stale.length) check.push(`обновить данные по ${stale[0].ticker}`);
+  if (c.div && c.div.traps && c.div.traps.length) check.push(`дивидендную устойчивость ${c.div.traps[0]}`);
+  if (check.length) items.push({ tone: 'neut', text: `Проверить дальше: ${check.slice(0, 3).join('; ')}.` });
+  return items.slice(0, 8);
 }
 
 // ── оркестратор: собрать полный набор метрик ─────────────────────────────────
