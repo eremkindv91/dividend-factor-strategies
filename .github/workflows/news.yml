@@ -62,7 +62,10 @@ jobs:
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
           cp site/news.json "$TMP/news.json"
           touch "$TMP/.nojekyll"
-          if [ -z "$(git -C "$TMP" status --porcelain -- news.json .nojekyll)" ]; then
+          # site_status.json строится реже (update.yml) → без патча свежие новости показывались бы
+          # как stale. Пересчитываем ТОЛЬКО news-блок по фактическому news.json (idемпотентно).
+          python scripts/patch_news_status.py "$TMP" || echo "[news] патч site_status пропущен"
+          if [ -z "$(git -C "$TMP" status --porcelain -- news.json site_status.json .nojekyll)" ]; then
             echo "[news] gh-pages/news.json без изменений"
             rm -rf "$TMP"
             exit 0
@@ -70,6 +73,7 @@ jobs:
           git -C "$TMP" config user.name "github-actions[bot]"
           git -C "$TMP" config user.email "github-actions[bot]@users.noreply.github.com"
           git -C "$TMP" add news.json .nojekyll
+          [ -f "$TMP/site_status.json" ] && git -C "$TMP" add site_status.json
           git -C "$TMP" commit -m "deploy(news): обновление утреннего блока"
           git -C "$TMP" push origin gh-pages
           rm -rf "$TMP"
