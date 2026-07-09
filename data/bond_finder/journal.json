@@ -780,5 +780,92 @@
     "coupon_pct_approx": 25.5
    }
   ]
+ },
+ {
+  "ts": "2026-07-09T22:10:34+00:00",
+  "snapshot_date": "2026-07-08",
+  "profile": "balanced",
+  "picks": [
+   {
+    "secid": "RU000A106UW3",
+    "name": "iКарРус1P3",
+    "dirty_price": 868.41,
+    "face": 1000.0,
+    "weight": 0.15,
+    "coupon_pct_approx": 13.7
+   },
+   {
+    "secid": "RU000A107RZ0",
+    "name": "СамолетP13",
+    "dirty_price": 936.9,
+    "face": 1000.0,
+    "weight": 0.0958,
+    "coupon_pct_approx": 21.0
+   },
+   {
+    "secid": "RU000A10BW96",
+    "name": "СамолетP18",
+    "dirty_price": 1009.44,
+    "face": 1000.0,
+    "weight": 0.0774,
+    "coupon_pct_approx": 24.0
+   },
+   {
+    "secid": "RU000A10BFX7",
+    "name": "СамолетP16",
+    "dirty_price": 1028.67,
+    "face": 1000.0,
+    "weight": 0.0768,
+    "coupon_pct_approx": 25.5
+   },
+   {
+    "secid": "RU000A10F6Y5",
+    "name": "Брус 2Р08",
+    "dirty_price": 987.26,
+    "face": 1000.0,
+    "weight": 0.1458,
+    "coupon_pct_approx": 21.25
+   },
+   {
+    "secid": "RU000A10DA74",
+    "name": "ЭталонФин4",
+    "dirty_price": 982.41,
+    "face": 1000.0,
+    "weight": 0.1127,
+    "coupon_pct_approx": 20.0
+   },
+   {
+    "secid": "RU000A10BS76",
+    "name": "iВУШ 1P4",
+    "dirty_price": 963.32,
+    "face": 1000.0,
+    "weight": 0.1036,
+    "coupon_pct_approx": 20.25
+   },
+   {
+    "secid": "RU000A103WB0",
+    "name": "СлавЭКО1Р1",
+    "dirty_price": 976.02,
+    "face": 1000.0,
+    "weight": 0.102,
+    "coupon_pct_approx": 11.0
+   },
+   {
+    "secid": "RU000A10C8F3",
+    "name": "Брус 2Р04",
+    "dirty_price": 997.73,
+    "face": 1000.0,
+    "weight": 0.0835,
+    "coupon_pct_approx": 21.5
+   },
+   {
+    "secid": "RU000A10BAP4",
+    "name": "ЭталонФин3",
+    "dirty_price": 1026.59,
+    "face": 1000.0,
+    "weight": 0.0523,
+    "coupon_pct_approx": 25.5
+   }
+  ]
  }
 ]
