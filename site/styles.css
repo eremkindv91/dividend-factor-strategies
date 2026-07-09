@@ -1903,3 +1903,23 @@ tbody tr:hover td,
 .pfx-shbar.up { background: var(--good-bar); }
 .pfx-shbar.down { background: var(--risk-bar); }
 .pfx-shap em { text-align: right; font-style: normal; font-variant-numeric: tabular-nums; }
+
+/* Банки РФ: per-source health strip + McKinsey capacity module */
+.bval-health { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: .8rem; margin-bottom: 6px; }
+.bval-hs-lbl { font-weight: 700; color: var(--ink); }
+.bval-hs-upd { color: var(--ink-faint); }
+.bval-hs-warn { font-size: .8rem; color: var(--warn-ink); background: var(--warn-fill); border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; font-weight: 600; }
+.bval-cap-box { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface); }
+.bval-cap-head { font-size: .92rem; margin-bottom: 10px; }
+.bval-cap-head b { color: var(--accent-deep); }
+.bval-cap-head .muted { font-size: .8rem; }
+.bval-cap-scroll { overflow-x: auto; }
+.bval-cap-tbl { min-width: 720px; }
+.bval-cap-bar { position: relative; width: 88px; height: 9px; background: var(--neut-fill); border-radius: 5px; overflow: hidden; }
+.bval-cap-bar i { display: block; height: 100%; border-radius: 5px; }
+.bval-cap-bar i.cap-good { background: var(--good-bar); }
+.bval-cap-bar i.cap-neut { background: var(--neut-bar); }
+.bval-cap-bar i.cap-warn { background: var(--warn-bar); }
+.bval-cap-bar i.cap-risk { background: var(--risk-bar); }
+.bval-cap-take { margin-top: 10px; font-size: .84rem; line-height: 1.5; padding: 8px 12px; border-left: 3px solid var(--accent-deep); background: var(--neut-fill); border-radius: 6px; }
+.bval-cap-take b { color: var(--accent-deep); }

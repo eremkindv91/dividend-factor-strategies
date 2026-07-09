@@ -3597,11 +3597,13 @@ function renderBanksValuation() {
     body.innerHTML = bvalShellHTML(BVAL);
     body.dataset.shown = '1';
     bvalTable();
+    bvalCapacityDraw();
     const sl = document.getElementById('bval-coe');
     if (sl) sl.addEventListener('input', () => {
       BVAL_COE = +sl.value;
       document.getElementById('bval-coe-val').textContent = BVAL_COE;
       bvalScatterDraw();
+      bvalCapacityDraw();
     });
     loadChartJS(() => { bvalScatterDraw(); renderBvalHistory(); });
   });
@@ -3617,7 +3619,7 @@ function bvalShellHTML(d) {
   ].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v || '')}</dd>`).join('');
   const [lo, hi] = m.coe_range || [0.12, 0.30];
   return `
-    <div class="bval-freshness">данные: <b>ЦБ на ${dt(m.cbr_asof)}</b> · <b>MOEX на ${dt(m.moex_asof)}</b>${m.has_forecasts ? ' · есть ручной прогноз' : ''}</div>
+    ${bvalHealthStrip(m)}
     <div class="bval-guide">
       <div><b>ROE × P/BV</b><span>прибыльность против цены капитала</span></div>
       <div><b>Н1.0</b><span>запас капитала к нормативу</span></div>
@@ -3644,7 +3646,69 @@ function bvalShellHTML(d) {
       <div class="bval-scatter-wrap"><canvas id="bval-scatter"></canvas></div>
       <div class="bval-caption muted">Линия — справедливый P/BV при COE = <b id="bval-cap-coe">${BVAL_COE}</b>%: точки <b>выше</b> линии дёшевы относительно своей прибыльности, <b>ниже</b> — дороги. P/BV = ROE / COE.</div>
     </div>
+
+    <div class="bval-cap-box">
+      <div class="bval-cap-head"><b>Капитал и дивидендная способность</b><span class="muted"> — может ли банк устойчиво платить дивиденды, не пробивая достаточность капитала (Н1.0/Н1.1/Н1.2)</span></div>
+      <div id="bval-cap-body"></div>
+      <div class="bval-caption muted">Дивидендная способность 0–100: запас Н1.0 (буфер) + ROE (генерация капитала) − текущий пэйаут + запас базового капитала Н1.1. Экономическая прибыль = ROE − COE (при текущем COE ползунка): выше 0 — банк создаёт стоимость на капитал. Не ИИР.</div>
+    </div>
     <div class="bval-disc">${esc(m.disclaimer || '')}</div>`;
+}
+
+// per-source data health strip (MOEX / Ф.102 / Ф.123 / Ф.135) для вкладки «Банки РФ»
+function bvalHealthStrip(m) {
+  const src = m.sources || {};
+  const labels = { moex: 'MOEX', cbr_102: 'Ф.102', cbr_123: 'Ф.123', cbr_135: 'Ф.135' };
+  const stCls = { fresh: 'ds-fresh', stale: 'ds-stale', missing: 'ds-broken' };
+  const items = Object.keys(labels).map((k) => {
+    const s = src[k] || {}; const c = stCls[s.status] || '';
+    return `<span class="ds-item ${c}" title="${esc(s.status || 'н/д')}${s.date ? ' · ' + s.date : ''}"><span class="ds-lbl">${labels[k]}:</span> <b>${s.date ? String(s.date).slice(0, 10) : '—'}</b></span>`;
+  }).join('');
+  const statuses = Object.values(src).map((s) => s && s.status);
+  const anyBad = statuses.some((s) => s && s !== 'fresh');
+  const upd = m.generated_at ? new Date(Date.parse(m.generated_at)).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }) : '—';
+  return `<div class="bval-health"><span class="bval-hs-lbl">Данные банков:</span>${items}<span class="ds-item bval-hs-upd">обновлено ${esc(upd)}</span></div>
+    ${anyBad ? '<div class="bval-hs-warn">Часть данных устарела/недоступна — выводы по капиталу и дивидендам требуют проверки.</div>' : ''}`;
+}
+
+// McKinsey-lens: капитал (Н1.0/1.1/1.2) + буфер + экономическая прибыль (ROE−COE) + дивидендная способность
+function bvalCapacityDraw() {
+  const el = document.getElementById('bval-cap-body');
+  if (!el || !BVAL) return;
+  const coe = BVAL_COE;
+  const banks = (BVAL.banks || []).filter((b) => isNum(b.dividend_capacity_score) || isNum(b.n10));
+  const rows = banks.slice().sort((a, b) => (b.dividend_capacity_score ?? -1) - (a.dividend_capacity_score ?? -1)).map((b) => {
+    const cap = isNum(b.dividend_capacity_score) ? b.dividend_capacity_score : null;
+    const spread = isNum(b.roe) ? b.roe - coe : null;
+    const verdict = cap == null ? '—' : cap >= 75 ? 'сильная' : cap >= 55 ? 'умеренная' : cap >= 40 ? 'ограниченная' : 'под давлением';
+    const vt = cap == null ? 'neut' : cap >= 75 ? 'good' : cap >= 55 ? 'neut' : cap >= 40 ? 'warn' : 'risk';
+    const buf = b.capital_buffer;
+    return `<tr>
+      <td class="left"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span><b>${esc(b.name)}</b> <span class="bval-tk">${esc(b.ticker)}</span></td>
+      <td class="tnum">${isNum(b.n10) ? ru(b.n10, 1) + '%' : mdash}</td>
+      <td class="tnum">${isNum(b.n11) ? ru(b.n11, 1) + '%' : mdash}</td>
+      <td class="tnum">${isNum(b.n12) ? ru(b.n12, 1) + '%' : mdash}</td>
+      <td class="tnum ${isNum(buf) ? (buf >= 0 ? 'saw-up' : 'saw-down') : ''}">${isNum(buf) ? (buf >= 0 ? '+' : '') + ru(buf, 1) : mdash}</td>
+      <td class="tnum">${isNum(b.roe) ? ru(b.roe, 1) + '%' : mdash}</td>
+      <td class="tnum">${isNum(b.payout) ? Math.round(b.payout) + '%' : mdash}</td>
+      <td class="tnum ${spread != null ? (spread >= 0 ? 'saw-up' : 'saw-down') : ''}">${spread != null ? (spread >= 0 ? '+' : '') + ru(spread, 1) : mdash}</td>
+      <td><div class="bval-cap-bar"><i class="cap-${vt}" style="width:${cap ?? 0}%"></i></div></td>
+      <td class="left"><span class="pfx-tag ${vt}">${verdict}${cap != null ? ' · ' + cap : ''}</span></td>
+    </tr>`;
+  }).join('');
+  const withCap = banks.filter((b) => isNum(b.dividend_capacity_score));
+  let take = '';
+  if (withCap.length) {
+    const best = withCap.reduce((a, b) => (b.dividend_capacity_score > a.dividend_capacity_score ? b : a));
+    const worst = withCap.reduce((a, b) => (b.dividend_capacity_score < a.dividend_capacity_score ? b : a));
+    take = `Наибольшая дивидендная способность — ${best.name} (${best.dividend_capacity_score}/100, буфер Н1.0 ${best.capital_buffer >= 0 ? '+' : ''}${ru(best.capital_buffer, 1)} п.п.); наименьшая — ${worst.name} (${worst.dividend_capacity_score}/100${isNum(worst.div_yield) && worst.div_yield > 10 ? `, при дивдоходности ${ru(worst.div_yield, 1)}% дивиденд ограничен тонким капиталом` : ''}).`;
+  }
+  el.innerHTML = `<div class="bval-cap-scroll"><table class="bval-table bval-cap-tbl"><thead><tr>
+    <th class="left">Банк</th><th title="норматив достаточности собственных средств">Н1.0</th><th title="базовый капитал">Н1.1</th><th title="основной капитал">Н1.2</th>
+    <th title="запас Н1.0 над регуляторным минимумом, п.п.">Буфер</th><th>ROE</th><th>Payout</th><th title="экономическая прибыль: ROE − COE (ползунок)">ROE−COE</th>
+    <th title="0–100: устойчивость дивиденда к достаточности капитала">Див. способность</th><th class="left">Вердикт</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>
+    ${take ? `<div class="bval-cap-take"><b>Вывод:</b> ${esc(take)}</div>` : ''}`;
 }
 
 function bvalRows() {

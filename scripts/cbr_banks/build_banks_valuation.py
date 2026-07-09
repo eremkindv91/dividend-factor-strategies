@@ -168,9 +168,26 @@ def f123_capital(regnum: int, dt: str) -> float | None:
     return next((r["value"] for r in (d["rows"] if d else []) if r["code"] == "000"), None)
 
 
-def n10(regnum: int, dt: str) -> float | None:
+def n_ratios(regnum: int, dt: str) -> dict:
+    """Нормативы достаточности капитала из Ф.135: Н1.0 (общий), Н1.1 (базовый), Н1.2 (основной)."""
     d = data135(regnum, dt)
-    return next((r["value"] for r in (d["rows"] if d else []) if r["code"] == "Н1.0"), None)
+    rows = d["rows"] if d else []
+    pick = lambda code: next((r["value"] for r in rows if r["code"] == code), None)  # noqa: E731
+    return {"n10": pick("Н1.0"), "n11": pick("Н1.1"), "n12": pick("Н1.2")}
+
+
+def div_capacity_score(headroom, roe, payout, n11) -> int | None:
+    """Дивидендная способность 0..100 (McKinsey-lens): может ли банк устойчиво платить дивиденды,
+    не пробивая достаточность капитала. Драйверы: запас Н1.0 (буфер), ROE (внутренняя генерация
+    капитала), текущий пэйаут (чем выше — тем меньше запаса), запас базового капитала Н1.1."""
+    if headroom is None or roe is None:
+        return None
+    clamp = lambda x: max(0.0, min(1.0, x))  # noqa: E731
+    buf = clamp((headroom + 2.0) / 8.0)                 # −2 п.п.→0, +6 п.п.→1
+    gen = clamp(roe / 25.0)                              # ROE 25%+ → максимум
+    room = 1.0 - clamp((payout or 0) / 100.0)            # высокий пэйаут → меньше запаса
+    core = clamp((n11 - 6.0) / 6.0) if isinstance(n11, (int, float)) else buf   # Н1.1 запас над ~6%
+    return round(100 * (0.40 * buf + 0.30 * gen + 0.20 * room + 0.10 * core))
 
 
 def year_ago(dt: str) -> str:
@@ -228,7 +245,8 @@ def value_bank(b: dict, cache: dict, splits: list[dict] | None = None) -> dict:
     cap_last = f123_capital(rn, d123_dates[-1]) if d123_dates else None      # thousand RUB
     cap_prev = f123_capital(rn, year_ago(d123_dates[-1])) if len(d123_dates) >= 12 else None
     prof_ttm, prof_date = profit_ttm(rn, d102_dates, cache)                  # thousand RUB
-    cur_n10 = n10(rn, d135_dates[-1]) if d135_dates else None
+    ratios = n_ratios(rn, d135_dates[-1]) if d135_dates else {"n10": None, "n11": None, "n12": None}
+    cur_n10 = ratios["n10"]
     if d123_dates:
         row["vintages"]["cbr_123"] = d123_dates[-1]
         row["capital_rub"] = round(cap_last * 1000, 0) if cap_last else None
@@ -238,6 +256,8 @@ def value_bank(b: dict, cache: dict, splits: list[dict] | None = None) -> dict:
         row["vintages"]["cbr_135"] = d135_dates[-1]
     row["profit_ttm_rub"] = round(prof_ttm * 1000, 0) if prof_ttm else None
     row["n10"] = cur_n10
+    row["n11"] = ratios["n11"]       # Н1.1 базовый капитал
+    row["n12"] = ratios["n12"]       # Н1.2 основной капитал
 
     # multiples
     if mcap and cap_last:
@@ -269,6 +289,21 @@ def value_bank(b: dict, cache: dict, splits: list[dict] | None = None) -> dict:
         row["warnings"].append(b["perimeter_note"])
     if prof_ttm and d102_dates and f"{int(d102_dates[-1][:4])}-01-01" not in d102_dates:
         row["warnings"].append("Прибыль — накопл. с начала года (не полный TTM: нет истории 12 мес)")
+
+    # McKinsey-lens: буфер капитала + дивидендная способность + качество данных
+    row["capital_buffer"] = row.get("n10_headroom")     # алиас: запас Н1.0 над регуляторным минимумом, п.п.
+    row["dividend_capacity_score"] = div_capacity_score(
+        row.get("n10_headroom"), row.get("roe"), row.get("payout"), row.get("n11"))
+    dq = 100
+    for key, pen in (("moex", 25), ("cbr_123", 25), ("cbr_102", 15), ("cbr_135", 10)):
+        if not row["vintages"].get(key):
+            dq -= pen
+    dq -= {"material": 15, "moderate": 8, "low": 0}.get(b.get("ifrs_gap"), 0)
+    if b.get("perimeter_note"):
+        dq -= 5
+    if any("недоступ" in w for w in row["warnings"]):
+        dq -= 10
+    row["data_quality_score"] = max(0, min(100, dq))
     return row
 
 
@@ -306,12 +341,28 @@ def main() -> int:
     cbr_dates = [v for b in banks for k, v in b.get("vintages", {}).items() if k.startswith("cbr") and v]
     moex_dates = [b["vintages"].get("moex") for b in banks if b.get("vintages", {}).get("moex")]
 
+    # per-source data health (fresh/stale/missing) для UI вкладки «Банки РФ»
+    def src_status(key: str, thresh_days: int) -> dict:
+        dates = [b["vintages"].get(key) for b in banks if b.get("vintages", {}).get(key)]
+        if not dates:
+            return {"status": "missing", "date": None}
+        newest = max(dates)
+        try:
+            age = (date.today() - date.fromisoformat(newest[:10])).days
+        except ValueError:
+            age = None
+        st = "missing" if age is None else ("fresh" if age <= thresh_days else "stale")
+        return {"status": st, "date": newest, "age_days": age}
+    sources = {"moex": src_status("moex", 4), "cbr_102": src_status("cbr_102", 45),
+               "cbr_123": src_status("cbr_123", 45), "cbr_135": src_status("cbr_135", 45)}
+
     with_p_bv = sum(1 for b in banks if b.get("p_bv") is not None)
     payload = {
         "meta": {
             "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "cbr_asof": min(cbr_dates) if cbr_dates else None,
             "moex_asof": min(moex_dates) if moex_dates else None,
+            "sources": sources,
             "oldest_vintage": min(all_v) if all_v else None,
             "coe_default": cfg["coe_default"], "coe_range": cfg["coe_range"],
             "reg_min_note": cfg["reg_min_note"],

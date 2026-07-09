@@ -131,10 +131,15 @@ def main() -> int:
         for b in vb:
             if not isinstance(b.get("warnings"), list):
                 err(f"valuation.json: {b.get('ticker')} — warnings не список (глушится слой качества)")
-            for k, lo, hi in (("p_bv", 0.05, 5), ("roe", -50, 80), ("n10", 0, 100), ("payout", -10, 300)):
+            for k, lo, hi in (("p_bv", 0.05, 5), ("roe", -50, 80), ("n10", 0, 100), ("n11", 0, 100),
+                              ("n12", 0, 100), ("payout", -10, 300), ("dividend_capacity_score", 0, 100),
+                              ("data_quality_score", 0, 100)):
                 v = b.get(k)
-                if isinstance(v, (int, float)) and not (lo <= v <= hi):
-                    err(f"valuation.json: {b.get('ticker')} {k}={v} вне разумного диапазона")
+                if isinstance(v, (int, float)):
+                    if not math.isfinite(v):
+                        err(f"valuation.json: {b.get('ticker')} {k}={v} — NaN/Infinity")
+                    elif not (lo <= v <= hi):
+                        err(f"valuation.json: {b.get('ticker')} {k}={v} вне разумного диапазона")
         print(f"  valuation.json: {vm.get('banks_valued')}/{vm.get('banks_count')} банков, "
               f"ЦБ {vm.get('cbr_asof')} · MOEX {vm.get('moex_asof')}")
 
