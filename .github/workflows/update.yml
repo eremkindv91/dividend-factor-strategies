@@ -53,6 +53,11 @@ jobs:
       - name: Сборка data.json (инференс на артефакте + свежие цены MOEX ISS)
         run: python scripts/build_data.py   # exit!=0 (нет артефакта/нет цен) → публикации нет
 
+      - name: Data-level очистка портфельных данных (сплиты, SNGS/SNGSP, аномалии рядов)
+        # чистит data.json + returns.json В ИСТОЧНИКЕ: сплит-adjust дивидендов (T ÷10), добавляет
+        # SNGS/SNGSP (no_model_coverage), помечает split-like ряды needs_adjustment. Сбой не блокирует.
+        run: python scripts/clean_portfolio_data.py || echo "[clean] пропуск — данные без доп. очистки"
+
       - name: Сборка marketsaw.json (фаза рынка по MCFTR, swing/zigzag)
         # сбой MCFTR НЕ должен блокировать дневной деплой цен; предыдущий валидный файл (кэш) остаётся
         run: |

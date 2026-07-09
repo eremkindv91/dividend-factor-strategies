@@ -923,7 +923,7 @@ function loadReturns(cb) {
   PF_RET_LOADING = true;
   fetch('returns.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust: уникальный URL обходит любой кэш/404
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
-    .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {}, div: (j && j.div) || null }; PF_RET_LOADING = false; if (cb) cb(); })   // плоская: months из meta + блок div (реальные дивиденды)
+    .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {}, div: (j && j.div) || null, series_status: (j && j.meta && j.meta.series_status) || {} }; PF_RET_LOADING = false; if (cb) cb(); })   // + series_status (needs_adjustment) из meta
     .catch((e) => { console.error('[pf] returns.json не загрузился:', e); PF_RETURNS = { months: [], data: {}, failed: true }; PF_RET_LOADING = false; if (cb) cb(); });
 }
 function _pstdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); }
@@ -1240,7 +1240,9 @@ function renderMyPortfolio() {
   c._warnings = (parsed.warnings || []).slice();
   // пост-enrich предупреждения по качеству
   const anom = c.positions.filter((p) => p._anomaly).map((p) => p.ticker);
-  if (anom.length) c._warnings.push({ tone: 'warn', msg: `${anom.join(', ')}: найден split-like разрыв в истории цены. Риск-метрики по бумаге временно исключены до корректировки ряда.` });
+  if (anom.length) c._warnings.push({ tone: 'warn', msg: `${anom.join(', ')}: найден split-like разрыв в истории цены (needs_adjustment). Риск-метрики по бумаге исключены до корректировки ряда.` });
+  const noModel = c.positions.filter((p) => p.t && p.t.status === 'no_model_coverage').map((p) => p.ticker);
+  if (noModel.length) c._warnings.push({ tone: 'warn', msg: `${noModel.join(', ')}: цена есть (рынок MOEX), но нет модельного покрытия и чистой истории — бумага исключена из VaR/CVaR и дивидендной модели.` });
   if (c._divSuspect && c._divSuspect.length) c._warnings.push({ tone: 'warn', msg: `${c._divSuspect.join(', ')}: дивиденд в данных выглядит завышенным (возможно, до сплита) — исключён из ожидаемого дивпотока, требует проверки.` });
   const shortHist = c.positions.filter((p) => p._tr && p._tr.length < 24).map((p) => p.ticker);
   if (shortHist.length) c._warnings.push({ tone: 'warn', msg: `Короткая история (<24 мес): ${shortHist.join(', ')} — риск-метрики low confidence` });
@@ -4774,9 +4776,11 @@ function pfxDailyBrief(c) {
 // ── оркестратор: собрать полный набор метрик ─────────────────────────────────
 function pfxEnrich(rows) {
   const positions = myPortfolioEnrich(rows);           // value/weight/sector/pnl/data_quality из data.json
+  const seriesStatus = (PF_RETURNS && PF_RETURNS.series_status) || {};
   positions.forEach((p) => {
     const tr = pfxTickerTotalReturns(p.ticker);
-    p._anomaly = pfxSeriesAnomaly(tr);                  // split-like разрыв (TRNFP: спайк дивряда 1174%)
+    // приоритет — флаг из данных (clean_portfolio_data.py: needs_adjustment), эвристика как fallback
+    p._anomaly = seriesStatus[p.ticker] === 'needs_adjustment' || pfxSeriesAnomaly(tr);
     p._tr = p._anomaly ? null : tr;                     // аномальный ряд НЕ идёт в риск (иначе фейковые 600% vol)
   });
   const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
