@@ -1923,3 +1923,18 @@ tbody tr:hover td,
 .bval-cap-bar i.cap-risk { background: var(--risk-bar); }
 .bval-cap-take { margin-top: 10px; font-size: .84rem; line-height: 1.5; padding: 8px 12px; border-left: 3px solid var(--accent-deep); background: var(--neut-fill); border-radius: 6px; }
 .bval-cap-take b { color: var(--accent-deep); }
+
+/* Портфель: форма «Добавить позицию» (hotfix) */
+.mp-addform { display: grid; grid-template-columns: minmax(0,2fr) 1fr 1fr auto; gap: 8px; align-items: start; }
+.mp-addform .mp-search-wrap { margin-bottom: 0; }
+.mp-qty { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: .86rem; box-sizing: border-box; width: 100%; }
+.mp-add-hint { font-size: .76rem; margin: 6px 0 4px; }
+.mp-manual { margin-top: 6px; }
+.mp-manual > summary { cursor: pointer; color: var(--accent-deep); font-size: .82rem; font-weight: 600; padding: 4px 0; }
+.mp-manual .mp-editor-head { margin: 4px 0; font-size: .78rem; color: var(--ink-faint); }
+@media (max-width: 640px) {
+  .mp-addform { grid-template-columns: 1fr 1fr; }
+  .mp-addform .mp-search-wrap { grid-column: 1 / -1; }
+  #mp-add-btn { grid-column: 1 / -1; }
+  .mp-suggest { max-height: 200px; }
+}

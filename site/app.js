@@ -1239,9 +1239,12 @@ function renderMyPortfolio() {
   const c = pfxCompute(rows);
   c._warnings = (parsed.warnings || []).slice();
   // пост-enrich предупреждения по качеству
+  const anom = c.positions.filter((p) => p._anomaly).map((p) => p.ticker);
+  if (anom.length) c._warnings.push({ tone: 'warn', msg: `${anom.join(', ')}: найден split-like разрыв в истории цены. Риск-метрики по бумаге временно исключены до корректировки ряда.` });
+  if (c._divSuspect && c._divSuspect.length) c._warnings.push({ tone: 'warn', msg: `${c._divSuspect.join(', ')}: дивиденд в данных выглядит завышенным (возможно, до сплита) — исключён из ожидаемого дивпотока, требует проверки.` });
   const shortHist = c.positions.filter((p) => p._tr && p._tr.length < 24).map((p) => p.ticker);
   if (shortHist.length) c._warnings.push({ tone: 'warn', msg: `Короткая история (<24 мес): ${shortHist.join(', ')} — риск-метрики low confidence` });
-  if (c.pf && c.pf.covered < 0.9) c._warnings.push({ tone: 'warn', msg: `Риск-серия покрывает ${Math.round(c.pf.covered * 100)}% веса — часть бумаг без истории исключена` });
+  if (c.pf && c.pf.covered < 0.9) c._warnings.push({ tone: 'warn', msg: `Risk metrics рассчитаны по ${Math.round(c.pf.covered * 100)}% веса портфеля. Бумаги без чистой истории исключены из VaR/CVaR.` });
   if (!c.bench) c._warnings.push({ tone: 'risk', msg: 'MCFTR не выровнен — alpha/beta/tracking error/active VaR недоступны' });
   if (!c.rf.ok) c._warnings.push({ tone: 'warn', msg: 'RFR недоступна — Sharpe/Sortino/alpha считаются без безрисковой ставки' });
   PFX_STATE = c;
@@ -1696,7 +1699,7 @@ function pfxPosHTML(c) {
       <td class="tnum">${PN(p.weight, 1)}</td>
       <td class="tnum">${rub0(p.value)}</td>
       <td class="tnum">${pnl}</td>
-      <td class="tnum">${isNum(p.dividend_yield) ? PU(p.dividend_yield, 1) + '%' : mdash}</td>
+      <td class="tnum">${(c._divSuspect && c._divSuspect.includes(p.ticker)) ? '<span class="pfx-na" title="дивиденд завышен, требует проверки">треб. проверки</span>' : (isNum(p.dividend_yield) ? PU(p.dividend_yield, 1) + '%' : mdash)}</td>
       <td class="tnum">${p.t && isNum(p.t.cut_risk) ? PN(p.t.cut_risk, 0) : mdash}</td>
       <td class="tnum">${isNum(p._beta) ? PU(p._beta, 2) : mdash}</td>
       <td class="tnum">${isNum(p._ivol) ? PN(p._ivol) : mdash}</td>
@@ -1895,29 +1898,51 @@ function pfxWireAutocomplete() {
   const search = document.getElementById('mp-ticker-search');
   const box = document.getElementById('mp-suggest');
   const input = document.getElementById('mp-input');
+  const qtyEl = document.getElementById('mp-add-qty');
+  const priceEl = document.getElementById('mp-add-price');
+  const addBtn = document.getElementById('mp-add-btn');
   if (!search || !box || !input) return;
-  let active = -1, matches = [];
+  let active = -1, matches = [], selected = null;
   const close = () => { box.classList.remove('open'); box.innerHTML = ''; active = -1; };
-  const pick = (t) => {
-    const price = isNum(t.price) ? t.price : '';
+  const pick = (t) => {                                 // выбор бумаги: тикер запомнен, цена подставлена, фокус на кол-во
+    selected = t;
+    search.value = `${t.ticker} — ${t.name || ''}`.trim();
+    if (priceEl && isNum(t.price)) priceEl.value = t.price;
+    close();
+    if (qtyEl) qtyEl.focus();
+  };
+  const add = () => {                                   // «Добавить»: shares × price → строка внутреннего формата
+    let tk = selected ? selected.ticker : pfxCanonTicker(String(search.value || '').split(/[—;,\s]/)[0]);
+    const qty = Number(String((qtyEl && qtyEl.value) || '').replace(',', '.'));
+    const price = Number(String((priceEl && priceEl.value) || '').replace(',', '.'));
+    if (!tk || !/[A-Z0-9]/.test(tk)) { search.focus(); search.setCustomValidity && search.reportValidity(); return; }
+    if (!isFinite(qty) || qty <= 0) { if (qtyEl) { qtyEl.focus(); } return; }
+    if (!isFinite(price) || price < 0) { if (priceEl) { priceEl.focus(); } return; }
     const cur = input.value.replace(/\s+$/, '');
-    input.value = (cur ? cur + '\n' : '') + `${t.ticker}; 10; ${price}`;   // 10 — стартовое кол-во, отредактируйте
-    search.value = ''; close(); renderMyPortfolio(); input.focus();
+    input.value = (cur ? cur + '\n' : '') + `${tk}; ${qty}; ${price}`;   // дубли объединит pfxParseValidate
+    selected = null; search.value = ''; if (qtyEl) qtyEl.value = ''; if (priceEl) priceEl.value = '';
+    renderMyPortfolio(); search.focus();
   };
   const render = () => {
     if (!matches.length) { close(); return; }
     box.innerHTML = matches.map((t, i) => `<div class="mp-sug-item${i === active ? ' active' : ''}" data-i="${i}">
-      <b>${esc(t.ticker)}</b><span>${esc(t.name || '')}${isNum(t.price) ? ' · ' + ru(t.price, 2) + '₽' : ''}</span></div>`).join('');
+      <b>${esc(t.ticker)}</b><span>${esc(t.name || '')}${isNum(t.price) ? ' · ' + ru(t.price, 2) + '₽' : (t._extra ? ' · нет истории' : '')}</span></div>`).join('');
     box.classList.add('open');
     box.querySelectorAll('.mp-sug-item').forEach((el) => el.addEventListener('mousedown', (e) => { e.preventDefault(); pick(matches[+el.dataset.i]); }));
   };
   search.addEventListener('input', () => {
+    selected = null;
     const q = search.value.trim().toUpperCase();
-    if (q.length < 1 || !(DATA && DATA.tickers)) { matches = []; close(); return; }
-    matches = DATA.tickers.filter((t) => t.ticker.startsWith(q) || (t.ticker.indexOf(q) >= 0) || (t.name && t.name.toUpperCase().indexOf(q) >= 0)).slice(0, 8);
-    active = -1; render();
+    if (q.length < 1) { matches = []; close(); return; }
+    const uni = pfxUniverse();
+    const m = uni.filter((t) => t.ticker.startsWith(q) || t.ticker.indexOf(q) >= 0 || (t.name && t.name.toUpperCase().indexOf(q) >= 0));
+    Object.keys(PFX_ALIASES).filter((k) => k.indexOf(q) >= 0).forEach((k) => {   // поиск по алиасам (Тинькофф→T, Сургут ап→SNGSP)
+      const tk = PFX_ALIASES[k]; if (!m.some((x) => x.ticker === tk)) { const u = uni.find((x) => x.ticker === tk); if (u) m.push(u); }
+    });
+    matches = m.slice(0, 8); active = -1; render();
   });
   search.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !matches.length) { e.preventDefault(); add(); return; }
     if (!matches.length) return;
     if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, matches.length - 1); render(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); render(); }
@@ -1925,6 +1950,9 @@ function pfxWireAutocomplete() {
     else if (e.key === 'Escape') close();
   });
   search.addEventListener('blur', () => setTimeout(close, 150));
+  if (addBtn) addBtn.addEventListener('click', add);
+  if (priceEl) priceEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') add(); });
+  if (qtyEl) qtyEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && priceEl && priceEl.value) add(); });
 }
 
 function syncWeightControl() {   // «Взвешивание» неприменимо к оптимизаторам — они сами считают веса
@@ -4077,6 +4105,39 @@ function renderNews() {
 // ══════════════════════════════════════════════════════════════════════════
 const PFX = { Z95: 1.6448536, Z99: 2.3263479, TAX: 0.87, LAMBDA: 0.94 };
 
+// Алиасы ввода → канонический тикер MOEX. КРИТИЧНО: T≠TATN, SNGSP≠SNGS, преф отдельны.
+const PFX_ALIASES = {
+  'TCSG': 'T', 'TINKOFF': 'T', 'T-БАНК': 'T', 'Т-БАНК': 'T', 'ТИНЬКОФФ': 'T', 'ТКС': 'T',
+  'SNGS_P': 'SNGSP', 'SNGS-P': 'SNGSP', 'SNGSPREF': 'SNGSP', 'СУРГУТ АП': 'SNGSP', 'СУРГУТ ПРЕФ': 'SNGSP',
+  'СУРГУТНЕФТЕГАЗ АП': 'SNGSP', 'СУРГУТНЕФТЕГАЗ ПРЕФ': 'SNGSP',
+  'TATNEFT': 'TATN', 'ТАТНЕФТЬ': 'TATN', 'ТАТНЕФТЬ АО': 'TATN',
+  'ТАТНЕФТЬ АП': 'TATNP', 'ТАТНЕФТЬ ПРЕФ': 'TATNP', 'TATN PREF': 'TATNP',
+  'TRANSNEFT PREF': 'TRNFP', 'ТРАНСНЕФТЬ АП': 'TRNFP', 'ТРАНСНЕФТЬ ПРЕФ': 'TRNFP',
+};
+// Бумаги, которых нет в data.json, но которые пользователь может держать (для autocomplete + честный warning)
+const PFX_EXTRA_TICKERS = [
+  { ticker: 'SNGS', name: 'Сургутнефтегаз', _extra: true },
+  { ticker: 'SNGSP', name: 'Сургутнефтегаз ап', _extra: true },
+];
+function pfxCanonTicker(raw) {
+  const up = String(raw || '').toUpperCase().replace(/\s+/g, ' ').trim();
+  if (PFX_ALIASES[up]) return PFX_ALIASES[up];
+  const clean = up.replace(/[^A-Z0-9._-]/g, '');
+  return PFX_ALIASES[clean] || clean;
+}
+// объединённый универсум для autocomplete: data.json + недостающие обязательные
+function pfxUniverse() {
+  const base = (DATA && DATA.tickers) ? DATA.tickers.slice() : [];
+  const have = new Set(base.map((t) => t.ticker));
+  PFX_EXTRA_TICKERS.forEach((e) => { if (!have.has(e.ticker)) base.push(e); });
+  return base;
+}
+// аномалия ряда (split-like): месячный total-return скачок > 250% → ряд не годится для риска
+function pfxSeriesAnomaly(tr) {
+  if (!tr || !tr.length) return false;
+  return tr.some((x) => isNum(x) && Math.abs(x) > 2.5);
+}
+
 // ── чистая математика ────────────────────────────────────────────────────────
 function pfxMean(a) { return a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0; }
 function pfxStd(a, sample) {
@@ -4123,7 +4184,16 @@ function pfxTickerTotalReturns(ticker) {
   const pr = PF_RETURNS.data[ticker];
   if (!pr) return null;
   const dv = (PF_RETURNS.div && PF_RETURNS.div[ticker]) || null;
-  return pr.map((r, i) => r + (dv && isNum(dv[i]) ? dv[i] : 0));
+  // total = ценовой + дивидендный. null (нет листинга/данных) — обрезаем ведущие, внутри → пропуск (0),
+  // чтобы null не превращался в фейковый 0-ретёрн и не давал NaN в риск-математике.
+  let start = 0;
+  while (start < pr.length && !isNum(pr[start])) start += 1;   // T: первые ~10 мес null (тикер с ноя-2024)
+  const out = [];
+  for (let i = start; i < pr.length; i++) {
+    const r = isNum(pr[i]) ? pr[i] : 0;
+    out.push(r + (dv && isNum(dv[i]) ? dv[i] : 0));
+  }
+  return out.length ? out : null;
 }
 
 // парсинг + валидация + слияние дубликатов (взвеш. средняя цена по количеству)
@@ -4137,7 +4207,7 @@ function pfxParseValidate(text) {
     const line = raw.split('#')[0].trim();             // комментарий после #
     if (!line) return;
     const parts = line.split(/[;,\t ]+/).map((x) => x.trim()).filter(Boolean);
-    const ticker = String(parts[0] || '').toUpperCase().replace(/[^A-Z0-9._-]/g, '');
+    const ticker = pfxCanonTicker(parts[0]);            // резолв алиасов (TCSG→T, СУРГУТ АП→SNGSP…)
     const qty = Number(String(parts[1] || '').replace(',', '.'));
     const avg = Number(String(parts[2] || '').replace(',', '.'));
     if (!ticker || !/[A-Z0-9]/.test(ticker) || parts.length < 2 || !isFinite(qty)) { badLines.push(raw.trim()); return; }
@@ -4154,8 +4224,12 @@ function pfxParseValidate(text) {
   const rows = Object.values(seen);
   if (badLines.length) warns.push({ tone: 'warn', msg: `Не распознаны строки: ${badLines.slice(0, 4).map(esc).join(' · ')}${badLines.length > 4 ? '…' : ''}` });
   if (dupes.size) warns.push({ tone: 'neut', msg: `Дубликаты объединены (взвеш. средняя цена): ${[...dupes].join(', ')}` });
-  const unknown = rows.filter((r) => !map[r.ticker]).map((r) => r.ticker);
-  if (unknown.length) warns.push({ tone: 'warn', msg: `Нет в покрытии data.json (риск-метрики недоступны): ${unknown.join(', ')}` });
+  const uni = new Set(pfxUniverse().map((t) => t.ticker));
+  const noCover = rows.filter((r) => !map[r.ticker] && uni.has(r.ticker)).map((r) => r.ticker);   // известен (SNGSP), но нет чистой истории
+  const unknown = rows.filter((r) => !map[r.ticker] && !uni.has(r.ticker)).map((r) => r.ticker);   // вообще неизвестный
+  if (noCover.length) noCover.forEach((t) => warns.push({ tone: 'warn',
+    msg: `${t} найден в портфеле, но нет чистой истории для риск-метрик. Цена/дивиденды считаются отдельно; бумага исключена из VaR/CVaR.` }));
+  if (unknown.length) warns.push({ tone: 'risk', msg: `Неизвестный тикер (проверьте написание): ${unknown.join(', ')}` });
   return { rows, warnings: warns };
 }
 
@@ -4350,10 +4424,14 @@ function pfxRiskBudget(positions) {
 // income = Σ shares×DPS(dividend_forecast); payout_prob = 1 − cut_risk. cut-бакет по cut_risk.
 function pfxCutBucket(cr) { return cr == null ? 'unknown' : cr >= 0.6 ? 'high' : cr >= 0.35 ? 'medium' : 'low'; }
 function pfxDividendStress(positions) {
+  const suspect = [];
   const items = positions.map((p) => {
-    const t = p.t; const dps = t && isNum(t.dividend_forecast) ? t.dividend_forecast : null;
+    const t = p.t; let dps = t && isNum(t.dividend_forecast) ? t.dividend_forecast : null;
     const cr = t && isNum(t.cut_risk) ? t.cut_risk : null;
-    const base = dps != null ? dps * p.quantity : 0;
+    // guard: dps/цена > 35% — почти наверняка до-сплитный/битый дивиденд (напр. T после сплита 1:10).
+    // Не завышаем ожидаемый дивпоток без источника → исключаем DPS, помечаем «требует проверки».
+    if (dps != null && p.current_price && dps / p.current_price > 0.35) { suspect.push(p.ticker); dps = null; }
+    const base = dps != null ? dps * p.quantity : 0;   // дивпоток = число АКЦИЙ × DPS (не лоты)
     return { ticker: p.ticker, base, cr, bucket: pfxCutBucket(cr), prob: cr != null ? 1 - cr : null,
       yield: p.dividend_yield, hasData: dps != null && cr != null };
   });
@@ -4374,7 +4452,7 @@ function pfxDividendStress(positions) {
     .map((it) => it.ticker);
   const noData = items.filter((it) => !it.hasData).map((it) => it.ticker);
   return { items, scen, baseIncome, riskAdj, atRisk: baseIncome - riskAdj, topIncome, topRisk,
-    traps, noData, topShare: topIncome.length ? topIncome[0].share : 0 };
+    traps, noData, suspect, topShare: topIncome.length ? topIncome[0].share : 0 };
 }
 
 // ── bootstrap устойчивости (месячный resample, горизонт 12 мес) ──────────────
@@ -4696,7 +4774,11 @@ function pfxDailyBrief(c) {
 // ── оркестратор: собрать полный набор метрик ─────────────────────────────────
 function pfxEnrich(rows) {
   const positions = myPortfolioEnrich(rows);           // value/weight/sector/pnl/data_quality из data.json
-  positions.forEach((p) => { p._tr = pfxTickerTotalReturns(p.ticker); });
+  positions.forEach((p) => {
+    const tr = pfxTickerTotalReturns(p.ticker);
+    p._anomaly = pfxSeriesAnomaly(tr);                  // split-like разрыв (TRNFP: спайк дивряда 1174%)
+    p._tr = p._anomaly ? null : tr;                     // аномальный ряд НЕ идёт в риск (иначе фейковые 600% vol)
+  });
   const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
   positions.forEach((p) => { p.weight = total > 0 ? p.value / total : 0; });
   return { positions, total };
@@ -4726,16 +4808,17 @@ function pfxCompute(rows) {
   if (riskBudget.ok) riskBudget.rows.forEach((r) => { const p = positions.find((x) => x.ticker === r.ticker); if (p) p._riskShare = r.share; });
   const div = pfxDividendStress(positions);
   const dq = pfxDataQuality(positions);
+  const _divSuspect = div.suspect || [];
   // агрегаты
   const sorted = positions.slice().sort((a, b) => b.weight - a.weight);
   const top3 = sorted.slice(0, 3).reduce((s, p) => s + p.weight, 0);
   const effN = positions.length ? 1 / positions.reduce((s, p) => s + p.weight * p.weight, 0) : 0;
-  const grossYield = positions.reduce((s, p) => s + (isNum(p.dividend_yield) ? p.weight * p.dividend_yield : 0), 0);
+  const grossYield = positions.reduce((s, p) => s + ((isNum(p.dividend_yield) && !_divSuspect.includes(p.ticker)) ? p.weight * p.dividend_yield : 0), 0);
   const wBeta = positions.reduce((s, p) => s + (isNum(p._beta) ? p.weight * p._beta : 0), 0);
   const cost = positions.reduce((s, p) => s + p.cost, 0);
   const cls = pfxClassify({ dq, capm, perf, div, riskBudget, top3, grossYield, rfr: rf.annual });
   return { positions, total, cost, rf, pf, bench, perf, capm, vaR, backtest, boot, riskBudget, div, dq,
-    top3, effN, grossYield, wBeta, cls, sorted };
+    top3, effN, grossYield, wBeta, cls, sorted, _divSuspect };
 }
 
 // ── rule-based investment committee memo ─────────────────────────────────────

@@ -66,11 +66,20 @@
                 <label for="mp-input">Позиции</label>
                 <span>Формат строки: тикер; количество; средняя цена</span>
               </div>
-              <div class="mp-search-wrap">
-                <input type="text" class="mp-search" id="mp-ticker-search" autocomplete="off" placeholder="Добавить бумагу: начните вводить тикер или название…">
-                <div class="mp-suggest" id="mp-suggest"></div>
+              <div class="mp-addform">
+                <div class="mp-search-wrap">
+                  <input type="text" class="mp-search" id="mp-ticker-search" autocomplete="off" placeholder="Поиск бумаги: тикер или название (напр. Сургут ап, Т-Банк)…">
+                  <div class="mp-suggest" id="mp-suggest"></div>
+                </div>
+                <input type="number" class="mp-qty" id="mp-add-qty" min="0" step="1" inputmode="numeric" placeholder="Кол-во акций" title="Количество акций (не лотов)">
+                <input type="number" class="mp-qty" id="mp-add-price" min="0" step="0.01" inputmode="decimal" placeholder="Цена покупки, ₽">
+                <button class="btn" id="mp-add-btn" type="button">Добавить</button>
               </div>
-              <textarea id="mp-input" spellcheck="false" placeholder="SBER; 100; 310&#10;LKOH; 5; 6800&#10;MOEX; 50; 210"></textarea>
+              <div class="mp-add-hint muted">Количество = число акций, не лотов. Дубликат тикера объединяется по средневзвешенной цене.</div>
+              <details class="mp-manual"><summary>Расширенный ручной ввод списком</summary>
+                <div class="mp-editor-head"><span>Формат строки: тикер; количество; средняя цена</span></div>
+                <textarea id="mp-input" spellcheck="false" placeholder="SBER; 100; 310&#10;LKOH; 5; 6800&#10;MOEX; 50; 210"></textarea>
+              </details>
             </div>
             <div class="mp-actions">
               <button class="btn" id="mp-save">Посчитать</button>
