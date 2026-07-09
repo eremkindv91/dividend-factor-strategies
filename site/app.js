@@ -1236,6 +1236,7 @@ function renderMyPortfolio() {
   if (!SAW_DATA && typeof loadMarketSaw === 'function') { loadMarketSaw(() => renderMyPortfolio()); }
   if (!MARLAMOV && typeof loadMarlamov === 'function') { loadMarlamov(() => renderMyPortfolio()); }
   if (!NEWS && typeof loadNews === 'function') { loadNews(() => renderMyPortfolio()); }   // P2: новости по тикерам
+  if (!BONDS && typeof loadBonds === 'function') { loadBonds(() => renderMyPortfolio()); }   // P4: ставка/облигации
   const c = pfxCompute(rows);
   c._warnings = (parsed.warnings || []).slice();
   // пост-enrich предупреждения по качеству
@@ -1290,6 +1291,7 @@ function pfxScenarioMetrics(tickers, weights, bench, rf) {
 function pfxRenderHTML(c) {
   const diag = pfxDiagnosis(c);
   const benchPerf = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
+  c._rb = pfxRateBond(c);   // P4: связка со ставкой/облигациями (для модуля и графика)
   let html = '';
 
   // 0. Заголовок + дисклеймеры
@@ -1361,6 +1363,9 @@ function pfxRenderHTML(c) {
 
   // 6. Dividend Stress Test
   html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
+
+  // 6a. P4: Ставка и облигации против портфеля (Rate & Bond Reality Check)
+  html += pfxDetails('Ставка и облигации против портфеля', '(премия к безриску · порог замещения · дюрация к ставке)', pfxRateBondHTML(c), (c._rb && c._rb.ok && c._rb.substituted));
 
   // 6b. Факторная диагностика (P1)
   html += pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c));
@@ -1531,6 +1536,102 @@ function pfxDivHTML(c) {
       return payers.length ? `<div class="pfx-dr-list"><h4>Почему такой дивидендный риск — разбор по бумагам (P3)</h4>
         ${payers.map(pfxDivRiskCardHTML).join('')}</div>` : '';
     })()}`;
+}
+
+// ── P4: Ставка и облигации против портфеля (Rate & Bond Reality Check) ────────
+// линейная интерполяция КБД (G-кривой ОФЗ MOEX) по сроку t (лет)
+function pfxCurveYield(curve, t) {
+  const pts = (curve || []).filter((p) => isNum(p.t) && isNum(p.yield)).sort((a, b) => a.t - b.t);
+  if (!pts.length) return null;
+  if (t <= pts[0].t) return pts[0].yield;
+  if (t >= pts[pts.length - 1].t) return pts[pts.length - 1].yield;
+  for (let i = 1; i < pts.length; i++) {
+    if (t <= pts[i].t) { const a = pts[i - 1], b = pts[i]; return a.yield + (b.yield - a.yield) * (t - a.t) / (b.t - a.t); }
+  }
+  return pts[pts.length - 1].yield;
+}
+// связывает портфель с безрисковой кривой и корпоративными облигациями (BONDS)
+function pfxRateBond(c) {
+  if (!BONDS || !BONDS.chart || !BONDS.bonds || !(BONDS.chart.ofz_curve || []).length) return { ok: false };
+  const curve = BONDS.chart.ofz_curve;
+  const rf1 = pfxCurveYield(curve, 1), rf2 = pfxCurveYield(curve, 2), rf5 = pfxCurveYield(curve, 5);
+  const grossY = isNum(c.grossYield) && c.grossYield > 0 ? c.grossYield : null;   // ожид. дивдоходность, gross %
+  const netY = grossY != null ? grossY * NET_OF_TAX : null;                        // после НДФЛ 13%
+  const erpGross = (grossY != null && rf1 != null) ? grossY - rf1 : null;          // премия gross к КБД 1г, п.п.
+  // медианная ЧИСТАЯ (net-of-tax) YTM корпоратов инвест-грейда по рейтингам
+  const grades = ['AAA', 'AA', 'A'];
+  const byGrade = {};
+  grades.forEach((g) => {
+    const arr = BONDS.bonds.filter((b) => (b.rating_group || b.rating) === g && isNum(b.ytm_net));
+    if (arr.length) byGrade[g] = { n: arr.length, medYtmNet: pfxPercentile(arr.map((b) => b.ytm_net), 0.5),
+      medDur: pfxPercentile(arr.map((b) => b.duration_years).filter(isNum), 0.5) };
+  });
+  const aaaNet = byGrade.AAA ? byGrade.AAA.medYtmNet : null;
+  const substituted = (netY != null && aaaNet != null && aaaNet >= netY);          // ААА net ≥ дивиденды net
+  // конкретные бумаги: инвест-грейд, максимальная чистая YTM, недооценённые (рынок ≤ fair), ликвидные
+  const picks = BONDS.bonds
+    .filter((b) => grades.includes(b.rating_group || b.rating) && isNum(b.ytm_net) && isNum(b.duration_years)
+      && (b.deviation == null || b.deviation <= 0.5) && (b.valtoday == null || b.valtoday > 5e6))
+    .sort((a, b) => b.ytm_net - a.ytm_net).slice(0, 3);
+  // стилизованная дюрация дивпотока (Gordon-перпетуитет): D_mod ≈ 1/div_yield; +1пп ставки → −D_mod%
+  const gordonDur = grossY != null ? 100 / grossY : null;                          // лет
+  const reprice1pp = gordonDur != null ? -gordonDur : null;                        // % переоценки при +1пп
+  const rateSens = c.positions.reduce((s, p) => s + p.weight * pfxSectorRate(p.sector), 0);
+  return { ok: true, date: (BONDS.meta && BONDS.meta.data_date) || (BONDS.chart.updated || '').slice(0, 10),
+    curve, rf1, rf2, rf5, grossY, netY, erpGross, byGrade, aaaNet, substituted, picks, gordonDur, reprice1pp, rateSens };
+}
+function pfxRateBondHTML(c) {
+  if (!BONDS) return `<div class="pfx-note muted">Загрузка слоя облигаций/ставки…</div>`;
+  const r = c._rb || pfxRateBond(c);
+  if (!r.ok) return `<div class="pfx-note">${NA}: не удалось загрузить безрисковую кривую/скринер облигаций.</div>`;
+  const pp = (x, d) => isNum(x) ? ((x >= 0 ? '+' : '') + ru(x, d == null ? 1 : d)) : mdash;
+  const pc = (x, d) => isNum(x) ? (ru(x, d == null ? 1 : d) + '%') : mdash;
+  // 1. КБД чипы
+  const curve = `<div class="pfx-rb-curve">
+    <span class="pfx-rb-chip">КБД 1 год <b>${pc(r.rf1)}</b></span>
+    <span class="pfx-rb-chip">2 года <b>${pc(r.rf2)}</b></span>
+    <span class="pfx-rb-chip">5 лет <b>${pc(r.rf5)}</b></span>
+    <span class="muted pfx-rb-src">безрисковая кривая ОФЗ (КБД MOEX)${r.date ? ' · ' + esc(r.date) : ''}</span></div>`;
+  // 2. ERP-lite (премия к безриску)
+  let erpTone = 'neut', erpNote = 'Дивидендная доходность близка к безрисковой ставке.';
+  if (r.erpGross != null) {
+    if (r.erpGross < 0) { erpTone = 'risk'; erpNote = 'Ожидаемые дивиденды НИЖЕ безрисковой ставки ОФЗ: по текущей доходности вы принимаете рыночный риск акций без премии. Апсайд — только в росте цены/дивиденда.'; }
+    else if (r.erpGross < 3) { erpTone = 'warn'; erpNote = 'Умеренная премия за риск акций к безриску — тонкая подушка на случай снижения ставок/просадки.'; }
+    else { erpTone = 'good'; erpNote = 'Существенная премия за риск акций к безрисковой ставке.'; }
+  }
+  const erp = `<div class="pfx-rb-erp pfx-${erpTone}">
+    <div class="pfx-rb-erp-num">${pp(r.erpGross)} п.п.</div>
+    <div class="pfx-rb-erp-lbl">дивидендная премия к безриску &nbsp;=&nbsp; gross дивдоходность ${pc(r.grossY)} − КБД 1г ${pc(r.rf1)}</div>
+    <div class="pfx-rb-erp-note">${erpNote}</div></div>`;
+  // 3. Таблица замещения (всё «на руки», после НДФЛ 13%)
+  const gr = (g, lbl) => { const b = r.byGrade[g]; return b
+    ? `<tr><td class="left">Корп. ${lbl} (медиана, ${b.n})</td><td class="tnum">${pc(b.medYtmNet)}</td><td class="tnum">${isNum(b.medDur) ? ru(b.medDur, 1) + ' г' : '—'}</td><td class="left muted">кредит ${lbl}; купон контрактный до погашения</td></tr>`
+    : ''; };
+  const subTbl = `<div class="pfx-tbl-scroll"><table class="pfx-tbl pfx-rb-tbl"><thead><tr>
+    <th class="left">Инструмент</th><th>Доходность «на руки»</th><th>Дюрация/срок</th><th class="left">Природа</th></tr></thead><tbody>
+    <tr class="pfx-rb-me"><td class="left"><b>Ваш портфель</b> (ожид. дивиденды)</td><td class="tnum"><b>${pc(r.netY)}</b></td><td class="tnum">бессрочно</td><td class="left muted">рыночный риск акций; дивиденд не гарантирован</td></tr>
+    ${gr('AAA', 'AAA')}${gr('AA', 'AA')}${gr('A', 'A')}</tbody></table></div>`;
+  // вердикт замещения
+  const sub = r.aaaNet == null ? '' : (r.substituted
+    ? `<div class="pfx-warn">Корпоблигации <b>AAA дают ${pc(r.aaaNet)} «на руки» — не меньше</b>, чем ожидаемая чистая дивдоходность портфеля (${pc(r.netY)}), при кредитном риске AAA, известном сроке и меньшей волатильности. Это весомая альтернатива части акций (дивиденд не гарантирован; купон облигации — контрактный).</div>`
+    : `<div class="pfx-kpi-inline pfx-neut">Портфель платит чистыми на <b>${pp(r.netY - r.aaaNet)} п.п.</b> больше, чем корп. AAA (${pc(r.aaaNet)}) — это компенсация за рыночный риск акций и негарантированность дивиденда.</div>`);
+  // 4. Конкретные бумаги
+  const picks = r.picks.length ? `<div class="pfx-rb-picks"><h4>Облигации инвест-грейда с высокой чистой доходностью</h4>
+    <ul>${r.picks.map((b) => `<li><b>${esc(b.name || b.secid)}</b> <span class="pfx-rb-rt">${esc(b.rating || '')}</span> — ${pc(b.ytm_net)} «на руки» · дюрация ${ru(b.duration_years, 1)} г · погашение ${esc((b.maturity || '').slice(0, 7))}</li>`).join('')}</ul>
+    <div class="pfx-note muted">Источник: скринер облигаций${r.date ? ' · ' + esc(r.date) : ''} (рублёвые корпораты TQCB, ≥ BBB-, фикс-купон). Не ИИР — не оффер купить/продать.</div></div>` : '';
+  // 5. Чувствительность к ставке
+  const rateWarn = r.rateSens > 0.6;
+  const rate = `<div class="pfx-rb-rate">
+    <div class="pfx-rb-rr"><span>Стилизованная дюрация дивпотока</span><b>≈ ${isNum(r.gordonDur) ? ru(r.gordonDur, 1) + ' г' : mdash}</b>
+      <em class="muted">рост требуемой доходности на +1 п.п. → переоценка ≈ ${pc(r.reprice1pp)}</em></div>
+    <div class="pfx-rb-rr"><span>Секторная чувствительность к ставке</span><b class="${rateWarn ? 'pfx-warn-ink' : ''}">${isNum(r.rateSens) ? Math.round(r.rateSens * 100) + '%' : mdash}</b>
+      <em class="muted">${rateWarn ? 'много банков/энергетики/недвижимости — портфель ведёт себя «облигационно»' : 'умеренная — доминируют менее ставко-зависимые сектора'}</em></div></div>`;
+  return `${curve}${erp}
+    <div class="pfx-rb-chart-wrap"><canvas id="pfx-rb-curve"></canvas></div>
+    <h4 class="pfx-rb-h">Порог замещения облигациями — что даёт та же сумма «на руки»</h4>
+    ${subTbl}${sub}${picks}
+    <h4 class="pfx-rb-h">Чувствительность к ставке</h4>${rate}
+    <div class="pfx-note muted">Дивдоходность — ожидаемая (прогноз проекта), не гарантирована и плавает; YTM облигации — контрактная к погашению при удержании (кредитный риск эмитента остаётся). Обе «на руки» = после НДФЛ 13%. Дюрация дивпотока — стилизованная оценка по модели Гордона (1/дивдоходность), не прогноз цены. КБД — G-кривая ОФЗ MOEX. Не ИИР.</div>`;
 }
 
 // ── модуль 6b: факторная диагностика (P1) ────────────────────────────────────
@@ -1826,6 +1927,23 @@ function pfxDrawCharts(c) {
         datasets: [{ label: 'Дивпоток, ₽', data: [s.base, s.conservative, s.stress, s.crisis],
           backgroundColor: ['#1E6F4C', '#4C5C86', '#8A6224', '#A2452C'] }] },
         options: { ...base, plugins: { ...base.plugins, legend: { display: false } }, scales: { x: AX, y: AX } } });
+    }
+    // P4: КБД-кривая (ОФЗ) + корп-облигации + дивдоходность портфеля
+    if (c._rb && c._rb.ok) {
+      const r = c._rb;
+      const ofz = (r.curve || []).map((p) => ({ x: p.t, y: p.yield }));
+      const corp = ((BONDS && BONDS.chart && BONDS.chart.corp_points) || []).filter((p) => isNum(p.duration) && isNum(p.ytm)).map((p) => ({ x: p.duration, y: p.ytm }));
+      const maxT = Math.max(5, ...ofz.map((p) => p.x), ...corp.map((p) => p.x));
+      const ds = [
+        { label: 'КБД ОФЗ (безриск)', type: 'line', data: ofz, parsing: false, borderColor: '#4C5C86', borderWidth: 2, tension: 0.2, pointRadius: 0, order: 1 },
+        { label: 'Корп. облигации (YTM)', type: 'scatter', data: corp, parsing: false, backgroundColor: 'rgba(138,98,36,.55)', pointRadius: 3, order: 2 },
+      ];
+      if (isNum(r.grossY)) ds.push({ label: 'Дивдоходность портфеля (gross)', type: 'line', data: [{ x: 0, y: r.grossY }, { x: maxT, y: r.grossY }], parsing: false, borderColor: '#1E6F4C', borderWidth: 1.5, borderDash: [6, 4], pointRadius: 0, order: 0 });
+      mk('pfx-rb-curve', { data: { datasets: ds }, options: { ...base,
+        plugins: { ...base.plugins, legend: { display: true, labels: base.plugins.legend.labels },
+          tooltip: { callbacks: { label: (i) => `${i.dataset.label}: ${ru(i.parsed.y, 2)}% @ ${ru(i.parsed.x, 2)}г` } } },
+        scales: { x: { ...AX, type: 'linear', title: { display: true, text: 'дюрация/срок, лет', color: '#5A6472' } },
+          y: { ...AX, title: { display: true, text: 'доходность, % год.', color: '#5A6472' }, ticks: { ...AX.ticks, callback: (v) => v + '%' } } } } });
     }
     // bootstrap histogram (excess returns)
     if (c.boot && c.boot.ok) {
@@ -4689,6 +4807,8 @@ function pfxTopRisks(c) {
     text: `${Math.round(highCut * 100)}% портфеля — бумаги с повышенным риском среза дивидендов; дивпоток нестабилен.` });
   if (c.div && c.div.traps && c.div.traps.length) risks.push({ sev: 0.5, tone: 'risk',
     text: `Возможные дивидендные ловушки (высокая доходность + высокий cut risk): ${c.div.traps.join(', ')}.` });
+  if (c._rb && c._rb.ok && c._rb.substituted) risks.push({ sev: 0.62, tone: 'warn',
+    text: `Ставка выше дивидендов: корп. AAA дают ${ru(c._rb.aaaNet, 1)}% «на руки» — не меньше ожидаемой чистой дивдоходности портфеля (${ru(c._rb.netY, 1)}%) при кредитном риске AAA и меньшей волатильности. См. «Ставка и облигации против портфеля».` });
   const sectors = {}; c.positions.forEach((p) => { sectors[p.sector] = (sectors[p.sector] || 0) + p.weight; });
   const secTop = Object.entries(sectors).sort((a, b) => b[1] - a[1])[0];
   if (secTop && secTop[1] > 0.4) risks.push({ sev: secTop[1] * 0.9, tone: 'warn',

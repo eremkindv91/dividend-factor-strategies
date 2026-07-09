@@ -1803,6 +1803,39 @@ tbody tr:hover td,
 .pfx-divlists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pfx-divlists ul { margin: 0; padding-left: 16px; font-size: .82rem; line-height: 1.6; }
 .pfx-kpi-inline { margin: 10px 0; font-size: .9rem; }
+.pfx-kpi-inline.pfx-neut { background: var(--neut-fill); color: var(--neut-ink); border-radius: 8px; padding: 8px 11px; font-weight: 600; }
+
+/* ── P4: Ставка и облигации против портфеля ── */
+.pfx-rb-curve { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 12px; }
+.pfx-rb-chip { font-size: .82rem; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft); }
+.pfx-rb-chip b { color: var(--accent-deep); font-variant-numeric: tabular-nums; margin-left: 3px; }
+.pfx-rb-src { font-size: .75rem; }
+.pfx-rb-erp { display: grid; gap: 3px; padding: 12px 14px; border-radius: 10px; margin: 0 0 12px; border-left: 4px solid var(--neut-bar); background: var(--neut-fill); }
+.pfx-rb-erp.pfx-good { border-left-color: var(--good-bar); background: var(--good-fill); }
+.pfx-rb-erp.pfx-warn { border-left-color: var(--warn-bar); background: var(--warn-fill); }
+.pfx-rb-erp.pfx-risk { border-left-color: var(--risk-bar); background: var(--risk-fill); }
+.pfx-rb-erp-num { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.pfx-rb-erp.pfx-good .pfx-rb-erp-num { color: var(--good-ink); }
+.pfx-rb-erp.pfx-warn .pfx-rb-erp-num { color: var(--warn-ink); }
+.pfx-rb-erp.pfx-risk .pfx-rb-erp-num { color: var(--risk-ink); }
+.pfx-rb-erp-lbl { font-size: .8rem; color: var(--ink-soft); }
+.pfx-rb-erp-note { font-size: .84rem; line-height: 1.45; margin-top: 3px; }
+.pfx-rb-chart-wrap { position: relative; height: 260px; border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: var(--surface); margin: 0 0 12px; }
+.pfx-rb-h { margin: 16px 0 8px; font-size: .9rem; color: var(--accent-deep); }
+.pfx-rb-tbl .pfx-rb-me { background: var(--neut-fill); }
+.pfx-rb-tbl .pfx-rb-me b { color: var(--accent-deep); }
+.pfx-rb-tbl td.muted { white-space: normal; min-width: 150px; max-width: 260px; }
+.pfx-rb-tbl td.left:first-child { min-width: 130px; }
+.pfx-rb-picks { margin: 10px 0; }
+.pfx-rb-picks h4 { margin: 0 0 5px; font-size: .84rem; color: var(--ink); }
+.pfx-rb-picks ul { margin: 0; padding-left: 18px; }
+.pfx-rb-picks li { font-size: .85rem; line-height: 1.7; }
+.pfx-rb-rt { font-size: .68rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--good-fill); color: var(--good-ink); }
+.pfx-rb-rate { display: grid; gap: 8px; }
+.pfx-rb-rr { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: .86rem; padding: 8px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.pfx-rb-rr > span { color: var(--ink-soft); min-width: 240px; }
+.pfx-rb-rr > b { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+.pfx-rb-rr .pfx-warn-ink { color: var(--warn-ink); }
 
 .pfx-memo-block { margin-bottom: 10px; }
 .pfx-memo-block h4 { margin: 0 0 3px; font-size: .86rem; color: var(--accent-deep); }
