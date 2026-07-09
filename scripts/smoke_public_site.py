@@ -81,7 +81,7 @@ def main() -> int:
     else:
         sys.stdout.write("  [OK] marketsaw.json (MCFTR)\n")
 
-    # site_status.json — не критично для ролбэка (новый файл/лаг CDN не должен откатывать сайт)
+    # site_status + news — не критично для ролбэка (новый файл/лаг CDN не должен откатывать сайт)
     if "--core-only" not in sys.argv:
         st, e = fetch(f"{base}/site_status.json", retries, True)
         if e:
@@ -90,6 +90,13 @@ def main() -> int:
             fails.append(f"site_status.overall={st.get('overall')!r} (broken?)")
         else:
             sys.stdout.write(f"  [OK] site_status.json (overall={st['overall']})\n")
+        news, e = fetch(f"{base}/news.json", retries, True)
+        if e:
+            fails.append(f"news.json недоступен ({e})")
+        elif not (news.get("generated_at") and isinstance(news.get("market_snapshot"), list)):
+            fails.append("news.json без generated_at/market_snapshot (broken)")
+        else:
+            sys.stdout.write(f"  [OK] news.json (generated_at={str(news.get('generated_at'))[:16]})\n")
 
     if fails:
         sys.stderr.write("\n[smoke] ПУБЛИЧНЫЙ САЙТ НЕ ПРОШЁЛ ПРОВЕРКУ:\n  - " + "\n  - ".join(fails) + "\n")
