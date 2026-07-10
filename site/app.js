@@ -4445,7 +4445,9 @@ function bvalHealthStrip(m) {
   const statuses = Object.values(src).map((s) => s && s.status);
   const anyBad = statuses.some((s) => s && s !== 'fresh');
   const upd = m.generated_at ? new Date(Date.parse(m.generated_at)).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }) : '—';
-  return `<div class="bval-health"><span class="bval-hs-lbl">Данные банков:</span>${items}<span class="ds-item bval-hs-upd">обновлено ${esc(upd)}</span></div>
+  const nb = m.banks_valued || m.banks_count || (BVAL && (BVAL.banks || []).length) || 0;
+  const scope = nb ? `<span class="ds-item bval-hs-scope" title="Только публичные банки с котировками MOEX — НЕ весь банковский сектор РФ"><span class="ds-lbl">Периметр:</span> <b>${nb} публичных банков</b> (не весь сектор)</span>` : '';
+  return `<div class="bval-health"><span class="bval-hs-lbl">Данные банков:</span>${items}${scope}<span class="ds-item bval-hs-upd">обновлено ${esc(upd)}</span></div>
     ${anyBad ? '<div class="bval-hs-warn">Часть данных устарела/недоступна — выводы по капиталу и дивидендам требуют проверки.</div>' : ''}`;
 }
 
