@@ -30,6 +30,11 @@ import numpy as np
 import requests
 from scipy.optimize import brentq, linprog
 
+try:
+    from .official_ratings import DEFAULT_CACHE, load_official_ratings
+except ImportError:  # direct script execution: python bonds/update_bonds.py
+    from official_ratings import DEFAULT_CACHE, load_official_ratings
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(REPO, "site", "bonds")
 ISS = "https://iss.moex.com/iss"
@@ -45,29 +50,11 @@ PAGE = 100
 # Спред к G-кривой по рейтинговому классу (годовые %).
 SPREAD = {"AAA": 1.5, "AA": 2.2, "A": 3.5, "BBB": 5.0}
 RATING_RANK = {  # для гейта «не ниже BBB-» и выбора спреда
-    "AAA": 10, "AA+": 9, "AA": 8, "AA-": 7, "A+": 6, "A": 5, "A-": 4,
-    "BBB+": 3, "BBB": 2, "BBB-": 1, "BB+": 0, "BB": -1, "B+": -2, "B": -3,
+    "AAA": 20, "AA+": 19, "AA": 18, "AA-": 17, "A+": 16, "A": 15, "A-": 14,
+    "BBB+": 13, "BBB": 12, "BBB-": 11, "BB+": 10, "BB": 9, "BB-": 8,
+    "B+": 7, "B": 6, "B-": 5, "CCC+": 4, "CCC": 3, "CCC-": 2, "CC": 1, "C": 0,
 }
 RATING_FLOOR = RATING_RANK["BBB-"]    # включительно
-
-# Hardcode-маппинг ТОП-эмитентов РФ (снимок АКРА/Эксперт РА; рейтинги меняются — это снапшот).
-# Ключ — нормализованная подстрока имени эмитента (в SHORTNAME/SECNAME).
-ISSUER_RATING = {
-    "офз": "AAA", "офз-": "AAA", "минфин": "AAA",
-    "сбер": "AAA", "втб": "AAA", "газпром": "AAA", "газпром нефт": "AAA", "ржд": "AAA",
-    "лукойл": "AAA", "роснефт": "AAA", "новатэк": "AAA", "норникель": "AAA", "гмк": "AAA",
-    "сибур": "AAA", "транснефт": "AAA", "русгидро": "AAA", "россети": "AAA", "фск": "AAA",
-    "фосагро": "AAA", "металлоинвест": "AAA", "магнит": "AAA", "x5": "AAA", "икс 5": "AAA",
-    "дом.рф": "AAA", "вэб": "AAA", "атомэнергопром": "AAA", "ростелеком": "AA+",
-    "альфа-банк": "AA+", "альфа банк": "AA+", "газпромбанк": "AA+", "россельхоз": "AA+", "рсхб": "AA+",
-    "мтс": "AA", "ета": "AA", "еврохим": "AA", "пхз": "AA", "ресо": "AA", "почта росс": "AA",
-    "совкомбанк": "AA-", "т-банк": "AA-", "тинькофф": "AA-", "афк систем": "AA-", "система": "AA-",
-    "европлан": "A+", "балтийский лизинг": "A+", "пик": "A+", "вуш": "A-", "whoosh": "A-",
-    "лср": "A", "делимобиль": "A", "каршеринг": "A", "самолет": "A-", "эталон": "A-",
-    "сегежа": "B", "м.видео": "BBB", "мвидео": "BBB", "о'кей": "BBB", "окей": "BBB",
-    "боржоми": "A-", "брусника": "A-", "автодор": "AAA", "аэрофлот": "AA",
-}
-
 
 def http_json(url: str, retries: int = 4, timeout: int = 40) -> dict:
     last = None
@@ -110,18 +97,6 @@ def gcurve_rate(t_years: float, gt: np.ndarray, gy: np.ndarray) -> float:
 # ── Рейтинги ─────────────────────────────────────────────────────────────────
 def norm(s: str) -> str:
     return (s or "").lower().replace("«", "").replace("»", "").replace('"', "").strip()
-
-
-def rating_for(secid: str, shortname: str, secname: str, board: str) -> str | None:
-    if board == OFZ_BOARD or secid.upper().startswith(("SU", "RU000A0")) and "ОФЗ" in (shortname or ""):
-        return "AAA"
-    hay = norm(shortname) + " | " + norm(secname)
-    best = None
-    for key, rt in ISSUER_RATING.items():
-        if key in hay:
-            if best is None or RATING_RANK[rt] > RATING_RANK[best]:
-                best = rt
-    return best
 
 
 def spread_for(rating: str) -> float:
@@ -171,7 +146,11 @@ def has_date(v) -> bool:
     return bool(v) and str(v) not in ("0000-00-00", "")
 
 
-def cheap_pass(s: dict, monthly_only: bool) -> tuple[bool, str | None, str | None]:
+def cheap_pass(
+    s: dict,
+    monthly_only: bool,
+    official_rating: str | None = None,
+) -> tuple[bool, str | None, str | None]:
     """Дешёвый фильтр по bulk-полям. Вернуть (прошёл, рейтинг, причина_отказа)."""
     md = s["_md"]
     valtoday = md.get("VALTODAY")
@@ -195,7 +174,7 @@ def cheap_pass(s: dict, monthly_only: bool) -> tuple[bool, str | None, str | Non
     freq = coupon_freq(s.get("COUPONPERIOD"))
     if monthly_only and freq != 12:
         return False, None, "not_monthly"
-    rating = rating_for(s["SECID"], s.get("SHORTNAME", ""), s.get("SECNAME", ""), s["_board"])
+    rating = official_rating
     if not rating or RATING_RANK.get(rating, -99) < RATING_FLOOR:
         return False, rating, "rating_below_floor_or_unknown"
     return True, rating, None
@@ -300,14 +279,17 @@ def solve_ytm(flows: list[tuple[date, float]], dirty_target: float) -> float:
 TOP_N = 300                              # кап по ликвидности (топ по обороту) — bound на CI-время
 
 
-def build_screener(gt: np.ndarray, gy: np.ndarray) -> list[dict]:
+def build_screener(gt: np.ndarray, gy: np.ndarray, ratings: dict[str, dict]) -> list[dict]:
     raw = load_board(CORP_BOARD)
     sys.stderr.write(f"[bonds] {CORP_BOARD}: загружено {len(raw)} бумаг\n")
     survivors = []
     for s in raw:
-        ok, rating, _ = cheap_pass(s, monthly_only=True)
+        rating_record = ratings.get(str(s.get("ISIN") or s["SECID"]).upper())
+        rating = rating_record.get("rating") if rating_record else None
+        ok, rating, _ = cheap_pass(s, monthly_only=True, official_rating=rating)
         if ok:
             s["_rating"] = rating
+            s["_rating_record"] = rating_record
             survivors.append(s)
     survivors.sort(key=lambda s: -float(s["_md"].get("VALTODAY") or 0))
     survivors = survivors[:TOP_N]
@@ -345,6 +327,7 @@ def build_screener(gt: np.ndarray, gy: np.ndarray) -> list[dict]:
         if not np.isfinite(fytm):
             continue
         md = s["_md"]
+        rating_record = s["_rating_record"]
         # market/net YTM считаем САМИ из WAPRICE+реальных потоков (поле YIELD у MOEX бывает устаревшим)
         gross_flows = list(cfs) + [(mat, face)]
         mkt_dirty = mclean / 100.0 * face + accrued
@@ -364,6 +347,12 @@ def build_screener(gt: np.ndarray, gy: np.ndarray) -> list[dict]:
         out.append({
             "secid": sid, "isin": s.get("ISIN"), "name": s.get("SHORTNAME"),
             "board": s["_board"], "rating": rating, "rating_group": spread_for_group(rating),
+            "rating_source": "official_issue",
+            "rating_agency": rating_record.get("rating_agency"),
+            "rating_date": rating_record.get("rating_date"),
+            "rating_checked_at": rating_record.get("rating_checked_at"),
+            "rating_source_url": rating_record.get("rating_source_url"),
+            "rating_records": rating_record.get("rating_records", []),
             "currency": s.get("FACEUNIT"), "face": face,
             "price_market": round(mclean, 3),
             "ytm_market": round(mkt_ytm, 3),
@@ -417,6 +406,8 @@ def optimize_bucket(bonds: list[dict], lo: float, hi: float) -> dict | None:
         "port_duration": round(port_dur, 2),
         "bonds": [{
             "secid": b["secid"], "name": b["name"], "rating": b["rating"],
+            "rating_agency": b.get("rating_agency"), "rating_date": b.get("rating_date"),
+            "rating_source_url": b.get("rating_source_url"),
             "weight": round(wt, 4), "ytm_net": b["ytm_net"], "duration_years": b["duration_years"],
             "price_market": b["price_market"], "lot_value": b["lot_value"],
             "max_rub": b["max_rub"], "coupon_pct": b["coupon_pct"], "maturity": b["maturity"],
@@ -432,6 +423,8 @@ def build_portfolios(bonds: list[dict]) -> dict:
 def build_chart(gt: np.ndarray, gy: np.ndarray, bonds: list[dict]) -> dict:
     ofz_curve = [{"t": round(float(t), 3), "yield": round(float(y), 3)} for t, y in zip(gt, gy)]
     corp = [{"secid": b["secid"], "name": b["name"], "rating": b["rating"],
+             "rating_agency": b.get("rating_agency"), "rating_date": b.get("rating_date"),
+             "rating_source_url": b.get("rating_source_url"),
              "duration": b["duration_years"], "ytm": b["ytm_market"], "ytm_fair": b["ytm_fair"],
              "deviation": b["deviation"]} for b in bonds if b["ytm_market"]]
     return {"ofz_curve": ofz_curve, "corp_points": corp,
@@ -442,7 +435,10 @@ def main() -> int:
     os.makedirs(OUT_DIR, exist_ok=True)
     try:
         gt, gy = load_gcurve()
-        screener = build_screener(gt, gy)
+        ratings, ratings_meta = load_official_ratings(cache_path=DEFAULT_CACHE, refresh=True)
+        if ratings_meta.get("sources_ok", 0) == 0:
+            raise RuntimeError("все официальные источники рейтингов недоступны")
+        screener = build_screener(gt, gy, ratings)
         if not screener:
             sys.stderr.write("[bonds] СТОП: скринер пуст — не публикуем\n")
             return 1
@@ -454,8 +450,15 @@ def main() -> int:
     meta = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "data_date": str(TODAY), "n": len(screener),
             "spread": SPREAD,
+            "ratings": ratings_meta,
+            "rating_coverage": {
+                "official_issue_ratings": len(screener),
+                "policy": "minimum current issue rating across official agencies",
+            },
             "note": "Скринер: рублёвые корпораты TQCB, ежемес. фикс-купон, без оферт/амортизации/"
-                    "структурных нот, рейтинг ≥ BBB-. Fair-value = дисконт реальных потоков по G-кривой "
+                    "структурных нот, официальный рейтинг выпуска ≥ BBB-. Рейтинги ежедневно проверяются "
+                    "по АКРА, Эксперт РА и НКР; при нескольких оценках используется минимальная. "
+                    "Fair-value = дисконт реальных потоков по G-кривой "
                     "MOEX + ПЛОСКИЙ спред рейтинга. ВАЖНО: плоский спред занижает реальную кредит-премию "
                     "имён A-/BBB → большой положительный «апсайд» у них = модельное допущение, а не "
                     "гарантированная недооценка. Портфели максимизируют ЧИСТУЮ YTM (не risk-adjusted): "

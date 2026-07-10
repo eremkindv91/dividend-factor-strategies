@@ -16,7 +16,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-NEWS_THRESH_DAYS = 0.6
+NEWS_THRESH_DAYS = 0.25
 
 
 def age_days(s):

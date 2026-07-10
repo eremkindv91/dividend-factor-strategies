@@ -115,13 +115,22 @@ Monthly full run ≈ 12 board requests + 1 ZCYC + (3 × 60) fine-stage requests 
 snapshots + 1 index ≈ **220 requests**, throttled (3 workers, retry/backoff 6). Daily change scan
 uses the board listing + stored previous universe only (≈13 requests, no per-bond enrichment).
 
-## 8. Credit ratings (negative finding)
+## 8. Credit ratings (official issue-level layer)
 
-ISS does **not** publish agency credit ratings anywhere we could find: the per-security
-`description` block (§4) carries no rating field (verified live on TQCB/TQRD issues), and neither
-ACRA nor Expert RA expose a public machine-readable feed. Consequence: the Finder's rating layer is
-(a) a manual `data/bond_finder/ratings.csv` override (SECID,RATING), then (b) a built-in
-issuer-name snapshot map (~40 large issuers, reused from `bonds/update_bonds.py:ISSUER_RATING`) —
-always rendered with the `≈` marker and a standing warning that it is NOT an official rating feed.
-Unrated bonds are neutral in the score, excluded from the conservative profile (min A-), and the
-balanced profile floors rated names at BBB-.
+ISS does **not** publish agency credit ratings in the per-security `description` block (§4).
+The site therefore uses a separate adapter, `bonds/official_ratings.py`, and matches only by ISIN:
+
+- АКРА: public emissions JSON endpoint used by the official ratings table;
+- Эксперт РА: current debt-instrument rating list joined to official security cards;
+- НКР: official `issues.xlsx` export.
+
+Each record keeps the agency's raw scale value, canonical rating, rating-action date, issue-card URL
+and fetch timestamp. ACRA `A-(RU)`, Expert RA `ruA-` and NKR `A-.ru` normalize to `A-`. If several
+agencies rate one issue, the lowest current rating is selected (anti-rating-shopping policy), while
+all records remain in `rating_records`. Issuer-name inference and the old hardcoded snapshot are not
+used. Bonds without a current issue rating are excluded from every profile with `min_rating`; they
+may appear only in the aggressive profile, which has no rating floor.
+
+The daily workflow refreshes all three sources and keeps an ignored last-good cache for at most
+14 days. A partial source outage is visible in `meta.warnings`; if no official source or valid cache
+is available, the generator exits before replacing the published JSON.

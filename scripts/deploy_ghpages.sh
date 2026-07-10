@@ -19,12 +19,14 @@ python3 market_saw/production/build_marketsaw.py || echo "[marketsaw] пропу
 python3 scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 python3 -m src.pipeline.run_all --skip-ocr --allow-network
 python3 -m src.pipeline.validate_financials
+python3 scripts/build_market_history.py
 python3 scripts/validate_site_data.py
 
 cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"
 [ -f site/returns.json ] && cp site/returns.json "$TMP/"
 [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"
+[ -f site/market_history.json ] && cp site/market_history.json "$TMP/"
 [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"
 [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"
 [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"

@@ -65,7 +65,7 @@
       "top_n": 12,
       "score_new_placements": false,
       "min_rating": "BBB-",
-      "allow_unrated": true
+      "allow_unrated": false
     },
     "aggressive": {
       "title": "Агрессивный",

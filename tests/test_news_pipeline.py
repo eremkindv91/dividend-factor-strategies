@@ -3,14 +3,13 @@ from pathlib import Path
 
 import yaml
 
-from news.generate_news import DEFAULT_MODEL, validate_news_json
+from news.generate_news import DEFAULT_MODEL, normalize_importance_fields, validate_news_json
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_news_prompt_and_handoff_files_exist():
-    assert (ROOT / "claude_code_news_tab_brief.md").exists()
+def test_news_prompt_exists_and_has_required_inputs():
     prompt = (ROOT / "news" / "prompt.md").read_text(encoding="utf-8")
     assert "{OVERNIGHT_MARKETS}" in prompt
     assert "{NEWS_BLOB}" in prompt
@@ -60,10 +59,24 @@ def test_news_default_model_is_overridable_flash_model():
     assert "flash" in DEFAULT_MODEL
 
 
+def test_news_importance_contract_repairs_only_numeric_formatting():
+    payload = {
+        "overnight": [{"importance": "5"}],
+        "yesterday": [{"importance": 6}, {"importance": 3.6}],
+        "today_agenda": [{"importance": "unknown"}],
+    }
+
+    assert normalize_importance_fields(payload) == 3
+    assert [row["importance"] for row in payload["overnight"]] == [5]
+    assert [row["importance"] for row in payload["yesterday"]] == [5, 4]
+    assert payload["today_agenda"][0]["importance"] == "unknown"
+
+
 def test_news_workflow_uses_secrets_and_publishes_additively():
     workflow = (ROOT / ".github" / "workflows" / "news.yml").read_text(encoding="utf-8")
 
-    assert 'cron: "30 5 * * 1-5"' in workflow
+    assert workflow.count("cron:") == 3
+    assert 'cron: "20 6 * * 1-5"' in workflow
     assert "python -m news.generate_news" in workflow
     assert "python scripts/validate_site_data.py news" in workflow
     assert "site/news.json" in workflow
@@ -82,6 +95,18 @@ def test_full_deploy_whitelists_news_json():
 
     assert "site/news.json" in update
     assert "site/news.json" in manual
+    assert "python -m news.generate_news" in update
+    assert "preserve_freshest_news.py" in update
+
+
+def test_news_frontend_revalidates_without_browser_cache():
+    app = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
+
+    assert "cache: 'no-store'" in app
+    assert "renderNews(true)" in app
+    assert "visibilitychange" in app
+    assert "NEWS_REFRESH_MS" in app
+    assert "данные устарели" in app
 
 
 def test_validate_site_data_has_news_contract():

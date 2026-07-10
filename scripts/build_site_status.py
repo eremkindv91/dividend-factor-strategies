@@ -23,16 +23,17 @@ SITE = os.path.join(REPO, "site")
 
 # блок → (человекочитаемое имя, файл, поля-даты по приоритету, порог свежести в днях)
 # порог свежести в ДНЯХ (дробный). Честный SLA: старое НЕ должно выглядеть свежим.
-# Дневные блоки — 1.6 дня (покрывает разрыв пт→пн); новости — 0.6 дня (~14ч: утренний дайджест
-# свеж до вечера, но вчерашний → stale); месячные/квартальные — большой порог по их природе.
+# Дневные блоки — 1.6 дня (покрывает разрыв пт→пн); новости — 0.25 дня (6ч): пропущенный
+# утренний прогон должен быть виден как stale до открытия, а не маскироваться суточным SLA.
 BLOCKS = [
     ("market", "Цены и мультипликаторы", "data.json", ["meta.price_asof", "meta.generated_at"], 1.6),
     ("marketsaw", "Фаза рынка (MCFTR)", "marketsaw.json", ["data_last", "generated_at"], 1.6),
+    ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["generated_at"], 1.6),
     ("returns", "История доходностей", "returns.json", ["meta.asof"], 45),
     ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.updated", "meta.asof", "meta.generated_at"], 3),
     ("bonds", "Облигации", "bonds/screener.json", ["meta.data_date", "meta.updated", "meta.generated_at"], 1.6),
     ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], 1.6),
-    ("news", "Новости", "news.json", ["generated_at", "date"], 0.6),
+    ("news", "Новости", "news.json", ["generated_at", "date"], 0.25),
     ("events", "События дня", "events_calendar.json", ["meta.generated_at"], 1.6),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], 45),
 ]

@@ -18,6 +18,7 @@ import json
 import os
 import sys
 from datetime import date, datetime
+from urllib.parse import urlparse
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(REPO, "site")
@@ -25,6 +26,8 @@ SITE = os.path.join(REPO, "site")
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 CURRENT_SEL = "all"
+OFFICIAL_RATING_HOSTS = {"acra-ratings.ru", "www.acra-ratings.ru", "raexpert.ru", "www.raexpert.ru", "ratings.ru", "www.ratings.ru"}
+OFFICIAL_RATING_AGENCIES = {"АКРА", "Эксперт РА", "НКР"}
 
 
 def err(msg: str) -> None:
@@ -149,6 +152,63 @@ def check_marketsaw() -> None:
     print(f"  marketsaw.json: фаза={cp.get('direction')}, data_last={d.get('data_last')}, точек={len(series)}")
 
 
+def check_market_history() -> None:
+    d = load("market_history.json")
+    if d is None:
+        if CURRENT_SEL == "market_history":
+            err("market_history.json отсутствует")
+        else:
+            warn("market_history.json отсутствует — пропуск")
+        return
+    if as_datetime(d.get("generated_at")) is None:
+        err("market_history.json: generated_at не ISO datetime")
+    instruments = d.get("instruments")
+    if not isinstance(instruments, list) or not instruments:
+        err("market_history.json: instruments пуст/не список")
+        return
+    ids = {row.get("id") for row in instruments if isinstance(row, dict)}
+    missing = {"MCFTR", "IMOEX", "RTSI"} - ids
+    if missing:
+        err(f"market_history.json: нет core indices {sorted(missing)}")
+    expected_columns = ["date", "open", "high", "low", "close", "sma20", "sma50", "sma200"]
+    for item in instruments:
+        iid = item.get("id")
+        if item.get("columns") != expected_columns:
+            err(f"market_history.json: {iid} — неизвестный columns contract")
+        host = (urlparse(str(item.get("source_url") or "")).hostname or "").lower()
+        if host != "iss.moex.com" or item.get("source") != "MOEX ISS":
+            err(f"market_history.json: {iid} — источник не официальный MOEX ISS")
+        series = item.get("series") or []
+        if len(series) < 220:
+            err(f"market_history.json: {iid} — только {len(series)} точек")
+            continue
+        dates = [row[0] for row in series if isinstance(row, list) and len(row) == len(expected_columns)]
+        if len(dates) != len(series) or dates != sorted(dates) or len(set(dates)) != len(dates):
+            err(f"market_history.json: {iid} — даты/форма series некорректны")
+            continue
+        bad_ohlc = sum(
+            1 for row in series
+            if not all(isinstance(row[i], (int, float)) for i in range(1, 5))
+            or not (row[3] <= min(row[1], row[4]) <= max(row[1], row[4]) <= row[2])
+        )
+        if bad_ohlc:
+            err(f"market_history.json: {iid} — {bad_ohlc} битых OHLC строк")
+        summary = item.get("summary") or {}
+        if abs(float(summary.get("last", 0)) - float(series[-1][4])) > 1e-6:
+            err(f"market_history.json: {iid} — summary.last не совпадает с последним close")
+        rsi = summary.get("rsi14")
+        if not isinstance(rsi, (int, float)) or not (0 <= rsi <= 100):
+            err(f"market_history.json: {iid} — RSI(14) вне [0,100]")
+        for window in (20, 60, 252):
+            low, high, last = summary.get(f"low{window}"), summary.get(f"high{window}"), summary.get("last")
+            if not all(isinstance(value, (int, float)) for value in (low, high, last)) or not low <= last <= high:
+                err(f"market_history.json: {iid} — диапазон {window}d не содержит last")
+        last_date = as_date(item.get("data_last"))
+        if last_date and (date.today() - last_date).days > 10:
+            warn(f"market_history.json: {iid} — данные старше 10 дней ({last_date})")
+    print(f"  market_history.json: {len(instruments)} инструментов, errors={len(d.get('errors') or [])}")
+
+
 # ── marlamov.json ────────────────────────────────────────────────────────────
 def check_marlamov() -> None:
     d = load("marlamov.json")
@@ -190,6 +250,15 @@ def check_bonds() -> None:
             v = b.get(k)
             if isinstance(v, (int, float)) and not (lo <= v <= hi):
                 bad_rng += 1
+        if b.get("rating_source") != "official_issue":
+            err(f"bonds/screener.json: {b.get('secid')} — рейтинг не из official_issue")
+        if b.get("rating_agency") not in OFFICIAL_RATING_AGENCIES:
+            err(f"bonds/screener.json: {b.get('secid')} — неизвестное рейтинговое агентство")
+        host = (urlparse(str(b.get("rating_source_url") or "")).hostname or "").lower()
+        if host not in OFFICIAL_RATING_HOSTS:
+            err(f"bonds/screener.json: {b.get('secid')} — нет официальной ссылки рейтинга")
+        if not b.get("rating_date"):
+            err(f"bonds/screener.json: {b.get('secid')} — нет даты рейтингового действия")
     if bad_rng:
         err(f"bonds/screener.json: {bad_rng} значений YTM/duration/price вне разумных диапазонов")
 
@@ -216,7 +285,7 @@ def check_bonds() -> None:
         if not profs:
             err("finder.json: нет profiles")
         allowed_rt = {"AAA", "AA+", "AA", "AA-", "A+", "A", "A-", "BBB+", "BBB", "BBB-",
-                      "BB+", "BB", "BB-", "B+", "B", None}
+                      "BB+", "BB", "BB-", "B+", "B", "B-", "CCC+", "CCC", "CCC-", "CC", "C", None}
         for pid, p in profs.items():
             picks = p.get("picks") or []
             ws = sum(x.get("weight", 0) for x in picks)
@@ -227,8 +296,16 @@ def check_bonds() -> None:
                     err(f"finder.json: {pid}/{x.get('secid')} — абсурдный ytm {x['ytm']}")
                 if x.get("rating") not in allowed_rt:
                     err(f"finder.json: {pid}/{x.get('secid')} — неизвестный рейтинг {x.get('rating')}")
-                if pid == "conservative" and x.get("rating") is None:
-                    err(f"finder.json: консервативный профиль содержит бумагу без рейтинга {x.get('secid')}")
+                if (p.get("params") or {}).get("min_rating") and x.get("rating") is None:
+                    err(f"finder.json: профиль {pid} с min_rating содержит бумагу без рейтинга {x.get('secid')}")
+                if x.get("rating") is not None:
+                    if x.get("rating_source") != "official_issue":
+                        err(f"finder.json: {pid}/{x.get('secid')} — рейтинг не из official_issue")
+                    if x.get("rating_agency") not in OFFICIAL_RATING_AGENCIES:
+                        err(f"finder.json: {pid}/{x.get('secid')} — неизвестное рейтинговое агентство")
+                    host = (urlparse(str(x.get("rating_source_url") or "")).hostname or "").lower()
+                    if host not in OFFICIAL_RATING_HOSTS:
+                        err(f"finder.json: {pid}/{x.get('secid')} — нет официальной ссылки рейтинга")
         print(f"  finder.json: профили {[ (k, len((v or {}).get('picks', []))) for k, v in profs.items() ]}")
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 
@@ -323,6 +400,7 @@ def check_news() -> None:
 
 
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
+          "market_history": [check_market_history],
           "marlamov": [check_marlamov], "bonds": [check_bonds], "news": [check_news]}
 
 

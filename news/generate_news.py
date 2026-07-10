@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import subprocess
 import sys
@@ -134,6 +135,34 @@ def validate_item(item: Any, idx: int, section: str) -> None:
             raise ValueError(f"{section}[{idx}].sources[{sidx}] invalid")
 
 
+def normalize_importance_fields(data: Any) -> int:
+    """Repair only Gemini's numeric formatting for the subjective 1..5 rank."""
+    if not isinstance(data, dict):
+        return 0
+    repaired = 0
+    for section in ("overnight", "yesterday", "today_agenda"):
+        rows = data.get(section)
+        if not isinstance(rows, list):
+            continue
+        for item in rows:
+            if not isinstance(item, dict):
+                continue
+            value = item.get("importance")
+            if isinstance(value, bool) or isinstance(value, int) and 1 <= value <= 5:
+                continue
+            try:
+                numeric = float(value)
+            except (TypeError, ValueError):
+                continue
+            if not math.isfinite(numeric):
+                continue
+            normalized = max(1, min(5, int(math.floor(numeric + 0.5))))
+            if value != normalized:
+                item["importance"] = normalized
+                repaired += 1
+    return repaired
+
+
 def validate_news_json(data: Any) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError("top-level JSON must be object")
@@ -184,12 +213,14 @@ def main() -> int:
         return 0
     try:
         raw = call_gemini(prompt, args.model)
-        data = validate_news_json(json.loads(raw))
+        parsed = json.loads(raw)
+        repaired = normalize_importance_fields(parsed)
+        data = validate_news_json(parsed)
     except Exception as e:  # noqa: BLE001
         print(f"[news] generation failed; existing {args.output} was not overwritten: {e}", file=sys.stderr)
         return 1
     write_json_atomic(args.output, data)
-    print(f"[news] wrote {args.output} model={args.model}")
+    print(f"[news] wrote {args.output} model={args.model} importance_repairs={repaired}")
     return 0
 
 

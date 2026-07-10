@@ -13,7 +13,7 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
+let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -2112,6 +2112,9 @@ function wirePortfolio() {
 // (генерит CI), никакого hardcode/пересчёта на фронте. Это индикатор фазы, не прогноз.
 // ══════════════════════════════════════════════════════════════════════════
 SAW_DATA = null;
+MARKET_HISTORY = null;
+let MARKET_CHART = null;
+let MARKET_CHART_STATE = { id: 'IMOEX', period: 252 };
 const LWC_SRC = 'https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js';
 
 const sawPct = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
@@ -3047,14 +3050,14 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketInstruments(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
     renderMyPortfolio();
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
-  else if (sec === 'news') { renderNews(); }
+  else if (sec === 'news') { renderNews(true); }
   else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
   else if (sec === 'cbr') {
     openDetails('cbr-timeseries');
@@ -3310,6 +3313,7 @@ function ensureKpiData() {
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
+  if (!MARKET_HISTORY) loadMarketHistory(() => renderMarketInstruments());
 }
 
 function kpiCard(label, value, cls, note) {
@@ -3351,6 +3355,202 @@ function renderMarketKPI() {
     kpiCard('Режим рынка', regime),
     kpiCard('Акций / облигаций', `${nStocks != null ? nStocks : '—'} / ${nBonds != null ? nBonds : '—'}`),
   ].join('');
+}
+
+function loadMarketHistory(cb) {
+  if (MARKET_HISTORY) { if (cb) cb(); return; }
+  fetch('market_history.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (!j || !Array.isArray(j.instruments) || !j.instruments.length) throw new Error('empty');
+      MARKET_HISTORY = j;
+      if (cb) cb();
+    })
+    .catch((e) => { console.error('[market-history]', e); if (cb) cb(e); });
+}
+
+function marketInstrument(id) {
+  return MARKET_HISTORY && MARKET_HISTORY.instruments
+    ? MARKET_HISTORY.instruments.find((row) => row.id === id)
+    : null;
+}
+
+function marketNumber(value, decimals) {
+  if (!isNum(value)) return '—';
+  return Number(value).toLocaleString('ru-RU', {
+    minimumFractionDigits: decimals >= 4 ? 2 : 0,
+    maximumFractionDigits: decimals >= 4 ? 4 : 2,
+  });
+}
+
+function marketChange(value) {
+  if (!isNum(value)) return '—';
+  return `${value >= 0 ? '+' : ''}${Number(value).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+}
+
+function marketInstrumentCardHTML(item) {
+  const s = item.summary || {};
+  const tone = (s.change_pct || 0) > 0 ? 'up' : (s.change_pct || 0) < 0 ? 'down' : 'flat';
+  return `<button type="button" class="market-instrument-card" data-market-id="${esc(item.id)}" aria-label="Открыть график ${esc(item.name)}">
+    <span class="mic-name">${esc(item.name)}</span>
+    <span class="mic-value">${marketNumber(s.last, item.decimals)}</span>
+    <span class="mic-change ${tone}">${marketChange(s.change_pct)}</span>
+    <span class="mic-meta">RSI ${isNum(s.rsi14) ? ru(s.rsi14, 1) : '—'} · vol ${isNum(s.volatility20_annualized_pct) ? ru(s.volatility20_annualized_pct, 1) + '%' : '—'}</span>
+    <span class="mic-date">${esc(sawDate(item.data_last))}</span>
+  </button>`;
+}
+
+function renderMarketInstruments() {
+  const grid = document.getElementById('market-instrument-grid');
+  if (!grid) return;
+  if (!MARKET_HISTORY) {
+    grid.innerHTML = '<div class="pulse-loading muted">Загрузка истории MOEX...</div>';
+    return;
+  }
+  grid.innerHTML = MARKET_HISTORY.instruments.map(marketInstrumentCardHTML).join('');
+  const asof = document.getElementById('market-instruments-asof');
+  const latest = MARKET_HISTORY.instruments.map((row) => row.data_last).sort().slice(-1)[0];
+  if (asof) asof.textContent = `MOEX ISS · ${sawDate(latest)}`;
+  if (!grid.dataset.wired) {
+    grid.dataset.wired = '1';
+    grid.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-market-id]');
+      if (button) openMarketChart(button.dataset.marketId);
+    });
+  }
+  wireMarketChartDialog();
+}
+
+function marketLevel(label, value, note) {
+  return `<div class="market-level"><span>${esc(label)}</span><b>${esc(value)}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
+}
+
+function marketLevelsHTML(item) {
+  const s = item.summary || {};
+  const fmt = (value) => marketNumber(value, item.decimals);
+  const rsiNote = !isNum(s.rsi14) ? '' : s.rsi14 >= 70 ? 'выше 70' : s.rsi14 <= 30 ? 'ниже 30' : 'нейтральная зона';
+  return [
+    marketLevel('Структура средних', s.trend || '—', `SMA20 ${fmt(s.sma20)} · SMA50 ${fmt(s.sma50)} · SMA200 ${fmt(s.sma200)}`),
+    marketLevel('RSI (14)', isNum(s.rsi14) ? ru(s.rsi14, 1) : '—', rsiNote),
+    marketLevel('Волатильность 20d', isNum(s.volatility20_annualized_pct) ? ru(s.volatility20_annualized_pct, 1) + '%' : '—', 'годовая, close-to-close'),
+    marketLevel('Диапазон 20d', `${fmt(s.low20)} — ${fmt(s.high20)}`, 'фактические low / high'),
+    marketLevel('Диапазон 60d', `${fmt(s.low60)} — ${fmt(s.high60)}`, 'фактические low / high'),
+    marketLevel('Диапазон 1Y', `${fmt(s.low252)} — ${fmt(s.high252)}`, '252 торговые сессии'),
+  ].join('');
+}
+
+function marketChartRows(item) {
+  const count = MARKET_CHART_STATE.period || 252;
+  return (item.series || []).slice(-count);
+}
+
+function marketOhlcHTML(item, row) {
+  if (!row) return '';
+  const fmt = (value) => marketNumber(value, item.decimals);
+  return `<b>${esc(sawDate(row[0]))}</b><span>O ${fmt(row[1])}</span><span>H ${fmt(row[2])}</span><span>L ${fmt(row[3])}</span><span>C ${fmt(row[4])}</span>`;
+}
+
+function drawMarketChart(item) {
+  const element = document.getElementById('market-chart-canvas');
+  if (!element || !window.LightweightCharts) return;
+  if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; }
+  element.innerHTML = '';
+  const LC = window.LightweightCharts;
+  const rows = marketChartRows(item);
+  MARKET_CHART = LC.createChart(element, {
+    autoSize: true,
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
+    rightPriceScale: { borderColor: '#E6E9F0', scaleMargins: { top: 0.08, bottom: 0.08 } },
+    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 5 },
+    crosshair: { mode: LC.CrosshairMode.Normal },
+  });
+  const candles = MARKET_CHART.addCandlestickSeries({
+    upColor: '#1E6F4C', downColor: '#A2452C', borderVisible: false,
+    wickUpColor: '#1E6F4C', wickDownColor: '#A2452C', priceLineVisible: true,
+  });
+  candles.setData(rows.map((row) => ({ time: row[0], open: row[1], high: row[2], low: row[3], close: row[4] })));
+  const enabled = new Set(Array.from(document.querySelectorAll('#market-chart-overlays input:checked')).map((input) => input.value));
+  const overlays = [
+    ['sma20', 5, '#176B87'], ['sma50', 6, '#C58A14'], ['sma200', 7, '#59616E'],
+  ];
+  overlays.forEach(([key, index, color]) => {
+    if (!enabled.has(key)) return;
+    const line = MARKET_CHART.addLineSeries({ color, lineWidth: key === 'sma200' ? 2 : 1, priceLineVisible: false, lastValueVisible: false });
+    line.setData(rows.filter((row) => isNum(row[index])).map((row) => ({ time: row[0], value: row[index] })));
+  });
+  const summary = item.summary || {};
+  if (isNum(summary.low20)) candles.createPriceLine({ price: summary.low20, color: '#1E6F4C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: '20d min' });
+  if (isNum(summary.high20)) candles.createPriceLine({ price: summary.high20, color: '#A2452C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: '20d max' });
+  MARKET_CHART.timeScale().fitContent();
+  const ohlc = document.getElementById('market-chart-ohlc');
+  if (ohlc) ohlc.innerHTML = marketOhlcHTML(item, rows[rows.length - 1]);
+  MARKET_CHART.subscribeCrosshairMove((param) => {
+    if (!ohlc || !param || !param.time || !param.seriesData) return;
+    const bar = param.seriesData.get(candles);
+    if (!bar) return;
+    const time = typeof param.time === 'string' ? param.time
+      : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
+    const row = [time, bar.open, bar.high, bar.low, bar.close];
+    ohlc.innerHTML = marketOhlcHTML(item, row);
+  });
+}
+
+function renderMarketChartDialog() {
+  const item = marketInstrument(MARKET_CHART_STATE.id);
+  if (!item) return;
+  const s = item.summary || {};
+  document.getElementById('market-chart-title').textContent = `${item.name} · ${marketNumber(s.last, item.decimals)}`;
+  document.getElementById('market-chart-sub').innerHTML = `<span class="${(s.change_pct || 0) >= 0 ? 'up' : 'down'}">${marketChange(s.change_pct)}</span> · ${esc(item.description)} · ${esc(sawDate(item.data_last))}`;
+  document.getElementById('market-chart-tabs').innerHTML = MARKET_HISTORY.instruments.map((row) =>
+    `<button type="button" data-market-tab="${esc(row.id)}" class="${row.id === item.id ? 'active' : ''}">${esc(row.name)}</button>`
+  ).join('');
+  document.querySelectorAll('#market-chart-periods [data-period]').forEach((button) => {
+    button.classList.toggle('active', Number(button.dataset.period) === MARKET_CHART_STATE.period);
+  });
+  document.getElementById('market-chart-levels').innerHTML = marketLevelsHTML(item);
+  const source = document.getElementById('market-chart-source');
+  source.href = /^https:\/\/iss\.moex\.com\//i.test(String(item.source_url || ''))
+    ? item.source_url : 'https://iss.moex.com/';
+  source.textContent = `${item.source} · ${sawDate(item.data_last)}`;
+  loadLWC((error) => {
+    const canvas = document.getElementById('market-chart-canvas');
+    if (error || !window.LightweightCharts) {
+      canvas.innerHTML = '<div class="news-fallback">График недоступен; числовые уровни рассчитаны и сохранены.</div>';
+      return;
+    }
+    drawMarketChart(item);
+  });
+}
+
+function wireMarketChartDialog() {
+  const dialog = document.getElementById('market-chart-dialog');
+  if (!dialog || dialog.dataset.wired) return;
+  dialog.dataset.wired = '1';
+  document.getElementById('market-chart-close').addEventListener('click', () => dialog.close());
+  document.getElementById('market-chart-tabs').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-market-tab]');
+    if (!button) return;
+    MARKET_CHART_STATE.id = button.dataset.marketTab;
+    renderMarketChartDialog();
+  });
+  document.getElementById('market-chart-periods').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-period]');
+    if (!button) return;
+    MARKET_CHART_STATE.period = Number(button.dataset.period);
+    renderMarketChartDialog();
+  });
+  document.getElementById('market-chart-overlays').addEventListener('change', () => renderMarketChartDialog());
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener('close', () => { if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; } });
+}
+
+function openMarketChart(id) {
+  const dialog = document.getElementById('market-chart-dialog');
+  if (!dialog || !marketInstrument(id)) return;
+  MARKET_CHART_STATE.id = id;
+  if (!dialog.open) dialog.showModal();
+  renderMarketChartDialog();
 }
 
 // initRouter() вызывается в самом конце файла (после ВСЕХ модулей и их let-глобалов) — см. низ app.js
@@ -4248,6 +4448,10 @@ function bvalHistDraw() {
 // ══════════════════════════════════════════════════════════════════════════
 NEWS = null;
 let NEWS_INVEST_ONLY = false;
+let NEWS_FETCHED_AT = 0;
+let NEWS_LOAD_PROMISE = null;
+const NEWS_REFRESH_MS = 5 * 60 * 1000;
+const NEWS_STALE_MS = 6 * 60 * 60 * 1000;
 
 const NEWS_CAT = {
   cb_policy: 'ЦБ', banks: 'Банки', markets: 'Рынки', macro: 'Макро',
@@ -4258,12 +4462,23 @@ const NEWS_AGENDA_TYPE = {
   cb_minfin: 'ЦБ/Минфин', macro: 'Макро',
 };
 
-function loadNews(cb) {
-  if (NEWS) { cb(); return; }
-  fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
-    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then((j) => { if (!j || !j.market_snapshot) throw new Error('empty'); NEWS = j; cb(); })
-    .catch((e) => { console.error('[news]', e); cb(e); });
+function loadNews(cb, force = false) {
+  if (NEWS && !force && Date.now() - NEWS_FETCHED_AT < NEWS_REFRESH_MS) { cb(null, false); return; }
+  if (!NEWS_LOAD_PROMISE) {
+    const previousVersion = NEWS && NEWS.generated_at;
+    NEWS_LOAD_PROMISE = fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((j) => {
+        if (!j || !Array.isArray(j.market_snapshot) || !j.market_snapshot.length) throw new Error('empty');
+        NEWS = j;
+        NEWS_FETCHED_AT = Date.now();
+        return previousVersion !== j.generated_at;
+      })
+      .finally(() => { NEWS_LOAD_PROMISE = null; });
+  }
+  NEWS_LOAD_PROMISE
+    .then((changed) => cb(null, changed))
+    .catch((e) => { console.error('[news]', e); cb(e, false); });
 }
 
 function newsMskTime(iso, withDate) {
@@ -4282,6 +4497,13 @@ function newsRelTime(iso) {
   if (diff < 3600) return Math.max(1, Math.round(diff / 60)) + ' мин назад';
   if (diff < 86400) return Math.round(diff / 3600) + ' ч назад';
   return newsMskTime(iso, true);
+}
+
+function newsFreshness(iso) {
+  const ts = Date.parse(iso);
+  if (!isFinite(ts)) return { stale: true, ageHours: null };
+  const age = Math.max(0, Date.now() - ts);
+  return { stale: age > NEWS_STALE_MS, ageHours: Math.floor(age / 3600000) };
 }
 
 // источники приходят из внешних лент/каналов (через Gemini) → доверять URL нельзя:
@@ -4350,11 +4572,15 @@ function newsAgendaHTML(items) {
 
 function newsShellHTML(d) {
   const upd = newsMskTime(d.generated_at);
+  const freshness = newsFreshness(d.generated_at);
+  const stale = freshness.stale
+    ? `<span class="news-stale">данные устарели${freshness.ageHours == null ? '' : ` · ${freshness.ageHours} ч`}</span>`
+    : '';
   const back = d.external_backdrop ? `<div class="news-backdrop">${esc(d.external_backdrop)}</div>` : '';
   const chips = (d.market_snapshot || []).map(newsChipHTML).join('');
   return `
     <div class="news-topbar">
-      <div class="news-updated">Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}</div>
+      <div class="news-updated">Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}${stale}</div>
       <label class="news-toggle"><input type="checkbox" id="news-invest"${NEWS_INVEST_ONLY ? ' checked' : ''}> только инвестиции</label>
     </div>
     ${back}
@@ -4399,18 +4625,34 @@ function newsWire() {
   });
 }
 
-function renderNews() {
+function renderNews(force = false) {
   const body = document.getElementById('news-body');
   if (!body) return;
-  if (body.dataset.shown === '1' && NEWS) return;
-  body.innerHTML = '<div class="news-loading muted">Загрузка новостного блока…</div>';
-  loadNews((err) => {
-    if (err || !NEWS) { body.innerHTML = '<div class="news-fallback">Новостной блок недоступен — файл ещё не сгенерирован.</div>'; return; }
+  const alreadyShown = body.dataset.shown === '1' && NEWS;
+  if (!alreadyShown) body.innerHTML = '<div class="news-loading muted">Загрузка новостного блока…</div>';
+  loadNews((err, changed) => {
+    if (err && !NEWS) { body.innerHTML = '<div class="news-fallback">Новостной блок недоступен — файл ещё не сгенерирован.</div>'; return; }
+    if (err && alreadyShown) {
+      const updated = body.querySelector('.news-updated');
+      if (updated && !updated.querySelector('.news-refresh-error')) {
+        updated.insertAdjacentHTML('beforeend', '<span class="news-refresh-error">не удалось проверить обновление</span>');
+      }
+      return;
+    }
+    if (alreadyShown && !changed && !force) return;
     body.innerHTML = newsShellHTML(NEWS);
     body.dataset.shown = '1';
     newsWire();
-  });
+  }, force || alreadyShown);
 }
+
+function refreshVisibleNews() {
+  if (document.visibilityState === 'visible' && getSectionFromHash() === 'news'
+      && Date.now() - NEWS_FETCHED_AT >= NEWS_REFRESH_MS) renderNews(true);
+}
+
+document.addEventListener('visibilitychange', refreshVisibleNews);
+setInterval(refreshVisibleNews, NEWS_REFRESH_MS);
 
 // ══════════════════════════════════════════════════════════════════════════
 // PORTFOLIO X-RAY & REBALANCE LAB (#my-portfolio) — проф. риск/перформанс-терминал

@@ -34,15 +34,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from update_bonds import (  # noqa: E402  (verified v2 logic reused, see schema notes)
     ISS, RATING_RANK, TAX, block_rows, gcurve_rate, has_date, http_json, load_board,
-    load_gcurve, rating_for, solve_ytm,
+    load_gcurve, solve_ytm,
 )
+from official_ratings import DEFAULT_CACHE, load_official_ratings  # noqa: E402
 
 REPO = os.path.dirname(HERE)
 OUT_JSON = os.path.join(REPO, "site", "bonds", "finder.json")
 STATE_DIR = os.path.join(REPO, "data", "bond_finder")
 JOURNAL = os.path.join(STATE_DIR, "journal.json")
 UNIVERSE_PREV = os.path.join(STATE_DIR, "universe_prev.json")
-RATINGS_CSV = os.path.join(STATE_DIR, "ratings.csv")
 CONFIG = os.path.join(HERE, "finder_config.json")
 TODAY = date.today()
 
@@ -327,30 +327,24 @@ def bucket_of(dur: float, edges: list[float]) -> int:
     return len(edges)
 
 
-def load_ratings_override() -> dict:
-    """Manual per-SECID rating override (data/bond_finder/ratings.csv: SECID,RATING)."""
-    out = {}
-    if os.path.exists(RATINGS_CSV):
-        with open(RATINGS_CSV, encoding="utf-8") as f:
-            for line in f:
-                parts = [p.strip() for p in line.split(",")]
-                if len(parts) >= 2 and parts[1].upper() in RATING_RANK:
-                    out[parts[0]] = parts[1].upper()
-        log(f"ratings.csv подключён: {len(out)} бумаг (оверрайд)")
-    return out
-
-
-def attach_rating(rec: dict, override: dict) -> None:
-    """Rating: manual CSV first, else built-in issuer-name snapshot map (reused from screener).
-    Approximation by design — ISS publishes no credit ratings (see schema notes)."""
-    sid = rec["secid"]
-    if sid in override:
-        rec["rating"], rec["rating_source"] = override[sid], "csv"
-    else:
-        rt = rating_for(sid, rec.get("name") or "", rec.get("issuer") or rec.get("secname") or "",
-                        rec.get("board") or "")
-        if rt:
-            rec["rating"], rec["rating_source"] = rt, "issuer_map"
+def attach_rating(rec: dict, ratings: dict[str, dict]) -> None:
+    """Attach a current official issue rating matched strictly by ISIN/SECID."""
+    official = ratings.get(str(rec["secid"]).upper())
+    if not official:
+        rec["rating_rank"] = None
+        return
+    rec.update(
+        {
+            "rating": official["rating"],
+            "rating_source": "official_issue",
+            "rating_agency": official.get("rating_agency"),
+            "rating_scope": "issue",
+            "rating_date": official.get("rating_date"),
+            "rating_checked_at": official.get("rating_checked_at"),
+            "rating_source_url": official.get("rating_source_url"),
+            "rating_records": official.get("rating_records", []),
+        }
+    )
     rec["rating_rank"] = RATING_RANK.get(rec.get("rating"))
 
 
@@ -594,15 +588,19 @@ def main() -> int:
         cands = [r for r in cands if r["new_placement"] or r["median_vol"] >= min_vol]
         log(f"фильтр ликвидности: исключено {len(illiq)} бумаг (медиана < {min_vol:,.0f} ₽/день)")
 
-    override = load_ratings_override()
+    rating_isins = {r["secid"] for r in cands + offers_ok}
+    ratings, ratings_meta = load_official_ratings(
+        rating_isins, cache_path=DEFAULT_CACHE, refresh=False
+    )
+    if ratings_meta.get("sources_ok", 0) == 0:
+        log("СТОП: все официальные источники рейтингов недоступны — finder.json не перезаписываем")
+        return 1
+    for source, status in (ratings_meta.get("sources") or {}).items():
+        if status.get("status") != "ok":
+            warn(f"источник рейтингов {source} временно недоступен — использованы остальные агентства")
     for r in cands + offers_ok:
-        attach_rating(r, override)
+        attach_rating(r, ratings)
     n_unrated = sum(1 for r in cands if r.get("rating_rank") is None)
-    warn("Рейтинги — встроенный снапшот-маппинг по имени эмитента (~40 имён) + ratings.csv, "
-         "НЕ официальная лента АКРА/Эксперт РА: проверяйте рейтинг и проспект вручную")
-    if n_unrated:
-        warn(f"без рейтинга {n_unrated} из {len(cands)} кандидатов — в скоре они нейтральны, "
-             "в консервативный профиль не попадают")
     scored = [r for r in cands if not r["new_placement"]]
     newpl = [r for r in cands if r["new_placement"]]
     score_all(scored + newpl, cfg)                       # new placements scored too (no vol z)
@@ -621,6 +619,8 @@ def main() -> int:
         top = sorted(pool, key=lambda r: -r["score"])[:p["top_n"]]
         alloc = allocate(top, cfg)
         keys = ("secid", "board", "name", "issuer", "inn", "rating", "rating_source", "rating_rank",
+                "rating_agency", "rating_scope", "rating_date", "rating_checked_at",
+                "rating_source_url", "rating_records",
                 "price", "dirty_price", "accrued", "face", "coupon_pct",
                 "lot_value", "ytm", "ytm_net", "g_spread", "spread_pctl", "spread_pctl_src",
                 "duration_years", "median_vol", "sessions", "listlevel", "issue_rub", "risk_proxy",
@@ -661,14 +661,22 @@ def main() -> int:
             "snapshot_date": snapshot,
             "warnings": WARNINGS,
             "counts": {**counts, "excluded_fine": excl, "enriched": len(cands)},
-            "ratings_source": ("csv+issuer_map" if override else "issuer_map"),
+            "ratings_source": "official_issue_ratings",
+            "ratings": ratings_meta,
+            "rating_coverage": {
+                "candidates": len(cands),
+                "official_issue_ratings": len(cands) - n_unrated,
+                "unrated": n_unrated,
+                "policy": "minimum current issue rating across official agencies",
+            },
             "disclaimer": "Это шорт-лист для ручной проверки, не инвестиционная рекомендация. "
-                          "Рейтинг и проспект каждой бумаги нужно проверить самостоятельно.",
+                          "Рейтинг выпуска проверяется по официальным страницам АКРА, Эксперт РА и НКР; "
+                          "отсутствие рейтинга означает, что действующая оценка выпуска не найдена.",
             "methodology": "Две стадии: дешёвый префильтр всех торгуемых бордов, затем обогащение топ-60 "
                            "(график купонов, описание, история 130 сессий). Скор = z(G-спред в дюрационной "
                            "корзине) + 0.4·риск-прокси(листинг/квал/размер) + 0.3·z(медианный объём) + "
-                           "0.3·бонус за спред у верхней границы истории + 0.5·z(рейтинг: снапшот-маппинг "
-                           "эмитента, оверрайд ratings.csv). Профили режут по мин-рейтингу "
+                           "0.3·бонус за спред у верхней границы истории + 0.5·z(официальный рейтинг "
+                           "выпуска; при нескольких агентствах берётся минимальный). Профили режут по мин-рейтингу "
                            "(консервативный ≥ A-, сбалансированный ≥ BBB-). Налог 13% — приближение "
                            "для ранжирования, не налоговый калькулятор. Флоатеры, амортизация, ПИР "
                            "(HIGHRISK), колл-опционы исключены; оферта — отдельным списком к дате оферты.",

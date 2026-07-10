@@ -45,6 +45,17 @@
         <div class="market-pulse" id="market-pulse">
           <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
         </div>
+        <section class="market-instruments" aria-labelledby="market-instruments-title">
+          <div class="market-instruments-head">
+            <div>
+              <h2 id="market-instruments-title">Графики рынка</h2>
+              <span class="muted" id="market-instruments-asof">MOEX ISS</span>
+            </div>
+          </div>
+          <div class="market-instrument-grid" id="market-instrument-grid">
+            <div class="pulse-loading muted">Загрузка истории MOEX...</div>
+          </div>
+        </section>
         <div class="kpi-grid" id="market-kpi"></div>
         <div class="market-signals" id="market-signals">
           <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
@@ -61,6 +72,39 @@
             <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
           </div>
         </details>
+
+        <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
+          <div class="market-chart-shell">
+            <header class="market-chart-head">
+              <div>
+                <h2 id="market-chart-title">Рынок</h2>
+                <div class="market-chart-sub" id="market-chart-sub"></div>
+              </div>
+              <button type="button" class="market-chart-close" id="market-chart-close" aria-label="Закрыть график" title="Закрыть">×</button>
+            </header>
+            <div class="market-chart-tabs" id="market-chart-tabs" aria-label="Инструмент"></div>
+            <div class="market-chart-toolbar">
+              <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
+                <button type="button" data-period="63">3М</button>
+                <button type="button" data-period="252" class="active">1Г</button>
+                <button type="button" data-period="756">3Г</button>
+                <button type="button" data-period="1260">5Л</button>
+              </div>
+              <div class="market-overlays" id="market-chart-overlays">
+                <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
+                <label><input type="checkbox" value="sma50" checked><span class="ma-swatch ma50"></span>SMA50</label>
+                <label><input type="checkbox" value="sma200"><span class="ma-swatch ma200"></span>SMA200</label>
+              </div>
+            </div>
+            <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
+            <div class="market-chart-canvas" id="market-chart-canvas"></div>
+            <div class="market-levels" id="market-chart-levels"></div>
+            <footer class="market-chart-foot">
+              <span>Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.</span>
+              <a id="market-chart-source" href="https://iss.moex.com/" target="_blank" rel="noopener noreferrer">MOEX ISS</a>
+            </footer>
+          </div>
+        </dialog>
       </section>
 
       <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->

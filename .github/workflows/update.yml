@@ -31,7 +31,23 @@ jobs:
           python-version: "3.11"
 
       - name: Установка зависимостей financial data layer
-        run: python -m pip install --quiet pandas pyarrow pyyaml
+        run: python -m pip install --quiet pandas pyarrow pyyaml requests ta
+
+      - name: Резервное обновление новостей перед полным деплоем
+        # Независимый второй триггер: если dedicated news cron задержан/пропущен,
+        # основной daily update всё равно пытается собрать свежий дайджест.
+        # Генератор пишет атомарно; при сбое остаётся last-good news.json.
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION: ${{ secrets.TG_SESSION }}
+        run: |
+          if python -m pip install --quiet -r news/requirements.txt; then
+            python -m news.generate_news || echo "[news] резервная генерация не удалась — используем last-good"
+          else
+            echo "[news] зависимости недоступны — используем last-good"
+          fi
 
       # кэш последних валидных цен между запусками (фолбэк при недоступности ISS)
       - uses: actions/cache@v4
@@ -79,6 +95,11 @@ jobs:
         run: |
           python market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл (кэш)"
 
+      - name: Сборка market_history.json (официальные графики MOEX ISS)
+        # OHLC + SMA/RSI/волатильность для drill-down в «Текущем рынке».
+        # Скрипт сохраняет last-good по каждому инструменту при частичном сбое ISS.
+        run: python scripts/build_market_history.py || echo "[market-history] пропуск — сохранён предыдущий валидный файл"
+
       - name: Сборка marlamov.json (форвардная дивдоходность, 2 года + макро-режим)
         # читает site/data.json (создан шагом выше); сбой не блокирует деплой
         run: |
@@ -119,6 +140,14 @@ jobs:
             python scripts/check_predeploy_contract.py   # повтор: битьё после fallback → job fail, gh-pages остаётся last-good
           fi
 
+      - name: Не затирать более свежие новости полным деплоем
+        # news.yml публикует аддитивно и может быть свежее checkout source branch.
+        # Берём newest valid по generated_at между локальным и текущим gh-pages.
+        run: |
+          PUBLISHED=""
+          if [ -n "$LAST_GOOD" ] && [ -f "$LAST_GOOD/news.json" ]; then PUBLISHED="$LAST_GOOD/news.json"; fi
+          python scripts/preserve_freshest_news.py site/news.json "$PUBLISHED"
+
       - name: P0 — site_status.json (Data Health — свежесть блоков)
         run: python scripts/build_site_status.py
 
@@ -135,6 +164,7 @@ jobs:
           [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"   # методология (4 раздела, в репо)
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
+          [ -f site/market_history.json ] && cp site/market_history.json "$TMP/"   # графики и техуровни MOEX ISS
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer

@@ -11,8 +11,17 @@ def test_rating_meets_profile_applies_floor_and_allows_unrated_when_configured()
     profile = {"min_rating": "BBB-", "allow_unrated": True}
 
     assert bond_finder.rating_meets_profile({"rating_rank": None}, profile)
-    assert bond_finder.rating_meets_profile({"rating_rank": 1}, profile)
-    assert not bond_finder.rating_meets_profile({"rating_rank": 0}, profile)
+    assert bond_finder.rating_meets_profile({"rating_rank": bond_finder.RATING_RANK["BBB-"]}, profile)
+    assert not bond_finder.rating_meets_profile({"rating_rank": bond_finder.RATING_RANK["BB+"]}, profile)
+
+
+def test_attach_rating_never_infers_from_issuer_name():
+    rec = {"secid": "RU000A10NONE", "name": "Сбер выпуск", "issuer": "Сбербанк"}
+
+    bond_finder.attach_rating(rec, {})
+
+    assert rec.get("rating") is None
+    assert rec["rating_rank"] is None
 
 
 def test_score_all_keeps_unrated_neutral_in_rating_zscore():
