@@ -1,8 +1,8 @@
 {
   "date": "2026-07-10",
-  "generated_at": "2026-07-10T01:42:41+03:00",
+  "generated_at": "2026-07-10T10:33:01+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, золото подорожало, в то время как цены на нефть марки Brent снизились",
+  "external_backdrop": "Американские и азиатские фондовые индексы растут, в то время как цены на нефть марки Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,126 +20,171 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66819.05",
-      "change_pct": "-2.11%",
-      "as_of": "2026-07-08",
+      "value": "68557.73",
+      "change_pct": "+1.20%",
+      "as_of": "2026-07-10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24199.46",
-      "change_pct": "+2.99%",
-      "as_of": "2026-07-08",
+      "value": "24226.90",
+      "change_pct": "+0.82%",
+      "as_of": "2026-07-10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "75.98",
-      "change_pct": "-2.61%",
-      "as_of": "2026-07-09",
+      "value": "75.66",
+      "change_pct": "-0.84%",
+      "as_of": "2026-07-10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4132.80",
-      "change_pct": "+1.52%",
-      "as_of": "2026-07-09",
+      "value": "4122.40",
+      "change_pct": "-0.20%",
+      "as_of": "2026-07-10",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2186.75",
-      "change_pct": "-1.53%",
-      "as_of": "2026-07-09 19:00:11",
+      "value": "2165.19",
+      "change_pct": "-0.99%",
+      "as_of": "2026-07-10 10:32:57",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "907.25",
-      "change_pct": "-0.92%",
-      "as_of": "2026-07-09 19:00:12",
+      "value": "898.33",
+      "change_pct": "-0.98%",
+      "as_of": "2026-07-10 10:32:58",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "76.82",
-      "change_pct": "+0.46%",
-      "as_of": "2026-07-09 23:54:59",
+      "value": "77.16",
+      "change_pct": "+0.44%",
+      "as_of": "2026-07-10 10:32:59",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.25",
-      "change_pct": "+0.44%",
-      "as_of": "2026-07-09 23:50:02",
+      "value": "11.30",
+      "change_pct": "+0.48%",
+      "as_of": "2026-07-10 10:33:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-rate-space-reduction",
-      "headline": "Банк России заявил о сокращении пространства для снижения ключевой ставки на среднесрочном горизонте",
-      "context": "Регулятор отметил преобладание проинфляционных рисков над дезинфляционными.",
-      "category": "cb_policy",
-      "investment_relevant": true,
+      "id": "eu-weakens-21st-sanctions-package",
+      "headline": "Евросоюз значительно ослабил проект двадцать первого пакета санкций против России после критики стран-участниц",
+      "context": "Первоначальное предложение Еврокомиссии столкнулось с возражениями по нескольким пунктам, итоговая версия будет смягчена.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1326519.php"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/02/07/2026/6a4627559a794748bf7c69ae"
         }
       ],
-      "published_at": "2026-07-09T19:15:00+03:00"
+      "published_at": "2026-07-10T10:12:00+03:00"
     },
     {
-      "id": "spimex-gasoline-sales-drop",
-      "headline": "Продажи бензина на Петербургской бирже упали до исторического минимума на фоне ограничения посредников",
-      "context": "Объем торгов восьмого июля сократился до 8,1 тысячи тонн из-за планов властей перевести независимые НПЗ на прямые договоры.",
-      "category": "markets",
-      "investment_relevant": true,
+      "id": "cb-rate-space-proinflation-risks",
+      "headline": "Банк России заявил о сокращении пространства для снижения ключевой ставки из-за проинфляционных рисков",
+      "context": "Регулятор отметил преобладание проинфляционных рисков над дезинфляционными на среднесрочном горизонте.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/09/1212606-prostranstva-stalo-menshe"
+        }
+      ],
+      "published_at": "2026-07-09T21:09:00+03:00"
+    },
+    {
+      "id": "mgkl-convertible-bonds-placement",
+      "headline": "Материнская компания Мосгорломбарда начала размещение пятилетних конвертируемых облигаций объемом более семи миллиардов рублей",
+      "context": "Размещение бумаг серии СО-001 стартовало на СПБ Бирже.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8800050"
+          "url": "https://www.kommersant.ru/doc/8800249"
+        }
+      ],
+      "published_at": "2026-07-10T10:29:00+03:00"
+    },
+    {
+      "id": "alfa-bank-crypto-settlements",
+      "headline": "Альфа-банк запустил трансграничные расчеты в криптовалюте для корпоративных клиентов в обход традиционных каналов",
+      "context": "Новый сервис составит конкуренцию платформе А7 на рынке внешнеторговых платежей.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/291600"
+        }
+      ],
+      "published_at": "2026-07-10T08:27:00+03:00"
+    },
+    {
+      "id": "russian-companies-profit-drop-q1",
+      "headline": "Совокупная прибыль российских компаний в первом квартале снизилась на двадцать процентов до восьми триллионов рублей",
+      "context": "При этом федеральные сборы выросли на треть и достигли рекордного одного триллиона рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1326628.php"
+        }
+      ],
+      "published_at": "2026-07-10T08:09:00+03:00"
+    },
+    {
+      "id": "ust-luga-oil-share-transfer",
+      "headline": "Президент России передал долю кипрского акционера компании Усть-Луга Ойл во временное управление самого предприятия",
+      "context": "Соответствующий указ о передаче доли Capefar Limited подписал Владимир Путин.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8800090"
+        }
+      ],
+      "published_at": "2026-07-10T00:33:00+03:00"
+    },
+    {
+      "id": "gasoline-sales-spb-exchange-historic-low",
+      "headline": "Биржевые продажи бензина на Петербургской международной товарно-сырьевой бирже упали до исторического минимума",
+      "context": "Объем торгов снизился до 8,1 тысячи тонн на фоне планов властей ограничить участие посредников.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8800021"
         }
       ],
       "published_at": "2026-07-09T20:50:00+03:00"
     },
     {
-      "id": "ust-luga-oil-share-transfer",
-      "headline": "Президент России передал долю кипрского акционера Усть-Луга Ойл во временное управление самой компании",
-      "context": "Соответствующий указ касается доли кипрской компании Capefar Limited в размере 26 процентов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1102351"
-        }
-      ],
-      "published_at": "2026-07-09T22:34:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default-exit",
-      "headline": "Компания ЕвроТранс частично вышла из технического дефолта и выплатила купоны по двум выпускам облигаций",
-      "context": "Эмитент выплатил с задержкой 41,1 миллиона рублей по выпуску БО-001Р-05 и 25,5 миллиона рублей по серии 002Р-01.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1326549.php"
-        }
-      ],
-      "published_at": "2026-07-09T20:21:00+03:00"
-    },
-    {
-      "id": "transneft-share-disposal-right",
-      "headline": "Транснефть получила прямое право распоряжения пакетом в размере более семи процентов голосующих акций",
-      "context": "Согласно раскрытию информации, ранее доля прямого распоряжения компании составляла ноль процентов.",
+      "id": "transneft-direct-disposal-rights",
+      "headline": "Компания Транснефть получила прямое право распоряжения пакетом в семь процентов голосующих акций публичного эмитента",
+      "context": "Ранее доля прямого распоряжения компании составляла ноль процентов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -150,43 +195,28 @@
         }
       ],
       "published_at": "2026-07-09T19:03:00+03:00"
-    },
-    {
-      "id": "rosneft-stavropol-state-of-emergency",
-      "headline": "Власти Шпаковского округа ввели режим чрезвычайной ситуации на объекте Роснефть-Ставрополье после атаки беспилотников",
-      "context": "Решение принято в связи с возгоранием на промышленном объекте в хуторе Вязники в ночь на девятое июля.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1102341"
-        }
-      ],
-      "published_at": "2026-07-09T21:22:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "sberbank-1h-profit",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за первое полугодие выросла на 20,4 процента",
-      "context": "Показатель достиг 995,3 млрд рублей при рентабельности капитала на уровне 23 процентов.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "cb-considers-stronger-economic-cooling",
+      "headline": "Банк России обсуждает необходимость более сильного охлаждения экономики для достижения целевого уровня инфляции",
+      "context": "Внутри регулятора считают, что стандартный выход из перегрева может не вернуть инфляцию к четырем процентам.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1102193"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/289374"
         }
       ],
-      "published_at": "2026-07-09T10:20:00+03:00"
+      "published_at": "2026-07-09T17:00:00+03:00"
     },
     {
-      "id": "minfin-budget-deficit",
-      "headline": "Минфин оценил дефицит федерального бюджета за первое полугодие в 5,7 триллиона рублей",
-      "context": "Доходы государства составили 18,6 трлн рублей, увеличившись на 5,8 процента.",
+      "id": "russia-budget-deficit-h1",
+      "headline": "Министерство финансов оценило дефицит федерального бюджета за первое полугодие в пять триллионов рублей",
+      "context": "Доходы государства за этот период составили 18,6 триллиона рублей.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
@@ -199,69 +229,54 @@
       "published_at": "2026-07-09T14:16:00+03:00"
     },
     {
-      "id": "rosfinmonitoring-crypto-control",
-      "headline": "Росфинмониторинг получит контроль над крупными криптоплатежами по внешнеторговым сделкам на сумму свыше 10 миллионов рублей",
-      "context": "Сведения о таких операциях будут автоматически поступать в финансовую разведку.",
-      "category": "cb_policy",
+      "id": "sberbank-h1-russia-profit-rscbu",
+      "headline": "Чистая прибыль Сбербанка по российским стандартам бухгалтерского учета за первое полугодие выросла на двадцать процентов",
+      "context": "Показатель достиг 995,3 миллиарда рублей против 826,6 миллиарда рублей за аналогичный период прошлого года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8799546"
+        }
+      ],
+      "published_at": "2026-07-09T11:12:00+03:00"
+    },
+    {
+      "id": "cbr-lowers-official-usd-rate",
+      "headline": "Банк России снизил официальный курс доллара США к рублю на десятое июля",
+      "context": "Официальный курс американской валюты был установлен на уровне 75,9300 рубля.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/291358"
+          "url": "https://frankmedia.ru/291546"
         }
       ],
-      "published_at": "2026-07-09T11:54:00+03:00"
+      "published_at": "2026-07-09T17:45:00+03:00"
     },
     {
-      "id": "mts-dividend-gap",
-      "headline": "Акции МТС упали на 17 процентов после прохождения дивидендной отсечки",
-      "context": "На торгах Московской биржи бумаги компании снижались до 174,05 рубля за штуку.",
+      "id": "rgbi-index-rises-three-days",
+      "headline": "Индекс государственных облигаций Российской Федерации продемонстрировал рост третий торговый день подряд",
+      "context": "Отскок индекса RGBI последовал за решением Министерства финансов приостановить аукционы по размещению ОФЗ.",
       "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8799504"
-        }
-      ],
-      "published_at": "2026-07-09T10:34:00+03:00"
-    },
-    {
-      "id": "seligdar-dividend-policy",
-      "headline": "Совет директоров Селигдара утвердил обновленную дивидендную политику с привязкой к долговой нагрузке",
-      "context": "База для выплат теперь рассчитывается как операционная прибыль, уменьшенная на финансовые расходы, налог на прибыль и изменение запасов по МСФО.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8799535"
-        }
-      ],
-      "published_at": "2026-07-09T11:13:00+03:00"
-    },
-    {
-      "id": "mgkl-bank-purchase",
-      "headline": "Группа МГКЛ объявила о планах по приобретению банка для операций с драгоценными металлами",
-      "context": "Компания планирует встроить банковскую лицензию в ломбардную экосистему группы.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/09/1212348-mgkl-hochet-kupit"
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/09/1212502-ofz-rastet"
         }
       ],
-      "published_at": "2026-07-09T09:30:00+03:00"
+      "published_at": "2026-07-09T15:50:00+03:00"
     },
     {
-      "id": "vtb-spo-price",
-      "headline": "Банк ВТБ сохранит параметры дополнительной эмиссии акций без изменения цены размещения",
-      "context": "В банке заявили, что сделка ориентирована на долгосрочных инвесторов и не зависит от краткосрочной волатильности рынка.",
+      "id": "vtb-keeps-spo-parameters",
+      "headline": "Банк ВТБ подтвердил сохранение параметров дополнительной эмиссии акций вопреки снижению рыночных котировок",
+      "context": "В кредитной организации заявили, что состав якорных инвесторов и цена размещения остаются без изменений.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -274,80 +289,145 @@
       "published_at": "2026-07-09T14:02:00+03:00"
     },
     {
-      "id": "rosseti-spo-price",
-      "headline": "Совет директоров Россетей тринадцатого июля определит цену размещения дополнительных обыкновенных акций",
-      "context": "Вопрос об определении цены допэмиссии включен в повестку заседания совета директоров компании.",
+      "id": "moex-shares-drop-dividend-gap",
+      "headline": "Акции Московской биржи снизились на десять процентов на фоне дивидендного гэпа",
+      "context": "Снижение котировок произошло в первый торговый день после закрытия реестра акционеров.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/09/1212416-aktsii-moskovskoi-birzhi"
+        }
+      ],
+      "published_at": "2026-07-09T12:10:00+03:00"
+    },
+    {
+      "id": "seligdar-updates-dividend-policy",
+      "headline": "Золотодобывающий холдинг Селигдар утвердил новую дивидендную политику с привязкой к уровню долговой нагрузки",
+      "context": "База для выплат теперь рассчитывается как операционная прибыль, скорректированная на финансовые расходы и налоги.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1326361.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8799535"
         }
       ],
-      "published_at": "2026-07-09T14:12:00+03:00"
+      "published_at": "2026-07-09T11:13:00+03:00"
     },
     {
-      "id": "russia-oil-to-indonesia",
-      "headline": "Россия начала прямые поставки нефти в Индонезию в рамках двустороннего соглашения",
-      "context": "Первая партия объемом около 770 тысяч баррелей российской нефти была доставлена в Индонезию.",
-      "category": "macro",
+      "id": "mts-shares-drop-dividend-gap",
+      "headline": "Акции мобильного оператора МТС упали на семнадцать процентов после прохождения дивидендной отсечки",
+      "context": "Котировки снижались до 174,05 рубля за штуку на торгах Московской биржи.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8799735"
+          "url": "https://www.kommersant.ru/doc/8799504"
         }
       ],
-      "published_at": "2026-07-09T14:33:00+03:00"
+      "published_at": "2026-07-09T10:34:00+03:00"
     },
     {
-      "id": "eu-21st-sanctions-package",
-      "headline": "Евросоюз планирует принять двадцать первый пакет санкций против России тринадцатого июля",
-      "context": "По заявлению МИД Франции, новые ограничения нанесут удар по финансовому сектору и сократят доходы от энергетики.",
-      "category": "geopolitics",
+      "id": "mgkl-plans-to-buy-bank",
+      "headline": "Группа Мосгорломбард объявила о планах по приобретению банка для проведения операций с драгоценными металлами",
+      "context": "Компания намерена встроить банковскую лицензию в собственную ломбардную экосистему.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/291333"
+        }
+      ],
+      "published_at": "2026-07-09T09:55:00+03:00"
+    },
+    {
+      "id": "retail-investor-equity-holdings-surge",
+      "headline": "Объем вложений частных инвесторов в акции на Московской бирже вырос на семьдесят процентов",
+      "context": "Рост зафиксирован по итогам первого полугодия две тысячи двадцать шестого года.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1102298"
+          "name": "Ведомости",
+          "url": ""
         }
       ],
-      "published_at": "2026-07-09T16:52:00+03:00"
+      "published_at": "2026-07-09T09:00:00+03:00"
     },
     {
-      "id": "belgium-asset-unblocking",
-      "headline": "Казначейство Бельгии возобновило рассмотрение заявок россиян на разблокировку активов с вынесением отказных решений",
-      "context": "Санкционные юристы подтвердили возобновление процесса после паузы, длившейся с конца 2025 года.",
-      "category": "markets",
-      "investment_relevant": true,
+      "id": "exporter-fx-sales-decline",
+      "headline": "Объем продаж иностранной валюты крупнейшими российскими экспортерами продемонстрировал тенденцию к снижению",
+      "context": "Во втором квартале среднемесячные продажи составили 8,62 миллиарда долларов против пиковых значений прошлых лет.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1326498.php"
+          "name": "spydell_finance",
+          "url": "https://t.me/spydell_finance/9873"
         }
       ],
-      "published_at": "2026-07-09T18:27:00+03:00"
-    },
-    {
-      "id": "moex-ipo-explanation",
-      "headline": "Наблюдательный совет Московской биржи объяснил малое количество IPO высоким минимальным порогом размещения",
-      "context": "По мнению председателя набсовета Сергея Швецова, повысить показатель могла бы государственная поддержка миноритарных акционеров.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8799838"
-        }
-      ],
-      "published_at": "2026-07-09T15:38:00+03:00"
+      "published_at": "2026-07-09T06:47:00+03:00"
     }
   ],
-  "today_agenda": []
+  "today_agenda": [
+    {
+      "time": "02:50",
+      "event": "Япония - проминфляция PPI (июнь)",
+      "ticker": "",
+      "type": "macro",
+      "importance": 2
+    },
+    {
+      "time": "09:00",
+      "event": "Германия - потребинфляция CPI (июнь)",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "13:30",
+      "event": "Delta Airlines - отчетность за второй квартал",
+      "ticker": "DAL",
+      "type": "earnings",
+      "importance": 3
+    },
+    {
+      "time": "15:00",
+      "event": "Бразилия - потребинфляция CPI (июнь)",
+      "ticker": "",
+      "type": "macro",
+      "importance": 2
+    },
+    {
+      "time": "19:00",
+      "event": "РФ - потребинфляция CPI",
+      "ticker": "",
+      "type": "macro",
+      "importance": 5
+    },
+    {
+      "time": "19:00",
+      "event": "США - отчет WASDE",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "-",
+      "event": "Последний день покупки акций под дивиденды: Башнефть, НМТП, Совкомбанк, Полюс, ЛСР",
+      "ticker": "BANE",
+      "type": "dividend_cutoff",
+      "importance": 4
+    }
+  ]
 }
