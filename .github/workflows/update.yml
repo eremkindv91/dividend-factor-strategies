@@ -50,6 +50,14 @@ jobs:
           restore-keys: |
             marketsaw-
 
+      # кэш дивидендных дат MOEX: фолбэк для календаря событий при недоступности ISS
+      - uses: actions/cache@v4
+        with:
+          path: model_output/dividends_cache.json
+          key: dividends-cache-${{ github.run_id }}
+          restore-keys: |
+            dividends-cache-
+
       - name: Сборка data.json (инференс на артефакте + свежие цены MOEX ISS)
         run: python scripts/build_data.py   # exit!=0 (нет артефакта/нет цен) → публикации нет
 
@@ -57,6 +65,14 @@ jobs:
         # чистит data.json + returns.json В ИСТОЧНИКЕ: сплит-adjust дивидендов (T ÷10), добавляет
         # SNGS/SNGSP (no_model_coverage), помечает split-like ряды needs_adjustment. Сбой не блокирует.
         run: python scripts/clean_portfolio_data.py || echo "[clean] пропуск — данные без доп. очистки"
+
+      - name: Сборка events_calendar.json (важные события РФ — дивиденды MOEX + заседания ЦБ)
+        # читает site/data.json (универсум), тянет дивидендные даты MOEX ISS + график ЦБ;
+        # кэш model_output/dividends_cache.json как фолбэк. Сбой НЕ блокирует деплой.
+        run: python scripts/update_events_calendar.py || echo "[events] пропуск — календарь не пересобран"
+
+      - name: Валидация events_calendar.json
+        run: python scripts/validate_events_calendar.py || echo "[events] валидация календаря не прошла (не блокирует деплой)"
 
       - name: Сборка marketsaw.json (фаза рынка по MCFTR, swing/zigzag)
         # сбой MCFTR НЕ должен блокировать дневной деплой цен; предыдущий валидный файл (кэш) остаётся
@@ -123,6 +139,7 @@ jobs:
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ
+          [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"   # «Сегодня важные события»
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций

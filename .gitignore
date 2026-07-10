@@ -62,6 +62,7 @@ data/disclosure_summary.json
 data/manual_review/*.csv
 data/manual_review/*.json
 data/pipeline_summary.json
+data/bond_finder/official_ratings_cache.json
 data/processed/*.parquet
 data/raw_reports/
 data/report_index.parquet
@@ -74,6 +75,9 @@ site/site_coverage.json
 site/site_financials.json
 site/site_status.json
 site/_fallback.json
+# календарь важных событий: генерит CI (scripts/update_events_calendar.py) — в репо не нужен
+site/events_calendar.json
+model_output/dividends_cache.json
 
 # News pipeline: local collector/model inputs
 news/artifacts/

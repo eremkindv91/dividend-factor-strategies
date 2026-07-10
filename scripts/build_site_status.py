@@ -33,6 +33,7 @@ BLOCKS = [
     ("bonds", "Облигации", "bonds/screener.json", ["meta.data_date", "meta.updated", "meta.generated_at"], 1.6),
     ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], 1.6),
     ("news", "Новости", "news.json", ["generated_at", "date"], 0.6),
+    ("events", "События дня", "events_calendar.json", ["meta.generated_at"], 1.6),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], 45),
 ]
 

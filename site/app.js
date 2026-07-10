@@ -13,7 +13,7 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null;
+let PF_RETURNS = null, SAW_DATA = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -3047,7 +3047,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
@@ -3155,7 +3155,158 @@ function updateDataStatus() {
 }
 
 // ── KPI «Текущий рынок» ──
+// ─────────────── «Сегодня важные события» (ежедневный инвесторский блок) ───────────────
+// Фильтр «сегодня» — строго по фактической дате МСК на клиенте (вчерашнее НЕ показывается как
+// сегодняшнее, даже если деплой отстал). Сортировка по importance; события по портфелю — выше.
+const EV_CAT = {
+  cbr_rate_decision: ['ЦБ', 'cbr'], dividend_registry_close: ['Дивиденды', 'div'],
+  last_buy_day: ['Дивиденды', 'div'], board_dividend_recommendation: ['Совет директоров', 'board'],
+  company_earnings: ['Отчётность', 'earn'], gosa: ['ГОСА', 'gosa'], vosa: ['ВОСА', 'gosa'],
+  ofz_auction: ['ОФЗ', 'ofz'], macro_release: ['Макро', 'macro'], general_corporate_event: ['Событие', 'gen'],
+};
+const EV_SRC_LABEL = { moex_iss: 'MOEX ISS', cbr_schedule: 'график ЦБ РФ', company_disclosure: 'раскрытие эмитента' };
+
+function loadEvents(cb) {
+  if (EVENTS_DATA) { if (cb) cb(); return; }
+  fetch('events_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !Array.isArray(j.events)) throw new Error('пустой/битый events_calendar'); EVENTS_DATA = j; if (cb) cb(); })
+    .catch((e) => { console.error('[events] не загрузились:', e); EVENTS_DATA = { failed: true, events: [], meta: {} }; if (cb) cb(); });
+}
+
+function mskNow() {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit',
+    day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+  const g = {}; parts.forEach((p) => { g[p.type] = p.value; });
+  return { iso: `${g.year}-${g.month}-${g.day}`, weekday: g.weekday, hm: `${g.hour}:${g.minute}` };
+}
+function evDayDiff(evIso, todayIso) {   // разница в днях (МСК-полночь)
+  return Math.round((Date.parse(evIso + 'T00:00:00+03:00') - Date.parse(todayIso + 'T00:00:00+03:00')) / 86400000);
+}
+// контекст портфеля из localStorage: множество тикеров (канонизированных) + веса, если есть цены
+function eventsPortfolioContext() {
+  let rows = [];
+  try { rows = (typeof myPortfolioLoad === 'function' ? myPortfolioLoad() : []) || []; } catch (e) { rows = []; }
+  const canon = (t) => (typeof pfxCanonTicker === 'function' ? pfxCanonTicker(t) : String(t || '').toUpperCase());
+  const set = new Set(rows.map((r) => canon(r.ticker)).filter(Boolean));
+  const weights = {};
+  const priceMap = {};
+  if (DATA && DATA.tickers) DATA.tickers.forEach((t) => { priceMap[t.ticker] = t.price; });
+  let total = 0; const vals = {};
+  rows.forEach((r) => { const tk = canon(r.ticker); const p = isNum(priceMap[tk]) ? priceMap[tk] : r.avg_price;
+    const v = isNum(p) && isNum(r.quantity) ? p * r.quantity : 0; vals[tk] = (vals[tk] || 0) + v; total += v; });
+  if (total > 0) Object.keys(vals).forEach((tk) => { weights[tk] = vals[tk] / total; });
+  return { set, weights, hasPortfolio: rows.length > 0 };
+}
+
+function evCardHTML(e, pf, todayIso) {
+  const [catLbl, catCls] = EV_CAT[e.event_type] || ['Событие', 'gen'];
+  const imp = isNum(e.importance) ? e.importance : 0;
+  const impCls = imp >= 85 ? 'high' : imp >= 60 ? 'mid' : 'low';
+  const impLbl = imp >= 85 ? 'высокая' : imp >= 60 ? 'средняя' : 'низкая';
+  const inPf = e.ticker && pf.set.has(e.ticker);
+  const wpct = inPf && isNum(pf.weights[e.ticker]) ? ` · вес ${ru(pf.weights[e.ticker] * 100, 0)}%` : '';
+  const diff = evDayDiff(e.date, todayIso);
+  const dmy = e.date.slice(8, 10) + '.' + e.date.slice(5, 7);
+  const whenTxt = diff === 0 ? 'Сегодня' : (diff === 1 ? 'Завтра' : dmy);
+  const timeTxt = e.time_msk ? `, ${esc(e.time_msk)} МСК` : ', время н/д';
+  const who = e.ticker ? `${esc(e.company)} (${esc(e.ticker)})` : esc(e.company);
+  const srcLbl = EV_SRC_LABEL[e.source] || esc(e.source || 'источник н/д');
+  const src = e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${srcLbl}</a>` : srcLbl;
+  const stale = e.data_status && !['fresh', 'scheduled'].includes(e.data_status) ? ` <span class="ev-stale">данные ${esc(e.data_status)}</span>` : '';
+  return `<div class="ev-card ev-imp-${impCls}${inPf ? ' ev-pf' : ''}">
+    <div class="ev-badges">
+      <span class="ev-badge ev-cat-${catCls}">${catLbl}</span>
+      <span class="ev-badge ev-impbadge ev-imp-${impCls}">важность: ${impLbl}</span>
+      ${inPf ? `<span class="ev-badge ev-pfbadge">По вашему портфелю${wpct}</span>` : ''}
+    </div>
+    <div class="ev-title">${who} — ${esc(e.title)}</div>
+    <div class="ev-when">${whenTxt}${timeTxt}</div>
+    <div class="ev-desc">${esc(e.description || '')}</div>
+    <div class="ev-src muted">Источник: ${src}${stale}</div>
+  </div>`;
+}
+
+function evSort(a, b, pf) {   // портфельные выше, затем по важности, затем по дате
+  const pa = a.ticker && pf.set.has(a.ticker) ? 1 : 0;
+  const pb = b.ticker && pf.set.has(b.ticker) ? 1 : 0;
+  if (pa !== pb) return pb - pa;
+  if ((b.importance || 0) !== (a.importance || 0)) return (b.importance || 0) - (a.importance || 0);
+  return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+}
+
+function renderEventsToday() {
+  const el = document.getElementById('events-today');
+  if (!el) return;
+  if (!EVENTS_DATA) { loadEvents(() => renderEventsToday()); el.innerHTML = '<div class="pulse-loading muted">Загрузка событий на сегодня…</div>'; return; }
+  const meta = EVENTS_DATA.meta || {};
+  const events = Array.isArray(EVENTS_DATA.events) ? EVENTS_DATA.events : [];
+  const { iso: todayIso, weekday } = mskNow();
+  const pf = eventsPortfolioContext();
+
+  // свежесть: возраст generated_at + статус
+  const gen = meta.generated_at || null;
+  const ageDays = gen ? (Date.now() - Date.parse(gen)) / 86400000 : null;
+  const staleData = EVENTS_DATA.failed || meta.status === 'fallback' || meta.status === 'broken' || (ageDays != null && ageDays > 1.6);
+  const updTxt = gen ? `${gen.slice(8, 10)}.${gen.slice(5, 7)}.${gen.slice(0, 4)} ${gen.slice(11, 16)} МСК` : 'н/д';
+
+  const todays = events.filter((e) => e.date === todayIso).sort((a, b) => evSort(a, b, pf));
+  const weekend = weekday === 'Mon'
+    ? events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d <= -1 && d >= -3; }).sort((a, b) => evSort(a, b, pf))
+    : [];
+  const upcoming = events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d >= 1 && d <= 14; })
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : evSort(a, b, pf)));
+
+  let html = `<div class="events-head">
+    <h2>Сегодня важные события</h2>
+    <span class="events-upd ${staleData ? 'events-stale' : ''}">Обновлено: ${updTxt}</span></div>`;
+
+  if (EVENTS_DATA.failed) {
+    html += `<div class="events-banner events-banner-risk">Календарь событий сейчас недоступен. Показать нечего — данные не загрузились.</div>`;
+    el.innerHTML = html; return;
+  }
+  if (staleData) {
+    html += `<div class="events-banner events-banner-warn">Календарь событий устарел или резервный. Последнее успешное обновление: ${updTxt}. Актуальность сверяйте с источником.</div>`;
+  }
+
+  // Сегодня
+  if (!todays.length) {
+    html += `<div class="events-empty">На сегодня важных событий по доступным источникам не найдено.</div>`;
+  } else {
+    const top = todays.slice(0, 5), rest = todays.slice(5);
+    html += `<div class="events-list">${top.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div>`;
+    if (rest.length) {
+      html += `<details class="events-more"><summary>Показать все события сегодня (${todays.length})</summary>
+        <div class="events-list">${rest.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div></details>`;
+    }
+  }
+  if (!pf.hasPortfolio) {
+    html += `<div class="events-pfhint muted">События по вашим бумагам будут подсвечиваться после добавления портфеля во вкладке «Портфель».</div>`;
+  }
+
+  // Понедельник: что накопилось за выходные
+  if (weekend.length) {
+    html += `<div class="events-sub"><h3>Что накопилось за выходные</h3>
+      <div class="events-list">${weekend.slice(0, 6).map((e) => evCardHTML(e, pf, todayIso)).join('')}</div></div>`;
+  }
+
+  // Ближайшие события (компактно)
+  if (upcoming.length) {
+    html += `<div class="events-sub"><h3>Ближайшие события <span class="muted">(до 14 дней)</span></h3>
+      <ul class="events-upcoming">${upcoming.slice(0, 10).map((e) => {
+        const [catLbl] = EV_CAT[e.event_type] || ['Событие'];
+        const inPf = e.ticker && pf.set.has(e.ticker);
+        const dmy = e.date.slice(8, 10) + '.' + e.date.slice(5, 7);
+        return `<li class="${inPf ? 'ev-up-pf' : ''}"><b>${dmy}</b> <span class="ev-up-cat">${catLbl}</span> ${e.ticker ? esc(e.ticker) + ' · ' : ''}${esc(e.title)}${inPf ? ' <span class="ev-up-pfmark">в портфеле</span>' : ''}</li>`;
+      }).join('')}</ul></div>`;
+  }
+
+  html += `<div class="events-foot muted">События — из открытых источников (${(meta.sources || []).map((s) => EV_SRC_LABEL[s] || s).join(', ') || 'MOEX ISS, ЦБ'}). Фильтр «сегодня» — по московскому времени. Информационно, не индивидуальная инвестиционная рекомендация.</div>`;
+  el.innerHTML = html;
+}
+
 function ensureKpiData() {
+  if (!EVENTS_DATA && typeof loadEvents === 'function') loadEvents(() => renderEventsToday());
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });

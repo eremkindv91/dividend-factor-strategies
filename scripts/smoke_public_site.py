@@ -97,6 +97,14 @@ def main() -> int:
             fails.append("news.json без generated_at/market_snapshot (broken)")
         else:
             sys.stdout.write(f"  [OK] news.json (generated_at={str(news.get('generated_at'))[:16]})\n")
+        ev, e = fetch(f"{base}/events_calendar.json", retries, True)
+        if e:
+            fails.append(f"events_calendar.json недоступен ({e})")
+        elif not (isinstance(ev, dict) and isinstance(ev.get("events"), list) and (ev.get("meta") or {}).get("generated_at")):
+            fails.append("events_calendar.json без events/meta.generated_at (broken)")
+        else:
+            m = ev["meta"]
+            sys.stdout.write(f"  [OK] events_calendar.json ({m.get('event_count')} событий, сегодня {m.get('today_event_count')})\n")
 
     if fails:
         sys.stderr.write("\n[smoke] ПУБЛИЧНЫЙ САЙТ НЕ ПРОШЁЛ ПРОВЕРКУ:\n  - " + "\n  - ".join(fails) + "\n")
