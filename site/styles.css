@@ -2179,3 +2179,47 @@ tbody tr:hover td,
   .events-list { grid-template-columns: 1fr; }
   .events-today { padding: 14px; }
 }
+
+/* ══ Банки РФ: cockpit-полировка (единый выбор, ROE-линия, bridge, мобайл) ══ */
+.bval-takeaway { margin: 10px 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+.bval-tw-head { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.bval-tw-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+.bval-tw-list li { font-size: .9rem; line-height: 1.5; color: var(--ink-soft); }
+.bval-tw-list b { color: var(--ink); }
+.bval-tw-note { font-size: .76rem; margin-top: 8px; }
+.bval-tw-bank { font: inherit; font-size: .9rem; font-weight: 700; color: var(--accent-deep); background: none; border: 0; border-bottom: 1px dashed var(--accent); padding: 0 1px; cursor: pointer; }
+.bval-tw-bank:hover { color: var(--ink); border-bottom-style: solid; }
+
+/* колонки таблицы: отклонение от ROE-линии / capacity мини-бар */
+.bval-fair-neg { color: var(--good-ink); font-weight: 700; }
+.bval-fair-pos { color: var(--risk-ink); font-weight: 700; }
+.bval-capmini { display: inline-block; width: 46px; height: 7px; background: var(--neut-fill); border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 4px; }
+.bval-capmini i { display: block; height: 100%; border-radius: 4px; }
+.bval-capmini i.cap-good { background: var(--good-bar); } .bval-capmini i.cap-neut { background: var(--neut-bar); }
+.bval-capmini i.cap-warn { background: var(--warn-bar); } .bval-capmini i.cap-risk { background: var(--risk-bar); }
+
+/* выбранная строка — специфичность выше hover (см. правило .bval-row:hover td) */
+.bval-table tbody tr.bval-row.bval-selected td,
+.bval-table tbody tr.bval-row.bval-selected:hover td { background: #EAF0F7; box-shadow: inset 3px 0 0 var(--accent-deep); }
+.bval-caprow { cursor: pointer; }
+
+/* detail-row: карточки narrative / bridge / peers / тренд */
+.bval-detail-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; padding: 4px 2px; }
+.bval-dcard { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.bval-dcard h5 { margin: 0 0 6px; font-size: .8rem; color: var(--accent-deep); }
+.bval-nar-txt { font-size: .82rem; line-height: 1.5; color: var(--ink-soft); }
+.bval-br-row, .bval-peer-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .82rem; padding: 3px 0; border-bottom: 1px dotted var(--line); }
+.bval-br-row:last-child, .bval-peer-row:last-child { border-bottom: 0; }
+.bval-br-row span, .bval-peer-row span { color: var(--ink-soft); }
+.bval-br-row b, .bval-peer-row b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.bval-peer-row em { color: var(--ink-faint); font-size: .74rem; }
+.bval-br-note { font-size: .74rem; margin-top: 6px; line-height: 1.45; }
+.bval-detail-meta { font-size: .76rem; color: var(--ink-faint); margin-top: 6px; }
+.bval-wlines { margin-top: 8px; }
+.bval-method-txt { font-size: .82rem; line-height: 1.55; color: var(--ink-soft); margin-top: 8px; }
+
+/* мобайл: прячем второстепенные колонки, критичные оставляем + скролл как fallback */
+@media (max-width: 760px) {
+  .bval-table .col-sec, .bval-cap-tbl .col-sec { display: none; }
+  .bval-detail-cols { grid-template-columns: 1fr; }
+}
