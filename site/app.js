@@ -2583,8 +2583,33 @@ let BONDS = null;
 const CHARTJS_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
 const RATING_GROUP = (r) => { r = String(r || ''); return r.startsWith('AAA') ? 'aaa' : r.startsWith('AA') ? 'aa' : r.startsWith('A') ? 'a' : 'bbb'; };
 const RATING_COLOR = { aaa: '#1E6F4C', aa: '#7FB069', a: '#D9A521', bbb: '#D77A33' };
+const RATING_SOURCE_RU = { acra: 'АКРА', expert_ra: 'Эксперт РА', nkr: 'НКР' };
 const HORIZON_RU = { short: 'Короткий (0–1 год)', mid: 'Средний (1–3 года)', long: 'Длинный (>3 лет)' };
 const rub0 = (x) => isNum(x) ? Math.round(x).toLocaleString('ru-RU') + ' ₽' : ND;
+
+function shortIsoDate(value) {
+  const p = String(value || '').slice(0, 10).split('-');
+  return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : String(value || '');
+}
+
+function ratingSources(meta) {
+  const sources = ((meta || {}).ratings || {}).sources || {};
+  return Object.entries(sources).filter(([, v]) => v && (v.status === 'ok' || v.status === 'cached'))
+    .map(([k, v]) => (RATING_SOURCE_RU[k] || k) + (v.status === 'cached' ? ' (last-good)' : '')).join(' · ');
+}
+
+function officialRatingHTML(row, badgeClass) {
+  if (!row || !row.rating) return '<span class="muted" title="Действующий официальный рейтинг выпуска не найден">—</span>';
+  const records = Array.isArray(row.rating_records) ? row.rating_records : [];
+  const detail = records.length
+    ? records.map((r) => `${r.rating_agency || ''} ${r.raw_rating || r.rating || ''}${r.rating_date ? ' от ' + shortIsoDate(r.rating_date) : ''}`).join('; ')
+    : `${row.rating_agency || 'официальное агентство'}${row.rating_date ? ' · ' + shortIsoDate(row.rating_date) : ''}`;
+  const badge = `<span class="${badgeClass} r-${RATING_GROUP(row.rating)}" title="Рейтинг выпуска. ${esc(detail)}">${esc(row.rating)}</span>`;
+  const linked = row.rating_source_url
+    ? `<a class="rating-source-link" href="${esc(row.rating_source_url)}" target="_blank" rel="noopener" aria-label="Открыть официальный рейтинг выпуска">${badge}</a>`
+    : badge;
+  return `<span class="rating-official">${linked}<small>${esc(row.rating_agency || '')}${row.rating_date ? ' · ' + esc(shortIsoDate(row.rating_date)) : ''}</small></span>`;
+}
 
 function wireBonds() {
   const el = document.getElementById('bonds');
@@ -2643,8 +2668,10 @@ function bondsErrorHTML() {
 function bondsUIHTML(d) {
   const m = d.meta;
   const upd = (m.updated || '').replace('T', ' ').slice(0, 16);
+  const checked = shortIsoDate(((m.ratings || {}).checked_at || '').slice(0, 10));
+  const agencies = ratingSources(m);
   return `
-    <div class="bonds-fresh muted">Обновлено: ${esc(upd)} · бумаг в скринере: <b>${d.bonds.length}</b> · источник: MOEX ISS</div>
+    <div class="bonds-fresh muted">Обновлено: ${esc(upd)} · бумаг: <b>${d.bonds.length}</b> · цены: MOEX ISS · рейтинги выпусков: ${esc(agencies || 'источник временно недоступен')}${checked ? ' · проверено ' + esc(checked) : ''}</div>
     <div class="bonds-note">${esc(m.note || '')}</div>
 
     <div class="bonds-section-title">Карта рынка: кривая КБД (ОФЗ) и корпоративные облигации</div>
@@ -2671,11 +2698,10 @@ function bondsUIHTML(d) {
 
 function bondsTableHTML(bonds) {
   const rows = bonds.slice().sort((a, b) => b.deviation - a.deviation).map((x) => {
-    const g = RATING_GROUP(x.rating);
     const dev = isNum(x.deviation) ? (x.deviation >= 0 ? '+' : '') + x.deviation.toFixed(1) + '%' : ND;
     return `<tr>
       <td class="b-name">${esc(x.name)}</td>
-      <td><span class="b-rating r-${g}">${esc(x.rating)}</span></td>
+      <td>${officialRatingHTML(x, 'b-rating')}</td>
       <td class="tnum">${isNum(x.price_market) ? x.price_market.toFixed(2) : ND}</td>
       <td class="tnum">${isNum(x.ytm_market) ? x.ytm_market.toFixed(2) + '%' : ND}</td>
       <td class="tnum b-muted">${isNum(x.ytm_fair) ? x.ytm_fair.toFixed(2) + '%' : ND}</td>
@@ -2770,7 +2796,7 @@ function bondsCalc() {
   const cash = capital - totalSpent;
   const rows = lines.map(({ b, costPerLot, lots, spent }) => `<tr>
     <td class="b-name">${esc(b.name)}</td>
-    <td><span class="b-rating r-${RATING_GROUP(b.rating)}">${esc(b.rating)}</span></td>
+    <td>${officialRatingHTML(b, 'b-rating')}</td>
     <td class="tnum">${(b.weight * 100).toFixed(1)}%</td>
     <td class="tnum b-strong">${lots}</td>
     <td class="tnum">${rub0(costPerLot)}</td>
@@ -3008,7 +3034,7 @@ function renderDataCoverage() {
 // Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
 // нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
 // ══════════════════════════════════════════════════════════════════════════
-const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology'];
+const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology', 'pro'];
 
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
@@ -3069,6 +3095,21 @@ function setActiveSection(sec) {
 function initRouter() {
   document.querySelectorAll('.section-tab').forEach((t) => {
     t.addEventListener('click', () => { location.hash = t.dataset.section; });
+  });
+  // P5-лендинг: карточки/кнопки с data-goto ведут на соответствующий раздел;
+  // кнопки «ранний доступ» показывают честную заглушку (контакт-канал добавим позже)
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('[data-goto]');
+    if (g && SECTIONS.includes(g.dataset.goto)) { location.hash = g.dataset.goto; return; }
+    if (e.target.closest('#pro-waitlist, #pro-waitlist2, #pro-waitlist3')) {
+      const n = document.getElementById('pro-waitnote');
+      if (n) { n.hidden = false; n.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.pro-card[data-goto]')) {
+      e.preventDefault(); location.hash = e.target.dataset.goto;
+    }
   });
   window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
   setActiveSection(getSectionFromHash());
@@ -3550,7 +3591,7 @@ function cbrExcel() {
 
 // ══════════════════════════════════════════════════════════════════════════
 // MOEX Bond Finder — месячный шорт-лист кандидатов (НЕ сигналы). Всё из
-// site/bonds/finder.json (bonds/bond_finder.py). Предупреждения — всегда сверху.
+// site/bonds/finder.json (bonds/bond_finder.py). Источники рейтингов видны в каждой строке.
 // ══════════════════════════════════════════════════════════════════════════
 let FINDER = null;
 let FINDER_SORT = { key: 'score', dir: -1 };
@@ -3589,6 +3630,9 @@ function finderShellHTML(d) {
   const profOpts = Object.entries(d.profiles).map(([id, p]) =>
     `<option value="${id}"${id === 'balanced' ? ' selected' : ''}>${esc(p.title)}</option>`).join('');
   const c = m.counts || {};
+  const rc = m.rating_coverage || {};
+  const checked = shortIsoDate(((m.ratings || {}).checked_at || '').slice(0, 10));
+  const agencies = ratingSources(m);
   return `
     ${warns ? `<details class="fnd-warns"><summary>Предупреждения качества данных <span class="muted">(${(m.warnings || []).length})</span></summary><ul>${warns}</ul></details>` : ''}
     <div class="fnd-controls">
@@ -3596,6 +3640,7 @@ function finderShellHTML(d) {
       <label>Бюджет, ₽<input type="number" id="fnd-budget" value="1000000" min="0" step="100000"></label>
       <span class="fnd-chip"><span class="k">Срез</span> <b>${esc(m.snapshot_date || '—')}</b></span>
       <span class="fnd-chip"><span class="k">Вселенная</span> <b>${c.universe_clean ?? '—'}</b> · FX <b>${c.fx ?? 0}</b> · ПИР <b>${c.pir_board ?? 0}</b> · call <b>${c.call_only ?? 0}</b></span>
+      <span class="fnd-chip"><span class="k">Рейтинги выпусков</span> <b>${rc.official_issue_ratings ?? 0}/${rc.candidates ?? 0}</b> · ${esc(agencies || 'источник недоступен')}${checked ? ' · ' + esc(checked) : ''}</span>
     </div>
     <div class="fnd-summary" id="fnd-summary"></div>
     <div id="fnd-table"></div>
@@ -3645,7 +3690,7 @@ function finderDraw() {
     <td class="fnd-links"><a href="https://www.moex.com/ru/issue.aspx?code=${esc(r.secid)}" target="_blank" rel="noopener">${esc(r.secid)}</a>
       <a class="muted" href="https://smart-lab.ru/q/bonds/${esc(r.secid)}/" target="_blank" rel="noopener">sl</a></td>
     <td class="fnd-name"><b>${esc(r.name || '')}</b><span>${esc(String(r.issuer || '').slice(0, 36))}</span>${r.new_placement ? ' <i class="fnd-new">новый</i>' : ''}${r.qual_only ? ' <i class="fnd-qual">квал</i>' : ''}</td>
-    <td class="fnd-rating">${r.rating ? `<span class="fnd-rt r-${RATING_GROUP(r.rating)}" title="${r.rating_source === 'csv' ? 'из ratings.csv' : 'снапшот-маппинг по эмитенту — проверьте на АКРА/Эксперт РА'}">${esc(r.rating)}${r.rating_source === 'issuer_map' ? '≈' : ''}</span>` : '<span class="muted" title="рейтинг не найден в маппинге">—</span>'}</td>
+    <td class="fnd-rating">${officialRatingHTML(r, 'fnd-rt')}</td>
     <td class="tnum">${isNum(r.dirty_price) ? ru(r.dirty_price, 0) : ND}</td>
     <td class="tnum">${isNum(r.ytm_net) ? r.ytm_net.toFixed(2) + '%' : ND}</td>
     <td class="tnum">${isNum(r.g_spread) ? (r.g_spread >= 0 ? '+' : '') + r.g_spread.toFixed(2) + 'пп' : ND}</td>

@@ -25,7 +25,9 @@
       <button class="section-tab" type="button" data-section="strategies">Стратегии</button>
       <button class="section-tab" type="button" data-section="bonds">Облигации</button>
       <button class="section-tab" type="button" data-section="cbr">Банки РФ</button>
-      <button class="section-tab" type="button" data-section="methodology">Методология</button>
+      <span class="nav-spacer" aria-hidden="true"></span>
+      <button class="section-tab tab-minor" type="button" data-section="methodology" title="Методология, источники и ограничения">Методология</button>
+      <button class="section-tab tab-pro" type="button" data-section="pro">✦ Тарифы</button>
     </nav>
 
     <main class="sections">
@@ -250,6 +252,95 @@
           </ul>
           <div class="disc" id="disclaimer"></div>
           <p class="attrib" id="attrib"></p>
+        </div>
+      </section>
+
+      <!-- ─────────── ТАРИФЫ / О СЕРВИСЕ (P5) ─────────── -->
+      <section class="app-section pro-landing" data-section="pro" hidden>
+        <div class="pro-hero">
+          <div class="pro-hero-glow" aria-hidden="true"></div>
+          <div class="pro-hero-inner">
+            <span class="pro-eyebrow">Аналитическая платформа по рынку РФ</span>
+            <h2 class="pro-hero-title">Дивиденды, риск портфеля и ставка — на реальных данных, без «купи-продай»</h2>
+            <p class="pro-hero-sub">ML-прогноз дивидендов и риска среза, профессиональный риск-разбор портфеля (VaR/CVaR, beta, стресс-тест), связка дивидендов со ставкой и облигациями, отчётность банков из ЦБ РФ. Каждая цифра — с источником и датой. Не индивидуальная инвестиционная рекомендация.</p>
+            <div class="pro-hero-cta">
+              <button class="pro-btn pro-btn-primary" type="button" data-goto="my-portfolio">Открыть Portfolio X-Ray</button>
+              <button class="pro-btn pro-btn-ghost" type="button" id="pro-waitlist">Ранний доступ к Pro</button>
+            </div>
+            <div class="pro-waitnote" id="pro-waitnote" hidden>Ранний доступ откроем позже — форма записи появится здесь. Пока весь функционал доступен бесплатно.</div>
+            <div class="pro-trust">
+              <span>MOEX ISS</span><span>ЦБ РФ</span><span>SmartLab</span><span>обновление ежедневно</span><span>данные с датой</span><span>расчёт в браузере</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="pro-h">Что внутри</h3>
+        <div class="pro-cards">
+          <article class="pro-card" data-goto="my-portfolio" role="button" tabindex="0">
+            <span class="pro-card-ic">◈</span><h4>Portfolio X-Ray</h4>
+            <p>Риск/перформанс-терминал: сравнение с MCFTR, alpha/beta, VaR/CVaR, вклад бумаг в риск, bootstrap-устойчивость, сценарный ребаланс. Расчёт локальный.</p><span class="pro-card-go">Открыть →</span></article>
+          <article class="pro-card" data-goto="stocks" role="button" tabindex="0">
+            <span class="pro-card-ic">◆</span><h4>Дивидендный риск (ML)</h4>
+            <p>Двухэтапная ML-модель: вероятность выплаты и размер дивиденда, риск среза, устойчивость. Карточка «почему такой риск» с разбором факторов (SHAP).</p><span class="pro-card-go">Открыть →</span></article>
+          <article class="pro-card" data-goto="my-portfolio" role="button" tabindex="0">
+            <span class="pro-card-ic">◇</span><h4>Ставка и облигации</h4>
+            <p>КБД-кривая ОФЗ, дивидендная премия к безриску, порог замещения облигациями (net-of-tax) и чувствительность портфеля к ставке.</p><span class="pro-card-go">Открыть →</span></article>
+          <article class="pro-card" data-goto="cbr" role="button" tabindex="0">
+            <span class="pro-card-ic">▣</span><h4>Банки РФ (ЦБ)</h4>
+            <p>Отчётность СЗКО из форм ЦБ (102/123/135): прибыль, капитал, нормативы Н1, дивидендная способность, цена против капитала.</p><span class="pro-card-go">Открыть →</span></article>
+          <article class="pro-card" data-goto="market" role="button" tabindex="0">
+            <span class="pro-card-ic">◱</span><h4>Фаза рынка</h4>
+            <p>Режим рынка по индексу полной доходности MCFTR: где рынок относительно последнего экстремума, рыночное напряжение, безрисковая ставка.</p><span class="pro-card-go">Открыть →</span></article>
+          <article class="pro-card" data-goto="news" role="button" tabindex="0">
+            <span class="pro-card-ic">▤</span><h4>Новости и календарь</h4>
+            <p>Утренний брифинг рынка РФ: снапшот, ночные и вчерашние новости, календарь событий на сегодня. Структурируется автоматически.</p><span class="pro-card-go">Открыть →</span></article>
+        </div>
+
+        <h3 class="pro-h">Тарифы <span class="pro-hyp">продуктовая гипотеза · сейчас всё бесплатно</span></h3>
+        <div class="pro-tiers">
+          <article class="pro-tier">
+            <div class="pro-tier-head"><span class="pro-tier-name">Инвестор</span><span class="pro-tier-price">Free</span></div>
+            <p class="pro-tier-sub">Частный инвестор, который сам ведёт портфель.</p>
+            <ul class="pro-tier-feats">
+              <li>Полный Portfolio X-Ray</li>
+              <li>Дивидендный ML-прогноз и риск среза</li>
+              <li>Облигации, банки, фаза рынка, новости</li>
+              <li>Данные MOEX ISS / ЦБ с датой</li>
+            </ul>
+            <button class="pro-btn pro-btn-ghost" type="button" data-goto="market">Пользоваться сейчас</button>
+          </article>
+          <article class="pro-tier pro-tier-featured">
+            <span class="pro-tier-badge">В разработке</span>
+            <div class="pro-tier-head"><span class="pro-tier-name">Аналитик · Pro</span><span class="pro-tier-price">ранний доступ</span></div>
+            <p class="pro-tier-sub">Продвинутый инвестор и аналитик.</p>
+            <ul class="pro-tier-feats">
+              <li>Всё из Free</li>
+              <li>Сохранение портфелей и алерты по риску/дивотсечкам</li>
+              <li>Экспорт отчётов (PDF/CSV) и история метрик</li>
+              <li>Расширенные сценарии и бэктест</li>
+            </ul>
+            <button class="pro-btn pro-btn-primary" type="button" id="pro-waitlist2">Ранний доступ</button>
+          </article>
+          <article class="pro-tier">
+            <div class="pro-tier-head"><span class="pro-tier-name">Институционал · B2B</span><span class="pro-tier-price">по запросу</span></div>
+            <p class="pro-tier-sub">УК, брокеры, редакции, финтех.</p>
+            <ul class="pro-tier-feats">
+              <li>Всё из Pro</li>
+              <li>API к данным и моделям</li>
+              <li>White-label встраивание блоков</li>
+              <li>SLA свежести и поддержка</li>
+            </ul>
+            <button class="pro-btn pro-btn-ghost" type="button" id="pro-waitlist3">Обсудить позже</button>
+          </article>
+        </div>
+        <p class="pro-note">Тарифы — продуктовая гипотеза, а не оффер. Сейчас весь функционал доступен бесплатно; платные уровни и цены появятся позже. Сервис не оказывает индивидуальных инвестиционных рекомендаций и не продаёт «сигналы».</p>
+
+        <h3 class="pro-h">Честно о проекте</h3>
+        <div class="pro-faq">
+          <details><summary>Почему сейчас бесплатно?</summary><p>Это исследовательский проект на открытых данных. Пока продукт развивается, доступ открыт; монетизация — гипотеза, которую проверяем.</p></details>
+          <details><summary>Откуда данные?</summary><p>Цены и потоки — MOEX ISS; отчётность банков — формы ЦБ РФ; фундамент — SmartLab и официальные отчёты. Каждый блок помечен источником, датой и статусом свежести (fresh/stale/fallback).</p></details>
+          <details><summary>Это инвестиционные рекомендации?</summary><p>Нет. Все расчёты — аналитические и модельные, без «купить/продать» и целевых цен. Дивдоходность — ожидаемая (прогноз модели) и не гарантирована.</p></details>
+          <details><summary>Где мои данные портфеля?</summary><p>Portfolio X-Ray считается локально в браузере — состав портфеля никуда не отправляется.</p></details>
         </div>
       </section>
     </main>

@@ -623,6 +623,10 @@ td.empty { text-align: center; }
 /* цвета рейтингов: AAA зелёный, AA салатовый, A жёлтый, BBB оранжевый */
 .b-rating { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .74rem;
   font-weight: 700; color: #fff; }
+.rating-official { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; white-space: nowrap; }
+.rating-official small { color: var(--ink-faint); font-size: .58rem; font-weight: 600; line-height: 1.1; }
+.rating-source-link { color: inherit; text-decoration: none; }
+.rating-source-link:hover .b-rating, .rating-source-link:hover .fnd-rt { box-shadow: 0 0 0 2px rgba(76, 92, 134, .18); }
 .r-aaa { background: #1E6F4C; }
 .r-aa  { background: #7FB069; }
 .r-a   { background: #D9A521; color: #4a3a05; }
@@ -1135,9 +1139,9 @@ td.empty { text-align: center; }
   padding-top: 10px; margin-top: 10px; }
 @media (max-width: 760px) { .fnd-summary { grid-template-columns: repeat(2, 1fr); } }
 
-/* рейтинг-чип в Bond Finder (≈ = снапшот-маппинг, не официальная лента) */
+/* Рейтинг выпуска со ссылкой на официальную карточку агентства. */
 .fnd-rating { text-align: left; }
-.fnd-rt { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .7rem; font-weight: 700; color: #fff; cursor: help; }
+.fnd-rt { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .7rem; font-weight: 700; color: #fff; cursor: pointer; }
 
 /* ══ Банки РФ — секторная оценка (P/BV, ROE, scatter) ══ */
 .bval-loading { padding: 12px 2px; font-size: .9rem; }
@@ -1970,4 +1974,81 @@ tbody tr:hover td,
   .mp-addform .mp-search-wrap { grid-column: 1 / -1; }
   #mp-add-btn { grid-column: 1 / -1; }
   .mp-suggest { max-height: 200px; }
+}
+
+/* ═══════════ Навигация: второстепенные вкладки + Pro CTA (P5) ═══════════ */
+.nav-spacer { flex: 1 1 12px; min-width: 12px; }
+.section-tab.tab-minor { background: transparent; border-color: transparent; box-shadow: none;
+  color: var(--ink-faint); font-weight: 500; font-size: .82rem; padding: 8px 12px; }
+.section-tab.tab-minor:hover { color: var(--accent-deep); border-color: var(--line); background: var(--surface); }
+.section-tab.tab-minor.active { background: var(--neut-fill); color: var(--neut-ink); border-color: var(--neut-bar); }
+.section-tab.tab-pro { color: #fff; border: 0; font-weight: 700;
+  background: linear-gradient(135deg, #5566a6, #4C5C86); box-shadow: 0 4px 14px -4px rgba(76,92,134,.6); }
+.section-tab.tab-pro:hover { filter: brightness(1.08); border-color: transparent; }
+.section-tab.tab-pro.active { background: linear-gradient(135deg, #46538f, #3c496e); color: #fff; }
+
+/* ═══════════ P5 лендинг (Тарифы / О сервисе) ═══════════ */
+.pro-hero { position: relative; overflow: hidden; border-radius: 20px; padding: 40px 36px; margin-bottom: 26px;
+  background: linear-gradient(135deg, #eef1f8 0%, #f7f8fa 55%, #eaf2ee 100%); border: 1px solid var(--line); }
+.pro-hero-glow { position: absolute; inset: -40% 30% auto -10%; height: 340px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(120,140,200,.28), transparent 70%); filter: blur(10px); }
+.pro-hero-inner { position: relative; max-width: 780px; }
+.pro-eyebrow { display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent-deep); background: rgba(76,92,134,.1); padding: 4px 11px; border-radius: 999px; margin-bottom: 14px; }
+.pro-hero-title { margin: 0 0 12px; font-size: clamp(1.5rem, 3.4vw, 2.35rem); line-height: 1.12; letter-spacing: -.01em; color: var(--ink); }
+.pro-hero-sub { margin: 0 0 20px; font-size: 1.02rem; line-height: 1.6; color: var(--ink-soft); }
+.pro-hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.pro-btn { font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; border-radius: 11px; padding: 11px 20px;
+  transition: transform .12s, filter .12s, background .12s, border-color .12s; }
+.pro-btn:active { transform: translateY(1px); }
+.pro-btn-primary { color: #fff; border: 0; background: linear-gradient(135deg, #5566a6, #4C5C86); box-shadow: 0 8px 20px -8px rgba(76,92,134,.7); }
+.pro-btn-primary:hover { filter: brightness(1.08); }
+.pro-btn-ghost { color: var(--accent-deep); background: var(--surface); border: 1px solid var(--accent); }
+.pro-btn-ghost:hover { border-color: var(--accent-deep); }
+.pro-waitnote { margin-top: 14px; font-size: .88rem; color: var(--good-ink); background: var(--good-fill);
+  border: 1px solid var(--good-bar); border-radius: 10px; padding: 10px 13px; max-width: 560px; }
+.pro-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 22px; font-size: .8rem; color: var(--ink-faint); }
+.pro-trust span { position: relative; padding-left: 15px; }
+.pro-trust span::before { content: "●"; position: absolute; left: 0; top: .12em; color: var(--mint); font-size: .7em; }
+
+.pro-h { margin: 30px 0 14px; font-size: 1.15rem; color: var(--ink); letter-spacing: -.01em; }
+.pro-hyp { font-size: .8rem; font-weight: 500; color: var(--ink-faint); margin-left: 8px; }
+
+.pro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.pro-card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  cursor: pointer; box-shadow: var(--shadow); transition: transform .14s, box-shadow .14s, border-color .14s; }
+.pro-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -12px rgba(46,52,64,.22); border-color: var(--accent); }
+.pro-card:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.pro-card-ic { display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; border-radius: 10px;
+  background: linear-gradient(135deg, #eef1f8, #e7efe9); color: var(--accent-deep); font-size: 1.15rem; margin-bottom: 10px; }
+.pro-card h4 { margin: 0 0 6px; font-size: 1rem; color: var(--ink); }
+.pro-card p { margin: 0 0 10px; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
+.pro-card-go { font-size: .82rem; font-weight: 700; color: var(--accent-deep); }
+
+.pro-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; margin-top: 20px; }
+.pro-tier { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 22px 18px 18px; box-shadow: var(--shadow); }
+.pro-tier-featured { border-color: var(--accent-deep); box-shadow: 0 14px 34px -16px rgba(76,92,134,.5);
+  background: linear-gradient(180deg, #fbfcff, #ffffff); }
+.pro-tier-badge { position: absolute; top: -11px; left: 18px; font-size: .68rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #5566a6, #4C5C86); padding: 4px 10px; border-radius: 999px; }
+.pro-tier-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.pro-tier-name { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+.pro-tier-price { font-size: .9rem; font-weight: 700; color: var(--accent-deep); white-space: nowrap; }
+.pro-tier-sub { margin: 0 0 12px; font-size: .84rem; color: var(--ink-faint); }
+.pro-tier-feats { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.pro-tier-feats li { position: relative; padding-left: 22px; font-size: .86rem; line-height: 1.4; color: var(--ink-soft); }
+.pro-tier-feats li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--good-ink); font-weight: 800; }
+.pro-tier .pro-btn { width: 100%; text-align: center; }
+.pro-note { margin: 16px 0 0; font-size: .8rem; line-height: 1.55; color: var(--ink-faint); max-width: 920px; }
+
+.pro-faq { display: grid; gap: 8px; max-width: 920px; }
+.pro-faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 2px 14px; }
+.pro-faq summary { cursor: pointer; padding: 11px 0; font-weight: 600; font-size: .9rem; color: var(--ink); }
+.pro-faq p { margin: 0 0 12px; font-size: .86rem; line-height: 1.55; color: var(--ink-soft); }
+
+@media (max-width: 860px) {
+  .pro-cards, .pro-tiers { grid-template-columns: 1fr; }
+  .pro-hero { padding: 26px 20px; }
+  .pro-hero-cta .pro-btn { flex: 1 1 auto; text-align: center; }
 }
