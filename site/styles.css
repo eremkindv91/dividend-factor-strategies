@@ -2223,3 +2223,36 @@ tbody tr:hover td,
   .bval-table .col-sec, .bval-cap-tbl .col-sec { display: none; }
   .bval-detail-cols { grid-template-columns: 1fr; }
 }
+
+/* ══ «Веер сценариев года» (bootstrap) — понятный формат ══ */
+.pfx-boot-intro { font-size: .9rem; line-height: 1.55; color: var(--ink-soft); margin: 2px 0 14px; }
+.pfx-boot-scen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.pfx-boot-card { border: 1px solid var(--line); border-top: 4px solid var(--neut-bar); border-radius: 12px; padding: 12px 14px; background: var(--surface); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; }
+.pfx-boot-card.pfx-risk { border-top-color: var(--risk-bar); }
+.pfx-boot-card.pfx-neut { border-top-color: var(--neut-bar); }
+.pfx-boot-card.pfx-good { border-top-color: var(--good-bar); }
+.pfx-boot-tag { font-size: .74rem; color: var(--ink-faint); font-weight: 600; }
+.pfx-boot-num { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.pfx-boot-card.pfx-risk .pfx-boot-num { color: var(--risk-ink); }
+.pfx-boot-card.pfx-neut .pfx-boot-num { color: var(--accent-deep); }
+.pfx-boot-card.pfx-good .pfx-boot-num { color: var(--good-ink); }
+.pfx-boot-card em { font-size: .74rem; color: var(--ink-faint); font-style: normal; }
+.pfx-boot-chartwrap { margin-bottom: 12px; }
+.pfx-boot-legend { font-size: .76rem; margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.pfx-boot-lg { display: inline-block; width: 12px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 2px; }
+.pfx-boot-lg.loss { background: #E2A48C; } .pfx-boot-lg.gain { background: #A8D5C2; }
+.pfx-boot-lg.med { width: 2px; height: 12px; background: #3A424E; border-radius: 0; }
+.pfx-boot-strip { display: grid; grid-template-columns: minmax(190px, .8fr) 1.2fr; gap: 12px; align-items: start; margin-bottom: 12px; }
+.pfx-boot-frag { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.pfx-boot-frag.pfx-risk { background: var(--risk-fill); }
+.pfx-boot-frag.pfx-warn { background: var(--warn-fill); }
+.pfx-boot-frag.pfx-good { background: var(--good-fill); }
+.pfx-boot-frag-lbl { font-size: .78rem; color: var(--ink-soft); font-weight: 600; }
+.pfx-boot-frag b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.pfx-boot-frag.pfx-risk b { color: var(--risk-ink); } .pfx-boot-frag.pfx-warn b { color: var(--warn-ink); } .pfx-boot-frag.pfx-good b { color: var(--good-ink); }
+.pfx-boot-tbl { align-self: start; }
+.pfx-boot-read { background: var(--bg); border-left: 3px solid var(--accent-deep); border-radius: 8px; padding: 4px 14px; margin-bottom: 10px; }
+.pfx-boot-read p { font-size: .86rem; line-height: 1.55; color: var(--ink-soft); margin: 8px 0; }
+.pfx-boot-read b { color: var(--ink); }
+.pfx-help { cursor: help; color: var(--ink-faint); font-size: .82em; }
+@media (max-width: 760px) { .pfx-boot-scen { grid-template-columns: 1fr; } .pfx-boot-strip { grid-template-columns: 1fr; } }

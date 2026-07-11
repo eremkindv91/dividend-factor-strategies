@@ -1371,7 +1371,7 @@ function pfxRenderHTML(c) {
   html += pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c));
 
   // 7. Bootstrap
-  html += pfxDetails('Bootstrap Scenario Lab', '(resampling истории, не прогноз)', pfxBootHTML(c));
+  html += pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c));
 
   // 8. Smart Rebalancer
   html += pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
@@ -1725,19 +1725,52 @@ function pfxDivRiskCardHTML(p) {
 // ── модуль 7: Bootstrap ──────────────────────────────────────────────────────
 function pfxBootHTML(c) {
   const b = c.boot;
-  if (!b || !b.ok) return `<div class="pfx-note">${NA}: ${b && b.reason ? b.reason : 'нет бенчмарка/истории'}.</div>`;
+  if (!b || !b.ok) return `<div class="pfx-note">${NA}: ${b && b.reason ? b.reason : 'нужно ≥18 мес истории и бенчмарк MCFTR'}.</div>`;
   const frag = Math.round(100 * (0.35 * (1 - b.pBeat) + 0.2 * b.pNegExcess + 0.15 * Math.min(1, Math.abs(b.mdd[0]) / 0.4) + 0.15 * Math.min(1, c.top3) + 0.15 * (c.vaR && c.vaR.ok ? Math.min(1, Math.abs(c.vaR.hist95) / 0.15) : 0.3)));
-  const prob = (lbl, p) => `<div class="pfx-prob"><span>${lbl}</span><b>${ru(p * 100, 0)}%</b></div>`;
+  const fragTone = frag > 60 ? 'risk' : frag > 40 ? 'warn' : 'good';
+  const fragWord = frag > 60 ? 'высокая' : frag > 40 ? 'умеренная' : 'низкая';
+  const yrs = (b.histMonths / 12);
+
+  // 3 сценария-исхода: неблагоприятный (5% худших) / типичный (медиана) / благоприятный (5% лучших)
+  const scen = (tone, tag, cagr, dd) => `<div class="pfx-boot-card pfx-${tone}">
+    <span class="pfx-boot-tag">${tag}</span>
+    <b class="pfx-boot-num">${PP(cagr, 0)}</b>
+    <em>годовая доходность · просадка ${PN(dd)}</em></div>`;
+  const scenRow = `<div class="pfx-boot-scen">
+    ${scen('risk', 'Неблагоприятный год (5% худших)', b.cagr[0], b.mdd[0])}
+    ${scen('neut', 'Типичный год (медиана)', b.cagr[1], b.mdd[1])}
+    ${scen('good', 'Благоприятный год (5% лучших)', b.cagr[2], b.mdd[2])}</div>`;
+
+  // человеческий вывод «как читать»
+  const readParts = [
+    `В типичный смоделированный год портфель даёт <b>${PP(b.cagr[1], 0)}</b>, но разброс исходов широкий: от <b>${PP(b.cagr[0], 0)}</b> в неблагоприятном году до <b>${PP(b.cagr[2], 0)}</b> в благоприятном.`,
+    `Убыточным год оказывается в <b>${ru(b.pLoss * 100, 0)}%</b> сценариев; индекс MCFTR по доходности портфель обгоняет в <b>${ru(b.pBeat * 100, 0)}%</b>, а по глубине просадки оказывается мягче индекса в <b>${ru(b.pLowerDD * 100, 0)}%</b>.`,
+    frag > 60 ? 'Высокая хрупкость: результат сильно зависит от того, как «легли» месяцы — портфель чувствителен к неудачному стечению.' :
+      frag > 40 ? 'Умеренная хрупкость: разброс заметный, но управляемый.' : 'Низкая хрупкость: исходы кучные, портфель устойчив к перетасовке истории.',
+  ];
+
+  // Sharpe/просадка по трём сценариям (CAGR уже в картах)
   const perc = (lbl, arr, fmt) => `<tr><td class="left">${lbl}</td><td class="tnum">${fmt(arr[0])}</td><td class="tnum">${fmt(arr[1])}</td><td class="tnum">${fmt(arr[2])}</td></tr>`;
-  return `<div class="pfx-probs">
-    ${prob('Обойти MCFTR (доходность)', b.pBeat)}${prob('Меньшая просадка чем MCFTR', b.pLowerDD)}${prob('Отрицат. excess return', b.pNegExcess)}
-    <div class="pfx-prob pfx-${frag > 60 ? 'risk' : frag > 40 ? 'warn' : 'good'}"><span>Fragility score</span><b>${frag}/100</b></div>
+
+  return `<div class="pfx-boot">
+    <p class="pfx-boot-intro">Берём <b>реальные месячные доходности</b> вашего портфеля за ${ru(yrs, 1)} года и <b>${b.sims} раз</b> случайно пересобираем из них виртуальный год. Получается «веер» того, как мог бы сложиться год у бумаг с такой же природой. Это <b>не прогноз</b>, а карта разброса, который уже был в истории.</p>
+
+    ${scenRow}
+
+    <div class="pfx-boot-chartwrap"><div class="pfx-chart-wrap"><canvas id="pfx-boothist"></canvas></div>
+      <div class="pfx-boot-legend muted"><span class="pfx-boot-lg loss"></span>убыточные годы (слева от 0%) &nbsp; <span class="pfx-boot-lg gain"></span>прибыльные &nbsp; <span class="pfx-boot-lg med"></span>медиана. Высота столбца — сколько из ${b.sims} виртуальных лет попали в этот диапазон доходности.</div></div>
+
+    <div class="pfx-boot-strip">
+      <div class="pfx-boot-frag pfx-${fragTone}"><span class="pfx-boot-frag-lbl">Хрупкость портфеля <span class="pfx-help" data-tooltip="Насколько результат зависит от везения. Складывается из: как редко портфель обгоняет индекс, доли лет в минусе к нему, глубины типичной просадки, концентрации top-3 и месячного VaR. Выше — исход сильнее зависит от случая.">ⓘ</span></span><b>${frag}/100 · ${fragWord}</b></div>
+      <table class="pfx-tbl pfx-boot-tbl"><thead><tr><th class="left"></th><th>Неблагопр.</th><th>Типичный</th><th>Благопр.</th></tr></thead><tbody>
+        ${perc('Макс. просадка', b.mdd, PN)}${perc('Sharpe', b.sharpe, (x) => PU(x, 2))}
+      </tbody></table>
     </div>
-    <div class="pfx-2col"><div class="pfx-chart-wrap"><canvas id="pfx-boothist"></canvas></div>
-    <table class="pfx-tbl"><thead><tr><th class="left">Перцентиль (1 год)</th><th>P5</th><th>P50</th><th>P95</th></tr></thead><tbody>
-      ${perc('CAGR', b.cagr, PP)}${perc('Max Drawdown', b.mdd, PN)}${perc('Sharpe', b.sharpe, (x) => PU(x, 2))}
-    </tbody></table></div>
-    <div class="pfx-note muted">${b.sims} симуляций, resample месячных доходностей на 12 мес. Bootstrap — оценка устойчивости по истории, НЕ прогноз будущей доходности.</div>`;
+
+    <div class="pfx-boot-read">${readParts.map((t) => `<p>${t}</p>`).join('')}</div>
+
+    <div class="pfx-note muted">Метод: bootstrap-ресэмпл (${b.sims} симуляций × 12 мес) фактических месячных доходностей — оценка <b>устойчивости по истории</b>, не прогноз будущей доходности и не ИИР. «Год» здесь виртуальный: месяцы берутся из прошлого случайно, поэтому хвосты шире одного реального года.</div>
+  </div>`;
 }
 
 // ── модуль 8: Smart Rebalancer ───────────────────────────────────────────────
@@ -1945,16 +1978,37 @@ function pfxDrawCharts(c) {
         scales: { x: { ...AX, type: 'linear', title: { display: true, text: 'дюрация/срок, лет', color: '#5A6472' } },
           y: { ...AX, title: { display: true, text: 'доходность, % год.', color: '#5A6472' }, ticks: { ...AX.ticks, callback: (v) => v + '%' } } } } });
     }
-    // bootstrap histogram (excess returns)
-    if (c.boot && c.boot.ok) {
-      const ex = c.boot.excesses, bins = 24;
-      const lo = Math.min(...ex), hi = Math.max(...ex), w = (hi - lo) / bins || 1;
+    // bootstrap: распределение ГОДОВОЙ доходности портфеля (1000 виртуальных лет)
+    if (c.boot && c.boot.ok && c.boot.cagrs) {
+      const vals = c.boot.cagrs, bins = 26;
+      // диапазон обрезаем до 1–99 перцентиля, чтобы редкие хвосты не «размазывали» гистограмму
+      const lo = pfxPercentile(vals, 0.01), hi = pfxPercentile(vals, 0.99), w = (hi - lo) / bins || 1;
+      const med = c.boot.cagr[1];
       const counts = new Array(bins).fill(0);
-      ex.forEach((x) => { let b = Math.floor((x - lo) / w); if (b >= bins) b = bins - 1; if (b < 0) b = 0; counts[b]++; });
-      const labels = counts.map((_, i) => ((lo + (i + 0.5) * w) * 100).toFixed(0) + '%');
-      mk('pfx-boothist', { type: 'bar', data: { labels, datasets: [{ label: 'Excess return vs MCFTR (1 год)',
-        data: counts, backgroundColor: labels.map((l) => parseFloat(l) < 0 ? '#E2A48C' : '#A8D5C2') }] },
-        options: { ...base, plugins: { ...base.plugins, legend: { display: false } }, scales: { x: AX, y: AX } } });
+      vals.forEach((x) => { let k = Math.floor((Math.max(lo, Math.min(hi, x)) - lo) / w); if (k >= bins) k = bins - 1; if (k < 0) k = 0; counts[k]++; });
+      const centers = counts.map((_, i) => lo + (i + 0.5) * w);
+      const labels = centers.map((v) => (v * 100).toFixed(0) + '%');
+      const medIdx = Math.max(0, Math.min(bins - 1, Math.round((med - lo) / w - 0.5)));
+      const medLine = {   // пунктирная линия медианы поверх столбцов
+        id: 'bootMedian',
+        afterDatasetsDraw(chart) {
+          const xa = chart.scales.x, ya = chart.scales.y;
+          const px = xa.getPixelForValue(medIdx);
+          const g = chart.ctx; g.save();
+          g.strokeStyle = '#3A424E'; g.lineWidth = 1.5; g.setLineDash([5, 4]);
+          g.beginPath(); g.moveTo(px, ya.top); g.lineTo(px, ya.bottom); g.stroke();
+          g.setLineDash([]); g.fillStyle = '#3A424E'; g.font = '600 10px system-ui,sans-serif'; g.textAlign = 'center';
+          g.fillText('медиана ' + (med >= 0 ? '+' : '') + (med * 100).toFixed(0) + '%', px, ya.top + 10);
+          g.restore();
+        },
+      };
+      mk('pfx-boothist', { type: 'bar', data: { labels, datasets: [{ label: 'Виртуальных лет',
+        data: counts, backgroundColor: centers.map((v) => v < 0 ? '#E2A48C' : '#A8D5C2'), borderRadius: 2 }] },
+        options: { ...base, plugins: { ...base.plugins, legend: { display: false },
+          tooltip: { callbacks: { title: (i) => `≈ ${i[0].label} годовых`, label: (i) => `${i.parsed.y} из ${c.boot.sims} сценариев` } } },
+          scales: { x: { ...AX, title: { display: true, text: 'годовая доходность портфеля', color: '#5A6472' } },
+            y: { ...AX, title: { display: true, text: 'число сценариев', color: '#5A6472' } } } },
+        plugins: [medLine] });
     }
     // перерисовать при открытии свёрнутого модуля (иначе canvas 0-width)
     document.querySelectorAll('.pfx-mod').forEach((d) => {
@@ -5307,12 +5361,13 @@ function pfxBootstrap(port, bench, rfMonthly, sims) {
     if (cagrP > cagrB) beatRet++; if (ddP > ddB) lowerDD++; if (cagrP - cagrB < 0) negExc++;
   }
   const pct = (a, q) => pfxPercentile(a, q);
-  return { ok: true, sims, benchCagr,
+  const pLoss = cagrs.filter((x) => x < 0).length / sims;   // доля виртуальных лет с убытком
+  return { ok: true, sims, benchCagr, histMonths: n, pLoss,
     pBeat: beatRet / sims, pLowerDD: lowerDD / sims, pNegExcess: negExc / sims,
     cagr: [pct(cagrs, 0.05), pct(cagrs, 0.5), pct(cagrs, 0.95)],
     mdd: [pct(mdds, 0.05), pct(mdds, 0.5), pct(mdds, 0.95)],
     sharpe: [pct(sharpes, 0.05), pct(sharpes, 0.5), pct(sharpes, 0.95)],
-    excesses };
+    cagrs, excesses };
 }
 
 // ── data-quality по позиции и портфелю ───────────────────────────────────────
