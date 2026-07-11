@@ -2375,19 +2375,7 @@ function sawUIHTML(d) {
     <div class="saw-fresh muted">Обновлено: ${esc((d.generated_at || '').replace('T', ' ').slice(0, 16))} · Последняя торговая дата MCFTR: <b>${esc(sawDate(d.data_last))}</b></div>
     ${stale}
 
-    <div class="saw-card phase-${esc(cp.risk_level)}">
-      <div class="saw-phase-label">${esc(cp.label)}</div>
-      <div class="saw-phase-grid">
-        <div class="saw-metric"><span class="k">Последний экстремум</span><span class="v tnum">${esc(sawDate(cp.anchor_date))}</span><span class="k tnum">${ru(cp.anchor_price, 0)}</span></div>
-        <div class="saw-metric"><span class="k">Текущая цена MCFTR</span><span class="v tnum">${ru(cp.current_price, 0)}</span><span class="k tnum">${esc(sawDate(cp.current_date))}</span></div>
-        <div class="saw-metric"><span class="k">Движение от экстремума</span><span class="v tnum ${moveCls}">${sawPct(cp.move_pct)}</span></div>
-        <div class="saw-metric"><span class="k saw-help" data-tooltip="${esc(TT_FREQ)}">Историческая частота ⓘ</span><span class="v tnum">${probStr}</span></div>
-      </div>
-    </div>
-
     ${sawGaugeHTML(d)}
-
-    <div class="saw-interp">${esc(cp.explanation)}</div>
 
     <div class="saw-charts-row">
       <div class="saw-col saw-chart-col">
@@ -3050,14 +3038,14 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketInstruments(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
     renderMyPortfolio();
   }
   else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
-  else if (sec === 'news') { renderNews(true); }
+  else if (sec === 'news') { renderNews(true); if (MARKET_HISTORY) renderMarketInstruments(); else loadMarketHistory(() => renderMarketInstruments()); }
   else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
   else if (sec === 'cbr') {
     openDetails('cbr-timeseries');
@@ -3274,7 +3262,7 @@ function renderEventsToday() {
 
   // Сегодня
   if (!todays.length) {
-    html += `<div class="events-empty">На сегодня важных событий по доступным источникам не найдено.</div>`;
+    html += `<div class="events-empty">На сегодня подтверждённых корпоративных событий и дивидендных отсечек по данным MOEX не найдено. Дивидендные даты появляются здесь после официального объявления эмитентом и попадания в реестр MOEX; дивидендные <b>прогнозы</b> по всем бумагам — во вкладке «Акции».</div>`;
   } else {
     const top = todays.slice(0, 5), rest = todays.slice(5);
     html += `<div class="events-list">${top.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div>`;
@@ -3313,7 +3301,6 @@ function ensureKpiData() {
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
-  if (!MARKET_HISTORY) loadMarketHistory(() => renderMarketInstruments());
 }
 
 function kpiCard(label, value, cls, note) {
@@ -4859,7 +4846,12 @@ function newsShellHTML(d) {
     ? `<span class="news-stale">данные устарели${freshness.ageHours == null ? '' : ` · ${freshness.ageHours} ч`}</span>`
     : '';
   const back = d.external_backdrop ? `<div class="news-backdrop">${esc(d.external_backdrop)}</div>` : '';
-  const chips = (d.market_snapshot || []).map(newsChipHTML).join('');
+  // RF-инструменты с интерактивными графиками показываем в блоке «Графики рынка» ниже —
+  // из статичного снапшота их убираем, чтобы не дублировать (глобальные рынки остаются чипами)
+  const RF_INTERACTIVE = ['mcftr', 'imoex', 'rts', 'usd/rub', 'cny/rub'];
+  const chips = (d.market_snapshot || [])
+    .filter((s) => !RF_INTERACTIVE.includes(String(s.name || '').trim().toLowerCase()))
+    .map(newsChipHTML).join('');
   return `
     <div class="news-topbar">
       <div class="news-updated">Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}${stale}</div>

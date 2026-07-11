@@ -34,14 +34,7 @@
       <!-- ─────────── НОВОСТИ ─────────── -->
       <section class="app-section" data-section="news" hidden>
         <p class="section-intro">Утренний брифинг рынка РФ: рыночный снапшот, ночные и вчерашние новости, календарь на сегодня. Данные собираются автоматически и структурируются; это не индивидуальная инвестиционная рекомендация.</p>
-        <div class="news-body" id="news-body">
-          <div class="news-loading muted">Загрузка новостного блока…</div>
-        </div>
-      </section>
 
-      <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
-      <section class="app-section" data-section="market">
-        <p class="section-intro">Сводка рыночного режима по индексу полной доходности MCFTR, безрисковой ставке (RFR) и доступным рыночным данным. Это индикаторы контекста, а не прогноз.</p>
         <section class="market-instruments" aria-labelledby="market-instruments-title">
           <div class="market-instruments-head">
             <div>
@@ -54,24 +47,8 @@
           </div>
         </section>
 
-        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
-          <summary>Помощник фазы рынка <span class="muted">(где рынок относительно последнего экстремума MCFTR)</span></summary>
-          <div class="saw-body" id="saw-body">
-            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
-          </div>
-        </details>
-
-        <div class="market-pulse" id="market-pulse">
-          <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
-        </div>
-        <div class="kpi-grid" id="market-kpi"></div>
-        <div class="market-signals" id="market-signals">
-          <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
-        </div>
-
-        <!-- Сегодня важные события (ежедневный инвесторский блок, фильтр по МСК) -->
-        <div class="events-today" id="events-today">
-          <div class="pulse-loading muted">Загрузка событий на сегодня…</div>
+        <div class="news-body" id="news-body">
+          <div class="news-loading muted">Загрузка новостного блока…</div>
         </div>
 
         <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
@@ -106,6 +83,31 @@
             </footer>
           </div>
         </dialog>
+      </section>
+
+      <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
+      <section class="app-section" data-section="market">
+        <p class="section-intro">Сводка рыночного режима по индексу полной доходности MCFTR, безрисковой ставке (RFR) и доступным рыночным данным. Это индикаторы контекста, а не прогноз.</p>
+
+        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+          <summary>Помощник фазы рынка <span class="muted">(где рынок относительно последнего экстремума MCFTR)</span></summary>
+          <div class="saw-body" id="saw-body">
+            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
+          </div>
+        </details>
+
+        <div class="market-pulse" id="market-pulse">
+          <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
+        </div>
+        <div class="kpi-grid" id="market-kpi"></div>
+        <div class="market-signals" id="market-signals">
+          <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
+        </div>
+
+        <!-- Сегодня важные события (ежедневный инвесторский блок, фильтр по МСК) -->
+        <div class="events-today" id="events-today">
+          <div class="pulse-loading muted">Загрузка событий на сегодня…</div>
+        </div>
       </section>
 
       <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->
