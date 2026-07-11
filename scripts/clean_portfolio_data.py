@@ -146,16 +146,18 @@ def clean_returns() -> dict:
     clipped = 0
     for tk, pr in data.items():
         dv = div.get(tk) or []
-        anomaly = False
+        price_jump = False
         for i in range(len(pr)):
             d = dv[i] if i < len(dv) else None
-            # невозможный месячный дивиденд → клип к 0 (корректировка ряда)
+            # невозможный месячный дивиденд (до-сплитный дивиденд ÷ пост-сплитную цену и т.п.)
+            # → клип к 0. НЕ повод исключать бумагу: ценовой ряд цел, риск-метрики считаются по нему.
             if isinstance(d, (int, float)) and abs(d) > DIV_MONTH_ABSURD:
-                dv[i] = 0.0; clipped += 1; anomaly = True
-            tot = (pr[i] if isinstance(pr[i], (int, float)) else 0) + (dv[i] if i < len(dv) and isinstance(dv[i], (int, float)) else 0)
-            if abs(tot) > SERIES_JUMP:
-                anomaly = True
-        if anomaly:
+                dv[i] = 0.0; clipped += 1
+            # ТОЛЬКО ценовой разрыв (|месячный ценовой ретёрн| > порога) нельзя починить на уровне
+            # returns → помечаем needs_adjustment и исключаем из риск-метрик. Дивспайк сюда не входит.
+            if isinstance(pr[i], (int, float)) and abs(pr[i]) > SERIES_JUMP:
+                price_jump = True
+        if price_jump:
             status[tk] = "needs_adjustment"
     ret.setdefault("meta", {})["series_status"] = status
     with open(p, "w", encoding="utf-8") as f:
