@@ -31,7 +31,7 @@ jobs:
           python-version: "3.11"
 
       - name: Установка зависимостей financial data layer
-        run: python -m pip install --quiet pandas pyarrow pyyaml requests ta
+        run: python -m pip install --quiet pandas pyarrow pyyaml requests ta openpyxl
 
       - name: Резервное обновление новостей перед полным деплоем
         # Независимый второй триггер: если dedicated news cron задержан/пропущен,
@@ -114,6 +114,10 @@ jobs:
           python -m src.pipeline.fetch_reports --from-year 2024 --to-year 2026
           python -m src.pipeline.extract_financials --skip-ocr
           python -m src.pipeline.validate_financials
+          # миграция reconciled SmartLab-панели (коммитится) → processed parquet, чтобы unify собирал
+          # фундамент с актуальным годом (прибыль 2025 и т.п.), а не только из IFRS-отчётов.
+          # reconcile-краул SmartLab НЕ в CI (rate-limit) — панель обновляется отдельным прогоном и коммитится.
+          python -m src.pipeline.migrate_existing_smartlab_data || echo "[migrate] пропуск — нет reconciled панели"
           python -m src.pipeline.unify_financial_data
           python -m src.pipeline.build_site_data
 

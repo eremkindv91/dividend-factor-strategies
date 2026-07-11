@@ -47,7 +47,6 @@ site/data.json
 site/returns.json
 # кэш цен MOEX персистится через actions/cache
 model_output/prices_cache.json
-data/panels_final/panel_russia_final_smartlab.csv
 # marketsaw.json генерит CI (production/build_marketsaw.py) и деплоит update.yml — в репо не нужен
 site/marketsaw.json
 # marlamov.json генерит CI (scripts/build_forward_yield.py) и деплоит update.yml

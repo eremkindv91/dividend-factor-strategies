@@ -156,11 +156,15 @@ def reconcile(tickers, years=YEARS, tol=TOL, delay=1.0):
                 if pv is None:
                     if slf in RELIABLE and g["ok"]:
                         colok = col_overlap_ok(tk, slf, pcol, data, g["fx"])
-                        if colok is False:
-                            action = "skip(col_diverged)"
+                        newest = int(y) == max(int(yy) for yy in years)
+                        if colok is False and not newest:
+                            action = "skip(col_diverged)"   # расхождение по перехлёсту в истории — не трогаем
                         else:
                             df.loc[(df.ticker == tk) & (df.year == int(y)), pcol] = slv_mln
-                            action = "FILL" if colok else "FILL(no_overlap)"
+                            # colok True → FILL; None (нет перехлёста) → FILL(no_overlap);
+                            # False, но это НОВЫЙ год с ПУСТОЙ ячейкой → дозаливаем (источник пересмотрел
+                            # историю: restatement), помечаем флагом. Историю (≤ прошлого года) НЕ трогаем.
+                            action = "FILL" if colok else ("FILL(no_overlap)" if colok is None else "FILL(diverged_new_year_flagged)")
                             n_fill += 1
                     elif slf in RELIABLE:
                         action = f"skip(unit:cur={g['cur'] or '?'},med={g['med']})"
