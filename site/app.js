@@ -3872,8 +3872,10 @@ function updateDataStatus() {
   const cls = { fresh: 'ds-fresh', stale: 'ds-stale', fallback: 'ds-fallback', broken: 'ds-broken' };
   const item = (lbl, v, key) => {
     const b = st[key]; const c = b ? (cls[b.status] || '') : '';
-    // подсказка — человеческий текст статуса (без внутренних терминов), не тех-код
-    const tip = b ? `${b.title}: ${b.user_message || b.title}` : '';
+    // подсказка: дата ДАННЫХ (user_message) + отдельно время пересборки сервиса (generated_at) —
+    // два разных понятия, не смешиваем в одной дате
+    const gen = b && b.generated_at ? d10(b.generated_at) : null;
+    const tip = b ? `${b.title}: ${b.user_message || b.title}${gen ? ' · сервис обновлён ' + gen : ''}` : '';
     return `<span class="ds-item ${c}"${tip ? ` title="${esc(tip)}"` : ''}><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
   };
   const price = DATA && DATA.meta ? d10(DATA.meta.price_asof) : null;

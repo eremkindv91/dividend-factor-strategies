@@ -44,9 +44,9 @@ GRACE = timedelta(hours=2)   # запас на исполнение пайпла
 BLOCKS = [
     ("market", "Цены и мультипликаторы", "data.json", ["meta.price_asof", "meta.generated_at"], "market", None),
     ("marketsaw", "Фаза рынка (MCFTR)", "marketsaw.json", ["data_last", "generated_at"], "market", None),
-    ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["generated_at"], "market", None),
+    ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["data_asof", "generated_at"], "market", None),
     ("returns", "История доходностей", "returns.json", ["meta.asof"], "periodic", 45),
-    ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.updated", "meta.asof", "meta.generated_at"], "market", None),
+    ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.source_as_of", "meta.updated", "meta.asof"], "market", None),
     ("bonds", "Облигации", "bonds/screener.json", ["meta.data_date", "meta.updated", "meta.generated_at"], "market", None),
     ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], "market", None),
     ("news", "Новости", "news.json", ["generated_at", "date"], "news", None),
@@ -196,21 +196,36 @@ def overall_message(fine: str) -> str:
     }.get(fine, "данные актуальны")
 
 
+# поля времени ГЕНЕРАЦИИ файла (когда пересобрано) — отдельно от даты данных (source_as_of)
+GEN_FIELDS = ["meta.generated_at", "generated_at", "meta.updated", "meta.обновлено", "meta.checked_at"]
+
+
+def _first(obj, fields):
+    for f in fields:
+        v = dig(obj, f)
+        if v:
+            return v
+    return None
+
+
 def classify_block(cfg, obj, is_fallback: bool, now_utc: datetime) -> dict:
     key, title, fname, date_fields, src_type, param = cfg
     now_msk = tc.to_msk(now_utc)
 
     if obj is None or obj == "broken":
-        fine = "unavailable"
-        return _pack(key, title, src_type, fine, None, None, None, is_fallback, now_msk)
+        return _pack(key, title, src_type, "unavailable", None, None, None, is_fallback, now_msk, False)
 
-    asof_raw = None
-    for f in date_fields:
-        v = dig(obj, f)
-        if v:
-            asof_raw = v
-            break
+    asof_raw = _first(obj, date_fields)                  # ДАТА ДАННЫХ (не время экспорта)
+    gen_raw = _first(obj, GEN_FIELDS)                     # время генерации файла — метаданные, отдельно
     asof_date, asof_dt = tc.parse_asof(asof_raw)
+
+    # Отбраковка невалидной даты данных: будущая дата (позже сегодняшней МСК) невозможна для
+    # фактического наблюдения → не выдаём за подтверждённую; НЕ подставляем текущую дату.
+    unverified = False
+    if asof_date is not None and asof_date > now_msk.date():
+        unverified, asof_date, asof_dt, asof_raw = True, None, None, None
+    if asof_raw is None and not is_fallback:
+        unverified = True                                # источник без даты → «дата не подтверждена»
 
     if is_fallback:
         fine = "fallback"
@@ -222,10 +237,12 @@ def classify_block(cfg, obj, is_fallback: bool, now_utc: datetime) -> dict:
     else:  # periodic
         fine = classify_periodic(asof_raw, now_utc, float(param))
 
-    return _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk)
+    return _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk,
+                 unverified, gen_raw)
 
 
-def _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk) -> dict:
+def _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk,
+          unverified=False, gen_raw=None) -> dict:
     coarse = COARSE.get(fine, "stale")
     age = age_days(asof_raw) if asof_raw else None
     session_date = tc.last_completed_session(now_msk).isoformat() if src_type == "market" else None
@@ -235,19 +252,23 @@ def _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback,
         nxt = tc.next_weekday_slot(now_msk, NEWS_SLOTS)
     else:
         nxt = None
+    # источник без подтверждённой даты данных → честное сообщение, не подставляем дату
+    msg = ("Дата исходных данных не подтверждена" if (unverified and fine != "unavailable")
+           else user_message(fine, asof_date, src_type))
+    gen19 = str(gen_raw)[:19] if gen_raw else None
     return {
         "title": title,
         "status": coarse,                                    # back-compat (CSS/overall/smoke)
         "freshness_status": fine,
         "fallback_status": "fallback" if is_fallback else "none",
-        "asof": str(asof_raw)[:19] if asof_raw else None,    # back-compat
+        "asof": asof_date.isoformat() if asof_date else None,   # back-compat: дата ДАННЫХ
         "source_as_of": asof_date.isoformat() if asof_date else None,
-        "generated_at": str(asof_raw)[:19] if asof_raw else None,
-        "last_success_at": str(asof_raw)[:19] if asof_raw else None,
+        "generated_at": gen19,                               # время пересборки файла (метаданные)
+        "last_success_at": gen19,
         "market_session_date": session_date,
         "expected_next_update": nxt.isoformat() if nxt else None,
         "age_days": round(age, 1) if age is not None else None,
-        "user_message": user_message(fine, asof_date, src_type),
+        "user_message": msg,
         "note": "",
     }
 

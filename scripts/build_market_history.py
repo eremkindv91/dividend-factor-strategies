@@ -223,9 +223,14 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
     ids = {row["id"] for row in instruments}
     if not {"MCFTR", "IMOEX", "RTSI"}.issubset(ids):
         raise RuntimeError("core MOEX index history is incomplete")
+    # source_as_of = фактическая последняя дата ряда (max TRADEDATE по инструментам),
+    # НЕ время экспорта JSON. Read-слой (build_site_status) читает именно это поле.
+    data_dates = [str(row.get("data_last")) for row in instruments if row.get("data_last")]
+    data_asof = max(data_dates) if data_dates else None
     return {
         "schema": SCHEMA,
         "generated_at": checked_at,
+        "data_asof": data_asof,
         "source": "MOEX ISS official daily history",
         "history_from": from_date,
         "methodology": "SMA and RSI use the ta library; ranges are observed rolling OHLC extrema; volatility is 20-session close-to-close standard deviation annualized by sqrt(252).",

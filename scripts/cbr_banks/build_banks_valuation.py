@@ -30,7 +30,26 @@ from datetime import date, datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "scripts"))
 from cbr_soap import data102f, data123, data135, get_dates_for_form  # noqa: E402
+try:
+    import trading_calendar as _tc  # торговый календарь MOEX
+except Exception:  # noqa: BLE001
+    _tc = None
+
+
+def _moex_price_date(systime, prevdate):
+    """Честная дата котировки банка: сегодня — только в торговый день после закрытия; иначе PREVDATE.
+    Не выдаём дату CI-прогона (SYSTIME в выходной) за дату наблюдения цены."""
+    if systime:
+        try:
+            dt = datetime.strptime(str(systime)[:19], "%Y-%m-%d %H:%M:%S")
+            is_td = _tc.is_trading_day(dt.date()) if _tc is not None else dt.weekday() < 5
+            if is_td and dt.hour >= 19:
+                return dt.date().isoformat()
+        except (ValueError, TypeError):
+            pass
+    return str(prevdate)[:10] if prevdate else None
 
 REPO = os.path.dirname(os.path.dirname(HERE))
 OUT = os.path.join(REPO, "site", "cbr", "valuation.json")
@@ -84,7 +103,7 @@ def fetch_share(secid: str) -> dict | None:
         mcap = float(price) * float(s["ISSUESIZE"])
     return {"price": price, "mcap": mcap,
             "issue_size": s.get("ISSUESIZE"), "shortname": s.get("SHORTNAME"),
-            "asof": m.get("SYSTIME") or s.get("PREVDATE")}
+            "asof": _moex_price_date(m.get("SYSTIME"), s.get("PREVDATE"))}
 
 
 def fetch_dividends(secid: str) -> list[dict]:

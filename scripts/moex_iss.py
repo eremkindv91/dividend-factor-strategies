@@ -27,6 +27,16 @@ import urllib.request
 from datetime import date, datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import trading_calendar as _tc  # торговый календарь MOEX (выходной ≠ торговая сессия)
+except Exception:  # noqa: BLE001 — деградация к простой проверке будня
+    _tc = None
+
+
+def _is_trading_day(d: date) -> bool:
+    return _tc.is_trading_day(d) if _tc is not None else d.weekday() < 5
+
 ISS_BOARD_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
     "?iss.meta=off&iss.only=securities,marketdata"
@@ -108,6 +118,11 @@ def _session_close_date(systime: Optional[str]) -> Optional[str]:
     try:
         dt = datetime.strptime(systime, "%Y-%m-%d %H:%M:%S")
     except (ValueError, TypeError):
+        return None
+    # «сегодняшний close» существует ТОЛЬКО в торговый день после закрытия сессии.
+    # В выходной/праздник SYSTIME=сейчас, но сессии не было → дата close отсутствует
+    # (цена = PREVPRICE за последний торговый день, см. _price_asof).
+    if not _is_trading_day(dt.date()):
         return None
     return dt.date().isoformat() if dt.hour >= 19 else None
 

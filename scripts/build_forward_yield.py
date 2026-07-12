@@ -119,7 +119,9 @@ def load_universe() -> dict:
             "name": t.get("name"), "sector": t.get("sector"), "status": t.get("status"),
             "mcap": t.get("mcap") or 0, "yield_expected": t.get("dividend_yield_expected"),
         }
-    return out, d["meta"].get("rf_ofz")
+    # price_asof наследуется в meta.source_as_of: forward-доходность — DERIVED-аналитика,
+    # её фактическая дата = дата цен входа (data.json), а не время пересчёта модели.
+    return out, d["meta"].get("rf_ofz"), d["meta"].get("price_asof")
 
 
 def ensure_forecasts(uni: dict) -> dict:
@@ -220,7 +222,7 @@ def main() -> int:
     if not os.path.exists(DATA_JSON):
         sys.stderr.write("[fwd] СТОП: нет site/data.json — сначала build_data.py\n")
         return 1
-    uni, rf_ofz = load_universe()
+    uni, rf_ofz, price_asof = load_universe()
     fc = ensure_forecasts(uni)
     rfr = rfr_1y()
     if rfr is None:
@@ -238,6 +240,7 @@ def main() -> int:
     payload = {
         "meta": {
             "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "source_as_of": price_asof,                 # дата цен входа (data.json), не время пересчёта
             "rfr": round(rfr, 4), "net_tax": NET,
             "regime": macro["regime"], "imoex": macro["imoex"], "sma200": macro["sma200"],
             "n": len(rws), "n_with_div2": n_div2,
