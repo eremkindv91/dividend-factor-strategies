@@ -91,3 +91,5 @@ news/artifacts/
 
 # Daily Market Data Foundation: дневные OHLCV parquet генерятся в CI (большие) — в репо не нужны
 data/daily/
+# Daily Market Data quality artifact — генерит CI, публикует в gh-pages
+site/daily_market_data_quality.json

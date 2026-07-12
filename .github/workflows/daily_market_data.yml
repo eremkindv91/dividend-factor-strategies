@@ -1,0 +1,78 @@
+name: daily-market-data (дневной OHLCV foundation + quality artifact)
+
+# Daily Market Data Foundation (Фазы 2-4): инкрементальный дневной OHLCV по security master →
+# parquet-хранилище (кэшируется между ранами) → quality/coverage artifact → additive-публикация
+# site/daily_market_data_quality.json в gh-pages. НЕ трогает остальной сайт, НЕ считает риск.
+on:
+  schedule:
+    - cron: "30 20 * * *"     # ежедневно ~23:30 МСК, после закрытия (MOEX торгует и в выходные)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish       # общая с update.yml/bonds — сериализует записи в gh-pages
+  cancel-in-progress: false
+
+jobs:
+  daily-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Установка зависимостей
+        run: python -m pip install --quiet pandas pyarrow requests
+
+      # инкрементальное parquet-хранилище дневных рядов между ранами (первый ран — полная история)
+      - uses: actions/cache@v4
+        with:
+          path: data/daily
+          key: daily-ohlcv-${{ github.run_id }}
+          restore-keys: |
+            daily-ohlcv-
+
+      - name: Инкрементальный ingestion дневного OHLCV (security master из репо)
+        # security master уже закоммичен (data/security_master.json) → сеть на него не нужна.
+        run: python scripts/daily_ingest.py --years 8 || echo "[daily] частичный ingestion — last-good сохранён"
+
+      - name: Quality + coverage artifact
+        run: python scripts/build_daily_quality.py
+
+      - name: Валидация артефакта качества
+        run: |
+          python - <<'PY'
+          import json, sys
+          sys.path.insert(0, "scripts")
+          import build_daily_quality as b
+          errs = b.validate(json.load(open("site/daily_market_data_quality.json", encoding="utf-8")))
+          if errs:
+              sys.stderr.write("невалидный quality artifact: " + "; ".join(errs[:20]) + "\n")
+              sys.exit(1)
+          print("[daily-quality] артефакт валиден")
+          PY
+
+      - name: Публикация daily_market_data_quality.json → gh-pages (additive)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[daily] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
+          fi
+          cp site/daily_market_data_quality.json "$TMP/"
+          if [ -z "$(git -C "$TMP" status --porcelain -- daily_market_data_quality.json)" ]; then
+            echo "[daily] без изменений артефакта"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" add daily_market_data_quality.json
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "deploy: daily market data quality artifact (cron)"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"
