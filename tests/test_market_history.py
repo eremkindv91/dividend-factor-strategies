@@ -44,6 +44,10 @@ def test_market_drilldown_is_built_and_deployed_daily():
 
     assert "market_history.json?t=" in app
     assert "addCandlestickSeries" in app
+    assert "addAreaSeries" in app
+    assert "marketUsesCloseLine" in app
+    assert "axisLabelVisible: false" in app
+    assert 'id="market-chart-mode"' in html
     assert "market-chart-dialog" in html
     assert "python scripts/build_market_history.py" in update
     assert "site/market_history.json" in update

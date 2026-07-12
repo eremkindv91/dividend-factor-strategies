@@ -62,11 +62,14 @@
             </header>
             <div class="market-chart-tabs" id="market-chart-tabs" aria-label="Инструмент"></div>
             <div class="market-chart-toolbar">
-              <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
-                <button type="button" data-period="63">3М</button>
-                <button type="button" data-period="252" class="active">1Г</button>
-                <button type="button" data-period="756">3Г</button>
-                <button type="button" data-period="1260">5Л</button>
+              <div class="market-chart-view">
+                <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
+                  <button type="button" data-period="63">3М</button>
+                  <button type="button" data-period="252" class="active">1Г</button>
+                  <button type="button" data-period="756">3Г</button>
+                  <button type="button" data-period="1260">5Л</button>
+                </div>
+                <span class="market-chart-mode" id="market-chart-mode">Свечи OHLC</span>
               </div>
               <div class="market-overlays" id="market-chart-overlays">
                 <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
@@ -196,6 +199,7 @@
               <label>Стратегия<select id="pf-method">
                 <option value="quality">Quality (Barra, 3-дескр)</option>
                 <option value="momentum" disabled>Momentum (скоро)</option>
+                <option value="marlamov">Дивидендная переоценка (Марламов)</option>
                 <option value="optmv">Оптимум: мин. риск</option>
                 <option value="optms">Оптимум: макс-Шарп (quality-тилт)</option>
                 <option value="optrp">Оптимум: risk-parity</option>

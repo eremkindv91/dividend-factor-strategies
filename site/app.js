@@ -714,6 +714,7 @@ const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — от�
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
   quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
   momentum: { label: 'Momentum (WML 12-1, ТОЛЬКО ЛОНГ top-N) · бэктест ВКР 2012–2025: +2,2%/год избыточной доходности над рынком (t≈0,3 — статистически незначима); единственный фактор, исторически работавший на РФ, но слабо. Ребаланс месячный.' },
+  marlamov: { label: 'Дивидендная переоценка · текущий рейтинг по gross форвардной доходности к RFR; исторические метрики ниже рассчитаны отдельно на лагированном Top-10 baseline' },
   optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
   optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
@@ -722,6 +723,7 @@ const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста 
 const REBALANCE = {            // рекомендуемая частота ребаланса по стратегии
   quality: 'годовой (после годовых отчётов, как в ВКР — май)',
   momentum: 'месячный (фактор быстро затухает)',
+  marlamov: 'ежемесячная проверка сигнала; research backtest ребалансируется ежегодно в мае',
   optmv: 'квартальный (ковариация медленная)', optms: 'квартальный (ковариация медленная)',
   optrp: 'квартальный (ковариация медленная)', optiv: 'квартальный (ковариация медленная)',
 };
@@ -737,6 +739,28 @@ function eligibleForPortfolio(t) {
   if (isNum(t.mcap) && t.mcap < PF_MIN_MCAP) return false;   // ND по mcap не отсекаем
   if (isNum(t.adv) && t.adv < PF_MIN_ADV) return false;      // нетендерные — вон (ND по adv не отсекаем)
   return true;
+}
+
+function marlamovPortfolioCandidates() {
+  if (!MARLAMOV || !Array.isArray(MARLAMOV.rows) || !DATA) return [];
+  const universe = new Map(DATA.tickers.map((ticker) => [ticker.ticker, ticker]));
+  const rfr = MARLAMOV.meta && isNum(MARLAMOV.meta.rfr) ? MARLAMOV.meta.rfr : null;
+  return MARLAMOV.rows.map((row) => {
+    const ticker = universe.get(row.ticker);
+    if (!ticker || !eligibleForPortfolio(ticker)) return null;
+    const grossYield = isNum(row.gross_yield1)
+      ? row.gross_yield1
+      : (isNum(row.div1) && isNum(row.price) && row.price > 0 ? row.div1 / row.price : null);
+    const grossSpread = isNum(row.gross_spread)
+      ? row.gross_spread
+      : (grossYield != null && rfr != null ? grossYield - rfr : null);
+    if (grossSpread == null) return null;
+    return {
+      t: ticker,
+      score: grossSpread,
+      strategy: { ...row, gross_yield1: grossYield, gross_spread: grossSpread },
+    };
+  }).filter(Boolean);
 }
 
 // проекция весов под лимиты. Секторный кап — best-effort (итеративно), затем
@@ -777,7 +801,9 @@ function buildPortfolio(method, opts) {
   if (method.startsWith('opt')) return buildOptimized(method, opts);
   const uni = DATA.tickers.filter(eligibleForPortfolio);
   const scoreFn = method === 'momentum' ? ((t) => (isNum(t.mom_score) ? t.mom_score : null)) : qualityScore;
-  const scored = uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
+  const scored = method === 'marlamov'
+    ? marlamovPortfolioCandidates()
+    : uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
   if (scored.length < 3) return null;
   scored.sort((a, b) => b.score - a.score);
   const top = scored.slice(0, opts.n);
@@ -789,7 +815,7 @@ function buildPortfolio(method, opts) {
     if (opts.weight === 'score') w = (x.score - smin) + 0.15 * srange;   // ∝ фактору (сдвиг в плюс; низший ~15% шага, не ноль)
     else if (opts.weight === 'mcap') w = isNum(x.t.mcap) ? x.t.mcap : 1;
     else if (opts.weight === 'invvol') w = 1 / (isNum(x.t.vol_ann) && x.t.vol_ann > 0 ? x.t.vol_ann : medVol);
-    return { ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score, w };
+    return { ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t, score: x.score, strategy: x.strategy || null, w };
   });
   const tot0 = items.reduce((s, it) => s + it.w, 0) || 1;
   items.forEach((it) => { it.w /= tot0; });
@@ -989,12 +1015,77 @@ function riskPanelHTML(risk) {
   </div>`;
 }
 
+function marlamovBacktestHTML(backtest) {
+  if (!backtest || !backtest.metrics) {
+    const reason = backtest && backtest.reason ? backtest.reason : 'Исторический baseline пока недоступен.';
+    return `<div class="pf-backtest pf-backtest-unavailable"><b>Бэктест стратегии не показан</b><span>${esc(reason)}</span></div>`;
+  }
+  const metrics = backtest.metrics;
+  const benchmark = backtest.benchmark || {};
+  const period = backtest.period || {};
+  const pct = (value, digits = 1, signed = false) => isNum(value)
+    ? `${signed && value > 0 ? '+' : ''}${ru(value * 100, digits)}%`
+    : '—';
+  const num = (value, digits = 2) => isNum(value) ? ru(value, digits) : '—';
+  const metric = (label, value, tone = '') => `<div class="pf-backtest-cell"><span>${esc(label)}</span><b class="${tone}">${esc(value)}</b></div>`;
+  const curve = (backtest.series || []).map((row) => row.strategy).filter(isNum);
+  const firstLimitation = (backtest.limitations || [])[0] || '';
+  const methodology = backtest.methodology || {};
+  return `<div class="pf-backtest">
+    <div class="pf-backtest-head">
+      <div><b>Исторический research backtest</b><span>${esc(period.start || '—')} — ${esc(period.end || '—')} · ${metrics.months || 0} мес.</span></div>
+      <span class="pf-backtest-state">лагированные данные · не point-in-time</span>
+    </div>
+    <div class="pf-backtest-grid">
+      ${metric('CAGR', pct(metrics.cagr), metrics.cagr >= 0 ? 'g' : 'r')}
+      ${metric('MCFTR CAGR', pct(benchmark.cagr))}
+      ${metric('К RFR', pct(metrics.excess_return_vs_rfr, 1, true), metrics.excess_return_vs_rfr >= 0 ? 'g' : 'r')}
+      ${metric('К MCFTR', pct(metrics.excess_return_vs_mcftr, 1, true), metrics.excess_return_vs_mcftr >= 0 ? 'g' : 'r')}
+      ${metric('Волатильность', pct(metrics.volatility))}
+      ${metric('Sharpe', num(metrics.sharpe))}
+      ${metric('Sortino', num(metrics.sortino))}
+      ${metric('Max drawdown', pct(metrics.max_drawdown), 'r')}
+      ${metric('Calmar', num(metrics.calmar))}
+      ${metric('Alpha к MCFTR', pct(metrics.alpha_vs_mcftr, 1, true))}
+      ${metric('Beta к MCFTR', num(metrics.beta_vs_mcftr))}
+      ${metric('Downside capture', pct(metrics.downside_capture))}
+      ${metric('Hit rate', pct(metrics.hit_rate))}
+      ${metric('Profit factor', num(metrics.profit_factor))}
+      ${metric('Средний turnover', pct(metrics.average_turnover))}
+      ${metric('Ребалансов', String(metrics.rebalances || 0))}
+    </div>
+    ${curve.length ? `<div class="pf-backtest-curve">${areaSpark(curve, CH.teal, 'marlamov-backtest')}</div>` : ''}
+    <div class="pf-backtest-method">${esc(methodology.selection || '')} · ${esc(methodology.weighting || '')} · ${esc(methodology.rebalance || '')}.</div>
+    <div class="pf-backtest-note">${esc(firstLimitation)}</div>
+  </div>`;
+}
+
+function marlamovEntryGateHTML(items, backtest) {
+  const parameters = backtest && backtest.parameters ? backtest.parameters : {};
+  const thresholdPct = isNum(parameters.entry_spread_pct) ? parameters.entry_spread_pct : 3;
+  const threshold = thresholdPct / 100;
+  const passed = items.filter((item) => item.strategy && isNum(item.strategy.gross_spread) && item.strategy.gross_spread >= threshold).length;
+  const tone = passed > 0 ? 'good' : 'risk';
+  const conclusion = passed > 0
+    ? `${passed} из ${items.length} проходят порог; состав ниже остаётся сравнительным рейтингом.`
+    : `0 из ${items.length} проходят порог; состав ниже — сравнительный рейтинг, а не сигнал ADD.`;
+  return `<div class="pf-entry-gate ${tone}"><b>Текущий фильтр входа</b><span>Spread ≥ +${ru(thresholdPct, 1)} п.п. · ${esc(conclusion)}</span></div>`;
+}
+
 function renderPortfolio() {
   const out = document.getElementById('pf-out');
   if (!out) return;
   syncWeightControl();                               // синхронизируем доступность «Взвешивания»
   if (!PF_RETURNS) loadReturns(renderPortfolio);     // подгрузим историю и перерисуем с риск-метриками
   const method = document.getElementById('pf-method').value;
+  if (method === 'marlamov' && !MARLAMOV) {
+    out.innerHTML = '<p class="muted" style="padding:8px">Загрузка форвардного сигнала и бэктеста…</p>';
+    loadMarlamov((err) => {
+      if (err) out.innerHTML = '<p class="muted" style="padding:8px">Форвардный слой временно недоступен.</p>';
+      else renderPortfolio();
+    });
+    return;
+  }
   const opts = {
     n: +document.getElementById('pf-n').value,
     weight: document.getElementById('pf-weight').value,
@@ -1017,15 +1108,20 @@ function renderPortfolio() {
   const m = portfolioMetrics(items, capital);
   const risk = portfolioRisk(items, m.grossY);
   const bt = FACTOR_BACKTEST[method];
+  const strategyBacktest = method === 'marlamov' && MARLAMOV ? MARLAMOV.backtest : null;
   const rows = items.map((it, i) => {
     const alloc = capital ? capital * it.w : null;
     const y = isNum(it.t.dividend_yield_expected) ? it.t.dividend_yield_expected : it.t.dividend_yield_if_paid;
     const inc = (alloc && isNum(y)) ? alloc * y / 100 * NET_OF_TAX : null;
+    const strategyCells = method === 'marlamov'
+      ? `<td class="tnum">${it.strategy && isNum(it.strategy.gross_yield1) ? ru(it.strategy.gross_yield1 * 100, 1) + '%' : mdash}</td>
+        <td class="tnum ${it.strategy && isNum(it.strategy.gross_spread) ? (it.strategy.gross_spread >= 0 ? 'pf-spread-up' : 'pf-spread-down') : ''}">${it.strategy && isNum(it.strategy.gross_spread) ? `${it.strategy.gross_spread >= 0 ? '+' : ''}${ru(it.strategy.gross_spread * 100, 1)} п.п.` : mdash}</td>`
+      : `<td class="left">${verdictChip(it.t.verdict, false)}</td>`;
     return `<tr><td class="left">${i + 1}</td><td class="left"><b>${esc(it.ticker)}</b> <span class="muted">${esc(it.sector)}</span></td>
       <td class="tnum">${ru(it.w * 100, 1)}%</td>
       <td class="tnum">${alloc != null ? fmtRub(Math.round(alloc)) : mdash}</td>
       <td class="tnum">${inc != null ? fmtRub(Math.round(inc)) : mdash}</td>
-      <td class="left">${verdictChip(it.t.verdict, false)}</td></tr>`;
+      ${strategyCells}</tr>`;
   }).join('');
   const secBars = m.sectors.map(([s, w]) =>
     `<div class="pf-secrow"><span>${esc(s)}</span><span class="pf-secbar"><i style="width:${(w * 100).toFixed(0)}%"></i></span><span class="tnum">${ru(w * 100, 0)}%</span></div>`).join('');
@@ -1036,9 +1132,11 @@ function renderPortfolio() {
       <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
     </div>
     ${bt ? `<div class="pf-bt muted">📈 ${esc(bt.label)}</div>` : ''}
+    ${method === 'marlamov' ? marlamovEntryGateHTML(items, strategyBacktest) : ''}
+    ${method === 'marlamov' ? marlamovBacktestHTML(strategyBacktest) : ''}
     ${REBALANCE[method] ? `<div class="pf-reb muted">🔁 Рекомендуемый ребаланс: <b>${esc(REBALANCE[method])}</b></div>` : ''}
     ${riskPanelHTML(risk)}
-    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th><th class="left">Вердикт</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th>${method === 'marlamov' ? '<th>Fwd yield gross</th><th>Спред к RFR</th>' : '<th class="left">Вердикт</th>'}</tr></thead><tbody>${rows}</tbody></table>
       <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>
       <div class="pf-sectors"><h4>Секторная концентрация</h4>${secBars}</div></div>`;
   document.getElementById('pf-csv').addEventListener('click', exportPortfolioCSV);
@@ -2151,7 +2249,11 @@ function wirePortfolio() {
   document.getElementById('pf-gen').addEventListener('click', renderPortfolio);
   ['pf-method', 'pf-n', 'pf-weight', 'pf-cap', 'pf-seccap', 'pf-capital'].forEach((id) => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', () => { syncWeightControl(); if (document.getElementById('pf-out').dataset.shown) renderPortfolio(); });
+    if (el) el.addEventListener('change', () => {
+      if (id === 'pf-method' && el.value === 'marlamov') document.getElementById('pf-n').value = '10';
+      syncWeightControl();
+      if (document.getElementById('pf-out').dataset.shown) renderPortfolio();
+    });
   });
   pf.addEventListener('toggle', function () {
     if (this.open && !document.getElementById('pf-out').dataset.shown) {
@@ -3485,9 +3587,25 @@ function marketChartRows(item) {
   return (item.series || []).slice(-count);
 }
 
-function marketOhlcHTML(item, row) {
+function marketUsesCloseLine(item, rows) {
+  const sample = (rows && rows.length ? rows : (item.series || [])).slice(-260);
+  if (!sample.length) return false;
+  const flat = sample.filter((row) => {
+    if (!isNum(row[1]) || !isNum(row[2]) || !isNum(row[3]) || !isNum(row[4])) return false;
+    const tolerance = Math.max(1e-8, Math.abs(row[4]) * 1e-8);
+    return Math.abs(row[1] - row[4]) <= tolerance
+      && Math.abs(row[2] - row[4]) <= tolerance
+      && Math.abs(row[3] - row[4]) <= tolerance;
+  }).length;
+  return flat / sample.length >= 0.8;
+}
+
+function marketOhlcHTML(item, row, closeOnly = false) {
   if (!row) return '';
   const fmt = (value) => marketNumber(value, item.decimals);
+  if (closeOnly) {
+    return `<b>${esc(sawDate(row[0]))}</b><span>Закрытие <strong>${fmt(row[4])}</strong></span><span class="market-chart-row-note">индексный ряд без внутридневного OHLC</span>`;
+  }
   return `<b>${esc(sawDate(row[0]))}</b><span>O ${fmt(row[1])}</span><span>H ${fmt(row[2])}</span><span>L ${fmt(row[3])}</span><span>C ${fmt(row[4])}</span>`;
 }
 
@@ -3498,42 +3616,62 @@ function drawMarketChart(item) {
   element.innerHTML = '';
   const LC = window.LightweightCharts;
   const rows = marketChartRows(item);
+  const closeOnly = marketUsesCloseLine(item, rows);
   MARKET_CHART = LC.createChart(element, {
     autoSize: true,
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
-    grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
-    rightPriceScale: { borderColor: '#E6E9F0', scaleMargins: { top: 0.08, bottom: 0.08 } },
-    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 5 },
-    crosshair: { mode: LC.CrosshairMode.Normal },
+    localization: { locale: 'ru-RU', priceFormatter: (value) => marketNumber(value, item.decimals) },
+    grid: { vertLines: { color: '#E9EDF3' }, horzLines: { color: '#E9EDF3' } },
+    rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.08 } },
+    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 3, minBarSpacing: 3 },
+    crosshair: {
+      mode: LC.CrosshairMode.Normal,
+      vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
+      horzLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
+    },
   });
-  const candles = MARKET_CHART.addCandlestickSeries({
-    upColor: '#1E6F4C', downColor: '#A2452C', borderVisible: false,
-    wickUpColor: '#1E6F4C', wickDownColor: '#A2452C', priceLineVisible: true,
-  });
-  candles.setData(rows.map((row) => ({ time: row[0], open: row[1], high: row[2], low: row[3], close: row[4] })));
+  let primary;
+  if (closeOnly) {
+    primary = MARKET_CHART.addAreaSeries({
+      lineColor: '#147A5A', lineWidth: 3,
+      topColor: 'rgba(20, 122, 90, 0.22)', bottomColor: 'rgba(20, 122, 90, 0.02)',
+      priceLineVisible: true, priceLineColor: '#147A5A',
+      crosshairMarkerVisible: true, crosshairMarkerRadius: 4,
+    });
+    primary.setData(rows.map((row) => ({ time: row[0], value: row[4] })));
+  } else {
+    primary = MARKET_CHART.addCandlestickSeries({
+      upColor: '#16805E', downColor: '#B34A32',
+      borderVisible: true, borderUpColor: '#116B4F', borderDownColor: '#963923',
+      wickUpColor: '#116B4F', wickDownColor: '#963923', priceLineVisible: true,
+    });
+    primary.setData(rows.map((row) => ({ time: row[0], open: row[1], high: row[2], low: row[3], close: row[4] })));
+  }
   const enabled = new Set(Array.from(document.querySelectorAll('#market-chart-overlays input:checked')).map((input) => input.value));
   const overlays = [
     ['sma20', 5, '#176B87'], ['sma50', 6, '#C58A14'], ['sma200', 7, '#59616E'],
   ];
   overlays.forEach(([key, index, color]) => {
     if (!enabled.has(key)) return;
-    const line = MARKET_CHART.addLineSeries({ color, lineWidth: key === 'sma200' ? 2 : 1, priceLineVisible: false, lastValueVisible: false });
+    const line = MARKET_CHART.addLineSeries({ color, lineWidth: key === 'sma200' ? 3 : 2, priceLineVisible: false, lastValueVisible: false });
     line.setData(rows.filter((row) => isNum(row[index])).map((row) => ({ time: row[0], value: row[index] })));
   });
   const summary = item.summary || {};
-  if (isNum(summary.low20)) candles.createPriceLine({ price: summary.low20, color: '#1E6F4C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: '20d min' });
-  if (isNum(summary.high20)) candles.createPriceLine({ price: summary.high20, color: '#A2452C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: '20d max' });
+  if (isNum(summary.low20)) primary.createPriceLine({ price: summary.low20, color: '#77A994', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d min' });
+  if (isNum(summary.high20)) primary.createPriceLine({ price: summary.high20, color: '#C78B79', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d max' });
   MARKET_CHART.timeScale().fitContent();
   const ohlc = document.getElementById('market-chart-ohlc');
-  if (ohlc) ohlc.innerHTML = marketOhlcHTML(item, rows[rows.length - 1]);
+  if (ohlc) ohlc.innerHTML = marketOhlcHTML(item, rows[rows.length - 1], closeOnly);
   MARKET_CHART.subscribeCrosshairMove((param) => {
     if (!ohlc || !param || !param.time || !param.seriesData) return;
-    const bar = param.seriesData.get(candles);
+    const bar = param.seriesData.get(primary);
     if (!bar) return;
     const time = typeof param.time === 'string' ? param.time
       : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
-    const row = [time, bar.open, bar.high, bar.low, bar.close];
-    ohlc.innerHTML = marketOhlcHTML(item, row);
+    const row = closeOnly
+      ? [time, bar.value, bar.value, bar.value, bar.value]
+      : [time, bar.open, bar.high, bar.low, bar.close];
+    ohlc.innerHTML = marketOhlcHTML(item, row, closeOnly);
   });
 }
 
@@ -3546,6 +3684,8 @@ function renderMarketChartDialog() {
   document.getElementById('market-chart-tabs').innerHTML = MARKET_HISTORY.instruments.map((row) =>
     `<button type="button" data-market-tab="${esc(row.id)}" class="${row.id === item.id ? 'active' : ''}">${esc(row.name)}</button>`
   ).join('');
+  const seriesMode = document.getElementById('market-chart-mode');
+  if (seriesMode) seriesMode.textContent = marketUsesCloseLine(item) ? 'Линия закрытия' : 'Свечи OHLC';
   document.querySelectorAll('#market-chart-periods [data-period]').forEach((button) => {
     button.classList.toggle('active', Number(button.dataset.period) === MARKET_CHART_STATE.period);
   });

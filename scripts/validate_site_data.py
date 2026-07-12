@@ -226,7 +226,41 @@ def check_marlamov() -> None:
     bad = sum(1 for r in rows if r.get("yield2") is not None and not (-1 < r["yield2"] < 5))
     if bad:
         err(f"marlamov.json: {bad} строк с абсурдным yield2")
-    print(f"  marlamov.json: строк={len(rows)}, RFR={rfr}, режим={meta.get('regime')}")
+    gross_bad = sum(
+        1 for r in rows
+        if r.get("gross_yield1") is not None and not (0 < r["gross_yield1"] < 1)
+    )
+    if gross_bad:
+        err(f"marlamov.json: {gross_bad} строк с абсурдным gross_yield1")
+
+    backtest = d.get("backtest") or {}
+    if backtest.get("status") == "unavailable":
+        warn("marlamov.json: research backtest временно недоступен")
+    elif backtest:
+        metrics = backtest.get("metrics") or {}
+        required = [
+            "cagr", "volatility", "sharpe", "sortino", "max_drawdown", "calmar",
+            "alpha_vs_mcftr", "beta_vs_mcftr", "excess_return_vs_rfr",
+            "average_turnover", "hit_rate", "profit_factor", "rebalances", "months",
+        ]
+        missing = [key for key in required if not isinstance(metrics.get(key), (int, float))]
+        if missing:
+            err(f"marlamov.json: backtest без числовых метрик {missing}")
+        if backtest.get("point_in_time") is not False:
+            err("marlamov.json: lagged backtest должен явно иметь point_in_time=false")
+        if not (backtest.get("limitations") or []):
+            err("marlamov.json: backtest не раскрывает ограничения")
+        parameters = backtest.get("parameters") or {}
+        if not isinstance(parameters.get("entry_spread_pct"), (int, float)) or parameters["entry_spread_pct"] <= 0:
+            err("marlamov.json: backtest без положительного entry_spread_pct")
+        if metrics.get("months", 0) < 60:
+            err(f"marlamov.json: слишком короткий backtest ({metrics.get('months')} мес.)")
+        if not (backtest.get("series") or []):
+            err("marlamov.json: backtest.series пуст")
+    else:
+        warn("marlamov.json: нет research backtest")
+    bt_months = ((backtest.get("metrics") or {}).get("months") if backtest else 0) or 0
+    print(f"  marlamov.json: строк={len(rows)}, RFR={rfr}, режим={meta.get('regime')}, backtest={bt_months} мес.")
 
 
 # ── bonds/*.json ─────────────────────────────────────────────────────────────

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Форвардная дивдоходность (таблица Марламова, 2 года) + макро-режим. Чистый stdlib (live-путь,
-гоняется в update.yml после build_data). Реальные данные ISS MOEX + site/data.json. Без синтетики.
+Форвардная дивдоходность (таблица Марламова, 2 года), макро-режим и лагированный
+research backtest. Live-путь гоняется в update.yml после build_data. Реальные данные
+ISS MOEX + site/data.json + историческая панель/adjusted prices. Без синтетики.
 
 Математика (двухпериодная, очищенная база):
   net = 0.87 (НДФЛ 13%; у высоких доходов 15% — упрощение)
@@ -28,9 +29,17 @@ import urllib.request
 from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO not in sys.path:
+    sys.path.insert(0, REPO)
+
+from src.strategies.forward_repricing import build_backtest_from_files
+
 DATA_JSON = os.path.join(REPO, "site", "data.json")
 FORECASTS = os.path.join(REPO, "my_dividend_forecasts.json")
 OUT = os.path.join(REPO, "site", "marlamov.json")
+PANEL = os.path.join(REPO, "data", "panels_final", "panel_russia_final.csv")
+ADJUSTED_PRICES = os.path.join(REPO, "data", "russian_stocks_adjusted.xlsx")
+MCFTR = os.path.join(REPO, "data", "индекс_мосбиржи_полн_дох.csv")
 ISS = "https://iss.moex.com/iss"
 UA = {"User-Agent": "dividend-site/forward-yield (+github.com/eremkindv91)", "Accept": "application/json"}
 NET = 0.87                              # 1 − НДФЛ 13%
@@ -156,7 +165,9 @@ def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
         div2 = float(div2) if div2 not in (None, "") else None
         if not div1 or div1 <= 0:
             continue
-        yield1 = div1 * NET / price
+        gross_yield1 = div1 / price
+        gross_spread = (gross_yield1 - rfr) if rfr is not None else None
+        yield1 = gross_yield1 * NET
         p_adj = price - div1 * NET
         # sanity: net-доходность >30% или очищенная база <50% цены = модельный артефакт
         # (пенни-стоки/шум прогноза) → исключаем, иначе Y2 взрывается на P_adj→0
@@ -168,6 +179,8 @@ def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
         out.append({
             "ticker": tk, "name": u["name"], "sector": u["sector"],
             "price": round(price, 2), "div1": round(div1, 2), "div2": (round(div2, 2) if div2 else None),
+            "gross_yield1": round(gross_yield1, 4),
+            "gross_spread": (round(gross_spread, 4) if gross_spread is not None else None),
             "yield1": round(yield1, 4), "price_adj": round(p_adj, 2),
             "yield2": (round(yield2, 4) if yield2 is not None else None),
             "total2": (round(total2, 4) if total2 is not None else None),
@@ -179,6 +192,28 @@ def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
     # сортировка: сначала со spread (по убыванию), потом без div2
     out.sort(key=lambda r: (r["spread"] is None, -(r["spread"] or -9)))
     return out
+
+
+def build_backtest() -> dict:
+    """Build the deterministic lagged baseline, preserving last-good on local data failure."""
+    try:
+        return build_backtest_from_files(PANEL, ADJUSTED_PRICES, MCFTR)
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"[fwd] backtest не пересобран: {exc}\n")
+        try:
+            with open(OUT, encoding="utf-8") as f:
+                previous = json.load(f).get("backtest")
+            if isinstance(previous, dict) and previous.get("metrics"):
+                previous = dict(previous)
+                previous["last_good"] = True
+                return previous
+        except Exception:  # noqa: BLE001
+            pass
+        return {
+            "status": "unavailable",
+            "point_in_time": False,
+            "reason": "Исторический research baseline временно недоступен; текущая таблица продолжает работать.",
+        }
 
 
 def main() -> int:
@@ -199,6 +234,7 @@ def main() -> int:
         sys.stderr.write("[fwd] СТОП: пустая таблица (нет прогнозов/цен)\n")
         return 1
     n_div2 = sum(1 for r in rws if not r["div2_missing"])
+    backtest = build_backtest()
     payload = {
         "meta": {
             "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -207,15 +243,18 @@ def main() -> int:
             "n": len(rws), "n_with_div2": n_div2,
             "note": "Форвардная дивдоходность (модель Марламова): Yield2 от ОЧИЩЕННОЙ базы "
                     "P_adj=P−Div1·0.87. div1 — прогноз модели, div2 — авторский (my_dividend_forecasts.json). "
-                    "Сигнал по Spread=Yield2−RFR. Не ИИР.",
+                    "Сигнал по Spread=Yield2−RFR. Конструктор использует gross Div1/Price−RFR и не зависит "
+                    "от placeholder Div2. Не ИИР.",
         },
         "rows": rws,
+        "backtest": backtest,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    backtest_months = (backtest.get("metrics") or {}).get("months", 0)
     sys.stderr.write(f"[fwd] OK → {OUT} (строк={len(rws)}, с div2={n_div2}, режим={macro['regime']}, "
-                     f"RFR={rfr*100:.2f}%)\n")
+                     f"RFR={rfr*100:.2f}%, backtest={backtest_months} мес.)\n")
     return 0
 
 
