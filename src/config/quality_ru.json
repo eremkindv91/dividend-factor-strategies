@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0",
-  "methodology_version": "ru_quality_core_v1",
+  "schema_version": "2.0",
+  "methodology_version": "ru_quality_sector_v2",
   "universe_name": "MOEX TQBR RU Quality live universe",
   "board": "TQBR",
   "winsorization": [0.05, 0.95],
@@ -14,6 +14,11 @@
   "one_security_per_issuer": true,
   "excluded_sectors": ["Финансы (Банки)", "Финансы"],
   "excluded_tickers": [],
+  "sector_models": {
+    "default": "industrial_core",
+    "Финансы (Банки)": "bank_quality_if_cbr_mapped",
+    "IT": "it_quality"
+  },
   "default": {
     "mode": "core",
     "top_n": 15,

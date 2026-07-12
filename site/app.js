@@ -774,39 +774,59 @@ function qualityStatusLabel(status) {
     sector_specific_model_required: 'Нужна секторная модель' })[status] || status || '—';
 }
 
-function qualityFmtRaw(key, value) {
+function qualityFactorDefinitions(row) {
+  if (Array.isArray(row.factor_definitions) && row.factor_definitions.length) return row.factor_definitions;
+  return [
+    { key: 'roe', label: 'ROE', format: 'percent' },
+    { key: 'debt_to_equity', label: 'Debt/Equity ↓', format: 'multiple' },
+    { key: 'earnings_variability', label: 'Изменчивость EPS ↓', format: 'percent' },
+  ];
+}
+
+function qualityFmtRaw(key, value, format) {
   if (!isNum(value)) return '—';
-  if (key === 'roe' || key === 'earnings_variability') return ru(value * 100, 1) + '%';
+  if (format === 'percent' || ['roe', 'earnings_variability', 'bank_roe', 'ebitda_margin', 'fcf_margin'].includes(key)) return ru(value * 100, 1) + '%';
+  if (format === 'percentage_points' || key === 'capital_headroom') return `${value >= 0 ? '+' : ''}${ru(value * 100, 1)} п.п.`;
   return ru(value, 2) + '×';
+}
+
+function qualityFactorChips(row) {
+  const raw = row.raw || {};
+  const periods = ((row.diagnostics || {}).factor_periods) || {};
+  return qualityFactorDefinitions(row).map((factor) => {
+    const period = periods[factor.key];
+    const vintage = period ? ` · ${String(period).slice(0, 4)}` : '';
+    return `<span class="quality-factor-chip"${period ? ` title="Период фактора: ${esc(period)}"` : ''}><small>${esc(factor.label || factor.key)}${esc(vintage)}</small><b>${qualityFmtRaw(factor.key, raw[factor.key], factor.format)}</b></span>`;
+  }).join('');
 }
 
 function renderQualityPanel() {
   if (!QUALITY || !Array.isArray(QUALITY.rows)) return;
-  const meta = QUALITY.meta || {}, dq = QUALITY.data_quality || {};
+  const meta = QUALITY.meta || {}, dq = QUALITY.data_quality || {}, models = meta.models || dq.models || {};
   const kpis = document.getElementById('quality-kpis');
   if (kpis) {
     const cell = (label, value) => `<div class="quality-kpi"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
-    kpis.innerHTML = cell('Компаний', String(meta.n_universe || 0))
-      + cell('Получили score', String(meta.n_scored || 0))
-      + cell('Доступны для live', String(meta.n_investable_scored || 0))
-      + cell('Verified / PIT', String(meta.n_eligible || 0))
-      + cell('Среднее покрытие', isNum(meta.data_coverage) ? ru(meta.data_coverage * 100, 0) + '%' : '—')
-      + cell('Fundamentals', meta.as_of_date || '—')
-      + cell('Методология', meta.methodology_version || '—');
+    kpis.innerHTML = cell('Эмитентов', String(meta.n_issuers || meta.n_universe || 0))
+      + cell('Получили score', String(meta.n_scored_issuers || meta.n_scored || 0))
+      + cell('Доступны для live', String(meta.n_investable_scored_issuers || meta.n_investable_scored || 0))
+      + cell('Verified / PIT', String(meta.n_eligible_issuers || meta.n_eligible || 0))
+      + cell('Среднее покрытие', isNum(meta.issuer_data_coverage) ? ru(meta.issuer_data_coverage * 100, 0) + '%' : isNum(meta.data_coverage) ? ru(meta.data_coverage * 100, 0) + '%' : '—')
+      + cell('Банки · ЦБ', String(((models.bank_quality || {}).n_investable_scored_issuers) || 0))
+      + cell('IT-модель', String(((models.it_quality || {}).n_investable_scored_issuers) || 0))
+      + cell('Fundamentals', meta.as_of_date || '—');
   }
   const notice = document.getElementById('quality-notice');
   if (notice) {
     const hasUnknownDates = (meta.warnings || []).some((warning) => String(warning).includes('publication_date'));
     notice.hidden = !hasUnknownDates;
     notice.textContent = hasUnknownDates
-      ? 'В панели нет подтверждённых дат публикации и полной истории EPS. Score показан как live research screener с low confidence; автоматическое включение в строгую корзину отключено.'
+      ? 'RU Quality использует три отраслевые модели: корпоративную, банковскую по формам ЦБ и IT-модель. Полной истории дат публикации пока нет, поэтому автоматическое включение в PIT-корзину отключено.'
       : '';
   }
   const confidence = dq.confidence || meta.confidence || {};
-  const missing = dq.missing_metrics || {};
   const strip = document.getElementById('quality-data-strip');
   if (strip) strip.innerHTML = `<span>Confidence: <b>${confidence.high || 0} high</b> · <b>${confidence.medium || 0} medium</b> · <b>${confidence.low || 0} low</b></span>
-    <span>Чаще отсутствует: <b>EPS stability ${missing.earnings_variability || 0}</b></span>
+    <span>Модели: <b>корпоративная ${(models.industrial_core || {}).n_scored_issuers || 0}</b> · <b>банки ${(models.bank_quality || {}).n_scored_issuers || 0}</b> · <b>IT ${(models.it_quality || {}).n_scored_issuers || 0}</b></span>
     <span>Самый старый период: <b>${esc(dq.oldest_report_period_end || '—')}</b></span>`;
   const sectorSelect = document.getElementById('quality-sector');
   if (sectorSelect && sectorSelect.options.length === 1) {
@@ -820,29 +840,29 @@ function renderQualityPanel() {
 function renderQualityTable() {
   const target = document.getElementById('quality-table');
   if (!target || !QUALITY || !Array.isArray(QUALITY.rows)) return;
+  const model = (document.getElementById('quality-model') || {}).value || '';
   const sector = (document.getElementById('quality-sector') || {}).value || '';
   const status = (document.getElementById('quality-status') || {}).value || '';
   const sortKey = (document.getElementById('quality-sort') || {}).value || 'sector_rank_pct';
-  const rows = QUALITY.rows.filter((row) => (!sector || row.sector === sector) && (!status || row.status === status))
+  const rows = QUALITY.rows.filter((row) => (!model || row.quality_model === model) && (!sector || row.sector === sector) && (!status || row.status === status))
     .sort((a, b) => (isNum(b[sortKey]) ? b[sortKey] : -Infinity) - (isNum(a[sortKey]) ? a[sortKey] : -Infinity)
       || String(a.ticker).localeCompare(String(b.ticker)));
   if (!rows.length) { target.innerHTML = '<div class="quality-drawer-note">По выбранным фильтрам компаний нет.</div>'; return; }
   const body = rows.map((row, index) => {
-    const raw = row.raw || {};
     return `<tr data-quality-ticker="${esc(row.ticker)}" tabindex="0">
       <td>${index + 1}</td><td class="left"><b>${esc(row.ticker)}</b></td><td class="left">${esc(row.name || row.ticker)}</td>
       <td class="left">${esc(row.sector || '—')}</td>
+      <td class="left"><span class="quality-model-chip ${esc(row.quality_model || 'industrial_core')}">${esc(row.quality_model_label || 'Корпоративная Quality')}</span></td>
       <td class="quality-score">${isNum(row.sector_rank_pct) ? ru(row.sector_rank_pct, 0) : '—'}</td>
       <td>${isNum(row.quality_rank_pct) ? ru(row.quality_rank_pct, 0) : '—'}</td>
-      <td>${qualityFmtRaw('roe', raw.roe)}</td><td>${qualityFmtRaw('debt_to_equity', raw.debt_to_equity)}</td>
-      <td>${qualityFmtRaw('earnings_variability', raw.earnings_variability)}</td>
+      <td class="left"><div class="quality-factor-chips">${qualityFactorChips(row)}</div></td>
       <td>${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}</td>
       <td>${esc(row.report_period_end || '—')}</td>
       <td><span class="quality-confidence ${esc(row.confidence || 'low')}">${esc(row.confidence || 'low')}</span></td>
       <td>${esc(qualityStatusLabel(row.status))}</td></tr>`;
   }).join('');
   target.innerHTML = `<table class="quality-table"><thead><tr><th>#</th><th class="left">Тикер</th><th class="left">Компания</th><th class="left">Сектор</th>
-    <th>Quality сектор</th><th>Quality абсолют.</th><th>ROE</th><th>D/E</th><th>Стабильность EPS</th><th>Покрытие</th><th>Период</th><th>Confidence</th><th>Статус</th>
+    <th class="left">Модель</th><th>Quality сектор</th><th>Quality абсолют.</th><th class="left">Факторы</th><th>Покрытие</th><th>Период</th><th>Confidence</th><th>Статус</th>
     </tr></thead><tbody>${body}</tbody></table>`;
   target.querySelectorAll('[data-quality-ticker]').forEach((row) => {
     const open = () => openQualityDrawer(row.dataset.qualityTicker);
@@ -864,51 +884,73 @@ function openQualityDrawer(ticker) {
   if (!row || !dialog) return;
   const title = document.getElementById('quality-drawer-title');
   const body = document.getElementById('quality-drawer-body');
-  if (title) title.innerHTML = `<b>${esc(row.ticker)} · ${esc(row.name || '')}</b><div class="muted">${esc(row.sector || '')} · ${esc(row.methodology_version || '')}</div>`;
+  if (title) title.innerHTML = `<b>${esc(row.ticker)} · ${esc(row.name || '')}</b><div class="muted">${esc(row.sector || '')} · ${esc(row.quality_model_label || '')}</div>`;
   const raw = row.raw || {}, win = row.winsorized || {}, z = row.z || {};
-  const decomp = [
-    ['Прибыльность', 'roe'], ['Долговая нагрузка', 'debt_to_equity'], ['Стабильность EPS', 'earnings_variability'],
-  ].map(([label, key]) => `<tr><td>${label}</td><td>${qualityFmtRaw(key, raw[key])}</td><td>${qualityFmtRaw(key, win[key])}</td><td>${isNum(z[key]) ? ru(z[key], 2) : '—'}</td></tr>`).join('');
+  const factors = qualityFactorDefinitions(row);
+  const factorPeriods = ((row.diagnostics || {}).factor_periods) || {};
+  const decomp = factors.map((factor) => `<tr><td>${esc(factor.label || factor.key)}</td><td>${qualityFmtRaw(factor.key, raw[factor.key], factor.format)}</td><td>${qualityFmtRaw(factor.key, win[factor.key], factor.format)}</td><td>${isNum(z[factor.key]) ? ru(z[factor.key], 2) : '—'}</td></tr>`).join('');
+  const bars = factors.map((factor) => qualityFactorBar(factor.label || factor.key, z[factor.key])).join('');
+  const periodDetails = factors.filter((factor) => factorPeriods[factor.key]).map((factor) =>
+    `${factor.label || factor.key}: ${factorPeriods[factor.key]}`
+  ).join(' · ');
   const explanation = row.explanation || {};
   if (body) body.innerHTML = `<div class="quality-factor-bars">
-      ${qualityFactorBar('Прибыльность', z.roe)}${qualityFactorBar('Стабильность', z.earnings_variability)}
-      ${qualityFactorBar('Баланс', z.debt_to_equity)}${qualityFactorBar('Итоговый Quality', row.quality_z_sector)}
+      ${bars}${qualityFactorBar('Итоговый Quality', row.quality_z_sector)}
     </div>
     <table class="quality-decomp"><thead><tr><th>Фактор</th><th>Raw</th><th>Winsorized</th><th>Z-score</th></tr></thead><tbody>${decomp}</tbody></table>
     <div class="quality-drawer-note"><b>${esc(explanation.summary || '')}</b><br>${esc((explanation.weaknesses || []).length ? 'Слабые стороны: ' + explanation.weaknesses.join(', ') + '.' : 'Выраженных слабых сторон по доступным факторам нет.')}<br>${esc(explanation.confidence_note || '')}</div>
     <div class="quality-drawer-note">Период: <b>${esc(row.report_period_end || '—')}</b> · публикация: <b>${esc(row.publication_date || 'не подтверждена')}</b> · стандарт: <b>${esc(row.report_standard || '—')}</b><br>
-      ROE method: ${esc((row.diagnostics || {}).roe_method || '—')} · normalization: ${esc(row.normalization_scope || '—')} · coverage: ${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}<br>
+      Источник: ${esc((row.provenance || {}).source_name || (row.provenance || {}).source_type || '—')} · normalization: ${esc(row.normalization_scope || '—')} · coverage: ${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}<br>
+      ${periodDetails ? `Винтажи факторов: ${esc(periodDetails)}<br>` : ''}
       Предупреждения: ${esc((row.warnings || []).join(', ') || 'нет')}<br>Исключения: ${esc((row.exclusion_reasons || []).join(', ') || 'нет')}</div>`;
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
 
 function qualityCandidateAnalysis(config) {
-  const stages = { universe: 0, priced: 0, scoredInvestable: 0, coverage: 0, confidence: 0, adv: 0, usable: 0, issuers: 0 };
-  const coverageAvailable = { twoFactor: 0, full: 0 };
+  const stageSets = Object.fromEntries(
+    ['universe', 'priced', 'scoredInvestable', 'coverage', 'confidence', 'adv', 'usable']
+      .map((key) => [key, new Set()])
+  );
+  const coverageSets = { twoFactor: new Set(), full: new Set() };
+  const modelSets = {};
   if (!QUALITY || !DATA || !Array.isArray(QUALITY.rows)) {
-    return { config, candidates: [], stages, coverageAvailable, missingEvar: 0, failure: 'data_unavailable' };
+    return { config, candidates: [], stages: {}, coverageAvailable: {}, modelCoverage: {}, failure: 'data_unavailable' };
   }
   const universe = new Map(DATA.tickers.map((ticker) => [ticker.ticker, ticker]));
   const scoreKey = config.sectorNeutral ? 'quality_score_sector' : 'quality_score_absolute';
   const rankKey = config.sectorNeutral ? 'sector_rank_pct' : 'quality_rank_pct';
   const candidates = [];
-  stages.universe = QUALITY.rows.length;
   QUALITY.rows.forEach((q) => {
+    const issuer = q.issuer_id || q.ticker;
+    const model = q.quality_model || 'industrial_core';
+    if (!modelSets[model]) modelSets[model] = {
+      label: q.quality_model_label || model,
+      twoFactor: new Set(), full: new Set(), coverage: new Set(), usable: new Set(),
+    };
+    stageSets.universe.add(issuer);
     const t = universe.get(q.ticker);
     if (!t || !isNum(t.price) || t.price <= 0) return;
-    stages.priced++;
+    stageSets.priced.add(issuer);
     if (!q.score_eligible || !q.investable || q.financial_model_required) return;
-    stages.scoredInvestable++;
-    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 0.67) coverageAvailable.twoFactor++;
-    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 1) coverageAvailable.full++;
+    stageSets.scoredInvestable.add(issuer);
+    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 0.67) {
+      coverageSets.twoFactor.add(issuer);
+      modelSets[model].twoFactor.add(issuer);
+    }
+    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 1) {
+      coverageSets.full.add(issuer);
+      modelSets[model].full.add(issuer);
+    }
     if (!isNum(q.coverage_ratio) || q.coverage_ratio < config.minCoverage) return;
-    stages.coverage++;
+    stageSets.coverage.add(issuer);
+    modelSets[model].coverage.add(issuer);
     if (!config.allowLow && !['high', 'medium'].includes(q.confidence)) return;
-    stages.confidence++;
+    stageSets.confidence.add(issuer);
     if (!isNum(q.adv_rub) || q.adv_rub < config.minAdv) return;
-    stages.adv++;
+    stageSets.adv.add(issuer);
     if (!isNum(q[scoreKey]) || !isNum(q[rankKey])) return;
-    stages.usable++;
+    stageSets.usable.add(issuer);
+    modelSets[model].usable.add(issuer);
     candidates.push({ q, t });
   });
   const issuerBest = new Map();
@@ -918,10 +960,18 @@ function qualityCandidateAnalysis(config) {
     if (!current || (item.q.adv_rub || 0) > (current.q.adv_rub || 0)) issuerBest.set(key, item);
   });
   const uniqueCandidates = [...issuerBest.values()].sort((a, b) => b.q[rankKey] - a.q[rankKey] || String(a.q.ticker).localeCompare(String(b.q.ticker)));
+  const stages = Object.fromEntries(Object.entries(stageSets).map(([key, values]) => [key, values.size]));
   stages.issuers = uniqueCandidates.length;
+  const coverageAvailable = { twoFactor: coverageSets.twoFactor.size, full: coverageSets.full.size };
+  const modelCoverage = Object.fromEntries(Object.entries(modelSets).map(([key, value]) => [key, {
+    label: value.label,
+    twoFactor: value.twoFactor.size,
+    full: value.full.size,
+    coverage: value.coverage.size,
+    usable: value.usable.size,
+  }]));
   return {
-    config, candidates: uniqueCandidates, stages, coverageAvailable,
-    missingEvar: Number((((QUALITY || {}).data_quality || {}).missing_metrics || {}).earnings_variability || 0),
+    config, candidates: uniqueCandidates, stages, coverageAvailable, modelCoverage,
     scoreKey, rankKey, failure: null,
   };
 }
@@ -942,6 +992,9 @@ function buildQualityPortfolio(config) {
   analysis.selected = selected.length;
   if (selected.length < 3) { analysis.failure ||= 'too_few'; return null; }
   if (selected.length * config.maxSecurity < 1 - 1e-9) { analysis.failure = 'security_cap'; return null; }
+  if (selected.length * config.maxIssuer < 1 - 1e-9) { analysis.failure = 'issuer_cap'; return null; }
+  const selectedSectors = new Set(selected.map((item) => item.q.sector || item.t.sector || ND));
+  if (selectedSectors.size * config.sectorCap < 1 - 1e-9) { analysis.failure = 'sector_cap'; return null; }
   const vols = selected.map((item) => item.q.volatility).filter(isNum).sort((a, b) => a - b);
   const medianVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
   const items = selected.map(({ q, t }) => {
@@ -957,7 +1010,10 @@ function buildQualityPortfolio(config) {
   if (!(total > 0)) { analysis.failure = 'zero_weights'; return null; }
   items.forEach((item) => { item.w /= total; });
   capWeights(items, config.maxSecurity, config.sectorCap);
-  if (items.some((item) => item.w > config.maxIssuer + 1e-8)) { analysis.failure = 'issuer_cap'; return null; } // one security per issuer
+  if (items.some((item) => item.w > Math.min(config.maxSecurity, config.maxIssuer) + 1e-8)) { analysis.failure = 'issuer_cap'; return null; }
+  const sectorWeights = {};
+  items.forEach((item) => { sectorWeights[item.sector] = (sectorWeights[item.sector] || 0) + item.w; });
+  if (Object.values(sectorWeights).some((weight) => weight > config.sectorCap + 1e-8)) { analysis.failure = 'sector_cap'; return null; }
   analysis.failure = null;
   return items.sort((a, b) => b.w - a.w);
 }
@@ -985,30 +1041,39 @@ function renderQualityFilterStatus() {
   if (coverageSelect) {
     const two = coverageSelect.querySelector('option[value="0.67"]');
     const full = coverageSelect.querySelector('option[value="1"]');
-    if (two) two.textContent = `2 из 3 факторов · ${analysis.coverageAvailable.twoFactor}`;
-    if (full) full.textContent = `Все 3 фактора · ${analysis.coverageAvailable.full}`;
+    if (two) two.textContent = `2 из 3 своей модели · ${analysis.coverageAvailable.twoFactor}`;
+    if (full) full.textContent = `Все 3 своей модели · ${analysis.coverageAvailable.full}`;
   }
   const strict = !config.allowLow;
   const noFull = config.minCoverage >= 1 && analysis.coverageAvailable.full === 0;
+  const modelSummary = Object.values(analysis.modelCoverage || {}).map((model) =>
+    `${esc(model.label)}: ${model.coverage}`
+  ).join(' · ');
   target.classList.toggle('warn', noFull || strict);
   if (noFull) {
-    target.innerHTML = `<b>0 компаний с тремя факторами.</b><span>EPS stability отсутствует у ${analysis.missingEvar}; выбери «2 из 3 факторов».</span>`;
+    target.innerHTML = `<b>Нет эмитентов с полным набором своей модели.</b><span>Выбери «2 из 3 факторов»; отсутствующий третий фактор зависит от модели сектора.</span>`;
   } else if (strict) {
-    target.innerHTML = `<b>Verified / PIT: ${analysis.stages.confidence}.</b><span>${analysis.coverageAvailable.twoFactor} компаний доступны только как live preview без подтверждённых publication dates.</span>`;
+    target.innerHTML = `<b>Verified / PIT: ${analysis.stages.confidence}.</b><span>${analysis.coverageAvailable.twoFactor} эмитентов доступны только как live preview без подтверждённых publication dates.</span><button type="button" data-quality-filter-action="live-preview">Показать live preview</button>`;
   } else {
-    target.innerHTML = `<b>Live preview: ${analysis.stages.issuers} эмитентов.</b><span>Score ${analysis.stages.scoredInvestable} → покрытие ${analysis.stages.coverage} → ADV ${analysis.stages.adv}.</span>`;
+    target.innerHTML = `<b>Live preview: ${analysis.stages.issuers} эмитентов.</b><span>Score ${analysis.stages.scoredInvestable} → покрытие ${analysis.stages.coverage} → ADV ${analysis.stages.adv}.${modelSummary ? ' ' + modelSummary + '.' : ''}</span>`;
   }
+  const previewButton = target.querySelector('[data-quality-filter-action="live-preview"]');
+  if (previewButton) previewButton.addEventListener('click', () => {
+    const preview = document.getElementById('quality-allow-low');
+    if (preview) preview.checked = true;
+    renderQualityFilterStatus();
+  });
 }
 
 function qualityEmptyStateHTML(config, analysis) {
-  const a = analysis || { stages: {}, coverageAvailable: {}, missingEvar: 0, failure: 'data_unavailable' };
+  const a = analysis || { stages: {}, coverageAvailable: {}, modelCoverage: {}, failure: 'data_unavailable' };
   const s = a.stages || {};
   let title = 'Не удалось сформировать RU Quality корзину.';
   let reason = 'Проверь доступность quality.json и рыночных данных.';
   let action = '';
   if (a.failure === 'coverage') {
-    title = 'Фильтр «Все 3 фактора» сейчас объективно пуст.';
-    reason = `EPS stability требует пять сопоставимых годовых EPS; этот ряд отсутствует у ${a.missingEvar || 0} компаний. Двухфакторный Core использует ROE и Debt/Equity и оставляет ${a.coverageAvailable.twoFactor || 0} investable компаний.`;
+    title = 'Выбранное покрытие не оставило кандидатов.';
+    reason = `У каждой секторной модели свой третий фактор: стабильность EPS у компаний, стабильность прибыли у банков и Net debt/EBITDA у IT. В режиме «2 из 3» доступны ${a.coverageAvailable.twoFactor || 0} investable эмитентов.`;
     action = '<button type="button" class="btn" data-quality-action="two-factor-preview">Перейти к 2-факторному live preview</button>';
   } else if (a.failure === 'confidence') {
     title = 'Verified / PIT корзина пока пустая.';
@@ -1020,6 +1085,9 @@ function qualityEmptyStateHTML(config, analysis) {
   } else if (a.failure === 'security_cap') {
     title = 'Лимит на бумагу несовместим с числом бумаг.';
     reason = `При ${a.selected || 0} бумагах и лимите ${ru((config.maxSecurity || 0) * 100, 0)}% невозможно распределить 100% капитала.`;
+  } else if (a.failure === 'sector_cap') {
+    title = 'Секторный лимит несовместим с составом корзины.';
+    reason = `В выбранных кандидатах недостаточно разных секторов, чтобы распределить 100% капитала при лимите ${ru((config.sectorCap || 0) * 100, 0)}% на сектор.`;
   } else if (['too_few', 'issuer_cap'].includes(a.failure)) {
     title = 'После ограничения по эмитентам осталось слишком мало бумаг.';
     reason = `Уникальных кандидатов: ${s.issuers || 0}. Проверь число бумаг и лимиты, не ослабляя качество данных автоматически.`;
@@ -1065,7 +1133,7 @@ function wireQuality() {
     method.value = requested;
     method.dispatchEvent(new Event('change'));
   }));
-  ['quality-sector', 'quality-status', 'quality-sort'].forEach((id) => {
+  ['quality-model', 'quality-sector', 'quality-status', 'quality-sort'].forEach((id) => {
     const control = document.getElementById(id); if (control) control.addEventListener('change', renderQualityTable);
   });
   ['quality-sector-neutral', 'quality-min-coverage', 'quality-min-adv', 'quality-max-issuer', 'quality-allow-low'].forEach((id) => {

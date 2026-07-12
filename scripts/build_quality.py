@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Build the RU Quality live screener artifact for the static site.
+"""Build the sector-aware RU Quality live screener artifact for the static site.
 
-The current production panel has no reliable publication dates or split-adjusted
-share history. The builder therefore exposes the available accounting ROE fallback,
-never manufactures EPS/filing dates, and keeps low-confidence rows out of the
-default portfolio.
+Corporate, bank and IT issuers use separate descriptor contracts. The builder
+never manufactures financial values or filing dates, and keeps rows without
+complete point-in-time lineage out of the default portfolio.
 """
 from __future__ import annotations
 
@@ -25,6 +24,7 @@ sys.path.insert(0, str(REPO))
 
 from src.strategies.quality import (  # noqa: E402
     METHODOLOGY_VERSION,
+    QUALITY_MODEL_SPECS,
     PortfolioConfig,
     build_quality_portfolio,
     compute_quality_scores,
@@ -40,9 +40,17 @@ DEFAULT_RETURNS = REPO / "model_output/returns.json"
 DEFAULT_REPORT_INDEX = REPO / "data/report_index.parquet"
 DEFAULT_OFFICIAL_FACTS = REPO / "data/official_ifrs_facts.csv"
 DEFAULT_SITE_DATA = REPO / "site/data.json"
+DEFAULT_CBR_VALUATION = REPO / "site/cbr/valuation.json"
+DEFAULT_CBR_TIMESERIES = REPO / "site/cbr/bank_timeseries.json"
 DEFAULT_CONFIG = REPO / "src/config/quality_ru.json"
 DEFAULT_MODEL_OUT = REPO / "model_output/quality_rf.json"
 DEFAULT_SITE_OUT = REPO / "site/quality.json"
+
+BANK_TICKER_ALIASES = {
+    "SBERP": "SBER",
+    "BSPBP": "BSPB",
+    "TCSG": "T",
+}
 
 
 def _num(value: Any) -> float | None:
@@ -174,6 +182,114 @@ def _latest_value(group: pd.DataFrame, column: str) -> float | None:
     return float(series.iloc[-1]) if len(series) else None
 
 
+def _latest_value_with_year(
+    group: pd.DataFrame, column: str, *, as_of_year: int, max_lag_years: int = 2,
+) -> tuple[float | None, int | None]:
+    if column not in group:
+        return None, None
+    subset = group[["year", column]].copy()
+    subset[column] = pd.to_numeric(subset[column], errors="coerce")
+    subset = subset.dropna().loc[
+        lambda frame: (frame["year"] <= as_of_year) & (frame["year"] >= as_of_year - max_lag_years)
+    ]
+    if subset.empty:
+        return None, None
+    latest = subset.sort_values("year").iloc[-1]
+    return float(latest[column]), int(latest["year"])
+
+
+def _latest_ratio_with_year(
+    group: pd.DataFrame, numerator: str, denominator: str, *, as_of_year: int,
+    max_lag_years: int = 2, positive_denominator: bool = True,
+) -> tuple[float | None, int | None]:
+    if numerator not in group or denominator not in group:
+        return None, None
+    subset = group[["year", numerator, denominator]].copy()
+    subset[numerator] = pd.to_numeric(subset[numerator], errors="coerce")
+    subset[denominator] = pd.to_numeric(subset[denominator], errors="coerce")
+    subset = subset.dropna().loc[
+        lambda frame: (frame["year"] <= as_of_year) & (frame["year"] >= as_of_year - max_lag_years)
+    ]
+    if positive_denominator:
+        subset = subset.loc[subset[denominator] > 0]
+    else:
+        subset = subset.loc[subset[denominator] != 0]
+    if subset.empty:
+        return None, None
+    latest = subset.sort_values("year").iloc[-1]
+    return float(latest[numerator] / latest[denominator]), int(latest["year"])
+
+
+def _latest_leverage_with_year(
+    group: pd.DataFrame, *, as_of_year: int, max_lag_years: int = 2,
+) -> tuple[float | None, int | None]:
+    """Return a validated panel leverage ratio, skipping known zero placeholders.
+
+    Some preliminary latest-year panel rows carry net_debt_mln=0 while cash is
+    missing. A ratio derived from that row is not evidence of a debt-free balance
+    sheet, so the last complete non-placeholder observation is used instead.
+    """
+    required = {"year", "net_debt_to_ebitda"}
+    if not required.issubset(group.columns):
+        return None, None
+    columns = [
+        column for column in ("year", "net_debt_to_ebitda", "net_debt_mln", "cash_mln")
+        if column in group.columns
+    ]
+    subset = group[columns].copy()
+    subset["net_debt_to_ebitda"] = pd.to_numeric(
+        subset["net_debt_to_ebitda"], errors="coerce"
+    )
+    subset = subset.dropna(subset=["net_debt_to_ebitda"]).loc[
+        lambda frame: (frame["year"] <= as_of_year)
+        & (frame["year"] >= as_of_year - max_lag_years)
+    ]
+    if {"net_debt_mln", "cash_mln"}.issubset(subset.columns):
+        net_debt = pd.to_numeric(subset["net_debt_mln"], errors="coerce")
+        cash = pd.to_numeric(subset["cash_mln"], errors="coerce")
+        placeholder = subset["net_debt_to_ebitda"].eq(0) & net_debt.eq(0) & cash.isna()
+        subset = subset.loc[~placeholder]
+    if subset.empty:
+        return None, None
+    latest = subset.sort_values("year").iloc[-1]
+    return float(latest["net_debt_to_ebitda"]), int(latest["year"])
+
+
+def _bank_inputs(
+    valuation_path: Path, timeseries_path: Path, as_of: date,
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    valuation = _read_json(valuation_path, {})
+    meta = valuation.get("meta") if isinstance(valuation, dict) else {}
+    cbr_asof = _valid_date((meta or {}).get("cbr_asof"))
+    if not cbr_asof or date.fromisoformat(cbr_asof) > as_of:
+        return {}, {}, {}
+    banks = {
+        str(row.get("ticker")): row
+        for row in (valuation.get("banks") or [])
+        if isinstance(row, dict) and row.get("ticker")
+    }
+    series = _read_json(timeseries_path, {})
+    return banks, series if isinstance(series, dict) else {}, dict(meta or {})
+
+
+def _bank_profit_variability(series: dict[str, Any], regnum: Any, as_of: date) -> tuple[float | None, int]:
+    points = ((series.get(str(regnum)) or {}).get("net_profit") or [])
+    increments = []
+    for point in points:
+        point_date = _valid_date(point.get("date")) if isinstance(point, dict) else None
+        value = _num(point.get("value_q")) if isinstance(point, dict) else None
+        if point_date and value is not None and date.fromisoformat(point_date) <= as_of:
+            increments.append((point_date, value))
+    values = [value for _, value in sorted(increments)[-12:]]
+    if len(values) < 8:
+        return None, len(values)
+    mean = sum(values) / len(values)
+    if abs(mean) < 1e-12:
+        return None, len(values)
+    sigma = pd.Series(values, dtype=float).std(ddof=1)
+    return float(sigma / abs(mean)), len(values)
+
+
 def _eps_history(group: pd.DataFrame) -> tuple[list[float] | None, str | None]:
     eps_column = next((name for name in ("eps", "eps_ttm") if name in group.columns), None)
     if eps_column:
@@ -211,32 +327,34 @@ def _confidence(
 
 def _row_explanation(row: dict[str, Any]) -> dict[str, Any]:
     z = row.get("z") or {}
-    strengths = []
-    weaknesses = []
-    if _num(z.get("roe")) is not None:
-        (strengths if z["roe"] >= 0.5 else weaknesses if z["roe"] <= -0.5 else []).append(
-            "высокая рентабельность" if z["roe"] >= 0.5 else "рентабельность ниже рынка"
-        )
-    if _num(z.get("debt_to_equity")) is not None:
-        (strengths if z["debt_to_equity"] >= 0.5 else weaknesses if z["debt_to_equity"] <= -0.5 else []).append(
-            "контролируемая долговая нагрузка" if z["debt_to_equity"] >= 0.5 else "долговая нагрузка выше рынка"
-        )
-    if _num(z.get("earnings_variability")) is not None:
-        (strengths if z["earnings_variability"] >= 0.5 else weaknesses if z["earnings_variability"] <= -0.5 else []).append(
-            "стабильная прибыль" if z["earnings_variability"] >= 0.5 else "повышенная изменчивость прибыли"
-        )
+    strengths: list[str] = []
+    weaknesses: list[str] = []
+    for factor in row.get("factor_definitions") or []:
+        key, label = factor.get("key"), factor.get("label") or factor.get("key")
+        value = _num(z.get(key))
+        if value is not None and value >= 0.5:
+            strengths.append(str(factor.get("strength") or label))
+        elif value is not None and value <= -0.5:
+            weaknesses.append(str(factor.get("weakness") or label))
+    source_note = (
+        "Факторы банка рассчитаны по официальным формам ЦБ 102/123/135; периметр банка может отличаться от листингованной группы."
+        if row.get("quality_model") == "bank_quality"
+        else "IT-модель использует EBITDA margin, FCF margin и долговую нагрузку."
+        if row.get("quality_model") == "it_quality"
+        else "Корпоративная модель использует рентабельность, долговую нагрузку и стабильность EPS."
+    )
     return {
         "strengths": strengths,
         "weaknesses": weaknesses,
         "summary": (
-            ("Сильные стороны: " + ", ".join(strengths) + ".") if strengths else "Явного преимущества по доступным факторам нет."
+            ("Сильные факторы: " + ", ".join(strengths) + ".") if strengths else "Явного преимущества по доступным факторам нет."
         ),
         "confidence_note": (
-            "Достоверность низкая: нет подтверждённой даты публикации или полной истории EPS."
+            "PIT-достоверность низкая: нет полной истории подтверждённых дат публикации. " + source_note
             if row.get("confidence") == "low"
-            else "Достоверность средняя: используется допустимый fallback или доступны два фактора."
+            else "Достоверность средняя: используется допустимый fallback или доступны два фактора. " + source_note
             if row.get("confidence") == "medium"
-            else "Достоверность высокая: три фактора и дата официальной отчётности подтверждены."
+            else "Достоверность высокая: три фактора и дата официальной отчётности подтверждены. " + source_note
         ),
     }
 
@@ -245,11 +363,14 @@ def validate_quality_artifact(payload: dict[str, Any]) -> None:
     meta, rows = payload.get("meta"), payload.get("rows")
     if not isinstance(meta, dict) or meta.get("methodology_version") != METHODOLOGY_VERSION:
         raise ValueError("quality artifact has invalid methodology metadata")
+    if meta.get("schema_version") != "2.0":
+        raise ValueError("quality artifact has invalid schema version")
     if not isinstance(rows, list) or not rows:
         raise ValueError("quality artifact rows are empty")
     required = {
         "ticker", "sector", "raw", "winsorized", "z", "coverage_ratio",
         "confidence", "eligible", "exclusion_reasons", "warnings", "provenance",
+        "quality_model", "quality_model_label", "factor_definitions",
     }
     for row in rows:
         missing = required - set(row)
@@ -259,6 +380,15 @@ def validate_quality_artifact(payload: dict[str, Any]) -> None:
             raise ValueError(f"low-confidence row {row.get('ticker')} is default eligible")
         if row.get("quality_score_sector") is not None and row.get("quality_z_absolute") is None:
             raise ValueError(f"sector score without absolute composite: {row.get('ticker')}")
+        model = row.get("quality_model")
+        if model not in QUALITY_MODEL_SPECS:
+            raise ValueError(f"quality row {row.get('ticker')} has unknown model {model}")
+        factor_keys = {item.get("key") for item in row.get("factor_definitions") or []}
+        expected_keys = {item["key"] for item in QUALITY_MODEL_SPECS[model]["descriptors"]}
+        if factor_keys != expected_keys or set((row.get("raw") or {}).keys()) != expected_keys:
+            raise ValueError(f"quality row {row.get('ticker')} factor contract mismatch")
+        if model == "bank_quality" and (row.get("provenance") or {}).get("source_type") != "CBR_official_forms_102_123_135":
+            raise ValueError(f"bank quality row {row.get('ticker')} lacks CBR provenance")
     if meta.get("n_universe") != len(rows):
         raise ValueError("quality meta n_universe does not match rows")
 
@@ -267,7 +397,8 @@ def build_quality_artifact(
     *, panel_path: Path = DEFAULT_PANEL, registry_path: Path = DEFAULT_REGISTRY,
     momentum_path: Path = DEFAULT_MOMENTUM, returns_path: Path = DEFAULT_RETURNS,
     report_index_path: Path = DEFAULT_REPORT_INDEX, official_facts_path: Path = DEFAULT_OFFICIAL_FACTS,
-    site_data_path: Path = DEFAULT_SITE_DATA, config_path: Path = DEFAULT_CONFIG,
+    site_data_path: Path = DEFAULT_SITE_DATA, cbr_valuation_path: Path = DEFAULT_CBR_VALUATION,
+    cbr_timeseries_path: Path = DEFAULT_CBR_TIMESERIES, config_path: Path = DEFAULT_CONFIG,
     as_of: date | None = None,
 ) -> dict[str, Any]:
     as_of = as_of or datetime.now(timezone.utc).date()
@@ -286,6 +417,7 @@ def build_quality_artifact(
     history_days = _returns_history(returns_path)
     publications = _publication_map(report_index_path, as_of)
     official = _official_map(official_facts_path)
+    banks, bank_series, bank_meta = _bank_inputs(cbr_valuation_path, cbr_timeseries_path, as_of)
     excluded_sectors = set(config.get("excluded_sectors") or [])
     excluded_tickers = set(config.get("excluded_tickers") or [])
     super_sectors = config.get("super_sectors") or {}
@@ -308,7 +440,11 @@ def build_quality_artifact(
         registry_row = registry.get(ticker, {})
         site_row = site.get(ticker, {})
         momentum_row = momentum.get(ticker, {})
-        sector = _text(current.get("sector")) or _text(registry_row.get("sector")) or "Unknown"
+        source_sector = _text(current.get("sector")) or _text(registry_row.get("sector")) or "Unknown"
+        bank_ticker = BANK_TICKER_ALIASES.get(ticker, ticker)
+        bank_row = banks.get(bank_ticker)
+        quality_model = "bank_quality" if bank_row else "it_quality" if source_sector == "IT" else "industrial_core"
+        sector = "Финансы (Банки)" if bank_row else source_sector
         equity = _num(current.get("equity_mln"))
         net_income = _num(current.get("net_profit_mln"))
         total_debt = _num(current.get("total_debt_mln"))
@@ -330,23 +466,80 @@ def build_quality_artifact(
             roe_method = "accounting_fallback"
         debt_to_equity = total_debt / equity if total_debt is not None and equity and equity > 0 else None
 
+        raw_factors: dict[str, float | None]
+        factor_periods: dict[str, int | str | None] = {}
+        bank_months = 0
+        revenue_cagr = None
+        if quality_model == "bank_quality":
+            bank_variability, bank_months = _bank_profit_variability(
+                bank_series, bank_row.get("regnum"), as_of
+            )
+            raw_factors = {
+                "bank_roe": (_num(bank_row.get("roe")) or 0.0) / 100 if _num(bank_row.get("roe")) is not None else None,
+                "capital_headroom": (_num(bank_row.get("n10_headroom")) or 0.0) / 100 if _num(bank_row.get("n10_headroom")) is not None else None,
+                "bank_profit_variability": bank_variability,
+            }
+            factor_periods = {
+                "bank_roe": _valid_date((bank_row.get("vintages") or {}).get("cbr_102")),
+                "capital_headroom": _valid_date((bank_row.get("vintages") or {}).get("cbr_135")),
+                "bank_profit_variability": _valid_date((bank_row.get("vintages") or {}).get("cbr_102")),
+            }
+        elif quality_model == "it_quality":
+            ebitda_margin, margin_year = _latest_ratio_with_year(
+                group, "ebitda_mln", "revenue_mln", as_of_year=as_of.year
+            )
+            fcf_margin, cash_year = _latest_ratio_with_year(
+                group, "FCF", "revenue_mln", as_of_year=as_of.year
+            )
+            net_debt_to_ebitda, leverage_year = _latest_leverage_with_year(
+                group, as_of_year=as_of.year
+            )
+            revenue_cagr, revenue_cagr_year = _latest_value_with_year(
+                group, "revenue_cagr3y_calc", as_of_year=as_of.year
+            )
+            raw_factors = {
+                "ebitda_margin": ebitda_margin,
+                "fcf_margin": fcf_margin,
+                "net_debt_to_ebitda": net_debt_to_ebitda,
+            }
+            factor_periods = {
+                "ebitda_margin": margin_year,
+                "fcf_margin": cash_year,
+                "net_debt_to_ebitda": leverage_year,
+                "revenue_cagr_3y_diagnostic": revenue_cagr_year,
+            }
+        else:
+            raw_factors = {
+                "roe": roe,
+                "debt_to_equity": debt_to_equity,
+                "earnings_variability": evar,
+            }
+
         report_meta = dict(official.get((ticker, fiscal_year), {}))
         report_meta.update(publications.get((ticker, fiscal_year), {}))
         publication_date = report_meta.get("publication_date")
         report_standard = str(report_meta.get("report_standard") or "UNKNOWN").upper()
+        report_period_end = f"{fiscal_year:04d}-12-31"
+        if quality_model == "bank_quality":
+            # CBR form dates are reporting vintages, not proven publication timestamps.
+            publication_date = None
+            report_standard = "CBR_RAS_SOLO"
+            report_period_end = _valid_date(bank_meta.get("cbr_asof")) or report_period_end
         filing_age = (
             (as_of - date.fromisoformat(publication_date)).days if publication_date else None
         )
-        descriptor_count = sum(value is not None for value in (roe, debt_to_equity, evar))
+        descriptor_count = sum(value is not None for value in raw_factors.values())
         confidence = _confidence(
             publication_date=publication_date,
             report_standard=report_standard,
             roe_method=roe_method,
             descriptor_count=descriptor_count,
-            evar_available=evar is not None,
+            evar_available=descriptor_count == 3,
             filing_age_days=filing_age,
             max_filing_age_days=int(config["max_filing_age_days"]),
         )
+        if quality_model in {"bank_quality", "it_quality"}:
+            confidence = "low"
 
         market_cap_mln = _num(site_row.get("mcap")) or _latest_value(group, "market_cap_mln")
         market_cap_rub = market_cap_mln * 1_000_000 if market_cap_mln is not None else None
@@ -373,28 +566,115 @@ def build_quality_artifact(
             investability_reasons.append("trading_history_too_short_or_missing")
         if security_type not in config["allowed_security_types"]:
             investability_reasons.append("security_type_not_allowed")
-        if equity is None or equity <= 0:
+        bank_capital_mln = (_num(bank_row.get("capital_rub")) / 1_000_000) if bank_row and _num(bank_row.get("capital_rub")) is not None else None
+        equity_for_gate = bank_capital_mln if quality_model == "bank_quality" else equity
+        if equity_for_gate is None or equity_for_gate <= 0:
             investability_reasons.append("non_positive_common_equity")
         if ticker in excluded_tickers:
             investability_reasons.append("ticker_excluded_by_config")
 
         warnings = []
-        if roe_method == "accounting_fallback":
+        if quality_model == "industrial_core" and roe_method == "accounting_fallback":
             warnings.append("roe_accounting_fallback")
-        if evar is None:
+        if quality_model == "industrial_core" and evar is None:
             warnings.append("missing_five_year_comparable_eps")
+        if quality_model == "bank_quality":
+            warnings.append("bank_metrics_use_cbr_solo_perimeter")
+            warnings.append("sector_model_live_only_no_complete_pit_lineage")
+            if raw_factors.get("bank_profit_variability") is None:
+                warnings.append("bank_profit_variability_requires_8_months")
+            if _num(raw_factors.get("capital_headroom")) is not None and float(raw_factors["capital_headroom"]) < 0:
+                warnings.append("bank_n1_headroom_negative_vs_configured_requirement")
+            if any(
+                any(marker in str(item).lower() for marker in ("периметр", "соло", "мсфо"))
+                for item in (bank_row.get("warnings") or [])
+            ):
+                warnings.append("listed_group_and_bank_perimeter_differ")
+        if quality_model == "it_quality":
+            warnings.append("sector_model_live_only_no_complete_pit_lineage")
+            if raw_factors.get("fcf_margin") is None:
+                warnings.append("it_fcf_margin_missing")
+            if raw_factors.get("net_debt_to_ebitda") is None:
+                warnings.append("it_net_debt_to_ebitda_missing_or_nonpositive_ebitda")
+            if any(isinstance(year, int) and year < as_of.year - 1 for year in factor_periods.values()):
+                warnings.append("it_factor_uses_lagged_annual_data")
         if publication_date is None:
             warnings.extend(["publication_date_unknown", "point_in_time_backtest_ineligible"])
         if report_standard == "UNKNOWN":
             warnings.append("report_standard_unknown")
         if trading_days is not None:
             warnings.append("trading_history_days_estimated_from_monthly_returns")
-        financial_required = sector in excluded_sectors
+        financial_required = source_sector in excluded_sectors and quality_model != "bank_quality"
         if financial_required:
-            debt_to_equity = None
+            raw_factors["debt_to_equity"] = None
             warnings.append("industrial_debt_to_equity_not_applied_to_financials")
 
-        issuer_id = infer_issuer_id(ticker, _text(registry_row.get("inn")))
+        if quality_model == "bank_quality":
+            model_diagnostics = {
+                "factor_periods": factor_periods,
+                "profit_variability_months": bank_months,
+                "n1_0": _num(bank_row.get("n10")),
+                "n1_0_requirement": _num(bank_row.get("n10_reg_min")),
+                "profit_ttm_rub": _num(bank_row.get("profit_ttm_rub")),
+                "regnum": bank_row.get("regnum"),
+                "source_warnings": list(bank_row.get("warnings") or []),
+            }
+            provenance = {
+                "source": str(cbr_valuation_path.relative_to(REPO)) if cbr_valuation_path.is_relative_to(REPO) else str(cbr_valuation_path),
+                "source_type": "CBR_official_forms_102_123_135",
+                "source_url": "https://www.cbr.ru/banking_sector/credit/",
+                "source_name": "Банк России",
+                "report_date": report_period_end,
+                "fields": {
+                    "bank_roe": ["form_102_net_profit_ttm", "form_123_capital"],
+                    "capital_headroom": ["form_135_N1.0", "configured_requirement"],
+                    "bank_profit_variability": ["form_102_monthly_profit_increments"],
+                },
+            }
+        elif quality_model == "it_quality":
+            model_diagnostics = {
+                "factor_periods": factor_periods,
+                "revenue_cagr_3y": round(revenue_cagr, 8) if revenue_cagr is not None else None,
+                "roe_accounting_diagnostic": round(net_income / equity, 8) if net_income is not None and equity and equity > 0 else None,
+            }
+            provenance = {
+                "source": str(panel_path.relative_to(REPO)) if panel_path.is_relative_to(REPO) else str(panel_path),
+                "source_type": "SmartLab_reconciled_panel",
+                "source_url": report_meta.get("source_url"),
+                "source_name": report_meta.get("source_name"),
+                "fiscal_year": fiscal_year,
+                "fields": {
+                    "ebitda_margin": ["ebitda_mln", "revenue_mln"],
+                    "fcf_margin": ["FCF", "revenue_mln"],
+                    "net_debt_to_ebitda": ["net_debt_to_ebitda"],
+                },
+            }
+        else:
+            model_diagnostics = {
+                "roe_method": roe_method,
+                "roe_accounting": round(net_income / equity, 8) if net_income is not None and equity and equity > 0 else None,
+                "eps_method": eps_method,
+                "eps_history": eps_values,
+                "profit_variability_proxy": _latest_value(group, "vol3y_net_profit"),
+            }
+            provenance = {
+                "source": str(panel_path.relative_to(REPO)) if panel_path.is_relative_to(REPO) else str(panel_path),
+                "source_type": "SmartLab_reconciled_panel",
+                "source_url": report_meta.get("source_url"),
+                "source_name": report_meta.get("source_name"),
+                "fiscal_year": fiscal_year,
+                "fields": {
+                    "roe": ["net_profit_mln", "equity_mln"] if roe_method == "accounting_fallback" else ["eps", "shares_outstanding", "equity_mln"],
+                    "debt_to_equity": ["total_debt_mln", "equity_mln"],
+                    "earnings_variability": ["eps", "shares_outstanding"],
+                },
+            }
+
+        issuer_id = (
+            f"cbr:{bank_row.get('regnum')}"
+            if quality_model == "bank_quality"
+            else infer_issuer_id(ticker, _text(registry_row.get("inn")))
+        )
         raw_rows.append(
             {
                 "ticker": ticker,
@@ -402,27 +682,18 @@ def build_quality_artifact(
                 "name": _text(site_row.get("name")) or _text(registry_row.get("short_name")) or ticker,
                 "sector": sector,
                 "super_sector": super_sectors.get(sector, "Market"),
+                "quality_model": quality_model,
                 "security_type": security_type,
                 "report_standard": report_standard,
-                "report_period_end": f"{fiscal_year:04d}-12-31",
+                "report_period_end": report_period_end,
                 "publication_date": publication_date,
                 "ingestion_date": _valid_date(current.get("ingestion_date")) if "ingestion_date" in current else None,
                 "data_as_of": as_of.isoformat(),
                 "consolidated": None,
                 "restatement_flag": None,
                 "source_document_id": report_meta.get("report_id"),
-                "raw": {
-                    "roe": round(roe, 8) if roe is not None else None,
-                    "debt_to_equity": round(debt_to_equity, 8) if debt_to_equity is not None else None,
-                    "earnings_variability": round(evar, 8) if evar is not None else None,
-                },
-                "diagnostics": {
-                    "roe_method": roe_method,
-                    "roe_accounting": round(net_income / equity, 8) if net_income is not None and equity and equity > 0 else None,
-                    "eps_method": eps_method,
-                    "eps_history": eps_values,
-                    "profit_variability_proxy": _latest_value(group, "vol3y_net_profit"),
-                },
+                "raw": {key: round(value, 8) if value is not None else None for key, value in raw_factors.items()},
+                "diagnostics": model_diagnostics,
                 "market_cap_rub": round(market_cap_rub, 2) if market_cap_rub is not None else None,
                 "free_float_market_cap_rub": round(free_float_mcap, 2) if free_float_mcap is not None else None,
                 "adv_rub": round(adv, 2) if adv is not None else None,
@@ -431,6 +702,10 @@ def build_quality_artifact(
                 "price": price,
                 "lot_size": lot_size,
                 "confidence": confidence,
+                "source_confidence": (
+                    "official_direct_with_configured_threshold"
+                    if quality_model == "bank_quality" else "baseline_reconciled"
+                ),
                 "financial_model_required": financial_required,
                 "investability": {
                     "eligible": not investability_reasons and not financial_required,
@@ -439,16 +714,7 @@ def build_quality_artifact(
                 },
                 "exclusion_reasons": list(investability_reasons),
                 "warnings": warnings,
-                "provenance": {
-                    "source": str(panel_path.relative_to(REPO)) if panel_path.is_relative_to(REPO) else str(panel_path),
-                    "source_type": "SmartLab_reconciled_panel",
-                    "source_url": report_meta.get("source_url"),
-                    "source_name": report_meta.get("source_name"),
-                    "fiscal_year": fiscal_year,
-                    "roe_fields": ["net_profit_mln", "equity_mln"] if roe_method == "accounting_fallback" else ["eps", "shares_outstanding", "equity_mln"],
-                    "debt_to_equity_fields": ["total_debt_mln", "equity_mln"],
-                    "earnings_variability_fields": ["eps", "shares_outstanding"],
-                },
+                "provenance": provenance,
             }
         )
 
@@ -481,26 +747,35 @@ def build_quality_artifact(
             "normalization": "sector_relative",
             "winsorization": config["winsorization"],
             "n_universe": stats["n_universe"],
+            "n_issuers": stats["n_issuers"],
             "n_scored": stats["n_scored"],
+            "n_scored_issuers": stats["n_scored_issuers"],
             "n_investable_scored": stats["n_investable_scored"],
+            "n_investable_scored_issuers": stats["n_investable_scored_issuers"],
             "n_eligible": stats["n_eligible"],
+            "n_eligible_issuers": stats["n_eligible_issuers"],
             "data_coverage": stats["data_coverage"],
+            "issuer_data_coverage": stats["issuer_data_coverage"],
             "confidence": stats["confidence"],
             "normalization_scopes": stats["normalization_scopes"],
+            "models": stats["models"],
             "descriptor_stats": stats["descriptors"],
             "sources": [
                 str(panel_path.relative_to(REPO)) if panel_path.is_relative_to(REPO) else str(panel_path),
                 str(momentum_path.relative_to(REPO)) if momentum_path.exists() and momentum_path.is_relative_to(REPO) else str(momentum_path),
                 str(official_facts_path.relative_to(REPO)) if official_facts_path.exists() and official_facts_path.is_relative_to(REPO) else str(official_facts_path),
+                str(cbr_valuation_path.relative_to(REPO)) if cbr_valuation_path.exists() and cbr_valuation_path.is_relative_to(REPO) else str(cbr_valuation_path),
+                str(cbr_timeseries_path.relative_to(REPO)) if cbr_timeseries_path.exists() and cbr_timeseries_path.is_relative_to(REPO) else str(cbr_timeseries_path),
             ],
             "warnings": warnings,
             "stale": False,
-            "extended_status": "unavailable_insufficient_verified_descriptor_coverage",
+            "extended_status": "sector_models_active_industrial_bank_it",
             "backtest_status": "unavailable_no_publication_date_history",
         },
         "config": config,
         "data_quality": {
             "confidence": stats["confidence"],
+            "models": stats["models"],
             "missing_metrics": dict(missing_metrics),
             "oldest_report_period_end": oldest_period,
             "weak_coverage_sectors": sorted({
@@ -510,7 +785,7 @@ def build_quality_artifact(
         "backtest": {
             "status": "unavailable",
             "point_in_time": False,
-            "reason": "Нет исторических publication_date и split-adjusted EPS/share history; числовые backtest-метрики не публикуются.",
+            "reason": "Нет полной point-in-time истории publication_date и секторных факторов; числовые backtest-метрики не публикуются.",
         },
         "rows": scored_rows,
     }
@@ -560,6 +835,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report-index", type=Path, default=DEFAULT_REPORT_INDEX)
     parser.add_argument("--official-facts", type=Path, default=DEFAULT_OFFICIAL_FACTS)
     parser.add_argument("--site-data", type=Path, default=DEFAULT_SITE_DATA)
+    parser.add_argument("--cbr-valuation", type=Path, default=DEFAULT_CBR_VALUATION)
+    parser.add_argument("--cbr-timeseries", type=Path, default=DEFAULT_CBR_TIMESERIES)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--model-out", type=Path, default=DEFAULT_MODEL_OUT)
     parser.add_argument("--site-out", type=Path, default=DEFAULT_SITE_OUT)
@@ -578,6 +855,8 @@ def main() -> int:
             report_index_path=args.report_index,
             official_facts_path=args.official_facts,
             site_data_path=args.site_data,
+            cbr_valuation_path=args.cbr_valuation,
+            cbr_timeseries_path=args.cbr_timeseries,
             config_path=args.config,
             as_of=args.as_of,
         )

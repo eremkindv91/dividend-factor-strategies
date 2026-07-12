@@ -81,7 +81,7 @@ def check_marketsaw(d) -> str | None:
 
 def check_quality(d) -> str | None:
     meta, rows = d.get("meta") or {}, d.get("rows")
-    if meta.get("methodology_version") != "ru_quality_core_v1":
+    if meta.get("methodology_version") != "ru_quality_sector_v2":
         return f"methodology_version={meta.get('methodology_version')!r}"
     if not isinstance(rows, list) or len(rows) < 30:
         return f"rows пуст/короткий ({len(rows) if isinstance(rows, list) else 'нет'})"
@@ -89,6 +89,19 @@ def check_quality(d) -> str | None:
         return "meta.n_universe не совпадает с rows"
     if any(row.get("eligible") and row.get("confidence") == "low" for row in rows):
         return "low-confidence компания попала в default eligible"
+    expected = {
+        "industrial_core": {"roe", "debt_to_equity", "earnings_variability"},
+        "bank_quality": {"bank_roe", "capital_headroom", "bank_profit_variability"},
+        "it_quality": {"ebitda_margin", "fcf_margin", "net_debt_to_ebitda"},
+    }
+    if set(expected) - {row.get("quality_model") for row in rows}:
+        return "не все секторные Quality-модели представлены"
+    for row in rows:
+        model = row.get("quality_model")
+        if model not in expected or set((row.get("raw") or {}).keys()) != expected[model]:
+            return f"factor contract нарушен у {row.get('ticker')}"
+        if model == "bank_quality" and (row.get("provenance") or {}).get("source_type") != "CBR_official_forms_102_123_135":
+            return f"bank_quality без CBR provenance у {row.get('ticker')}"
     return None
 
 

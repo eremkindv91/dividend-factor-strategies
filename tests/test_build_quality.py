@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.build_quality import build_quality_artifact, validate_quality_artifact
+from scripts.build_quality import (
+    _latest_leverage_with_year,
+    build_quality_artifact,
+    validate_quality_artifact,
+)
 
 
 def _write_fixture(tmp_path: Path):
@@ -111,3 +115,89 @@ def test_financials_never_receive_industrial_debt_to_equity(tmp_path):
     financial_rows = [row for row in payload["rows"] if row["sector"] == "Alpha"]
     assert all(row["raw"]["debt_to_equity"] is None for row in financial_rows)
     assert all(row["status"] == "sector_specific_model_required" for row in financial_rows)
+
+
+def test_latest_it_leverage_skips_zero_placeholder_when_cash_is_missing():
+    group = pd.DataFrame([
+        {"year": 2024, "net_debt_to_ebitda": -0.25, "net_debt_mln": -100, "cash_mln": 300},
+        {"year": 2025, "net_debt_to_ebitda": 0.0, "net_debt_mln": 0, "cash_mln": None},
+    ])
+    assert _latest_leverage_with_year(group, as_of_year=2025) == (-0.25, 2024)
+
+
+def test_bank_model_uses_official_cbr_factors_and_never_industrial_debt(tmp_path):
+    paths = _write_fixture(tmp_path)
+    valuation = {"meta": {"cbr_asof": "2025-06-01"}, "banks": []}
+    timeseries = {}
+    month_dates = [
+        "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01",
+        "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01",
+    ]
+    monthly_values = {
+        100: [2, 18] * 6,
+        101: [9, 10, 11] * 4,
+        102: [20] * 11 + [21],
+    }
+    for index in range(3):
+        ticker, regnum = f"Q{index}", 100 + index
+        valuation["banks"].append({
+            "ticker": ticker,
+            "regnum": regnum,
+            "roe": 12 + index * 6,
+            "n10_headroom": 1 + index * 2,
+            "n10": 12 + index * 2,
+            "n10_reg_min": 11,
+            "capital_rub": (100 + index * 20) * 1_000_000_000,
+            "profit_ttm_rub": (12 + index * 8) * 1_000_000_000,
+            "vintages": {"cbr_102": "2025-06-01", "cbr_123": "2025-06-01", "cbr_135": "2025-06-01"},
+            "warnings": [],
+        })
+        timeseries[str(regnum)] = {
+            "net_profit": [
+                {"date": stamp, "value_q": value}
+                for stamp, value in zip(month_dates, monthly_values[regnum])
+            ]
+        }
+    cbr_valuation = tmp_path / "valuation.json"
+    cbr_timeseries = tmp_path / "bank_timeseries.json"
+    cbr_valuation.write_text(json.dumps(valuation), encoding="utf-8")
+    cbr_timeseries.write_text(json.dumps(timeseries), encoding="utf-8")
+
+    payload = build_quality_artifact(
+        panel_path=paths["panel"], registry_path=paths["registry"], momentum_path=paths["momentum"],
+        returns_path=paths["returns"], report_index_path=paths["reports"], official_facts_path=paths["official"],
+        site_data_path=paths["site"], cbr_valuation_path=cbr_valuation,
+        cbr_timeseries_path=cbr_timeseries, config_path=paths["config"], as_of=date(2025, 6, 30),
+    )
+    banks = [row for row in payload["rows"] if row["quality_model"] == "bank_quality"]
+    assert len(banks) == 3
+    assert all(set(row["raw"]) == {"bank_roe", "capital_headroom", "bank_profit_variability"} for row in banks)
+    assert all(row["provenance"]["source_type"] == "CBR_official_forms_102_123_135" for row in banks)
+    assert all(row["confidence"] == "low" and row["publication_date"] is None for row in banks)
+    assert all(row["financial_model_required"] is False for row in banks)
+    assert payload["meta"]["models"]["bank_quality"]["n_scored_issuers"] == 3
+    best = max(banks, key=lambda row: row["sector_rank_pct"] or -1)
+    assert "стабильная месячная прибыль" in best["explanation"]["strengths"]
+
+
+def test_it_model_uses_margin_cash_flow_and_validated_leverage(tmp_path):
+    paths = _write_fixture(tmp_path)
+    panel = pd.read_csv(paths["panel"])
+    panel.loc[panel.ticker == "Q0", "sector"] = "IT"
+    panel.loc[panel.ticker == "Q0", "revenue_mln"] = 1_000.0
+    panel.loc[panel.ticker == "Q0", "ebitda_mln"] = 250.0
+    panel.loc[panel.ticker == "Q0", "FCF"] = 120.0
+    panel.loc[panel.ticker == "Q0", "net_debt_to_ebitda"] = 1.5
+    panel.loc[panel.ticker == "Q0", "net_debt_mln"] = 375.0
+    panel.loc[panel.ticker == "Q0", "cash_mln"] = 100.0
+    panel.to_csv(paths["panel"], index=False)
+    payload = build_quality_artifact(
+        panel_path=paths["panel"], registry_path=paths["registry"], momentum_path=paths["momentum"],
+        returns_path=paths["returns"], report_index_path=paths["reports"], official_facts_path=paths["official"],
+        site_data_path=paths["site"], config_path=paths["config"], as_of=date(2025, 6, 30),
+    )
+    row = next(item for item in payload["rows"] if item["ticker"] == "Q0")
+    assert row["quality_model"] == "it_quality"
+    assert row["raw"] == {"ebitda_margin": 0.25, "fcf_margin": 0.12, "net_debt_to_ebitda": 1.5}
+    assert row["provenance"]["fields"]["fcf_margin"] == ["FCF", "revenue_mln"]
+    assert row["confidence"] == "low"

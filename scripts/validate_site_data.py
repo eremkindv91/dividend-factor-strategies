@@ -273,17 +273,23 @@ def check_quality() -> None:
             warn("quality.json отсутствует — пропуск")
         return
     meta, rows = d.get("meta") or {}, d.get("rows") or []
-    if meta.get("schema_version") != "1.0":
+    if meta.get("schema_version") != "2.0":
         err(f"quality.json: неизвестный schema_version={meta.get('schema_version')!r}")
-    if meta.get("methodology_version") != "ru_quality_core_v1":
+    if meta.get("methodology_version") != "ru_quality_sector_v2":
         err(f"quality.json: неизвестный methodology_version={meta.get('methodology_version')!r}")
     if not isinstance(rows, list) or not rows:
         err("quality.json: rows пуст/не список")
         return
     if meta.get("n_universe") != len(rows):
         err(f"quality.json: n_universe={meta.get('n_universe')} ≠ rows={len(rows)}")
-    required = {"ticker", "raw", "winsorized", "z", "coverage_ratio", "confidence",
-                "eligible", "exclusion_reasons", "warnings", "provenance"}
+    required = {"ticker", "issuer_id", "quality_model", "quality_model_label", "factor_definitions",
+                "raw", "winsorized", "z", "coverage_ratio", "confidence", "eligible",
+                "exclusion_reasons", "warnings", "provenance"}
+    model_factors = {
+        "industrial_core": {"roe", "debt_to_equity", "earnings_variability"},
+        "bank_quality": {"bank_roe", "capital_headroom", "bank_profit_variability"},
+        "it_quality": {"ebitda_margin", "fcf_margin", "net_debt_to_ebitda"},
+    }
     for row in rows:
         missing = required - set(row)
         if missing:
@@ -295,14 +301,34 @@ def check_quality() -> None:
             err(f"quality.json: {row.get('ticker')} некорректный coverage_ratio={coverage}")
         if row.get("quality_score_sector") is not None and row.get("quality_z_absolute") is None:
             err(f"quality.json: {row.get('ticker')} sector score без absolute composite")
+        model = row.get("quality_model")
+        factor_keys = {item.get("key") for item in (row.get("factor_definitions") or [])}
+        if model not in model_factors:
+            err(f"quality.json: {row.get('ticker')} неизвестная модель {model!r}")
+        elif factor_keys != model_factors[model] or set((row.get("raw") or {}).keys()) != model_factors[model]:
+            err(f"quality.json: {row.get('ticker')} нарушен factor contract модели {model}")
+        if model == "bank_quality":
+            if (row.get("provenance") or {}).get("source_type") != "CBR_official_forms_102_123_135":
+                err(f"quality.json: {row.get('ticker')} bank_quality без официального CBR provenance")
+            if "debt_to_equity" in (row.get("raw") or {}):
+                err(f"quality.json: {row.get('ticker')} bank_quality получил промышленный D/E")
+        if model == "it_quality" and "roe" in (row.get("raw") or {}):
+            err(f"quality.json: {row.get('ticker')} it_quality получил корпоративный ROE")
         if row.get("financial_model_required") and (row.get("raw") or {}).get("debt_to_equity") is not None:
             err(f"quality.json: {row.get('ticker')} financials получил промышленный D/E")
+    present_models = {row.get("quality_model") for row in rows}
+    missing_models = set(model_factors) - present_models
+    if missing_models:
+        err(f"quality.json: отсутствуют секторные модели {sorted(missing_models)}")
     actual_scored = sum(bool(row.get("score_eligible")) for row in rows)
     actual_eligible = sum(bool(row.get("eligible")) for row in rows)
     if meta.get("n_scored") != actual_scored:
         err(f"quality.json: n_scored={meta.get('n_scored')} ≠ {actual_scored}")
     if meta.get("n_eligible") != actual_eligible:
         err(f"quality.json: n_eligible={meta.get('n_eligible')} ≠ {actual_eligible}")
+    actual_issuers = len({row.get("issuer_id") or row.get("ticker") for row in rows})
+    if meta.get("n_issuers") != actual_issuers:
+        err(f"quality.json: n_issuers={meta.get('n_issuers')} ≠ {actual_issuers}")
     backtest = d.get("backtest") or {}
     if backtest.get("status") == "unavailable" and backtest.get("point_in_time") is not False:
         err("quality.json: unavailable backtest должен явно иметь point_in_time=false")

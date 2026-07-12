@@ -90,6 +90,22 @@ def _score_row(ticker, sector, roe, debt, evar=None, confidence="medium"):
     }
 
 
+def _sector_model_row(ticker, model, raw, *, issuer_id=None, sector="Sector"):
+    return {
+        "ticker": ticker,
+        "issuer_id": issuer_id or f"ticker:{ticker}",
+        "sector": sector,
+        "super_sector": "All",
+        "quality_model": model,
+        "raw": raw,
+        "confidence": "medium",
+        "financial_model_required": False,
+        "investability": {"eligible": True, "reasons": []},
+        "warnings": [],
+        "exclusion_reasons": [],
+    }
+
+
 def test_roe_is_required_for_composite_score():
     rows = [_score_row("A", "S", None, 1, 0.2), _score_row("B", "S", 0.2, 2, 0.3)]
     scored, _ = compute_quality_scores(rows, {"winsorization": [0.05, 0.95], "min_quality_coverage": 0.67, "min_sector_peers": 2})
@@ -126,6 +142,70 @@ def test_sector_zscore_is_clipped_to_plus_minus_three():
     rows.append(_score_row("OUT", "A", 20.0, 0.0))
     scored, _ = compute_quality_scores(rows, {"winsorization": [0.0, 1.0], "min_quality_coverage": 0.67, "min_sector_peers": 5})
     assert all(row["quality_z_sector"] is None or abs(row["quality_z_sector"]) <= 3 for row in scored)
+
+
+def test_bank_model_rewards_roe_and_capital_headroom_and_penalizes_profit_variability():
+    rows = [
+        _sector_model_row(
+            f"B{i}", "bank_quality",
+            {"bank_roe": 0.10 + i * 0.03, "capital_headroom": 0.01 + i * 0.01,
+             "bank_profit_variability": 0.70 - i * 0.10},
+            sector="Финансы (Банки)",
+        )
+        for i in range(5)
+    ]
+    scored, stats = compute_quality_scores(
+        rows, {"winsorization": [0.05, 0.95], "min_quality_coverage": 0.67, "min_sector_peers": 5}
+    )
+    assert scored[-1]["z"]["bank_roe"] > scored[0]["z"]["bank_roe"]
+    assert scored[-1]["z"]["capital_headroom"] > scored[0]["z"]["capital_headroom"]
+    assert scored[-1]["z"]["bank_profit_variability"] > scored[0]["z"]["bank_profit_variability"]
+    assert scored[-1]["sector_rank_pct"] > scored[0]["sector_rank_pct"]
+    assert "стабильная месячная прибыль" in scored[-1]["factor_definitions"][2]["strength"]
+    assert stats["models"]["bank_quality"]["n_scored_issuers"] == 5
+
+
+def test_it_model_rewards_margin_and_fcf_and_penalizes_leverage():
+    rows = [
+        _sector_model_row(
+            f"IT{i}", "it_quality",
+            {"ebitda_margin": 0.10 + i * 0.04, "fcf_margin": -0.05 + i * 0.04,
+             "net_debt_to_ebitda": 3.0 - i * 0.5},
+            sector="IT",
+        )
+        for i in range(5)
+    ]
+    scored, _ = compute_quality_scores(
+        rows, {"winsorization": [0.05, 0.95], "min_quality_coverage": 0.67, "min_sector_peers": 5}
+    )
+    assert scored[-1]["z"]["ebitda_margin"] > scored[0]["z"]["ebitda_margin"]
+    assert scored[-1]["z"]["fcf_margin"] > scored[0]["z"]["fcf_margin"]
+    assert scored[-1]["z"]["net_debt_to_ebitda"] > scored[0]["z"]["net_debt_to_ebitda"]
+    assert scored[-1]["sector_rank_pct"] > scored[0]["sector_rank_pct"]
+
+
+def test_share_classes_do_not_double_weight_descriptor_cross_section():
+    rows = [_score_row(f"C{i}", "S", 0.10 + i * 0.02, 1.5 - i * 0.1) for i in range(4)]
+    rows += [
+        _sector_model_row(
+            "SBER", "industrial_core",
+            {"roe": 0.25, "debt_to_equity": 0.5, "earnings_variability": 0.1},
+            issuer_id="issuer:sber", sector="S",
+        ),
+        _sector_model_row(
+            "SBERP", "industrial_core",
+            {"roe": 0.25, "debt_to_equity": 0.5, "earnings_variability": 0.1},
+            issuer_id="issuer:sber", sector="S",
+        ),
+    ]
+    scored, stats = compute_quality_scores(
+        rows, {"winsorization": [0.05, 0.95], "min_quality_coverage": 0.67, "min_sector_peers": 5}
+    )
+    sber = next(row for row in scored if row["ticker"] == "SBER")
+    sberp = next(row for row in scored if row["ticker"] == "SBERP")
+    assert sber["z"] == sberp["z"]
+    assert stats["descriptors"]["industrial_core"]["roe"]["n"] == 5
+    assert stats["n_issuers"] == 5
 
 
 def test_dual_share_classes_share_issuer_id():

@@ -13,8 +13,39 @@ from statistics import fmean, pstdev, stdev
 from typing import Any, Iterable, Mapping, Sequence
 
 
-METHODOLOGY_VERSION = "ru_quality_core_v1"
+METHODOLOGY_VERSION = "ru_quality_sector_v2"
 LEGACY_METHODOLOGY_VERSION = "ru_quality_legacy_v1"
+
+
+QUALITY_MODEL_SPECS: dict[str, dict[str, Any]] = {
+    "industrial_core": {
+        "label": "Корпоративная Quality",
+        "required": ("roe",),
+        "descriptors": (
+            {"key": "roe", "label": "ROE", "inverse": False, "format": "percent", "strength": "высокая рентабельность", "weakness": "рентабельность ниже рынка"},
+            {"key": "debt_to_equity", "label": "Debt/Equity ↓", "inverse": True, "format": "multiple", "strength": "контролируемая долговая нагрузка", "weakness": "повышенная долговая нагрузка"},
+            {"key": "earnings_variability", "label": "Изменчивость EPS ↓", "inverse": True, "format": "percent", "strength": "стабильная динамика EPS", "weakness": "нестабильная динамика EPS"},
+        ),
+    },
+    "bank_quality": {
+        "label": "Банки · ЦБ РФ",
+        "required": ("bank_roe", "capital_headroom"),
+        "descriptors": (
+            {"key": "bank_roe", "label": "ROE банка", "inverse": False, "format": "percent", "strength": "высокий ROE банка", "weakness": "низкий ROE банка"},
+            {"key": "capital_headroom", "label": "Запас Н1.0 к порогу", "inverse": False, "format": "percentage_points", "strength": "сильный запас капитала Н1.0", "weakness": "тонкий запас капитала Н1.0"},
+            {"key": "bank_profit_variability", "label": "Изменчивость прибыли ↓", "inverse": True, "format": "percent", "strength": "стабильная месячная прибыль", "weakness": "высокая изменчивость месячной прибыли"},
+        ),
+    },
+    "it_quality": {
+        "label": "IT Quality",
+        "required": ("ebitda_margin",),
+        "descriptors": (
+            {"key": "ebitda_margin", "label": "EBITDA margin", "inverse": False, "format": "percent", "strength": "высокая EBITDA margin", "weakness": "низкая EBITDA margin"},
+            {"key": "fcf_margin", "label": "FCF margin", "inverse": False, "format": "percent", "strength": "сильная FCF margin", "weakness": "слабая или отрицательная FCF margin"},
+            {"key": "net_debt_to_ebitda", "label": "Net debt/EBITDA ↓", "inverse": True, "format": "multiple", "strength": "низкая долговая нагрузка или net cash", "weakness": "повышенная долговая нагрузка"},
+        ),
+    },
+}
 
 
 def _number(value: Any) -> float | None:
@@ -144,60 +175,91 @@ def _append_unique(target: list[str], value: str) -> None:
 def compute_quality_scores(
     input_rows: Sequence[Mapping[str, Any]], config: Mapping[str, Any]
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Compute absolute composite first, then sector-relative Quality scores."""
+    """Compute model-specific descriptors and one comparable sector score.
+
+    Descriptor cross-sections and sector peers are de-duplicated by issuer, so
+    ordinary/preferred share classes cannot change an issuer's factor exposure.
+    """
     rows = [dict(row) for row in input_rows]
-    descriptors = {
-        "roe": False,
-        "debt_to_equity": True,
-        "earnings_variability": True,
-    }
     winsor_limits = config.get("winsorization", [0.05, 0.95])
     lower, upper = float(winsor_limits[0]), float(winsor_limits[1])
-    stats: dict[str, Any] = {"descriptors": {}, "warnings": []}
+    stats: dict[str, Any] = {"descriptors": {}, "models": {}, "warnings": []}
+
+    def issuer_key(row: Mapping[str, Any]) -> str:
+        return str(row.get("issuer_id") or row.get("ticker") or "Unknown")
 
     for row in rows:
         row.setdefault("warnings", [])
         row.setdefault("exclusion_reasons", [])
+        model = str(row.get("quality_model") or "industrial_core")
+        if model not in QUALITY_MODEL_SPECS:
+            _append_unique(row["warnings"], f"unknown_quality_model:{model}")
+            model = "industrial_core"
+        spec = QUALITY_MODEL_SPECS[model]
+        row["quality_model"] = model
+        row["quality_model_label"] = spec["label"]
+        row["factor_definitions"] = [dict(item) for item in spec["descriptors"]]
         row["winsorized"] = {}
         row["z"] = {}
 
-    for descriptor, inverse in descriptors.items():
-        values = [(row.get("raw") or {}).get(descriptor) for row in rows]
-        winsorized, bounds = winsorize(values, lower, upper)
-        zscores, z_stats = cross_section_zscores(winsorized, inverse=inverse)
-        stats["descriptors"][descriptor] = {
-            "p05": _round(bounds[0]),
-            "p95": _round(bounds[1]),
-            "mean": _round((z_stats or {}).get("mean")),
-            "std": _round((z_stats or {}).get("std")),
-            "n": sum(value is not None for value in values),
-        }
-        if z_stats and z_stats.get("std") == 0:
-            warning = f"zero_cross_section_variance:{descriptor}"
-            stats["warnings"].append(warning)
-        for index, row in enumerate(rows):
-            row["winsorized"][descriptor] = _round(winsorized[index])
-            row["z"][descriptor] = _round(zscores[index])
-            if z_stats and z_stats.get("std") == 0 and values[index] is not None:
-                _append_unique(row["warnings"], f"zero_cross_section_variance:{descriptor}")
+    models = sorted({str(row["quality_model"]) for row in rows})
+    for model in models:
+        spec = QUALITY_MODEL_SPECS[model]
+        indexes = [index for index, row in enumerate(rows) if row["quality_model"] == model]
+        stats["descriptors"][model] = {}
+        for descriptor in spec["descriptors"]:
+            key, inverse = descriptor["key"], bool(descriptor["inverse"])
+            issuer_raw: dict[str, float | None] = {}
+            for index in indexes:
+                row = rows[index]
+                issuer = issuer_key(row)
+                value = _number((row.get("raw") or {}).get(key))
+                if issuer not in issuer_raw or issuer_raw[issuer] is None:
+                    issuer_raw[issuer] = value
+                elif value is not None and abs(float(issuer_raw[issuer]) - value) > 1e-12:
+                    _append_unique(row["warnings"], f"share_class_descriptor_mismatch:{key}")
+            issuer_order = sorted(issuer_raw)
+            values = [issuer_raw[issuer] for issuer in issuer_order]
+            winsorized, bounds = winsorize(values, lower, upper)
+            zscores, z_stats = cross_section_zscores(winsorized, inverse=inverse)
+            by_issuer = {
+                issuer: (_round(winsorized[pos]), _round(zscores[pos]))
+                for pos, issuer in enumerate(issuer_order)
+            }
+            stats["descriptors"][model][key] = {
+                "p05": _round(bounds[0]),
+                "p95": _round(bounds[1]),
+                "mean": _round((z_stats or {}).get("mean")),
+                "std": _round((z_stats or {}).get("std")),
+                "n": sum(value is not None for value in values),
+            }
+            if z_stats and z_stats.get("std") == 0:
+                warning = f"zero_cross_section_variance:{model}:{key}"
+                stats["warnings"].append(warning)
+            for index in indexes:
+                row = rows[index]
+                win, zscore = by_issuer.get(issuer_key(row), (None, None))
+                row["winsorized"][key] = win
+                row["z"][key] = zscore
+                if z_stats and z_stats.get("std") == 0 and (row.get("raw") or {}).get(key) is not None:
+                    _append_unique(row["warnings"], f"zero_cross_section_variance:{key}")
 
+    min_coverage = float(config.get("min_quality_coverage", 0.67))
     for row in rows:
-        z_roe = row["z"].get("roe")
-        z_de = row["z"].get("debt_to_equity")
-        z_evar = row["z"].get("earnings_variability")
-        available = [value for value in (z_roe, z_de, z_evar) if value is not None]
-        descriptor_count = sum(
-            (row.get("raw") or {}).get(key) is not None for key in descriptors
-        )
-        coverage = {0: 0.0, 1: 0.33, 2: 0.67, 3: 1.0}[descriptor_count]
+        spec = QUALITY_MODEL_SPECS[str(row["quality_model"])]
+        keys = [item["key"] for item in spec["descriptors"]]
+        available = [row["z"].get(key) for key in keys if row["z"].get(key) is not None]
+        descriptor_count = sum(_number((row.get("raw") or {}).get(key)) is not None for key in keys)
+        coverage = round(descriptor_count / len(keys), 2) if keys else 0.0
         row["coverage_ratio"] = coverage
-        can_score = z_roe is not None and len(available) >= 2 and coverage >= float(
-            config.get("min_quality_coverage", 0.67)
-        )
+        missing_required = [key for key in spec["required"] if row["z"].get(key) is None]
+        can_score = not missing_required and len(available) >= min(2, len(keys)) and coverage >= min_coverage
         if not can_score:
-            if z_roe is None:
-                _append_unique(row["exclusion_reasons"], "missing_required_roe")
-            if len(available) < 2:
+            for key in missing_required:
+                _append_unique(row["exclusion_reasons"], f"missing_required_descriptor:{key}")
+                if key == "roe":
+                    _append_unique(row["exclusion_reasons"], "missing_required_roe")
+            if len(available) < min(2, len(keys)):
                 _append_unique(row["exclusion_reasons"], "fewer_than_two_core_descriptors")
             row["quality_z_absolute"] = None
             row["quality_score_absolute"] = None
@@ -208,23 +270,33 @@ def compute_quality_scores(
         row["quality_score_absolute"] = _round(piecewise_quality_score(composite))
         row["score_eligible"] = True
 
-    absolute_values = [row.get("quality_z_absolute") for row in rows]
+    issuer_absolute: dict[str, float | None] = {}
+    for row in rows:
+        issuer = issuer_key(row)
+        value = row.get("quality_z_absolute")
+        if issuer not in issuer_absolute or issuer_absolute[issuer] is None:
+            issuer_absolute[issuer] = value
+    absolute_values = list(issuer_absolute.values())
     for row in rows:
         row["quality_rank_pct"] = _round(
             percentile_rank(absolute_values, row.get("quality_z_absolute")), 4
         )
 
     min_peers = int(config.get("min_sector_peers", 5))
+    scored_by_issuer: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if row.get("quality_z_absolute") is not None:
+            scored_by_issuer.setdefault(issuer_key(row), row)
+    scored_issuers = list(scored_by_issuer.values())
     sector_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     super_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    scored_rows = [row for row in rows if row.get("quality_z_absolute") is not None]
-    for row in scored_rows:
+    for row in scored_issuers:
         sector_groups[str(row.get("sector") or "Unknown")].append(row)
         super_groups[str(row.get("super_sector") or "Market")].append(row)
 
-    market_values = [row["quality_z_absolute"] for row in scored_rows]
+    market_values = [float(row["quality_z_absolute"]) for row in scored_issuers]
     for row in rows:
-        absolute = row.get("quality_z_absolute")
+        absolute = _number(row.get("quality_z_absolute"))
         if absolute is None:
             row["quality_z_sector"] = None
             row["quality_score_sector"] = None
@@ -234,17 +306,14 @@ def compute_quality_scores(
         sector = str(row.get("sector") or "Unknown")
         super_sector = str(row.get("super_sector") or "Market")
         if len(sector_groups[sector]) >= min_peers:
-            peers = sector_groups[sector]
-            scope = "sector"
+            peers, scope = sector_groups[sector], "sector"
         elif len(super_groups[super_sector]) >= min_peers:
-            peers = super_groups[super_sector]
-            scope = "super_sector"
+            peers, scope = super_groups[super_sector], "super_sector"
             _append_unique(row["warnings"], "sector_peer_fallback:super_sector")
         else:
-            peers = scored_rows
-            scope = "market"
+            peers, scope = scored_issuers, "market"
             _append_unique(row["warnings"], "sector_peer_fallback:market")
-        values = [peer["quality_z_absolute"] for peer in peers]
+        values = [float(peer["quality_z_absolute"]) for peer in peers]
         sigma = pstdev(values) if len(values) > 1 else 0.0
         if sigma == 0:
             sector_z = None
@@ -259,15 +328,13 @@ def compute_quality_scores(
     for row in rows:
         investability = row.get("investability") or {}
         confidence = str(row.get("confidence") or "low")
-        financial_excluded = bool(row.get("financial_model_required"))
+        model_missing = bool(row.get("financial_model_required"))
         row["investable"] = bool(investability.get("eligible"))
         row["eligible"] = bool(
-            row.get("score_eligible")
-            and row["investable"]
-            and not financial_excluded
+            row.get("score_eligible") and row["investable"] and not model_missing
             and confidence in {"high", "medium"}
         )
-        if financial_excluded:
+        if model_missing:
             row["status"] = "sector_specific_model_required"
         elif row["eligible"]:
             row["status"] = "eligible"
@@ -279,14 +346,31 @@ def compute_quality_scores(
         row["methodology_version"] = METHODOLOGY_VERSION
 
     stats["n_universe"] = len(rows)
+    stats["n_issuers"] = len({issuer_key(row) for row in rows})
     stats["n_scored"] = sum(bool(row.get("score_eligible")) for row in rows)
+    stats["n_scored_issuers"] = len({
+        issuer_key(row) for row in rows if row.get("score_eligible")
+    })
     stats["n_investable_scored"] = sum(
         bool(row.get("score_eligible") and row.get("investable")) for row in rows
     )
+    stats["n_investable_scored_issuers"] = len({
+        issuer_key(row) for row in rows
+        if row.get("score_eligible") and row.get("investable")
+    })
     stats["n_eligible"] = sum(bool(row.get("eligible")) for row in rows)
+    stats["n_eligible_issuers"] = len({
+        issuer_key(row) for row in rows if row.get("eligible")
+    })
     stats["data_coverage"] = round(
         fmean([float(row.get("coverage_ratio") or 0.0) for row in rows]), 4
     ) if rows else 0.0
+    issuer_rows: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        issuer_rows.setdefault(issuer_key(row), row)
+    stats["issuer_data_coverage"] = round(
+        fmean([float(row.get("coverage_ratio") or 0.0) for row in issuer_rows.values()]), 4
+    ) if issuer_rows else 0.0
     stats["confidence"] = {
         level: sum(str(row.get("confidence")) == level for row in rows)
         for level in ("high", "medium", "low")
@@ -295,6 +379,32 @@ def compute_quality_scores(
         scope: sum(row.get("normalization_scope") == scope for row in rows)
         for scope in ("sector", "super_sector", "market")
     }
+    for model in models:
+        model_rows = [row for row in rows if row["quality_model"] == model]
+        stats["models"][model] = {
+            "label": QUALITY_MODEL_SPECS[model]["label"],
+            "n_universe": len(model_rows),
+            "n_issuers": len({issuer_key(row) for row in model_rows}),
+            "n_scored": sum(bool(row.get("score_eligible")) for row in model_rows),
+            "n_scored_issuers": len({
+                issuer_key(row) for row in model_rows if row.get("score_eligible")
+            }),
+            "n_investable_scored": sum(
+                bool(row.get("score_eligible") and row.get("investable")) for row in model_rows
+            ),
+            "n_investable_scored_issuers": len({
+                issuer_key(row) for row in model_rows
+                if row.get("score_eligible") and row.get("investable")
+            }),
+            "n_full_coverage": sum(float(row.get("coverage_ratio") or 0.0) >= 1 for row in model_rows),
+            "n_full_coverage_issuers": len({
+                issuer_key(row) for row in model_rows
+                if float(row.get("coverage_ratio") or 0.0) >= 1
+            }),
+            "n_eligible_issuers": len({
+                issuer_key(row) for row in model_rows if row.get("eligible")
+            }),
+        }
     stats["market_scored_values"] = len(market_values)
     return rows, stats
 
