@@ -247,15 +247,16 @@
               <button type="button" disabled data-tooltip="Extended появится после проверки покрытия accruals, investment quality и EPS history">Extended</button>
             </div>
             <label class="quality-toggle"><input type="checkbox" id="quality-sector-neutral" checked> Сравнивать внутри сектора</label>
-            <label>Покрытие<select id="quality-min-coverage"><option value="0.67" selected>Не менее 67%</option><option value="1">Только 100%</option></select></label>
+            <label>Покрытие<select id="quality-min-coverage"><option value="0.67" selected>2 из 3 факторов</option><option value="1">Все 3 фактора</option></select></label>
+            <label class="quality-toggle quality-research-toggle" data-tooltip="Включает компании без подтверждённой даты публикации. Подходит только для live research, не для point-in-time backtest."><input type="checkbox" id="quality-allow-low"> Live preview</label>
             <button type="button" class="btn" id="quality-build">Сформировать</button>
           </div>
+          <div class="quality-filter-status" id="quality-filter-status" aria-live="polite"></div>
           <details class="quality-advanced">
             <summary>Настройки отбора</summary>
             <div class="quality-advanced-grid">
               <label>Мин. ADV, млн ₽<input type="number" id="quality-min-adv" value="10" min="0" step="5"></label>
               <label>Макс. эмитент, %<input type="number" id="quality-max-issuer" value="20" min="5" max="100" step="5"></label>
-              <label class="quality-toggle"><input type="checkbox" id="quality-allow-low"> Включить low confidence</label>
             </div>
           </details>
 

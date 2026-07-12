@@ -26,6 +26,19 @@ def test_quality_ui_has_no_hard_coded_quality_backtest_metrics():
     assert "полный point-in-time backtest пока не рассчитан" in app
 
 
+def test_quality_empty_state_explains_filter_funnel_and_keeps_preview_explicit():
+    app = (ROOT / "site/app.js").read_text(encoding="utf-8")
+    html = (ROOT / "site/index.html").read_text(encoding="utf-8")
+    assert 'id="quality-filter-status"' in html
+    assert 'id="quality-allow-low"' in html
+    assert "2 из 3 факторов" in html
+    assert "Все 3 фактора" in html
+    assert "function qualityCandidateAnalysis(config)" in app
+    assert "function qualityEmptyStateHTML(config, analysis)" in app
+    assert 'data-quality-action="two-factor-preview"' in app
+    assert "EPS stability" in app
+
+
 def test_legacy_alias_is_marked_deprecated_and_new_portfolio_ignores_it():
     valuations = (ROOT / "scripts/build_valuations.py").read_text(encoding="utf-8")
     app = (ROOT / "site/app.js").read_text(encoding="utf-8")

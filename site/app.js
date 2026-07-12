@@ -735,6 +735,7 @@ function qualityScore(t) {
 }
 
 let QUALITY_LOADING = false;
+let QUALITY_LAST_ANALYSIS = null;
 function loadQuality(cb) {
   if (QUALITY) { if (cb) cb(null, QUALITY); return; }
   if (QUALITY_LOADING) return;
@@ -787,8 +788,8 @@ function renderQualityPanel() {
     const cell = (label, value) => `<div class="quality-kpi"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
     kpis.innerHTML = cell('Компаний', String(meta.n_universe || 0))
       + cell('Получили score', String(meta.n_scored || 0))
-      + cell('Investable score', String(meta.n_investable_scored || 0))
-      + cell('Default eligible', String(meta.n_eligible || 0))
+      + cell('Доступны для live', String(meta.n_investable_scored || 0))
+      + cell('Verified / PIT', String(meta.n_eligible || 0))
       + cell('Среднее покрытие', isNum(meta.data_coverage) ? ru(meta.data_coverage * 100, 0) + '%' : '—')
       + cell('Fundamentals', meta.as_of_date || '—')
       + cell('Методология', meta.methodology_version || '—');
@@ -812,6 +813,7 @@ function renderQualityPanel() {
     [...new Set(QUALITY.rows.map((row) => row.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ru'))
       .forEach((sector) => { const option = document.createElement('option'); option.value = sector; option.textContent = sector; sectorSelect.appendChild(option); });
   }
+  renderQualityFilterStatus();
   renderQualityTable();
 }
 
@@ -880,17 +882,34 @@ function openQualityDrawer(ticker) {
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
 
-function buildQualityPortfolio(config) {
-  if (!QUALITY || !DATA) return null;
+function qualityCandidateAnalysis(config) {
+  const stages = { universe: 0, priced: 0, scoredInvestable: 0, coverage: 0, confidence: 0, adv: 0, usable: 0, issuers: 0 };
+  const coverageAvailable = { twoFactor: 0, full: 0 };
+  if (!QUALITY || !DATA || !Array.isArray(QUALITY.rows)) {
+    return { config, candidates: [], stages, coverageAvailable, missingEvar: 0, failure: 'data_unavailable' };
+  }
   const universe = new Map(DATA.tickers.map((ticker) => [ticker.ticker, ticker]));
   const scoreKey = config.sectorNeutral ? 'quality_score_sector' : 'quality_score_absolute';
   const rankKey = config.sectorNeutral ? 'sector_rank_pct' : 'quality_rank_pct';
-  let candidates = QUALITY.rows.map((q) => ({ q, t: universe.get(q.ticker) })).filter(({ q, t }) => {
-    if (!t || !isNum(t.price) || t.price <= 0 || !q.score_eligible || !q.investable || q.financial_model_required) return false;
-    if (!config.allowLow && q.confidence === 'low') return false;
-    if (!isNum(q.coverage_ratio) || q.coverage_ratio < config.minCoverage) return false;
-    if (!isNum(q.adv_rub) || q.adv_rub < config.minAdv) return false;
-    return isNum(q[scoreKey]) && isNum(q[rankKey]);
+  const candidates = [];
+  stages.universe = QUALITY.rows.length;
+  QUALITY.rows.forEach((q) => {
+    const t = universe.get(q.ticker);
+    if (!t || !isNum(t.price) || t.price <= 0) return;
+    stages.priced++;
+    if (!q.score_eligible || !q.investable || q.financial_model_required) return;
+    stages.scoredInvestable++;
+    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 0.67) coverageAvailable.twoFactor++;
+    if (isNum(q.coverage_ratio) && q.coverage_ratio >= 1) coverageAvailable.full++;
+    if (!isNum(q.coverage_ratio) || q.coverage_ratio < config.minCoverage) return;
+    stages.coverage++;
+    if (!config.allowLow && !['high', 'medium'].includes(q.confidence)) return;
+    stages.confidence++;
+    if (!isNum(q.adv_rub) || q.adv_rub < config.minAdv) return;
+    stages.adv++;
+    if (!isNum(q[scoreKey]) || !isNum(q[rankKey])) return;
+    stages.usable++;
+    candidates.push({ q, t });
   });
   const issuerBest = new Map();
   candidates.forEach((item) => {
@@ -898,9 +917,31 @@ function buildQualityPortfolio(config) {
     const current = issuerBest.get(key);
     if (!current || (item.q.adv_rub || 0) > (current.q.adv_rub || 0)) issuerBest.set(key, item);
   });
-  candidates = [...issuerBest.values()].sort((a, b) => b.q[rankKey] - a.q[rankKey] || String(a.q.ticker).localeCompare(String(b.q.ticker)));
+  const uniqueCandidates = [...issuerBest.values()].sort((a, b) => b.q[rankKey] - a.q[rankKey] || String(a.q.ticker).localeCompare(String(b.q.ticker)));
+  stages.issuers = uniqueCandidates.length;
+  return {
+    config, candidates: uniqueCandidates, stages, coverageAvailable,
+    missingEvar: Number((((QUALITY || {}).data_quality || {}).missing_metrics || {}).earnings_variability || 0),
+    scoreKey, rankKey, failure: null,
+  };
+}
+
+function buildQualityPortfolio(config) {
+  const analysis = qualityCandidateAnalysis(config);
+  QUALITY_LAST_ANALYSIS = analysis;
+  const candidates = analysis.candidates;
+  if (!QUALITY || !DATA) return null;
+  if (!analysis.stages.scoredInvestable) analysis.failure = 'no_investable_scores';
+  else if (!analysis.stages.coverage) analysis.failure = 'coverage';
+  else if (!analysis.stages.confidence) analysis.failure = 'confidence';
+  else if (!analysis.stages.adv) analysis.failure = 'adv';
+  else if (!analysis.stages.usable) analysis.failure = 'score';
+  const scoreKey = analysis.scoreKey;
+  const rankKey = analysis.rankKey;
   const selected = candidates.slice(0, config.n);
-  if (selected.length < 3 || selected.length * config.maxSecurity < 1 - 1e-9) return null;
+  analysis.selected = selected.length;
+  if (selected.length < 3) { analysis.failure ||= 'too_few'; return null; }
+  if (selected.length * config.maxSecurity < 1 - 1e-9) { analysis.failure = 'security_cap'; return null; }
   const vols = selected.map((item) => item.q.volatility).filter(isNum).sort((a, b) => a - b);
   const medianVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
   const items = selected.map(({ q, t }) => {
@@ -913,11 +954,89 @@ function buildQualityPortfolio(config) {
       score: q[rankKey] / 100, w: rawWeight };
   });
   const total = items.reduce((sum, item) => sum + item.w, 0);
-  if (!(total > 0)) return null;
+  if (!(total > 0)) { analysis.failure = 'zero_weights'; return null; }
   items.forEach((item) => { item.w /= total; });
   capWeights(items, config.maxSecurity, config.sectorCap);
-  if (items.some((item) => item.w > config.maxIssuer + 1e-8)) return null; // one security per issuer
+  if (items.some((item) => item.w > config.maxIssuer + 1e-8)) { analysis.failure = 'issuer_cap'; return null; } // one security per issuer
+  analysis.failure = null;
   return items.sort((a, b) => b.w - a.w);
+}
+
+function qualityFilterStatusConfig() {
+  return {
+    n: +(document.getElementById('pf-n') || {}).value || 10,
+    weight: (document.getElementById('pf-weight') || {}).value || 'factor_tilt',
+    sectorNeutral: !!(document.getElementById('quality-sector-neutral') || {}).checked,
+    minCoverage: +(document.getElementById('quality-min-coverage') || {}).value || 0.67,
+    minAdv: (+((document.getElementById('quality-min-adv') || {}).value || 10)) * 1e6,
+    maxSecurity: (+((document.getElementById('pf-cap') || {}).value || 20)) / 100,
+    maxIssuer: (+((document.getElementById('quality-max-issuer') || {}).value || 20)) / 100,
+    sectorCap: (+((document.getElementById('pf-seccap') || {}).value || 40)) / 100,
+    allowLow: !!(document.getElementById('quality-allow-low') || {}).checked,
+  };
+}
+
+function renderQualityFilterStatus() {
+  const target = document.getElementById('quality-filter-status');
+  if (!target || !QUALITY || !DATA) return;
+  const config = qualityFilterStatusConfig();
+  const analysis = qualityCandidateAnalysis(config);
+  const coverageSelect = document.getElementById('quality-min-coverage');
+  if (coverageSelect) {
+    const two = coverageSelect.querySelector('option[value="0.67"]');
+    const full = coverageSelect.querySelector('option[value="1"]');
+    if (two) two.textContent = `2 из 3 факторов · ${analysis.coverageAvailable.twoFactor}`;
+    if (full) full.textContent = `Все 3 фактора · ${analysis.coverageAvailable.full}`;
+  }
+  const strict = !config.allowLow;
+  const noFull = config.minCoverage >= 1 && analysis.coverageAvailable.full === 0;
+  target.classList.toggle('warn', noFull || strict);
+  if (noFull) {
+    target.innerHTML = `<b>0 компаний с тремя факторами.</b><span>EPS stability отсутствует у ${analysis.missingEvar}; выбери «2 из 3 факторов».</span>`;
+  } else if (strict) {
+    target.innerHTML = `<b>Verified / PIT: ${analysis.stages.confidence}.</b><span>${analysis.coverageAvailable.twoFactor} компаний доступны только как live preview без подтверждённых publication dates.</span>`;
+  } else {
+    target.innerHTML = `<b>Live preview: ${analysis.stages.issuers} эмитентов.</b><span>Score ${analysis.stages.scoredInvestable} → покрытие ${analysis.stages.coverage} → ADV ${analysis.stages.adv}.</span>`;
+  }
+}
+
+function qualityEmptyStateHTML(config, analysis) {
+  const a = analysis || { stages: {}, coverageAvailable: {}, missingEvar: 0, failure: 'data_unavailable' };
+  const s = a.stages || {};
+  let title = 'Не удалось сформировать RU Quality корзину.';
+  let reason = 'Проверь доступность quality.json и рыночных данных.';
+  let action = '';
+  if (a.failure === 'coverage') {
+    title = 'Фильтр «Все 3 фактора» сейчас объективно пуст.';
+    reason = `EPS stability требует пять сопоставимых годовых EPS; этот ряд отсутствует у ${a.missingEvar || 0} компаний. Двухфакторный Core использует ROE и Debt/Equity и оставляет ${a.coverageAvailable.twoFactor || 0} investable компаний.`;
+    action = '<button type="button" class="btn" data-quality-action="two-factor-preview">Перейти к 2-факторному live preview</button>';
+  } else if (a.failure === 'confidence') {
+    title = 'Verified / PIT корзина пока пустая.';
+    reason = `${s.coverage || 0} компаний проходят score и покрытие, но даты публикации отчётности не подтверждены. Их можно посмотреть только как явно отмеченный live preview.`;
+    action = '<button type="button" class="btn" data-quality-action="live-preview">Открыть live preview</button>';
+  } else if (a.failure === 'adv') {
+    title = 'Кандидаты не проходят заданный ADV.';
+    reason = `После score, investability и покрытия осталось ${s.confidence || 0}, после ADV — ${s.adv || 0}. Снизь минимальный ADV осознанно.`;
+  } else if (a.failure === 'security_cap') {
+    title = 'Лимит на бумагу несовместим с числом бумаг.';
+    reason = `При ${a.selected || 0} бумагах и лимите ${ru((config.maxSecurity || 0) * 100, 0)}% невозможно распределить 100% капитала.`;
+  } else if (['too_few', 'issuer_cap'].includes(a.failure)) {
+    title = 'После ограничения по эмитентам осталось слишком мало бумаг.';
+    reason = `Уникальных кандидатов: ${s.issuers || 0}. Проверь число бумаг и лимиты, не ослабляя качество данных автоматически.`;
+  }
+  const funnel = `<div class="quality-empty-funnel"><span>Score + investability: ${s.scoredInvestable || 0}</span><span>Покрытие: ${s.coverage || 0}</span><span>Confidence: ${s.confidence || 0}</span><span>ADV: ${s.adv || 0}</span><span>Эмитенты: ${s.issuers || 0}</span></div>`;
+  return `<div class="quality-empty"><strong>${esc(title)}</strong><p>${esc(reason)}</p>${funnel}${action ? `<div class="quality-empty-actions">${action}</div>` : ''}</div>`;
+}
+
+function wireQualityEmptyActions(target) {
+  target.querySelectorAll('[data-quality-action]').forEach((button) => button.addEventListener('click', () => {
+    const coverage = document.getElementById('quality-min-coverage');
+    const preview = document.getElementById('quality-allow-low');
+    if (button.dataset.qualityAction === 'two-factor-preview' && coverage) coverage.value = '0.67';
+    if (preview) preview.checked = true;
+    renderQualityFilterStatus();
+    renderPortfolio();
+  }));
 }
 
 function qualityPortfolioConfig(opts) {
@@ -948,6 +1067,10 @@ function wireQuality() {
   }));
   ['quality-sector', 'quality-status', 'quality-sort'].forEach((id) => {
     const control = document.getElementById(id); if (control) control.addEventListener('change', renderQualityTable);
+  });
+  ['quality-sector-neutral', 'quality-min-coverage', 'quality-min-adv', 'quality-max-issuer', 'quality-allow-low'].forEach((id) => {
+    const control = document.getElementById(id);
+    if (control) control.addEventListener('change', renderQualityFilterStatus);
   });
   document.getElementById('quality-build').addEventListener('click', () => {
     const pf = document.getElementById('pf'); if (pf) pf.open = true;
@@ -1331,10 +1454,13 @@ function renderPortfolio() {
   const capital = +document.getElementById('pf-capital').value || 0;
   const items = buildPortfolio(method, opts);
   if (!items) {
+    if (method === 'quality') {
+      const analysis = QUALITY_LAST_ANALYSIS || qualityCandidateAnalysis(qualityPortfolioConfig(opts));
+      out.innerHTML = qualityEmptyStateHTML(analysis.config || qualityPortfolioConfig(opts), analysis);
+      wireQualityEmptyActions(out);
+      return;
+    }
     let msg = 'Недостаточно подходящих бумаг для корзины.';
-    if (method === 'quality') msg = document.getElementById('quality-allow-low').checked
-      ? 'После строгих liquidity/cap фильтров недостаточно компаний. Проверь ADV, покрытие и лимиты.'
-      : 'Нет компаний High/Medium confidence: даты публикации не подтверждены. Для research preview явно включи «low confidence» в настройках RU Quality.';
     if (method.startsWith('opt')) {
       if (!PF_RETURNS) msg = 'Загрузка истории…';
       else if (PF_RETURNS.failed) msg = 'Не удалось загрузить историю (returns.json) — обнови страницу (Cmd+Shift+R).';
