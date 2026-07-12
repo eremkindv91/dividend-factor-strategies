@@ -3,9 +3,10 @@
 """Патч news-блока в site_status.json после освежения news.json (вызывается из news.yml).
 
 site_status.json строится в update.yml (09:00/19:00), а news.json обновляется чаще (news.yml
-07:00/09:20/19:00). Без патча свежие новости какое-то время показывались бы как stale. Здесь
-пересчитываем ТОЛЬКО news-блок по фактическому news.json (и overall) прямо в опубликованном
-site_status.json, не трогая остальные блоки. Чистый stdlib. Идемпотентно.
+07:00/09:20/19:00). Без патча свежие новости какое-то время показывались бы как устаревшие.
+Здесь пересчитываем ТОЛЬКО news-блок по фактическому news.json и overall — тем же
+классификатором, что и build_site_status (новости оцениваются по СВОЕЙ частоте, не по
+торговому календарю MOEX). Чистый stdlib. Идемпотентно.
 
 CLI: python scripts/patch_news_status.py <dir-с-gh-pages>  (там лежат news.json и site_status.json)
 """
@@ -16,17 +17,10 @@ import os
 import sys
 from datetime import datetime, timezone
 
-NEWS_THRESH_DAYS = 0.25
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import build_site_status as bss  # noqa: E402
 
-
-def age_days(s):
-    try:
-        t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
-        if t.tzinfo is None:
-            t = t.replace(tzinfo=timezone.utc)
-        return (datetime.now(timezone.utc) - t).total_seconds() / 86400
-    except (ValueError, TypeError):
-        return None
+NEWS_CFG = ("news", "Новости", "news.json", ["generated_at", "date"], "news", None)
 
 
 def main() -> int:
@@ -41,18 +35,24 @@ def main() -> int:
     except (ValueError, OSError) as e:
         sys.stderr.write(f"[patch-news] битый JSON — пропуск ({e})\n")
         return 0
-    asof = news.get("generated_at") or news.get("date")
-    age = age_days(asof)
-    status = "broken" if not news.get("market_snapshot") else \
-        ("fresh" if (age is not None and age <= NEWS_THRESH_DAYS) else "stale")
-    blocks = st.setdefault("blocks", {})
-    blocks["news"] = {"title": "Новости", "status": status, "asof": str(asof)[:19] if asof else None,
-                      "age_days": round(age, 1) if age is not None else None, "note": ""}
-    order = {"fresh": 0, "stale": 1, "fallback": 2, "broken": 3}
-    st["overall"] = max((b.get("status", "fresh") for b in blocks.values()), key=lambda s: order.get(s, 0))
+
+    now = datetime.now(timezone.utc)
+    fb = st.get("blocks", {}).get("news", {}).get("fallback_status") == "fallback"
+    st.setdefault("blocks", {})["news"] = bss.classify_block(NEWS_CFG, news, fb, now)
+
+    # пересчёт overall по всем блокам в новой модели
+    worst = "fresh"
+    for b in st["blocks"].values():
+        f = b.get("freshness_status") or b.get("status", "fresh")
+        if bss.SEVERITY.get(f, 0) > bss.SEVERITY.get(worst, 0):
+            worst = f
+    st["overall"] = bss.COARSE.get(worst, "stale")
+    st["overall_status"] = worst
+    st["overall_message"] = bss.overall_message(worst)
+
     with open(st_path, "w", encoding="utf-8") as f:
         json.dump(st, f, ensure_ascii=False, separators=(",", ":"))
-    sys.stderr.write(f"[patch-news] news→{status} (age {age and round(age,2)}), overall→{st['overall']}\n")
+    sys.stderr.write(f"[patch-news] news→{st['blocks']['news']['freshness_status']}, overall→{worst}\n")
     return 0
 
 

@@ -3804,7 +3804,8 @@ function updateDataStatus() {
   const cls = { fresh: 'ds-fresh', stale: 'ds-stale', fallback: 'ds-fallback', broken: 'ds-broken' };
   const item = (lbl, v, key) => {
     const b = st[key]; const c = b ? (cls[b.status] || '') : '';
-    const tip = b ? `${b.title}: ${b.status}${b.note ? ' — ' + b.note : ''}` : '';
+    // подсказка — человеческий текст статуса (без внутренних терминов), не тех-код
+    const tip = b ? `${b.title}: ${b.user_message || b.title}` : '';
     return `<span class="ds-item ${c}"${tip ? ` title="${esc(tip)}"` : ''}><span class="ds-lbl">${lbl}:</span> <b>${v || '—'}</b></span>`;
   };
   const price = DATA && DATA.meta ? d10(DATA.meta.price_asof) : null;
@@ -3812,11 +3813,12 @@ function updateDataStatus() {
   const bonds = (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
   const fin = (DATA_COVERAGE && DATA_COVERAGE.meta) ? d10(DATA_COVERAGE.meta.generated_at) : null;
   const news = (SITE_STATUS && st.news && st.news.asof) ? d10(st.news.asof) : null;
-  // overall health chip
+  // overall health chip — человеческий текст (учитывает торговый календарь: выходной ≠ «устаревает»)
   const overall = SITE_STATUS && !SITE_STATUS.failed ? SITE_STATUS.overall : null;
-  const oLabel = { fresh: 'данные свежие', stale: 'данные устаревают', fallback: 'резервные данные', broken: 'сбой данных' };
+  const oLabel = { fresh: 'данные актуальны', stale: 'часть данных устарела', fallback: 'резервные данные', broken: 'часть данных недоступна' };
+  const oText = (SITE_STATUS && SITE_STATUS.overall_message) ? SITE_STATUS.overall_message : (oLabel[overall] || overall);
   const chip = overall
-    ? `<span class="ds-health ${cls[overall] || ''}" title="Data Health — свежесть по блокам">● ${oLabel[overall] || overall}</span>`
+    ? `<span class="ds-health ${cls[overall] || ''}" title="Свежесть данных по торговому календарю MOEX">● ${esc(oText)}</span>`
     : '';
   el.innerHTML = chip + item('Цены MOEX', price, 'market') + item('MCFTR', saw, 'marketsaw')
     + item('Новости', news, 'news') + item('Облигации', bonds, 'bonds') + item('Фундамент', fin, 'financials')
@@ -3913,10 +3915,14 @@ function renderEventsToday() {
   const { iso: todayIso, weekday } = mskNow();
   const pf = eventsPortfolioContext();
 
-  // свежесть: возраст generated_at + статус
+  // свежесть: приоритет — site_status.events (учитывает торговый календарь MOEX);
+  // фолбэк — возраст generated_at с поблажкой на выходные (пт→пн ≠ «устарело»).
   const gen = meta.generated_at || null;
   const ageDays = gen ? (Date.now() - Date.parse(gen)) / 86400000 : null;
-  const staleData = EVENTS_DATA.failed || meta.status === 'fallback' || meta.status === 'broken' || (ageDays != null && ageDays > 1.6);
+  const evStatus = (SITE_STATUS && SITE_STATUS.blocks && SITE_STATUS.blocks.events) ? SITE_STATUS.blocks.events : null;
+  const lenient = (weekday === 'Sat' || weekday === 'Sun' || weekday === 'Mon') ? 3.4 : 1.6;  // разрыв выходных
+  const staleData = EVENTS_DATA.failed || meta.status === 'fallback' || meta.status === 'broken'
+    || (evStatus ? ['stale', 'broken'].includes(evStatus.status) : (ageDays != null && ageDays > lenient));
   const updTxt = gen ? `${gen.slice(8, 10)}.${gen.slice(5, 7)}.${gen.slice(0, 4)} ${gen.slice(11, 16)} МСК` : 'н/д';
 
   const todays = events.filter((e) => e.date === todayIso).sort((a, b) => evSort(a, b, pf));

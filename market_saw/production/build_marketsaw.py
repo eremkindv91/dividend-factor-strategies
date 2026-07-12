@@ -21,8 +21,13 @@ MS_ROOT = os.path.dirname(HERE)                       # market_saw/
 REPO = os.path.dirname(MS_ROOT)
 sys.path.insert(0, os.path.join(MS_ROOT, "shared"))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(REPO, "scripts"))
 from mcftr_fetch import discover_board, fetch_mcftr_history  # noqa: E402
 import market_saw as ms  # noqa: E402
+try:
+    import trading_calendar as tc  # торговый календарь MOEX (выходной ≠ stale)
+except Exception:  # noqa: BLE001
+    tc = None
 
 DEFAULT_OUT = os.path.join(REPO, "site", "marketsaw.json")
 MIN_POINTS = 100
@@ -101,12 +106,23 @@ def build(points: list) -> dict:
     stale_days = (date.today() - date.fromisoformat(data_last)).days
     if stale_days > STALE_FAIL_DAYS:
         raise RuntimeError(f"последняя дата {data_last} старше {STALE_FAIL_DAYS} дн — пайплайн похоже сломан")
+    # Флаг stale — по торговому календарю MOEX: предупреждаем только если ≥2 торговых сессий
+    # не отражены (выходной/праздник сам по себе не делает данные устаревшими). Фолбэк на
+    # календарный порог, если календарь недоступен.
+    if tc is not None:
+        now_msk = tc.to_msk(datetime.now(timezone.utc))
+        sessions_behind = tc.sessions_between(date.fromisoformat(data_last), now_msk)
+        stale_flag = sessions_behind >= 2
+    else:
+        sessions_behind = None
+        stale_flag = stale_days > STALE_WARN_DAYS
     return {
         "schema": SCHEMA,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "data_last": data_last,
-        "stale": stale_days > STALE_WARN_DAYS,
+        "stale": stale_flag,
         "stale_days": stale_days,
+        "sessions_behind": sessions_behind,
         "index": "MCFTR",
         "reversal_threshold": ms.REVERSAL_THRESHOLD,
         "zones": {
