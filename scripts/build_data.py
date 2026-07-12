@@ -34,6 +34,7 @@ from moex_iss import get_prices  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
 MOMENTUM = os.path.join(REPO, "model_output", "momentum.json")
+QUALITY = os.path.join(REPO, "model_output", "quality_rf.json")
 OUT_JSON = os.path.join(REPO, "site", "data.json")
 
 YIELD_MAX = 100.0   # >100% или <0 — невозможно → reject поля
@@ -168,6 +169,17 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001
             sys.stderr.write(f"[build_data] momentum.json битый ({e}) — без momentum\n")
 
+    quality = {}
+    quality_meta = {}
+    if os.path.exists(QUALITY):
+        try:
+            quality_payload = json.load(open(QUALITY, encoding="utf-8"))
+            quality_meta = quality_payload.get("meta") or {}
+            quality = {row["ticker"]: row for row in quality_payload.get("rows", []) if row.get("ticker")}
+            print(f"[build_data] RU Quality: {len(quality)} строк, method={quality_meta.get('methodology_version')}")
+        except Exception as e:  # noqa: BLE001
+            fail(f"битый quality_rf.json: {e}")
+
     fetched = get_prices(tickers)
     prices, pmeta = fetched["prices"], fetched["meta"]
     n_usable = pmeta["n_fresh"] + pmeta["n_cached"]
@@ -186,6 +198,7 @@ def main() -> int:
     for r in records:
         tk = r["ticker"]
         p = prices.get(tk, {})
+        qr = quality.get(tk, {})
         price = p.get("price")
         p_ens = r.get("p_ens")
         dps = r.get("dividend_forecast")
@@ -271,7 +284,14 @@ def main() -> int:
             "mom_score": (momentum.get(tk) or {}).get("mom"),     # WML 12-1 (месячный pipeline)
             "vol_ann": (momentum.get(tk) or {}).get("vol_ann"),   # годовая волатильность (inverse-vol)
             "adv": (momentum.get(tk) or {}).get("adv"),           # ADV ₽/день (ликвидность-фильтр)
-            "quality_barra": r.get("quality_barra"),              # верная 3-дескр Barra (ВКР)
+            "lot_size": p.get("lot_size") or 1,
+            "quality_score": qr.get("quality_score_sector"),
+            "quality_rank_pct": qr.get("sector_rank_pct"),
+            "quality_confidence": qr.get("confidence"),
+            "quality_eligible": bool(qr.get("eligible")),
+            "quality_methodology_version": qr.get("methodology_version"),
+            "quality_ru_legacy": r.get("quality_ru_legacy", r.get("quality_barra")),
+            "quality_barra": r.get("quality_ru_legacy", r.get("quality_barra")),  # one-release alias
         })
 
     # ── upside-перцентиль внутри сектора (цено-зависим → считаем ЗДЕСЬ, к свежей цене, ежедневно) ──
@@ -332,6 +352,10 @@ def main() -> int:
             "auc_oof_rf": meta_a.get("auc_oof_rf"),
             "model": meta_a.get("model"),
             "shap_note": meta_a.get("shap_note"),
+            "quality_methodology_version": quality_meta.get("methodology_version"),
+            "quality_as_of": quality_meta.get("as_of_date"),
+            "quality_n_scored": quality_meta.get("n_scored"),
+            "quality_n_eligible": quality_meta.get("n_eligible"),
             "disclaimer": DISCLAIMER,
         },
         "tickers": out_rows,

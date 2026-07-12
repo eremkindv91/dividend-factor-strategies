@@ -192,12 +192,19 @@
       <section class="app-section" data-section="strategies" hidden>
         <p class="section-intro">Стратегии: портфельные и сценарные инструменты поверх данных по акциям. Это исследовательские расчёты, а не готовые рекомендации.</p>
 
+        <div class="strategy-mode-tabs" role="tablist" aria-label="Тип стратегии">
+          <button type="button" class="strategy-mode active" data-strategy="quality" role="tab">RU Quality</button>
+          <button type="button" class="strategy-mode" data-strategy="momentum" role="tab">Momentum</button>
+          <button type="button" class="strategy-mode" data-strategy="marlamov" role="tab">Дивидендная переоценка</button>
+          <button type="button" class="strategy-mode" data-strategy="optmv" role="tab">Оптимизаторы</button>
+        </div>
+
         <details class="mapwrap pfwrap" id="pf" hidden>
           <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
           <div class="pf-body">
             <div class="pf-controls">
               <label>Стратегия<select id="pf-method">
-                <option value="quality">Quality (Barra, 3-дескр)</option>
+                <option value="quality">RU Quality · 3 фактора</option>
                 <option value="momentum" disabled>Momentum (скоро)</option>
                 <option value="marlamov">Дивидендная переоценка (Марламов)</option>
                 <option value="optmv">Оптимум: мин. риск</option>
@@ -207,6 +214,7 @@
               </select></label>
               <label>Бумаг<select id="pf-n"><option>10</option><option selected>15</option><option>20</option></select></label>
               <label>Взвешивание<select id="pf-weight">
+                <option value="factor_tilt">Капитализация × Quality</option>
                 <option value="equal">Равные доли</option>
                 <option value="score">По фактору</option>
                 <option value="mcap">По капитализации</option>
@@ -220,6 +228,54 @@
             <div id="pf-out"></div>
           </div>
         </details>
+
+        <section class="quality-panel" id="quality-panel" hidden aria-labelledby="quality-title">
+          <div class="quality-head">
+            <div>
+              <span class="quality-kicker">Независимая факторная модель</span>
+              <h2 id="quality-title">RU Quality</h2>
+              <p>Отбирает прибыльные компании с устойчивой прибылью и контролируемой долговой нагрузкой. Компании сравниваются прежде всего с собственным сектором.</p>
+            </div>
+            <span class="quality-method-badge" data-tooltip="Независимая российская факторная модель по публичным принципам MSCI Quality. Не является индексом или продуктом MSCI/Barra.">Core v1</span>
+          </div>
+          <div class="quality-kpis" id="quality-kpis"><span class="muted">Загрузка RU Quality…</span></div>
+          <div class="quality-notice" id="quality-notice" hidden></div>
+
+          <div class="quality-controls">
+            <div class="quality-mode" aria-label="Режим модели">
+              <button type="button" class="active" aria-pressed="true">Core</button>
+              <button type="button" disabled data-tooltip="Extended появится после проверки покрытия accruals, investment quality и EPS history">Extended</button>
+            </div>
+            <label class="quality-toggle"><input type="checkbox" id="quality-sector-neutral" checked> Сравнивать внутри сектора</label>
+            <label>Покрытие<select id="quality-min-coverage"><option value="0.67" selected>Не менее 67%</option><option value="1">Только 100%</option></select></label>
+            <button type="button" class="btn" id="quality-build">Сформировать</button>
+          </div>
+          <details class="quality-advanced">
+            <summary>Настройки отбора</summary>
+            <div class="quality-advanced-grid">
+              <label>Мин. ADV, млн ₽<input type="number" id="quality-min-adv" value="10" min="0" step="5"></label>
+              <label>Макс. эмитент, %<input type="number" id="quality-max-issuer" value="20" min="5" max="100" step="5"></label>
+              <label class="quality-toggle"><input type="checkbox" id="quality-allow-low"> Включить low confidence</label>
+            </div>
+          </details>
+
+          <div class="quality-data-strip" id="quality-data-strip"></div>
+          <div class="quality-screener-toolbar">
+            <label>Сектор<select id="quality-sector"><option value="">Все</option></select></label>
+            <label>Статус<select id="quality-status"><option value="">Все</option><option value="eligible">Eligible</option><option value="low_confidence_review">Нужна проверка</option><option value="excluded">Исключены</option></select></label>
+            <label>Сортировка<select id="quality-sort"><option value="sector_rank_pct">Quality внутри сектора</option><option value="quality_rank_pct">Абсолютный Quality</option><option value="coverage_ratio">Покрытие</option><option value="adv_rub">Ликвидность</option></select></label>
+          </div>
+          <div class="quality-table-wrap" id="quality-table"><span class="muted">Загрузка screener…</span></div>
+          <div class="quality-backtest-state">
+            <b>Исторический backtest</b>
+            <span>Полный point-in-time backtest пока не рассчитан: в исходной панели нет исторических дат публикации и split-adjusted EPS.</span>
+          </div>
+        </section>
+
+        <dialog class="quality-drawer" id="quality-drawer">
+          <div class="quality-drawer-head"><div id="quality-drawer-title"></div><button type="button" id="quality-drawer-close" aria-label="Закрыть">×</button></div>
+          <div id="quality-drawer-body"></div>
+        </dialog>
 
         <details class="mapwrap ml-wrap" id="marlamov" hidden>
           <summary>Форвардная доходность <span class="muted">(2 года, очищенная база · Spread к RFR · режим рынка)</span></summary>

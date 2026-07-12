@@ -51,6 +51,8 @@ model_output/prices_cache.json
 site/marketsaw.json
 # marlamov.json генерит CI (scripts/build_forward_yield.py) и деплоит update.yml
 site/marlamov.json
+# RU Quality cross-section генерит CI; last-good source хранится в model_output/quality_rf.json
+site/quality.json
 # Пила рынка: промежуточные parquet регенерятся research-пайплайном (коммитим winner_model.json + отчёт)
 market_saw/data/*.parquet
 

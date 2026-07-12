@@ -45,11 +45,14 @@ jobs:
       - name: Оценка справедливой стоимости (роутер DCF/DDM/мультипликаторы) + история
         run: python scripts/build_valuations.py        # дополняет forecast_rf.json блоками valuation+history
 
+      - name: RU Quality Core (детерминированный cross-section)
+        run: python scripts/build_quality.py
+
       - name: Коммит панели + артефакта (если изменилось)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/panels_final/panel_russia_final.csv model_output/forecast_rf.json results/smartlab/reconcile.csv
+          git add data/panels_final/panel_russia_final.csv model_output/forecast_rf.json model_output/quality_rf.json results/smartlab/reconcile.csv
           if git diff --staged --quiet; then
             echo "Изменений нет — коммит не нужен."
           else

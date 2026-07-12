@@ -79,10 +79,24 @@ def check_marketsaw(d) -> str | None:
     return None
 
 
+def check_quality(d) -> str | None:
+    meta, rows = d.get("meta") or {}, d.get("rows")
+    if meta.get("methodology_version") != "ru_quality_core_v1":
+        return f"methodology_version={meta.get('methodology_version')!r}"
+    if not isinstance(rows, list) or len(rows) < 30:
+        return f"rows пуст/короткий ({len(rows) if isinstance(rows, list) else 'нет'})"
+    if meta.get("n_universe") != len(rows):
+        return "meta.n_universe не совпадает с rows"
+    if any(row.get("eligible") and row.get("confidence") == "low" for row in rows):
+        return "low-confidence компания попала в default eligible"
+    return None
+
+
 # обязательные (broken → block) и опциональные (broken → только пометка)
 REQUIRED = {
     "data.json": check_data,
     "marketsaw.json": check_marketsaw,
+    "quality.json": check_quality,
 }
 OPTIONAL = ["marlamov.json", "bonds/screener.json", "cbr/valuation.json", "news.json", "site_financials.json"]
 

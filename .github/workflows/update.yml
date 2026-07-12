@@ -74,8 +74,27 @@ jobs:
           restore-keys: |
             dividends-cache-
 
+      - name: Сборка unified financial layer и disclosure metadata loop
+        # Fundamentals и disclosure metadata должны обновиться до RU Quality snapshot.
+        run: |
+          python -m src.pipeline.discover_companies
+          python -m src.pipeline.fetch_reports --from-year 2024 --to-year 2026
+          python -m src.pipeline.extract_financials --skip-ocr
+          python -m src.pipeline.validate_financials
+          python -m src.pipeline.migrate_existing_smartlab_data || echo "[migrate] пропуск — нет reconciled панели"
+          python -m src.pipeline.unify_financial_data
+          python -m src.pipeline.build_site_data
+
+      - name: RU Quality — point-in-time metadata, Core score и schema gate
+        # Если свежая сборка невозможна, builder использует только валидный tracked last-good
+        # model_output/quality_rf.json и ставит stale=true; без валидного fallback job падает.
+        run: python scripts/build_quality.py
+
       - name: Сборка data.json (инференс на артефакте + свежие цены MOEX ISS)
         run: python scripts/build_data.py   # exit!=0 (нет артефакта/нет цен) → публикации нет
+
+      - name: RU Quality — обновить price/lot metadata после data.json
+        run: python scripts/build_quality.py
 
       - name: Data-level очистка портфельных данных (сплиты, SNGS/SNGSP, аномалии рядов)
         # чистит data.json + returns.json В ИСТОЧНИКЕ: сплит-adjust дивидендов (T ÷10), добавляет
@@ -104,22 +123,6 @@ jobs:
         # читает site/data.json (создан шагом выше); сбой не блокирует деплой
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
-
-      - name: Сборка unified financial layer и disclosure metadata loop
-        # Явный daily loop: обновляет registry/source metadata, ищет IFRS/МСФО отчеты
-        # на e-disclosure/issuer pages, не скачивает тяжелые PDF/XLSX без --download,
-        # сохраняет SmartLab fallback и публикует additive JSON layer.
-        run: |
-          python -m src.pipeline.discover_companies
-          python -m src.pipeline.fetch_reports --from-year 2024 --to-year 2026
-          python -m src.pipeline.extract_financials --skip-ocr
-          python -m src.pipeline.validate_financials
-          # миграция reconciled SmartLab-панели (коммитится) → processed parquet, чтобы unify собирал
-          # фундамент с актуальным годом (прибыль 2025 и т.п.), а не только из IFRS-отчётов.
-          # reconcile-краул SmartLab НЕ в CI (rate-limit) — панель обновляется отдельным прогоном и коммитится.
-          python -m src.pipeline.migrate_existing_smartlab_data || echo "[migrate] пропуск — нет reconciled панели"
-          python -m src.pipeline.unify_financial_data
-          python -m src.pipeline.build_site_data
 
       - name: P0 — клон текущего gh-pages (last-good для fallback и rollback)
         env:
@@ -170,6 +173,7 @@ jobs:
           [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"   # фаза рынка (Помощник фазы)
           [ -f site/market_history.json ] && cp site/market_history.json "$TMP/"   # графики и техуровни MOEX ISS
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
+          [ -f site/quality.json ] && cp site/quality.json "$TMP/"   # RU Quality Core + provenance
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ

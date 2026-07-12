@@ -13,7 +13,7 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
+let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -106,6 +106,7 @@ function init(data) {
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
   wirePortfolio();
+  wireQuality();
   wireMyPortfolio();
   loadReturns(() => { const o = document.getElementById('pf-out'); if (o && o.dataset.shown) renderPortfolio(); });  // жадно грузим историю → мгновенный результат
 
@@ -712,13 +713,13 @@ const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходно
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor
 const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — отсечь нетендерные (стоячие цены → ложный low-vol в оптимизаторе)
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
-  quality: { label: 'Quality (Barra, 3 дескриптора: ROE / стабильность прибыли / леверидж) · бэктест ВКР 2012–2025: CAGR 11,8%, Sharpe 0,20; в 2019–25 фактор ослаб — историческая справка, не гарантия' },
+  quality: { label: 'RU Quality · полный point-in-time backtest пока не рассчитан; ниже показаны характеристики текущего набора бумаг, а не историческая доходность стратегии' },
   momentum: { label: 'Momentum (WML 12-1, ТОЛЬКО ЛОНГ top-N) · бэктест ВКР 2012–2025: +2,2%/год избыточной доходности над рынком (t≈0,3 — статистически незначима); единственный фактор, исторически работавший на РФ, но слабо. Ребаланс месячный.' },
   marlamov: { label: 'Дивидендная переоценка · текущий рейтинг по gross форвардной доходности к RFR; исторические метрики ниже рассчитаны отдельно на лагированном Top-10 baseline' },
   optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
   optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
-  optms: { label: 'Макс-Шарп (tangency, w∝Σ⁻¹μ): СВЯЗЫВАЕТ фактор и риск — ожидаемая доходность μ ∝ Quality-фактор (Barra-3), риск из ковариации. Тилт в качественные имена с хорошим risk/return, не голый min-var' },
+  optms: { label: 'Макс-Шарп (tangency, w∝Σ⁻¹μ): связывает независимый RU Quality score и риск из ковариации. Это оптимизатор текущего universe, не исторический факторный backtest' },
 };
 const REBALANCE = {            // рекомендуемая частота ребаланса по стратегии
   quality: 'годовой (после годовых отчётов, как в ВКР — май)',
@@ -728,9 +729,235 @@ const REBALANCE = {            // рекомендуемая частота ре
   optrp: 'квартальный (ковариация медленная)', optiv: 'квартальный (ковариация медленная)',
 };
 
-// верная 3-дескрипторная Barra Quality (ROE / стабильность прибыли / леверидж; винзор+z+сектор-нейтрализация в build_valuations)
+// RU Quality Core приходит готовой cross-section из quality.json/build_quality.py.
 function qualityScore(t) {
-  return isNum(t.quality_barra) ? t.quality_barra : null;
+  return isNum(t.quality_rank_pct) ? t.quality_rank_pct / 100 : null;
+}
+
+let QUALITY_LOADING = false;
+function loadQuality(cb) {
+  if (QUALITY) { if (cb) cb(null, QUALITY); return; }
+  if (QUALITY_LOADING) return;
+  QUALITY_LOADING = true;
+  fetch('quality.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+    .then((payload) => { QUALITY = payload; QUALITY_LOADING = false; renderQualityPanel(); if (cb) cb(null, payload); })
+    .catch((error) => {
+      QUALITY_LOADING = false;
+      const notice = document.getElementById('quality-notice');
+      if (notice) { notice.hidden = false; notice.textContent = 'RU Quality временно недоступен: ' + error.message; }
+      if (cb) cb(error);
+    });
+}
+
+function qualityMethodSelected() {
+  const select = document.getElementById('pf-method');
+  return select && select.value === 'quality';
+}
+
+function syncStrategyPanels() {
+  const method = (document.getElementById('pf-method') || {}).value || 'quality';
+  const qualityPanel = document.getElementById('quality-panel');
+  if (qualityPanel) qualityPanel.hidden = method !== 'quality';
+  document.querySelectorAll('.strategy-mode').forEach((button) => {
+    const value = button.dataset.strategy || '';
+    const active = value === method || (value === 'optmv' && method.startsWith('opt'));
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  if (method === 'quality' && !QUALITY) loadQuality();
+}
+
+function qualityStatusLabel(status) {
+  return ({ eligible: 'Eligible', low_confidence_review: 'Нужна проверка', excluded: 'Исключена',
+    sector_specific_model_required: 'Нужна секторная модель' })[status] || status || '—';
+}
+
+function qualityFmtRaw(key, value) {
+  if (!isNum(value)) return '—';
+  if (key === 'roe' || key === 'earnings_variability') return ru(value * 100, 1) + '%';
+  return ru(value, 2) + '×';
+}
+
+function renderQualityPanel() {
+  if (!QUALITY || !Array.isArray(QUALITY.rows)) return;
+  const meta = QUALITY.meta || {}, dq = QUALITY.data_quality || {};
+  const kpis = document.getElementById('quality-kpis');
+  if (kpis) {
+    const cell = (label, value) => `<div class="quality-kpi"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
+    kpis.innerHTML = cell('Компаний', String(meta.n_universe || 0))
+      + cell('Получили score', String(meta.n_scored || 0))
+      + cell('Investable score', String(meta.n_investable_scored || 0))
+      + cell('Default eligible', String(meta.n_eligible || 0))
+      + cell('Среднее покрытие', isNum(meta.data_coverage) ? ru(meta.data_coverage * 100, 0) + '%' : '—')
+      + cell('Fundamentals', meta.as_of_date || '—')
+      + cell('Методология', meta.methodology_version || '—');
+  }
+  const notice = document.getElementById('quality-notice');
+  if (notice) {
+    const hasUnknownDates = (meta.warnings || []).some((warning) => String(warning).includes('publication_date'));
+    notice.hidden = !hasUnknownDates;
+    notice.textContent = hasUnknownDates
+      ? 'В панели нет подтверждённых дат публикации и полной истории EPS. Score показан как live research screener с low confidence; автоматическое включение в строгую корзину отключено.'
+      : '';
+  }
+  const confidence = dq.confidence || meta.confidence || {};
+  const missing = dq.missing_metrics || {};
+  const strip = document.getElementById('quality-data-strip');
+  if (strip) strip.innerHTML = `<span>Confidence: <b>${confidence.high || 0} high</b> · <b>${confidence.medium || 0} medium</b> · <b>${confidence.low || 0} low</b></span>
+    <span>Чаще отсутствует: <b>EPS stability ${missing.earnings_variability || 0}</b></span>
+    <span>Самый старый период: <b>${esc(dq.oldest_report_period_end || '—')}</b></span>`;
+  const sectorSelect = document.getElementById('quality-sector');
+  if (sectorSelect && sectorSelect.options.length === 1) {
+    [...new Set(QUALITY.rows.map((row) => row.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ru'))
+      .forEach((sector) => { const option = document.createElement('option'); option.value = sector; option.textContent = sector; sectorSelect.appendChild(option); });
+  }
+  renderQualityTable();
+}
+
+function renderQualityTable() {
+  const target = document.getElementById('quality-table');
+  if (!target || !QUALITY || !Array.isArray(QUALITY.rows)) return;
+  const sector = (document.getElementById('quality-sector') || {}).value || '';
+  const status = (document.getElementById('quality-status') || {}).value || '';
+  const sortKey = (document.getElementById('quality-sort') || {}).value || 'sector_rank_pct';
+  const rows = QUALITY.rows.filter((row) => (!sector || row.sector === sector) && (!status || row.status === status))
+    .sort((a, b) => (isNum(b[sortKey]) ? b[sortKey] : -Infinity) - (isNum(a[sortKey]) ? a[sortKey] : -Infinity)
+      || String(a.ticker).localeCompare(String(b.ticker)));
+  if (!rows.length) { target.innerHTML = '<div class="quality-drawer-note">По выбранным фильтрам компаний нет.</div>'; return; }
+  const body = rows.map((row, index) => {
+    const raw = row.raw || {};
+    return `<tr data-quality-ticker="${esc(row.ticker)}" tabindex="0">
+      <td>${index + 1}</td><td class="left"><b>${esc(row.ticker)}</b></td><td class="left">${esc(row.name || row.ticker)}</td>
+      <td class="left">${esc(row.sector || '—')}</td>
+      <td class="quality-score">${isNum(row.sector_rank_pct) ? ru(row.sector_rank_pct, 0) : '—'}</td>
+      <td>${isNum(row.quality_rank_pct) ? ru(row.quality_rank_pct, 0) : '—'}</td>
+      <td>${qualityFmtRaw('roe', raw.roe)}</td><td>${qualityFmtRaw('debt_to_equity', raw.debt_to_equity)}</td>
+      <td>${qualityFmtRaw('earnings_variability', raw.earnings_variability)}</td>
+      <td>${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}</td>
+      <td>${esc(row.report_period_end || '—')}</td>
+      <td><span class="quality-confidence ${esc(row.confidence || 'low')}">${esc(row.confidence || 'low')}</span></td>
+      <td>${esc(qualityStatusLabel(row.status))}</td></tr>`;
+  }).join('');
+  target.innerHTML = `<table class="quality-table"><thead><tr><th>#</th><th class="left">Тикер</th><th class="left">Компания</th><th class="left">Сектор</th>
+    <th>Quality сектор</th><th>Quality абсолют.</th><th>ROE</th><th>D/E</th><th>Стабильность EPS</th><th>Покрытие</th><th>Период</th><th>Confidence</th><th>Статус</th>
+    </tr></thead><tbody>${body}</tbody></table>`;
+  target.querySelectorAll('[data-quality-ticker]').forEach((row) => {
+    const open = () => openQualityDrawer(row.dataset.qualityTicker);
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', (event) => { if (event.key === 'Enter') open(); });
+  });
+}
+
+function qualityFactorBar(label, zValue) {
+  const present = isNum(zValue);
+  const width = present ? Math.max(0, Math.min(100, (zValue + 3) / 6 * 100)) : 0;
+  return `<div class="quality-factor-row ${present ? '' : 'missing'}"><span>${esc(label)}</span><span class="quality-factor-track"><i style="width:${width.toFixed(1)}%"></i></span><b>${present ? ru(zValue, 2) : '—'}</b></div>`;
+}
+
+function openQualityDrawer(ticker) {
+  if (!QUALITY) return;
+  const row = QUALITY.rows.find((item) => item.ticker === ticker);
+  const dialog = document.getElementById('quality-drawer');
+  if (!row || !dialog) return;
+  const title = document.getElementById('quality-drawer-title');
+  const body = document.getElementById('quality-drawer-body');
+  if (title) title.innerHTML = `<b>${esc(row.ticker)} · ${esc(row.name || '')}</b><div class="muted">${esc(row.sector || '')} · ${esc(row.methodology_version || '')}</div>`;
+  const raw = row.raw || {}, win = row.winsorized || {}, z = row.z || {};
+  const decomp = [
+    ['Прибыльность', 'roe'], ['Долговая нагрузка', 'debt_to_equity'], ['Стабильность EPS', 'earnings_variability'],
+  ].map(([label, key]) => `<tr><td>${label}</td><td>${qualityFmtRaw(key, raw[key])}</td><td>${qualityFmtRaw(key, win[key])}</td><td>${isNum(z[key]) ? ru(z[key], 2) : '—'}</td></tr>`).join('');
+  const explanation = row.explanation || {};
+  if (body) body.innerHTML = `<div class="quality-factor-bars">
+      ${qualityFactorBar('Прибыльность', z.roe)}${qualityFactorBar('Стабильность', z.earnings_variability)}
+      ${qualityFactorBar('Баланс', z.debt_to_equity)}${qualityFactorBar('Итоговый Quality', row.quality_z_sector)}
+    </div>
+    <table class="quality-decomp"><thead><tr><th>Фактор</th><th>Raw</th><th>Winsorized</th><th>Z-score</th></tr></thead><tbody>${decomp}</tbody></table>
+    <div class="quality-drawer-note"><b>${esc(explanation.summary || '')}</b><br>${esc((explanation.weaknesses || []).length ? 'Слабые стороны: ' + explanation.weaknesses.join(', ') + '.' : 'Выраженных слабых сторон по доступным факторам нет.')}<br>${esc(explanation.confidence_note || '')}</div>
+    <div class="quality-drawer-note">Период: <b>${esc(row.report_period_end || '—')}</b> · публикация: <b>${esc(row.publication_date || 'не подтверждена')}</b> · стандарт: <b>${esc(row.report_standard || '—')}</b><br>
+      ROE method: ${esc((row.diagnostics || {}).roe_method || '—')} · normalization: ${esc(row.normalization_scope || '—')} · coverage: ${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}<br>
+      Предупреждения: ${esc((row.warnings || []).join(', ') || 'нет')}<br>Исключения: ${esc((row.exclusion_reasons || []).join(', ') || 'нет')}</div>`;
+  if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
+}
+
+function buildQualityPortfolio(config) {
+  if (!QUALITY || !DATA) return null;
+  const universe = new Map(DATA.tickers.map((ticker) => [ticker.ticker, ticker]));
+  const scoreKey = config.sectorNeutral ? 'quality_score_sector' : 'quality_score_absolute';
+  const rankKey = config.sectorNeutral ? 'sector_rank_pct' : 'quality_rank_pct';
+  let candidates = QUALITY.rows.map((q) => ({ q, t: universe.get(q.ticker) })).filter(({ q, t }) => {
+    if (!t || !isNum(t.price) || t.price <= 0 || !q.score_eligible || !q.investable || q.financial_model_required) return false;
+    if (!config.allowLow && q.confidence === 'low') return false;
+    if (!isNum(q.coverage_ratio) || q.coverage_ratio < config.minCoverage) return false;
+    if (!isNum(q.adv_rub) || q.adv_rub < config.minAdv) return false;
+    return isNum(q[scoreKey]) && isNum(q[rankKey]);
+  });
+  const issuerBest = new Map();
+  candidates.forEach((item) => {
+    const key = item.q.issuer_id || item.q.ticker;
+    const current = issuerBest.get(key);
+    if (!current || (item.q.adv_rub || 0) > (current.q.adv_rub || 0)) issuerBest.set(key, item);
+  });
+  candidates = [...issuerBest.values()].sort((a, b) => b.q[rankKey] - a.q[rankKey] || String(a.q.ticker).localeCompare(String(b.q.ticker)));
+  const selected = candidates.slice(0, config.n);
+  if (selected.length < 3 || selected.length * config.maxSecurity < 1 - 1e-9) return null;
+  const vols = selected.map((item) => item.q.volatility).filter(isNum).sort((a, b) => a - b);
+  const medianVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
+  const items = selected.map(({ q, t }) => {
+    let rawWeight = 1;
+    if (config.weight === 'score') rawWeight = Math.max(q[scoreKey], 1e-6);
+    else if (config.weight === 'mcap') rawWeight = q.market_cap_rub || 0;
+    else if (config.weight === 'invvol') rawWeight = 1 / (isNum(q.volatility) && q.volatility > 0 ? q.volatility : medianVol);
+    else if (config.weight === 'factor_tilt') rawWeight = (q.free_float_market_cap_rub || q.market_cap_rub || 0) * q[scoreKey];
+    return { ticker: q.ticker, name: q.name || t.name, sector: q.sector || t.sector || ND, issuer: q.issuer_id, t, q,
+      score: q[rankKey] / 100, w: rawWeight };
+  });
+  const total = items.reduce((sum, item) => sum + item.w, 0);
+  if (!(total > 0)) return null;
+  items.forEach((item) => { item.w /= total; });
+  capWeights(items, config.maxSecurity, config.sectorCap);
+  if (items.some((item) => item.w > config.maxIssuer + 1e-8)) return null; // one security per issuer
+  return items.sort((a, b) => b.w - a.w);
+}
+
+function qualityPortfolioConfig(opts) {
+  return {
+    n: opts.n,
+    weight: opts.weight,
+    sectorNeutral: !!document.getElementById('quality-sector-neutral').checked,
+    minCoverage: +(document.getElementById('quality-min-coverage').value || 0.67),
+    minAdv: +(document.getElementById('quality-min-adv').value || 10) * 1e6,
+    maxSecurity: opts.cap / 100,
+    maxIssuer: +(document.getElementById('quality-max-issuer').value || 20) / 100,
+    sectorCap: opts.seccap / 100,
+    allowLow: !!document.getElementById('quality-allow-low').checked,
+  };
+}
+
+function wireQuality() {
+  const panel = document.getElementById('quality-panel');
+  if (!panel) return;
+  document.querySelectorAll('.strategy-mode').forEach((button) => button.addEventListener('click', () => {
+    const method = document.getElementById('pf-method');
+    if (!method) return;
+    const requested = button.dataset.strategy;
+    const option = method.querySelector(`option[value="${requested}"]`);
+    if (option && option.disabled) return;
+    method.value = requested;
+    method.dispatchEvent(new Event('change'));
+  }));
+  ['quality-sector', 'quality-status', 'quality-sort'].forEach((id) => {
+    const control = document.getElementById(id); if (control) control.addEventListener('change', renderQualityTable);
+  });
+  document.getElementById('quality-build').addEventListener('click', () => {
+    const pf = document.getElementById('pf'); if (pf) pf.open = true;
+    const out = document.getElementById('pf-out'); if (out) out.dataset.shown = '1';
+    renderPortfolio();
+  });
+  const close = document.getElementById('quality-drawer-close');
+  if (close) close.addEventListener('click', () => document.getElementById('quality-drawer').close());
+  syncStrategyPanels();
+  loadQuality();
 }
 
 function eligibleForPortfolio(t) {
@@ -799,6 +1026,7 @@ function capWeights(items, maxW, secCap) {
 
 function buildPortfolio(method, opts) {
   if (method.startsWith('opt')) return buildOptimized(method, opts);
+  if (method === 'quality') return buildQualityPortfolio(qualityPortfolioConfig(opts));
   const uni = DATA.tickers.filter(eligibleForPortfolio);
   const scoreFn = method === 'momentum' ? ((t) => (isNum(t.mom_score) ? t.mom_score : null)) : qualityScore;
   const scored = method === 'marlamov'
@@ -905,7 +1133,7 @@ function buildOptimized(method, opts) {
   let w;
   if (method === 'optiv') w = invVolWeights(cov);
   else if (method === 'optrp') w = riskParity(cov);
-  else if (method === 'optms') w = maxSharpe(cov, cand.map((t) => (isNum(t.quality_barra) ? t.quality_barra : 0)));  // фактор-тилт
+  else if (method === 'optms') w = maxSharpe(cov, cand.map((t) => (isNum(t.quality_rank_pct) ? t.quality_rank_pct / 100 : 0)));  // RU Quality tilt
   else w = minVariance(cov);
   let items = cand.map((t, i) => ({ ticker: t.ticker, name: t.name, sector: t.sector || ND, t, score: w[i], w: w[i] }));
   items.sort((a, b) => b.w - a.w);
@@ -1078,6 +1306,14 @@ function renderPortfolio() {
   syncWeightControl();                               // синхронизируем доступность «Взвешивания»
   if (!PF_RETURNS) loadReturns(renderPortfolio);     // подгрузим историю и перерисуем с риск-метриками
   const method = document.getElementById('pf-method').value;
+  if (method === 'quality' && !QUALITY) {
+    out.innerHTML = '<p class="muted" style="padding:8px">Загрузка RU Quality cross-section…</p>';
+    loadQuality((err) => {
+      if (err) out.innerHTML = '<p class="muted" style="padding:8px">RU Quality временно недоступен.</p>';
+      else renderPortfolio();
+    });
+    return;
+  }
   if (method === 'marlamov' && !MARLAMOV) {
     out.innerHTML = '<p class="muted" style="padding:8px">Загрузка форвардного сигнала и бэктеста…</p>';
     loadMarlamov((err) => {
@@ -1096,6 +1332,9 @@ function renderPortfolio() {
   const items = buildPortfolio(method, opts);
   if (!items) {
     let msg = 'Недостаточно подходящих бумаг для корзины.';
+    if (method === 'quality') msg = document.getElementById('quality-allow-low').checked
+      ? 'После строгих liquidity/cap фильтров недостаточно компаний. Проверь ADV, покрытие и лимиты.'
+      : 'Нет компаний High/Medium confidence: даты публикации не подтверждены. Для research preview явно включи «low confidence» в настройках RU Quality.';
     if (method.startsWith('opt')) {
       if (!PF_RETURNS) msg = 'Загрузка истории…';
       else if (PF_RETURNS.failed) msg = 'Не удалось загрузить историю (returns.json) — обнови страницу (Cmd+Shift+R).';
@@ -1109,18 +1348,32 @@ function renderPortfolio() {
   const risk = portfolioRisk(items, m.grossY);
   const bt = FACTOR_BACKTEST[method];
   const strategyBacktest = method === 'marlamov' && MARLAMOV ? MARLAMOV.backtest : null;
+  let qualityCash = capital;
+  if (method === 'quality' && capital) {
+    items.forEach((item) => {
+      const lotSize = Math.max(1, Math.round(item.t.lot_size || item.q.lot_size || 1));
+      const lotValue = item.t.price * lotSize;
+      const targetRub = capital * item.w;
+      const lots = lotValue > 0 ? Math.floor(targetRub / lotValue) : 0;
+      item._lot = { lotSize, lots, quantity: lots * lotSize, actualRub: lots * lotValue, targetRub };
+      qualityCash -= item._lot.actualRub;
+    });
+  }
   const rows = items.map((it, i) => {
-    const alloc = capital ? capital * it.w : null;
+    const alloc = method === 'quality' && it._lot ? it._lot.actualRub : (capital ? capital * it.w : null);
     const y = isNum(it.t.dividend_yield_expected) ? it.t.dividend_yield_expected : it.t.dividend_yield_if_paid;
     const inc = (alloc && isNum(y)) ? alloc * y / 100 * NET_OF_TAX : null;
     const strategyCells = method === 'marlamov'
       ? `<td class="tnum">${it.strategy && isNum(it.strategy.gross_yield1) ? ru(it.strategy.gross_yield1 * 100, 1) + '%' : mdash}</td>
         <td class="tnum ${it.strategy && isNum(it.strategy.gross_spread) ? (it.strategy.gross_spread >= 0 ? 'pf-spread-up' : 'pf-spread-down') : ''}">${it.strategy && isNum(it.strategy.gross_spread) ? `${it.strategy.gross_spread >= 0 ? '+' : ''}${ru(it.strategy.gross_spread * 100, 1)} п.п.` : mdash}</td>`
-      : `<td class="left">${verdictChip(it.t.verdict, false)}</td>`;
+      : method === 'quality'
+        ? `<td class="tnum quality-score">${it.q && isNum(it.q.sector_rank_pct) ? ru(it.q.sector_rank_pct, 0) : mdash}</td>`
+        : `<td class="left">${verdictChip(it.t.verdict, false)}</td>`;
     return `<tr><td class="left">${i + 1}</td><td class="left"><b>${esc(it.ticker)}</b> <span class="muted">${esc(it.sector)}</span></td>
       <td class="tnum">${ru(it.w * 100, 1)}%</td>
       <td class="tnum">${alloc != null ? fmtRub(Math.round(alloc)) : mdash}</td>
       <td class="tnum">${inc != null ? fmtRub(Math.round(inc)) : mdash}</td>
+      ${method === 'quality' ? `<td class="tnum">${it._lot ? ru(it._lot.lots, 0) : mdash}</td><td class="tnum">${it._lot ? ru(it._lot.quantity, 0) : mdash}</td>` : ''}
       ${strategyCells}</tr>`;
   }).join('');
   const secBars = m.sectors.map(([s, w]) =>
@@ -1132,11 +1385,13 @@ function renderPortfolio() {
       <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
     </div>
     ${bt ? `<div class="pf-bt muted">📈 ${esc(bt.label)}</div>` : ''}
+    ${method === 'quality' && document.getElementById('quality-allow-low').checked ? '<div class="quality-notice">Research preview включает low-confidence строки. Это не строгая point-in-time корзина.</div>' : ''}
+    ${method === 'quality' && capital ? `<div class="pf-reb muted">Покупка округлена вниз до лотов MOEX · остаток cash: <b>${fmtRub(Math.max(0, qualityCash))}</b></div>` : ''}
     ${method === 'marlamov' ? marlamovEntryGateHTML(items, strategyBacktest) : ''}
     ${method === 'marlamov' ? marlamovBacktestHTML(strategyBacktest) : ''}
     ${REBALANCE[method] ? `<div class="pf-reb muted">🔁 Рекомендуемый ребаланс: <b>${esc(REBALANCE[method])}</b></div>` : ''}
     ${riskPanelHTML(risk)}
-    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>Сумма</th><th>Доход/год</th>${method === 'marlamov' ? '<th>Fwd yield gross</th><th>Спред к RFR</th>' : '<th class="left">Вердикт</th>'}</tr></thead><tbody>${rows}</tbody></table>
+    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>${method === 'quality' ? 'Факт ₽' : 'Сумма'}</th><th>Доход/год</th>${method === 'quality' ? '<th>Лотов</th><th>Штук</th><th>Quality сектор</th>' : (method === 'marlamov' ? '<th>Fwd yield gross</th><th>Спред к RFR</th>' : '<th class="left">Вердикт</th>')}</tr></thead><tbody>${rows}</tbody></table>
       <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>
       <div class="pf-sectors"><h4>Секторная концентрация</h4>${secBars}</div></div>`;
   document.getElementById('pf-csv').addEventListener('click', exportPortfolioCSV);
@@ -2359,7 +2614,11 @@ function pfxWireAutocomplete() {
 function syncWeightControl() {   // «Взвешивание» неприменимо к оптимизаторам — они сами считают веса
   const wsel = document.getElementById('pf-weight');
   if (!wsel) return;
-  const isOpt = document.getElementById('pf-method').value.startsWith('opt');
+  const method = document.getElementById('pf-method').value;
+  const isOpt = method.startsWith('opt');
+  const factorTilt = wsel.querySelector('option[value="factor_tilt"]');
+  if (factorTilt) factorTilt.disabled = method !== 'quality';
+  if (method !== 'quality' && wsel.value === 'factor_tilt') wsel.value = method === 'momentum' ? 'score' : 'equal';
   wsel.disabled = isOpt;
   wsel.title = isOpt ? 'Веса вычисляет оптимизатор — этот выбор не используется' : '';
   const lbl = wsel.closest('label');
@@ -2379,7 +2638,15 @@ function wirePortfolio() {
   ['pf-method', 'pf-n', 'pf-weight', 'pf-cap', 'pf-seccap', 'pf-capital'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', () => {
-      if (id === 'pf-method' && el.value === 'marlamov') document.getElementById('pf-n').value = '10';
+      if (id === 'pf-method') {
+        if (el.value === 'marlamov') {
+          document.getElementById('pf-n').value = '10';
+          document.getElementById('pf-weight').value = 'equal';
+        }
+        if (el.value === 'momentum') document.getElementById('pf-weight').value = 'score';
+        if (el.value === 'quality') document.getElementById('pf-weight').value = 'factor_tilt';
+        syncStrategyPanels();
+      }
       syncWeightControl();
       if (document.getElementById('pf-out').dataset.shown) renderPortfolio();
     });

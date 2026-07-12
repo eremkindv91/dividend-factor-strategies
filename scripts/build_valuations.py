@@ -155,8 +155,10 @@ def _cv(arr) -> float | None:
     return statistics.pstdev(vals) / abs(m) if m else None
 
 
-def attach_quality_barra(art_tickers: list, panel: pd.DataFrame) -> int:
-    """ВЕРНАЯ 3-дескрипторная Barra Quality (как 02b_quality_barra_msci ВКР): ROE(+),
+def attach_quality_ru_legacy(art_tickers: list, panel: pd.DataFrame) -> int:
+    """Legacy RU proxy retained for one compatibility release.
+
+    It is not the new RU Quality Core: the descriptors are ROE(+),
     стабильность прибыли(−CV EBITDA), леверидж(−Долг/EBITDA). Винзоризация 5/95 + z-score +
     СЕКТОРНАЯ нейтрализация (z − среднее_сектора) + композит (среднее ≥2 дескрипторов). Кросс-секц."""
     rows = []
@@ -182,8 +184,14 @@ def attach_quality_barra(art_tickers: list, panel: pd.DataFrame) -> int:
     n = 0
     for r in art_tickers:
         q = qmap.get(r["ticker"])
-        r["quality_barra"] = round(float(q), 3) if (q is not None and pd.notna(q)) else None
-        n += r["quality_barra"] is not None
+        value = round(float(q), 3) if (q is not None and pd.notna(q)) else None
+        r["quality_ru_legacy"] = value
+        r["quality_legacy_meta"] = {
+            "methodology_version": "ru_quality_legacy_v1",
+            "deprecated": True,
+        }
+        r["quality_barra"] = value  # compatibility alias; remove after frontend migration window
+        n += value is not None
     return n
 
 
@@ -283,8 +291,8 @@ def main() -> int:
 
     n_pct = attach_sector_percentiles(art["tickers"], panel)
     print(f"  сектор-перцентили: блоков {n_pct}")
-    n_qb = attach_quality_barra(art["tickers"], panel)
-    print(f"  Barra-3 quality: {n_qb}")
+    n_qb = attach_quality_ru_legacy(art["tickers"], panel)
+    print(f"  RU quality legacy proxy: {n_qb}")
 
     art["meta"]["valuation_asof"] = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
     art["meta"]["rf_ofz"] = round(rf, 4)

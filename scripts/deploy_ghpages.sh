@@ -13,12 +13,14 @@ REMOTE="https://github.com/eremkindv91/dividend-factor-strategies.git"
 TMP="$(mktemp -d)"
 
 cd "$REPO"
-echo "[deploy] пересборка data.json (свежие цены)…"
-python3 scripts/build_data.py   # exit!=0 (нет цен/артефакта) прервёт деплой
-python3 market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл, если он есть"
-python3 scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 python3 -m src.pipeline.run_all --skip-ocr --allow-network
 python3 -m src.pipeline.validate_financials
+python3 scripts/build_quality.py
+echo "[deploy] пересборка data.json (свежие цены)…"
+python3 scripts/build_data.py   # exit!=0 (нет цен/артефакта) прервёт деплой
+python3 scripts/build_quality.py   # обновляет market/lot metadata после data.json
+python3 market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл, если он есть"
+python3 scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 python3 scripts/build_market_history.py
 python3 scripts/validate_site_data.py
 
@@ -28,6 +30,7 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"
 [ -f site/market_history.json ] && cp site/market_history.json "$TMP/"
 [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"
+[ -f site/quality.json ] && cp site/quality.json "$TMP/"
 [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"
 [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"
 [ -f site/news.json ] && cp site/news.json "$TMP/"

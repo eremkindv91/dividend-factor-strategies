@@ -263,6 +263,55 @@ def check_marlamov() -> None:
     print(f"  marlamov.json: строк={len(rows)}, RFR={rfr}, режим={meta.get('regime')}, backtest={bt_months} мес.")
 
 
+# ── quality.json ────────────────────────────────────────────────────────────
+def check_quality() -> None:
+    d = load("quality.json")
+    if d is None:
+        if CURRENT_SEL == "quality":
+            err("quality.json отсутствует")
+        else:
+            warn("quality.json отсутствует — пропуск")
+        return
+    meta, rows = d.get("meta") or {}, d.get("rows") or []
+    if meta.get("schema_version") != "1.0":
+        err(f"quality.json: неизвестный schema_version={meta.get('schema_version')!r}")
+    if meta.get("methodology_version") != "ru_quality_core_v1":
+        err(f"quality.json: неизвестный methodology_version={meta.get('methodology_version')!r}")
+    if not isinstance(rows, list) or not rows:
+        err("quality.json: rows пуст/не список")
+        return
+    if meta.get("n_universe") != len(rows):
+        err(f"quality.json: n_universe={meta.get('n_universe')} ≠ rows={len(rows)}")
+    required = {"ticker", "raw", "winsorized", "z", "coverage_ratio", "confidence",
+                "eligible", "exclusion_reasons", "warnings", "provenance"}
+    for row in rows:
+        missing = required - set(row)
+        if missing:
+            err(f"quality.json: {row.get('ticker')} без полей {sorted(missing)}")
+        if row.get("eligible") and row.get("confidence") == "low":
+            err(f"quality.json: {row.get('ticker')} low confidence, но eligible=true")
+        coverage = row.get("coverage_ratio")
+        if coverage not in (0.0, 0.33, 0.67, 1.0):
+            err(f"quality.json: {row.get('ticker')} некорректный coverage_ratio={coverage}")
+        if row.get("quality_score_sector") is not None and row.get("quality_z_absolute") is None:
+            err(f"quality.json: {row.get('ticker')} sector score без absolute composite")
+        if row.get("financial_model_required") and (row.get("raw") or {}).get("debt_to_equity") is not None:
+            err(f"quality.json: {row.get('ticker')} financials получил промышленный D/E")
+    actual_scored = sum(bool(row.get("score_eligible")) for row in rows)
+    actual_eligible = sum(bool(row.get("eligible")) for row in rows)
+    if meta.get("n_scored") != actual_scored:
+        err(f"quality.json: n_scored={meta.get('n_scored')} ≠ {actual_scored}")
+    if meta.get("n_eligible") != actual_eligible:
+        err(f"quality.json: n_eligible={meta.get('n_eligible')} ≠ {actual_eligible}")
+    backtest = d.get("backtest") or {}
+    if backtest.get("status") == "unavailable" and backtest.get("point_in_time") is not False:
+        err("quality.json: unavailable backtest должен явно иметь point_in_time=false")
+    print(
+        f"  quality.json: universe={len(rows)}, scored={actual_scored}, eligible={actual_eligible}, "
+        f"coverage={meta.get('data_coverage')}, stale={meta.get('stale')}"
+    )
+
+
 # ── bonds/*.json ─────────────────────────────────────────────────────────────
 def check_bonds() -> None:
     scr = load("bonds/screener.json")
@@ -435,7 +484,8 @@ def check_news() -> None:
 
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
           "market_history": [check_market_history],
-          "marlamov": [check_marlamov], "bonds": [check_bonds], "news": [check_news]}
+          "marlamov": [check_marlamov], "quality": [check_quality],
+          "bonds": [check_bonds], "news": [check_news]}
 
 
 def main() -> int:

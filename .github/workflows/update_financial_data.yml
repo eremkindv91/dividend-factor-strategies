@@ -51,6 +51,11 @@ jobs:
       - name: Validate unified financials
         run: python -m src.pipeline.validate_financials
 
+      - name: Build and validate RU Quality artifact
+        run: |
+          python scripts/build_quality.py
+          python scripts/validate_site_data.py quality
+
       - name: Run tests
         run: pytest -q tests market_saw/tests
 
@@ -70,5 +75,7 @@ jobs:
             data/unified/site_financials.json
             site/site_coverage.json
             site/site_financials.json
+            model_output/quality_rf.json
+            site/quality.json
             logs/pipeline_run_*.log
           if-no-files-found: error
