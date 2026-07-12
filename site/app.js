@@ -1459,6 +1459,9 @@ function pfxRenderHTML(c) {
   // 5. Risk Budget
   html += pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c));
 
+  // 5b. Корреляционная матрица (диверсификация — Bible VIII/XI)
+  html += pfxDetails('Корреляционная матрица', '(как связаны бумаги — диверсификация)', pfxCorrHTML(c));
+
   // 6. Dividend Stress Test
   html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
 
@@ -5444,6 +5447,73 @@ function pfxRiskBudget(positions) {
   });
   rows.sort((a, b) => b.share - a.share);
   return { ok: true, sigmaAnn: sigmaP * Math.sqrt(12), rows, approx: cov.approx };
+}
+
+// ── корреляционная матрица холдингов (из ковариации месячных total-returns) ───
+function pfxCorrelation(c) {
+  const ps = c.positions.filter((p) => p._tr && p._tr.length >= 12).sort((a, b) => b.weight - a.weight).slice(0, 16);
+  if (ps.length < 2) return { ok: false };
+  const cov = pfxCovariance(ps.map((p) => p._tr));
+  const S = cov.S, n = ps.length;
+  const M = Array.from({ length: n }, () => new Array(n).fill(null));
+  const off = []; let maxPair = null, minPair = null;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    if (i === j) { M[i][j] = 1; continue; }
+    const d = Math.sqrt(S[i][i] * S[j][j]);
+    const r = d > 0 ? Math.max(-1, Math.min(1, S[i][j] / d)) : null;
+    M[i][j] = r;
+    if (j > i && r != null) { off.push(r);
+      if (!maxPair || r > maxPair.r) maxPair = { i, j, r };
+      if (!minPair || r < minPair.r) minPair = { i, j, r }; }
+  }
+  const avg = off.length ? off.reduce((a, b) => a + b, 0) / off.length : null;
+  return { ok: true, labels: ps.map((p) => p.ticker), M, avg, maxPair, minPair, n, approx: cov.approx };
+}
+function pfxCorrColor(r) {                                  // диверг. шкала: высокая связь = тревога
+  if (r == null) return '#EEF1F6';
+  if (r >= 0.75) return '#C05B45'; if (r >= 0.55) return '#D98E63';
+  if (r >= 0.35) return '#E9C79A'; if (r >= 0.15) return '#CFE0CB';
+  if (r >= -0.05) return '#A8D5C2'; return '#7FB0C4';       // отрицательная — лучший диверсификатор
+}
+function pfxCorrHTML(c) {
+  const cr = pfxCorrelation(c);
+  if (!cr.ok) return `<div class="pfx-note">${NA}: нужно ≥2 бумаги с историей ≥12 мес.</div>`;
+  const { labels, M, avg, maxPair, minPair, n } = cr;
+  const s = n > 12 ? 26 : n > 8 ? 32 : 38, pad = 58, W = pad + n * s + 6, H = pad + n * s + 6;
+  const short = (t) => (t.length > 6 ? t.slice(0, 6) : t);
+  let cells = '';
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const r = M[i][j], x = pad + j * s, y = pad + i * s;
+    const fill = i === j ? '#E7EAF2' : pfxCorrColor(r);
+    const txt = i === j ? '' : (r == null ? '—' : (r >= 0 ? '' : '−') + Math.abs(Math.round(r * 100)));
+    const tc = (r != null && r >= 0.55) ? '#fff' : '#3A424E';
+    cells += `<rect x="${x}" y="${y}" width="${s - 1}" height="${s - 1}" rx="3" fill="${fill}"></rect>` +
+      (txt ? `<text x="${x + s / 2}" y="${y + s / 2 + 3}" text-anchor="middle" font-size="${n > 12 ? 8 : 9}" fill="${tc}">${txt}</text>` : '');
+  }
+  let labX = '', labY = '';
+  for (let i = 0; i < n; i++) {
+    const c0 = pad + i * s + s / 2;
+    labX += `<text x="${c0}" y="${pad - 6}" text-anchor="start" font-size="9" fill="#5A6472" transform="rotate(-45 ${c0} ${pad - 6})">${esc(short(labels[i]))}</text>`;
+    labY += `<text x="${pad - 6}" y="${c0 + 3}" text-anchor="end" font-size="9" fill="#5A6472">${esc(short(labels[i]))}</text>`;
+  }
+  const svg = `<svg viewBox="0 0 ${W} ${H}" class="pfx-corr-svg" role="img" aria-label="Корреляционная матрица">${labX}${labY}${cells}</svg>`;
+  const avgWord = avg == null ? '—' : avg > 0.6 ? 'высокая' : avg > 0.4 ? 'умеренная' : avg > 0.2 ? 'умеренно-низкая' : 'низкая';
+  const avgNote = avg == null ? '' : avg > 0.6 ? 'портфель ведёт себя почти как одна ставка — в стрессе просядет синхронно'
+    : avg > 0.4 ? 'диверсификация частичная' : 'бумаги слабо связаны — хорошая диверсификация';
+  const pair = (p) => p ? `${esc(labels[p.i])}↔${esc(labels[p.j])} (${p.r >= 0 ? '+' : '−'}${Math.abs(Math.round(p.r * 100))}%)` : '—';
+  return `<div class="pfx-corr">
+    <div class="pfx-corr-wrap">${svg}</div>
+    <div class="pfx-corr-side">
+      <div class="pfx-corr-kpi"><span>Средняя парная корреляция</span><b>${avg == null ? mdash : (avg >= 0 ? '+' : '−') + Math.abs(Math.round(avg * 100)) + '%'}</b><em>${avgWord} · ${avgNote}</em></div>
+      <div class="pfx-corr-pair"><span>Сильнее всех вместе:</span> <b>${pair(maxPair)}</b></div>
+      <div class="pfx-corr-pair"><span>Лучший диверсификатор:</span> <b>${pair(minPair)}</b></div>
+      <div class="pfx-corr-legend">
+        <span><i style="background:#C05B45"></i>≥75</span><span><i style="background:#D98E63"></i>55–75</span>
+        <span><i style="background:#E9C79A"></i>35–55</span><span><i style="background:#A8D5C2"></i>0–35</span>
+        <span><i style="background:#7FB0C4"></i>&lt;0</span>
+      </div>
+    </div></div>
+    <div class="pfx-note muted">Корреляция месячных total-returns (${n} крупнейших позиций с историей). Высокие значения — бумаги движутся вместе (диверсификация слабее); отрицательные — гасят друг друга.${cr.approx ? ' Ковариация регуляризована (короткая история).' : ''} Не ИИР.</div>`;
 }
 
 // ── дивидендный стресс-тест: base/conservative/stress/crisis ─────────────────

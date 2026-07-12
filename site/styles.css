@@ -2298,3 +2298,19 @@ tbody tr:hover td,
 .pfx-boot-read b { color: var(--ink); }
 .pfx-help { cursor: help; color: var(--ink-faint); font-size: .82em; }
 @media (max-width: 760px) { .pfx-boot-scen { grid-template-columns: 1fr; } .pfx-boot-strip { grid-template-columns: 1fr; } }
+
+/* ══ Корреляционная матрица (диверсификация) ══ */
+.pfx-corr { display: grid; grid-template-columns: minmax(280px, 1.3fr) minmax(200px, 1fr); gap: 16px; align-items: start; }
+.pfx-corr-wrap { overflow-x: auto; }
+.pfx-corr-svg { width: 100%; max-width: 560px; height: auto; }
+.pfx-corr-side { display: flex; flex-direction: column; gap: 10px; }
+.pfx-corr-kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); display: flex; flex-direction: column; gap: 2px; }
+.pfx-corr-kpi span { font-size: .74rem; color: var(--ink-faint); font-weight: 600; }
+.pfx-corr-kpi b { font-size: 1.4rem; font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.pfx-corr-kpi em { font-size: .78rem; color: var(--ink-soft); font-style: normal; line-height: 1.35; }
+.pfx-corr-pair { font-size: .82rem; color: var(--ink-soft); }
+.pfx-corr-pair b { color: var(--ink); }
+.pfx-corr-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 2px; font-size: .72rem; color: var(--ink-faint); }
+.pfx-corr-legend span { display: inline-flex; align-items: center; gap: 3px; }
+.pfx-corr-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
+@media (max-width: 760px) { .pfx-corr { grid-template-columns: 1fr; } }
