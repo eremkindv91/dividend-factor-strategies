@@ -2373,3 +2373,23 @@ tbody tr:hover td,
 .pfx-scn-pct { font-size: .78rem; font-variant-numeric: tabular-nums; }
 .pfx-scn-basis { font-size: .72rem; color: var(--ink-faint); font-style: normal; line-height: 1.35; }
 @media (max-width: 760px) { .pfx-scn-cards, .pfx-scn-macrorow { grid-template-columns: 1fr; } }
+
+/* ══ Skeleton loading (Bible IV: shimmer вместо статичного «Загрузка…») ══ */
+@keyframes pfxShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.pulse-loading, .saw-loading, .bonds-loading, .news-loading, .cbr-loading,
+.bval-loading, .finder-loading, .mp-empty.muted, .cbr-body > .muted, .bval-body > .muted {
+  position: relative; overflow: hidden;
+  background-image: linear-gradient(90deg, transparent 20%, rgba(169,183,217,.14) 50%, transparent 80%);
+  background-size: 200% 100%; animation: pfxShimmer 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .pulse-loading, .saw-loading, .bonds-loading, .news-loading, .cbr-loading, .bval-loading, .finder-loading, .mp-empty.muted { animation: none; } }
+
+/* ══ Возможности и внимание ══ */
+.pfx-opp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pfx-opp-col { border: 1px solid var(--line); border-top: 3px solid var(--neut-bar); border-radius: 12px; padding: 11px 13px; background: var(--surface); }
+.pfx-opp-good { border-top-color: var(--good-bar); } .pfx-opp-good h4 { color: var(--good-ink); }
+.pfx-opp-att { border-top-color: var(--warn-bar); } .pfx-opp-att h4 { color: var(--warn-ink); }
+.pfx-opp-col h4 { margin: 0 0 6px; font-size: .84rem; }
+.pfx-opp-col ul { margin: 0; padding-left: 17px; display: flex; flex-direction: column; gap: 5px; }
+.pfx-opp-col li { font-size: .84rem; line-height: 1.45; color: var(--ink-soft); }
+@media (max-width: 760px) { .pfx-opp { grid-template-columns: 1fr; } }

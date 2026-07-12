@@ -1531,6 +1531,9 @@ function pfxRenderHTML(c) {
   // 10. Position Diagnostics
   html += pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c));
 
+  // 10b. Возможности и внимание (Bible XI Opportunity Engine)
+  html += pfxDetails('Возможности и внимание', '(потенциал к справедливой цене · флаги внимания)', pfxOppHTML(c));
+
   // 11. Investment Committee Memo
   const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
   html += pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`);
@@ -1919,6 +1922,38 @@ function pfxBootHTML(c) {
     <div class="pfx-boot-read">${readParts.map((t) => `<p>${t}</p>`).join('')}</div>
 
     <div class="pfx-note muted">Метод: bootstrap-ресэмпл (${b.sims} симуляций × 12 мес) фактических месячных доходностей — оценка <b>устойчивости по истории</b>, не прогноз будущей доходности и не ИИР. «Год» здесь виртуальный: месяцы берутся из прошлого случайно, поэтому хвосты шире одного реального года.</div>
+  </div>`;
+}
+
+// ── Возможности и внимание: потенциал к справедливой цене + флаги фундаментала (Bible XI) ──
+function pfxOpportunity(c) {
+  const opp = [], att = [];
+  c.positions.forEach((p) => {
+    const t = p.t; if (!t) return;
+    const fair = t.valuation && isNum(t.valuation.fair_price) ? t.valuation.fair_price : null;
+    const price = isNum(t.price) ? t.price : (isNum(p.current_price) ? p.current_price : null);
+    const gap = (fair != null && price != null && price > 0) ? fair / price - 1 : null;
+    const cut = isNum(t.cut_risk) ? t.cut_risk : null;
+    const vcol = t.verdict && t.verdict.color;
+    if (gap != null && gap >= 0.12) opp.push({ ticker: p.ticker, gap, method: (t.valuation.method || 'модель'), weight: p.weight });
+    const reasons = [];
+    if (vcol === 'risk') reasons.push(t.verdict.label || 'risk-вердикт');
+    if (cut != null && cut >= 0.6) reasons.push(`высокий риск среза дивиденда (${Math.round(cut * 100)}%)`);
+    if (gap != null && gap <= -0.15) reasons.push(`цена выше модельной справедливой на ${Math.round(-gap * 100)}%`);
+    if (reasons.length) att.push({ ticker: p.ticker, reasons, weight: p.weight });
+  });
+  opp.sort((a, b) => b.gap - a.gap); att.sort((a, b) => b.weight - a.weight);
+  return { ok: opp.length + att.length > 0, opp, att };
+}
+function pfxOppHTML(c) {
+  const o = pfxOpportunity(c);
+  if (!o.ok) return `<div class="pfx-note">По текущим бумагам портфеля нет ни заметного потенциала к модельной справедливой цене, ни флагов внимания. ${NA} для бумаг без покрытия.</div>`;
+  const oppRows = o.opp.slice(0, 8).map((x) => `<li><b>${esc(x.ticker)}</b> <span class="saw-up">+${Math.round(x.gap * 100)}%</span> к модельной справедливой <span class="muted">(${esc(x.method)}, вес ${PN(x.weight, 0)})</span></li>`).join('');
+  const attRows = o.att.slice(0, 8).map((x) => `<li><b>${esc(x.ticker)}</b> <span class="muted">вес ${PN(x.weight, 0)}</span> — ${esc(x.reasons.join('; '))}</li>`).join('');
+  return `<div class="pfx-opp">
+    <div class="pfx-opp-col pfx-opp-good"><h4>Потенциал к справедливой цене</h4>${oppRows ? `<ul>${oppRows}</ul>` : '<div class="muted">Заметного апсайда к модельной оценке нет.</div>'}</div>
+    <div class="pfx-opp-col pfx-opp-att"><h4>Требуют внимания</h4>${attRows ? `<ul>${attRows}</ul>` : '<div class="muted">Флагов внимания нет.</div>'}</div>
+    <div class="pfx-note muted" style="grid-column:1/-1">«Справедливая цена» — модельная оценка (DCF/DDM/сравнит., из data.json), НЕ целевая цена и не рекомендация купить/продать. «Внимание» — диагностические флаги (вердикт, риск среза дивиденда, цена выше модели). Проверяйте по источнику. Не ИИР.</div>
   </div>`;
 }
 
