@@ -1386,11 +1386,58 @@ function pfxScenarioMetrics(tickers, weights, bench, rf) {
 }
 
 // ── главный рендер ───────────────────────────────────────────────────────────
+// ── «Итог инвесткомитета» — детерминированный Level-1 вывод (Bible I/IV): здоровье +
+// сильные стороны + риски + что проверить. Всё из уже посчитанных метрик, без AI/бэкенда.
+function pfxCommitteeSummary(c) {
+  const risk = pfxRiskScore(c).score;
+  const health = Math.max(0, Math.min(100, 100 - risk));
+  const hTone = health >= 66 ? 'good' : health >= 40 ? 'warn' : 'risk';
+  const hWord = health >= 66 ? 'Здоровый' : health >= 40 ? 'Сбалансированный, есть риски' : 'Повышенный риск';
+  // сильные стороны
+  const str = [];
+  if (c.effN >= 5 && c.top3 < 0.5) str.push(`Диверсификация: эффективно ${ru(c.effN, 1)} бумаг, top-3 ${PN(c.top3, 0)}`);
+  if (c._corr && c._corr.ok && c._corr.avg != null && c._corr.avg < 0.4) str.push(`Слабая связанность бумаг (средняя корреляция ${(c._corr.avg >= 0 ? '+' : '−') + Math.abs(Math.round(c._corr.avg * 100))}%)`);
+  if (c.capm && c.capm.ok && isNum(c.capm.alphaAnn) && c.capm.alphaAnn > 0.02) str.push(`Опережает MCFTR: alpha +${ru(c.capm.alphaAnn * 100, 1)}% годовых (историч.)`);
+  if (c.perf && isNum(c.perf.sharpe) && c.perf.sharpe > 0.8) str.push(`Хорошее risk-adjusted: Sharpe ${ru(c.perf.sharpe, 2)}`);
+  if (isNum(c.grossYield) && c.rf.ok && c.grossYield > c.rf.annual) str.push(`Дивдоходность ${PU(c.grossYield, 1)}% выше безриска`);
+  if (c.capm && c.capm.ok && isNum(c.capm.beta) && c.capm.beta < 0.9) str.push(`Защитный профиль: beta ${ru(c.capm.beta, 2)} < 1`);
+  if (c.dq && c.dq.score >= 78) str.push(`Высокое качество данных (${c.dq.score}/100)`);
+  if (!str.length) str.push('Явных сильных сторон по текущим правилам не выделено');
+  // риски (переиспользуем топ-3)
+  const risks = pfxTopRisks(c).map((r) => r.text);
+  // что проверить (действия)
+  const watch = [];
+  if (c.top3 > 0.5) watch.push(`Снизить концентрацию top-3 (${PN(c.top3, 0)} портфеля)`);
+  if (c.div && c.div.traps && c.div.traps.length) watch.push(`Проверить дивидендную устойчивость: ${c.div.traps.slice(0, 3).join(', ')}`);
+  if (c.dq && c.dq.lowWeight > 0.2) watch.push(`${PN(c.dq.lowWeight, 0)} веса — бумаги с неполными данными/историей`);
+  if (c.capm && c.capm.ok && isNum(c.capm.beta) && c.capm.beta > 1.25) watch.push('Высокая beta — в падениях просадка сильнее рынка; проверить долю high-beta');
+  if (c._rb && c._rb.ok && c._rb.substituted) watch.push('Ставка выше дивидендов — сравнить с облигациями (раздел «Ставка и облигации»)');
+  if (!watch.length) watch.push('Критичных проверок по текущим правилам нет — периодически сверять веса и cut risk');
+  const col = (title, items, tone) => `<div class="pfx-cs-col pfx-cs-${tone}"><h4>${title}</h4><ul>${items.slice(0, 3).map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>`;
+  return `<div class="pfx-committee">
+    <div class="pfx-cs-head">
+      <div class="pfx-cs-score pfx-${hTone}"><b>${health}</b><span>/100</span></div>
+      <div class="pfx-cs-verdict"><span class="pfx-cs-eyebrow">Итог инвесткомитета</span><h3>${hWord}</h3>
+        <p>${esc(pfxDiagnosis(c))}</p></div>
+    </div>
+    <div class="pfx-cs-cols">
+      ${col('Сильные стороны', str, 'good')}
+      ${col('Главные риски', risks.length ? risks : ['Критичных рисков не выделено'], 'risk')}
+      ${col('Что проверить', watch, 'warn')}
+    </div>
+    <div class="pfx-note muted">Здоровье = 100 − композитный risk score (концентрация, beta, VaR, cut risk, качество данных). Rule-based синтез уже посчитанных метрик, не ИИ и не ИИР.</div>
+  </div>`;
+}
+
 function pfxRenderHTML(c) {
   const diag = pfxDiagnosis(c);
   const benchPerf = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
   c._rb = pfxRateBond(c);   // P4: связка со ставкой/облигациями (для модуля и графика)
+  c._corr = pfxCorrelation(c);   // корреляции — для «Итога» и модуля матрицы
   let html = '';
+
+  // −1. Итог инвесткомитета — Level-1 вывод «за 20 секунд» (Bible I/IV)
+  html += pfxCommitteeSummary(c);
 
   // 0. Заголовок + дисклеймеры
   html += `<div class="pfx-top">
@@ -1414,12 +1461,7 @@ function pfxRenderHTML(c) {
       <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. раздел дивидендов. Не ИИР.</div></div>`;
   }
 
-  // P1: три главных риска человеческим языком (сразу под диагнозом)
-  const topRisks = pfxTopRisks(c);
-  if (topRisks.length) {
-    html += `<div class="pfx-toprisks"><div class="pfx-tr-head">Три главных риска портфеля</div>${
-      topRisks.map((r, i) => `<div class="pfx-tr pfx-tr-${r.tone}"><b>${i + 1}</b><span>${esc(r.text)}</span></div>`).join('')}</div>`;
-  }
+  // (риски «человеческим языком» теперь в «Итоге инвесткомитета» выше)
 
   // 1. Portfolio X-Ray — KPI grid
   const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
@@ -5476,7 +5518,7 @@ function pfxCorrColor(r) {                                  // диверг. ш�
   if (r >= -0.05) return '#A8D5C2'; return '#7FB0C4';       // отрицательная — лучший диверсификатор
 }
 function pfxCorrHTML(c) {
-  const cr = pfxCorrelation(c);
+  const cr = c._corr || pfxCorrelation(c);
   if (!cr.ok) return `<div class="pfx-note">${NA}: нужно ≥2 бумаги с историей ≥12 мес.</div>`;
   const { labels, M, avg, maxPair, minPair, n } = cr;
   const s = n > 12 ? 26 : n > 8 ? 32 : 38, pad = 58, W = pad + n * s + 6, H = pad + n * s + 6;

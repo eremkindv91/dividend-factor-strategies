@@ -2314,3 +2314,28 @@ tbody tr:hover td,
 .pfx-corr-legend span { display: inline-flex; align-items: center; gap: 3px; }
 .pfx-corr-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
 @media (max-width: 760px) { .pfx-corr { grid-template-columns: 1fr; } }
+
+/* ══ «Итог инвесткомитета» (Level-1 вывод за 20 сек) ══ */
+.pfx-committee { border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin: 0 0 16px;
+  background: linear-gradient(180deg, #fbfcff, var(--surface)); box-shadow: 0 10px 30px -18px rgba(46,52,64,.28); }
+.pfx-cs-head { display: flex; align-items: center; gap: 16px; }
+.pfx-cs-score { flex: 0 0 auto; width: 86px; height: 86px; border-radius: 50%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; border: 4px solid var(--neut-bar); }
+.pfx-cs-score.pfx-good { border-color: var(--good-bar); background: var(--good-fill); }
+.pfx-cs-score.pfx-warn { border-color: var(--warn-bar); background: var(--warn-fill); }
+.pfx-cs-score.pfx-risk { border-color: var(--risk-bar); background: var(--risk-fill); }
+.pfx-cs-score b { font-size: 1.8rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.pfx-cs-score.pfx-good b { color: var(--good-ink); } .pfx-cs-score.pfx-warn b { color: var(--warn-ink); } .pfx-cs-score.pfx-risk b { color: var(--risk-ink); }
+.pfx-cs-score span { font-size: .72rem; color: var(--ink-faint); }
+.pfx-cs-eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-deep); }
+.pfx-cs-verdict h3 { margin: 2px 0 4px; font-size: 1.3rem; color: var(--ink); letter-spacing: -.01em; }
+.pfx-cs-verdict p { margin: 0; font-size: .84rem; line-height: 1.5; color: var(--ink-soft); }
+.pfx-cs-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.pfx-cs-col { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface); }
+.pfx-cs-col h4 { margin: 0 0 6px; font-size: .82rem; }
+.pfx-cs-good { border-top: 3px solid var(--good-bar); } .pfx-cs-good h4 { color: var(--good-ink); }
+.pfx-cs-risk { border-top: 3px solid var(--risk-bar); } .pfx-cs-risk h4 { color: var(--risk-ink); }
+.pfx-cs-warn { border-top: 3px solid var(--warn-bar); } .pfx-cs-warn h4 { color: var(--warn-ink); }
+.pfx-cs-col ul { margin: 0; padding-left: 17px; display: flex; flex-direction: column; gap: 5px; }
+.pfx-cs-col li { font-size: .82rem; line-height: 1.4; color: var(--ink-soft); }
+@media (max-width: 760px) { .pfx-cs-cols { grid-template-columns: 1fr; } .pfx-cs-head { gap: 12px; } .pfx-cs-score { width: 70px; height: 70px; } }
