@@ -81,3 +81,8 @@ model_output/dividends_cache.json
 # News pipeline: local collector/model inputs
 news/artifacts/
 .aider*
+
+# проектные Skills (командные линзы PM/Quant/UX/Eng) — коммитятся, в отличие от локального .claude
+!.claude/
+.claude/*
+!.claude/skills/
