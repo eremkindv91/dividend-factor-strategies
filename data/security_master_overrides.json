@@ -1,0 +1,18 @@
+{
+  "_source": "Курируемая таблица корпоративных действий/идентификаторов поверх универсума MOEX ISS (site/data.json). Каждое переименование/редомициляция имеет источник и дату (date_confidence: exact|approximate|unknown). Правится вручную, версионируется в git. Автоэвристика сюда НЕ пишет.",
+  "_schema": "aliases[]: {old,new,type,date,date_confidence,source,note}; preferred_no_ord[]: префы, чей ordinary НЕ торгуется на розничной доске (нельзя определить по близнецу); base_overrides: тикер→базовый (ord/pref-связка без слияния); instrument_type_overrides: тикер→тип; delisted[]: делистинги вне текущего универсума.",
+  "aliases": [
+    {"old": "YNDX", "new": "YDEX", "type": "redomiciliation", "date": "2024-07-24", "date_confidence": "exact",
+     "source": "MOEX ISS listing / редомициляция Yandex N.V. → МКПАО «Яндекс»", "note": "торги YDEX на MOEX с 24.07.2024"},
+    {"old": "TCSG", "new": "T", "type": "rename", "date": "2025", "date_confidence": "approximate",
+     "source": "раскрытие эмитента / MOEX", "note": "ТКС Холдинг → Т-Технологии; тикер TCSG→T"},
+    {"old": "TCS", "new": "TCSG", "type": "rename", "date": null, "date_confidence": "unknown",
+     "source": "исторический GDR-тикер TCS Group → MOEX TCSG", "note": "ранний алиас цепочки TCS→TCSG→T"},
+    {"old": "MAIL", "new": "VKCO", "type": "rename", "date": "2021-10", "date_confidence": "approximate",
+     "source": "MOEX / ребрендинг Mail.ru Group → VK", "note": "смена наименования и тикера"}
+  ],
+  "preferred_no_ord": ["TRNFP"],
+  "base_overrides": {"TRNFP": "TRNF"},
+  "instrument_type_overrides": {},
+  "delisted": []
+}
