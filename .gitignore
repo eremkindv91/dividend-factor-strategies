@@ -88,3 +88,6 @@ news/artifacts/
 !.claude/
 .claude/*
 !.claude/skills/
+
+# Daily Market Data Foundation: дневные OHLCV parquet генерятся в CI (большие) — в репо не нужны
+data/daily/

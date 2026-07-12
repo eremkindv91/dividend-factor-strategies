@@ -51,6 +51,11 @@ ISS_DIV_URL = (
     "https://iss.moex.com/iss/securities/{tk}/dividends.json"
     "?iss.meta=off&dividends.columns=registryclosedate,value,currencyid"
 )
+ISS_OHLCV_URL = (
+    "https://iss.moex.com/iss/engines/stock/markets/shares/boards/{board}/securities/{tk}/candles.json"
+    "?iss.meta=off&interval={interval}&from={frm}&till={till}"
+    "&candles.columns=begin,open,high,low,close,value,volume&start={start}"
+)
 USER_AGENT = "dividend-forecast-site/1.0 (+https://github.com/eremkindv91/dividend-factor-strategies)"
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_PATH = os.path.join(REPO, "model_output", "prices_cache.json")
@@ -132,6 +137,41 @@ def _price_asof(field: Optional[str], prev_date: Optional[str], close_date: Opti
     if field == "PREVPRICE":
         return prev_date
     return close_date or prev_date
+
+
+def _f(x):
+    try:
+        return float(x) if x is not None else None
+    except (ValueError, TypeError):
+        return None
+
+
+def fetch_ohlcv(ticker: str, frm: str, till: str, board: str = "TQBR", interval: int = 24,
+                timeout: int = 25, retries: int = 3) -> List[dict]:
+    """Дневные свечи OHLCV на доске board за [frm, till]. Возвращает list[dict]
+    {trade_date, open, high, low, close, value, volume} по возрастанию даты (дедуп по дате).
+    Пагинация ISS по 500 строк (многолетняя дневная история > одной страницы).
+    Число сделок ISS в свечах НЕ отдаёт — поля нет (не выдумываем). RuntimeError при сбое сети."""
+    rows_out: Dict[str, dict] = {}
+    start = 0
+    while True:
+        url = ISS_OHLCV_URL.format(board=board, tk=ticker, interval=interval, frm=frm, till=till, start=start)
+        payload = _http_get_json(url, timeout=timeout, retries=retries)
+        batch = _rows(payload.get("candles", {"columns": [], "data": []}))
+        if not batch:
+            break
+        for r in batch:
+            c = r.get("close")
+            d = str(r.get("begin"))[:10]
+            if c is None or _f(c) is None or _f(c) <= 0 or len(d) != 10:
+                continue
+            rows_out[d] = {"trade_date": d, "open": _f(r.get("open")), "high": _f(r.get("high")),
+                           "low": _f(r.get("low")), "close": float(c),
+                           "value": _f(r.get("value")), "volume": _f(r.get("volume"))}
+        if len(batch) < 500:
+            break
+        start += len(batch)
+    return [rows_out[d] for d in sorted(rows_out)]
 
 
 def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int = 25,
