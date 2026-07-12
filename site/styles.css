@@ -2357,3 +2357,19 @@ tbody tr:hover td,
 .pfx-attr-secrow span { color: var(--ink-soft); }
 .pfx-attr-secrow b { font-variant-numeric: tabular-nums; }
 @media (max-width: 760px) { .pfx-attr-2col { grid-template-columns: 1fr; } .pfx-attr-row { grid-template-columns: 48px 1fr 80px 48px; } }
+
+/* ══ Стресс-сценарии рынка (Scenario Lab) ══ */
+.pfx-scn-macrorow { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.pfx-scn-macro { border: 1px solid var(--line); border-left: 4px solid var(--neut-bar); border-radius: 10px; padding: 9px 12px; background: var(--surface); display: flex; flex-direction: column; gap: 1px; }
+.pfx-scn-macro.pfx-good { border-left-color: var(--good-bar); } .pfx-scn-macro.pfx-warn { border-left-color: var(--warn-bar); } .pfx-scn-macro.pfx-risk { border-left-color: var(--risk-bar); }
+.pfx-scn-macro span { font-size: .74rem; color: var(--ink-faint); font-weight: 600; }
+.pfx-scn-macro b { font-size: 1.2rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pfx-scn-macro em { font-size: .72rem; color: var(--ink-faint); font-style: normal; }
+.pfx-scn-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.pfx-scn-card { border: 1px solid var(--line); border-top: 4px solid var(--neut-bar); border-radius: 12px; padding: 11px 13px; background: var(--surface); display: flex; flex-direction: column; gap: 3px; }
+.pfx-scn-card.pfx-good { border-top-color: var(--good-bar); } .pfx-scn-card.pfx-warn { border-top-color: var(--warn-bar); } .pfx-scn-card.pfx-risk { border-top-color: var(--risk-bar); }
+.pfx-scn-name { font-size: .82rem; font-weight: 700; color: var(--ink); }
+.pfx-scn-rub { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.pfx-scn-pct { font-size: .78rem; font-variant-numeric: tabular-nums; }
+.pfx-scn-basis { font-size: .72rem; color: var(--ink-faint); font-style: normal; line-height: 1.35; }
+@media (max-width: 760px) { .pfx-scn-cards, .pfx-scn-macrorow { grid-template-columns: 1fr; } }

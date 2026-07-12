@@ -1516,6 +1516,9 @@ function pfxRenderHTML(c) {
   // 7. Bootstrap
   html += pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c));
 
+  // 7b. Scenario Lab — реакция на макро-шоки (Bible VIII)
+  html += pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c));
+
   // 8. Smart Rebalancer
   html += pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
 
@@ -1916,6 +1919,49 @@ function pfxBootHTML(c) {
     <div class="pfx-boot-read">${readParts.map((t) => `<p>${t}</p>`).join('')}</div>
 
     <div class="pfx-note muted">Метод: bootstrap-ресэмпл (${b.sims} симуляций × 12 мес) фактических месячных доходностей — оценка <b>устойчивости по истории</b>, не прогноз будущей доходности и не ИИР. «Год» здесь виртуальный: месяцы берутся из прошлого случайно, поэтому хвосты шире одного реального года.</div>
+  </div>`;
+}
+
+// ── Scenario Lab: реакция портфеля на макро-шоки (честно: историческая beta + дюрация) ──
+function pfxScenarioLab(c) {
+  const beta = (c.capm && c.capm.ok && isNum(c.capm.beta)) ? c.capm.beta : (isNum(c.wBeta) ? c.wBeta : null);
+  const total = c.total, rb = c._rb;
+  const rateSens = c.positions.reduce((s, p) => s + p.weight * pfxSectorRate(p.sector), 0);
+  const scen = [];
+  const push = (name, movePct, basis, tone, divHit) => scen.push({ name, movePct, rub: total * movePct, basis, tone, divHit });
+  if (beta != null) {
+    push('Рынок −30%', beta * -0.30, `beta ${ru(beta, 2)} к MCFTR`, 'risk');
+    push('Рынок −20%', beta * -0.20, `beta ${ru(beta, 2)}`, 'warn');
+    push('Рынок +20%', beta * 0.20, `beta ${ru(beta, 2)}`, 'good');
+  }
+  if (rateSens > 0) {                                        // +2пп: секторная эластичность ~6%/пп (умеренно)
+    const mv = -rateSens * 2 * 0.06;
+    push('Ставка +2 п.п.', mv, `секторная чувствительность к ставке ${Math.round(rateSens * 100)}% × ~6% на п.п. (стилизов.)`, 'warn');
+  }
+  if (beta != null) {                                        // рецессия: рынок −25%×beta + дивиденды по crisis
+    const mv = beta * -0.25;
+    const divHit = (c.div && c.div.baseIncome > 0) ? (c.div.scen.crisis - c.div.baseIncome) : 0;
+    push('Рецессия РФ', mv, `рынок −25%×beta${divHit ? '; дивиденды по crisis-сценарию' : ''}`, 'risk', divHit);
+  }
+  const macro = [
+    { k: 'Рынок (MCFTR)', v: beta == null ? '—' : ru(beta, 2), cls: beta == null ? 'neut' : beta > 1.15 ? 'risk' : beta > 0.85 ? 'warn' : 'good', lbl: beta == null ? 'н/д' : beta > 1.15 ? 'высокая' : beta > 0.85 ? 'средняя' : 'низкая' },
+    { k: 'Ставка (КБД)', v: Math.round(rateSens * 100) + '%', cls: rateSens > 0.6 ? 'risk' : rateSens > 0.4 ? 'warn' : 'good', lbl: rateSens > 0.6 ? 'высокая' : rateSens > 0.4 ? 'средняя' : 'низкая' },
+  ];
+  return { ok: scen.length > 0, scen, macro, beta };
+}
+function pfxScenarioHTML(c) {
+  const s = pfxScenarioLab(c);
+  if (!s.ok) return `<div class="pfx-note">${NA}: нужна beta к MCFTR (история ≥12 мес + выравнивание бенчмарка).</div>`;
+  const cards = s.scen.map((x) => `<div class="pfx-scn-card pfx-${x.tone}">
+    <span class="pfx-scn-name">${esc(x.name)}</span>
+    <b class="pfx-scn-rub ${x.rub >= 0 ? 'saw-up' : 'saw-down'}">${rub0(x.rub)}</b>
+    <span class="pfx-scn-pct ${x.movePct >= 0 ? 'saw-up' : 'saw-down'}">${PP(x.movePct, 1)}${x.divHit ? ` · дивиденды ${rub0(x.divHit)}/год` : ''}</span>
+    <em class="pfx-scn-basis">${esc(x.basis)}</em></div>`).join('');
+  const macro = s.macro.map((m) => `<div class="pfx-scn-macro pfx-${m.cls}"><span>${esc(m.k)}</span><b>${m.v}</b><em>${m.lbl} чувствительность</em></div>`).join('');
+  return `<div class="pfx-scn">
+    <div class="pfx-scn-macrorow">${macro}</div>
+    <div class="pfx-scn-cards">${cards}</div>
+    <div class="pfx-note muted">Оценки стилизованные, от текущей стоимости портфеля ${rub0(c.total)}: рыночные сценарии — историческая beta к MCFTR; ставка — стилизованная дюрация дивпотока (Гордон); рецессия — рынок×beta + дивиденды по crisis-сценарию. Не прогноз и не ИИР. Экспозиция к нефти/рублю требует факторной модели — не выдумываем.</div>
   </div>`;
 }
 
