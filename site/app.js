@@ -1522,6 +1522,9 @@ function pfxRenderHTML(c) {
   // 9. Allocation
   html += pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c));
 
+  // 9b. Атрибуция доходности — что двигало P&L (Bible VIII)
+  html += pfxDetails('Атрибуция доходности', '(вклад бумаг и секторов в фактический P&L)', pfxAttrHTML(c));
+
   // 10. Position Diagnostics
   html += pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c));
 
@@ -5556,6 +5559,49 @@ function pfxCorrHTML(c) {
       </div>
     </div></div>
     <div class="pfx-note muted">Корреляция месячных total-returns (${n} крупнейших позиций с историей). Высокие значения — бумаги движутся вместе (диверсификация слабее); отрицательные — гасят друг друга.${cr.approx ? ' Ковариация регуляризована (короткая история).' : ''} Не ИИР.</div>`;
+}
+
+// ── атрибуция доходности: фактический нереализ. P&L по бумагам/секторам (Bible VIII) ──
+function pfxAttribution(c) {
+  const ps = c.positions.filter((p) => isNum(p.value) && isNum(p.cost) && p.cost > 0);
+  if (!ps.length) return { ok: false };
+  const rows = ps.map((p) => ({ ticker: p.ticker, name: (p.t && p.t.name) || p.ticker, sector: p.sector || ND,
+    pnl: p.value - p.cost, pnlPct: p.value / p.cost - 1, weight: p.weight, value: p.value }));
+  const totalPnl = rows.reduce((s, r) => s + r.pnl, 0);
+  rows.sort((a, b) => b.pnl - a.pnl);
+  const secMap = {};
+  rows.forEach((r) => { secMap[r.sector] = (secMap[r.sector] || 0) + r.pnl; });
+  const sectors = Object.entries(secMap).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+  return { ok: true, rows, totalPnl, sectors, best: rows[0], worst: rows[rows.length - 1] };
+}
+function pfxAttrHTML(c) {
+  const a = pfxAttribution(c);
+  if (!a.ok) return `<div class="pfx-note">${NA}: нет позиций с ценой и средней.</div>`;
+  const maxAbs = Math.max(...a.rows.map((r) => Math.abs(r.pnl)), 1);
+  const bar = (r) => {
+    const w = Math.max(2, Math.round(Math.abs(r.pnl) / maxAbs * 100));
+    const pos = r.pnl >= 0;
+    return `<div class="pfx-attr-row">
+      <span class="pfx-attr-tk">${esc(r.ticker)}</span>
+      <div class="pfx-attr-track"><i class="${pos ? 'pos' : 'neg'}" style="width:${w}%"></i></div>
+      <span class="pfx-attr-pnl ${pos ? 'saw-up' : 'saw-down'}">${rub0(r.pnl)}</span>
+      <span class="pfx-attr-pct ${pos ? 'saw-up' : 'saw-down'}">${PP(r.pnlPct, 1)}</span></div>`;
+  };
+  const drivers = [
+    `Всего нереализованный P&L: <b class="${a.totalPnl >= 0 ? 'saw-up' : 'saw-down'}">${rub0(a.totalPnl)}</b>.`,
+    a.best && a.best.pnl > 0 ? `Главный вклад — <b>${esc(a.best.ticker)}</b> (${rub0(a.best.pnl)}, ${PP(a.best.pnlPct, 0)}).` : '',
+    a.worst && a.worst.pnl < 0 ? `Тянет вниз — <b>${esc(a.worst.ticker)}</b> (${rub0(a.worst.pnl)}, ${PP(a.worst.pnlPct, 0)}).` : '',
+    a.sectors.length ? `Сектор-лидер по вкладу: <b>${esc(a.sectors[0][0])}</b> (${rub0(a.sectors[0][1])}).` : '',
+  ].filter(Boolean);
+  const sec = a.sectors.slice(0, 6).map(([s, v]) => `<div class="pfx-attr-secrow"><span>${esc(s)}</span><b class="${v >= 0 ? 'saw-up' : 'saw-down'}">${rub0(v)}</b></div>`).join('');
+  return `<div class="pfx-attr">
+    <div class="pfx-attr-drivers">${drivers.map((d) => `<div>${d}</div>`).join('')}</div>
+    <div class="pfx-attr-2col">
+      <div class="pfx-attr-bars">${a.rows.map(bar).join('')}</div>
+      <div class="pfx-attr-sectors"><h4>Вклад секторов</h4>${sec}</div>
+    </div>
+    <div class="pfx-note muted">Атрибуция по ФАКТИЧЕСКОМУ нереализованному P&L = (тек. цена − средняя) × количество. Это реальные бумажные прибыли/убытки по вашим позициям, не бэктест. Не ИИР.</div>
+  </div>`;
 }
 
 // ── дивидендный стресс-тест: base/conservative/stress/crisis ─────────────────
