@@ -43,6 +43,9 @@ jobs:
       - name: Quality + coverage artifact
         run: python scripts/build_daily_quality.py
 
+      - name: Веб-мост дневных доходностей (per-secid, для клиентского Risk Engine)
+        run: python scripts/build_daily_returns_web.py || echo "[daily-web] пропуск — веб-мост не собран"
+
       - name: Валидация артефакта качества
         run: |
           python - <<'PY'
@@ -66,10 +69,13 @@ jobs:
             echo "[daily] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
           fi
           cp site/daily_market_data_quality.json "$TMP/"
-          if [ -z "$(git -C "$TMP" status --porcelain -- daily_market_data_quality.json)" ]; then
-            echo "[daily] без изменений артефакта"; rm -rf "$TMP"; exit 0
+          if [ -d site/daily/web ]; then
+            mkdir -p "$TMP/daily/web" && cp site/daily/web/*.json "$TMP/daily/web/" 2>/dev/null || true
           fi
-          git -C "$TMP" add daily_market_data_quality.json
+          if [ -z "$(git -C "$TMP" status --porcelain -- daily_market_data_quality.json daily)" ]; then
+            echo "[daily] без изменений артефактов"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" add daily_market_data_quality.json daily
           git -C "$TMP" \
             -c user.name="github-actions[bot]" \
             -c user.email="github-actions[bot]@users.noreply.github.com" \
