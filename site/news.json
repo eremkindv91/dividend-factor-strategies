@@ -1,8 +1,8 @@
 {
   "date": "2026-07-13",
-  "generated_at": "2026-07-13T09:51:02+03:00",
+  "generated_at": "2026-07-13T12:49:41+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Цены на нефть Brent выросли на 3,84%, азиатские индексы снижаются, золото дешевеет.",
+  "external_backdrop": "Американские индексы в пятницу выросли, в Азии японский Nikkei снижается, а Brent дорожает на фоне эскалации на Ближнем Востоке",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,184 +27,242 @@
     },
     {
       "name": "Hang Seng",
-      "value": "24165.21",
-      "change_pct": "-0.04%",
+      "value": "24213.72",
+      "change_pct": "+0.16%",
       "as_of": "2026-07-13",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "78.93",
-      "change_pct": "+3.84%",
+      "value": "77.37",
+      "change_pct": "+1.79%",
       "as_of": "2026-07-13",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4069.20",
-      "change_pct": "-0.85%",
+      "value": "4078.70",
+      "change_pct": "-0.62%",
       "as_of": "2026-07-13",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2151.94",
-      "change_pct": "+0.29%",
-      "as_of": "2026-07-13 09:50:59",
+      "value": "2189.17",
+      "change_pct": "+2.03%",
+      "as_of": "2026-07-13 12:49:38",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "884.25",
-      "change_pct": "+0.29%",
-      "as_of": "2026-07-13 09:51:00",
+      "value": "899.55",
+      "change_pct": "+2.03%",
+      "as_of": "2026-07-13 12:49:40",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "76.80",
+      "change_pct": "-0.02%",
+      "as_of": "2026-07-13 12:49:40",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "11.28",
+      "change_pct": "-0.32%",
+      "as_of": "2026-07-13 12:49:41",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-iran-strikes-escalation",
-      "headline": "США и Иран обменялись новыми массированными ударами в районе Ормузского пролива",
-      "context": "Центральное командование ВС США и КСИР Ирана провели очередную серию взаимных атак с использованием ракет и беспилотников.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1102849"
-        }
-      ],
-      "published_at": "2026-07-13T01:25:00+03:00"
-    },
-    {
-      "id": "brent-crude-oil-surge",
-      "headline": "Цены на нефть Brent выросли на фоне эскалации конфликта на Ближнем Востоке",
-      "context": "Стоимость фьючерсов на Brent превысила 79 долларов за баррель из-за рисков для судоходства в Ормузском проливе.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1102892"
-        }
-      ],
-      "published_at": "2026-07-13T08:46:00+03:00"
-    },
-    {
-      "id": "massive-drone-attack-russia",
-      "headline": "Силы ПВО сбили 342 украинских беспилотника над регионами России за ночь",
-      "context": "В Московской области уничтожен 81 БПЛА, в результате атаки погибли три человека.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1102895"
-        }
-      ],
-      "published_at": "2026-07-13T08:55:00+03:00"
-    },
-    {
-      "id": "eu-fails-sanctions-consensus",
-      "headline": "Евросоюз не смог согласовать двадцать первый пакет санкций против России",
-      "context": "Послы стран ЕС не достигли консенсуса к встрече министров иностранных дел в Брюсселе, сообщила Кая Каллас.",
-      "category": "geopolitics",
+      "id": "agro-shares-seizure-demand",
+      "headline": "Генпрокуратура потребовала изъять в доход государства восемь миллионов акций компании Русагро",
+      "context": "Ведомство уточнило требования по иску к родственникам основателя Вадима Мошковича и экс-главе Максиму Басову.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "РБК",
-          "url": "https://www.rbc.ru/politics/13/07/2026/6a5484819a794774af568e9d"
+          "url": "https://www.rbc.ru/rbcfreenews/69fa0b439a7947c8360a7806"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/society/news/2026/07/13/1213157-prokurori-trebuyut-izyat"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327462.php"
         }
       ],
-      "published_at": "2026-07-13T09:27:00+03:00"
+      "published_at": "2026-07-13T12:01:00+03:00"
     },
     {
-      "id": "shohin-urges-no-rate-hike",
-      "headline": "Бизнес призвал Банк России не повышать ключевую ставку из-за роста цен на топливо",
-      "context": "Глава РСПП Александр Шохин заявил о необходимости воздержаться от ужесточения ДКП в ответ на удорожание бензина.",
+      "id": "business-urges-cb-no-rate-hike",
+      "headline": "Российский бизнес призвал Центробанк не повышать ключевую ставку из-за роста цен на топливо",
+      "context": "Глава РСПП Александр Шохин выразил надежду, что регулятор откажется от лобовой реакции на заседании 24 июля.",
       "category": "cb_policy",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/377464"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8813926"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/13/1213158-ne-povishat-stavku"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/355288"
         }
       ],
-      "published_at": "2026-07-13T09:43:00+03:00"
+      "published_at": "2026-07-13T10:45:00+03:00"
     },
     {
-      "id": "digital-ruble-economic-effect",
-      "headline": "Экономический эффект от внедрения цифрового рубля оценен в 423 миллиарда рублей в год",
-      "context": "Основную выгоду в размере до 348 млрд рублей может получить реальный сектор экономики за счет снижения издержек на платежи.",
-      "category": "macro",
+      "id": "brent-crude-price-jump",
+      "headline": "Цены на нефть Brent превысили 79 долларов за баррель на фоне взаимных ударов США и Ирана",
+      "context": "США провели новую серию ударов по иранским объектам в районе Ормузского пролива, а КСИР атаковал американские базы в Иордании и Бахрейне.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/83677"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/355270"
+        }
+      ],
+      "published_at": "2026-07-13T07:36:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-vk-max",
+      "headline": "Евросоюз ввел санкции против холдинга ВК и юрлица мессенджера Макс",
+      "context": "Ограничения приняты в рамках мер ЕС в отношении российских технологических компаний.",
+      "category": "geopolitics",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/377492"
+        },
+        {
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/83688"
+        }
+      ],
+      "published_at": "2026-07-13T12:42:00+03:00"
+    },
+    {
+      "id": "novatek-gas-production-results",
+      "headline": "Новатэк увеличил добычу природного газа в первом полугодии на два и семь десятых процента",
+      "context": "Общая добыча углеводородов компании выросла на 2,8% до 346,2 млн баррелей нефтяного эквивалента.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/13/1213156-novatek-narastil-dobichu"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327480.php"
+        }
+      ],
+      "published_at": "2026-07-13T11:35:00+03:00"
+    },
+    {
+      "id": "eu-fails-agree-sanctions-package",
+      "headline": "Страны Евросоюза не смогли согласовать двадцать первый пакет санкций против России к министерской встрече",
+      "context": "По словам главы евродипломатии Каи Каллас, в работе над пакетом по-прежнему остаются нерешенные вопросы.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/83680"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/355285"
+        }
+      ],
+      "published_at": "2026-07-13T08:51:00+03:00"
+    },
+    {
+      "id": "digital-ruble-economic-effect",
+      "headline": "Экономический эффект от внедрения цифрового рубля в России оценен в четыреста двадцать три миллиарда рублей в год",
+      "context": "Согласно исследованию Центрального университета, основную выгоду в размере 348 млрд рублей получит реальный сектор экономики.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8813752"
+          "url": "https://www.kommersant.ru/doc/8813754"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327382.php"
         }
       ],
       "published_at": "2026-07-13T05:41:00+03:00"
     },
     {
-      "id": "fsb-prevents-airfield-attacks",
-      "headline": "ФСБ предотвратила масштабные атаки украинских беспилотников на военные аэродромы",
-      "context": "Спецслужбы сорвали подготовку ударов по аэродромам «Украинка» в Амурской области и «Шагол» в Челябинской области.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a48bbb19a7947165a7bef96"
-        }
-      ],
-      "published_at": "2026-07-13T08:50:00+03:00"
-    },
-    {
-      "id": "sk-hynix-shares-plunge",
-      "headline": "Акции южнокорейской SK Hynix рухнули на торгах в Сеуле после листинга на Nasdaq",
-      "context": "Бумаги производителя чипов памяти упали на 16% на фоне фиксации прибыли инвесторами после успешного дебюта АДР в США.",
-      "category": "markets",
+      "id": "kamaz-corporate-vacation-stop",
+      "headline": "Автопроизводитель КАМАЗ приостановил выпуск грузовиков на две недели из-за корпоративного отпуска",
+      "context": "Производство основной продукции приостановлено до 27 июля на время планового отдыха сотрудников.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/377463"
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/355226"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327440.php"
         }
       ],
-      "published_at": "2026-07-13T09:41:00+03:00"
+      "published_at": "2026-07-13T00:55:00+03:00"
     }
   ],
   "yesterday": [
     {
       "id": "moex-plans-24-7-trading",
-      "headline": "Московская биржа планирует перейти на круглосуточный режим торгов",
-      "context": "Площадка рассматривает возможность расширения времени торгов на фондовом и срочном рынках до формата 24/7.",
+      "headline": "Московская биржа планирует расширить время торгов на фондовом и срочном рынках до круглосуточного режима",
+      "context": "Об этом сообщил старший управляющий директор по продажам и развитию бизнеса площадки Борис Блохин.",
       "category": "markets",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8813653"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/12/1213014-mosbirzha-mozhet-pereiti"
         }
       ],
       "published_at": "2026-07-12T16:32:00+03:00"
     },
     {
-      "id": "gasoline-prices-surge-july",
-      "headline": "Медианная цена бензина АИ-95 в России выросла в июле до 77,5 рубля за литр",
-      "context": "По данным «Чек Индекса», рост цен на АИ-92 и АИ-95 по сравнению с прошлым годом составил 20% и 24% соответственно.",
+      "id": "fuel-prices-jump-july",
+      "headline": "Медианная цена бензина марки АИ-95 в России выросла в первой декаде июля до 77 рублей",
+      "context": "По данным аналитиков Чек Индекса, рост стоимости топлива по сравнению с прошлым годом составил более двадцати процентов.",
       "category": "macro",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
@@ -215,71 +273,45 @@
       "published_at": "2026-07-12T18:14:00+03:00"
     },
     {
-      "id": "lindsey-graham-passes-away",
-      "headline": "Скончался американский сенатор Линдси Грэм в возрасте 71 года",
-      "context": "Сенатор-республиканец, известный активной поддержкой антироссийских санкций, умер от осложнений сердечно-сосудистого заболевания.",
+      "id": "us-strikes-iran-military",
+      "headline": "Вооруженные силы США нанесли серию ударов по военным объектам на территории Ирана",
+      "context": "Атака стала ответом на удар иранских сил по контейнеровозу в Ормузском проливе.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8813510"
+          "url": "https://www.kommersant.ru/doc/8813464"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/12/1212986-amerikanskie-voennie-udarili"
         }
       ],
-      "published_at": "2026-07-12T09:35:00+03:00"
+      "published_at": "2026-07-12T03:21:00+03:00"
     },
     {
-      "id": "toyota-sells-shares-restructuring",
-      "headline": "Toyota Motor продала доли в 44 компаниях для финансирования реструктуризации",
-      "context": "Восемь компаний группы продали акции сторонних предприятий на сумму 935,3 млрд иен для повышения эффективности капитала.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
+      "id": "iran-closes-hormuz-strait",
+      "headline": "Корпус стражей исламской революции Ирана объявил о закрытии прохода судов через Ормузский пролив",
+      "context": "Решение принято до окончания вмешательства Соединенных Штатов Америки в дела ближневосточного региона.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8813655"
+          "url": "https://www.kommersant.ru/doc/8813459"
         }
       ],
-      "published_at": "2026-07-12T18:22:00+03:00"
+      "published_at": "2026-07-12T01:43:00+03:00"
     },
     {
-      "id": "openai-launches-chatgpt-work",
-      "headline": "OpenAI представила интеллектуальную экосистему ИИ-агентов ChatGPT Work",
-      "context": "Новый инструмент на базе GPT-5.6 и Codex способен автономно выполнять комплексные задачи внутри операционной системы пользователя.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Spydell Finance",
-          "url": "https://t.me/spydell_finance/9885"
-        }
-      ],
-      "published_at": "2026-07-12T08:22:00+03:00"
-    },
-    {
-      "id": "germany-funds-drones-ukraine",
-      "headline": "Германия профинансирует закупку 50 тысяч ударных беспилотников для Украины",
-      "context": "Объем финансирования контракта составит 90 млн евро, что станет одной из крупнейших подобных закупок западными странами.",
-      "category": "geopolitics",
+      "id": "us-bans-digital-dollar-cbdc",
+      "headline": "В Соединенных Штатах Америки приняли закон о запрете выпуска цифрового доллара",
+      "context": "Законопроект полностью блокирует возможность создания государственной цифровой валюты Федеральной резервной системой.",
+      "category": "markets",
       "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/12/1213055-germaniya-profinansiruet"
-        }
-      ],
-      "published_at": "2026-07-12T17:55:00+03:00"
-    },
-    {
-      "id": "us-bans-retail-cbdc",
-      "headline": "В США принят закон о запрете выпуска цифрового доллара",
-      "context": "Законопроект полностью запрещает Федеральной резервной системе выпускать розничную цифровую валюту центрального банка.",
-      "category": "cb_policy",
-      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
@@ -290,64 +322,87 @@
       "published_at": "2026-07-12T15:28:00+03:00"
     },
     {
-      "id": "ec-recommends-venice-grant-cut",
-      "headline": "Еврокомиссия рекомендовала лишить Венецианскую биеннале гранта из-за участия России",
-      "context": "Предложено прекратить выделение гранта в размере 2 млн евро в связи с открытием российского павильона на выставке.",
+      "id": "qatar-suspends-lng-expansion",
+      "headline": "Катар приостановил планы по увеличению производства сжиженного природного газа из-за атак на танкеры",
+      "context": "Решение принято на фоне обострения ситуации в Ормузском проливе и ударов по территории страны.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/377406"
+        }
+      ],
+      "published_at": "2026-07-12T12:36:00+03:00"
+    },
+    {
+      "id": "senator-lindsey-graham-dies",
+      "headline": "Американский сенатор Линдси Грэм скончался после непродолжительной болезни",
+      "context": "Грэм являлся одним из ключевых авторов законопроектов об ужесточении санкций против Российской Федерации.",
       "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8813546"
+          "url": "https://www.kommersant.ru/doc/8813510"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/society/news/2026/07/12/1212996-umer-klyuchevoi"
         }
       ],
-      "published_at": "2026-07-12T11:02:00+03:00"
+      "published_at": "2026-07-12T09:35:00+03:00"
     },
     {
-      "id": "duma-elections-parties-submit-docs",
-      "headline": "Все 11 политических партий представили документы в ЦИК для участия в выборах в Госдуму",
-      "context": "Центризбирком завершил прием документов от партий и самовыдвиженцев для заверения списков кандидатов.",
+      "id": "global-labor-income-drop-forecast",
+      "headline": "Доходы на мировом рынке труда могут сократиться на четыре триллиона долларов из-за ближневосточного кризиса",
+      "context": "Аналитики связывают потенциальные потери с эскалацией конфликта и его влиянием на глобальную экономику.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8813533"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/12/1213057-zarplati-mogut-sokratitsya"
         }
       ],
-      "published_at": "2026-07-12T10:29:00+03:00"
+      "published_at": "2026-07-12T18:31:00+03:00"
     },
     {
-      "id": "former-qatar-emir-passes-away",
-      "headline": "Скончался бывший эмир Катара Хамад ибн Халифа Аль Тани",
-      "context": "Предыдущий правитель Катара ушел из жизни в возрасте 74 лет, в стране объявлен четырехдневный траур.",
+      "id": "toyota-sells-stakes-restructuring",
+      "headline": "Группа Toyota продала акции других предприятий на пять миллиардов долларов для реструктуризации бизнеса",
+      "context": "Мера призвана повысить ликвидность и эффективность капитала японского автомобильного концерна.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8813655"
+        }
+      ],
+      "published_at": "2026-07-12T18:22:00+03:00"
+    },
+    {
+      "id": "zelensky-announces-pm-dismissal",
+      "headline": "Президент Украины Владимир Зеленский анонсировал отставку премьер-министра и кадровые изменения в правительстве",
+      "context": "По словам Зеленского, страна меняет свою политическую стратегию и структуру правоохранительных органов.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/12/1212992-umer-bivshii-emir"
-        }
-      ],
-      "published_at": "2026-07-12T09:01:00+03:00"
-    },
-    {
-      "id": "mortgage-issuance-growth-may",
-      "headline": "В мае объем выдачи ипотечных кредитов увеличился в 13 регионах России",
-      "context": "Рост показателей зафиксирован на фоне ожиданий завершения основных программ льготной ипотеки с июля.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/12/1213038-zelenskii-zayavil"
+        },
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/07/12/1213024-mae-obem-vidach"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/377392"
         }
       ],
-      "published_at": "2026-07-12T12:57:00+03:00"
+      "published_at": "2026-07-12T14:59:00+03:00"
     }
   ],
   "today_agenda": []
