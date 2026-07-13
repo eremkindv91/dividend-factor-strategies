@@ -82,11 +82,13 @@ def build_benchmark(mh_instruments: list[dict], ticker: str = "IMOEX", window: i
 
 
 def build(series_map: dict[str, list[dict]], splits_map: dict, quality_map: dict,
-          mh_instruments: list[dict], out_dir: str, window: int = WINDOW) -> dict:
+          mh_instruments: list[dict], out_dir: str, window: int = WINDOW,
+          alias_map: dict | None = None) -> dict:
     os.makedirs(out_dir, exist_ok=True)
     index = {"schema_version": SCHEMA_VERSION,
              "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-             "window": window, "benchmark": None, "securities": {}}
+             "window": window, "benchmark": None,
+             "aliases": alias_map or {}, "securities": {}}
 
     bench = build_benchmark(mh_instruments, window=window)
     if bench:
@@ -137,7 +139,15 @@ def main() -> int:
         mh = json.load(open(MARKET_HISTORY, encoding="utf-8")).get("instruments", [])
     except (OSError, ValueError):
         mh = []
-    idx = build(series_map, splits_map, quality_map, mh, OUT_DIR)
+    alias_map = {}
+    try:
+        master = json.load(open(os.path.join(REPO, "data", "security_master.json"), encoding="utf-8"))
+        for s in master.get("securities", []):
+            for prev in s.get("previous_tickers", []):
+                alias_map[prev] = s["canonical_ticker"]
+    except (OSError, ValueError):
+        pass
+    idx = build(series_map, splits_map, quality_map, mh, OUT_DIR, alias_map=alias_map)
     pub = sum(1 for v in idx["securities"].values() if v.get("published"))
     sys.stderr.write(f"[daily-web] опубликовано {pub} бумаг + бенчмарк → {OUT_DIR}\n")
     return 0

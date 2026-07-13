@@ -14,6 +14,7 @@ const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); 
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
+const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
@@ -1802,6 +1803,7 @@ function renderMyPortfolio() {
   out.innerHTML = pfxRenderHTML(c);
   pfxDrawCharts(c);
   pfxWireButtons(c);
+  try { pfxDailyRiskLoad(c); } catch (e) { console.error('[daily-risk] load:', e); }   // дневной риск — ленивый веб-мост
 }
 
 // ── формат-хелперы (frac = доля; PU = уже проценты) ──────────────────────────
@@ -1944,8 +1946,12 @@ function pfxRenderHTML(c) {
   // 3. Alpha / Beta
   html += pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
 
-  // 4. Dynamic Risk Engine (VaR)
-  html += pfxDetails('Динамический риск: VaR / CVaR', '(месячная база — дневной VaR недоступен)', pfxVaRHTML(c));
+  // 4. Дневной риск (Daily Risk Engine v1 — по дневным данным MOEX, клиентский расчёт)
+  html += pfxDetails('Дневной риск (VaR / CVaR / волатильность)', '(по дневным данным MOEX · краткосрочный горизонт)',
+    '<div id="pfx-daily-risk"><div class="pulse-loading muted">Загрузка дневных данных портфеля…</div></div>', true);
+
+  // 4b. Долгосрочный риск (месячная база)
+  html += pfxDetails('Долгосрочный риск: VaR / CVaR (месячная база)', '(многолетняя месячная история — иной горизонт)', pfxVaRHTML(c));
 
   // 5. Risk Budget
   html += pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c));
@@ -2061,6 +2067,200 @@ function pfxCapmHTML(c) {
   </div>
   <div class="pfx-interp"><b>Beta:</b> ${esc(interp)}. <b>Alpha:</b> ${esc(al)}.</div>
   <div class="pfx-note muted">Alpha рассчитана исторически на ${m.n} мес и не является прогнозом будущей доходности.</div>`;
+}
+
+// ── Daily Risk Engine v1 (клиент; ЗЕРКАЛИТ scripts/daily_risk.py; портфель НЕ покидает браузер) ──
+// Дневные данные грузятся ленивы (site/daily/web/{SECID}.json) — только бумаги портфеля.
+const PFX_DR = { N: 252, DDOF: 1, MIN_OBS: 60, H_INSUF: 125, H_USABLE: 252, CVAR_TAIL: 5, VC_PARTIAL: 0.85, VC_MIN: 0.50, TOL: 1e-9 };
+const DR_RANK = { total_return: 3, adjusted_price_return: 2, raw_price_return: 1 };
+const DR_EXCL = { invalid_value: 'нулевая или некорректная стоимость', no_data: 'нет дневных данных',
+  stale: 'ряд устарел', insufficient_history: 'недостаточная история',
+  corporate_action_unresolved: 'нераспознанное корпоративное действие', not_mapped: 'тикер не сопоставлен',
+  insufficient_common_dates: 'мало общих торговых дат с портфелем' };
+
+function drMean(a) { return a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0; }
+function drStd(a) { const n = a.length; if (n - PFX_DR.DDOF <= 0) return 0; const m = drMean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (n - PFX_DR.DDOF)); }
+function drQuantile(sorted, p) { const n = sorted.length; if (!n) return NaN; if (n === 1) return sorted[0]; const h = (n - 1) * p, lo = Math.floor(h), hi = Math.min(lo + 1, n - 1); return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]); }
+function drVarCvar(rets, level) { if (!rets.length) return { var: null, cvar: null, tail: 0 }; const s = rets.slice().sort((a, b) => a - b); const q = drQuantile(s, 1 - level); const tail = rets.filter((r) => r <= q); return { var: -q, cvar: tail.length ? -drMean(tail) : -q, tail: tail.length }; }
+function drMaxDD(rets) {
+  const w = [1]; for (const r of rets) w.push(w[w.length - 1] * (1 + r));
+  let peak = w[0], peakI = 0, mdd = 0, mpI = 0, mtI = 0;
+  for (let i = 0; i < w.length; i++) { if (w[i] > peak) { peak = w[i]; peakI = i; } const dd = w[i] / peak - 1; if (dd < mdd) { mdd = dd; mpI = peakI; mtI = i; } }
+  let rec = null; const pv = w[mpI]; for (let i = mtI + 1; i < w.length; i++) { if (w[i] >= pv) { rec = i; break; } }
+  const curPeak = Math.max(...w); const curDD = w[w.length - 1] / curPeak - 1;
+  return { mdd, peakI: mpI, troughI: mtI, recI: rec, curDD };
+}
+function drDownside(rets) { if (!rets.length) return 0; return Math.sqrt(rets.reduce((s, r) => s + Math.min(r, 0) ** 2, 0) / rets.length); }
+function drBeta(port, bench) {
+  const n = Math.min(port.length, bench.length); if (n < 2) return { beta: null, corr: null, n };
+  const p = port.slice(0, n), b = bench.slice(0, n), mp = drMean(p), mb = drMean(b);
+  let cov = 0, vb = 0, vp = 0; for (let i = 0; i < n; i++) { cov += (p[i] - mp) * (b[i] - mb); vb += (b[i] - mb) ** 2; vp += (p[i] - mp) ** 2; }
+  cov /= (n - PFX_DR.DDOF); vb /= (n - PFX_DR.DDOF); vp /= (n - PFX_DR.DDOF);
+  if (vb <= PFX_DR.TOL) return { beta: null, corr: null, n };
+  const sdp = Math.sqrt(vp), sdb = Math.sqrt(vb);
+  return { beta: cov / vb, corr: (sdp > PFX_DR.TOL && sdb > PFX_DR.TOL) ? cov / (sdp * sdb) : null, n };
+}
+function drConfidence(commonN, valueCov, mixed, fallback, benchOk, partial) {
+  const order = ['unavailable', 'low', 'medium', 'high']; let cap = 'high';
+  const down = (l) => { if (order.indexOf(l) < order.indexOf(cap)) cap = l; };
+  if (commonN < PFX_DR.MIN_OBS) return 'unavailable';
+  if (commonN < PFX_DR.H_INSUF) down('low'); else if (commonN < PFX_DR.H_USABLE) down('medium');
+  if (valueCov < PFX_DR.VC_MIN) down('low'); else if (valueCov < PFX_DR.VC_PARTIAL) down('medium');
+  if (mixed || fallback) down('medium');
+  if (!benchOk) down('medium');
+  if (partial) down('medium');
+  return cap;
+}
+// mirror daily_risk.compute: positions=[{ticker,secid,quantity,price,returns:{d:r},quality_status,corporate_action_status,return_type,fallback_status}]
+function drCompute(positions, benchmark) {
+  const mv = (p) => { const q = +p.quantity, pr = +p.price; return (isFinite(q) && isFinite(pr) && q > 0 && pr > 0) ? q * pr : (q <= 0 ? 0 : null); };
+  const totalValue = positions.reduce((s, p) => { const v = mv(p); return s + (v || 0); }, 0);
+  const included = [], excluded = [];
+  positions.forEach((p) => {
+    const v = mv(p); const rets = p.returns || {};
+    let code = null;
+    if (v == null || v <= 0) code = 'invalid_value';
+    else if (!Object.keys(rets).length) code = 'no_data';
+    else if (p.quality_status === 'unavailable') code = 'no_data';
+    else if (p.quality_status === 'stale') code = 'stale';
+    else if (p.quality_status === 'insufficient_history') code = 'insufficient_history';
+    else if (p.corporate_action_status === 'unresolved' || p.quality_status === 'corporate_action_unresolved') code = 'corporate_action_unresolved';
+    else if (!p.secid) code = 'not_mapped';
+    if (code) excluded.push({ ticker: p.ticker, reason: DR_EXCL[code] || 'недоступно' }); else included.push(p);
+  });
+  const base = { included, excluded, totalValue, weights_method: 'current_market_value_fixed_weights',
+    annualization: PFX_DR.N, ddof: PFX_DR.DDOF, quantile: 'linear_interpolation' };
+  if (!included.length) return Object.assign(base, { confidence: 'unavailable', metrics: null });
+  const incVal = included.reduce((s, p) => s + mv(p), 0);
+  const weights = {}; included.forEach((p) => { weights[p.secid] = mv(p) / incVal; });
+  // выравнивание по общим датам
+  const dateSets = included.map((p) => new Set(Object.keys(p.returns)));
+  let common = [...dateSets[0]].filter((d) => dateSets.every((s) => s.has(d))).sort();
+  const commonN = common.length;
+  const ranks = included.map((p) => DR_RANK[p.return_type] || 1);
+  const mixed = new Set(ranks).size > 1;
+  const returnType = { 3: 'total_return', 2: 'adjusted_price_return', 1: 'raw_price_return' }[Math.min(...ranks)];
+  const fallback = included.some((p) => p.fallback_status === 'fallback' || p.return_type === 'raw_price_return');
+  const valueCov = totalValue > 0 ? incVal / totalValue : 0;
+  const numberCov = positions.length ? included.length / positions.length : 0;
+  const partial = valueCov < PFX_DR.VC_PARTIAL;
+  const cov = { valueCov, numberCov, included: included.length, excluded: positions.length - included.length,
+    common_start: common[0] || null, common_end: common[common.length - 1] || null, partial };
+  if (commonN < PFX_DR.MIN_OBS) return Object.assign(base, { confidence: 'unavailable', metrics: null, observations: commonN, coverage: cov, returnType });
+  const port = common.map((d) => included.reduce((s, p) => s + weights[p.secid] * p.returns[d], 0));
+  const dailyVol = drStd(port), annVol = dailyVol * Math.sqrt(PFX_DR.N);
+  const v95 = drVarCvar(port, 0.95), v99 = drVarCvar(port, 0.99);
+  const dd = drMaxDD(port), dsd = drDownside(port);
+  // бенчмарк по общим датам
+  let benchOk = false, bres = { beta: null, corr: null }, benchOut = null;
+  if (benchmark && benchmark.returns) {
+    const bmap = benchmark.returns; const bdates = common.filter((d) => d in bmap);
+    if (bdates.length >= PFX_DR.MIN_OBS) {
+      const pmap = {}; common.forEach((d, i) => { pmap[d] = port[i]; });
+      bres = drBeta(bdates.map((d) => pmap[d]), bdates.map((d) => bmap[d])); benchOk = bres.beta != null;
+    }
+    benchOut = { ticker: benchmark.ticker || 'IMOEX', type: benchmark.type || 'price_index', beta: bres.beta, corr: bres.corr, n: bdates.length };
+  }
+  const confidence = drConfidence(commonN, valueCov, mixed, fallback, benchOk, partial);
+  const cvar99ok = v99.tail >= PFX_DR.CVAR_TAIL;
+  const metrics = { dailyVol, annVol, covered: incVal,
+    var95: { pct: v95.var, rub: v95.var * incVal }, var99: { pct: v99.var, rub: v99.var * incVal },
+    cvar95: { pct: v95.cvar, rub: v95.cvar * incVal, tail: v95.tail, low: v95.tail < PFX_DR.CVAR_TAIL },
+    cvar99: cvar99ok ? { pct: v99.cvar, rub: v99.cvar * incVal, tail: v99.tail } : { pct: null, tail: v99.tail, low: true },
+    dd, dsd };
+  const warnings = [];
+  if (mixed) warnings.push('смешение типов рядов — надёжность не выше средней');
+  if (fallback) warnings.push('часть позиций на сырых (нескорректированных) ценах');
+  if (partial) warnings.push('покрыта не вся стоимость портфеля — метрики частичные');
+  if (!benchOk) warnings.push('бенчмарк не выровнен — beta/корреляция недоступны');
+  return Object.assign(base, { confidence, metrics, benchmark: benchOut, observations: commonN,
+    coverage: cov, returnType, mixed, weights, warnings });
+}
+
+// ленивая загрузка веб-моста + расчёт + рендер в #pfx-daily-risk
+function pfxDailyRiskLoad(c) {
+  const box = document.getElementById('pfx-daily-risk'); if (!box) return;
+  const idxUrl = 'daily/web/_index.json';
+  const getJSON = (u) => fetch(u + '?t=' + Date.now(), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  const ensureIdx = PFX_DAILY.index ? Promise.resolve(PFX_DAILY.index) : getJSON(idxUrl).then((j) => { PFX_DAILY.index = j; return j; });
+  ensureIdx.then((idx) => {
+    const aliases = idx.aliases || {}; const secInfo = idx.securities || {};
+    const want = [];
+    c.positions.forEach((p) => { const secid = aliases[p.ticker] || p.ticker; want.push({ p, secid, info: secInfo[secid] }); });
+    const toFetch = want.filter((w) => w.info && w.info.published && !PFX_DAILY.cache[w.secid]).map((w) => w.secid);
+    const benchP = PFX_DAILY.bench ? Promise.resolve(PFX_DAILY.bench) : getJSON('daily/web/_benchmark.json').then((b) => { PFX_DAILY.bench = b; return b; }).catch(() => null);
+    const filesP = Promise.all(toFetch.map((s) => getJSON('daily/web/' + s + '.json').then((rec) => { PFX_DAILY.cache[s] = rec; }).catch(() => { PFX_DAILY.cache[s] = null; })));
+    return Promise.all([benchP, filesP]).then(([bench]) => {
+      const positions = want.map((w) => {
+        const rec = w.info && w.info.published ? PFX_DAILY.cache[w.secid] : null;
+        const price = (w.p.t && isNum(w.p.t.price)) ? w.p.t.price : (w.p.quantity > 0 && isNum(w.p.value) ? w.p.value / w.p.quantity : null);
+        const returns = {}; if (rec && rec.dates) rec.dates.forEach((d, i) => { returns[d] = rec.returns[i]; });
+        return { ticker: w.p.ticker, secid: rec ? w.secid : null, quantity: w.p.quantity, price,
+          returns, quality_status: rec ? rec.quality_status : 'unavailable',
+          corporate_action_status: rec ? rec.corporate_action_status : 'resolved',
+          return_type: rec ? rec.return_type : 'raw_price_return', fallback_status: rec ? rec.fallback_status : 'none' };
+      });
+      const benchmark = bench ? { ticker: bench.ticker, type: bench.type, returns: (() => { const m = {}; if (bench.dates) bench.dates.forEach((d, i) => { m[d] = bench.returns[i]; }); return m; })() } : null;
+      const res = drCompute(positions, benchmark);
+      box.innerHTML = pfxDailyRiskHTML(res);
+    });
+  }).catch((e) => { console.error('[daily-risk]', e); box.innerHTML = '<div class="pfx-note muted">Дневные данные временно недоступны. Долгосрочная (месячная) оценка риска — в блоках выше.</div>'; });
+}
+
+const DR_CONF_RU = { high: 'высокая', medium: 'средняя', low: 'низкая', unavailable: 'недостаточно данных' };
+const DR_CONF_TONE = { high: 'good', medium: 'warn', low: 'risk', unavailable: 'risk' };
+function drPct(x, d) { return isNum(x) ? (x * 100).toFixed(d == null ? 2 : d) + '%' : NA; }
+
+function pfxDailyRiskHTML(r) {
+  const disc = '<div class="pfx-disc">Историческая модель <b>текущего состава</b> на фиксированных текущих весах по <b>дневным</b> данным MOEX. Это НЕ фактическая история ваших сделок. Не прогноз, не рекомендация.</div>';
+  if (!r.metrics) {
+    const why = r.confidence === 'unavailable' && r.included && r.included.length
+      ? `Общая история короче ${PFX_DR.MIN_OBS} торговых дней.` : 'Нет включаемых позиций с дневными данными.';
+    return `<div class="pfx-note">Дневной риск не рассчитан: ${esc(why)} ${r.excluded && r.excluded.length ? 'Исключены: ' + r.excluded.map((e) => esc(e.ticker) + ' — ' + esc(e.reason)).join('; ') + '.' : ''}</div>${disc}`;
+  }
+  const m = r.metrics, conf = r.confidence;
+  const volTone = m.annVol > 0.30 ? 'risk' : m.annVol > 0.15 ? 'warn' : 'good';
+  const volWord = m.annVol > 0.30 ? 'высокая' : m.annVol > 0.15 ? 'умеренная' : 'низкая';
+  const beta = r.benchmark && isNum(r.benchmark.beta) ? r.benchmark.beta : null;
+  const g = [
+    pfxKpi('Годовая волатильность', drPct(m.annVol, 1), `дневная ${drPct(m.dailyVol, 2)} · ${volWord}`, volTone),
+    pfxKpi('VaR 95% (1 день)', drPct(m.var95.pct, 2), rub0(m.var95.rub) + ' от покрытой части', 'risk'),
+    pfxKpi('CVaR 95% (1 день)', drPct(m.cvar95.pct, 2), (m.cvar95.low ? 'мало наблюдений в хвосте' : rub0(m.cvar95.rub)), 'risk'),
+    pfxKpi('Макс. модельная просадка', drPct(m.dd.mdd, 1), m.dd.recI == null ? 'без восстановления' : 'восстановление было', 'risk'),
+    pfxKpi('Beta к IMOEX', beta != null ? PU(beta, 2) : NA, beta != null ? pfxBetaBucket(beta) : 'бенчмарк не выровнен', 'neut'),
+    pfxKpi('Надёжность оценки', DR_CONF_RU[conf], `покрытие ${drPct(r.coverage.valueCov, 0)} стоимости`, DR_CONF_TONE[conf]),
+  ];
+  // главный вывод простым языком
+  const top = r.included.map((p) => r.weights[p.secid]).sort((a, b) => b - a);
+  const topW = top[0] || 0;
+  let takeaway;
+  if (r.coverage.partial) takeaway = `Расчёт покрывает ${drPct(r.coverage.valueCov, 0)} стоимости портфеля (${r.coverage.included} из ${r.coverage.included + r.coverage.excluded} позиций) и ${r.observations} общих торговых дней — метрики частичные.`;
+  else if (topW > 0.4) takeaway = `Основной краткосрочный риск — концентрация: крупнейшая позиция ${drPct(topW, 0)} стоимости. Расчёт на ${r.observations} общих торговых днях.`;
+  else if (beta != null && beta > 1.2) takeaway = `Портфель заметно чувствительнее рынка (beta ${PU(beta, 2)} к IMOEX). Расчёт на ${r.observations} общих торговых днях.`;
+  else takeaway = `Краткосрочный риск ${volWord}, концентрация умеренная. Расчёт на ${r.observations} общих торговых днях, покрытие ${drPct(r.coverage.valueCov, 0)} стоимости.`;
+
+  const exHTML = r.excluded && r.excluded.length
+    ? `<div class="pfx-dr-excl"><b>Исключены из дневного расчёта:</b> ${r.excluded.map((e) => `${esc(e.ticker)} — ${esc(e.reason)}`).join('; ')}.</div>` : '';
+  const warnHTML = r.warnings && r.warnings.length
+    ? `<div class="pfx-dr-warns">${r.warnings.map((w) => `<div class="pfx-wline pfx-w-warn">${esc(w)}</div>`).join('')}</div>` : '';
+  const cvar99 = m.cvar99.pct != null ? drPct(m.cvar99.pct, 2) : 'н/д (мало наблюдений в хвосте)';
+  const method = `<div class="pfx-dr-method muted">
+    Метод: Historical Simulation. Квантиль — линейная интерполяция (тип-7); ddof=1; annualization √${PFX_DR.N}.
+    Тип ряда: ${esc(r.returnType)}. Веса: текущая рыночная стоимость, фиксированы на всей выборке (без ежедневной ребалансировки).
+    Общих торговых дней: ${r.observations} (${esc(r.coverage.common_start || '')}…${esc(r.coverage.common_end || '')}).
+    VaR 99%: ${drPct(m.var99.pct, 2)}; CVaR 99%: ${cvar99}. Downside deviation (дн.): ${drPct(m.dsd, 2)}.
+    Бенчмарк: ${r.benchmark ? esc(r.benchmark.ticker) + ' (' + esc(r.benchmark.type) + '), корреляция ' + (isNum(r.benchmark.corr) ? PU(r.benchmark.corr, 2) : 'н/д') : 'н/д'}.
+    Комиссии и налоги не учитываются; дивиденды — только при total return.</div>`;
+  const help = `<div class="pfx-dr-help muted">
+    <div><b>VaR 95%</b> — порог дневных потерь, который исторически превышался примерно в 5% дней. Это не максимальная возможная потеря.</div>
+    <div><b>CVaR</b> — средняя потеря в самые неблагоприятные дни выбранного периода.</div>
+    <div><b>Beta</b> — насколько чувствительно портфель исторически реагировал на движение IMOEX (не прогноз).</div>
+    <div><b>Просадка</b> — наибольшее модельное снижение стоимости от пика до минимума.</div></div>`;
+  return `<div class="pfx-dr-take">${esc(takeaway)}</div>
+    <div class="pfx-grid pfx-dr-grid">${g.join('')}</div>
+    ${warnHTML}${exHTML}
+    <details class="pfx-dr-more"><summary>Методология и качество данных</summary>${method}${help}</details>
+    ${disc}`;
 }
 
 // ── модуль 4: VaR ────────────────────────────────────────────────────────────

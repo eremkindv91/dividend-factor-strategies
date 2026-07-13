@@ -1996,6 +1996,15 @@ tbody tr:hover td,
 .pfx-risk-ink { color: var(--risk-ink); }
 .pfx-warn { font-size: .8rem; color: var(--warn-ink); background: var(--warn-fill); border-radius: 8px; padding: 7px 10px; margin: 8px 0; font-weight: 600; }
 .pfx-interp { font-size: .84rem; line-height: 1.5; margin: 10px 0; padding: 8px 10px; border-left: 3px solid var(--accent-deep); background: var(--neut-fill); border-radius: 6px; }
+/* Daily Risk Engine v1 */
+.pfx-dr-take { font-size: .9rem; font-weight: 600; color: var(--ink); background: var(--neut-fill); border-left: 3px solid var(--accent-deep); border-radius: 8px; padding: 9px 12px; margin-bottom: 10px; }
+.pfx-dr-grid { margin-top: 2px; }
+.pfx-dr-excl { font-size: .82rem; line-height: 1.5; color: var(--warn-ink); margin-top: 8px; }
+.pfx-dr-warns { margin-top: 8px; }
+.pfx-dr-more { margin-top: 10px; }
+.pfx-dr-more summary { cursor: pointer; font-size: .84rem; color: var(--accent-deep); font-weight: 600; }
+.pfx-dr-method, .pfx-dr-help { font-size: .8rem; line-height: 1.5; margin-top: 6px; }
+.pfx-dr-help div { margin-top: 3px; }
 
 .pfx-mcgrid, .pfx-varcards, .pfx-scens, .pfx-probs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .pfx-mc, .pfx-varcard, .pfx-scen, .pfx-prob { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); }
