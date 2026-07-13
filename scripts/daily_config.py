@@ -24,6 +24,12 @@ HISTORY_HIGH_CONF = 756          # >= 756 → high confidence для хвост�
 
 # ── risk engine ──
 VAR_LEVELS = (0.95, 0.99)        # уровни доверия VaR/CVaR
-CVAR_MIN_TAIL = 5                # < наблюдений в хвосте → CVaR low confidence
+CVAR_MIN_TAIL = 5                # < наблюдений в хвосте → CVaR low confidence / не показывать
 RISK_CONTRIB_TOL = 1e-6          # допуск сходимости Σ component contributions ≈ σ_p
 BENCHMARK = "IMOEX"              # бенчмарк beta/correlation
+QUANTILE_METHOD = "linear_interpolation"   # тип-7 (как numpy default); детерминирован
+MIN_COMMON_OBS = HISTORY_UNAVAILABLE       # < общих торговых дней → метрики недоступны
+VALUE_COVERAGE_PARTIAL = 0.85    # покрытие стоимости ниже → метрики partial, confidence ≤ medium
+VALUE_COVERAGE_MIN = 0.50        # ниже → confidence low, общий риск помечается partial
+FLOAT_TOL = 1e-9                 # допуск инвариантов
+MAR_DAILY = 0.0                  # minimum acceptable return для downside deviation (дневной, 0%)
