@@ -2005,6 +2005,14 @@ tbody tr:hover td,
 .pfx-dr-more summary { cursor: pointer; font-size: .84rem; color: var(--accent-deep); font-weight: 600; }
 .pfx-dr-method, .pfx-dr-help { font-size: .8rem; line-height: 1.5; margin-top: 6px; }
 .pfx-dr-help div { margin-top: 3px; }
+.pfx-dr-sub { font-size: .78rem; line-height: 1.45; margin: 4px 0 6px; }
+.pfx-dr-tbl { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.pfx-dr-tbl th, .pfx-dr-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.pfx-dr-tbl td.num, .pfx-dr-tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pfx-dr-tbl .pfx-neg { color: var(--risk-ink); }
+.pfx-dr-conc, .pfx-dr-bt { font-size: .82rem; line-height: 1.5; margin-top: 8px; }
+.pfx-dr-bt .pfx-w-good { color: var(--good-ink); }
+.pfx-dr-bt .pfx-w-warn { color: var(--warn-ink); }
 
 .pfx-mcgrid, .pfx-varcards, .pfx-scens, .pfx-probs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .pfx-mc, .pfx-varcard, .pfx-scen, .pfx-prob { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); }

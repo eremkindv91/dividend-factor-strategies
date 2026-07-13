@@ -369,6 +369,28 @@ def compute(positions: list[dict], benchmark: dict | None = None, now: datetime 
     if not bench_ok:
         warnings.append("бенчмарк не выровнен — beta/корреляция недоступны")
 
+    # v1.1: component risk contribution + concentration
+    secids = list(al["matrix"])
+    sectors = {p["secid"]: p.get("sector") for p in inc_positions}
+    rc = risk_contribution(al["matrix"], weights, secids) if len(secids) >= 1 else {"ok": False}
+    if rc.get("ok"):
+        by_ticker = {p["secid"]: p.get("ticker") for p in inc_positions}
+        for r in rc["rows"]:
+            r["ticker"] = by_ticker.get(r["secid"], r["secid"])
+        rc["rows"].sort(key=lambda r: -r["pcr"])
+    conc = concentration(weights, sectors)
+
+    # v2: альтернативные оценки VaR (под backtest-валидацией) + backtest основного historical VaR
+    var_methods = {}
+    for lvl, key in [(0.95, "95"), (0.99, "99")]:
+        var_methods[key] = {
+            "historical": v95["var"] if lvl == 0.95 else v99["var"],
+            "normal": var_normal(port, lvl), "ewma": var_ewma(port, lvl),
+            "cornish_fisher": var_cornish_fisher(port, lvl),
+            "monte_carlo_normal": var_monte_carlo(port, lvl),
+        }
+    backtest = var_backtest(port, 0.95, window=min(252, max(60, common_n // 2)))
+
     base.update({
         "return_type": return_type_out, "observations": common_n,
         "common_start": common[0], "common_end": common[-1],
@@ -377,6 +399,8 @@ def compute(positions: list[dict], benchmark: dict | None = None, now: datetime 
         "confidence": confidence, "metrics": metrics, "benchmark": bench_out,
         "included_positions": included_out, "warnings": warnings,
         "limiting_position": al["limiting"],
+        "risk_contribution": rc, "concentration": conc,
+        "var_methods": var_methods, "backtest": backtest,
     })
     return base
 
@@ -388,6 +412,176 @@ def _coverage(value_cov, total_value, n_incl, n_total, cstart, cend, number_cov,
         "included_positions": n_incl, "excluded_positions": n_total - n_incl,
         "common_start": cstart, "common_end": cend, "partial": partial,
     }
+
+
+# ── v1.1: component risk contribution + concentration ──
+
+def covariance(matrix: dict[str, list[float]], secids: list[str]) -> list[list[float]]:
+    """Дневная выборочная ковариация (ddof=1) выровненных рядов included-бумаг."""
+    k = len(secids)
+    n = len(matrix[secids[0]]) if secids else 0
+    means = {s: mean(matrix[s]) for s in secids}
+    S = [[0.0] * k for _ in range(k)]
+    for i in range(k):
+        for j in range(i, k):
+            si, sj = secids[i], secids[j]
+            c = sum((matrix[si][t] - means[si]) * (matrix[sj][t] - means[sj]) for t in range(n))
+            c = c / (n - cfg.DDOF) if n - cfg.DDOF > 0 else 0.0
+            S[i][j] = S[j][i] = c
+    return S
+
+
+def risk_contribution(matrix, weights, secids, annualize=True) -> dict:
+    """σ_p=√(wᵀΣw); MRC_i=(Σw)_i/σ_p; CRC_i=w_i·MRC_i; PCR_i=CRC_i/σ_p.
+    Σ CRC ≈ σ_p, Σ PCR ≈ 1 (проверяется). Отрицательные вклады НЕ обрезаются."""
+    k = len(secids)
+    if k == 0:
+        return {"ok": False}
+    S = covariance(matrix, secids)
+    w = [weights[s] for s in secids]
+    Sw = [sum(S[i][j] * w[j] for j in range(k)) for i in range(k)]
+    var_p = sum(w[i] * Sw[i] for i in range(k))
+    sigma = math.sqrt(max(var_p, 0.0))
+    scale = math.sqrt(cfg.TRADING_DAYS_YEAR) if annualize else 1.0
+    if sigma <= cfg.FLOAT_TOL:
+        return {"ok": False}
+    rows = []
+    crc_sum = 0.0
+    for i, s in enumerate(secids):
+        mrc = Sw[i] / sigma
+        crc = w[i] * mrc
+        crc_sum += crc
+        rows.append({"secid": s, "weight": w[i], "mrc": mrc * scale,
+                     "crc": crc * scale, "pcr": crc / sigma})
+    converged = bool(abs(crc_sum - sigma) < cfg.RISK_CONTRIB_TOL * max(1.0, sigma))
+    pcr_sum = float(sum(r["pcr"] for r in rows))
+    return {"ok": True, "sigma_annual": float(sigma * scale), "rows": rows,
+            "crc_sum_check": converged, "pcr_sum": pcr_sum}
+
+
+def concentration(weights: dict[str, float], sectors: dict[str, str] | None = None) -> dict:
+    """largest/top3/top5 вес, HHI по позициям и секторам, эффективное число бумаг."""
+    ws = sorted(weights.values(), reverse=True)
+    hhi = sum(w * w for w in weights.values())
+    out = {"largest": ws[0] if ws else 0.0, "top3": sum(ws[:3]), "top5": sum(ws[:5]),
+           "hhi": hhi, "effective_n": (1.0 / hhi) if hhi > 0 else 0.0, "sector_hhi": None, "sectors": None}
+    if sectors:
+        sw = {}
+        for s, w in weights.items():
+            sec = sectors.get(s) or "н/д"
+            sw[sec] = sw.get(sec, 0.0) + w
+        out["sector_hhi"] = sum(v * v for v in sw.values())
+        out["sectors"] = dict(sorted(sw.items(), key=lambda kv: -kv[1]))
+    return out
+
+
+# ── v2: альтернативные оценки VaR (под backtest-валидацией) ──
+_Z = {0.95: 1.6448536269514722, 0.99: 2.3263478740408408}
+
+
+def var_normal(rets, level):
+    return -(mean(rets) - _Z[level] * stdev(rets))
+
+
+def var_ewma(rets, level, lam=0.94):
+    """VaR по EWMA-волатильности (вес свежих наблюдений; λ=0.94 — RiskMetrics)."""
+    if len(rets) < 2:
+        return None
+    m = mean(rets)
+    var = (rets[0] - m) ** 2
+    for r in rets[1:]:
+        var = lam * var + (1 - lam) * (r - m) ** 2
+    return _Z[level] * math.sqrt(var)
+
+
+def var_cornish_fisher(rets, level):
+    """CF-скорректированный квантиль (skew/kurt). Клампим экстремум — CF нестабилен на коротком/жирнохвостом ряде."""
+    n = len(rets)
+    if n < 8:
+        return None
+    m, sd = mean(rets), stdev(rets)
+    if sd <= cfg.FLOAT_TOL:
+        return None
+    s = sum(((r - m) / sd) ** 3 for r in rets) / n
+    kx = sum(((r - m) / sd) ** 4 for r in rets) / n - 3.0
+    z = -_Z[level]
+    zc = z + (s / 6) * (z * z - 1) + (kx / 24) * (z ** 3 - 3 * z) - (s * s / 36) * (2 * z ** 3 - 5 * z)
+    if not math.isfinite(zc) or zc > z * 0.4 or zc < z * 3:   # z<0: защита от «взрыва»
+        zc = z
+    return -(m + zc * sd)
+
+
+def var_monte_carlo(rets, level, n_sims=20000, seed=42):
+    """MC-VaR из НОРМАЛЬНОЙ модели (μ,σ выборки), seeded → детерминирован. Допущение нормальности
+    помечается; backtest покажет калибровку (жирные хвосты обычно недооценены)."""
+    import random
+    if len(rets) < 2:
+        return None
+    m, sd = mean(rets), stdev(rets)
+    rng = random.Random(seed)
+    sims = sorted(rng.gauss(m, sd) for _ in range(n_sims))
+    return -quantile(sims, 1 - level)
+
+
+# ── v2: VaR backtest (Kupiec POF + Christoffersen independence) ──
+
+def _chi2_sf_1df(x):
+    return math.erfc(math.sqrt(x / 2.0)) if x >= 0 else 1.0
+
+
+def kupiec_pof(breaches, obs, level):
+    """LR теста Kupiec (proportion of failures). p<0.05 → VaR некорректно калиброван."""
+    p = 1 - level
+    x, n = breaches, obs
+    if n == 0:
+        return {"ok": False}
+    ph = x / n
+    def _ln(v):
+        return math.log(v) if v > 0 else 0.0
+    ll0 = (n - x) * _ln(1 - p) + x * _ln(p)
+    ll1 = (n - x) * _ln(1 - ph) + x * _ln(ph)
+    lr = -2 * (ll0 - ll1)
+    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > 3.841}
+
+
+def christoffersen_independence(seq):
+    """LR независимости пробоев (нет кластеризации). seq — список 0/1 (пробой VaR)."""
+    n00 = n01 = n10 = n11 = 0
+    for i in range(1, len(seq)):
+        a, b = seq[i - 1], seq[i]
+        if a == 0 and b == 0: n00 += 1
+        elif a == 0 and b == 1: n01 += 1
+        elif a == 1 and b == 0: n10 += 1
+        else: n11 += 1
+    if (n00 + n01) == 0 or (n10 + n11) == 0:
+        return {"ok": False}
+    pi01 = n01 / (n00 + n01); pi11 = n11 / (n10 + n11)
+    pi = (n01 + n11) / (n00 + n01 + n10 + n11)
+    def _ln(v):
+        return math.log(v) if v > 0 else 0.0
+    ll0 = (n00 + n10) * _ln(1 - pi) + (n01 + n11) * _ln(pi)
+    ll1 = n00 * _ln(1 - pi01) + n01 * _ln(pi01) + n10 * _ln(1 - pi11) + n11 * _ln(pi11)
+    lr = -2 * (ll0 - ll1)
+    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > 3.841}
+
+
+def var_backtest(rets, level=0.95, window=252):
+    """Rolling historical VaR → пробои → Kupiec + Christoffersen. Валидирует ОСНОВНОЙ (historical) VaR."""
+    n = len(rets)
+    if n < window + 20:
+        return {"ok": False, "reason": "short"}
+    seq, breaches = [], 0
+    for i in range(window, n):
+        s = sorted(rets[i - window:i])
+        var = -quantile(s, 1 - level)
+        br = 1 if rets[i] < -var else 0
+        seq.append(br); breaches += br
+    obs = len(seq)
+    kp = kupiec_pof(breaches, obs, level)
+    ch = christoffersen_independence(seq)
+    verdict = "калиброван" if (kp.get("ok") and not kp["reject"]) else "калибровка под вопросом"
+    return {"ok": True, "obs": obs, "breaches": breaches, "expected": (1 - level) * obs,
+            "freq": breaches / obs if obs else None, "kupiec": kp, "christoffersen": ch, "verdict": verdict}
 
 
 def validate(result: dict) -> list[str]:
