@@ -1,8 +1,8 @@
 {
   "date": "2026-07-14",
-  "generated_at": "2026-07-14T09:08:40+03:00",
+  "generated_at": "2026-07-14T11:29:59+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись снижением, азиатские рынки растут, котировки нефти Brent и золота повышаются.",
+  "external_backdrop": "Азиатские фондовые индексы и цены на нефть Brent растут на фоне эскалации на Ближнем Востоке, в то время как американские рынки закрылись снижением.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,161 +20,163 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "67642.66",
-      "change_pct": "+0.59%",
+      "value": "67743.50",
+      "change_pct": "+0.74%",
       "as_of": "2026-07-14",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24309.33",
-      "change_pct": "+0.39%",
+      "value": "24340.73",
+      "change_pct": "+0.52%",
       "as_of": "2026-07-14",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "84.53",
-      "change_pct": "+1.48%",
+      "value": "86.02",
+      "change_pct": "+3.27%",
       "as_of": "2026-07-14",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4037.90",
-      "change_pct": "+1.02%",
+      "value": "4025.60",
+      "change_pct": "+0.72%",
       "as_of": "2026-07-14",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2164.42",
-      "change_pct": "+0.87%",
-      "as_of": "2026-07-13 19:00:11",
+      "value": "2186.48",
+      "change_pct": "+1.02%",
+      "as_of": "2026-07-14 11:29:56",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "889.88",
-      "change_pct": "+0.93%",
-      "as_of": "2026-07-13 19:00:12",
+      "value": "898.93",
+      "change_pct": "+1.02%",
+      "as_of": "2026-07-14 11:29:57",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "77.10",
+      "change_pct": "+0.19%",
+      "as_of": "2026-07-14 11:29:53",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "11.32",
+      "change_pct": "-0.05%",
+      "as_of": "2026-07-14 11:29:58",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "brent-crude-price-surge",
-      "headline": "Стоимость нефти марки Brent превысила 84 доллара за баррель на фоне эскалации",
-      "context": "Котировки Brent выросли до 84,78 доллара за баррель после возобновления США морской блокады иранских портов.",
-      "category": "markets",
-      "investment_relevant": true,
+      "id": "cbr-fuel-inflation",
+      "headline": "Банк России не планирует игнорировать июньский рост цен на топливо при принятии решений по ставке",
+      "context": "Зампред ЦБ Алексей Заботкин заявил, что регулятор будет внимательно следить за инфляционными ожиданиями и вторичными эффектами скачка цен на бензин.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103146"
+          "url": "https://www.interfax.ru/business/1103178"
         }
       ],
-      "published_at": "2026-07-14T08:57:00+03:00"
+      "published_at": "2026-07-14T10:15:00+03:00"
     },
     {
-      "id": "us-iran-military-escalation",
+      "id": "us-iran-escalation",
       "headline": "США и Иран обменялись массированными ударами в районе Ормузского пролива",
-      "context": "Центральное командование ВС США провело пятичасовую серию ударов по иранским объектам, в ответ КСИР атаковал американские базы в Кувейте и Бахрейне, а также два танкера ОАЭ.",
+      "context": "Центральное командование ВС США провело пятичасовую серию ударов по иранским военным объектам, в то время как Иран атаковал американские базы в Кувейте и Бахрейне, а также два танкера ОАЭ.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/14/07/2026/6a5556e29a7947089978dc76"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1103130"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8814492"
         }
       ],
-      "published_at": "2026-07-14T06:05:00+03:00"
+      "published_at": "2026-07-14T06:03:00+03:00"
     },
     {
-      "id": "mass-drone-attack-afipsky-refinery",
-      "headline": "Российские силы ПВО сбили 288 беспилотников за ночь над регионами страны",
-      "context": "В результате падения обломков БПЛА произошло возгорание на Афипском НПЗ в Краснодарском крае, также атакована промзона Салавата в Башкирии.",
-      "category": "macro",
+      "id": "mvideo-h1-turnover",
+      "headline": "Оборот маркетплейса М.Видео в первом полугодии вырос более чем в четыре раза",
+      "context": "Показатель достиг 17,7 млрд рублей по сравнению с аналогичным периодом прошлого года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a55c9a59a7947549487d52f"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1103142"
-        }
-      ],
-      "published_at": "2026-07-14T08:33:00+03:00"
-    },
-    {
-      "id": "trump-supports-russian-sanctions-bill",
-      "headline": "Дональд Трамп пообещал в ближайшее время принять решение по санкциям против России",
-      "context": "Речь идет о законопроекте покойного сенатора Линдси Грэма, который предусматривает введение пошлин против импортеров российской нефти и газа.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/14/07/2026/6a55cec19a79474bd0584869"
-        },
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/14/1213399-tramp-podderzhit-zakonoproekt"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/14/1213446-oborot-mvideo"
+        }
+      ],
+      "published_at": "2026-07-14T10:00:00+03:00"
+    },
+    {
+      "id": "afipsky-npz-fire",
+      "headline": "На Афипском нефтеперерабатывающем заводе произошел пожар в результате атаки беспилотника",
+      "context": "Возгорание на территории предприятия в Краснодарском крае было оперативно ликвидировано силами МЧС.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8814527"
+        }
+      ],
+      "published_at": "2026-07-14T08:11:00+03:00"
+    },
+    {
+      "id": "trump-russia-sanctions",
+      "headline": "Дональд Трамп выразил готовность поддержать законопроект об ужесточении санкций против России",
+      "context": "Президент США заявил, что в ближайшее время примет решение по пакету санкций, который ранее продвигал покойный сенатор Линдси Грэм.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал @if_market_news",
+          "url": "https://t.me/if_market_news/83708"
         }
       ],
       "published_at": "2026-07-14T07:58:00+03:00"
     },
     {
-      "id": "china-june-trade-record",
-      "headline": "Объем внешней торговли Китая в июне показал резкий рост",
-      "context": "Экспорт КНР вырос на 27% до рекордных 412,39 миллиарда долларов, а импорт увеличился на 36%.",
+      "id": "aluminium-export-licensing",
+      "headline": "В России могут ввести лицензирование экспорта первичного алюминия",
+      "context": "Правительство прорабатывает введение лицензий на вывоз металла на фоне снижения поставок в Китай и Южную Корею.",
       "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103143"
-        }
-      ],
-      "published_at": "2026-07-14T08:26:00+03:00"
-    },
-    {
-      "id": "sevastopol-partial-blackout",
-      "headline": "Севастополь частично обесточен после атаки на энергетическую инфраструктуру",
-      "context": "Губернатор Михаил Развожаев сообщил о введении особого режима на энергообъектах города.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a52c8869a794752f9ffd202"
-        }
-      ],
-      "published_at": "2026-07-14T05:05:00+03:00"
-    },
-    {
-      "id": "eurotrans-coupon-payment-default",
-      "headline": "ЕвроТранс перечислил десять процентов купона по облигациям после технического дефолта",
-      "context": "Выплачено 8,66 миллиона рублей из причитающихся 86,6 миллиона рублей.",
-      "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1327775.php"
+          "url": "https://smart-lab.ru/blog/1327826.php"
+        }
+      ],
+      "published_at": "2026-07-14T07:02:00+03:00"
+    },
+    {
+      "id": "eurotrans-coupon-default",
+      "headline": "Компания ЕвроТранс перечислила лишь десять процентов купонного дохода по облигациям",
+      "context": "Эмитент выплатил 8,66 млн рублей из причитающихся 86,6 млн рублей по выпуску серии БО-001Р-07 после ранее объявленного технического дефолта.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327734.php"
         }
       ],
       "published_at": "2026-07-13T20:34:00+03:00"
@@ -182,42 +184,42 @@
   ],
   "yesterday": [
     {
-      "id": "polyus-suspends-dividends-until-2030",
-      "headline": "Совет директоров Полюса поддержал приостановку выплаты дивидендов до 2030 года",
-      "context": "Решение принято на основе консервативного подхода и рекомендации менеджмента компании.",
+      "id": "polyus-dividend-suspension",
+      "headline": "Совет директоров Полюса рекомендовал приостановить выплату дивидендов до 2030 года",
+      "context": "Совет директоров поддержал консервативный подход менеджмента к распределению прибыли.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1327742.php"
+          "name": "Telegram-канал @markettwits",
+          "url": "https://t.me/markettwits/377546"
         }
       ],
       "published_at": "2026-07-13T18:46:00+03:00"
     },
     {
-      "id": "eu-fails-to-agree-21st-sanctions-package",
-      "headline": "Страны Евросоюза не смогли согласовать двадцать первый пакет санкций против России",
-      "context": "Глава евродипломатии Кая Каллас сообщила о наличии разногласий, в том числе по вопросу потолка цен на российскую нефть.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1103041"
-        }
-      ],
-      "published_at": "2026-07-13T18:13:00+03:00"
-    },
-    {
-      "id": "syzran-refinery-stops-operations",
-      "headline": "Сызранский НПЗ полностью остановил переработку нефти после атаки беспилотников",
-      "context": "Остановка технологических процессов на предприятии Роснефти произошла двенадцатого июля.",
+      "id": "fix-price-buyback",
+      "headline": "Дочерняя структура ритейлера Фикс Прайс выкупила девяносто три миллиона собственных акций",
+      "context": "Компания ООО «Бэст Прайс» завершила второй этап программы обратного выкупа акций на Московской бирже.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1327728.php"
+        }
+      ],
+      "published_at": "2026-07-13T18:20:00+03:00"
+    },
+    {
+      "id": "syzran-npz-shutdown",
+      "headline": "Сызранский нефтеперерабатывающий завод полностью остановил переработку нефти после атаки беспилотников",
+      "context": "Остановка технологических процессов на предприятии Роснефти произошла 12 июля.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
@@ -227,12 +229,42 @@
       "published_at": "2026-07-13T18:09:00+03:00"
     },
     {
-      "id": "rspp-calls-cbr-not-to-raise-rate",
-      "headline": "Бизнес призвал Центробанк не повышать ключевую ставку из-за роста цен на топливо",
-      "context": "Глава РСПП Александр Шохин выразил надежду, что регулятор сохранит ставку на заседании двадцать четвертого июля.",
-      "category": "cb_policy",
+      "id": "putin-fuel-problems",
+      "headline": "Владимир Путин признал наличие определенных проблем с нефтепродуктами из-за атак беспилотников",
+      "context": "Президент заявил, что ситуация на топливном рынке будет постепенно выправляться благодаря мощной базовой энергетике страны.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал @if_market_news",
+          "url": "https://t.me/if_market_news/83697"
+        }
+      ],
+      "published_at": "2026-07-13T16:52:00+03:00"
+    },
+    {
+      "id": "vk-eu-sanctions",
+      "headline": "Европейский союз ввел санкции против российской технологической компании VK",
+      "context": "Под ограничения также попало юридическое лицо мессенджера Макс, при этом в компании заявили об отсутствии влияния на работу сервисов.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал @markettwits",
+          "url": "https://t.me/markettwits/377492"
+        }
+      ],
+      "published_at": "2026-07-13T12:42:00+03:00"
+    },
+    {
+      "id": "shohin-cbr-rate",
+      "headline": "Глава РСПП Александр Шохин призвал Центробанк не повышать ключевую ставку из-за цен на топливо",
+      "context": "Бизнес рассчитывает, что регулятор на заседании 24 июля воздержится от ужесточения ДКП в ответ на временный рост топливных котировок.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -242,124 +274,64 @@
       "published_at": "2026-07-13T10:45:00+03:00"
     },
     {
-      "id": "fix-price-buyback-second-stage",
-      "headline": "Дочерняя структура Fix Price выкупила девяносто три миллиона акций компании",
-      "context": "Выкуп осуществлен в рамках второго этама программы обратного выкупа акций на Московской бирже.",
+      "id": "rusagro-shares-seizure",
+      "headline": "Генеральная прокуратура потребовала изъять восемь миллионов акций Русагро у родственников основателя",
+      "context": "Иск ведомства направлен против сестры и племянника основателя группы Вадима Мошковича.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал @markettwits",
+          "url": "https://t.me/markettwits/377472"
+        }
+      ],
+      "published_at": "2026-07-13T10:24:00+03:00"
+    },
+    {
+      "id": "yamal-lng-record-exports",
+      "headline": "Европейский союз нарастил импорт сжиженного природного газа с Ямал СПГ до рекорда",
+      "context": "В первом полугодии закупки выросли на 18% до 9,89 млн тонн в преддверии вступления в силу европейского запрета.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814331"
+          "url": "https://www.kommersant.ru/doc/8813901"
         }
       ],
-      "published_at": "2026-07-13T18:20:00+03:00"
+      "published_at": "2026-07-13T10:22:00+03:00"
     },
     {
-      "id": "sberbank-as-bond-issue",
-      "headline": "Сбербанк зафиксировал объем выпуска облигаций класса АС на уровне тридцати восьми миллиардов рублей",
-      "context": "Финальная ставка купона установлена на уровне 15,8% годовых, доходность к погашению составит 16,93%.",
-      "category": "banks",
+      "id": "s7-tu214-contract-risk",
+      "headline": "Подписание контракта на поставку ста самолетов Ту-214 для авиакомпании S7 оказалось под угрозой",
+      "context": "Срыв договоренностей связан с разногласиями сторон по условиям поставки воздушных судов.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1327701.php"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/07/13/1213123-kontrakt-s7-na"
         }
       ],
-      "published_at": "2026-07-13T17:17:00+03:00"
+      "published_at": "2026-07-13T08:41:00+03:00"
     },
     {
-      "id": "russian-trade-surplus-jan-may",
-      "headline": "Профицит внешней торговли России за пять месяцев вырос до пятидесяти девяти миллиардов долларов",
-      "context": "По данным Федеральной таможенной службы, экспорт за отчетный период увеличился до 177,4 миллиарда долларов.",
-      "category": "macro",
+      "id": "eu-sanctions-disagreement",
+      "headline": "Страны Евросоюза не смогли согласовать двадцать первый пакет санкций против России",
+      "context": "Разногласия министров иностранных дел в Брюсселе коснулись ограничений на поставки российской нефти и СПГ.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/07/13/1213307-tsb-profitsit-vneshnei"
+          "name": "Telegram-канал @markettwits",
+          "url": "https://t.me/markettwits/377451"
         }
       ],
-      "published_at": "2026-07-13T17:00:00+03:00"
-    },
-    {
-      "id": "eu-sanctions-vk-max-messenger",
-      "headline": "Евросоюз ввел санкции против холдинга VK и разработчика мессенджера Макс",
-      "context": "В компании заявили, что новые ограничения не повлияют на работу ее сервисов и приложений.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/13/1213225-sanktsii-protiv-vk"
-        }
-      ],
-      "published_at": "2026-07-13T13:05:00+03:00"
-    },
-    {
-      "id": "novatek-production-growth-1h",
-      "headline": "Новатэк увеличил добычу углеводородов в первом полугодии на два процента",
-      "context": "Общий объем добычи составил 346,2 миллиона баррелей нефтяного эквивалента.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/13/1213172-novatek-narastil-dobichu"
-        }
-      ],
-      "published_at": "2026-07-13T11:35:00+03:00"
-    },
-    {
-      "id": "prosecutor-seeks-rusagro-shares-seizure",
-      "headline": "Генеральная прокуратура потребовала изъять почти восемь миллионов акций Русагро",
-      "context": "Иск направлен против сестры и племянника основателя компании Вадима Мошковича.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/society/news/2026/07/13/1213157-prokurori-trebuyut-izyat"
-        }
-      ],
-      "published_at": "2026-07-13T11:00:00+03:00"
-    },
-    {
-      "id": "akzo-nobel-assets-temporary-management",
-      "headline": "Российские активы нидерландской Akzo Nobel переданы во временное управление",
-      "context": "Указ о передаче структур производителя красок Dulux и Pinotex под управление АО Развитие строительных активов подписал президент.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814163"
-        }
-      ],
-      "published_at": "2026-07-13T15:09:00+03:00"
-    },
-    {
-      "id": "medsi-additional-share-issue",
-      "headline": "Центробанк зарегистрировал дополнительный выпуск акций группы компаний Медси",
-      "context": "Ранее руководство АФК Система заявляло о возможном выходе сети клиник на IPO осенью текущего года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/292030"
-        }
-      ],
-      "published_at": "2026-07-13T13:07:00+03:00"
+      "published_at": "2026-07-13T08:37:00+03:00"
     }
   ],
   "today_agenda": []
