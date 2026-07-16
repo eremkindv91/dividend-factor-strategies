@@ -1,49 +1,49 @@
 {
-  "date": "2026-07-15",
-  "generated_at": "2026-07-15T20:21:05+03:00",
+  "date": "2026-07-16",
+  "generated_at": "2026-07-16T09:14:27+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, котировки нефти Brent стабильны, золото снижается.",
+  "external_backdrop": "Американские индексы закрылись ростом, в Азии наблюдается разнонаправленная динамика при падении Nikkei 225, нефть Brent и золото незначительно снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7549.11",
-      "change_pct": "+0.07%",
+      "value": "7572.40",
+      "change_pct": "+0.38%",
       "as_of": "2026-07-15",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26167.64",
-      "change_pct": "+0.23%",
+      "value": "26269.23",
+      "change_pct": "+0.62%",
       "as_of": "2026-07-15",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "67743.50",
-      "change_pct": "+0.74%",
-      "as_of": "2026-07-14",
+      "value": "66625.72",
+      "change_pct": "-3.09%",
+      "as_of": "2026-07-16",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24340.73",
-      "change_pct": "+0.52%",
-      "as_of": "2026-07-14",
+      "value": "25092.62",
+      "change_pct": "+1.67%",
+      "as_of": "2026-07-16",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "84.73",
-      "change_pct": "+0.00%",
-      "as_of": "2026-07-15",
+      "value": "84.53",
+      "change_pct": "-0.49%",
+      "as_of": "2026-07-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4044.10",
-      "change_pct": "-0.42%",
-      "as_of": "2026-07-15",
+      "value": "4037.40",
+      "change_pct": "-0.16%",
+      "as_of": "2026-07-16",
       "group": "commodity"
     },
     {
@@ -59,57 +59,120 @@
       "change_pct": "-3.29%",
       "as_of": "2026-07-15 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "77.70",
-      "change_pct": "-0.22%",
-      "as_of": "2026-07-15 20:21:04",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "11.44",
-      "change_pct": "-0.01%",
-      "as_of": "2026-07-15 19:15:01",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ru-inflation-slowdown",
-      "headline": "Инфляция в России за неделю замедлилась до 0,17 процента при годовом показателе 5,62 процента",
-      "context": "По данным Росстата, замедление произошло после 0,31% на предыдущей неделе, а инфляция с начала года достигла 4,64%.",
+      "id": "greece-blocks-eu-sanctions-package",
+      "headline": "Греция заблокировала принятие двадцать первого пакета санкций Евросоюза против России для защиты судоходного бизнеса",
+      "context": "Афины выступили против запрета на транспортировку российского СПГ в третьи страны из-за интересов компании Dynagas.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816009"
+        }
+      ],
+      "published_at": "2026-07-16T05:56:00+03:00"
+    },
+    {
+      "id": "budget-spending-plan-increased",
+      "headline": "Минфин увеличил план по расходам федерального бюджета на одну тысячу миллиардов рублей в текущем году",
+      "context": "Фактические расходы бюджета по итогам 2026 года могут составить 45,11 трлн рублей с соответствующим ростом дефицита.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8815998"
+        }
+      ],
+      "published_at": "2026-07-15T20:21:00+03:00"
+    },
+    {
+      "id": "weekly-inflation-slows-to-0-17",
+      "headline": "Недельная инфляция в России замедлилась до семнадцати сотых процента при годовом показателе в пять целых шестьдесят две сотых процента",
+      "context": "С начала года потребительские цены выросли на 4,64%, а годовая инфляция на 13 июля составила 5,62%.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103509"
+          "url": ""
         }
       ],
-      "published_at": "2026-07-15T19:08:00+03:00"
+      "published_at": "2026-07-15T19:00:00+03:00"
     },
     {
-      "id": "ofz-auction-failed",
-      "headline": "Министерство финансов признало несостоявшимся аукцион по размещению ОФЗ серии 29028 из-за отсутствия приемлемых заявок",
-      "context": "Это уже второй подряд неудачный аукцион ведомства по размещению облигаций федерального займа с переменным купоном.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
+      "id": "tax-code-amendments-fuel-prices",
+      "headline": "Правительство рассмотрит поправки в Налоговый кодекс для стабилизации цен на рынке горюче-смазочных материалов",
+      "context": "Заседание кабинета министров по этому вопросу запланировано на четверг, шестнадцатое июля.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103430"
+          "url": ""
         }
       ],
-      "published_at": "2026-07-15T14:18:00+03:00"
+      "published_at": "2026-07-16T01:21:00+03:00"
     },
     {
-      "id": "fas-rusal-case",
-      "headline": "Федеральная антимонопольная служба возбудила дело против Русала из-за завышения внутренних цен на алюминий",
-      "context": "Ведомство обвиняет компанию в неисполнении предупреждения о приведении внутренних цен в соответствие с экспортными.",
+      "id": "corporate-bankruptcies-rise-h1",
+      "headline": "Число корпоративных банкротств в России в первом полугодии увеличилось почти на двадцать один процент",
+      "context": "Согласно данным Федресурса, за январь-июнь российские суды признали несостоятельными три тысячи пятьсот сорок семь компаний.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-07-16T01:15:00+03:00"
+    },
+    {
+      "id": "us-iran-military-escalation",
+      "headline": "Вооруженные силы США нанесли новые серии ударов по Ирану на фоне эскалации в Персидском заливе",
+      "context": "Центральное командование США отчиталось о поражении военных объектов, в то время как КСИР атаковал американские базы.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/15/1214051-ssha-udarov-iranu"
+        }
+      ],
+      "published_at": "2026-07-15T23:29:00+03:00"
+    },
+    {
+      "id": "novak-diesel-exchange-sales-reduction",
+      "headline": "Новак поручил ФАС проработать снижение норматива продаж дизельного топлива на бирже до десяти процентов",
+      "context": "Инициатива призвана перенаправить объемы топлива напрямую конечным потребителям вместо биржевых спекуляций.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8815897"
+        }
+      ],
+      "published_at": "2026-07-15T19:07:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "fas-case-against-rusal",
+      "headline": "ФАС возбудила дело против Русала из-за завышения цен на алюминий для российских потребителей",
+      "context": "Ведомство обвинило компанию в неисполнении предупреждения о корректировке цен, Русал оспаривает требования в суде.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -122,261 +185,169 @@
       "published_at": "2026-07-15T09:05:00+03:00"
     },
     {
-      "id": "diesel-exchange-sales-reduction",
-      "headline": "Правительство поручило Федеральной антимонопольной службе проработать снижение норматива биржевых продаж дизельного топлива до 10 процентов",
-      "context": "Вице-премьер Александр Новак отметил, что мера направлена на приоритетное снабжение внутреннего рынка и транспорта торговых сетей.",
+      "id": "minfin-ofz-auction-failed",
+      "headline": "Минфин признал несостоявшимся аукцион по размещению ОФЗ серии 29028 из-за отсутствия приемлемых заявок",
+      "context": "Это уже третий несостоявшийся аукцион ведомства за последний месяц на фоне рыночной конъюнктуры.",
       "category": "macro",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8815657"
+        }
+      ],
+      "published_at": "2026-07-15T14:37:00+03:00"
+    },
+    {
+      "id": "qual-investors-stablecoins-access",
+      "headline": "Квалифицированные инвесторы в России получат доступ к иностранным стейблкоинам с первого сентября",
+      "context": "Поправки позволят приобретать USDT, USDC и другие беспоставочные цифровые инструменты через российскую инфраструктуру.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/15/1213888"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/15/1213793-dostup-k-steiblkoinam"
         }
       ],
-      "published_at": "2026-07-15T18:47:00+03:00"
+      "published_at": "2026-07-15T11:29:00+03:00"
     },
     {
-      "id": "gazprom-shares-drop-2008",
-      "headline": "Акции Газпрома на Московской бирже упали до минимальных значений с ноября 2008 года",
-      "context": "Падение котировок ниже 90 рублей происходит на фоне санкционных рисков и сообщений о разногласиях по проекту Сила Сибири-2.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/15/1213875"
-        }
-      ],
-      "published_at": "2026-07-15T14:13:00+03:00"
-    },
-    {
-      "id": "stablecoins-access-ru",
-      "headline": "Квалифицированным инвесторам в России с первого сентября откроют доступ к иностранным стейблкоинам через отечественную инфраструктуру",
-      "context": "Соответствующие поправки ко второму чтению законопроекта о цифровых валютах подготовил комитет Госдумы по финансовому рынку.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103384"
-        }
-      ],
-      "published_at": "2026-07-15T10:35:00+03:00"
-    },
-    {
-      "id": "usa-iran-blockade-strikes",
-      "headline": "США возобновили морскую блокаду Ирана и завершили очередную серию ударов по военным объектам",
-      "context": "Центральное командование ВС США отчиталось о поражении десятков целей на побережье Ормузского пролива, Иран ответил ударами по базам США.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1103353"
-        }
-      ],
-      "published_at": "2026-07-15T06:02:00+03:00"
-    },
-    {
-      "id": "china-gas-price-demand",
-      "headline": "Китай выдвинул условие поставок газа по Силе Сибири-2 по ценам внутреннего рынка России",
-      "context": "По данным источников, Пекин просил российскую сторону не поднимать вопрос строительства трубопровода до изменения условий.",
+      "id": "rusagro-moshkovich-case-damage",
+      "headline": "Обвинение оценило ущерб по уголовному делу основателя Русагро Вадима Мошковича в восемьдесят шесть миллиардов рублей",
+      "context": "Фигуранты дела не признали вину в мошенничестве и хищении акций холдинга Солнечные продукты.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8815226"
-        }
-      ],
-      "published_at": "2026-07-15T03:15:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "trump-ormuz-fee-reversal",
-      "headline": "Президент США Дональд Трамп отказался от планов введения двадцатипроцентной пошлины за транзит через Ормузский пролив",
-      "context": "Вместо этого Вашингтон рассчитывает на заключение крупных инвестиционных сделок со странами Персидского залива.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8815080"
-        }
-      ],
-      "published_at": "2026-07-14T18:15:00+03:00"
-    },
-    {
-      "id": "us-cpi-june",
-      "headline": "Потребительская инфляция в США в июне замедлилась до трех с половиной процентов в годовом выражении",
-      "context": "Показатель оказался лучше ожиданий аналитиков, прогнозировавших рост на 3,8%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-07-14T15:30:00+03:00"
-    },
-    {
-      "id": "putin-key-rate-decrease",
-      "headline": "Президент России Владимир Путин заявил о неизбежности снижения ключевой ставки на основе макроэкономических показателей",
-      "context": "Заявление прозвучало на рабочей встрече с главой Якутии Айсеном Николаевым.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/14/1213549-stavka-tsb-snizhatsya"
+          "url": "https://www.vedomosti.ru/society/news/2026/07/15/1213990-uscherb-po-delu"
         }
       ],
-      "published_at": "2026-07-14T14:13:00+03:00"
+      "published_at": "2026-07-15T18:54:00+03:00"
     },
     {
-      "id": "sco-development-bank-yuan",
-      "headline": "Китай согласовал с Россией создание юаневого Банка развития Шанхайской организации сотрудничества",
-      "context": "По данным источников, Москва рассчитывает использовать новую структуру для обхода западных санкций.",
+      "id": "business-price-expectations-rise",
+      "headline": "Ценовые ожидания российского бизнеса в июле выросли после пяти месяцев непрерывного снижения",
+      "context": "Показатель увеличился на 4,4 процентного пункта до 20,2% на фоне роста топливных издержек.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/292326"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/15/1213987-ozhidaniya-biznesa"
         }
       ],
-      "published_at": "2026-07-14T18:34:00+03:00"
+      "published_at": "2026-07-15T18:44:00+03:00"
     },
     {
-      "id": "eu-failed-to-agree-sanctions",
-      "headline": "Страны Евросоюза не смогли согласовать двадцать первый пакет антироссийских санкций из-за споров вокруг Райффайзенбанка",
-      "context": "Основными разногласиями стали ограничения на транспортировку российского СПГ и меры против австрийской банковской группы.",
+      "id": "mind-money-case-client-charges",
+      "headline": "Клиентам-инвесторам предъявили обвинения по уголовному делу о незаконной конвертации депозитарных расписок",
+      "context": "Обвинения касаются операций с ADR российских компаний, совершенных после 16 апреля 2022 года.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814733"
+          "url": "https://www.kommersant.ru/doc/8815647"
         }
       ],
-      "published_at": "2026-07-14T13:00:00+03:00"
+      "published_at": "2026-07-15T14:36:00+03:00"
     },
     {
-      "id": "putin-pmef-tax-instructions",
-      "headline": "Президент России поручил сохранить порог доходов в двадцать миллионов рублей по упрощенной системе налогообложения для уплаты НДС",
-      "context": "Поручение утверждено по итогам Петербургского международного экономического форума.",
-      "category": "cb_policy",
+      "id": "mts-considers-frequent-dividends",
+      "headline": "МТС рассматривает возможность перехода к выплате дивидендов каждый квартал или раз в полгода",
+      "context": "Новый подход позволит быстрее транслировать рост бизнеса в доходы акционеров.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/83718"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8815604"
         }
       ],
-      "published_at": "2026-07-14T12:33:00+03:00"
+      "published_at": "2026-07-15T13:47:00+03:00"
     },
     {
-      "id": "iran-ormuz-control-bill",
-      "headline": "Парламент Ирана утвердил законопроект о суверенном контроле над Ормузским проливом и введении пошлин в криптовалюте",
-      "context": "Документ запрещает проход враждебных судов и закрепляет систему сборов в юанях, биткоинах и стейблкоинах.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "cian-announces-share-buyback",
+      "headline": "Циан объявил о старте программы обратного выкупа акций на сумму до четырех миллиардов рублей",
+      "context": "Программа рассчитана на 12 месяцев и стартует с 15 июля 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/83716"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8815446"
         }
       ],
-      "published_at": "2026-07-14T11:57:00+03:00"
+      "published_at": "2026-07-15T11:42:00+03:00"
     },
     {
-      "id": "cbr-inflation-expectations",
-      "headline": "Банк России прогнозирует сдержанный рост потребительских цен после временного ускорения инфляции в июне",
-      "context": "Зампред ЦБ Алексей Заботкин заявил, что регулятор рассчитывает вернуть инфляцию к целевым 4% в 2027 году.",
+      "id": "digital-ruble-foreign-exchange-bill",
+      "headline": "Правительство поддержало законопроект о проведении валютных операций с цифровыми рублями при условии доработки",
+      "context": "Минфин подготовил отзыв с требованием доработать механизм взаимодействия органов валютного контроля с платформой.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/15/1213977-pravitelstvo-podderzhalo"
+        }
+      ],
+      "published_at": "2026-07-15T18:21:00+03:00"
+    },
+    {
+      "id": "wildberries-bank-dealer-license",
+      "headline": "Дочерний банк группы Wildberries получил лицензию Банка России на осуществление дилерской деятельности",
+      "context": "Лицензия позволит Вайлдберриз Банку совершать сделки с ценными бумагами от своего имени.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/292242"
+          "url": "https://frankmedia.ru/292600"
         }
       ],
-      "published_at": "2026-07-14T11:14:00+03:00"
+      "published_at": "2026-07-15T17:44:00+03:00"
     },
     {
-      "id": "afipsky-refinery-fire",
-      "headline": "На Афипском нефтеперерабатывающем заводе в Краснодарском крае ликвидировали пожар после атаки беспилотников",
-      "context": "Региональный оперативный штаб сообщил о падении обломков БПЛА на территории предприятия.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814670"
-        }
-      ],
-      "published_at": "2026-07-14T11:10:00+03:00"
-    },
-    {
-      "id": "pension-age-mortgage-risks",
-      "headline": "Почти каждая пятая новая ипотека в России оформляется с плановым погашением после выхода заемщика на пенсию",
-      "context": "По данным ЦБ, около 178 тысяч новых кредитов за 2025 год предполагают выплаты в возрасте от 70 до 75 лет.",
+      "id": "psb-bank-recapitalization",
+      "headline": "Власти докапитализировали Промсвязьбанк в четвертый раз с начала года до четырехсот двадцати семи миллиардов рублей",
+      "context": "Уставный капитал ПСБ увеличился после очередной докапитализации со стороны государства.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/83711"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/292478"
         }
       ],
-      "published_at": "2026-07-14T10:17:00+03:00"
+      "published_at": "2026-07-15T10:33:00+03:00"
     },
     {
-      "id": "marine-war-risk-insurance",
-      "headline": "Кабинет министров прорабатывает механизмы страхования военных рисков при морских перевозках на фоне роста убыточности",
-      "context": "Минфин предлагает создать общества взаимного страхования, а Минтранс, Минэнерго и ЦБ выступают за расширение госсубсидий.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814448"
-        }
-      ],
-      "published_at": "2026-07-14T08:46:00+03:00"
-    },
-    {
-      "id": "electric-cars-subsidy-cut",
-      "headline": "Минпромторг обсуждает снижение государственной скидки на покупку электромобилей и гибридов до десяти процентов",
-      "context": "Ведомство планирует сохранить максимальную скидку в 35% только для высоколокализованных моделей российского производства.",
+      "id": "mgkl-enters-india-market",
+      "headline": "Материнская структура Мосгорломбарда учредит юридическое лицо для выхода на рынок капитала Индии",
+      "context": "Компания планирует начать операционную деятельность в международном финансовом центре GIFT City в штате Гуджарат.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8814447"
+          "url": "https://www.kommersant.ru/doc/8815169"
         }
       ],
-      "published_at": "2026-07-14T08:17:00+03:00"
+      "published_at": "2026-07-15T09:00:00+03:00"
     }
   ],
   "today_agenda": []
