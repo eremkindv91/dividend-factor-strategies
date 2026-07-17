@@ -38,19 +38,20 @@ NEWS_SLOTS = [time(7, 0), time(9, 20), time(19, 0)]      # news.yml
 GRACE = timedelta(hours=2)   # запас на исполнение пайплайна + пропагацию Pages CDN
 
 # блок → (имя, файл, поля-даты по приоритету, тип источника, параметр)
-#   market      — привязан к торговым сессиям MOEX; выходной ≠ stale;
+#   market      — привязан к торговым сессиям MOEX; параметр задаёт допустимый
+#                 лаг официального источника в завершённых сессиях;
 #   news        — своя частота (утро/контроль/вечер), не наследует статус рынка;
 #   periodic    — редко обновляемые ряды (месячные returns, фундаментал): порог в ДНЯХ.
 BLOCKS = [
-    ("market", "Цены и мультипликаторы", "data.json", ["meta.price_asof", "meta.generated_at"], "market", None),
-    ("marketsaw", "Фаза рынка (MCFTR)", "marketsaw.json", ["data_last", "generated_at"], "market", None),
-    ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["data_asof", "generated_at"], "market", None),
+    ("market", "Цены и мультипликаторы", "data.json", ["meta.price_asof", "meta.generated_at"], "market", 0),
+    ("marketsaw", "Фаза рынка (MCFTR)", "marketsaw.json", ["data_last", "generated_at"], "market", 1),
+    ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["data_asof", "generated_at"], "market", 0),
     ("returns", "История доходностей", "returns.json", ["meta.asof"], "periodic", 45),
-    ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.source_as_of", "meta.updated", "meta.asof"], "market", None),
-    ("bonds", "Облигации", "bonds/screener.json", ["meta.data_date", "meta.updated", "meta.generated_at"], "market", None),
-    ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], "market", None),
+    ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.source_as_of", "meta.updated", "meta.asof"], "market", 0),
+    ("bonds", "Облигации", "bonds/screener.json", ["meta.data_date", "meta.updated", "meta.generated_at"], "market", 0),
+    ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], "market", 1),
     ("news", "Новости", "news.json", ["generated_at", "date"], "news", None),
-    ("events", "События дня", "events_calendar.json", ["meta.generated_at"], "market", None),
+    ("events", "События дня", "events_calendar.json", ["meta.generated_at"], "market", 0),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], "periodic", 60),
 ]
 
@@ -111,11 +112,12 @@ def human_date(d: date | None) -> str:
 
 # ── классификаторы freshness по типу источника ──────────────────────────────
 
-def classify_market(asof_date: date | None, now_msk: datetime) -> str:
+def classify_market(asof_date: date | None, now_msk: datetime,
+                    allowed_session_lag: int = 0) -> str:
     if asof_date is None:                      # нет/битая дата — не выдаём за свежее
         return "stale"
     behind = tc.sessions_between(asof_date, now_msk)
-    if behind == 0:                            # данные = последняя завершённая сессия (или интрадей)
+    if behind <= max(0, allowed_session_lag):  # подтверждённый штатный лаг конкретного источника
         return "fresh" if tc.is_session_open(now_msk) else "market_closed_current"
     # завершившаяся сессия не отражена → это тайминг пайплайна, не «старость рынка»
     session = tc.last_completed_session(now_msk)
@@ -230,7 +232,7 @@ def classify_block(cfg, obj, is_fallback: bool, now_utc: datetime) -> dict:
     if is_fallback:
         fine = "fallback"
     elif src_type == "market":
-        fine = classify_market(asof_date, now_msk)
+        fine = classify_market(asof_date, now_msk, int(param or 0))
     elif src_type == "news":
         has_content = bool(obj.get("market_snapshot")) if isinstance(obj, dict) else False
         fine = classify_news(asof_dt, now_msk, has_content)

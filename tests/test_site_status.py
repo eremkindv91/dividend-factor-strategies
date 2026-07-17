@@ -55,6 +55,20 @@ def test_9_pipeline_delayed():                         # прогон задер
     assert bss.classify_market(date(2026, 7, 9), msk(2026, 7, 10, 21, 30)) == "delayed"
 
 
+def test_expected_one_session_source_lag_is_not_stale():
+    # MCFTR публикуется MOEX с лагом до одной завершённой сессии.
+    assert bss.classify_market(
+        date(2026, 7, 9), msk(2026, 7, 10, 21, 30), allowed_session_lag=1
+    ) == "market_closed_current"
+
+
+def test_marketsaw_and_cbr_have_explicit_one_session_allowance():
+    allowed = {cfg[0]: cfg[5] for cfg in bss.BLOCKS}
+    assert allowed["market"] == 0
+    assert allowed["marketsaw"] == 1
+    assert allowed["cbr"] == 1
+
+
 def test_9b_waiting_right_after_close():               # сразу после закрытия — ждём плановый прогон
     assert bss.classify_market(date(2026, 7, 9), msk(2026, 7, 10, 18, 55)) == "waiting_for_scheduled_update"
 
