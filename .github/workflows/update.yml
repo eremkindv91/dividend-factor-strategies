@@ -177,6 +177,8 @@ jobs:
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
           [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ
+          [ -f site/alfa-index.json ] && cp site/alfa-index.json "$TMP/"   # внешний индикатор настроения рынка
+          [ -f site/alfa-index-history.json ] && cp site/alfa-index-history.json "$TMP/"   # история индикатора
           [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"   # «Сегодня важные события»
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback

@@ -111,7 +111,15 @@ REQUIRED = {
     "marketsaw.json": check_marketsaw,
     "quality.json": check_quality,
 }
-OPTIONAL = ["marlamov.json", "bonds/screener.json", "cbr/valuation.json", "news.json", "site_financials.json"]
+OPTIONAL = [
+    "marlamov.json",
+    "bonds/screener.json",
+    "cbr/valuation.json",
+    "news.json",
+    "alfa-index.json",
+    "alfa-index-history.json",
+    "site_financials.json",
+]
 
 
 def main() -> int:

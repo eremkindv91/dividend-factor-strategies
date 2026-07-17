@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "source_base_url": "https://alfabank.ru/alfa-investor/",
+  "sitemap_url": "https://alfabank.ru/sitemap.xml",
+  "article_slug": "hod-torgov",
+  "lookback_days": 7,
+  "request_timeout_seconds": 20,
+  "max_retries": 3,
+  "max_response_bytes": 2500000,
+  "request_delay_seconds": 0.5,
+  "max_sitemap_files": 8,
+  "history_days": 365,
+  "timezone": "Europe/Moscow",
+  "stale_after_business_days": 1,
+  "stale_check_hour": 14,
+  "min_candidate_score": 7,
+  "parser_version": "1.0.0"
+}

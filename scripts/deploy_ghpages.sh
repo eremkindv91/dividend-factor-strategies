@@ -34,6 +34,8 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"
 [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"
 [ -f site/news.json ] && cp site/news.json "$TMP/"
+[ -f site/alfa-index.json ] && cp site/alfa-index.json "$TMP/"
+[ -f site/alfa-index-history.json ] && cp site/alfa-index-history.json "$TMP/"
 [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"
 V="$(git rev-parse --short=8 HEAD)"
 python3 - "$TMP/index.html" "$V" <<'PY'

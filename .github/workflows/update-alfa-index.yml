@@ -1,0 +1,87 @@
+name: alfa-index (настроение рынка)
+
+on:
+  schedule:
+    - cron: "30 4 * * 1-5"     # 07:30 МСК — первая проверка перед основной сессией
+    - cron: "15 5-15 * * 1-5"  # 08:15–18:15 МСК — не чаще одного раза в час
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установка зависимостей Альфа-Индекса
+        run: python -m pip install --quiet -r requirements-alfa-index.txt pytest
+
+      - name: Сбор последней официальной публикации
+        run: |
+          set -o pipefail
+          python scripts/collect_alfa_index.py 2>&1 | tee alfa-index-collector.log
+
+      - name: Unit-тесты и контракт данных
+        run: |
+          pytest -q tests/test_alfa_index.py
+          python scripts/validate_site_data.py alfa_index
+
+      - name: Диагностика источника
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alfa-index-diagnostic-${{ github.run_id }}
+          path: |
+            alfa-index-collector.log
+            .artifacts/alfa-index/diagnostic.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Commit только содержательных изменений
+        run: |
+          FILES="data/alfa-index.json data/alfa-index-history.json site/alfa-index.json site/alfa-index-history.json"
+          if [ -z "$(git status --porcelain -- $FILES)" ]; then
+            echo "[alfa-index] содержательных изменений нет"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add $FILES
+          git diff --cached --check
+          git commit -m "data: update Alfa market sentiment index"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Additive publish → gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --quiet --branch gh-pages --single-branch \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          cp site/alfa-index.json "$TMP/alfa-index.json"
+          cp site/alfa-index-history.json "$TMP/alfa-index-history.json"
+          touch "$TMP/.nojekyll"
+          if [ -z "$(git -C "$TMP" status --porcelain -- alfa-index.json alfa-index-history.json .nojekyll)" ]; then
+            echo "[alfa-index] gh-pages уже актуален"
+            rm -rf "$TMP"
+            exit 0
+          fi
+          git -C "$TMP" config user.name "github-actions[bot]"
+          git -C "$TMP" config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C "$TMP" add alfa-index.json alfa-index-history.json .nojekyll
+          git -C "$TMP" commit -m "deploy: update Alfa market sentiment index"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

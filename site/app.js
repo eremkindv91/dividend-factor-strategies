@@ -13,7 +13,8 @@ const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тулт�
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
+let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
+let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
 // ── авто-обновление lazy-loaded данных ──────────────────────────────────────
@@ -31,7 +32,7 @@ let _dataCacheAt = Date.now();
 function invalidateStaleDataCaches() {
   if (Date.now() - _dataCacheAt < DATA_CACHE_TTL_MS) return false;
   SAW_DATA = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
-  EVENTS_DATA = null; MARKET_HISTORY = null;
+  EVENTS_DATA = null; MARKET_HISTORY = null; ALFA_INDEX = null; ALFA_INDEX_HISTORY = null; ALFA_INDEX_LOAD = null;
   if (typeof BONDS !== 'undefined') BONDS = null;
   if (typeof CBR_DATA !== 'undefined') CBR_DATA = null;
   if (typeof FINDER !== 'undefined') FINDER = null;
@@ -3454,6 +3455,159 @@ function marketPulseHTML(d) {
   `;
 }
 
+function alfaSafeUrl(value) {
+  try {
+    const parsed = new URL(String(value || ''), location.href);
+    const host = parsed.hostname.toLowerCase();
+    return parsed.protocol === 'https:' && (host === 'alfabank.ru' || host.endsWith('.alfabank.ru')) ? parsed.href : '';
+  } catch (_) { return ''; }
+}
+
+function alfaDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return 'дата не указана';
+  const [year, month, day] = String(value).split('-').map(Number);
+  return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+    .format(new Date(year, month - 1, day));
+}
+
+function loadAlfaIndex(cb) {
+  if (ALFA_INDEX) { cb && cb(); return; }
+  if (ALFA_INDEX_LOAD) { ALFA_INDEX_LOAD.then(() => cb && cb()).catch((e) => cb && cb(e)); return; }
+  const stamp = Date.now();
+  const getJSON = (path) => fetch(`${path}?t=${stamp}`, { cache: 'no-store' })
+    .then((response) => { if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`); return response.json(); });
+  ALFA_INDEX_LOAD = Promise.allSettled([getJSON('alfa-index.json'), getJSON('alfa-index-history.json')])
+    .then((results) => {
+      if (results[0].status !== 'fulfilled') throw results[0].reason;
+      const current = results[0].value;
+      if (!current || !Number.isInteger(current.value) || current.value < 0 || current.value > 100) {
+        throw new Error('alfa-index.json: некорректное значение');
+      }
+      ALFA_INDEX = current;
+      ALFA_INDEX_HISTORY = results[1].status === 'fulfilled' && Array.isArray(results[1].value) ? results[1].value : [];
+    })
+    .finally(() => { ALFA_INDEX_LOAD = null; });
+  ALFA_INDEX_LOAD.then(() => cb && cb()).catch((e) => { console.warn('[alfa-index]', e); cb && cb(e); });
+}
+
+function alfaStatusText(data) {
+  if (data.status === 'source_unavailable') return 'Источник временно недоступен';
+  if (data.status === 'no_fresh_publication') return 'Новая публикация пока не найдена';
+  if (data.stale) return 'Последнее доступное значение';
+  return 'Данные актуальны';
+}
+
+function alfaChangeHTML(data) {
+  if (!isNum(data.change)) return '<span class="alfa-change alfa-flat">Нет предыдущего отличающегося значения</span>';
+  const direction = data.change > 0 ? 'up' : data.change < 0 ? 'down' : 'flat';
+  const sign = data.change > 0 ? '+' : data.change < 0 ? '−' : '';
+  const points = Math.abs(data.change);
+  const ending = points % 10 === 1 && points % 100 !== 11 ? 'пункт' : (points % 10 >= 2 && points % 10 <= 4 && !(points % 100 >= 12 && points % 100 <= 14) ? 'пункта' : 'пунктов');
+  return `<span class="alfa-change alfa-${direction}">${sign}${ru(points, 0)} ${ending} к предыдущему отличающемуся значению</span>`;
+}
+
+function alfaIndexHTML(data, history) {
+  const source = data.source || {};
+  const sourceUrl = alfaSafeUrl(source.url);
+  const label = (data.site_interpretation || {}).label || 'Без интерпретации';
+  const zone = (data.site_interpretation || {}).zone || 'neutral';
+  const value = Math.max(0, Math.min(100, data.value));
+  const statusClass = data.stale || data.status !== 'ok' ? 'stale' : 'fresh';
+  const validHistory = (history || []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(row.article_date) && Number.isInteger(row.value) && row.value >= 0 && row.value <= 100).slice(-30);
+  const chart = validHistory.length >= 2 ? `
+      <div class="alfa-history">
+        <div class="alfa-history-head"><span>Динамика</span><em>${validHistory.length} последних наблюдений</em></div>
+        <div class="alfa-chart" id="alfa-index-chart" role="img" aria-label="История Альфа-Индекса: от ${validHistory[0].value} до ${validHistory[validHistory.length - 1].value} пунктов"></div>
+      </div>` : '';
+  return `<section class="alfa-index-card alfa-zone-${esc(zone)}${chart ? ' has-chart' : ''}">
+    <div class="alfa-summary">
+      <div class="alfa-title-row">
+        <div><span class="alfa-eyebrow">Внешний индикатор настроения</span><h2>Настроение российского рынка</h2></div>
+        <span class="alfa-info" tabindex="0" data-tooltip="Альфа-Индекс публикуется Альфа-Инвестициями. Методика расчёта и официальные границы зон сайту не раскрыты.">ⓘ</span>
+      </div>
+      <div class="alfa-reading"><strong>${value}</strong><span>/ 100</span><b>${esc(label)}</b></div>
+      ${alfaChangeHTML(data)}
+      <div class="alfa-freshness alfa-${statusClass}"><i aria-hidden="true"></i>${esc(alfaStatusText(data))} · публикация от ${esc(alfaDate(source.article_date))}</div>
+    </div>
+    <div class="alfa-scale-panel">
+      <div class="alfa-scale-labels" aria-hidden="true"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
+      <div class="alfa-scale" role="meter" aria-label="Альфа-Индекс" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}" aria-valuetext="${value} из 100, ${esc(label)}">
+        <div class="alfa-scale-zones" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="alfa-marker" style="left:${value}%" aria-hidden="true"><i></i><b>${value}</b></span>
+      </div>
+      <div class="alfa-zone-labels"><span>Осторожно</span><span>Нейтрально</span><span>Оптимистично</span></div>
+      <p>Диапазоны интерпретированы сайтом и не являются официальной классификацией Альфа-Инвестиций.</p>
+    </div>
+    ${chart}
+    <footer class="alfa-footer">
+      <span>Альфа-Индекс отражает оценку текущего настроения рынка; не используйте его как самостоятельный торговый сигнал.</span>
+      ${sourceUrl ? `<a href="${esc(sourceUrl)}" target="_blank" rel="noopener noreferrer">Данные Альфа-Инвестиций ↗</a>` : '<span>Источник: Альфа-Инвестиции</span>'}
+    </footer>
+  </section>`;
+}
+
+function destroyAlfaChart() {
+  if (ALFA_INDEX_RESIZE) { ALFA_INDEX_RESIZE.disconnect(); ALFA_INDEX_RESIZE = null; }
+  if (ALFA_INDEX_CHART) { ALFA_INDEX_CHART.remove(); ALFA_INDEX_CHART = null; }
+}
+
+function renderAlfaChart(history) {
+  const container = document.getElementById('alfa-index-chart');
+  if (!container) return;
+  const rows = (history || []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(row.article_date) && Number.isInteger(row.value) && row.value >= 0 && row.value <= 100).slice(-30);
+  if (rows.length < 2) return;
+  loadLWC((error) => {
+    if (error || !window.LightweightCharts || !document.body.contains(container)) {
+      container.innerHTML = '<span class="muted">Мини-график временно недоступен.</span>';
+      return;
+    }
+    destroyAlfaChart();
+    const chart = LightweightCharts.createChart(container, {
+      width: container.clientWidth,
+      height: 112,
+      layout: { background: { color: 'transparent' }, textColor: '#697386', fontFamily: 'system-ui, sans-serif', fontSize: 10 },
+      grid: { vertLines: { visible: false }, horzLines: { color: '#E7EAF0' } },
+      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.18, bottom: 0.18 } },
+      timeScale: { borderVisible: false, timeVisible: false, rightOffset: 0, barSpacing: 18, fixLeftEdge: true, fixRightEdge: true },
+      crosshair: { vertLine: { labelVisible: false }, horzLine: { labelVisible: true } },
+      handleScroll: false,
+      handleScale: false,
+    });
+    const series = chart.addLineSeries({ color: '#315F78', lineWidth: 2, priceLineVisible: false, lastValueVisible: true });
+    series.setData(rows.map((row) => ({ time: row.article_date, value: row.value })));
+    series.createPriceLine({ price: 50, color: '#9AA3B3', lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: '50' });
+    chart.timeScale().fitContent();
+    ALFA_INDEX_CHART = chart;
+    if (window.ResizeObserver) {
+      ALFA_INDEX_RESIZE = new ResizeObserver(() => {
+        if (ALFA_INDEX_CHART && container.clientWidth > 0) ALFA_INDEX_CHART.applyOptions({ width: container.clientWidth });
+      });
+      ALFA_INDEX_RESIZE.observe(container);
+    }
+  });
+}
+
+function renderAlfaIndex() {
+  const element = document.getElementById('alfa-index-card');
+  if (!element) return;
+  if (ALFA_INDEX) {
+    destroyAlfaChart();
+    element.innerHTML = alfaIndexHTML(ALFA_INDEX, ALFA_INDEX_HISTORY || []);
+    renderAlfaChart(ALFA_INDEX_HISTORY || []);
+    return;
+  }
+  element.innerHTML = '<div class="pulse-loading muted">Загрузка индикатора настроения...</div>';
+  loadAlfaIndex((error) => {
+    if (error || !ALFA_INDEX) {
+      element.innerHTML = '<div class="alfa-index-fallback"><b>Показатель настроения временно недоступен.</b><span>Остальные рыночные индикаторы продолжают работать.</span></div>';
+      return;
+    }
+    destroyAlfaChart();
+    element.innerHTML = alfaIndexHTML(ALFA_INDEX, ALFA_INDEX_HISTORY || []);
+    renderAlfaChart(ALFA_INDEX_HISTORY || []);
+  });
+}
+
 function marketSignalsHTML() {
   const points = marketSeriesPoints(SAW_DATA);
   const move20 = trailingMove(points, 20);
@@ -4229,7 +4383,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
