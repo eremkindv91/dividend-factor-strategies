@@ -1,0 +1,37 @@
+{
+  "indicator": "alfa_index",
+  "name": "Настроение российского рынка",
+  "value": 31,
+  "previous_distinct_value": 34,
+  "change": -3,
+  "direction": "down",
+  "value_period": "morning",
+  "value_time": null,
+  "official_scale": {
+    "min": 0,
+    "max": 100
+  },
+  "site_interpretation": {
+    "zone": "negative",
+    "label": "Негативное"
+  },
+  "source": {
+    "name": "Альфа-Инвестиции",
+    "provider": "Альфа-Банк",
+    "url": "https://alfabank.ru/alfa-investor/t/hod-torgov-17-07-2026/",
+    "article_title": "Рынок акций — в плюсе",
+    "article_date": "2026-07-17",
+    "article_published_at": null,
+    "article_updated_at": null
+  },
+  "extraction": {
+    "body_method": "official_article_manual_verification",
+    "pattern": "value_out_of_100",
+    "confidence_score": 13
+  },
+  "last_valid_at": "2026-07-17T16:42:52+03:00",
+  "fetched_at": "2026-07-17T16:42:52+03:00",
+  "stale": false,
+  "status": "ok",
+  "parser_version": "1.0.0"
+}

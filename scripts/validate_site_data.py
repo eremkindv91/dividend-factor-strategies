@@ -508,10 +508,92 @@ def check_news() -> None:
     )
 
 
+def check_alfa_index() -> None:
+    current = load("alfa-index.json")
+    history = load("alfa-index-history.json")
+    if current is None or history is None:
+        if CURRENT_SEL == "alfa_index":
+            err("alfa-index.json/alfa-index-history.json отсутствует")
+        else:
+            warn("alfa-index.json или история отсутствует — пропуск")
+        return
+    if not isinstance(current, dict):
+        err("alfa-index.json: верхний уровень должен быть object")
+        return
+    value = current.get("value")
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 100:
+        err(f"alfa-index.json: value вне целой шкалы 0..100: {value!r}")
+    previous = current.get("previous_distinct_value")
+    if previous is not None and (isinstance(previous, bool) or not isinstance(previous, int) or not 0 <= previous <= 100):
+        err(f"alfa-index.json: previous_distinct_value некорректен: {previous!r}")
+    if previous == value:
+        err("alfa-index.json: previous_distinct_value не должен совпадать с value")
+    expected_change = value - previous if isinstance(value, int) and isinstance(previous, int) else None
+    if current.get("change") != expected_change:
+        err(f"alfa-index.json: change={current.get('change')!r}, ожидалось {expected_change!r}")
+    expected_direction = "unknown" if expected_change is None else ("up" if expected_change > 0 else "down" if expected_change < 0 else "flat")
+    if current.get("direction") != expected_direction:
+        err(f"alfa-index.json: direction={current.get('direction')!r}, ожидалось {expected_direction!r}")
+    if current.get("status") not in {"ok", "no_fresh_publication", "source_unavailable"}:
+        err(f"alfa-index.json: неизвестный status={current.get('status')!r}")
+    if not isinstance(current.get("stale"), bool):
+        err("alfa-index.json: stale должен быть bool")
+    if current.get("value_period") not in {"morning", "intraday"}:
+        err(f"alfa-index.json: неизвестный value_period={current.get('value_period')!r}")
+    if as_datetime(current.get("last_valid_at")) is None or as_datetime(current.get("fetched_at")) is None:
+        err("alfa-index.json: last_valid_at/fetched_at не ISO datetime")
+    source = current.get("source") or {}
+    source_url = str(source.get("url") or "")
+    host = (urlparse(source_url).hostname or "").lower()
+    if host != "alfabank.ru" and not host.endswith(".alfabank.ru"):
+        err("alfa-index.json: source.url не официальный alfabank.ru")
+    article_date = as_date(source.get("article_date"))
+    if article_date is None:
+        err("alfa-index.json: source.article_date не ISO date")
+    scale = current.get("official_scale") or {}
+    if scale != {"min": 0, "max": 100}:
+        err(f"alfa-index.json: неверная official_scale={scale!r}")
+    interpretation = current.get("site_interpretation") or {}
+    if not interpretation.get("zone") or not interpretation.get("label"):
+        err("alfa-index.json: нет site_interpretation")
+
+    if not isinstance(history, list):
+        err("alfa-index-history.json: верхний уровень должен быть list")
+        return
+    keys = []
+    dates = []
+    for idx, row in enumerate(history):
+        if not isinstance(row, dict):
+            err(f"alfa-index-history.json[{idx}]: не object")
+            continue
+        row_value = row.get("value")
+        row_date = as_date(row.get("article_date"))
+        if isinstance(row_value, bool) or not isinstance(row_value, int) or not 0 <= row_value <= 100:
+            err(f"alfa-index-history.json[{idx}]: value вне 0..100")
+        if row_date is None:
+            err(f"alfa-index-history.json[{idx}]: article_date не ISO date")
+        else:
+            dates.append(row_date)
+        if row.get("value_period") not in {"morning", "intraday"}:
+            err(f"alfa-index-history.json[{idx}]: неизвестный value_period")
+        row_host = (urlparse(str(row.get("source_url") or "")).hostname or "").lower()
+        if row_host != "alfabank.ru" and not row_host.endswith(".alfabank.ru"):
+            err(f"alfa-index-history.json[{idx}]: source_url не alfabank.ru")
+        keys.append((row.get("article_date"), row_value, row.get("value_period")))
+    if len(keys) != len(set(keys)):
+        err("alfa-index-history.json: есть дубликаты date+value+period")
+    if dates != sorted(dates):
+        err("alfa-index-history.json: история не отсортирована по дате")
+    current_key = (source.get("article_date"), value, current.get("value_period"))
+    if current_key not in keys:
+        err("alfa-index-history.json: текущее значение отсутствует в истории")
+    print(f"  alfa-index.json: value={value}, status={current.get('status')}, stale={current.get('stale')}, history={len(history)}")
+
+
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
           "market_history": [check_market_history],
           "marlamov": [check_marlamov], "quality": [check_quality],
-          "bonds": [check_bonds], "news": [check_news]}
+          "bonds": [check_bonds], "news": [check_news], "alfa_index": [check_alfa_index]}
 
 
 def main() -> int:
