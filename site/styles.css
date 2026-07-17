@@ -51,6 +51,8 @@ header.site { padding: 8px 0 18px; }
 }
 .date-chip b { color: var(--accent-deep); }
 .date-chip .lbl { color: var(--ink-faint); }
+.date-chip.forecast-lag { background: var(--warn-fill); border-color: #E6D2B0; }
+.date-chip.forecast-lag b { color: var(--warn-ink); }
 .banner {
   margin-top: 12px; padding: 10px 14px; border-radius: var(--radius);
   background: var(--warn-fill); color: var(--warn-ink); font-size: .88rem;
@@ -81,6 +83,14 @@ header.site { padding: 8px 0 18px; }
 /* ── Быстрое ранжирование ── */
 .ranks { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
 .ranks-lbl { color: var(--ink-faint); font-size: .82rem; }
+.stock-quality-gate {
+  display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center;
+  margin: -4px 0 12px; padding: 8px 10px;
+  background: #FFF8DF; border: 1px solid #D8C083; border-radius: 10px;
+  color: var(--warn-ink); font-size: .78rem; line-height: 1.4;
+}
+.stock-quality-gate:empty { display: none; }
+.stock-quality-gate b { white-space: nowrap; }
 .rank-chip {
   font: inherit; font-size: .85rem; cursor: pointer;
   border: 1px solid var(--line); background: var(--surface); color: var(--accent-deep);
@@ -128,6 +138,7 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .bar > span { display: block; height: 100%; border-radius: 999px; }
 .status-chip { font-size: .76rem; padding: 2px 8px; border-radius: 999px; }
 .s-ok { color: var(--good-ink); background: var(--good-fill); }
+.s-review { color: var(--warn-ink); background: var(--warn-fill); }
 .s-insuf { color: var(--neut-ink); background: var(--neut-fill); }
 
 /* вердикт-чип */
@@ -1389,6 +1400,11 @@ td.empty { text-align: center; }
 .fnd-chip .k { color: var(--ink-faint); }
 .fnd-chip b { color: var(--accent-deep); font-variant-numeric: tabular-nums; }
 .fnd-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 4px 0 10px; }
+.fnd-blocked { grid-column: 1 / -1; display: grid; gap: 4px; padding: 12px 14px;
+  border: 1px solid #D99B88; border-radius: 10px; background: #FFF3EE; color: #8C3520; }
+.fnd-blocked b { font-size: .95rem; }
+.fnd-blocked span, .fnd-candidate-note { font-size: .8rem; line-height: 1.45; }
+.fnd-candidate-note { margin: 8px 0; color: var(--warn-ink); }
 .fnd-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; }
 .fnd-kpi .k { display: block; font-size: .72rem; color: var(--ink-faint); }
 .fnd-kpi .v { font-weight: 800; font-size: 1.08rem; font-variant-numeric: tabular-nums; color: var(--accent-deep); }

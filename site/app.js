@@ -11,6 +11,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const mdash = '<span class="muted" title="нет данных">—</span>';
 const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const isoDayLag = (older, newer) => {
+  const a = Date.parse(String(older || '').slice(0, 10) + 'T00:00:00Z');
+  const b = Date.parse(String(newer || '').slice(0, 10) + 'T00:00:00Z');
+  return Number.isFinite(a) && Number.isFinite(b) ? Math.max(0, Math.round((b - a) / 86400000)) : null;
+};
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
@@ -52,7 +57,7 @@ setInterval(refreshVisibleSectionIfStale, 60 * 1000);
 document.addEventListener('visibilitychange', refreshVisibleSectionIfStale);
 
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
-const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
+const RATING_TOOLTIP = 'Основной рейтинг: надёжность дивиденда × оценка, со штрафом за долг и governance. Экстремальная доходность, payout выше 100%, старая цена и неполные данные автоматически исключаются до ручной проверки.';
 
 let DATA = null;
 let VIEW = [];
@@ -75,6 +80,34 @@ function stabilityCell(s) {
   if (s < 0.34) { cls = 'b-neut'; word = 'низкая'; }
   else if (s < 0.67) { cls = 'b-warn'; word = 'средняя'; }
   return `<span class="badge ${cls}">${pct} · ${word}</span>`;
+}
+
+const STOCK_REVIEW_FLAGS = new Set([
+  'y_paid_invalid', 'y_exp_invalid', 'y_paid_high', 'y_exp_high',
+  'payout_negative', 'payout_high', 'price_stale',
+]);
+const STOCK_REVIEW_LABELS = {
+  y_paid_invalid: 'условная доходность вне диапазона',
+  y_exp_invalid: 'ожидаемая доходность вне диапазона',
+  y_paid_high: 'условная доходность выше 30%',
+  y_exp_high: 'ожидаемая доходность выше 30%',
+  payout_negative: 'выплата при убытке',
+  payout_high: 'payout выше 100%',
+  price_stale: 'цена из кэша',
+};
+function stockReviewReasons(t) {
+  const reasons = new Set(Array.isArray(t.ranking_review_reasons) ? t.ranking_review_reasons : []);
+  (t.flags || []).forEach((flag) => { if (STOCK_REVIEW_FLAGS.has(flag)) reasons.add(flag); });
+  if (isNum(t.payout) && t.payout > 100) reasons.add('payout_high'); // совместимость со старым data.json
+  return [...reasons];
+}
+function stockRankingEligible(t) {
+  if (typeof t.ranking_eligible === 'boolean') return t.ranking_eligible;
+  return t.status === 'ok' && stockReviewReasons(t).length === 0;
+}
+function stockRankingStatus(t) {
+  if (t.status !== 'ok') return 'insufficient';
+  return stockRankingEligible(t) ? 'eligible' : 'review';
 }
 
 // ── Composite Verdict: цветной чип (короткий ярлык в таблице, полный в карточке) ──
@@ -107,13 +140,18 @@ wireDataCoverage(); // блок прозрачности источников �
 function init(data) {
   DATA = data;
   const m = data.meta;
+  const forecastLag = isoDayLag(m.forecast_asof, m.price_asof);
+  const lagChip = forecastLag > 0
+    ? `<span class="date-chip forecast-lag" data-tooltip="Прогноз модели пересчитывается реже цен MOEX"><span class="lbl">Модельный срез:</span> <b>${forecastLag} дн. до цены</b></span>`
+    : '';
 
   // даты (ДВЕ явно)
   document.getElementById('dates').innerHTML =
     `<span class="date-chip"><span class="lbl">Прогноз модели:</span> <b>${esc(m.forecast_asof || '—')}</b></span>`
     + `<span class="date-chip"><span class="lbl">Цены:</span> <b>${esc(m.price_asof || '—')}</b></span>`
     + `<span class="date-chip"><span class="lbl">Горизонт:</span> <b>дивиденды ${esc(m.forecast_year || '')}</b></span>`
-    + `<span class="date-chip"><span class="lbl">Эмитентов:</span> <b>${m.n_total}</b></span>`;
+    + `<span class="date-chip"><span class="lbl">Эмитентов:</span> <b>${m.n_total}</b></span>`
+    + lagChip;
 
   if (m.prices_stale) {
     document.getElementById('banner').innerHTML =
@@ -162,11 +200,15 @@ function computeView() {
   const st = document.getElementById('statusFilter').value;
   let rows = DATA.tickers.filter((t) => {
     if (sec && t.sector !== sec) return false;
-    if (st && t.status !== st) return false;
+    if (st === 'rankable' && !stockRankingEligible(t)) return false;
+    if (st === 'review' && stockRankingStatus(t) !== 'review') return false;
+    if (st === 'insufficient_data' && t.status !== 'insufficient_data') return false;
     if (q && !(t.ticker.toLowerCase().includes(q) || String(t.name).toLowerCase().includes(q))) return false;
     return true;
   });
   rows.sort((a, b) => {
+    const ae = stockRankingEligible(a), be = stockRankingEligible(b);
+    if (ae !== be) return ae ? -1 : 1; // review-строки не поднимаются наверх даже в режиме «все»
     let x = a[sortKey], y = b[sortKey];
     const xn = isNum(x), yn = isNum(y);
     if (!xn && !yn) return 0;
@@ -254,6 +296,12 @@ function renderMap() {
 function render() {
   VIEW = computeView();
   document.getElementById('count').textContent = `${VIEW.length} из ${DATA.tickers.length}`;
+  const gate = document.getElementById('stock-quality-gate');
+  if (gate) {
+    const eligible = DATA.tickers.filter(stockRankingEligible).length;
+    const review = DATA.tickers.filter((t) => stockRankingStatus(t) === 'review').length;
+    gate.innerHTML = `<b>Основной рейтинг: ${eligible}</b><span>На проверке: ${review}. Экстремальная доходность, payout &gt;100% и старая цена не ранжируются до проверки источника.</span>`;
+  }
   renderRanks();
   renderMap();
   renderTable();
@@ -273,9 +321,7 @@ function renderTable() {
     const payoutTxt = isNum(t.payout)
       ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}`
       : mdash;
-    const statusChip = t.status === 'ok'
-      ? '<span class="status-chip s-ok">✓ полные</span>'
-      : '<span class="status-chip s-insuf">неполные</span>';
+    const statusChip = statusChipHTML(t);
     return `<tr class="data-row" data-i="${i}">
       <td class="left"><span class="rank">${i + 1}</span><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
       <td class="left">${verdictChip(t.verdict, false)}</td>
@@ -608,6 +654,7 @@ function detailKV(t) {
     y_paid_high: 'высокая доходность при выплате (>30%)',
     y_exp_high: 'высокая ожидаемая доходность (>30%)',
     payout_negative: 'payout отрицательный (убыток при выплате)',
+    payout_high: 'payout выше 100% — требуется проверка источника',
     price_stale: 'цена не обновлена (кэш)',
     no_price: 'нет рыночной цены',
     no_forecast: 'нет прогноза модели',
@@ -627,9 +674,13 @@ function detailKV(t) {
 }
 
 function statusChipHTML(t) {
-  return t.status === 'ok'
-    ? '<span class="status-chip s-ok">✓ полные</span>'
-    : '<span class="status-chip s-insuf">неполные</span>';
+  const status = stockRankingStatus(t);
+  if (status === 'eligible') return '<span class="status-chip s-ok">✓ основной рейтинг</span>';
+  if (status === 'review') {
+    const tip = stockReviewReasons(t).map((reason) => STOCK_REVIEW_LABELS[reason] || reason).join('; ');
+    return `<span class="status-chip s-review" data-tooltip="${esc(tip)}">⚠ проверка</span>`;
+  }
+  return '<span class="status-chip s-insuf">неполные</span>';
 }
 
 function stockDetailSummaryHTML(t) {
@@ -728,7 +779,8 @@ function exportCSV() {
     ['dividend_forecast', 'Прогноз дивиденда, ₽'], ['payout', 'Payout, %'],
     ['dividend_yield_expected', 'Доходность ожидаемая, %'],
     ['dividend_yield_if_paid', 'Доходность при выплате, %'],
-    ['price', 'Цена, ₽'], ['status', 'Статус'],
+    ['price', 'Цена, ₽'], ['status', 'Полнота данных'], ['ranking_status', 'Статус рейтинга'],
+    ['ranking_review_reasons', 'Причины проверки'],
   ];
   const cell = (v) => {
     if (typeof v === 'number') return ru(v, 4).replace(/ /g, '');
@@ -5064,7 +5116,7 @@ function cbrBankDeckHTML() {
     return `<button class="cbr-bank-card ${i === 0 ? 'on' : ''}" type="button" data-reg="${esc(b.regnum)}" style="--bank-color:${esc(b.color || '#5B6B83')}">
       <span class="cbr-bank-card-top"><b>${esc(b.ticker)}</b><span>${cbrRub(b.mcap_rub)}</span></span>
       <span class="cbr-bank-card-name">${esc(b.name)}</span>
-      <span class="cbr-bank-card-metrics"><span class="${tone}">P/BV ${pbv}</span><span>ROE ${roe}</span></span>
+      <span class="cbr-bank-card-metrics"><span class="${tone}">P/капитал ЦБ ${pbv}</span><span>ROE ${roe}</span></span>
     </button>`;
   }).join('');
 }
@@ -5130,7 +5182,8 @@ function cbrBankSummaryHTML(bank, val, series) {
   const metric = series ? series.metricName + (series.modeLabel || '') : 'Выбранная метрика';
   const n10Tone = val && isNum(val.n10_headroom) && val.n10_headroom < 0 ? 'bad' : 'ok';
   const pbvTone = val && isNum(val.p_bv) && val.p_bv < 1 ? 'cheap' : 'rich';
-  const warns = val && (val.warnings || []).length ? `<div class="cbr-bank-warnings">${val.warnings.slice(0, 2).map((w) => `<span>⚠ ${esc(w)}</span>`).join('')}</div>` : '';
+  const bankWarns = bvalWarnings(val);
+  const warns = bankWarns.length ? `<div class="cbr-bank-warnings">${bankWarns.slice(0, 2).map((w) => `<span>⚠ ${esc(w)}</span>`).join('')}</div>` : '';
   return `<div class="cbr-bank-summary-main" style="--bank-color:${esc((val && val.color) || '#5B6B83')}">
     <div class="cbr-bank-title">
       <span class="cbr-bank-dot"></span>
@@ -5138,7 +5191,7 @@ function cbrBankSummaryHTML(bank, val, series) {
     </div>
     <div class="cbr-bank-kpis">
       <div><span>Капитализация</span><b>${val ? cbrRub(val.mcap_rub) : ND}</b></div>
-      <div><span>P/BV</span><b class="${pbvTone}">${val && isNum(val.p_bv) ? val.p_bv.toFixed(2) : ND}</b></div>
+      <div><span>P/капитал ЦБ</span><b class="${pbvTone}">${val && isNum(val.p_bv) ? val.p_bv.toFixed(2) : ND}</b></div>
       <div><span>ROE</span><b>${val && isNum(val.roe) ? val.roe.toFixed(1) + '%' : ND}</b></div>
       <div><span>Н1.0 запас</span><b class="${n10Tone}">${val && isNum(val.n10_headroom) ? (val.n10_headroom >= 0 ? '+' : '') + val.n10_headroom.toFixed(1) + ' п.п.' : ND}</b></div>
       <div><span>Дивдоходность</span><b>${val && isNum(val.div_yield) ? val.div_yield.toFixed(1) + '%' : ND}</b></div>
@@ -5378,32 +5431,50 @@ function finderShellHTML(d) {
     <div class="fnd-disc">${esc(m.disclaimer || '')}</div>`;
 }
 
+function finderPortfolioState(prof) {
+  const a = prof.aggregates || {};
+  const issuers = Number.isFinite(+a.issuers) ? +a.issuers : 0;
+  const required = Number.isFinite(+a.min_issuers_required) ? +a.min_issuers_required : 6;
+  const constructible = typeof a.constructible === 'boolean'
+    ? a.constructible
+    : issuers >= required;
+  return { constructible, issuers, required };
+}
+
 function finderRows() {
   const pid = (document.getElementById('fnd-profile') || {}).value || 'balanced';
   const prof = FINDER.profiles[pid] || { picks: [], aggregates: {} };
+  const portfolio = finderPortfolioState(prof);
   const budget = Math.max(0, +(document.getElementById('fnd-budget') || {}).value || 0);
   const rows = prof.picks.map((p) => {
-    const alloc = p.weight * budget;
-    const pieces = p.dirty_price > 0 ? Math.floor(alloc / p.dirty_price) : 0;
-    return { ...p, pieces, cost: pieces * p.dirty_price };
+    const alloc = portfolio.constructible && isNum(p.weight) ? p.weight * budget : null;
+    const pieces = alloc != null && p.dirty_price > 0 ? Math.floor(alloc / p.dirty_price) : null;
+    return { ...p, pieces, cost: pieces != null ? pieces * p.dirty_price : null };
   });
-  return { pid, prof, budget, rows };
+  return { pid, prof, budget, rows, portfolio };
 }
 
 function finderDraw() {
-  const { prof, budget, rows } = finderRows();
+  const { prof, budget, rows, portfolio } = finderRows();
   const sumEl = document.getElementById('fnd-summary');
   const tblEl = document.getElementById('fnd-table');
   if (!sumEl || !tblEl) return;
   const a = prof.aggregates || {};
-  const spent = rows.reduce((s, r) => s + r.cost, 0);
-  sumEl.innerHTML = [
-    ['Net YTM', a.ytm_net_wavg != null ? a.ytm_net_wavg.toFixed(2) + '%' : '—'],
-    ['Дюрация', a.duration_wavg != null ? a.duration_wavg.toFixed(2) + ' г' : '—'],
-    ['Эмитентов', a.issuers ?? '—'],
-    ['Бюджет', rub0(spent) + ' из ' + rub0(budget)],
-  ].map(([k, v]) => `<div class="fnd-kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
-  + (a.note ? `<div class="fnd-note">⚠️ ${esc(a.note)}</div>` : '');
+  const spent = rows.reduce((s, r) => s + (isNum(r.cost) ? r.cost : 0), 0);
+  if (!portfolio.constructible) {
+    sumEl.innerHTML = `<div class="fnd-blocked"><b>Портфель не сформирован</b>`
+      + `<span>Найдено эмитентов: ${portfolio.issuers}, минимум: ${portfolio.required}. Веса, сумма и портфельная доходность не рассчитаны. Ниже только кандидаты для ручной проверки.</span></div>`
+      + [['Кандидатов', rows.length], ['Эмитентов', portfolio.issuers], ['Требуется', portfolio.required]]
+        .map(([k, v]) => `<div class="fnd-kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  } else {
+    sumEl.innerHTML = [
+      ['Net YTM', a.ytm_net_wavg != null ? a.ytm_net_wavg.toFixed(2) + '%' : '—'],
+      ['Дюрация', a.duration_wavg != null ? a.duration_wavg.toFixed(2) + ' г' : '—'],
+      ['Эмитентов', portfolio.issuers],
+      ['Бюджет', rub0(spent) + ' из ' + rub0(budget)],
+    ].map(([k, v]) => `<div class="fnd-kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
+    + (a.note ? `<div class="fnd-note">⚠ ${esc(a.note)}</div>` : '');
+  }
 
   const key = FINDER_SORT.key, dir = FINDER_SORT.dir;
   rows.sort((x, y) => {
@@ -5426,11 +5497,11 @@ function finderDraw() {
     <td class="tnum">${r.spread_pctl != null ? r.spread_pctl.toFixed(0) + '%' : '<span class="muted" title="история короче 60 сессий">—</span>'}</td>
     <td class="tnum">${isNum(r.duration_years) ? r.duration_years.toFixed(2) : ND}</td>
     <td class="tnum fnd-score">${isNum(r.score) ? r.score.toFixed(2) : ND}</td>
-    <td class="tnum"><b>${r.pieces}</b></td>
-    <td class="tnum">${rub0(r.cost)}</td>
+    <td class="tnum"><b>${isNum(r.pieces) ? r.pieces : '—'}</b></td>
+    <td class="tnum">${isNum(r.cost) ? rub0(r.cost) : '—'}</td>
   </tr>`).join('');
   tblEl.innerHTML = rows.length
-    ? `<div class="fnd-table-scroll"><table class="fnd-table"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`
+    ? `${portfolio.constructible ? '' : '<div class="fnd-candidate-note">Кандидаты не являются готовой аллокацией: сначала расширьте диверсификацию по эмитентам.</div>'}<div class="fnd-table-scroll"><table class="fnd-table"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`
     : '<div class="fnd-empty muted">Ничего не найдено — ослабьте фильтры (профиль «Агрессивный»).</div>';
   tblEl.querySelectorAll('th[data-key]').forEach((el) => el.addEventListener('click', () => {
     const k = el.dataset.key;
@@ -5483,20 +5554,35 @@ function finderExtra() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// Банки РФ — секторная оценка (P/BV, ROE, пэйаут, Н1.0) + ROE×P/BV scatter с
-// справедливой линией P/BV=ROE/COE. Всё из site/cbr/valuation.json. Не ИИР.
+// Банки РФ — секторная оценка (цена/регуляторный капитал ЦБ, ROE, пэйаут, Н1.0)
+// и диагностическая ROE-линия. Всё из site/cbr/valuation.json. Не ИИР.
 // ══════════════════════════════════════════════════════════════════════════
 let BVAL = null;
 let BVAL_COE = 20;                 // percent, slider-driven
 let BVAL_SORT = { key: 'mcap_rub', dir: -1 };
-let BVAL_SEL = null;               // единый выбор банка: таблица ↔ карта сектора ↔ история P/BV
+let BVAL_SEL = null;               // единый выбор банка: таблица ↔ карта сектора ↔ история цены/капитала
 let BHIST = null;                  // site/cbr/history.json (price-vs-capital trajectory)
 let BHIST_SEL = null;             // currently selected ticker in the history chart
 
 // Аналитические зоны достаточности капитала по Н1.0 (НЕ регуляторное заключение — см. методологию)
 const BVAL_CAPITAL_CONFIG = { h10Watch: 11.0, h10Comfort: 13.0, h10Strong: 15.0 };
+const BVAL_TOOLTIPS = {
+  p_bv: 'Рыночная капитализация / регуляторный капитал формы 123 ЦБ РФ. Это не бухгалтерский капитал по МСФО и не IFRS P/BV. Коэффициент ниже 1 сам по себе не доказывает недооценку.',
+  roe: 'Прибыль на средний регуляторный капитал. Линия P/капитал ЦБ ≈ ROE / COE — диагностический ориентир внутри сектора, а не fair value или целевая цена.',
+  p_e: 'Для банков вторичен: прибыль шумит от резервов и переоценок. Используйте вместе с P/капитал ЦБ и только внутри сектора.',
+};
 
-// Отклонение рыночного P/BV от ROE-линии (P/BV = ROE/COE). Это НЕ fair value и НЕ целевая
+function bvalWarnings(bank) {
+  return (bank && Array.isArray(bank.warnings) ? bank.warnings : []).map((warning) => {
+    const text = String(warning);
+    if (text.includes('Капитал — регуляторный Ф.123') && text.includes('P/BV')) {
+      return 'Знаменатель — регуляторный капитал Ф.123 (Базель III, с субордами), не бухгалтерский equity; P/капитал ЦБ не равен IFRS P/BV';
+    }
+    return text;
+  });
+}
+
+// Отклонение цены/регуляторного капитала от ROE-линии. Это НЕ fair value и НЕ целевая
 // цена — грубая модельная линия связи прибыльности и оценки при заданной стоимости капитала.
 function bvalRoeLineDiscount(b) {
   const roe = Number(b && b.roe), pbv = Number(b && b.p_bv), coe = Number(BVAL_COE);
@@ -5554,7 +5640,7 @@ function bvalBankNarrative(b) {
   const disc = bvalRoeLineDiscount(b);
   const spread = isNum(b.roe) ? b.roe - BVAL_COE : null;
   if (spread != null && disc != null) {
-    if (spread > 0 && disc < 0) parts.push(`ROE выше заданной стоимости капитала (COE ${BVAL_COE}%), а P/BV ниже ROE-линии: рынок оценивает капитал банка осторожнее, чем следует из текущей прибыльности. Требуется проверить устойчивость ROE и качество данных.`);
+    if (spread > 0 && disc < 0) parts.push(`ROE выше заданной стоимости капитала (COE ${BVAL_COE}%), а P/капитал ЦБ ниже ROE-линии: рынок оценивает регуляторный капитал банка осторожнее, чем следует из текущей прибыльности. Требуется проверить устойчивость ROE и качество данных.`);
     else if (spread > 0) parts.push(`ROE выше стоимости капитала, но банк торгуется выше ROE-линии — такая оценка требует устойчивой прибыли и сохранения капитального буфера.`);
     else parts.push(`ROE ниже заданной стоимости капитала (COE ${BVAL_COE}%): банк пока не показывает создание стоимости сверх требуемой доходности — оценка требует осторожной интерпретации.`);
   } else if (spread != null) {
@@ -5597,7 +5683,7 @@ function bvalBridgeHTML(b) {
 // сравнение банка с медианой сектора (строка не показывается, если поля нет)
 function bvalPeersHTML(b) {
   const defs = [
-    ['roe', 'ROE', '%'], ['p_bv', 'P/BV', ''], ['n10', 'Н1.0', '%'], ['payout', 'Пэйаут', '%'],
+    ['roe', 'ROE', '%'], ['p_bv', 'P/капитал ЦБ', ''], ['n10', 'Н1.0', '%'], ['payout', 'Пэйаут', '%'],
     ['dividend_capacity_score', 'Дивспособность', '/100'], ['data_quality_score', 'Качество данных', '/100'],
   ];
   const rows = defs.map(([k, lbl, u]) => {
@@ -5623,7 +5709,7 @@ function bvalForecastHTML(fc) {
   }).join(' · ');
 }
 
-// единый выбор банка: подсветка строки + точка на карте + история P/BV (без scrollIntoView)
+// единый выбор банка: подсветка строки + точка на карте + история цены/капитала (без scrollIntoView)
 function bvalSelect(tk) {
   if (!tk) return;
   BVAL_SEL = tk;
@@ -5668,7 +5754,7 @@ function bvalSectorTakeaways() {
   const bank = (b) => `<button class="bval-tw-bank" data-tk="${esc(b.ticker)}">${esc(b.name)}</button>`;
   const t = [];
   const cheap = withPbv.filter((b) => b.p_bv < 1);
-  t.push(`<b>${cheap.length} из ${withPbv.length}</b> банков торгуются ниже капитала (P/BV &lt; 1).`);
+  t.push(`<b>${cheap.length} из ${withPbv.length}</b> банков торгуются ниже регуляторного капитала ЦБ (коэффициент &lt; 1).`);
   const above = banks.filter((b) => isNum(b.roe) && b.roe > BVAL_COE);
   t.push(`<b>${above.length}</b> ${above.length === 1 ? 'банк имеет' : 'банков имеют'} ROE выше заданной стоимости капитала (COE ${BVAL_COE}%).`);
   const discs = banks.map((b) => ({ b, d: bvalRoeLineDiscount(b) })).filter((x) => x.d != null);
@@ -5757,9 +5843,9 @@ function bvalSpreadFmt(s) {
 function bvalShellHTML(d) {
   const m = d.meta;
   const dt = (s) => (s ? String(s).slice(0, 10) : '—');
-  const tips = m.tooltips || {};
+  const tips = { ...(m.tooltips || {}), ...BVAL_TOOLTIPS };
   const howto = [
-    ['P/BV', tips.p_bv], ['ROE', tips.roe], ['P/E', tips.p_e], ['Пэйаут', tips.payout],
+    ['P/капитал ЦБ', tips.p_bv], ['ROE', tips.roe], ['P/E', tips.p_e], ['Пэйаут', tips.payout],
     ['Дивдоходность', tips.div_yield], ['Н1.0', tips.n10], ['Прибыль', tips.profit],
   ].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v || '')}</dd>`).join('');
   const [lo, hi] = m.coe_range || [0.12, 0.30];
@@ -5768,16 +5854,16 @@ function bvalShellHTML(d) {
     <div class="bval-takeaway" id="bval-takeaways"></div>
     <div class="bval-guide">
       <div><b>ROE − COE</b><span>создаёт ли банк доходность выше требуемой</span></div>
-      <div><b>ROE-линия</b><span>грубая связь прибыльности и P/BV, не fair value</span></div>
+      <div><b>ROE-линия</b><span>грубая связь прибыльности и цены регуляторного капитала, не fair value</span></div>
       <div><b>Н1.0</b><span>достаточность капитала (зоны — аналитические)</span></div>
       <div><b>Дивспособность</b><span>выдержит ли капитал выплату — диагностика</span></div>
     </div>
     <div id="bval-table-wrap"></div>
     <details class="bval-howto"><summary>Как читать оценку банков</summary><dl class="bval-dl">${howto}</dl>
       <div class="bval-method-txt">
-        P/BV показывает, сколько рынок платит за 1 рубль капитала банка. ROE — доходность капитала.
+        P/капитал ЦБ показывает, сколько рынок платит за 1 рубль регуляторного капитала из формы 123. Это не IFRS P/BV. ROE — доходность капитала.
         ROE − COE показывает, создаёт ли банк доходность выше пользовательского требования (COE — ползунок).
-        ROE-линия P/BV = ROE / COE — грубая модельная связь прибыльности и оценки; отклонение от неё
+        ROE-линия P/капитал ЦБ = ROE / COE — грубая модельная связь прибыльности и оценки; отклонение от неё
         <b>не является fair value или целевой ценой</b>. Н1.0 — достаточность капитала; зоны
         «сильный/комфортный/watch/проверить» (${BVAL_CAPITAL_CONFIG.h10Strong}/${BVAL_CAPITAL_CONFIG.h10Comfort}/${BVAL_CAPITAL_CONFIG.h10Watch}%) — аналитические допущения, не регуляторное заключение.
         Пэйаут — доля прибыли, направляемая акционерам. Дивидендная способность — модельная диагностика
@@ -5787,7 +5873,7 @@ function bvalShellHTML(d) {
       <div class="muted" style="font-size:.78rem;margin-top:6px">${esc(m.reg_min_note || '')}</div></details>
 
     <div class="bval-hist-box" id="bval-hist">
-      <div class="bval-hist-head"><b>История P/BV: цена акции против капитала на акцию</b><span class="muted"> — когда линия цены ныряет под линию капитала, банк торгуется дешевле одного капитала (P/BV &lt; 1)</span></div>
+      <div class="bval-hist-head"><b>История P/капитал ЦБ: цена акции против капитала на акцию</b><span class="muted"> — когда цена ниже линии регуляторного капитала, коэффициент меньше 1</span></div>
       <div class="bval-hist-chips" id="bval-hist-chips"></div>
       <div class="bval-hist-stat" id="bval-hist-stat"></div>
       <div class="bval-hist-wrap"><canvas id="bval-hist-canvas"></canvas></div>
@@ -5796,11 +5882,11 @@ function bvalShellHTML(d) {
 
     <div class="bval-scatter-box">
       <div class="bval-scatter-head">
-        <b>Карта сектора: прибыльность (ROE) × цена капитала (P/BV)</b>
+        <b>Карта сектора: прибыльность (ROE) × цена регуляторного капитала</b>
         <label class="bval-coe">COE <input type="range" id="bval-coe" min="${Math.round(lo * 100)}" max="${Math.round(hi * 100)}" step="1" value="${BVAL_COE}"><span><b id="bval-coe-val">${BVAL_COE}</b>%</span></label>
       </div>
       <div class="bval-scatter-wrap"><canvas id="bval-scatter"></canvas></div>
-      <div class="bval-caption muted">Линия P/BV = ROE / COE (сейчас <b id="bval-cap-coe">${BVAL_COE}</b>%) — <b>не fair value</b>, а ориентир связи прибыльности и оценки: точки <b>ниже</b> линии рынок оценивает дешевле, чем следует из ROE, <b>выше</b> — дороже. Размер точки — капитализация, цвет — дивидендная способность. Клик по точке выбирает банк.</div>
+      <div class="bval-caption muted">Линия P/капитал ЦБ = ROE / COE (сейчас <b id="bval-cap-coe">${BVAL_COE}</b>%) — <b>не fair value</b>, а диагностический ориентир: точки <b>ниже</b> линии рынок оценивает дешевле относительно текущего ROE, <b>выше</b> — дороже. Размер точки — капитализация, цвет — дивидендная способность. Клик по точке выбирает банк.</div>
     </div>
 
     <div class="bval-cap-box">
@@ -5891,8 +5977,8 @@ function bvalTable() {
   // [key, title, align, secondary?, tooltip]
   const cols = [
     ['name', 'Банк', 'l', 0, ''],
-    ['p_bv', 'P/BV', 'r', 0, T.p_bv],
-    ['fair_disc', 'К ROE-линии', 'r', 0, 'P/BV ÷ (ROE/COE) − 1 при текущем COE ползунка. Это НЕ fair value и не целевая цена, а грубая модельная линия связи ROE и P/BV. Минус — рынок ценит банк дешевле, чем оправдывает его прибыльность'],
+    ['p_bv', 'P/капитал ЦБ', 'r', 0, T.p_bv],
+    ['fair_disc', 'К ROE-линии', 'r', 0, 'P/капитал ЦБ ÷ (ROE/COE) − 1 при текущем COE ползунка. Это НЕ fair value и не целевая цена, а грубая диагностическая линия. Минус — рынок ценит регуляторный капитал дешевле относительно текущего ROE'],
     ['roe', 'ROE', 'r', 0, T.roe],
     ['roe_spread', 'ROE−COE', 'r', 0, 'ROE минус заданная стоимость капитала (COE, ползунок). Выше 0 — банк создаёт доходность сверх требуемой'],
     ['price', 'Цена', 'r', 1, ''],
@@ -5905,7 +5991,8 @@ function bvalTable() {
   ];
   const th = cols.map(([k, t, al, sec, tp]) => `<th data-key="${k}" class="al-${al}${sec ? ' col-sec' : ''} ${BVAL_SORT.key === k ? 'bval-sorted' : ''}"${tp ? ` title="${esc(tp)}"` : ''}>${t}${tp ? ' ⓘ' : ''}${BVAL_SORT.key === k ? (BVAL_SORT.dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('');
   const rows = bvalRows().map((b, i) => {
-    const warn = (b.warnings || []).length;
+    const bankWarns = bvalWarnings(b);
+    const warn = bankWarns.length;
     const tk = esc(b.ticker);
     const pctl = (k) => num(b[k], '%');
     const disc = bvalRoeLineDiscount(b);
@@ -5915,7 +6002,7 @@ function bvalTable() {
     const dq = b.data_quality_score;
     const sel = b.ticker === BVAL_SEL ? ' bval-selected' : '';
     const main = `<tr class="bval-row${sel}" data-i="${i}" data-tk="${tk}">
-      <td class="al-l bval-bname"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span>${esc(b.name)}<span class="bval-tk">${tk}</span>${warn ? ` <span class="bval-warn-badge" title="${esc((b.warnings || []).join(' · '))}">⚠${warn}</span>` : ''}</td>
+      <td class="al-l bval-bname"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span>${esc(b.name)}<span class="bval-tk">${tk}</span>${warn ? ` <span class="bval-warn-badge" title="${esc(bankWarns.join(' · '))}">⚠${warn}</span>` : ''}</td>
       <td class="al-r tnum bval-strong">${num(b.p_bv)}</td>
       <td class="al-r tnum bval-fair-cell" data-tk="${tk}">${bvalFairFmt(disc)}</td>
       <td class="al-r tnum">${pctl('roe')}</td>
@@ -5937,7 +6024,7 @@ function bvalTable() {
       : 'История нормативов недоступна';
     const detail = `<tr class="bval-detail" data-i="${i}" data-tk="${tk}" hidden><td colspan="${cols.length}">
       <div class="bval-detail-cols">
-        <div class="bval-dcard"><h5>Что показывает связка ROE × P/BV × капитал</h5><div class="bval-nar-txt" data-tk="${tk}">${esc(bvalBankNarrative(b))}</div></div>
+        <div class="bval-dcard"><h5>Что показывает связка ROE × P/капитал ЦБ</h5><div class="bval-nar-txt" data-tk="${tk}">${esc(bvalBankNarrative(b))}</div></div>
         <div class="bval-dcard"><h5>Капитал → дивиденды</h5>${bvalBridgeHTML(b)}</div>
         <div class="bval-dcard"><h5>Против медианы сектора</h5>${bvalPeersHTML(b)}</div>
         <div class="bval-dcard"><h5>Тренд достаточности капитала</h5><div>${trendHTML}</div>
@@ -5945,7 +6032,7 @@ function bvalTable() {
           ${dh ? `<div class="bval-detail-meta">Дивиденды: ${dh}</div>` : ''}
           ${fcHTML ? `<div class="bval-fc"><span class="k">Прогноз — ручной ввод:</span> ${fcHTML}</div>` : ''}</div>
       </div>
-      ${(b.warnings || []).length ? `<div class="bval-wlines">${(b.warnings || []).map((w) => `<div class="bval-wline">⚠ ${esc(w)}</div>`).join('')}</div>` : ''}
+      ${bankWarns.length ? `<div class="bval-wlines">${bankWarns.map((w) => `<div class="bval-wline">⚠ ${esc(w)}</div>`).join('')}</div>` : ''}
     </td></tr>`;
     return main + detail;
   }).join('');
@@ -5990,7 +6077,7 @@ function bvalScatterDraw() {
           pointBorderWidth: pts.map((b) => (b.ticker === BVAL_SEL ? 3 : 1)),
           pointRadius: pts.map((b) => bvalPointR(b) + (b.ticker === BVAL_SEL ? 3 : 0)),
           pointHoverRadius: pts.map((b) => bvalPointR(b) + 2), order: 2 },
-        { type: 'line', label: `ROE-линия P/BV = ROE/COE (${coe}%)`, order: 1,
+        { type: 'line', label: `ROE-линия P/капитал ЦБ = ROE/COE (${coe}%)`, order: 1,
           data: [{ x: 0, y: 0 }, { x: xmax, y: coe * xmax }],
           borderColor: '#A2452C', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false },
       ],
@@ -6002,12 +6089,12 @@ function bvalScatterDraw() {
         if (hit.length && pts[hit[0].index]) bvalSelect(pts[hit[0].index].ticker);
       },
       scales: {
-        x: { min: 0, max: xmax, title: { display: true, text: 'P/BV (цена капитала)', color: '#5A6472' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
+        x: { min: 0, max: xmax, title: { display: true, text: 'P/регуляторный капитал ЦБ', color: '#5A6472' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
         y: { min: 0, title: { display: true, text: 'ROE, % (прибыльность)', color: '#5A6472' }, grid: { color: '#EEF1F6' }, ticks: { color: '#5A6472' } },
       },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: (it) => { const b = pts[it.dataIndex]; return b ? `${b.name}: P/BV ${b.p_bv}, ROE ${b.roe}%${isNum(b.dividend_capacity_score) ? `, дивспособн. ${b.dividend_capacity_score}/100` : ''}` : ''; }, filter: (it) => it.datasetIndex === 0 } },
+        tooltip: { callbacks: { label: (it) => { const b = pts[it.dataIndex]; return b ? `${b.name}: P/капитал ЦБ ${b.p_bv}, ROE ${b.roe}%${isNum(b.dividend_capacity_score) ? `, дивспособн. ${b.dividend_capacity_score}/100` : ''}` : ''; }, filter: (it) => it.datasetIndex === 0 } },
       },
     },
     plugins: [labelPlugin],
@@ -6054,8 +6141,8 @@ function bvalHistDraw() {
   const stat = document.getElementById('bval-hist-stat');
   if (stat) {
     const verdict = cur < 1
-      ? `<span class="bh-verdict cheap">дешевле капитала · P/BV ${cur.toFixed(2)}</span>`
-      : `<span class="bh-verdict rich">дороже капитала · P/BV ${cur.toFixed(2)}</span>`;
+      ? `<span class="bh-verdict cheap">ниже регуляторного капитала · ${cur.toFixed(2)}</span>`
+      : `<span class="bh-verdict rich">выше регуляторного капитала · ${cur.toFixed(2)}</span>`;
     stat.innerHTML = `<span class="bh-name" style="border-color:${esc(b.color || '#888')}">${esc(b.name)}</span>${verdict}
       <span class="muted">ниже 1 капитала: ${cheapPct}% времени окна (${cheapN}/${pts.length} мес.)</span>`;
   }
@@ -6067,7 +6154,7 @@ function bvalHistDraw() {
     const clamp = b.split_clamp ? ` · окно с ${esc(b.split_clamp)} (необъяснённый разрыв цены)` : '';
     const spl = (b.splits_applied || []).length
       ? ` · цены до сплита приведены к текущей базе акций (${b.splits_applied.map((s) => `${esc(s.ratio)} от ${esc(s.date)}`).join(', ')}, реестр MOEX)` : '';
-    cap.innerHTML = `Зелёная зона — цена ниже капитала (P/BV&nbsp;&lt;&nbsp;1, потенциально дёшево), красная — выше.
+    cap.innerHTML = `Зелёная зона — цена ниже регуляторного капитала ЦБ (коэффициент&nbsp;&lt;&nbsp;1), красная — выше.
       Капитал на акцию = регуляторный капитал Ф.123&nbsp;/&nbsp;число акций; окно ${esc(pts[0].d)}–${esc(pts[pts.length - 1].d)}${clamp}${spl}.${warn}`;
   }
 
@@ -6080,7 +6167,7 @@ function bvalHistDraw() {
         { label: 'Цена, ₽', data: price, borderColor: b.color || '#2C6E9B', backgroundColor: b.color || '#2C6E9B',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.15, order: 1,
           fill: { target: 1, above: 'rgba(200,60,50,0.10)', below: 'rgba(33,160,56,0.16)' } },
-        { label: 'Капитал на акцию (P/BV = 1)', data: bvps, borderColor: '#7A8598', backgroundColor: '#7A8598',
+        { label: 'Регуляторный капитал на акцию (коэффициент = 1)', data: bvps, borderColor: '#7A8598', backgroundColor: '#7A8598',
           borderWidth: 1.5, borderDash: [5, 4], pointRadius: 0, pointHoverRadius: 0, tension: 0.15, order: 2, fill: false },
       ],
     },
@@ -6095,7 +6182,7 @@ function bvalHistDraw() {
         tooltip: {
           callbacks: {
             label: (it) => `${it.dataset.label}: ${Number(it.raw).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`,
-            afterBody: (items) => { const p = pts[items[0].dataIndex]; return p ? `P/BV: ${p.pbv.toFixed(2)}${p.pbv < 1 ? '  — дешевле капитала' : ''}` : ''; },
+            afterBody: (items) => { const p = pts[items[0].dataIndex]; return p ? `P/капитал ЦБ: ${p.pbv.toFixed(2)}${p.pbv < 1 ? '  — ниже регуляторного капитала' : ''}` : ''; },
           },
         },
       },

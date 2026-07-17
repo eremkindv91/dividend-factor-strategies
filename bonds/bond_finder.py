@@ -399,8 +399,10 @@ def score_all(cands: list[dict], cfg: dict) -> None:
 def allocate(picks: list[dict], cfg: dict) -> dict:
     """Weights ∝ positive-shifted score, cap per bond / per issuer (INN), renormalize."""
     pcfg = cfg["portfolio"]
+    min_issuers = pcfg["min_issuers_meaningful"]
     if not picks:
-        return {"weights": [], "note": "пусто"}
+        return {"weights": [], "issuers": 0, "constructible": False,
+                "min_issuers_required": min_issuers, "note": "пусто"}
     smin = min(p["score"] for p in picks)
     raw = [p["score"] - smin + 0.1 for p in picks]
     tot = sum(raw)
@@ -433,10 +435,12 @@ def allocate(picks: list[dict], cfg: dict) -> dict:
     ws = [w_ / tot for w_ in ws]
     n_issuers = len({str(p["inn"]) for p in picks})
     note = None
-    if n_issuers < cfg["portfolio"]["min_issuers_meaningful"]:
+    constructible = n_issuers >= min_issuers
+    if not constructible:
         note = (f"эмитентов всего {n_issuers} — осмысленная диверсификация не достигается, "
-                "список стоит расширить вручную")
-    return {"weights": [round(w_, 4) for w_ in ws], "issuers": n_issuers, "note": note}
+                "портфель не сформирован; список стоит расширить вручную")
+    return {"weights": [round(w_, 4) for w_ in ws], "issuers": n_issuers,
+            "constructible": constructible, "min_issuers_required": min_issuers, "note": note}
 
 
 # ── journal / review / events ────────────────────────────────────────────────
@@ -632,9 +636,16 @@ def main() -> int:
             row["weight"] = w_
             picks.append(row)
         wavg = lambda key: (round(sum((x.get(key) or 0) * x["weight"] for x in picks), 2) if picks else None)  # noqa: E731
+        constructible = bool(alloc.get("constructible"))
         profiles_out[pid] = {"title": p["title"], "params": p, "picks": picks,
-                             "aggregates": {"ytm_net_wavg": wavg("ytm_net"), "duration_wavg": wavg("duration_years"),
-                                            "issuers": alloc.get("issuers"), "note": alloc.get("note")}}
+                             "aggregates": {
+                                 "ytm_net_wavg": wavg("ytm_net") if constructible else None,
+                                 "duration_wavg": wavg("duration_years") if constructible else None,
+                                 "issuers": alloc.get("issuers"),
+                                 "constructible": constructible,
+                                 "min_issuers_required": alloc.get("min_issuers_required"),
+                                 "note": alloc.get("note"),
+                             }}
 
     events = detect_events(universe, scored + newpl, cfg)
 
@@ -644,12 +655,15 @@ def main() -> int:
     review = review_journal(journal, price_now, cfg)
     snapshot = max((str(r.get("prevdate") or "") for r in universe), default=TODAY.isoformat()) or TODAY.isoformat()
     bal = profiles_out.get("balanced", {})
-    journal.append({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    "snapshot_date": snapshot, "profile": "balanced",
-                    "picks": [{"secid": x["secid"], "name": x["name"], "dirty_price": x["dirty_price"],
-                               "face": x["face"], "weight": x["weight"],
-                               "coupon_pct_approx": x.get("coupon_pct")}
-                              for x in bal.get("picks", [])]})
+    if (bal.get("aggregates") or {}).get("constructible"):
+        journal.append({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        "snapshot_date": snapshot, "profile": "balanced",
+                        "picks": [{"secid": x["secid"], "name": x["name"], "dirty_price": x["dirty_price"],
+                                   "face": x["face"], "weight": x["weight"],
+                                   "coupon_pct_approx": x.get("coupon_pct")}
+                                  for x in bal.get("picks", [])]})
+    else:
+        log("balanced journal: портфель не сформирован, snapshot не добавлен")
     journal = journal[-cfg["journal"]["max_entries"]:]
     os.makedirs(STATE_DIR, exist_ok=True)
     with open(JOURNAL, "w", encoding="utf-8") as f:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Bank sector valuation: P/BV, ROE, P/E, payout, dividend yield, Н1.0 for MOEX-listed banks.
+"""Bank sector valuation: price/regulatory capital, ROE, P/E, payout, dividend yield, Н1.0.
 
 Static pipeline (stdlib only, runs in update-cbr-banks workflow). Two real sources + optional manual:
   MOEX ISS  — capitalization (marketdata.ISSUECAPITALIZATION, ordinary + pref summed) and actual paid
@@ -16,8 +16,8 @@ the row with dashes + warning, never drops the bank. Output: site/cbr/valuation.
 
 Methodological note (per spec principle #4, flagged not silently "fixed"): form 123 «собственные
 средства (капитал)» is REGULATORY capital (Basel III, incl. subordinated debt), not accounting book
-value; P/BV to it is biased low (Sber ~0.8 vs ~1.0 to IFRS equity). Used as the only clean SOAP capital
-source, with a standing per-bank warning. This is a documented approximation, not a hidden choice.
+value. The output key stays ``p_bv`` for compatibility, but the UI names it P/капитал ЦБ and never
+presents it as IFRS P/BV. Used as the only clean SOAP capital source, with a standing warning.
 """
 from __future__ import annotations
 
@@ -303,7 +303,7 @@ def value_bank(b: dict, cache: dict, splits: list[dict] | None = None) -> dict:
            "low": "РСБУ соло близко к МСФО"}.get(b.get("ifrs_gap"), "")
     if gap:
         row["warnings"].append(gap)
-    row["warnings"].append("Капитал — регуляторный Ф.123 (Базель III, с субордами), не бухгалтерский equity → P/BV смещён вниз")
+    row["warnings"].append("Знаменатель — регуляторный капитал Ф.123 (Базель III, с субордами), не бухгалтерский equity; P/капитал ЦБ не равен IFRS P/BV")
     if b.get("perimeter_note"):
         row["warnings"].append(b["perimeter_note"])
     if prof_ttm and d102_dates and f"{int(d102_dates[-1][:4])}-01-01" not in d102_dates:
@@ -390,9 +390,9 @@ def main() -> int:
             "disclaimer": "РСБУ-метрики — приближение; перед решением сверяйте с МСФО-отчётностью банка. "
                           "Это не инвестиционная рекомендация.",
             "tooltips": {
-                "p_bv": "За сколько собственных капиталов торгуется банк. Главный мультипликатор сектора: банк — это плечо на капитал, его активы и пассивы переоцениваются близко к рынку, поэтому балансовая стоимость осмысленна. P/BV < 1 — рынок закладывает ROE ниже стоимости капитала или не доверяет балансу.",
-                "roe": "Прибыль на средний собственный капитал — двигатель оценки. Справедливый P/BV ≈ (ROE − g) / (COE − g): при стоимости капитала ~20%+ банк с ROE ~22% честно стоит около одного капитала, ROE ~12% — заслуженный глубокий дисконт. Сравнивайте дисконт с риском снижения ROE, а не с \"дёшево/дорого\".",
-                "p_e": "Для банков вторичен: прибыль шумит от резервов и переоценок. Использовать только вместе с P/BV и только внутри сектора.",
+                "p_bv": "Рыночная капитализация / регуляторный капитал формы 123 ЦБ РФ. Это не бухгалтерский капитал по МСФО и не IFRS P/BV. Коэффициент ниже 1 означает, что капитализация ниже регуляторного капитала, но сам по себе не доказывает недооценку.",
+                "roe": "Прибыль на средний регуляторный капитал — диагностическая мера доходности. Линия P/капитал ЦБ ≈ ROE / COE служит только ориентиром внутри сектора, а не справедливой стоимостью или целевой ценой.",
+                "p_e": "Для банков вторичен: прибыль шумит от резервов и переоценок. Использовать только вместе с P/капитал ЦБ и только внутри сектора.",
                 "payout": "Доля прибыли на дивиденды. Ограничена не щедростью, а достаточностью капитала: рост активов требует капитала, поэтому быстрорастущий банк платит меньше. Обещания высокого пэйаута при тонком Н1.0 — красный флаг.",
                 "div_yield": "Факт — по реально выплаченным дивидендам; прогноз — ручной ввод. Высокая доходность при слабом капитале чаще предвестник отмены, чем подарок.",
                 "n10": "Достаточность капитала. Запас над регуляторным минимумом — это одновременно буфер под рост и источник дивидендов; его исчерпание бьёт по обоим.",

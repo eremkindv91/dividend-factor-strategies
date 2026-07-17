@@ -91,3 +91,41 @@ def test_score_all_keeps_unrated_neutral_in_rating_zscore():
     assert by_id["AAA"]["score"] > 0
     assert by_id["BBB"]["score"] < 0
     assert by_id["NONE"]["score"] == 0
+
+
+def _allocation_cfg(min_issuers=2):
+    return {
+        "portfolio": {
+            "cap_per_bond": 0.6,
+            "cap_per_issuer": 0.7,
+            "min_issuers_meaningful": min_issuers,
+        }
+    }
+
+
+def test_allocate_marks_portfolio_unconstructible_below_minimum_issuers():
+    picks = [
+        {"score": 2.0, "inn": "7701"},
+        {"score": 1.0, "inn": "7701"},
+    ]
+
+    result = bond_finder.allocate(picks, _allocation_cfg(min_issuers=2))
+
+    assert result["issuers"] == 1
+    assert result["constructible"] is False
+    assert result["min_issuers_required"] == 2
+    assert "портфель не сформирован" in result["note"]
+
+
+def test_allocate_allows_portfolio_at_minimum_diversification():
+    picks = [
+        {"score": 2.0, "inn": "7701"},
+        {"score": 1.0, "inn": "7702"},
+    ]
+
+    result = bond_finder.allocate(picks, _allocation_cfg(min_issuers=2))
+
+    assert result["issuers"] == 2
+    assert result["constructible"] is True
+    assert result["note"] is None
+    assert abs(sum(result["weights"]) - 1.0) < 1e-3

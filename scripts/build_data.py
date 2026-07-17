@@ -39,6 +39,11 @@ OUT_JSON = os.path.join(REPO, "site", "data.json")
 
 YIELD_MAX = 100.0   # >100% или <0 — невозможно → reject поля
 YIELD_HIGH = 30.0   # возможно, но требует внимания → флаг
+PAYOUT_REVIEW = 100.0  # выплата выше прибыли возможна, но не должна попадать в основной рейтинг без проверки
+RANKING_REVIEW_FLAGS = {
+    "y_paid_invalid", "y_exp_invalid", "y_paid_high", "y_exp_high",
+    "payout_negative", "payout_high", "price_stale",
+}
 ND = "нет данных"
 
 DISCLAIMER = (
@@ -66,6 +71,20 @@ def pct_rank(vals, x):
     below = sum(1 for v in vals if v < x)
     equal = sum(1 for v in vals if v == x)
     return 100.0 * (below + 0.5 * equal) / n
+
+
+def classify_ranking_quality(status, flags):
+    """Fail-closed gate для публичного рейтинга акций.
+
+    Полнота модельных полей и пригодность для ранжирования — разные вещи. Даже строка
+    status=ok уходит на ручную проверку при экстремальной доходности, payout или старой цене.
+    """
+    if status != "ok":
+        return {"status": "insufficient", "eligible": False, "reasons": ["incomplete_data"]}
+    reasons = sorted({flag for flag in (flags or []) if flag in RANKING_REVIEW_FLAGS})
+    if reasons:
+        return {"status": "review", "eligible": False, "reasons": reasons}
+    return {"status": "eligible", "eligible": True, "reasons": []}
 
 
 def copy_sp(sp):
@@ -193,7 +212,7 @@ def main() -> int:
         sys.stderr.write("[build_data] ВНИМАНИЕ: ISS недоступен, использован кэш — цены НЕ свежие.\n")
 
     out_rows = []
-    n_ok = n_insuff = n_yield_rejected = n_yield_high = n_payout_neg = 0
+    n_ok = n_insuff = n_yield_rejected = n_yield_high = n_payout_neg = n_payout_high = 0
 
     for r in records:
         tk = r["ticker"]
@@ -231,6 +250,9 @@ def main() -> int:
         if isinstance(payout, (int, float)) and payout < 0:
             flags.append("payout_negative")        # не reject — убыток при выплате реален
             n_payout_neg += 1
+        elif isinstance(payout, (int, float)) and payout > PAYOUT_REVIEW:
+            flags.append("payout_high")            # возможна разовая выплата, но только review
+            n_payout_high += 1
 
         if not p.get("fresh", False) and price is not None:
             flags.append("price_stale")
@@ -250,6 +272,8 @@ def main() -> int:
                 flags.append("no_forecast")
             if r.get("forecast_status") == "insufficient_data":
                 flags.append("dps_unreliable")
+
+        ranking_quality = classify_ranking_quality(status, flags)
 
         out_rows.append({
             "ticker": tk,
@@ -272,6 +296,9 @@ def main() -> int:
             "current_dps": num(r.get("current_dps")),
             "current_paid": r.get("current_paid"),
             "status": status,
+            "ranking_status": ranking_quality["status"],
+            "ranking_eligible": ranking_quality["eligible"],
+            "ranking_review_reasons": ranking_quality["reasons"],
             "forecast_note": r.get("forecast_note"),
             "flags": flags,
             "shap_top5": r.get("shap_top5", []),
@@ -346,6 +373,8 @@ def main() -> int:
             "n_total": len(out_rows),
             "n_ok": n_ok,
             "n_insufficient": n_insuff,
+            "n_ranking_eligible": sum(1 for row in out_rows if row.get("ranking_eligible")),
+            "n_ranking_review": sum(1 for row in out_rows if row.get("ranking_status") == "review"),
             "n_price_fresh": pmeta["n_fresh"],
             "n_price_cached": pmeta["n_cached"],
             "n_price_missing": pmeta["n_missing"],
@@ -367,7 +396,9 @@ def main() -> int:
 
     print(f"[build_data] записано: {os.path.relpath(OUT_JSON, REPO)}")
     print(f"  ok={n_ok} insufficient={n_insuff} | доходность: reject={n_yield_rejected} "
-          f"high={n_yield_high} | payout<0={n_payout_neg} | prices_stale={prices_stale}")
+          f"high={n_yield_high} | payout<0={n_payout_neg} payout>100={n_payout_high} "
+          f"| ranking_eligible={data['meta']['n_ranking_eligible']} "
+          f"review={data['meta']['n_ranking_review']} | prices_stale={prices_stale}")
 
     # ряд доходностей для риск-метрик конструктора (ленивая подгрузка фронтом)
     ret_src = os.path.join(REPO, "model_output", "returns.json")

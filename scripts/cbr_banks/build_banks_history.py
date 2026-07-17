@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Bank price-vs-capital history: monthly P/BV trajectory for the «Оценка сектора» tab.
+"""Bank price-vs-regulatory-capital history for the «Оценка сектора» tab.
 
 Purpose: a timing chart — plot each bank's share price against its book value per share
-(BVPS = regulatory capital / shares); where price dips below BVPS the bank trades below one
-capital (P/BV < 1). Complements the point-in-time table in build_banks_valuation.py.
+(capital per share = regulatory capital / shares); where price dips below that line, market
+capitalisation is below regulatory capital. This is not IFRS P/BV.
 
 Sources (both real, stdlib only):
   MOEX ISS  — monthly CLOSE price, TQBR board, paginated /history endpoint.
@@ -19,8 +19,8 @@ shares_eff (ordinary-equivalent share count) is anchored to the current snapshot
   (post split / redomiciliation / large secondary issue), plus a per-bank `history_warn`.
 
 Honesty layer: capital is regulatory Ф.123 (Basel III, incl. subordinated debt), not accounting
-equity → the whole BVPS line sits a touch high vs IFRS book, biasing P/BV low (same caveat as the
-table). CBR suspended bank disclosure most of 2022, so capital forward-fills flat across that gap —
+equity, so the UI explicitly calls the ratio P/капитал ЦБ. CBR suspended bank disclosure most of
+2022, so capital forward-fills flat across that gap —
 surfaced as a note, not hidden. Output: site/cbr/history.json (incremental: capital cache persists,
 only new quarter-ends are fetched on reruns).
 """
@@ -364,10 +364,10 @@ def main() -> int:
             "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "cap_cadence": cfg.get("history_cap_cadence", "quarterly"),
             "banks_count": len(banks), "banks_with_history": with_pts,
-            "method": "P/BV(t) = цена(t) × shares_eff / капитал_Ф.123(t); BVPS = капитал/shares_eff. "
+            "method": "P/капитал ЦБ(t) = цена(t) × shares_eff / капитал_Ф.123(t); капитал на акцию = капитал/shares_eff. "
                       "shares_eff = текущая капитализация / цена (из valuation.json), константа на окне.",
             "caveats": [
-                "Капитал — регуляторный Ф.123 (Базель III, с субордами), не бухгалтерский equity → P/BV смещён вниз",
+                "Капитал — регуляторный Ф.123 (Базель III, с субордами), не бухгалтерский equity; P/капитал ЦБ не равен IFRS P/BV",
                 "ЦБ не раскрывал отчётность банков большую часть 2022 — капитал на графике держится плоско в этот период (forward-fill)",
                 "Число акций взято текущим; официальные сплиты (реестр MOEX) скорректированы в ценах, доп.эмиссии акций — нет (см. пометку банка)",
             ],

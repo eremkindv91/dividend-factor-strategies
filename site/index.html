@@ -173,9 +173,10 @@
           <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
           <select id="sector"><option value="">Все отрасли</option></select>
           <select id="statusFilter">
+            <option value="rankable" selected>Основной рейтинг</option>
+            <option value="review">Требуют проверки</option>
+            <option value="insufficient_data">Неполные данные</option>
             <option value="">Все статусы</option>
-            <option value="ok">Только с полными данными</option>
-            <option value="insufficient_data">Только неполные</option>
           </select>
           <span class="spacer"></span>
           <span class="count" id="count"></span>
@@ -183,8 +184,9 @@
         </div>
 
         <div class="ranks" id="ranks" hidden>
-          <span class="ranks-lbl" data-tooltip="Итоговый рейтинг. По умолчанию таблица отсортирована по убыванию ожидаемой дивидендной доходности E[DY], скорректированной на фактор устойчивости.">Рейтинг ↓</span>
+          <span class="ranks-lbl" data-tooltip="Основной рейтинг автоматически исключает строки с экстремальной доходностью, payout выше 100%, старой ценой или неполными данными.">Рейтинг ↓</span>
         </div>
+        <div class="stock-quality-gate" id="stock-quality-gate" aria-live="polite"></div>
 
         <details class="mapwrap" id="mapwrap" hidden>
           <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>
@@ -320,7 +322,7 @@
           <div>
             <span class="section-kicker">Банки РФ</span>
             <h2>Секторная оценка и история ЦБ</h2>
-            <p>Публичные банки: P/BV, ROE, payout, Н1.0, данные MOEX и формы ЦБ 102/123/135.</p>
+            <p>Публичные банки: цена к регуляторному капиталу ЦБ, ROE, payout, Н1.0, данные MOEX и формы ЦБ 102/123/135.</p>
           </div>
           <div class="section-tags" aria-label="Ограничения данных">
             <span>Не ИИР</span>
@@ -337,7 +339,7 @@
         </details>
 
         <details class="mapwrap bval-wrap" id="banks-valuation">
-          <summary>Дорого или дёшево? Оценка банков <span class="muted">(P/BV, ROE, запас капитала, дивспособность · банк ↔ карта ↔ история связаны)</span></summary>
+          <summary>Дорого или дёшево? Оценка банков <span class="muted">(P/капитал ЦБ, ROE, запас капитала, дивспособность · банк ↔ карта ↔ история связаны)</span></summary>
           <div class="bval-body" id="bval-body">
             <div class="bval-loading muted">Загрузка оценки банковского сектора…</div>
           </div>
