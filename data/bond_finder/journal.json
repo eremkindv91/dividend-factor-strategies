@@ -867,5 +867,28 @@
     "coupon_pct_approx": 25.5
    }
   ]
+ },
+ {
+  "ts": "2026-07-17T19:33:27+00:00",
+  "snapshot_date": "2026-07-16",
+  "profile": "balanced",
+  "picks": [
+   {
+    "secid": "RU000A10DA74",
+    "name": "ЭталонФин4",
+    "dirty_price": 947.85,
+    "face": 1000.0,
+    "weight": 0.5,
+    "coupon_pct_approx": 20.0
+   },
+   {
+    "secid": "RU000A10BAP4",
+    "name": "ЭталонФин3",
+    "dirty_price": 1017.48,
+    "face": 1000.0,
+    "weight": 0.5,
+    "coupon_pct_approx": 25.5
+   }
+  ]
  }
 ]
