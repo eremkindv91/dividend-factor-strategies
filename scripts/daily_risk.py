@@ -369,7 +369,7 @@ def compute(positions: list[dict], benchmark: dict | None = None, now: datetime 
     if not bench_ok:
         warnings.append("бенчмарк не выровнен — beta/корреляция недоступны")
 
-    # v1.1: component risk contribution + concentration
+    # v1.1: component risk contribution + concentration + sector risk contribution
     secids = list(al["matrix"])
     sectors = {p["secid"]: p.get("sector") for p in inc_positions}
     rc = risk_contribution(al["matrix"], weights, secids) if len(secids) >= 1 else {"ok": False}
@@ -378,18 +378,28 @@ def compute(positions: list[dict], benchmark: dict | None = None, now: datetime 
         for r in rc["rows"]:
             r["ticker"] = by_ticker.get(r["secid"], r["secid"])
         rc["rows"].sort(key=lambda r: -r["pcr"])
+        rc["by_sector"] = sector_risk_contribution(rc["rows"], sectors)
     conc = concentration(weights, sectors)
 
-    # v2: альтернативные оценки VaR (под backtest-валидацией) + backtest основного historical VaR
-    var_methods = {}
+    # v2: методы VaR (95/99, точечные оценки) — CF и bootstrap возвращают explicit-gate словари
+    var_methods, method_diagnostics = {}, {}
     for lvl, key in [(0.95, "95"), (0.99, "99")]:
+        cf = var_cornish_fisher(port, lvl)
+        bs = var_bootstrap(port, lvl, n_sims=cfg.MC_SIMS_POINT, seed=cfg.MC_SEED)
         var_methods[key] = {
             "historical": v95["var"] if lvl == 0.95 else v99["var"],
             "normal": var_normal(port, lvl), "ewma": var_ewma(port, lvl),
-            "cornish_fisher": var_cornish_fisher(port, lvl),
-            "monte_carlo_normal": var_monte_carlo(port, lvl),
+            "cornish_fisher": cf["var"] if cf.get("ok") else None,
+            "bootstrap": bs["var"] if bs.get("ok") else None,
         }
-    backtest = var_backtest(port, 0.95, window=min(252, max(60, common_n // 2)))
+        method_diagnostics[key] = {"cornish_fisher": cf, "bootstrap": bs}
+
+    # v2: строгий out-of-sample backtest (rolling, окно из config, БЕЗ look-ahead) + нейтральное
+    # сравнение методов (не ранжируем по p-value; порядок фиксирован METHOD_META)
+    backtest = backtest_method(port, 0.95, "historical", window=cfg.BACKTEST_WINDOW)
+    comparison = method_comparison(port, var_methods["95"], window=cfg.BACKTEST_WINDOW)
+    ewma_meta = {"lambda": cfg.EWMA_LAMBDA, "effective_memory_days": round(1.0 / (1.0 - cfg.EWMA_LAMBDA), 1),
+                "confidence_level": 0.95, "current_forecast_date": common[-1]}
 
     base.update({
         "return_type": return_type_out, "observations": common_n,
@@ -400,7 +410,8 @@ def compute(positions: list[dict], benchmark: dict | None = None, now: datetime 
         "included_positions": included_out, "warnings": warnings,
         "limiting_position": al["limiting"],
         "risk_contribution": rc, "concentration": conc,
-        "var_methods": var_methods, "backtest": backtest,
+        "var_methods": var_methods, "method_diagnostics": method_diagnostics,
+        "backtest": backtest, "method_comparison": comparison, "ewma_meta": ewma_meta,
     })
     return base
 
@@ -459,6 +470,17 @@ def risk_contribution(matrix, weights, secids, annualize=True) -> dict:
             "crc_sum_check": converged, "pcr_sum": pcr_sum}
 
 
+def sector_risk_contribution(rc_rows: list[dict], sectors: dict[str, str]) -> list[dict]:
+    """Агрегация PCR/веса по секторам из строк risk_contribution. Сортировка по убыванию вклада в риск."""
+    agg: dict[str, dict] = {}
+    for r in rc_rows:
+        sec = sectors.get(r["secid"]) or "н/д"
+        a = agg.setdefault(sec, {"sector": sec, "weight": 0.0, "risk_contribution_pct": 0.0})
+        a["weight"] += r["weight"]
+        a["risk_contribution_pct"] += r["pcr"]
+    return sorted(agg.values(), key=lambda a: -a["risk_contribution_pct"])
+
+
 def concentration(weights: dict[str, float], sectors: dict[str, str] | None = None) -> dict:
     """largest/top3/top5 вес, HHI по позициям и секторам, эффективное число бумаг."""
     ws = sorted(weights.values(), reverse=True)
@@ -494,33 +516,97 @@ def var_ewma(rets, level, lam=0.94):
     return _Z[level] * math.sqrt(var)
 
 
-def var_cornish_fisher(rets, level):
-    """CF-скорректированный квантиль (skew/kurt). Клампим экстремум — CF нестабилен на коротком/жирнохвостом ряде."""
+def _skew_kurtosis(rets, m, sd):
     n = len(rets)
-    if n < 8:
-        return None
+    s = sum(((r - m) / sd) ** 3 for r in rets) / n
+    kx = sum(((r - m) / sd) ** 4 for r in rets) / n - 3.0    # excess kurtosis (0 = нормальное)
+    return s, kx
+
+
+def var_cornish_fisher(rets, level) -> dict:
+    """CF-скорректированный квантиль (skew/kurt). EXPLICIT GATE — никогда не клампится молча:
+    либо валидное число + диагностика, либо ok=False с человеческой причиной (недостаточная
+    история / неустойчивый excess kurtosis / численная нестабильность / нарушение инварианта)."""
+    n = len(rets)
+    if n < cfg.CF_MIN_OBS:
+        return {"ok": False, "var": None, "reason": "insufficient_history",
+                "detail": f"нужно ≥{cfg.CF_MIN_OBS} набл. для устойчивой оценки 3-4 момента, есть {n}"}
     m, sd = mean(rets), stdev(rets)
     if sd <= cfg.FLOAT_TOL:
-        return None
-    s = sum(((r - m) / sd) ** 3 for r in rets) / n
-    kx = sum(((r - m) / sd) ** 4 for r in rets) / n - 3.0
+        return {"ok": False, "var": None, "reason": "numerical_instability", "detail": "нулевая дисперсия"}
+    s, kx = _skew_kurtosis(rets, m, sd)
+    if not (math.isfinite(s) and math.isfinite(kx)):
+        return {"ok": False, "var": None, "reason": "numerical_instability",
+                "detail": "skew/excess kurtosis не определены"}
+    if abs(kx) > cfg.CF_MAX_ABS_EXCESS_KURTOSIS:
+        return {"ok": False, "var": None, "reason": "unstable_kurtosis",
+                "detail": f"|excess kurtosis|={abs(kx):.1f} > порога {cfg.CF_MAX_ABS_EXCESS_KURTOSIS}"}
     z = -_Z[level]
     zc = z + (s / 6) * (z * z - 1) + (kx / 24) * (z ** 3 - 3 * z) - (s * s / 36) * (2 * z ** 3 - 5 * z)
-    if not math.isfinite(zc) or zc > z * 0.4 or zc < z * 3:   # z<0: защита от «взрыва»
-        zc = z
-    return -(m + zc * sd)
+    if not math.isfinite(zc) or zc > 0 or zc < 4 * z:   # адаптированный квантиль обязан остаться
+        return {"ok": False, "var": None, "reason": "numerical_instability",             # в разумном диапазоне убыточного хвоста (z<0)
+                "detail": "скорректированный квантиль вне допустимого диапазона (CF explosive)"}
+    var = -(m + zc * sd)
+    if not math.isfinite(var) or var <= 0:
+        return {"ok": False, "var": None, "reason": "invariant_violation",
+                "detail": "CF VaR ≤ 0 или не определён — нарушает базовый инвариант положительности убытка"}
+    return {"ok": True, "var": var, "skewness": s, "excess_kurtosis": kx, "z_adjusted": zc}
 
 
-def var_monte_carlo(rets, level, n_sims=20000, seed=42):
-    """MC-VaR из НОРМАЛЬНОЙ модели (μ,σ выборки), seeded → детерминирован. Допущение нормальности
-    помечается; backtest покажет калибровку (жирные хвосты обычно недооценены)."""
+def _autocorr_lag1(xs: list[float]) -> float:
+    n = len(xs)
+    if n < 3:
+        return 0.0
+    m = mean(xs)
+    den = sum((x - m) ** 2 for x in xs)
+    if den <= cfg.FLOAT_TOL:
+        return 0.0
+    num = sum((xs[i] - m) * (xs[i - 1] - m) for i in range(1, n))
+    return num / den
+
+
+def _volatility_clustering_autocorr(rets: list[float]) -> float:
+    """Lag-1 автокорреляция КВАДРАТОВ доходностей — ARCH-эффект/кластеризация волатильности.
+    Информативнее автокорреляции самих доходностей (та у дневных акций близка к 0 по эффективности
+    рынка) для решения IID vs block bootstrap."""
+    m = mean(rets)
+    return _autocorr_lag1([(r - m) ** 2 for r in rets])
+
+
+def var_bootstrap(rets, level, n_sims=None, seed=None) -> dict:
+    """Historical Monte Carlo — SEEDED NON-PARAMETRIC bootstrap (НЕ предполагает нормальность,
+    НЕ генерирует синтетическую доходность из распределения — ресэмплирует РЕАЛЬНЫЕ исторические
+    значения с возвращением). IID vs block bootstrap выбирается автоматически по диагностике
+    кластеризации волатильности (см. _volatility_clustering_autocorr); выбор и обоснование
+    сохраняются в результате, не молчаливые."""
     import random
-    if len(rets) < 2:
-        return None
-    m, sd = mean(rets), stdev(rets)
+    n = len(rets)
+    if n < 20:
+        return {"ok": False, "var": None, "reason": "insufficient_history"}
+    n_sims = n_sims or cfg.MC_SIMS_POINT
+    seed = cfg.MC_SEED if seed is None else seed
+    ac_sq = _volatility_clustering_autocorr(rets)
+    use_block = abs(ac_sq) >= cfg.MC_AUTOCORR_BLOCK_THRESHOLD
+    block_len = cfg.MC_BLOCK_LENGTH if use_block else 1
     rng = random.Random(seed)
-    sims = sorted(rng.gauss(m, sd) for _ in range(n_sims))
-    return -quantile(sims, 1 - level)
+    sims: list[float] = []
+    if use_block:
+        # circular moving block bootstrap: блоки последовательных дней сохраняют локальную
+        # кластеризацию волатильности при ресэмплинге (в отличие от независимого IID-семплинга)
+        while len(sims) < n_sims:
+            start = rng.randrange(0, n)
+            for k in range(block_len):
+                sims.append(rets[(start + k) % n])
+                if len(sims) >= n_sims:
+                    break
+    else:
+        for _ in range(n_sims):
+            sims.append(rets[rng.randrange(0, n)])
+    sims.sort()
+    var = -quantile(sims, 1 - level)
+    return {"ok": True, "var": var, "bootstrap_method": "block" if use_block else "iid",
+            "block_length": block_len if use_block else None,
+            "autocorr_sq_lag1": ac_sq, "n_sims": n_sims, "seed": seed}
 
 
 # ── v2: VaR backtest (Kupiec POF + Christoffersen independence) ──
@@ -541,7 +627,7 @@ def kupiec_pof(breaches, obs, level):
     ll0 = (n - x) * _ln(1 - p) + x * _ln(p)
     ll1 = (n - x) * _ln(1 - ph) + x * _ln(ph)
     lr = -2 * (ll0 - ll1)
-    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > 3.841}
+    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > cfg.KUPIEC_REJECT_LR}
 
 
 def christoffersen_independence(seq):
@@ -562,7 +648,7 @@ def christoffersen_independence(seq):
     ll0 = (n00 + n10) * _ln(1 - pi) + (n01 + n11) * _ln(pi)
     ll1 = n00 * _ln(1 - pi01) + n01 * _ln(pi01) + n10 * _ln(1 - pi11) + n11 * _ln(pi11)
     lr = -2 * (ll0 - ll1)
-    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > 3.841}
+    return {"ok": True, "lr": lr, "pvalue": _chi2_sf_1df(lr), "reject": lr > cfg.KUPIEC_REJECT_LR}
 
 
 def var_backtest(rets, level=0.95, window=252):
@@ -582,6 +668,109 @@ def var_backtest(rets, level=0.95, window=252):
     verdict = "калиброван" if (kp.get("ok") and not kp["reject"]) else "калибровка под вопросом"
     return {"ok": True, "obs": obs, "breaches": breaches, "expected": (1 - level) * obs,
             "freq": breaches / obs if obs else None, "kupiec": kp, "christoffersen": ch, "verdict": verdict}
+
+
+# ── обобщённый rolling out-of-sample backtest (для ЛЮБОГО метода VaR, для method comparison) ──
+
+def rolling_backtest(rets, level, window, forecast_fn) -> dict:
+    """Строго out-of-sample: прогноз на день i использует ТОЛЬКО rets[i-window:i] (нет look-ahead).
+    forecast_fn(window_returns) -> var|None; None (напр. CF gate не пройден на этом окне) —
+    окно пропускается (skipped_gate), не считается ни пробоем, ни не-пробоем.
+    < cfg.MIN_BACKTEST_FORECASTS валидных прогнозов → status=insufficient_backtest_history,
+    p-value не публикуется как значимый (kupiec/christoffersen отсутствуют)."""
+    n = len(rets)
+    seq, breaches, skipped = [], 0, 0
+    for i in range(window, n):
+        var = forecast_fn(rets[i - window:i])          # ТОЛЬКО прошлое — no look-ahead
+        if var is None:
+            skipped += 1
+            continue
+        br = 1 if rets[i] < -var else 0
+        seq.append(br)
+        breaches += br
+    obs = len(seq)
+    if obs < cfg.MIN_BACKTEST_FORECASTS:
+        return {"ok": False, "status": "insufficient_backtest_history", "obs": obs,
+                "skipped_gate": skipped, "window": window, "level": level,
+                "min_required": cfg.MIN_BACKTEST_FORECASTS}
+    kp = kupiec_pof(breaches, obs, level)
+    ch = christoffersen_independence(seq)
+    calibrated = bool(kp.get("ok") and not kp["reject"])
+    return {"ok": True, "status": "complete", "window": window, "level": level,
+            "horizon_days": cfg.BACKTEST_HORIZON_DAYS, "policy": "rolling",
+            "obs": obs, "skipped_gate": skipped, "breaches": breaches,
+            "expected_breaches": (1 - level) * obs, "freq": breaches / obs,
+            "kupiec": kp, "christoffersen": ch, "calibrated": calibrated,
+            "verdict": "калиброван" if calibrated else "калибровка под вопросом"}
+
+
+def backtest_method(rets, level, method, window=None) -> dict:
+    """rolling_backtest для конкретного именованного метода VaR (historical/normal/ewma/
+    cornish_fisher/bootstrap). Единая точка входа для method comparison."""
+    window = window or cfg.BACKTEST_WINDOW
+    if method == "historical":
+        fn = lambda w: -quantile(sorted(w), 1 - level)  # noqa: E731
+    elif method == "normal":
+        fn = lambda w: var_normal(w, level)  # noqa: E731
+    elif method == "ewma":
+        fn = lambda w: var_ewma(w, level, cfg.EWMA_LAMBDA)  # noqa: E731
+    elif method == "cornish_fisher":
+        def fn(w):
+            r = var_cornish_fisher(w, level)
+            return r["var"] if r.get("ok") else None
+    elif method == "bootstrap":
+        def fn(w):
+            r = var_bootstrap(w, level, n_sims=cfg.MC_SIMS_BACKTEST, seed=cfg.MC_SEED)
+            return r["var"] if r.get("ok") else None
+    else:
+        raise ValueError(f"неизвестный метод {method}")
+    return rolling_backtest(rets, level, window, fn)
+
+
+METHOD_META = {
+    "historical": {"label": "Исторический", "assumptions":
+                   "эмпирическое распределение прошлых доходностей, без параметрических допущений"},
+    "normal": {"label": "Нормальное распределение", "assumptions":
+               "доходности распределены нормально (Gauss); недооценивает жирные хвосты"},
+    "ewma": {"label": "EWMA", "assumptions":
+             f"нормальное распределение с экспоненциально взвешенной волатильностью (λ={cfg.EWMA_LAMBDA})"},
+    "cornish_fisher": {"label": "Cornish-Fisher", "assumptions":
+                       "поправка нормального квантиля на скошенность и эксцесс выборки"},
+    "bootstrap": {"label": "Monte Carlo (bootstrap)", "assumptions":
+                  "непараметрический ресэмплинг реальных исторических доходностей (не синтетика)"},
+}
+
+
+def _neutral_verdict(bt: dict) -> str:
+    """Простой пользовательский вердикт из результата backtest. Нейтрален — не хвалит/не пугает
+    сверх того, что показывает статистика."""
+    if not bt.get("ok"):
+        return "Истории недостаточно для надёжной проверки"
+    kp_ok = bt["kupiec"].get("ok") and not bt["kupiec"]["reject"]
+    ch = bt.get("christoffersen") or {}
+    ch_ok = ch.get("ok") and not ch.get("reject")
+    if kp_ok and ch_ok:
+        return "VaR откалиброван приемлемо"
+    if not kp_ok:
+        underestimates = bt["freq"] > (1 - bt["level"])
+        return "VaR занижает риск" if underestimates else "VaR завышает риск (слишком консервативен)"
+    return "Наблюдается кластеризация плохих дней"          # kupiec ok, christoffersen — нет
+
+
+def method_comparison(port_returns, point_estimates: dict, window=None) -> list[dict]:
+    """Нейтральная таблица сравнения методов VaR 95%: допущения + точечная оценка + backtest +
+    простой вердикт. Порядок ФИКСИРОВАН (METHOD_META) — НЕ ранжируем по p-value."""
+    window = window or cfg.BACKTEST_WINDOW
+    rows = []
+    for method, meta in METHOD_META.items():
+        est = point_estimates.get(method)
+        bt = backtest_method(port_returns, 0.95, method, window=window)
+        rows.append({
+            "method": method, "label": meta["label"], "assumptions": meta["assumptions"],
+            "current_estimate": est, "available": est is not None,
+            "backtest": bt, "verdict": _neutral_verdict(bt),
+        })
+    return rows
 
 
 def validate(result: dict) -> list[str]:
@@ -615,6 +804,26 @@ def validate(result: dict) -> list[str]:
     b = result.get("benchmark")
     if b and b.get("correlation") is not None and not (-1.0001 <= b["correlation"] <= 1.0001):
         errs.append("correlation вне [-1,1]")
+    rc = result.get("risk_contribution")
+    if rc and rc.get("ok"):
+        if not rc.get("crc_sum_check"):
+            errs.append("Σ CRC не сходится к σ_p")
+        if abs(rc.get("pcr_sum", 0) - 1.0) > 1e-4:
+            errs.append(f"Σ PCR={rc.get('pcr_sum')} далеко от 100%")
+        if "by_sector" in rc:
+            sec_sum = sum(s["risk_contribution_pct"] for s in rc["by_sector"])
+            if abs(sec_sum - rc["pcr_sum"]) > 1e-6:
+                errs.append("сумма sector risk contribution ≠ Σ PCR по позициям")
+    bt = result.get("backtest")
+    if bt and bt.get("ok"):
+        if not (0 <= bt.get("freq", 0) <= 1):
+            errs.append("backtest.freq вне [0,1]")
+        if bt.get("breaches", 0) > bt.get("obs", 0):
+            errs.append("backtest.breaches > obs")
+    for row in result.get("method_comparison") or []:
+        est = row.get("current_estimate")
+        if est is not None and est <= 0:
+            errs.append(f"method_comparison[{row.get('method')}].current_estimate ≤ 0")
     return errs
 
 

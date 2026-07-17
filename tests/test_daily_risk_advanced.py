@@ -67,23 +67,45 @@ def test_concentration_sectors():
     assert abs(c["sector_hhi"] - (0.8 ** 2 + 0.2 ** 2)) < 1e-12
 
 
-# ── v2: методы VaR ──
+# ── v2: методы VaR (bootstrap заменил параметрический MC; CF — explicit-gate словарь) ──
 
 def test_var_methods_sane_and_ordered():
     r = _series(500, 11, 0.02)
     hist = dr.var_cvar(r, 0.95)["var"]
-    for f in [dr.var_normal(r, 0.95), dr.var_ewma(r, 0.95), dr.var_cornish_fisher(r, 0.95), dr.var_monte_carlo(r, 0.95)]:
+    cf = dr.var_cornish_fisher(r, 0.95)
+    bs = dr.var_bootstrap(r, 0.95)
+    for f in [dr.var_normal(r, 0.95), dr.var_ewma(r, 0.95)]:
         assert f is not None and f > 0
+    assert cf["ok"] and cf["var"] > 0
+    assert bs["ok"] and bs["var"] > 0
     assert hist > 0
 
 
-def test_monte_carlo_deterministic():
+def test_bootstrap_deterministic_seed():
     r = _series(400, 3, 0.02)
-    assert dr.var_monte_carlo(r, 0.95, seed=42) == dr.var_monte_carlo(r, 0.95, seed=42)
+    a = dr.var_bootstrap(r, 0.95, seed=42)
+    b = dr.var_bootstrap(r, 0.95, seed=42)
+    assert a["var"] == b["var"]                              # тот же seed → тот же результат
 
 
-def test_cornish_fisher_clamps_on_short():
-    assert dr.var_cornish_fisher(_series(6, 1), 0.95) is None    # <8 наблюдений
+def test_bootstrap_is_nonparametric_not_normal():
+    # bootstrap НЕ предполагает нормальность: на скошенном ряде расходится с normal-VaR
+    r = [0.01] * 400 + [-0.15, -0.20, -0.25]                  # тяжёлый левый хвост, не гауссов
+    bs = dr.var_bootstrap(r, 0.99, seed=1)
+    nrm = dr.var_normal(r, 0.99)
+    assert bs["ok"]
+    assert abs(bs["var"] - nrm) > 0.01                        # разные допущения → разные числа
+
+
+def test_cornish_fisher_gate_insufficient_history():
+    cf = dr.var_cornish_fisher(_series(50, 1), 0.95)          # < cfg.CF_MIN_OBS(252)
+    assert not cf["ok"] and cf["reason"] == "insufficient_history"
+    assert cf["var"] is None                                  # НЕ клампится молча — честное «н/д»
+
+
+def test_cornish_fisher_gate_passes_on_stable_sample():
+    cf = dr.var_cornish_fisher(_series(500, 11, 0.02), 0.95)
+    assert cf["ok"] and cf["var"] > 0 and "skewness" in cf and "excess_kurtosis" in cf
 
 
 def test_var_normal_reference():
@@ -130,6 +152,6 @@ def test_compute_attaches_advanced():
     r = dr.compute([_pos("A", 10, 100, _series(400, 1), d), _pos("B", 20, 50, _series(400, 2), d)], now=NOW)
     assert r["risk_contribution"]["ok"] and abs(r["risk_contribution"]["pcr_sum"] - 1.0) < 1e-9
     assert 0 <= r["concentration"]["hhi"] <= 1
-    assert r["var_methods"]["95"]["historical"] > 0 and r["var_methods"]["95"]["monte_carlo_normal"] > 0
+    assert r["var_methods"]["95"]["historical"] > 0
     assert r["backtest"]["ok"]
     assert dr.validate(r) == []

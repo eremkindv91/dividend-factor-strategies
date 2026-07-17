@@ -2071,7 +2071,10 @@ function pfxCapmHTML(c) {
 
 // ── Daily Risk Engine v1 (клиент; ЗЕРКАЛИТ scripts/daily_risk.py; портфель НЕ покидает браузер) ──
 // Дневные данные грузятся ленивы (site/daily/web/{SECID}.json) — только бумаги портфеля.
-const PFX_DR = { N: 252, DDOF: 1, MIN_OBS: 60, H_INSUF: 125, H_USABLE: 252, CVAR_TAIL: 5, VC_PARTIAL: 0.85, VC_MIN: 0.50, TOL: 1e-9 };
+const PFX_DR = { N: 252, DDOF: 1, MIN_OBS: 60, H_INSUF: 125, H_USABLE: 252, CVAR_TAIL: 5, VC_PARTIAL: 0.85, VC_MIN: 0.50, TOL: 1e-9,
+  EWMA_LAMBDA: 0.94, MC_SEED: 42, MC_SIMS_POINT: 20000, MC_SIMS_BACKTEST: 300,
+  MC_AC_BLOCK_THR: 0.10, MC_BLOCK_LEN: 5, CF_MIN_OBS: 252, CF_MAX_KURT: 15.0,
+  BT_WINDOW: 252, BT_HORIZON: 1, MIN_BT_FORECASTS: 100, KUPIEC_REJECT_LR: 3.841 };
 const DR_RANK = { total_return: 3, adjusted_price_return: 2, raw_price_return: 1 };
 const DR_EXCL = { invalid_value: 'нулевая или некорректная стоимость', no_data: 'нет дневных данных',
   stale: 'ряд устарел', insufficient_history: 'недостаточная история',
@@ -2121,6 +2124,12 @@ function drRiskContribution(matrix, weights, secids) {
   const rows = secids.map((s, i) => { const mrc = Sw[i] / sigma, crc = w[i] * mrc; return { secid: s, weight: w[i], mrc: mrc * scale, crc: crc * scale, pcr: crc / sigma }; });
   return { ok: true, sigmaAnnual: sigma * scale, rows };
 }
+// v1.1: агрегация PCR/веса по секторам из строк risk_contribution (не теряет и не удваивает риск)
+function drSectorRiskContribution(rcRows, sectors) {
+  const agg = {};
+  rcRows.forEach((r) => { const sec = sectors[r.secid] || 'н/д'; const a = agg[sec] || (agg[sec] = { sector: sec, weight: 0, pcr: 0 }); a.weight += r.weight; a.pcr += r.pcr; });
+  return Object.values(agg).sort((a, b) => b.pcr - a.pcr);
+}
 function drConcentration(weights, sectors) {
   const vals = Object.values(weights).sort((a, b) => b - a);
   const hhi = Object.values(weights).reduce((s, w) => s + w * w, 0);
@@ -2129,20 +2138,98 @@ function drConcentration(weights, sectors) {
   return out;
 }
 function drVarNormal(r, lvl) { return -(drMean(r) - DR_Z[lvl] * drStd(r)); }
-function drVarEwma(r, lvl, lam) { lam = lam || 0.94; if (r.length < 2) return null; const m = drMean(r); let v = (r[0] - m) ** 2; for (let i = 1; i < r.length; i++) v = lam * v + (1 - lam) * (r[i] - m) ** 2; return DR_Z[lvl] * Math.sqrt(v); }
+function drVarEwma(r, lvl, lam) { lam = lam == null ? PFX_DR.EWMA_LAMBDA : lam; if (r.length < 2) return null; const m = drMean(r); let v = (r[0] - m) ** 2; for (let i = 1; i < r.length; i++) v = lam * v + (1 - lam) * (r[i] - m) ** 2; return DR_Z[lvl] * Math.sqrt(v); }
+// v2: Cornish-Fisher — EXPLICIT GATE (никогда не клампится молча): либо {ok:true,var,skew,kurt},
+// либо {ok:false,reason,detail} — «метод недоступен из-за недостаточной устойчивости выборки».
 function drVarCF(r, lvl) {
-  const n = r.length; if (n < 8) return null; const m = drMean(r), sd = drStd(r); if (sd <= PFX_DR.TOL) return null;
+  const n = r.length;
+  if (n < PFX_DR.CF_MIN_OBS) return { ok: false, var: null, reason: 'insufficient_history', detail: `нужно ≥${PFX_DR.CF_MIN_OBS} набл., есть ${n}` };
+  const m = drMean(r), sd = drStd(r);
+  if (sd <= PFX_DR.TOL) return { ok: false, var: null, reason: 'numerical_instability', detail: 'нулевая дисперсия' };
   const s = r.reduce((a, x) => a + ((x - m) / sd) ** 3, 0) / n, kx = r.reduce((a, x) => a + ((x - m) / sd) ** 4, 0) / n - 3;
-  const z = -DR_Z[lvl]; let zc = z + (s / 6) * (z * z - 1) + (kx / 24) * (z ** 3 - 3 * z) - (s * s / 36) * (2 * z ** 3 - 5 * z);
-  if (!isFinite(zc) || zc > z * 0.4 || zc < z * 3) zc = z; return -(m + zc * sd);
+  if (!isFinite(s) || !isFinite(kx)) return { ok: false, var: null, reason: 'numerical_instability', detail: 'skew/kurtosis не определены' };
+  if (Math.abs(kx) > PFX_DR.CF_MAX_KURT) return { ok: false, var: null, reason: 'unstable_kurtosis', detail: `|excess kurtosis|=${Math.abs(kx).toFixed(1)} > ${PFX_DR.CF_MAX_KURT}` };
+  const z = -DR_Z[lvl];
+  const zc = z + (s / 6) * (z * z - 1) + (kx / 24) * (z ** 3 - 3 * z) - (s * s / 36) * (2 * z ** 3 - 5 * z);
+  if (!isFinite(zc) || zc > 0 || zc < 4 * z) return { ok: false, var: null, reason: 'numerical_instability', detail: 'скорректированный квантиль вне допустимого диапазона' };
+  const v = -(m + zc * sd);
+  if (!isFinite(v) || v <= 0) return { ok: false, var: null, reason: 'invariant_violation', detail: 'CF VaR ≤ 0' };
+  return { ok: true, var: v, skewness: s, excessKurtosis: kx, zAdjusted: zc };
 }
 function drRng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function drVarMC(r, lvl, nSims, seed) { nSims = nSims || 20000; if (r.length < 2) return null; const m = drMean(r), sd = drStd(r), rng = drRng(seed || 42); const sims = []; for (let i = 0; i < nSims; i++) { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); sims.push(m + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)); } sims.sort((a, b) => a - b); return -drQuantile(sims, 1 - lvl); }
+function drAutocorrLag1(xs) { const n = xs.length; if (n < 3) return 0; const m = drMean(xs); let den = 0; xs.forEach((x) => { den += (x - m) ** 2; }); if (den <= PFX_DR.TOL) return 0; let num = 0; for (let i = 1; i < n; i++) num += (xs[i] - m) * (xs[i - 1] - m); return num / den; }
+// v2: Historical Monte Carlo — SEEDED NON-PARAMETRIC bootstrap (ресэмплинг РЕАЛЬНЫХ значений,
+// не синтетика из распределения). IID vs block — по автокорреляции КВАДРАТОВ доходности (ARCH/
+// кластеризация волатильности), не по автокорреляции самих доходностей.
+function drVarBootstrap(r, lvl, nSims, seed) {
+  const n = r.length; if (n < 20) return { ok: false, var: null, reason: 'insufficient_history' };
+  nSims = nSims || PFX_DR.MC_SIMS_POINT; seed = seed == null ? PFX_DR.MC_SEED : seed;
+  const m = drMean(r), sq = r.map((x) => (x - m) ** 2), acSq = drAutocorrLag1(sq);
+  const useBlock = Math.abs(acSq) >= PFX_DR.MC_AC_BLOCK_THR, blockLen = useBlock ? PFX_DR.MC_BLOCK_LEN : 1;
+  const rng = drRng(seed), sims = [];
+  if (useBlock) {
+    while (sims.length < nSims) { const start = Math.floor(rng() * n); for (let k = 0; k < blockLen; k++) { sims.push(r[(start + k) % n]); if (sims.length >= nSims) break; } }
+  } else {
+    for (let i = 0; i < nSims; i++) sims.push(r[Math.floor(rng() * n)]);
+  }
+  sims.sort((a, b) => a - b);
+  return { ok: true, var: -drQuantile(sims, 1 - lvl), bootstrapMethod: useBlock ? 'block' : 'iid', blockLength: useBlock ? blockLen : null, autocorrSqLag1: acSq, nSims, seed };
+}
 function drChi2sf1(x) { return x >= 0 ? erfcApprox(Math.sqrt(x / 2)) : 1; }
 function erfcApprox(x) { const t = 1 / (1 + 0.3275911 * x); const y = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429)))); return y * Math.exp(-x * x); }
-function drKupiec(breaches, obs, lvl) { if (!obs) return { ok: false }; const p = 1 - lvl, x = breaches, n = obs, ph = x / n; const ln = (v) => v > 0 ? Math.log(v) : 0; const ll0 = (n - x) * ln(1 - p) + x * ln(p), ll1 = (n - x) * ln(1 - ph) + x * ln(ph); const lr = -2 * (ll0 - ll1); return { ok: true, lr, pvalue: drChi2sf1(lr), reject: lr > 3.841 }; }
-function drChristoffersen(seq) { let n00 = 0, n01 = 0, n10 = 0, n11 = 0; for (let i = 1; i < seq.length; i++) { const a = seq[i - 1], b = seq[i]; if (!a && !b) n00++; else if (!a && b) n01++; else if (a && !b) n10++; else n11++; } if (!(n00 + n01) || !(n10 + n11)) return { ok: false }; const pi01 = n01 / (n00 + n01), pi11 = n11 / (n10 + n11), pi = (n01 + n11) / (n00 + n01 + n10 + n11); const ln = (v) => v > 0 ? Math.log(v) : 0; const ll0 = (n00 + n10) * ln(1 - pi) + (n01 + n11) * ln(pi), ll1 = n00 * ln(1 - pi01) + n01 * ln(pi01) + n10 * ln(1 - pi11) + n11 * ln(pi11); const lr = -2 * (ll0 - ll1); return { ok: true, lr, pvalue: drChi2sf1(lr), reject: lr > 3.841 }; }
-function drVarBacktest(r, lvl, win) { const n = r.length; if (n < win + 20) return { ok: false }; const seq = []; let br = 0; for (let i = win; i < n; i++) { const s = r.slice(i - win, i).slice().sort((a, b) => a - b); const v = -drQuantile(s, 1 - lvl); const b = r[i] < -v ? 1 : 0; seq.push(b); br += b; } const obs = seq.length, kp = drKupiec(br, obs, lvl), ch = drChristoffersen(seq); return { ok: true, obs, breaches: br, expected: (1 - lvl) * obs, freq: obs ? br / obs : null, kupiec: kp, christoffersen: ch, verdict: (kp.ok && !kp.reject) ? 'калиброван' : 'калибровка под вопросом' }; }
+function drKupiec(breaches, obs, lvl) { if (!obs) return { ok: false }; const p = 1 - lvl, x = breaches, n = obs, ph = x / n; const ln = (v) => v > 0 ? Math.log(v) : 0; const ll0 = (n - x) * ln(1 - p) + x * ln(p), ll1 = (n - x) * ln(1 - ph) + x * ln(ph); const lr = -2 * (ll0 - ll1); return { ok: true, lr, pvalue: drChi2sf1(lr), reject: lr > PFX_DR.KUPIEC_REJECT_LR }; }
+function drChristoffersen(seq) { let n00 = 0, n01 = 0, n10 = 0, n11 = 0; for (let i = 1; i < seq.length; i++) { const a = seq[i - 1], b = seq[i]; if (!a && !b) n00++; else if (!a && b) n01++; else if (a && !b) n10++; else n11++; } if (!(n00 + n01) || !(n10 + n11)) return { ok: false }; const pi01 = n01 / (n00 + n01), pi11 = n11 / (n10 + n11), pi = (n01 + n11) / (n00 + n01 + n10 + n11); const ln = (v) => v > 0 ? Math.log(v) : 0; const ll0 = (n00 + n10) * ln(1 - pi) + (n01 + n11) * ln(pi), ll1 = n00 * ln(1 - pi01) + n01 * ln(pi01) + n10 * ln(1 - pi11) + n11 * ln(pi11); const lr = -2 * (ll0 - ll1); return { ok: true, lr, pvalue: drChi2sf1(lr), reject: lr > PFX_DR.KUPIEC_REJECT_LR }; }
+// v2: обобщённый rolling out-of-sample backtest — ЛЮБОЙ метод. Прогноз на день i использует
+// ТОЛЬКО r[i-win:i] (нет look-ahead). forecastFn может вернуть null (напр. CF gate) → окно
+// пропускается (skippedGate), не считается ни пробоем, ни не-пробоем.
+function drRollingBacktest(r, lvl, win, forecastFn) {
+  const n = r.length; const seq = []; let breaches = 0, skipped = 0;
+  for (let i = win; i < n; i++) {
+    const v = forecastFn(r.slice(i - win, i));
+    if (v == null) { skipped++; continue; }
+    const b = r[i] < -v ? 1 : 0; seq.push(b); breaches += b;
+  }
+  const obs = seq.length;
+  if (obs < PFX_DR.MIN_BT_FORECASTS) return { ok: false, status: 'insufficient_backtest_history', obs, skippedGate: skipped, window: win, level: lvl, minRequired: PFX_DR.MIN_BT_FORECASTS };
+  const kp = drKupiec(breaches, obs, lvl), ch = drChristoffersen(seq), calibrated = kp.ok && !kp.reject;
+  return { ok: true, status: 'complete', window: win, level: lvl, horizonDays: PFX_DR.BT_HORIZON, policy: 'rolling',
+    obs, skippedGate: skipped, breaches, expectedBreaches: (1 - lvl) * obs, freq: breaches / obs,
+    kupiec: kp, christoffersen: ch, calibrated, verdict: calibrated ? 'калиброван' : 'калибровка под вопросом' };
+}
+function drBacktestMethod(r, lvl, method, win) {
+  win = win || PFX_DR.BT_WINDOW;
+  let fn;
+  if (method === 'historical') fn = (w) => -drQuantile(w.slice().sort((a, b) => a - b), 1 - lvl);
+  else if (method === 'normal') fn = (w) => drVarNormal(w, lvl);
+  else if (method === 'ewma') fn = (w) => drVarEwma(w, lvl, PFX_DR.EWMA_LAMBDA);
+  else if (method === 'cornish_fisher') fn = (w) => { const c = drVarCF(w, lvl); return c.ok ? c.var : null; };
+  else if (method === 'bootstrap') fn = (w) => { const b = drVarBootstrap(w, lvl, PFX_DR.MC_SIMS_BACKTEST, PFX_DR.MC_SEED); return b.ok ? b.var : null; };
+  else throw new Error('unknown method ' + method);
+  return drRollingBacktest(r, lvl, win, fn);
+}
+const DR_METHOD_META = {
+  historical: { label: 'Исторический', assumptions: 'эмпирическое распределение прошлых доходностей, без параметрических допущений' },
+  normal: { label: 'Нормальное распределение', assumptions: 'доходности распределены нормально (Gauss); недооценивает жирные хвосты' },
+  ewma: { label: 'EWMA', assumptions: `нормальное распределение с экспоненциально взвешенной волатильностью (λ=${PFX_DR.EWMA_LAMBDA})` },
+  cornish_fisher: { label: 'Cornish-Fisher', assumptions: 'поправка нормального квантиля на скошенность и эксцесс выборки' },
+  bootstrap: { label: 'Monte Carlo (bootstrap)', assumptions: 'непараметрический ресэмплинг реальных исторических доходностей (не синтетика)' },
+};
+function drNeutralVerdict(bt) {
+  if (!bt.ok) return 'Истории недостаточно для надёжной проверки';
+  const kpOk = bt.kupiec.ok && !bt.kupiec.reject, ch = bt.christoffersen || {}, chOk = ch.ok && !ch.reject;
+  if (kpOk && chOk) return 'VaR откалиброван приемлемо';
+  if (!kpOk) return bt.freq > (1 - bt.level) ? 'VaR занижает риск' : 'VaR завышает риск (слишком консервативен)';
+  return 'Наблюдается кластеризация плохих дней';
+}
+function drMethodComparison(port, pointEstimates, win) {
+  win = win || PFX_DR.BT_WINDOW;
+  return Object.keys(DR_METHOD_META).map((method) => {
+    const meta = DR_METHOD_META[method], est = pointEstimates[method], bt = drBacktestMethod(port, 0.95, method, win);
+    return { method, label: meta.label, assumptions: meta.assumptions, currentEstimate: est, available: est != null, backtest: bt, verdict: drNeutralVerdict(bt) };
+  });
+}
+// сохранена как алиас для обратной совместимости вызовов вне этого модуля
+function drVarBacktest(r, lvl, win) { return drBacktestMethod(r, lvl, 'historical', win || PFX_DR.BT_WINDOW); }
 
 function drConfidence(commonN, valueCov, mixed, fallback, benchOk, partial) {
   const order = ['unavailable', 'low', 'medium', 'high']; let cap = 'high';
@@ -2217,22 +2304,35 @@ function drCompute(positions, benchmark) {
   if (fallback) warnings.push('часть позиций на сырых (нескорректированных) ценах');
   if (partial) warnings.push('покрыта не вся стоимость портфеля — метрики частичные');
   if (!benchOk) warnings.push('бенчмарк не выровнен — beta/корреляция недоступны');
-  // v1.1: component risk contribution + concentration
+  // v1.1: component risk contribution + concentration + sector risk contribution
   const secids = included.map((p) => p.secid);
   const matrix = {}; secids.forEach((s) => { const p = included.find((x) => x.secid === s); matrix[s] = common.map((d) => p.returns[d]); });
   const sectors = {}; included.forEach((p) => { sectors[p.secid] = p.sector || null; });
   const rc = drRiskContribution(matrix, weights, secids);
-  if (rc.ok) { const byT = {}; included.forEach((p) => { byT[p.secid] = p.ticker; }); rc.rows.forEach((r) => { r.ticker = byT[r.secid] || r.secid; }); rc.rows.sort((a, b) => b.pcr - a.pcr); }
+  if (rc.ok) {
+    const byT = {}; included.forEach((p) => { byT[p.secid] = p.ticker; });
+    rc.rows.forEach((r) => { r.ticker = byT[r.secid] || r.secid; });
+    rc.rows.sort((a, b) => b.pcr - a.pcr);
+    rc.bySector = drSectorRiskContribution(rc.rows, sectors);
+  }
   const conc = drConcentration(weights, sectors);
-  // v2: методы VaR + backtest основного historical VaR
-  const varMethods = {};
+  // v2: методы VaR (95/99, точечные) — CF и bootstrap возвращают explicit-gate объекты
+  const varMethods = {}, methodDiag = {};
   [[0.95, '95'], [0.99, '99']].forEach(([lvl, key]) => {
-    varMethods[key] = { historical: (lvl === 0.95 ? v95.var : v99.var), normal: drVarNormal(port, lvl), ewma: drVarEwma(port, lvl), cornish_fisher: drVarCF(port, lvl), monte_carlo: drVarMC(port, lvl) };
+    const cf = drVarCF(port, lvl), bs = drVarBootstrap(port, lvl, PFX_DR.MC_SIMS_POINT, PFX_DR.MC_SEED);
+    varMethods[key] = { historical: (lvl === 0.95 ? v95.var : v99.var), normal: drVarNormal(port, lvl), ewma: drVarEwma(port, lvl),
+      cornish_fisher: cf.ok ? cf.var : null, bootstrap: bs.ok ? bs.var : null };
+    methodDiag[key] = { cornish_fisher: cf, bootstrap: bs };
   });
-  const backtest = drVarBacktest(port, 0.95, Math.min(252, Math.max(60, Math.floor(commonN / 2))));
+  // v2: строгий out-of-sample backtest (rolling, окно из единого config, БЕЗ look-ahead) +
+  // нейтральное сравнение методов (порядок фиксирован DR_METHOD_META, не по p-value)
+  const backtest = drBacktestMethod(port, 0.95, 'historical', PFX_DR.BT_WINDOW);
+  const comparison = drMethodComparison(port, varMethods['95'], PFX_DR.BT_WINDOW);
+  const ewmaMeta = { lambda: PFX_DR.EWMA_LAMBDA, effectiveMemoryDays: Math.round((1 / (1 - PFX_DR.EWMA_LAMBDA)) * 10) / 10, confidenceLevel: 0.95, currentForecastDate: common[common.length - 1] };
   return Object.assign(base, { confidence, metrics, benchmark: benchOut, observations: commonN,
     coverage: cov, returnType, mixed, weights, warnings,
-    riskContribution: rc, concentration: conc, varMethods, backtest });
+    riskContribution: rc, concentration: conc, varMethods, methodDiag, backtest,
+    methodComparison: comparison, ewmaMeta });
 }
 
 // ленивая загрузка веб-моста + расчёт + рендер в #pfx-daily-risk
@@ -2314,41 +2414,62 @@ function pfxDailyRiskHTML(r) {
     <div><b>CVaR</b> — средняя потеря в самые неблагоприятные дни выбранного периода.</div>
     <div><b>Beta</b> — насколько чувствительно портфель исторически реагировал на движение IMOEX (не прогноз).</div>
     <div><b>Просадка</b> — наибольшее модельное снижение стоимости от пика до минимума.</div></div>`;
-  // v1.1: что создаёт риск (component contribution) + концентрация
-  let rcHTML = '';
+  // ── Level 2 (простой язык, открыто по умолчанию): «Откуда идёт риск» / «Концентрация» / «Насколько VaR калиброван» ──
+  let riskSrcHTML = '', concHTML = '';
   if (r.riskContribution && r.riskContribution.ok) {
-    const rows = r.riskContribution.rows.slice(0, 5).map((x) => {
+    const rcRows = r.riskContribution.rows;
+    const rows = rcRows.slice(0, 5).map((x) => {
       const diff = x.pcr - x.weight;
       return `<tr><td>${esc(x.ticker)}</td><td class="num">${drPct(x.weight, 0)}</td><td class="num">${drPct(x.pcr, 0)}</td><td class="num ${diff > 0.02 ? 'pfx-neg' : ''}">${diff >= 0 ? '+' : ''}${drPct(diff, 0)}</td></tr>`;
     }).join('');
-    const c = r.concentration;
-    const secTop = c.sectors ? Object.entries(c.sectors).sort((a, b) => b[1] - a[1])[0] : null;
-    rcHTML = `<details class="pfx-dr-more" open><summary>Что создаёт риск · концентрация</summary>
-      <div class="pfx-dr-sub muted">Вклад в риск ≠ вес: позиция может давать больше риска, чем её доля стоимости (β к портфелю × вес).</div>
+    const bySecLine = (r.riskContribution.bySector || []).slice(0, 3)
+      .map((s) => `«${esc(s.sector)}» ${drPct(s.pcr, 0)} риска`).join(' · ');
+    riskSrcHTML = `<details class="pfx-dr-more" open><summary>Откуда идёт риск</summary>
+      <div class="pfx-dr-sub muted">Вклад в риск ≠ вес: позиция может давать больше риска, чем её доля стоимости.</div>
       <div class="cbr-table-scroll"><table class="pfx-dr-tbl"><thead><tr><th>Бумага</th><th class="num">Вес</th><th class="num">Вклад в риск</th><th class="num">Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <div class="pfx-dr-conc muted">Концентрация: крупнейшая ${drPct(c.largest, 0)} · топ-3 ${drPct(c.top3, 0)} · топ-5 ${drPct(c.top5, 0)} · HHI ${PU(c.hhi, 2)} (эфф. бумаг ${PU(c.effN, 1)})${secTop ? ` · крупнейший сектор «${esc(secTop[0])}» ${drPct(secTop[1], 0)}` : ''}.</div></details>`;
+      ${bySecLine ? `<div class="pfx-dr-conc muted">По секторам: ${bySecLine}.</div>` : ''}</details>`;
+
+    const c = r.concentration;
+    const top3RiskShare = rcRows.slice(0, 3).reduce((s, x) => s + x.pcr, 0);
+    concHTML = `<details class="pfx-dr-more" open><summary>Концентрация</summary>
+      <div class="pfx-dr-conc muted">Три крупнейшие позиции формируют ${drPct(c.top3, 0)} стоимости и ${drPct(top3RiskShare, 0)} общего риска портфеля. Крупнейшая — ${drPct(c.largest, 0)}; по HHI портфель эквивалентен ${PU(c.effN, 1)} равновзвешенным бумагам.</div></details>`;
   }
-  // v2: методы VaR + проверка калибровки (Kupiec/Christoffersen)
-  let vmHTML = '';
-  if (r.varMethods) {
-    const rowM = (key) => { const v = r.varMethods[key]; const cell = (x) => `<td class="num">${isNum(x) ? drPct(x, 2) : '—'}</td>`; return `<tr><th>${key}%</th>${cell(v.historical)}${cell(v.normal)}${cell(v.ewma)}${cell(v.cornish_fisher)}${cell(v.monte_carlo)}</tr>`; };
-    const bt = r.backtest || {};
-    let btLine = 'проверка недоступна (короткая история)';
-    if (bt.ok) {
-      const kp = bt.kupiec || {}, ch = bt.christoffersen || {};
-      const tone = bt.verdict === 'калиброван' ? 'good' : 'warn';
-      btLine = `<span class="pfx-w-${tone === 'good' ? 'good' : 'warn'}">Проверка (Kupiec): исторический VaR 95% — <b>${esc(bt.verdict)}</b></span>. Пробоев ${bt.breaches} из ${bt.obs} (ожидалось ${bt.expected.toFixed(0)}, ${drPct(bt.freq, 1)}). ${kp.ok ? 'Kupiec p=' + PU(kp.pvalue, 2) : ''}${ch && ch.ok ? ' · независимость (Christoffersen) p=' + PU(ch.pvalue, 2) : ''}.`;
-    }
-    vmHTML = `<details class="pfx-dr-more"><summary>Методы VaR и проверка калибровки</summary>
-      <div class="pfx-dr-sub muted">Разные способы оценить один и тот же риск. Исторический — основной; остальные несут модельные допущения (нормальность, вес свежести, скошенность). Backtest ниже показывает, доверять ли им.</div>
-      <div class="cbr-table-scroll"><table class="pfx-dr-tbl"><thead><tr><th></th><th class="num">Истор.</th><th class="num">Нормаль</th><th class="num">EWMA</th><th class="num">Cornish-F.</th><th class="num">Monte-C.</th></tr></thead><tbody>${rowM('95')}${rowM('99')}</tbody></table></div>
-      <div class="pfx-dr-bt">${btLine}</div>
-      <div class="pfx-dr-sub muted">Cornish-Fisher/Monte-Carlo и нормальная модель — сравнение, не замена историческому. Если проверка «под вопросом» — опирайтесь на исторический VaR/CVaR.</div></details>`;
+  let calibHTML = '';
+  if (r.backtest) {
+    const bt = r.backtest, verdict = drNeutralVerdict(bt);
+    const tone = !bt.ok ? 'neut' : (verdict === 'VaR откалиброван приемлемо' ? 'good' : 'warn');
+    const support = bt.ok
+      ? `Пробоев ${bt.breaches} из ${bt.obs} проверенных дней вне обучающей выборки (ожидалось около ${Math.round(bt.expectedBreaches)}).`
+      : `Недостаточно данных вне обучающей выборки для проверки (нужно ≥${bt.minRequired || PFX_DR.MIN_BT_FORECASTS} прогнозов, доступно ${bt.obs || 0}).`;
+    calibHTML = `<details class="pfx-dr-more" open><summary>Насколько VaR калиброван</summary>
+      <div class="pfx-dr-calib pfx-w-${tone}">${esc(verdict)}</div>
+      <div class="pfx-dr-sub muted">${esc(support)} Проверка — на днях, которые НЕ участвовали в текущей оценке.</div></details>`;
+  }
+  // ── Level 3 (профессиональный уровень, свёрнуто): сравнение методов, EWMA/bootstrap/CF параметры ──
+  let cmpHTML = '';
+  if (r.methodComparison) {
+    const rows = r.methodComparison.map((m) => {
+      const est = m.available ? drPct(m.currentEstimate, 2) : '—';
+      const bt = m.backtest;
+      const btCell = !bt.ok
+        ? (bt.status === 'insufficient_backtest_history' ? `мало истории (${bt.obs}/${bt.minRequired})` : 'н/д')
+        : `${bt.breaches}/${bt.obs} (ожид. ${bt.expectedBreaches.toFixed(0)}) · Kupiec p=${PU(bt.kupiec.pvalue, 2)}${bt.christoffersen && bt.christoffersen.ok ? ' · Christoffersen p=' + PU(bt.christoffersen.pvalue, 2) : ''}`;
+      return `<tr><td title="${esc(m.assumptions)}">${esc(m.label)}</td><td class="num">${est}</td><td>${esc(btCell)}</td><td>${esc(m.verdict)}</td></tr>`;
+    }).join('');
+    const cfd = r.methodDiag && r.methodDiag['95'].cornish_fisher, bsd = r.methodDiag && r.methodDiag['95'].bootstrap, em = r.ewmaMeta;
+    cmpHTML = `<details class="pfx-dr-more"><summary>Сравнение методов VaR (профессиональный уровень)</summary>
+      <div class="pfx-dr-sub muted">Допущения — в подсказке названия метода. Проверка — rolling out-of-sample backtest (окно ${PFX_DR.BT_WINDOW} торг. дн., горизонт 1 день, без заглядывания вперёд). Методы НЕ ранжированы по p-value — сравниваются допущения и калибровка, не «лучший» метод.</div>
+      <div class="cbr-table-scroll"><table class="pfx-dr-tbl"><thead><tr><th>Метод</th><th class="num">VaR 95%</th><th>Backtest</th><th>Вывод</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="pfx-dr-sub muted">
+        EWMA: λ=${PU(em.lambda, 2)}, эффективная память ≈${Math.round(em.effectiveMemoryDays)} дн., прогноз на ${esc(em.currentForecastDate)}.<br/>
+        Monte Carlo (bootstrap): ${bsd && bsd.ok ? esc(bsd.bootstrapMethod === 'block' ? `block-бутстрэп (блок ${bsd.blockLength} дн. — обнаружена кластеризация волатильности)` : 'IID-бутстрэп (кластеризация волатильности не обнаружена)') + `, ${bsd.nSims} симуляций, seed=${bsd.seed}` : 'недоступен'}.<br/>
+        Cornish-Fisher: ${cfd && cfd.ok ? `skew=${PU(cfd.skewness, 2)}, excess kurtosis=${PU(cfd.excessKurtosis, 2)}` : `недоступен (${esc((cfd && cfd.detail) || 'н/д')})`}.
+      </div></details>`;
   }
   return `<div class="pfx-dr-take">${esc(takeaway)}</div>
     <div class="pfx-grid pfx-dr-grid">${g.join('')}</div>
     ${warnHTML}${exHTML}
-    ${rcHTML}${vmHTML}
+    ${riskSrcHTML}${concHTML}${calibHTML}${cmpHTML}
     <details class="pfx-dr-more"><summary>Методология и качество данных</summary>${method}${help}</details>
     ${disc}`;
 }

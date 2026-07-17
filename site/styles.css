@@ -2013,6 +2013,10 @@ tbody tr:hover td,
 .pfx-dr-conc, .pfx-dr-bt { font-size: .82rem; line-height: 1.5; margin-top: 8px; }
 .pfx-dr-bt .pfx-w-good { color: var(--good-ink); }
 .pfx-dr-bt .pfx-w-warn { color: var(--warn-ink); }
+.pfx-dr-calib { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
+.pfx-dr-calib.pfx-w-good { color: var(--good-ink); }
+.pfx-dr-calib.pfx-w-warn { color: var(--warn-ink); }
+.pfx-dr-calib.pfx-w-neut { color: var(--ink-soft); }
 
 .pfx-mcgrid, .pfx-varcards, .pfx-scens, .pfx-probs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .pfx-mc, .pfx-varcard, .pfx-scen, .pfx-prob { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); }
