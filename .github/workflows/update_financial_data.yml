@@ -31,7 +31,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: python -m pip install --quiet pandas pyarrow pytest pyyaml
+        run: |
+          python -m pip install --quiet \
+            pandas pyarrow pytest pyyaml requests openpyxl scipy ta \
+            -r requirements-alfa-index.txt
 
       - name: Compile pipeline modules
         run: python -m py_compile $(find src -name '*.py' | sort)

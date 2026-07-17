@@ -52,15 +52,20 @@ jobs:
 
       - name: Коммит site/bonds/*.json в ветку
         run: |
-          if [ -z "$(git status --porcelain site/bonds data/bond_finder)" ]; then
-            echo "нет изменений в site/bonds — пропуск коммита"; exit 0
-          fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/bonds/*.json
-          [ -d data/bond_finder ] && git add data/bond_finder/*.json
+          git add -- site/bonds/*.json
+          # official_ratings_cache.json намеренно ignored: в commit идут только
+          # tracked или новые неигнорируемые state-файлы Bond Finder.
+          git ls-files -co --exclude-standard -- 'data/bond_finder/*.json' \
+            | xargs -r git add --
+          if git diff --cached --quiet; then
+            echo "нет содержательных изменений в bonds — пропуск коммита"; exit 0
+          fi
+          git diff --cached --check
           git commit -m "data(bonds): автообновление скринера облигаций (cron)"
-          git push
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Публикация bonds → gh-pages (additive, не трогая остальной сайт)
         env:
