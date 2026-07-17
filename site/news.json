@@ -1,130 +1,85 @@
 {
   "date": "2026-07-17",
-  "generated_at": "2026-07-17T11:30:39+03:00",
+  "generated_at": "2026-07-17T20:15:03+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы снизились, нефть Brent и золото торгуются в плюсе.",
+  "external_backdrop": "Американские фондовые индексы закрылись снижением, нефть Brent и золото выросли.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7533.77",
-      "change_pct": "-0.51%",
-      "as_of": "2026-07-16",
+      "value": "7490.30",
+      "change_pct": "-0.58%",
+      "as_of": "2026-07-17",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25881.95",
-      "change_pct": "-1.47%",
-      "as_of": "2026-07-16",
+      "value": "25671.38",
+      "change_pct": "-0.81%",
+      "as_of": "2026-07-17",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64141.12",
-      "change_pct": "-4.03%",
-      "as_of": "2026-07-17",
+      "value": "66835.54",
+      "change_pct": "-2.79%",
+      "as_of": "2026-07-16",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24562.24",
-      "change_pct": "-1.78%",
-      "as_of": "2026-07-17",
+      "value": "25008.60",
+      "change_pct": "+1.33%",
+      "as_of": "2026-07-16",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "84.35",
-      "change_pct": "+0.14%",
+      "value": "87.57",
+      "change_pct": "+3.97%",
       "as_of": "2026-07-17",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3995.10",
-      "change_pct": "+0.24%",
+      "value": "4021.60",
+      "change_pct": "+0.90%",
       "as_of": "2026-07-17",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2005.26",
-      "change_pct": "-0.84%",
-      "as_of": "2026-07-17 11:30:36",
+      "value": "1958.43",
+      "change_pct": "-3.16%",
+      "as_of": "2026-07-17 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "806.61",
-      "change_pct": "-0.84%",
-      "as_of": "2026-07-17 11:30:37",
+      "value": "786.94",
+      "change_pct": "-3.26%",
+      "as_of": "2026-07-17 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "78.77",
-      "change_pct": "-0.06%",
-      "as_of": "2026-07-17 11:30:34",
+      "value": "78.62",
+      "change_pct": "-0.08%",
+      "as_of": "2026-07-17 20:15:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "11.57",
-      "change_pct": "-0.09%",
-      "as_of": "2026-07-17 11:30:38",
+      "change_pct": "+0.01%",
+      "as_of": "2026-07-17 19:15:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-senate-sanctions-bill-russia",
-      "headline": "Более 60 сенаторов США поддержали законопроект об ужесточении санкций против России",
-      "context": "Документ предусматривает введение вторичных пошлин до 100% для крупнейших покупателей российских нефти и газа.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/14/07/2026/6a56638d9a794777b23ce84c"
-        }
-      ],
-      "published_at": "2026-07-17T11:14:00+03:00"
-    },
-    {
-      "id": "gazprom-closed-below-84",
-      "headline": "Акции «Газпрома» закрылись ниже 84 рублей и обновили исторический минимум",
-      "context": "Бумаги газового холдинга опустились ниже минимального уровня кризисного 2008 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/377980"
-        }
-      ],
-      "published_at": "2026-07-17T00:30:00+03:00"
-    },
-    {
-      "id": "imoex-fell-below-2000",
-      "headline": "Индекс Мосбиржи опустился ниже психологической отметки 2000 пунктов на вечерних торгах",
-      "context": "Падение широкого рынка за сессию 16 июля составило 4,24%, обновив минимум с сентября 2022 года.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/83791"
-        }
-      ],
-      "published_at": "2026-07-16T23:05:00+03:00"
-    },
-    {
-      "id": "us-strikes-iran-hormuz",
-      "headline": "США возобновили авиаудары по Ирану на фоне угроз перекрытия Ормузского пролива",
-      "context": "Корпус стражей исламской революции заявил о прекращении транзита нефти и газа через пролив до прекращения американских атак.",
+      "id": "us-strikes-iran",
+      "headline": "США возобновили ракетные удары по военным объектам и инфраструктуре на юге Ирана",
+      "context": "Центральное командование ВС США объявило о новой серии ударов по иранской территории, включая Бушир и остров Кешм.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
@@ -137,86 +92,101 @@
       "published_at": "2026-07-16T22:12:00+03:00"
     },
     {
-      "id": "vtb-spo-registered",
-      "headline": "Банк России зарегистрировал дополнительный выпуск акций ВТБ по цене 87 рублей",
-      "context": "Размещение допэмиссии по открытой подписке может состояться в августе 2026 года.",
+      "id": "us-sanctions-bill",
+      "headline": "Более шестидесяти сенаторов США поддержали законопроект об ужесточении санкций против России",
+      "context": "Документ предусматривает блокировку активов крупнейших российских банков и введение вторичных пошлин для покупателей российской нефти.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1103784"
+        }
+      ],
+      "published_at": "2026-07-17T02:44:00+03:00"
+    },
+    {
+      "id": "transneft-dividends-approved",
+      "headline": "Росимущество утвердило выплату дивидендов Транснефти за 2025 год в размере 204,17 рубля на акцию",
+      "context": "Общая сумма выплат составит 145,2 млрд рублей, дивидендная доходность оценивается на уровне 18%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1103962"
+        }
+      ],
+      "published_at": "2026-07-17T19:26:00+03:00"
+    },
+    {
+      "id": "imoex-drop-below-2000",
+      "headline": "Индекс Мосбиржи обновил минимум с октября 2022 года на фоне санкционных рисков",
+      "context": "Российский рынок акций завершил неделю снижением, опустившись ниже психологической отметки в 2000 пунктов.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1103960"
+        }
+      ],
+      "published_at": "2026-07-17T19:26:00+03:00"
+    },
+    {
+      "id": "vtb-share-issue",
+      "headline": "Банк России зарегистрировал дополнительный выпуск обыкновенных акций ВТБ на 547,5 млрд рублей",
+      "context": "Размещение акций планируется провести в августе по цене 87 рублей за штуку.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8829114"
+        }
+      ],
+      "published_at": "2026-07-17T15:19:00+03:00"
+    },
+    {
+      "id": "import-damper-diesel",
+      "headline": "Правительство России одобрило распространение механизма импортного демпфера на дизельное топливо",
+      "context": "Мера направлена на стабилизацию цен на топливном рынке и привлечение дополнительных объемов из-за рубежа.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1103864"
+        }
+      ],
+      "published_at": "2026-07-17T12:23:00+03:00"
+    },
+    {
+      "id": "yugk-ownership-change",
+      "headline": "Компания БТС-Мост Холдинг стала владельцем контрольного пакета акций Южуралзолота",
+      "context": "Доля в размере 67,2% акций перешла новому собственнику, который планирует переименовать компанию в БТС-Золото.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378017"
-        }
-      ],
-      "published_at": "2026-07-17T10:40:00+03:00"
-    },
-    {
-      "id": "kazakhstan-oil-germany-suspended",
-      "headline": "Казахстан временно приостановил поставки нефти в Германию по трубопроводу «Дружба»",
-      "context": "В Минэнерго республики объяснили приостановку на июль и август техническими ограничениями инфраструктурного характера на стороне транзита.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1103822"
+          "url": "https://www.interfax.ru/business/1103902"
         }
       ],
-      "published_at": "2026-07-17T09:16:00+03:00"
-    },
-    {
-      "id": "kazakhstan-cancelled-mandatory-fx-sale",
-      "headline": "Казахстан отменил обязательную продажу половины валютной выручки для квазигоссектора",
-      "context": "Данное требование действовало в республике с ноября 2024 года.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/292992"
-        }
-      ],
-      "published_at": "2026-07-16T19:11:00+03:00"
+      "published_at": "2026-07-17T14:24:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "vtb-historic-minimum",
-      "headline": "Акции ВТБ упали на шесть процентов и обновили исторический минимум",
-      "context": "Котировки опустились до 57,8 рубля за штуку в преддверии закрытия дивидендного реестра.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103745"
-        }
-      ],
-      "published_at": "2026-07-16T18:14:00+03:00"
-    },
-    {
-      "id": "euroclear-cbr-lawsuit-appeal-rejected",
-      "headline": "Суд в Москве отклонил апелляцию Euroclear на взыскание восемнадцати триллионов рублей",
-      "context": "Бельгийский депозитарий не признал юрисдикцию российского суда и назвал требования нелегитимными в ЕС.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8816576"
-        }
-      ],
-      "published_at": "2026-07-16T17:00:00+03:00"
-    },
-    {
-      "id": "vk-sold-rustore",
-      "headline": "Холдинг VK продал сто процентов магазина приложений RuStore генеральному директору разработчика",
-      "context": "Сделка совершена на фоне удаления приложений VK и мессенджера Max из магазина Google Play.",
+      "id": "vk-rustore-sale",
+      "headline": "Холдинг VK продал сто процентов акций магазина приложений RuStore его генеральному директору",
+      "context": "Сделка направлена на снижение санкционных рисков для группы на фоне удаления приложений из Google Play.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -229,84 +199,69 @@
       "published_at": "2026-07-16T11:13:00+03:00"
     },
     {
-      "id": "greece-blocked-21st-eu-sanctions-package",
-      "headline": "Греция заблокировала двадцать первый пакет санкций Евросоюза против России для защиты бизнеса",
-      "context": "Ограничения предполагали запрет на транспортировку российского сжиженного природного газа в третьи страны.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "vk-apps-removed-google-play",
+      "headline": "Все ключевые приложения холдинга VK были удалены из магазина Google Play",
+      "context": "Ранее в конце июня приложения компании также исчезли из магазина App Store.",
+      "category": "tech",
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8816009"
+          "url": "https://www.kommersant.ru/doc/8816468"
         }
       ],
-      "published_at": "2026-07-16T05:56:00+03:00"
+      "published_at": "2026-07-16T15:20:00+03:00"
     },
     {
-      "id": "urals-discount-widened",
-      "headline": "Скидки на российскую нефть Urals в июле выросли на три-четыре доллара за баррель",
-      "context": "При поставках в Индию дисконт снизился почти на 7 долларов за баррель на фоне эскалации на Ближнем Востоке.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103740"
-        }
-      ],
-      "published_at": "2026-07-16T17:23:00+03:00"
-    },
-    {
-      "id": "cbr-ownership-disclosure",
-      "headline": "Банк России возобновит раскрытие структуры собственности финансовых организаций в обезличенном виде",
-      "context": "Публикация сведений начнется с 1 января 2027 года через набор определенных критериев.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1103664"
-        }
-      ],
-      "published_at": "2026-07-16T12:02:00+03:00"
-    },
-    {
-      "id": "x5-q2-revenue-up",
-      "headline": "Выручка ритейлера X5 во втором квартале выросла на девять целых девять десятых процента",
-      "context": "Показатель достиг 1,29 триллиона рублей, при этом сопоставимые продажи увеличились на 4,2%.",
-      "category": "corporate",
+      "id": "gazprom-historical-low",
+      "headline": "Акции Газпрома обновили исторический минимум опустившись ниже восьмидесяти четырех рублей",
+      "context": "Бумаги газового монополиста потеряли более 5% на фоне общего падения российского фондового рынка.",
+      "category": "markets",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/377909"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816310"
         }
       ],
-      "published_at": "2026-07-16T10:01:00+03:00"
+      "published_at": "2026-07-16T12:57:00+03:00"
     },
     {
-      "id": "bspb-1h-2026-ras-results",
-      "headline": "Банк «Санкт-Петербург» сократил чистую прибыль по РСБУ за полугодие на тридцать девять процентов",
-      "context": "Чистая прибыль составила 16,6 миллиарда рублей, при этом банк намерен направить на дивиденды 50% прибыли по МСФО.",
-      "category": "corporate",
+      "id": "vtb-historical-low",
+      "headline": "Акции банка ВТБ упали до исторического минимума в преддверии дивидендной отсечки",
+      "context": "Бумаги снизились на 6% до 57,8 рубля на фоне общей слабости рынка и итогов набсовета.",
+      "category": "markets",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/377901"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816651"
         }
       ],
-      "published_at": "2026-07-16T09:20:00+03:00"
+      "published_at": "2026-07-16T18:27:00+03:00"
     },
     {
-      "id": "fns-corporate-bankruptcies-up",
-      "headline": "Число поданных налоговой службой заявлений о банкротстве компаний выросло в четыре с половиной раза",
-      "context": "За первое полугодие 2026 года ФНС направила в суд 9,8 тысячи исков против 2,2 тысячи годом ранее.",
+      "id": "euroclear-appeal-rejected",
+      "headline": "Московский суд отклонил апелляционную жалобу Euroclear на взыскание двухсот миллиардов евро",
+      "context": "Девятый арбитражный апелляционный суд оставил в силе решение о взыскании средств в пользу Банка России.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816576"
+        }
+      ],
+      "published_at": "2026-07-16T17:00:00+03:00"
+    },
+    {
+      "id": "bankruptcies-increase",
+      "headline": "Число заявлений Федеральной налоговой службы о банкротстве компаний выросло в четыре с половиной раза",
+      "context": "Рост банкротств связывают с отложенным эффектом высокой ключевой ставки и ростом налоговой нагрузки.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
@@ -319,9 +274,9 @@
       "published_at": "2026-07-16T08:52:00+03:00"
     },
     {
-      "id": "minfin-increased-2026-budget-expenses",
+      "id": "budget-expenses-increase",
       "headline": "Министерство финансов увеличило объем ожидаемых расходов федерального бюджета на один триллион рублей",
-      "context": "Фактические расходы в 2026 году могут составить 45,11 триллиона рублей против изначально заложенных 44,07 триллиона.",
+      "context": "Фактические расходы по итогам 2026 года могут составить 45,11 трлн рублей против плановых 44,07 трлн рублей.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
@@ -334,26 +289,56 @@
       "published_at": "2026-07-16T01:29:00+03:00"
     },
     {
-      "id": "astra-cfa-15-percent",
-      "headline": "«Группа Астра» открыла сбор заявок на выпуск цифровых финансовых активов под пятнадцать процентов",
-      "context": "Эмитент планирует привлечь до 800 миллионов рублей на финансирование текущих операционных нужд.",
+      "id": "bspb-results",
+      "headline": "Чистая прибыль банка Санкт-Петербург по РСБУ за первое полугодие снизилась на тридцать девять процентов",
+      "context": "Банк намерен направить на выплату дивидендов за первое полугодие 50% чистой прибыли по МСФО.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/16/1214227-astra-razmestit"
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/377920"
         }
       ],
-      "published_at": "2026-07-16T14:01:00+03:00"
+      "published_at": "2026-07-16T09:20:00+03:00"
     },
     {
-      "id": "mfo-halving-by-2028",
+      "id": "x5-results",
+      "headline": "Ритейлер X5 увеличил выручку во втором квартале на девять целых девять десятых процента",
+      "context": "Рост выручки за первое полугодие составил 10,5%, достигнув 2,48 трлн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816172"
+        }
+      ],
+      "published_at": "2026-07-16T10:50:00+03:00"
+    },
+    {
+      "id": "astra-cfa-placement",
+      "headline": "Группа Астра открыла сбор заявок на выпуск цифровых финансовых активов под пятнадцать процентов годовых",
+      "context": "Эмитент планирует привлечь до 800 млн рублей на финансирование текущих операционных нужд.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816647"
+        }
+      ],
+      "published_at": "2026-07-16T18:21:00+03:00"
+    },
+    {
+      "id": "mfo-market-shrinkage",
       "headline": "Число микрофинансовых организаций в России может сократиться вдвое к две тысячи двадцать восьмому году",
-      "context": "Аналитики прогнозируют снижение прибыли и объемов бизнеса МФО из-за ужесточения правил взыскания и новых пошлин.",
+      "context": "Аналитики прогнозируют сокращение бизнеса и прибыли МФО из-за ужесточения регулирования и новых пошлин.",
       "category": "banks",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
@@ -362,6 +347,21 @@
         }
       ],
       "published_at": "2026-07-16T07:00:00+03:00"
+    },
+    {
+      "id": "digital-platforms-registry",
+      "headline": "Минэкономразвития определило первые двенадцать компаний для включения в реестр цифровых платформ",
+      "context": "В список вошли крупнейшие российские маркетплейсы, агрегаторы такси и сервисы доставки.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8816294"
+        }
+      ],
+      "published_at": "2026-07-16T12:33:00+03:00"
     }
   ],
   "today_agenda": []
