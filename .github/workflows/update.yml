@@ -182,6 +182,14 @@ jobs:
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
           [ -d site/cbr ] && mkdir -p "$TMP/cbr" && cp site/cbr/*.json "$TMP/cbr/"   # данные банков ЦБ РФ (формы 102/123/135)
+          # Daily Market Data Foundation: этот job их не генерирует (отдельный workflow
+          # daily_market_data.yml, additive-publish) — orphan-republish иначе стирал бы их с
+          # gh-pages при каждом ручном/сezonном запуске update.yml. Переносим из LAST_GOOD (уже
+          # склонирован для P0-fallback выше), если есть.
+          if [ -n "$LAST_GOOD" ]; then
+            [ -f "$LAST_GOOD/daily_market_data_quality.json" ] && cp "$LAST_GOOD/daily_market_data_quality.json" "$TMP/"
+            [ -d "$LAST_GOOD/daily/web" ] && mkdir -p "$TMP/daily/web" && cp "$LAST_GOOD"/daily/web/*.json "$TMP/daily/web/" 2>/dev/null || true
+          fi
           # cache-bust: версионируем app.js/styles.css по SHA коммита → браузер тянет свежий app.js
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
