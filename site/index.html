@@ -102,9 +102,14 @@
         <div class="market-pulse" id="market-pulse">
           <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
         </div>
-        <div class="alfa-index-shell" id="alfa-index-card" aria-live="polite">
-          <div class="pulse-loading muted">Загрузка индикатора настроения...</div>
-        </div>
+
+        <details class="mapwrap alfa-index-details">
+          <summary>Внешний ориентир: настроение рынка <span class="muted">(Альфа-Инвестиции, методика не раскрыта — не основной сигнал сайта, см. «Помощник фазы рынка» выше)</span></summary>
+          <div class="alfa-index-shell" id="alfa-index-card" aria-live="polite">
+            <div class="pulse-loading muted">Загрузка индикатора настроения...</div>
+          </div>
+        </details>
+
         <div class="kpi-grid" id="market-kpi"></div>
         <div class="market-signals" id="market-signals">
           <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
