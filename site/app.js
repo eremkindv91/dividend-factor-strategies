@@ -16,6 +16,40 @@ const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); 
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
+// ── авто-обновление lazy-loaded данных ──────────────────────────────────────
+// Баг: каждый loadX(cb) вида `if (X) { cb(); return; }` кэширует ПЕРВЫЙ загруженный JSON
+// на весь сеанс браузера — CI публикует новые данные дважды в будний день (marketsaw/bonds/
+// cbr/marlamov/quality/financials/coverage/market_history/events/site_status), но открытая
+// вкладка их никогда не увидит без полного refresh страницы. Раз в TTL, а также при возврате
+// вкладки в видимость — обнуляем кэш-глобалы; существующие guard'ы (внутри loadX и на call
+// site вида `if (!X && ...)`) сами честно перезапросят файл на следующий рендер секции; здесь
+// же сразу принудительно перерисовываем ТЕКУЩУЮ открытую секцию, чтобы обновление было видно
+// без дополнительного клика. `?t=Date.now()` в каждом fetch уже обходит HTTP-кэш браузера —
+// это чинит именно JS-уровень «навсегда закешированного» объекта, отдельная проблема.
+const DATA_CACHE_TTL_MS = 20 * 60 * 1000;   // 20 минут — не долбим CDN, не залипаем на весь день
+let _dataCacheAt = Date.now();
+function invalidateStaleDataCaches() {
+  if (Date.now() - _dataCacheAt < DATA_CACHE_TTL_MS) return false;
+  SAW_DATA = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
+  EVENTS_DATA = null; MARKET_HISTORY = null;
+  if (typeof BONDS !== 'undefined') BONDS = null;
+  if (typeof CBR_DATA !== 'undefined') CBR_DATA = null;
+  if (typeof FINDER !== 'undefined') FINDER = null;
+  if (typeof BVAL !== 'undefined') BVAL = null;
+  if (typeof BHIST !== 'undefined') BHIST = null;
+  if (typeof DATA_COVERAGE !== 'undefined') DATA_COVERAGE = null;
+  _dataCacheAt = Date.now();
+  return true;
+}
+function refreshVisibleSectionIfStale() {
+  if (document.hidden) return;
+  if (invalidateStaleDataCaches() && typeof onSectionShown === 'function' && typeof getSectionFromHash === 'function') {
+    onSectionShown(getSectionFromHash());   // секция уже видима — перерисовать сразу, не ждать навигации
+  }
+}
+setInterval(refreshVisibleSectionIfStale, 60 * 1000);
+document.addEventListener('visibilitychange', refreshVisibleSectionIfStale);
+
 // Текст тултипа «Рейтинг» — меняй формулировку здесь:
 const RATING_TOOLTIP = 'Вердикт-скор = надёжность дивиденда × оценка (недооценён ↑ / дорог ↓), со штрафом за долг и governance. По умолчанию таблица отсортирована по его убыванию: вверху — надёжные и недооценённые.';
 
