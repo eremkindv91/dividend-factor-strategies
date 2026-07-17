@@ -30,8 +30,8 @@
     "confidence_score": 13
   },
   "last_valid_at": "2026-07-17T16:42:52+03:00",
-  "fetched_at": "2026-07-17T16:42:52+03:00",
-  "stale": false,
-  "status": "ok",
+  "fetched_at": "2026-07-17T22:24:32+03:00",
+  "stale": true,
+  "status": "no_fresh_publication",
   "parser_version": "1.0.0"
 }
