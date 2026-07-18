@@ -155,21 +155,38 @@ def build_dividend_events(uni, pct, today, start, horizon, cache):
     return events, live_ok, cache_used, broken
 
 
-def build_cbr_events(start, horizon):
-    events = []
+def _cbr_ev(md):
+    m = next((x for x in CBR_RATE_MEETINGS if x.get("date") == md.isoformat()), {})
+    key = " (опорное, со среднесрочным прогнозом)" if m.get("is_key") else ""
+    return _ev(
+        f"CBR-{md.isoformat()}-rate", md, None, "Банк России", "cbr_rate_decision",
+        f"Заседание Совета директоров Банка России по ключевой ставке{key}. Решение и пресс-релиз "
+        f"обычно публикуются в 13:30 МСК; влияет на весь рынок (акции, облигации, ОФЗ).",
+        EVENT_IMPORTANCE["cbr_rate_decision"], "cbr_schedule", CBR_SOURCE_URL, "scheduled")
+
+
+def build_cbr_events(start, horizon, today=None):
+    """Заседания ЦБ в окне [start, horizon]. ПЛЮС: ближайшее будущее заседание включается ВСЕГДА
+    (даже за горизонтом) — это постоянный якорь календаря (график ЦБ известен на год вперёд),
+    чтобы блок не оставался пустым в дивидендное межсезонье. Фронт показывает его отдельной строкой."""
+    today = today or date.today()
+    events, dates_in = [], set()
+    future = []
     for m in CBR_RATE_MEETINGS:
         try:
             md = date.fromisoformat(m["date"])
         except (ValueError, KeyError):
             continue
-        if not (start <= md <= horizon):
-            continue
-        key = " (опорное, со среднесрочным прогнозом)" if m.get("is_key") else ""
-        events.append(_ev(
-            f"CBR-{md.isoformat()}-rate", md, None, "Банк России", "cbr_rate_decision",
-            f"Заседание Совета директоров Банка России по ключевой ставке{key}. Решение и пресс-релиз "
-            f"обычно публикуются в 13:30 МСК; влияет на весь рынок (акции, облигации, ОФЗ).",
-            EVENT_IMPORTANCE["cbr_rate_decision"], "cbr_schedule", CBR_SOURCE_URL, "scheduled"))
+        if start <= md <= horizon:
+            events.append(_cbr_ev(md))
+            dates_in.add(md)
+        elif md >= today:
+            future.append(md)
+    # постоянный якорь: ближайшее будущее заседание, если оно ещё не попало в окно
+    if future:
+        nxt = min(future)
+        if nxt not in dates_in:
+            events.append(_cbr_ev(nxt))
     return events
 
 
@@ -198,7 +215,7 @@ def main() -> int:
 
     div_events, live_ok, cache_used, broken = build_dividend_events(uni, pct, today, start, horizon, cache)
     save_cache(cache)
-    cbr_events = build_cbr_events(start, horizon)
+    cbr_events = build_cbr_events(start, horizon, today)
     events = div_events + cbr_events
     # сортировка: по важности (убыв.), затем по дате (возр.)
     events.sort(key=lambda e: (-e["importance"], e["date"]))

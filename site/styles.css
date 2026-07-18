@@ -2387,6 +2387,11 @@ tbody tr:hover td,
 .events-banner-risk { background: var(--risk-fill); color: var(--risk-ink); }
 .events-empty { font-size: .9rem; color: var(--ink-soft); background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 16px; text-align: center; }
 .events-pfhint { font-size: .8rem; margin-top: 10px; }
+.events-anchor { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; padding: 11px 13px;
+  background: var(--neut-fill); border: 1px solid var(--line); border-radius: 10px; font-size: .84rem; line-height: 1.4; color: var(--ink-soft); }
+.events-anchor-cat { flex: 0 0 auto; font-size: .66rem; font-weight: 800; color: var(--accent-deep);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; text-transform: uppercase; letter-spacing: .04em; }
+.events-anchor b { color: var(--ink); font-variant-numeric: tabular-nums; }
 
 .events-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
 .ev-card { border: 1px solid var(--line); border-left: 4px solid var(--neut-bar); border-radius: 10px; padding: 11px 13px; background: var(--surface); display: flex; flex-direction: column; gap: 5px; }

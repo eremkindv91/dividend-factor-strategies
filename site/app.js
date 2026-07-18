@@ -49,8 +49,11 @@ function invalidateStaleDataCaches() {
 }
 function refreshVisibleSectionIfStale() {
   if (document.hidden) return;
-  if (invalidateStaleDataCaches() && typeof onSectionShown === 'function' && typeof getSectionFromHash === 'function') {
-    onSectionShown(getSectionFromHash());   // секция уже видима — перерисовать сразу, не ждать навигации
+  if (invalidateStaleDataCaches()) {
+    if (typeof refreshCoreData === 'function') refreshCoreData();   // главный data.json (цены) — не lazy-глобал
+    if (typeof onSectionShown === 'function' && typeof getSectionFromHash === 'function') {
+      onSectionShown(getSectionFromHash());   // секция уже видима — перерисовать сразу, не ждать навигации
+    }
   }
 }
 setInterval(refreshVisibleSectionIfStale, 60 * 1000);
@@ -137,21 +140,47 @@ wireMethodology(); // блок «Методология» (4 раздела) —
 wireDataCoverage(); // блок прозрачности источников — грузит site_coverage.json, если он опубликован
 // навигация по разделам — в initRouter() в конце файла (после let-объявлений)
 
-function init(data) {
-  DATA = data;
-  const m = data.meta;
+function renderDateChips(m) {
+  const el = document.getElementById('dates');
+  if (!el || !m) return;
   const forecastLag = isoDayLag(m.forecast_asof, m.price_asof);
   const lagChip = forecastLag > 0
     ? `<span class="date-chip forecast-lag" data-tooltip="Прогноз модели пересчитывается реже цен MOEX"><span class="lbl">Модельный срез:</span> <b>${forecastLag} дн. до цены</b></span>`
     : '';
-
-  // даты (ДВЕ явно)
-  document.getElementById('dates').innerHTML =
+  el.innerHTML =
     `<span class="date-chip"><span class="lbl">Прогноз модели:</span> <b>${esc(m.forecast_asof || '—')}</b></span>`
     + `<span class="date-chip"><span class="lbl">Цены:</span> <b>${esc(m.price_asof || '—')}</b></span>`
     + `<span class="date-chip"><span class="lbl">Горизонт:</span> <b>дивиденды ${esc(m.forecast_year || '')}</b></span>`
     + `<span class="date-chip"><span class="lbl">Эмитентов:</span> <b>${m.n_total}</b></span>`
     + lagChip;
+}
+
+// Переподгрузка главного data.json (цены/прогнозы) в ОТКРЫТОЙ вкладке: init() грузит его
+// один раз на старте и делает разовую проводку слушателей (повторный init() — двойные
+// listener'ы), поэтому здесь ТОЛЬКО обновляем DATA и перерисовываем DATA-зависимые вью,
+// без ре-wiring. Дополняет invalidateStaleDataCaches() (тот чинил lazy-глобалы, но не DATA).
+function refreshCoreData(cb) {
+  fetch('data.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (j && Array.isArray(j.tickers) && j.meta) {
+        DATA = j;
+        renderDateChips(j.meta);
+        if (typeof render === 'function') render();
+        if (typeof updateDataStatus === 'function') updateDataStatus();
+        if (typeof renderMarketKPI === 'function') renderMarketKPI();
+        if (typeof renderMarketSignals === 'function') renderMarketSignals();
+      }
+      cb && cb();
+    })
+    .catch((e) => { console.warn('[core-data] refresh failed:', e); cb && cb(e); });
+}
+
+function init(data) {
+  DATA = data;
+  const m = data.meta;
+
+  renderDateChips(m);   // даты (Прогноз/Цены/Горизонт/Эмитентов/лаг модельного среза)
 
   if (m.prices_stale) {
     document.getElementById('banner').innerHTML =
@@ -3797,9 +3826,12 @@ function sawGaugeHTML(d) {
   const dir = cp.direction;
   const zones = d.zones[dir];
   const lastThr = zones[zones.length - 1].thr;
-  const max = lastThr + 0.10;
-  const moveAbs = Math.min(Math.abs(cp.move_pct), max);
-  const pos = (moveAbs / max) * 100;
+  // Шкала адаптивная: если движение вышло за штатный предел (напр. просадка −30% > 28%),
+  // расширяем max, чтобы маркер «вы здесь» всегда оставался ВИДИМЫМ внутри трека (иначе он
+  // прижимался к правому краю и обрезался overflow:hidden). +0.02 гарантирует pos < 100%.
+  const moveAbsRaw = Math.abs(cp.move_pct);
+  const max = Math.max(lastThr + 0.10, moveAbsRaw + 0.02);
+  const pos = (moveAbsRaw / max) * 100;
   const segs = zones.map((z, i) => {
     const from = z.thr;
     const to = (i + 1 < zones.length) ? zones[i + 1].thr : max;
@@ -4650,8 +4682,13 @@ function renderEventsToday() {
   const weekend = weekday === 'Mon'
     ? events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d <= -1 && d >= -3; }).sort((a, b) => evSort(a, b, pf))
     : [];
-  const upcoming = events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d >= 1 && d <= 14; })
+  // ЦБ по ставке показываем отдельным постоянным якорем (ниже) — из 14-дневного списка исключаем,
+  // чтобы не дублировать. Остальные события (дивиденды и пр.) — обычный список «до 14 дней».
+  const upcoming = events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d >= 1 && d <= 14 && e.event_type !== 'cbr_rate_decision'; })
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : evSort(a, b, pf)));
+  // ближайшее будущее заседание ЦБ (постоянный якорь — график известен на год вперёд)
+  const nextCbr = events.filter((e) => e.event_type === 'cbr_rate_decision' && evDayDiff(e.date, todayIso) >= 1)
+    .sort((a, b) => (a.date < b.date ? -1 : 1))[0] || null;
 
   let html = `<div class="events-head">
     <h2>Сегодня важные события</h2>
@@ -4675,6 +4712,14 @@ function renderEventsToday() {
       html += `<details class="events-more"><summary>Показать все события сегодня (${todays.length})</summary>
         <div class="events-list">${rest.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div></details>`;
     }
+  }
+  // Постоянный якорь: следующее заседание ЦБ по ставке (даже если далеко) — блок не «пустой» в межсезонье
+  if (nextCbr) {
+    const nd = evDayDiff(nextCbr.date, todayIso);
+    const dmy = nextCbr.date.slice(8, 10) + '.' + nextCbr.date.slice(5, 7) + '.' + nextCbr.date.slice(0, 4);
+    const when = nd === 1 ? 'завтра' : `через ${nd} ${nd % 10 === 1 && nd % 100 !== 11 ? 'день' : (nd % 10 >= 2 && nd % 10 <= 4 && !(nd % 100 >= 12 && nd % 100 <= 14) ? 'дня' : 'дней')}`;
+    html += `<div class="events-anchor"><span class="events-anchor-cat">ЦБ</span>
+      <span>Следующее заседание ЦБ по ключевой ставке — <b>${dmy}</b> (${when}). Влияет на весь рынок: акции, облигации, ОФЗ, ставку по вкладам.</span></div>`;
   }
   if (!pf.hasPortfolio) {
     html += `<div class="events-pfhint muted">События по вашим бумагам будут подсвечиваться после добавления портфеля во вкладке «Портфель».</div>`;
