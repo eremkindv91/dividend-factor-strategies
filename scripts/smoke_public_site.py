@@ -106,6 +106,24 @@ def main() -> int:
             m = ev["meta"]
             sys.stdout.write(f"  [OK] events_calendar.json ({m.get('event_count')} событий, сегодня {m.get('today_event_count')})\n")
 
+        # Двухконтурная «Пила»: manifest + IMOEX (не критично для ролбэка — новые файлы/лаг CDN)
+        man, e = fetch(f"{base}/marketsaw_manifest.json", retries, True)
+        if e:
+            sys.stdout.write(f"  [~] marketsaw_manifest.json ещё не опубликован ({e})\n")
+        elif man.get("default_index") != "MCFTR" or "IMOEX" not in (man.get("indices") or {}):
+            fails.append("marketsaw_manifest без default MCFTR / контура IMOEX")
+        else:
+            imo, e2 = fetch(f"{base}/marketsaw_imoex.json", retries, True)
+            if e2:
+                sys.stdout.write(f"  [~] marketsaw_imoex.json ещё не опубликован ({e2})\n")
+            elif (imo.get("index") or "").upper() != "IMOEX" or not imo.get("series"):
+                fails.append(f"marketsaw_imoex.index={imo.get('index')!r} (ожидался IMOEX)")
+            elif imo.get("current_state", {}).get("zone") not in ("buy", "neutral", "fix"):
+                fails.append("marketsaw_imoex без валидной зоны")
+            else:
+                z = imo["current_state"]["zone"]
+                sys.stdout.write(f"  [OK] marketsaw_manifest + marketsaw_imoex (IMOEX zone={z})\n")
+
     if fails:
         sys.stderr.write("\n[smoke] ПУБЛИЧНЫЙ САЙТ НЕ ПРОШЁЛ ПРОВЕРКУ:\n  - " + "\n  - ".join(fails) + "\n")
         return 1

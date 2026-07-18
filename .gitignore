@@ -96,3 +96,7 @@ data/daily/
 site/daily_market_data_quality.json
 # Веб-мост дневных доходностей — генерит CI, публикует в gh-pages
 site/daily/
+# двухконтурная Пила: IMOEX/manifest/зеркало генерит market-saw-update.yml
+site/marketsaw_imoex.json
+site/marketsaw_manifest.json
+site/marketsaw_mcftr.json

@@ -1,0 +1,97 @@
+name: market-saw update (двухконтурная Пила MCFTR + IMOEX)
+
+# Независимое обновление обоих контуров «Пилы» — БЕЗ тяжёлого pipeline (новости/Gemini/ML/
+# финотчётность). Чистый stdlib. Собирает MCFTR + IMOEX + manifest, per-индекс last-good,
+# additive-публикует ТОЛЬКО файлы модуля в gh-pages (не трогая остальное). Сбой одного индекса
+# не роняет другой. update.yml тоже включает эти файлы в orphan-push (двойная гарантия).
+on:
+  schedule:
+    - cron: "10 6 * * 1-5"     # ~09:10 МСК, до открытия — контроль последнего завершённого CLOSE
+    - cron: "30 16 * * 1-5"    # ~19:30 МСК, после закрытия основной сессии
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish        # общая группа с update.yml/bonds/daily — сериализация записей в gh-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # зависимостей нет: build_marketsaw/build_imoex/manifest — чистый stdlib
+
+      - name: Клон gh-pages (per-индекс last-good)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LG="$(mktemp -d)"
+          if git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$LG" 2>/dev/null; then
+            echo "LG=$LG" >> "$GITHUB_ENV"
+            mkdir -p site
+            # подложить last-good, чтобы билдеры при сбое ISS сохранили предыдущий валидный файл
+            for f in marketsaw.json marketsaw_imoex.json marketsaw_mcftr.json marketsaw_manifest.json; do
+              [ -f "$LG/$f" ] && cp "$LG/$f" "site/$f" || true
+            done
+          else
+            echo "[market-saw] gh-pages ещё нет — first run"
+          fi
+
+      - name: Сборка MCFTR (полная доходность)
+        run: python market_saw/production/build_marketsaw.py || echo "[mcftr] сбой — сохранён last-good"
+
+      - name: Сборка IMOEX (ценовой контур)
+        run: python market_saw/production/build_imoex_saw.py || echo "[imoex] сбой — сохранён last-good"
+
+      - name: Сборка manifest (+ зеркало marketsaw_mcftr.json)
+        run: python market_saw/production/build_market_saw_manifest.py
+
+      - name: Валидация — хотя бы один контур валиден, index-identity не перепутан
+        run: |
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("site/marketsaw_manifest.json", encoding="utf-8"))
+          idx = m.get("indices", {})
+          ok = [k for k, v in idx.items() if v.get("available")]
+          if not ok:
+              sys.stderr.write("оба контура недоступны — не публикуем\n"); sys.exit(1)
+          for name, exp in [("marketsaw_mcftr.json", "MCFTR"), ("marketsaw_imoex.json", "IMOEX")]:
+              try:
+                  d = json.load(open(f"site/{name}", encoding="utf-8"))
+                  if d.get("index") != exp:
+                      sys.stderr.write(f"{name}: index={d.get('index')!r} != {exp}\n"); sys.exit(1)
+              except FileNotFoundError:
+                  pass
+          print(f"[market-saw] валидно; доступны: {ok}")
+          PY
+
+      - name: Additive-публикация файлов «Пилы» → gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[market-saw] gh-pages ещё нет — публикует update.yml"; exit 0
+          fi
+          for f in marketsaw.json marketsaw_mcftr.json marketsaw_imoex.json marketsaw_manifest.json; do
+            [ -f "site/$f" ] && cp "site/$f" "$TMP/$f" || true
+          done
+          if [ -z "$(git -C "$TMP" status --porcelain -- marketsaw.json marketsaw_mcftr.json marketsaw_imoex.json marketsaw_manifest.json)" ]; then
+            echo "[market-saw] без изменений"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" add marketsaw.json marketsaw_mcftr.json marketsaw_imoex.json marketsaw_manifest.json
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "deploy: market-saw MCFTR+IMOEX (cron)"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

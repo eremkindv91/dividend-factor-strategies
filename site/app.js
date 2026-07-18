@@ -19,6 +19,7 @@ const isoDayLag = (older, newer) => {
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
+let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
@@ -36,7 +37,7 @@ const DATA_CACHE_TTL_MS = 20 * 60 * 1000;   // 20 минут — не долби
 let _dataCacheAt = Date.now();
 function invalidateStaleDataCaches() {
   if (Date.now() - _dataCacheAt < DATA_CACHE_TTL_MS) return false;
-  SAW_DATA = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
+  SAW_DATA = null; IMOEX_SAW = null; MARKET_SAW_MANIFEST = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
   EVENTS_DATA = null; MARKET_HISTORY = null; ALFA_INDEX = null; ALFA_INDEX_HISTORY = null; ALFA_INDEX_LOAD = null;
   if (typeof BONDS !== 'undefined') BONDS = null;
   if (typeof CBR_DATA !== 'undefined') CBR_DATA = null;
@@ -3763,12 +3764,45 @@ function loadLWC(cb) {
   document.head.appendChild(s);
 }
 
+function sawSwitcherHTML() {
+  const b = (id, lbl) => `<button type="button" class="saw-tab${MARKET_SAW_ACTIVE === id ? ' saw-tab-active' : ''}" data-saw-index="${id}" onclick="setMarketSawIndex('${id}')">${lbl}</button>`;
+  return `<div class="saw-switch" role="tablist">${b('MCFTR', 'Полная доходность · MCFTR')}${b('IMOEX', 'Ценовой индекс · IMOEX')}</div>`;
+}
+
+function setMarketSawIndex(id) {
+  if (id !== 'MCFTR' && id !== 'IMOEX') return;
+  MARKET_SAW_ACTIVE = id;
+  const sw = document.querySelector('.saw-switch');
+  if (sw) sw.querySelectorAll('.saw-tab').forEach((t) => t.classList.toggle('saw-tab-active', t.dataset.sawIndex === id));
+  renderSawActive();
+}
+
 function renderMarketSaw() {
   const body = document.getElementById('saw-body');
-  body.innerHTML = '<div class="saw-loading muted">Загрузка индекса MCFTR…</div>';
+  body.innerHTML = sawSwitcherHTML() + '<div id="saw-content"><div class="saw-loading muted">Загрузка…</div></div>';
+  renderSawActive();
+}
+
+function renderSawActive() {
+  const content = document.getElementById('saw-content');
+  if (!content) return;
+  content.innerHTML = '<div class="saw-loading muted">Загрузка…</div>';
+  if (MARKET_SAW_ACTIVE === 'IMOEX') {
+    loadImoexSaw((err) => {
+      if (err || !IMOEX_SAW) { content.innerHTML = sawErrorHTML('IMOEX'); return; }
+      content.innerHTML = sawImoexHTML(IMOEX_SAW);
+      loadLWC((lerr) => {
+        const c = document.getElementById('saw-chart');
+        if (lerr || !window.LightweightCharts) { if (c) c.innerHTML = '<div class="muted saw-chart-fallback">График недоступен. Расчёт зон выше — корректен.</div>'; return; }
+        try { sawImoexChart(IMOEX_SAW); } catch (e) { console.error('[saw-imoex] chart:', e); if (c) c.innerHTML = '<div class="muted saw-chart-fallback">Не удалось построить график.</div>'; }
+      });
+      fetchImoexLive();   // best-effort внутридневной снимок (не подтверждает экстремумы)
+    });
+    return;
+  }
   loadMarketSaw((err) => {
-    if (err || !SAW_DATA) { body.innerHTML = sawErrorHTML(); return; }
-    body.innerHTML = sawUIHTML(SAW_DATA);
+    if (err || !SAW_DATA) { content.innerHTML = sawErrorHTML('MCFTR'); return; }
+    content.innerHTML = sawUIHTML(SAW_DATA);
     loadLWC((lerr) => {
       const c = document.getElementById('saw-chart');
       if (lerr || !window.LightweightCharts) { if (c) c.innerHTML = '<div class="muted saw-chart-fallback">График недоступен (не загрузилась графическая библиотека). Расчёт фазы выше — корректен.</div>'; return; }
@@ -3777,11 +3811,114 @@ function renderMarketSaw() {
   });
 }
 
-function sawErrorHTML() {
+function loadImoexSaw(cb) {
+  if (IMOEX_SAW) { cb(); return; }
+  fetch('marketsaw_imoex.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || j.index !== 'IMOEX' || !j.current_state || !j.series) throw new Error('пустой/битый marketsaw_imoex.json'); IMOEX_SAW = j; cb(); })
+    .catch((e) => { console.error('[saw-imoex] не загрузился:', e); cb(e); });
+}
+
+function sawErrorHTML(idx) {
   return `<div class="saw-fallback">
-    <b>Данные MCFTR временно недоступны.</b> Индикатор фазы рынка не обновлён.
-    <div class="saw-disc">Индикатор не является индивидуальной инвестиционной рекомендацией. Он показывает историческую фазу рынка на основе индекса MCFTR и не прогнозирует будущую доходность.</div>
+    <b>Данные ${esc(idx || 'MCFTR')} временно недоступны.</b> Индикатор не обновлён.
+    <div class="saw-disc">Индикатор не является индивидуальной инвестиционной рекомендацией и не прогнозирует будущую доходность.</div>
   </div>`;
+}
+
+// ── Ценовой контур IMOEX (swing/zigzag по ценовому индексу) ──
+const IMOEX_ZONE = { buy: ['Зона покупки', 'good'], neutral: ['Нейтральная зона', 'neut'], fix: ['Зона фиксации', 'warn'] };
+
+function sawImoexHTML(d) {
+  const cs = d.current_state, hi = d.last_confirmed_high, lo = d.last_confirmed_low, lv = d.levels;
+  const [zlbl, ztone] = IMOEX_ZONE[cs.zone] || ['—', 'neut'];
+  const liveNote = cs.price_type === 'live'
+    ? `<span class="saw-live-note muted" data-tooltip="Внутридневная котировка MOEX ISS; официальный CLOSE и подтверждённые экстремумы не меняет">Предварительное значение внутри торговой сессии</span>` : '';
+  const oc = d.official_close || {};
+  const kpi = (lbl, val, sub, tone) => `<div class="saw-imoex-kpi${tone ? ' saw-k-' + tone : ''}"><span>${lbl}</span><b>${val}</b>${sub ? `<em>${sub}</em>` : ''}</div>`;
+  return `
+    <p class="saw-sub">Публичная воспроизводимая реализация swing/zigzag-подхода по ЦЕНОВОМУ индексу IMOEX (порог разворота 7%, зона покупки −13%, зона фиксации +17%). Ценовой индекс не учитывает дивиденды — для полной картины см. MCFTR.</p>
+    <div class="saw-fresh muted">Официальный CLOSE: <b>${esc(sawDate(oc.date || d.data_last))}</b>${cs.price_type === 'live' ? ` · снимок сессии обновлён ${new Date(IMOEX_LIVE_AT || Date.now()).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}` : ''} ${liveNote}</div>
+
+    <div class="saw-imoex-grid">
+      ${kpi('Текущее значение', ru(cs.price, 2), cs.price_type === 'live' ? 'внутри сессии' : 'закрытие', ztone)}
+      ${kpi('Зона', zlbl, `от максимума ${sawPct(cs.move_from_high_pct)}`, ztone)}
+      ${kpi('Уровень покупки (−13%)', lv.buy != null ? ru(lv.buy, 0) : '—', hi ? `от макс ${ru(hi.price, 0)} (${esc(sawDate(hi.date))})` : '')}
+      ${kpi('Уровень фиксации (+17%)', lv.fix != null ? ru(lv.fix, 0) : '—', lo ? `от мин ${ru(lo.price, 0)} (${esc(sawDate(lo.date))})` : '')}
+    </div>
+
+    <div class="saw-col-title">Динамика IMOEX, зигзаг и ценовые уровни</div>
+    <div id="saw-chart"></div>
+    <div class="saw-chart-legend muted"><span class="lg-line"></span> IMOEX &nbsp; <span class="lg-zz"></span> зигзаг &nbsp; <span class="lg-low">▲</span> мин &nbsp; <span class="lg-high">▼</span> макс &nbsp; <span class="lg-buy">—</span> покупка &nbsp; <span class="lg-fix">—</span> фиксация</div>
+
+    <p class="saw-imoex-expl">${esc(cs.explanation)}</p>
+    <details class="pfx-dr-more"><summary>Как читать</summary>
+      <div class="pfx-dr-sub muted">Максимум подтверждается лишь после падения на 7%, минимум — после отскока на 7% (никаких будущих данных). Уровень покупки = последний подтверждённый максимум −13%; уровень фиксации = последний подтверждённый минимум +17%. Зоны buy/fix могут перекрываться при широком диапазоне — приоритет у зоны покупки. Не сигнал, а ценовой ориентир. Движения: от максимума ${sawPct(cs.move_from_high_pct)}, от минимума ${sawPct(cs.move_from_low_pct)}.</div></details>
+    <div class="saw-disc">Информационно, не индивидуальная инвестиционная рекомендация. Ценовой индекс IMOEX не учитывает дивиденды.</div>
+  `;
+}
+
+function sawImoexChart(d) {
+  const el = document.getElementById('saw-chart');
+  if (!el || !window.LightweightCharts) return;
+  el.innerHTML = '';
+  const LC = window.LightweightCharts;
+  const chart = LC.createChart(el, {
+    autoSize: true,
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
+    rightPriceScale: { borderColor: '#E6E9F0' },
+    timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 6 },
+    crosshair: { mode: LC.CrosshairMode.Normal },
+  });
+  const line = chart.addLineSeries({ color: '#A9B7D9', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+  line.setData(d.series.map(([t, v]) => ({ time: t, value: v })));
+  const zz = chart.addLineSeries({ color: '#4C5C86', lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
+  zz.setData(d.extremes.map((e) => ({ time: e.date, value: e.price })));
+  const markers = d.extremes.map((e) => ({
+    time: e.date, position: e.type === 'high' ? 'aboveBar' : 'belowBar',
+    color: e.type === 'high' ? '#A2452C' : '#1E6F4C', shape: e.type === 'high' ? 'arrowDown' : 'arrowUp',
+  })).sort((a, b) => (a.time < b.time ? -1 : 1));
+  zz.setMarkers(markers);
+  const cs = d.current_state;
+  line.setMarkers([{ time: (d.official_close || {}).date || d.data_last, position: 'belowBar', color: '#2E3440', shape: 'circle', text: 'сейчас' }]);
+  // горизонтальные ценовые уровни покупки/фиксации
+  if (d.levels && d.levels.buy != null) line.createPriceLine({ price: d.levels.buy, color: '#1E6F4C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: 'покупка ' + ru(d.levels.buy, 0) });
+  if (d.levels && d.levels.fix != null) line.createPriceLine({ price: d.levels.fix, color: '#A2452C', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: true, title: 'фиксация ' + ru(d.levels.fix, 0) });
+  try {
+    const n = d.series.length;
+    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 1 - 760), to: n - 1 + 72 });
+  } catch (e) { chart.timeScale().fitContent(); }
+}
+
+// best-effort внутридневной снимок IMOEX. НЕ подтверждает экстремумы/волны/официальный CLOSE —
+// только текущую позицию (price/zone/move). Троттлинг 60с, AbortController+timeout, БЕЗ постоянных
+// таймеров (fetch только при открытии/переключении). Ошибка ISS не показывается — остаётся официальный snapshot.
+function fetchImoexLive() {
+  if (!IMOEX_SAW || MARKET_SAW_ACTIVE !== 'IMOEX') return;
+  if (Date.now() - IMOEX_LIVE_AT < 60000) return;
+  let ac; try { ac = new AbortController(); } catch (e) { return; }
+  const to = setTimeout(() => { try { ac.abort(); } catch (e) {} }, 8000);
+  fetch('https://iss.moex.com/iss/engines/stock/markets/index/boards/SNDX/securities/IMOEX.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,CURRENTVALUE,LASTVALUE,SYSTIME', { signal: ac.signal, cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((j) => {
+      clearTimeout(to);
+      const md = j && j.marketdata; if (!md || !md.data || !md.data.length) return;
+      const ci = {}; md.columns.forEach((c, i) => { ci[c] = i; });
+      const row = md.data[0];
+      const cur = row[ci.CURRENTVALUE], lastv = row[ci.LASTVALUE];
+      const price = (cur != null && cur > 0) ? cur : lastv;
+      if (price == null || !(price > 0)) return;
+      const d = IMOEX_SAW, hi = d.last_confirmed_high, lo = d.last_confirmed_low, lv = d.levels || {};
+      const zone = (lv.buy != null && price <= lv.buy) ? 'buy' : (lv.fix != null && price >= lv.fix) ? 'fix' : 'neutral';
+      d.current_state = Object.assign({}, d.current_state, {
+        price: Math.round(price * 100) / 100, price_type: (cur != null && cur > 0) ? 'live' : 'official', zone,
+        move_from_high_pct: hi ? price / hi.price - 1 : 0, move_from_low_pct: lo ? price / lo.price - 1 : 0,
+      });
+      IMOEX_LIVE_AT = Date.now();                       // ставим ДО re-render → вложенный fetchImoexLive троттлится
+      if (MARKET_SAW_ACTIVE === 'IMOEX') renderSawActive();
+    })
+    .catch(() => { clearTimeout(to); });                // тихо: официальный snapshot остаётся
 }
 
 function sawUIHTML(d) {

@@ -714,6 +714,22 @@ td.empty { text-align: center; }
 .lg-line { display: inline-block; width: 16px; height: 0; border-top: 2px solid #A9B7D9; }
 .lg-zz { display: inline-block; width: 16px; height: 0; border-top: 2px solid #4C5C86; }
 .lg-low { color: #1E6F4C; } .lg-high { color: #A2452C; }
+.lg-buy { color: #1E6F4C; font-weight: 700; } .lg-fix { color: #A2452C; font-weight: 700; }
+
+/* двухконтурная «Пила»: переключатель MCFTR/IMOEX (те же токены, без редизайна) */
+.saw-switch { display: inline-flex; gap: 4px; padding: 3px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; margin: 2px 0 14px; flex-wrap: wrap; }
+.saw-tab { font: inherit; font-size: .82rem; font-weight: 600; color: var(--ink-soft); background: transparent; border: 0; border-radius: 7px; padding: 6px 12px; cursor: pointer; }
+.saw-tab:hover { color: var(--ink); }
+.saw-tab-active { background: var(--surface); color: var(--accent-deep); box-shadow: var(--shadow); }
+.saw-imoex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 16px; }
+.saw-imoex-kpi { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--surface); }
+.saw-imoex-kpi span { display: block; font-size: .72rem; color: var(--ink-faint); font-weight: 600; }
+.saw-imoex-kpi b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.saw-imoex-kpi em { display: block; font-size: .72rem; color: var(--ink-faint); font-style: normal; margin-top: 2px; }
+.saw-imoex-kpi.saw-k-good { background: var(--good-fill); } .saw-imoex-kpi.saw-k-good b { color: var(--good-ink); }
+.saw-imoex-kpi.saw-k-warn { background: var(--warn-fill); } .saw-imoex-kpi.saw-k-warn b { color: var(--warn-ink); }
+.saw-imoex-expl { font-size: .86rem; line-height: 1.5; margin: 12px 0; }
+.saw-live-note { font-size: .76rem; }
 
 .saw-distro-wrap { margin: 4px 0 16px; }
 .saw-distro-title { font-weight: 600; font-size: .92rem; }

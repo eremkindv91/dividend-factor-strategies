@@ -45,6 +45,7 @@ GRACE = timedelta(hours=2)   # запас на исполнение пайпла
 BLOCKS = [
     ("market", "Цены и мультипликаторы", "data.json", ["meta.price_asof", "meta.generated_at"], "market", 0),
     ("marketsaw", "Фаза рынка (MCFTR)", "marketsaw.json", ["data_last", "generated_at"], "market", 1),
+    ("marketsaw_imoex", "Ценовой контур IMOEX", "marketsaw_imoex.json", ["data_last", "official_close.date", "generated_at"], "market", 1),
     ("market_history", "Графики рынка (MOEX ISS)", "market_history.json", ["data_asof", "generated_at"], "market", 0),
     ("returns", "История доходностей", "returns.json", ["meta.asof"], "periodic", 45),
     ("marlamov", "Форвардная дивдоходность", "marlamov.json", ["meta.source_as_of", "meta.updated", "meta.asof"], "market", 0),
