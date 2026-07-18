@@ -155,6 +155,55 @@ def build_dividend_events(uni, pct, today, start, horizon, cache):
     return events, live_ok, cache_used, broken
 
 
+def build_smartlab_dividend_events(uni, pct, today, start, horizon, existing_keys):
+    """Forward-отсечки из SmartLab-календаря (анонсированные из решений СД/ГОСА — известны ДО
+    гэпа, в отличие от лагающего MOEX ISS). Дедуп против уже собранных MOEX-событий по
+    (ticker, date, type). Одна страница на запрос. Сбой SmartLab не роняет календарь."""
+    try:
+        import fetch_smartlab_dividends as sl
+    except Exception:  # noqa: BLE001
+        return []
+    rows = sl.fetch_dividends(set(uni.keys()))
+    events = []
+    for r in rows:
+        tk = r["ticker"]
+        if tk not in uni:
+            continue
+        try:
+            rc = date.fromisoformat(r["record_date"])
+        except (ValueError, TypeError):
+            continue
+        info, mp, dps = uni[tk], pct.get(tk, 0.0), r.get("dividend")
+        ytxt = f" (≈{r['yield']:.1f}% к цене)" if isinstance(r.get("yield"), (int, float)) else ""
+        dtxt = f"₽{dps:.2f} на акцию" if isinstance(dps, (int, float)) else "объявленный дивиденд"
+        src_note = ("По данным дивидендного календаря SmartLab (анонс из решения СД/ГОСА). "
+                    "Подтверждайте у эмитента/на MOEX.")
+        # отсечка (закрытие реестра)
+        if start <= rc <= horizon and (tk, rc.isoformat(), "dividend_registry_close") not in existing_keys:
+            events.append(_ev(
+                f"{tk}-{rc.isoformat()}-registry-sl", rc, tk, info.get("name") or tk, "dividend_registry_close",
+                f"Дивиденд {dtxt}{ytxt}. После отсечки цена обычно корректируется на величину "
+                f"дивиденда (дивидендный гэп). {src_note}",
+                composite_importance(EVENT_IMPORTANCE["dividend_registry_close"], mp, (rc - today).days, "fresh"),
+                "smartlab", "https://smart-lab.ru/dividends/", "announced"))
+        # последний день покупки «с дивидендом» — SmartLab даёт дату «Купить До» напрямую
+        lbd = None
+        if r.get("buy_before"):
+            try:
+                lbd = date.fromisoformat(r["buy_before"])
+            except (ValueError, TypeError):
+                lbd = None
+        if lbd is None:
+            lbd = prev_business_day(rc)
+        if start <= lbd <= horizon and (tk, lbd.isoformat(), "last_buy_day") not in existing_keys:
+            events.append(_ev(
+                f"{tk}-{rc.isoformat()}-lastbuy-sl", lbd, tk, info.get("name") or tk, "last_buy_day",
+                f"Последний день покупки под дивиденд {dtxt}{ytxt}. Дата отсечки — {rc.isoformat()}. {src_note}",
+                composite_importance(EVENT_IMPORTANCE["last_buy_day"], mp, (lbd - today).days, "fresh"),
+                "smartlab", "https://smart-lab.ru/dividends/", "announced"))
+    return events
+
+
 def _cbr_ev(md):
     m = next((x for x in CBR_RATE_MEETINGS if x.get("date") == md.isoformat()), {})
     key = " (опорное, со среднесрочным прогнозом)" if m.get("is_key") else ""
@@ -215,8 +264,11 @@ def main() -> int:
 
     div_events, live_ok, cache_used, broken = build_dividend_events(uni, pct, today, start, horizon, cache)
     save_cache(cache)
+    # SmartLab forward-отсечки (анонсированные — до гэпа), дедуп против MOEX по (тикер,дата,тип)
+    moex_keys = {(e["ticker"], e["date"], e["event_type"]) for e in div_events if e.get("ticker")}
+    sl_events = build_smartlab_dividend_events(uni, pct, today, start, horizon, moex_keys)
     cbr_events = build_cbr_events(start, horizon, today)
-    events = div_events + cbr_events
+    events = div_events + sl_events + cbr_events
     # сортировка: по важности (убыв.), затем по дате (возр.)
     events.sort(key=lambda e: (-e["importance"], e["date"]))
 
@@ -239,8 +291,9 @@ def main() -> int:
             "moex_live_ok": live_ok,
             "moex_cache_used": cache_used,
             "fallback": fallback,
-            "disclaimer": "События из открытых источников (MOEX ISS, график ЦБ РФ). Информационно, "
-                          "не индивидуальная инвестиционная рекомендация. Даты сверяйте с эмитентом/биржей.",
+            "disclaimer": "События из открытых источников (MOEX ISS, календарь SmartLab, график ЦБ РФ). "
+                          "Дивотсечки из SmartLab — анонсы решений СД/ГОСА (сверяйте с эмитентом/биржей). "
+                          "Информационно, не индивидуальная инвестиционная рекомендация.",
         },
         "events": events,
     }

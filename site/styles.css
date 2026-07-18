@@ -2417,6 +2417,7 @@ tbody tr:hover td,
 .ev-src { font-size: .74rem; }
 .ev-src a { color: var(--accent-deep); }
 .ev-stale { color: var(--warn-ink); font-weight: 600; }
+.ev-announced { color: var(--ink-faint); font-weight: 600; font-size: .9em; }
 .events-more { margin-top: 10px; }
 .events-more > summary { cursor: pointer; font-size: .84rem; font-weight: 600; color: var(--accent-deep); padding: 6px 0; }
 .events-more .events-list { margin-top: 8px; }

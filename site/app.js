@@ -4588,7 +4588,7 @@ const EV_CAT = {
   company_earnings: ['Отчётность', 'earn'], gosa: ['ГОСА', 'gosa'], vosa: ['ВОСА', 'gosa'],
   ofz_auction: ['ОФЗ', 'ofz'], macro_release: ['Макро', 'macro'], general_corporate_event: ['Событие', 'gen'],
 };
-const EV_SRC_LABEL = { moex_iss: 'MOEX ISS', cbr_schedule: 'график ЦБ РФ', company_disclosure: 'раскрытие эмитента' };
+const EV_SRC_LABEL = { moex_iss: 'MOEX ISS', cbr_schedule: 'график ЦБ РФ', company_disclosure: 'раскрытие эмитента', smartlab: 'календарь SmartLab' };
 
 function loadEvents(cb) {
   if (EVENTS_DATA) { if (cb) cb(); return; }
@@ -4637,7 +4637,9 @@ function evCardHTML(e, pf, todayIso) {
   const who = e.ticker ? `${esc(e.company)} (${esc(e.ticker)})` : esc(e.company);
   const srcLbl = EV_SRC_LABEL[e.source] || esc(e.source || 'источник н/д');
   const src = e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${srcLbl}</a>` : srcLbl;
-  const stale = e.data_status && !['fresh', 'scheduled'].includes(e.data_status) ? ` <span class="ev-stale">данные ${esc(e.data_status)}</span>` : '';
+  const stale = e.data_status === 'announced'
+    ? ` <span class="ev-announced">анонс, сверьте у эмитента</span>`
+    : (e.data_status && !['fresh', 'scheduled'].includes(e.data_status) ? ` <span class="ev-stale">данные ${esc(e.data_status)}</span>` : '');
   return `<div class="ev-card ev-imp-${impCls}${inPf ? ' ev-pf' : ''}">
     <div class="ev-badges">
       <span class="ev-badge ev-cat-${catCls}">${catLbl}</span>
@@ -4704,7 +4706,7 @@ function renderEventsToday() {
 
   // Сегодня
   if (!todays.length) {
-    html += `<div class="events-empty">На сегодня подтверждённых корпоративных событий и дивидендных отсечек по данным MOEX не найдено. Дивидендные даты появляются здесь после официального объявления эмитентом и попадания в реестр MOEX; дивидендные <b>прогнозы</b> по всем бумагам — во вкладке «Акции».</div>`;
+    html += `<div class="events-empty">На сегодня подтверждённых корпоративных событий и дивидендных отсечек по данным MOEX и календаря SmartLab не найдено. Ближайшие анонсированные отсечки и заседание ЦБ — ниже. Дивидендные <b>прогнозы</b> по всем бумагам — во вкладке «Акции».</div>`;
   } else {
     const top = todays.slice(0, 5), rest = todays.slice(5);
     html += `<div class="events-list">${top.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div>`;
