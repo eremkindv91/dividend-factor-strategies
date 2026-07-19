@@ -2528,6 +2528,7 @@ tbody tr:hover td,
 .dc-status-approved, .dc-status-confirmed { background: var(--good-fill); color: var(--good-ink); }
 .dc-status-recommended { background: var(--warn-fill); color: var(--warn-ink); }
 .dc-status-announced { background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0; }
+.dc-status-broker { background: #EEF3FA; color: var(--accent-deep); border: 1px solid #C8D5E7; }
 .dc-status-cancelled { background: var(--risk-fill); color: var(--risk-ink); }
 .dc-status-unknown { background: var(--neut-fill); color: var(--neut-ink); }
 .dc-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }

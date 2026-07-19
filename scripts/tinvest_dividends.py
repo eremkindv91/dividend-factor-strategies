@@ -16,6 +16,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+import dividend_calendar_core as core
+
 
 SDK_PACKAGE = "t-tech-investments==1.49.2"
 SDK_TARGET = "invest-public-api.tbank.ru"
@@ -61,14 +63,98 @@ def normalize_dividend(row: dict) -> dict:
     """Normalize one official API record without assigning an investment status."""
     kind = str(row.get("dividend_type") or row.get("dividendType") or "").lower()
     cancelled = bool(row.get("cancelled")) or "cancel" in kind
+    money = row.get("dividend_net") or row.get("dividendNet")
+    currency = money.get("currency") if isinstance(money, dict) else row.get("currency")
     return {
         "record_date": timestamp_to_date(row.get("record_date") or row.get("recordDate")),
         "last_buy_date": timestamp_to_date(row.get("last_buy_date") or row.get("lastBuyDate")),
         "payment_date": timestamp_to_date(row.get("payment_date") or row.get("paymentDate")),
         "declared_date": timestamp_to_date(row.get("declared_date") or row.get("declaredDate")),
-        "dividend_value": quotation_to_float(row.get("dividend_net") or row.get("dividendNet")),
+        "dividend_value": quotation_to_float(money),
+        "currency": core.normalize_currency(currency),
         "cancelled": cancelled,
     }
+
+
+def build_discovery_events(
+    universe: dict[str, dict],
+    payloads: dict[str, list[dict]],
+    prices: dict[str, dict],
+    observed_at: str,
+    today: date,
+    horizon: date,
+    existing_events: list[dict],
+) -> list[dict]:
+    """Create non-actionable future events found only in the broker calendar."""
+    existing = {
+        (str(event.get("isin") or event.get("secid") or "").upper(), str(event.get("record_date") or ""))
+        for event in existing_events
+    }
+    discovered = []
+    for ticker, security in sorted(universe.items()):
+        identifier = str(security.get("isin") or security.get("secid") or ticker).strip()
+        rows = payloads.get(identifier)
+        if rows is None and security.get("secid"):
+            rows = payloads.get(str(security["secid"]))
+        for raw in rows or []:
+            item = normalize_dividend(raw) if isinstance(raw, dict) else {}
+            record = core.parse_date(item.get("record_date"))
+            amount = item.get("dividend_value")
+            if record is None or not today <= record <= horizon or item.get("cancelled"):
+                continue
+            security_key = str(security.get("isin") or security.get("secid") or ticker).upper()
+            if (security_key, record.isoformat()) in existing:
+                continue
+            if not core.is_finite_number(amount) or amount <= 0:
+                continue
+            explicit_last_buy = core.parse_date(item.get("last_buy_date"))
+            last_buy, last_buy_source = core.calculate_last_buy_date(
+                record, explicit_last_buy_date=explicit_last_buy)
+            price_row = prices.get(ticker) or {}
+            price = price_row.get("price") if core.is_finite_number(price_row.get("price")) and price_row["price"] > 0 else None
+            currency = item.get("currency")
+            price_currency = "RUB" if price is not None else None
+            price_status = "fresh" if price is not None and price_row.get("fresh") else ("stale" if price is not None else "missing")
+            price_field = price_row.get("price_field") if price_status == "fresh" else ("cache" if price is not None else None)
+            yield_pct = round(float(amount) / float(price) * 100, 6) if price is not None and currency == price_currency else None
+            flags = ["broker_discovery_only", "not_confirmed_by_moex"]
+            if price_status == "stale":
+                flags.append("stale_price")
+            if price_status == "missing":
+                flags.append("missing_price")
+            if price is not None and currency != price_currency:
+                flags.append("currency_mismatch")
+            fields = ["record_date", "dividend_value"]
+            fields += [field for field in ("last_buy_date", "payment_date", "declared_date", "currency") if item.get(field)]
+            event = {
+                "id": core.stable_event_id(security_key, record.isoformat()),
+                "secid": str(security.get("secid") or ticker).upper(), "isin": security.get("isin"),
+                "boardid": security.get("board") or "TQBR", "name": security.get("name") or ticker,
+                "share_class": security.get("share_class") or "unknown", "period": None,
+                "event_kind": "cash_dividend", "decision_status": "unknown",
+                "verification_status": "broker_structured_discovery", "dividend_value": round(float(amount), 8),
+                "currency": currency, "decision_date": None, "declared_date": item.get("declared_date"),
+                "record_date": record.isoformat(), "last_buy_date": last_buy.isoformat(),
+                "last_buy_date_source": "tinvest_explicit" if explicit_last_buy else last_buy_source,
+                "ex_dividend_date": core.next_trading_day_from(last_buy).isoformat(),
+                "payment_date": item.get("payment_date"), "payment_date_source": "tinvest" if item.get("payment_date") else None,
+                "payment_deadline_nominee": core.add_working_days(record, 10).isoformat(),
+                "payment_deadline_registered": core.add_working_days(record, 25).isoformat(),
+                "price": price, "price_currency": price_currency, "price_asof": price_row.get("asof") if price is not None else None,
+                "price_field": price_field, "price_status": price_status, "yield_pct": yield_pct,
+                "event_status": None, "days_to_last_buy": max(0, (last_buy - today).days) if last_buy >= today else None,
+                "trading_sessions_to_last_buy": core.trading_sessions_until(today, last_buy),
+                "source_evidence": [{"source": "tinvest", "source_url": "https://www.tbank.ru/invest/",
+                                     "observed_at": observed_at, "fields": fields}],
+                "field_provenance": {field: "tinvest" for field in fields},
+                "quality_flags": sorted(flags), "has_conflict": False, "conflicts": [],
+                "change_type": "new", "changed_fields": [], "first_seen_at": observed_at,
+                "last_changed_at": observed_at, "last_verified_at": observed_at,
+            }
+            event["event_status"] = core.derive_event_status(event, today)
+            discovered.append(event)
+            existing.add((security_key, record.isoformat()))
+    return discovered
 
 
 def select_matching_dividend(event: dict, rows: list[dict]) -> dict | None:
@@ -150,7 +236,8 @@ def _sdk_response_payload(method: str, response) -> dict:
                 if getattr(item, "payment_date", None) else None,
                 "declaredDate": getattr(item, "declared_date", None).isoformat()
                 if getattr(item, "declared_date", None) else None,
-                "dividendNet": {"units": getattr(money, "units", 0), "nano": getattr(money, "nano", 0)}
+                "dividendNet": {"units": getattr(money, "units", 0), "nano": getattr(money, "nano", 0),
+                                "currency": str(getattr(money, "currency", "") or "")}
                 if money is not None else None,
                 "dividendType": str(getattr(item, "dividend_type", "") or ""),
             })

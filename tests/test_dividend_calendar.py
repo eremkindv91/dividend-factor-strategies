@@ -257,7 +257,8 @@ def test_frontend_and_deploy_contracts_are_wired():
     assert 'id="dividend-calendar"' in html and 'id="dividend-calendar-body"' in html
     assert "fetch('dividend_calendar.json" in js and "myPortfolioLoad()" in js
     assert "downloadDividendExport" in js and "params.get('calendar')" in js and "field_provenance" in js
-    assert "dividendDiscoveryEvents" in js and "Анонсы ·" in js and "discovery_announced" in js
+    assert "dividendDiscoveryEvents" in js and "Мой портфель ·" in js and "Можно купить ·" in js
+    assert "Все будущие ·" in js and "broker_structured_discovery" in js and "discovery_announced" in js
     assert "navigator.sendBeacon" not in js
     assert ".dc-mobile-card" in css and "@media (max-width: 640px)" in css
     assert 'cron: "0 5 * * *"' in workflow and "group: gh-pages-publish" in workflow

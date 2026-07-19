@@ -56,7 +56,7 @@ def test_smartlab_discovery_keeps_structured_fields(monkeypatch):
         @staticmethod
         def fetch_dividends(_tickers):
             return [{"ticker": "SBER", "record_date": "2026-07-20", "buy_before": "2026-07-17",
-                     "dividend": 37.64, "yield": 13.6}]
+                     "payment_date": "2026-07-30", "dividend": 37.64, "yield": 13.6}]
 
     monkeypatch.setitem(sys.modules, "fetch_smartlab_dividends", FakeSmartlab)
     events = uec.build_smartlab_dividend_events(
@@ -67,5 +67,6 @@ def test_smartlab_discovery_keeps_structured_fields(monkeypatch):
     assert registry["verification_status"] == "discovery_only"
     assert registry["record_date"] == "2026-07-20"
     assert registry["last_buy_date"] == "2026-07-17"
+    assert registry["payment_date"] == "2026-07-30"
     assert registry["dividend_value"] == 37.64
     assert registry["yield_pct"] == 13.6

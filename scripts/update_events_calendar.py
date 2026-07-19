@@ -116,6 +116,7 @@ def build_smartlab_dividend_events(universe, percentiles, today, start, horizon,
             "last_buy_date_source": "smartlab_explicit" if explicit else "calculated_settlement",
             "dividend_value": amount if isinstance(amount, (int, float)) else None,
             "yield_pct": row.get("yield") if isinstance(row.get("yield"), (int, float)) else None,
+            "payment_date": row.get("payment_date"),
             "currency": "RUB",
             "verification_status": "discovery_only",
         }

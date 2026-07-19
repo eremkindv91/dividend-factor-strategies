@@ -12,6 +12,7 @@ import dividend_calendar_core as core  # noqa: E402
 import dividend_disclosure as disclosure  # noqa: E402
 import tinvest_dividends as tinvest  # noqa: E402
 import build_dividend_calendar as builder  # noqa: E402
+import validate_dividend_calendar as calendar_validator  # noqa: E402
 from src.data_sources.disclosure_adapter import discover_dividend_decision_links  # noqa: E402
 
 
@@ -64,6 +65,41 @@ def test_tinvest_cancellation_is_explicit_and_never_creates_event():
     assert count == 1
     assert result[0]["decision_status"] == "cancelled"
     assert result[0]["verification_status"] == "broker_structured_cancellation"
+
+
+def test_tinvest_future_record_creates_non_actionable_discovery_event():
+    universe = {"TEST": {"ticker": "TEST", "secid": "TEST", "isin": "RU000TEST000",
+                         "name": "Test", "board": "TQBR", "share_class": "ordinary"}}
+    payloads = {"RU000TEST000": [{
+        "recordDate": "2026-08-20T00:00:00+00:00", "lastBuyDate": "2026-08-19T00:00:00+00:00",
+        "paymentDate": "2026-09-01T00:00:00+00:00", "dividendNet": {"units": 10, "nano": 0, "currency": "rub"},
+    }]}
+    rows = tinvest.build_discovery_events(
+        universe, payloads, {"TEST": {"price": 100.0, "asof": "2026-07-10", "price_field": "LAST", "fresh": True}},
+        "2026-07-10T00:00:00+03:00", date(2026, 7, 10), date(2027, 7, 10), [])
+    assert len(rows) == 1
+    event = rows[0]
+    assert event["decision_status"] == "unknown"
+    assert event["verification_status"] == "broker_structured_discovery"
+    assert event["event_status"] == "buyable"
+    assert event["yield_pct"] == 10.0
+    assert "not_confirmed_by_moex" in event["quality_flags"]
+    payload = {"schema_version": core.SCHEMA_VERSION, "meta": {
+        "generated_at": "2026-07-10T00:00:00+03:00", "timezone": "Europe/Moscow", "status": "fresh",
+        "event_count": 1, "actionable_count": 0, "recommended_count": 0, "cancelled_count": 0,
+        "conflict_count": 0, "no_price_count": 0,
+    }, "events": rows}
+    assert calendar_validator.validate_payload(payload) == []
+
+
+def test_tinvest_discovery_does_not_duplicate_existing_moex_event():
+    existing = _event()
+    payloads = {"RU000TEST000": [{"recordDate": "2026-07-20", "dividendNet": {
+        "units": 10, "nano": 0, "currency": "rub"}}]}
+    rows = tinvest.build_discovery_events(
+        {"TEST": {"ticker": "TEST", "secid": "TEST", "isin": "RU000TEST000", "name": "Test", "board": "TQBR"}},
+        payloads, {}, "2026-07-10T00:00:00+03:00", date(2026, 7, 10), date(2027, 7, 10), [existing])
+    assert rows == []
 
 
 def test_tinvest_collect_uses_structured_find_and_get_without_exposing_token():
@@ -158,6 +194,28 @@ def test_builder_keeps_p1_sources_optional_without_token(monkeypatch):
     )
     assert result["meta"]["source_health"]["tinvest"]["status"] == "disabled"
     assert result["meta"]["source_health"]["disclosure"]["status"] == "not_configured"
+
+
+def test_builder_queries_tinvest_for_universe_not_only_old_moex_events(monkeypatch):
+    captured = []
+    monkeypatch.setattr(builder.disclosure, "load_verified_decisions", lambda _root: ([], []))
+    monkeypatch.setattr(builder.tinvest, "collect_payloads", lambda targets, *_args, **_kwargs: (
+        captured.extend(targets) or {},
+        {"status": "fresh", "success": 0, "cache_used": 0, "failed": 0, "limited": 0, "errors": {}},
+    ))
+    monkeypatch.setattr(builder.tinvest, "save_cache", lambda *_args: None)
+    universe = {
+        "TEST": {"ticker": "TEST", "secid": "TEST", "isin": "RU000TEST000", "name": "Test", "board": "TQBR"},
+        "NEXT": {"ticker": "NEXT", "secid": "NEXT", "isin": "RU000NEXT000", "name": "Next", "board": "TQBR"},
+    }
+    builder.build_payload(
+        universe, {"TEST": [{"secid": "TEST", "isin": "RU000TEST000", "registryclosedate": "2026-07-20",
+                              "value": 10.0, "currencyid": "RUB"}]},
+        {"success": 2, "cache_used": 0, "failed": 0},
+        {"TEST": {"price": 100.0, "asof": "2026-07-10", "price_field": "LAST", "fresh": True}},
+        {"source_ok": True, "price_asof": "2026-07-10", "n_fresh": 1, "n_cached": 0, "n_missing": 1},
+        None, __import__("datetime").datetime(2026, 7, 10), tinvest_token="secret")
+    assert any(row.get("isin") == "RU000NEXT000" for row in captured)
 
 
 def test_verified_disclosure_promotes_only_with_document_evidence(tmp_path: Path):

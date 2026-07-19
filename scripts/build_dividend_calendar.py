@@ -193,16 +193,27 @@ def build_payload(
     )
 
     tinvest_cache = tinvest.load_cache(DEFAULT_TINVEST_CACHE)
+    collection_targets = list(events)
+    covered_identifiers = {str(event.get("isin") or event.get("secid") or "") for event in collection_targets}
+    collection_targets.extend(
+        {"isin": security.get("isin"), "secid": security.get("secid") or ticker}
+        for ticker, security in universe.items()
+        if str(security.get("isin") or security.get("secid") or ticker) not in covered_identifiers
+    )
     tinvest_payloads, tinvest_stats = tinvest.collect_payloads(
-        events, tinvest_token, start.isoformat(), end.isoformat(), max_instruments=tinvest_max_instruments,
+        collection_targets, tinvest_token, start.isoformat(), end.isoformat(), max_instruments=tinvest_max_instruments,
         cache=tinvest_cache,
     )
     if tinvest_token:
         tinvest.save_cache(DEFAULT_TINVEST_CACHE, tinvest_cache)
     events, tinvest_enriched = tinvest.apply_tinvest_enrichment(events, tinvest_payloads, observed_at)
+    tinvest_discovered = tinvest.build_discovery_events(
+        universe, tinvest_payloads, prices, observed_at, today, end, events)
+    events = core.merge_normalized_events(events + tinvest_discovered)
     for event in events:
         event["event_status"] = core.derive_event_status(event, today)
     tinvest_stats["enriched"] = tinvest_enriched
+    tinvest_stats["discovered"] = len(tinvest_discovered)
     core.apply_change_tracking(events, previous, observed_at)
 
     covered = source_stats["success"] + source_stats["cache_used"]
@@ -282,7 +293,8 @@ def run_build(args) -> tuple[dict | None, bool]:
     sys.stderr.write(
         f"[div-calendar] tinvest status={tinvest_health['status']} success={tinvest_health['success']} "
         f"cache_used={tinvest_health['cache_used']} failed={tinvest_health['failed']} "
-        f"enriched={tinvest_health['enriched']} errors={tinvest_health.get('errors', {})}\n")
+        f"enriched={tinvest_health['enriched']} discovered={tinvest_health.get('discovered', 0)} "
+        f"errors={tinvest_health.get('errors', {})}\n")
     return payload, changed
 
 
