@@ -14,6 +14,10 @@ import build_dividend_calendar as builder  # noqa: E402
 from src.data_sources.disclosure_adapter import discover_dividend_decision_links  # noqa: E402
 
 
+def test_tinvest_uses_current_official_rest_host():
+    assert tinvest.API_BASE.startswith("https://invest-public-api.tbank.ru/")
+
+
 def _event():
     result = core.normalize_moex_event(
         {"secid": "TEST", "isin": "RU000TEST000", "registryclosedate": "2026-07-20", "value": 10.0, "currencyid": "RUB"},
@@ -97,6 +101,31 @@ def test_tinvest_reports_failure_stage_and_exception_class_without_message():
 
     assert stats["errors"] == {"find_instrument_unexpected_typeerror": 1}
     assert "sensitive" not in str(stats)
+
+
+def test_tinvest_stops_after_consecutive_infrastructure_failures():
+    calls = []
+    events = [_event() for _ in range(3)]
+    for index, event in enumerate(events):
+        event["isin"] = f"RU000TEST00{index}"
+        event["secid"] = f"TEST{index}"
+
+    def timeout(_token, method, payload):
+        calls.append((method, payload))
+        raise tinvest.TInvestRequestError("timeout")
+
+    payloads, stats = tinvest.collect_payloads(
+        events, "secret", "2026-01-01", "2026-12-31", post=timeout,
+        max_consecutive_failures=2,
+    )
+
+    assert payloads == {}
+    assert len(calls) == 2
+    assert stats["failed"] == 3
+    assert stats["errors"] == {
+        "find_instrument_timeout": 2,
+        "skipped_after_circuit_breaker": 1,
+    }
 
 
 def test_builder_keeps_p1_sources_optional_without_token(monkeypatch):

@@ -16,8 +16,9 @@ from pathlib import Path
 from typing import Callable
 
 
-API_BASE = "https://invest-public-api.tinkoff.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService"
-DEFAULT_TIMEOUT_SECONDS = 20
+API_BASE = "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService"
+DEFAULT_TIMEOUT_SECONDS = 10
+DEFAULT_MAX_CONSECUTIVE_FAILURES = 5
 
 
 class TInvestRequestError(RuntimeError):
@@ -191,6 +192,7 @@ def collect_payloads(
     to_date: str,
     post: Callable[[str, str, dict], dict] | None = None,
     max_instruments: int = 120,
+    max_consecutive_failures: int = DEFAULT_MAX_CONSECUTIVE_FAILURES,
     cache: dict | None = None,
 ) -> tuple[dict[str, list[dict]], dict]:
     """Fetch at most one structured response per unique instrument identifier.
@@ -212,7 +214,9 @@ def collect_payloads(
     payloads: dict[str, list[dict]] = {}
     success = cache_used = failed = 0
     errors: Counter[str] = Counter()
-    for identifier in identifiers[:max_instruments]:
+    consecutive_failures = 0
+    selected_identifiers = identifiers[:max_instruments]
+    for index, identifier in enumerate(selected_identifiers):
         stage = "find_instrument"
         try:
             found = request(token, "FindInstrument", {"query": identifier})
@@ -227,14 +231,28 @@ def collect_payloads(
             payloads[identifier] = rows if isinstance(rows, list) else []
             cached_records[identifier] = {"rows": payloads[identifier], "instrument_id": instrument_id}
             success += 1
+            consecutive_failures = 0
         except Exception as exc:  # Aggregate only a sanitized code; never expose token or response body.
+            error_code = _safe_error_code(exc)
             cached = cached_records.get(identifier)
             if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
                 payloads[identifier] = cached["rows"]
                 cache_used += 1
             else:
                 failed += 1
-                errors[f"{stage}_{_safe_error_code(exc)}"] += 1
+                errors[f"{stage}_{error_code}"] += 1
+            consecutive_failures += 1
+            auth_failure = error_code in {"http_401", "http_403"}
+            if auth_failure or consecutive_failures >= max(1, max_consecutive_failures):
+                for remaining in selected_identifiers[index + 1:]:
+                    cached = cached_records.get(remaining)
+                    if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
+                        payloads[remaining] = cached["rows"]
+                        cache_used += 1
+                    else:
+                        failed += 1
+                        errors["skipped_after_circuit_breaker"] += 1
+                break
     return payloads, {
         "status": "fresh" if success and not cache_used and not failed else ("partial" if success else ("fallback" if cache_used else "unavailable")),
         "enriched": 0,
