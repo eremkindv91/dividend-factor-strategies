@@ -64,6 +64,29 @@ def test_tinvest_uses_cache_when_broker_api_is_unavailable():
     assert stats["status"] == "fallback" and stats["cache_used"] == 1
 
 
+def test_tinvest_reports_only_sanitized_error_codes():
+    def unauthorized(_token, _method, _payload):
+        raise tinvest.TInvestRequestError("http_401")
+
+    payloads, stats = tinvest.collect_payloads(
+        [_event()], "secret-value-must-not-leak", "2026-01-01", "2026-12-31", post=unauthorized,
+    )
+
+    assert payloads == {}
+    assert stats["errors"] == {"http_401": 1}
+    assert "secret" not in str(stats)
+
+
+def test_tinvest_reports_instrument_lookup_miss_separately():
+    payloads, stats = tinvest.collect_payloads(
+        [_event()], "secret", "2026-01-01", "2026-12-31",
+        post=lambda _token, _method, _payload: {"instruments": []},
+    )
+
+    assert payloads == {}
+    assert stats["errors"] == {"instrument_not_found": 1}
+
+
 def test_builder_keeps_p1_sources_optional_without_token(monkeypatch):
     monkeypatch.setattr(builder.disclosure, "load_verified_decisions", lambda _root: ([], []))
     result = builder.build_payload(

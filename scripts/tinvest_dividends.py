@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from collections import Counter
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -17,6 +18,14 @@ from typing import Callable
 
 API_BASE = "https://invest-public-api.tinkoff.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService"
 DEFAULT_TIMEOUT_SECONDS = 20
+
+
+class TInvestRequestError(RuntimeError):
+    """Sanitized API failure safe to aggregate in public source health."""
+
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
 
 
 def quotation_to_float(value) -> float | None:
@@ -108,16 +117,30 @@ def apply_tinvest_enrichment(events: list[dict], payloads: dict[str, list[dict]]
 def _post(token: str, method: str, payload: dict, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> dict:
     import requests
 
-    response = requests.post(
-        f"{API_BASE}/{method}", json=payload, timeout=timeout,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-    )
+    try:
+        response = requests.post(
+            f"{API_BASE}/{method}", json=payload, timeout=timeout,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        )
+    except requests.Timeout as exc:
+        raise TInvestRequestError("timeout") from exc
+    except requests.RequestException as exc:
+        raise TInvestRequestError("network_error") from exc
     if not 200 <= response.status_code < 300:
-        raise RuntimeError(f"T-Invest HTTP {response.status_code}")
-    body = response.json()
+        raise TInvestRequestError(f"http_{response.status_code}")
+    try:
+        body = response.json()
+    except ValueError as exc:
+        raise TInvestRequestError("invalid_json") from exc
     if not isinstance(body, dict):
-        raise RuntimeError("T-Invest returned a non-object payload")
+        raise TInvestRequestError("invalid_payload")
     return body
+
+
+def _safe_error_code(exc: Exception) -> str:
+    if isinstance(exc, TInvestRequestError):
+        return exc.code
+    return "unexpected_error"
 
 
 def _instrument_id(body: dict, identifier: str) -> str | None:
@@ -175,7 +198,8 @@ def collect_payloads(
     affect MOEX collection or publication correctness.
     """
     if not token:
-        return {}, {"status": "disabled", "enriched": 0, "success": 0, "cache_used": 0, "failed": 0, "limited": 0}
+        return {}, {"status": "disabled", "enriched": 0, "success": 0, "cache_used": 0,
+                    "failed": 0, "limited": 0, "errors": {}}
     request = post or _post
     cache = cache if cache is not None else {"schema_version": 1, "records": {}}
     cached_records = cache.setdefault("records", {})
@@ -186,25 +210,28 @@ def collect_payloads(
             identifiers.append(value)
     payloads: dict[str, list[dict]] = {}
     success = cache_used = failed = 0
+    errors: Counter[str] = Counter()
     for identifier in identifiers[:max_instruments]:
         try:
             found = request(token, "FindInstrument", {"query": identifier})
             instrument_id = _instrument_id(found, identifier)
             if not instrument_id:
                 failed += 1
+                errors["instrument_not_found"] += 1
                 continue
             body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
             rows = body.get("dividends") or []
             payloads[identifier] = rows if isinstance(rows, list) else []
             cached_records[identifier] = {"rows": payloads[identifier], "instrument_id": instrument_id}
             success += 1
-        except Exception:  # The caller reports aggregate health; never expose a token or response body.
+        except Exception as exc:  # Aggregate only a sanitized code; never expose token or response body.
             cached = cached_records.get(identifier)
             if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
                 payloads[identifier] = cached["rows"]
                 cache_used += 1
             else:
                 failed += 1
+                errors[_safe_error_code(exc)] += 1
     return payloads, {
         "status": "fresh" if success and not cache_used and not failed else ("partial" if success else ("fallback" if cache_used else "unavailable")),
         "enriched": 0,
@@ -212,4 +239,5 @@ def collect_payloads(
         "cache_used": cache_used,
         "failed": failed,
         "limited": max(0, len(identifiers) - max_instruments),
+        "errors": dict(sorted(errors.items())),
     }
