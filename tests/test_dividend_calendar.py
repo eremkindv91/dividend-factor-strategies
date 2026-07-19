@@ -199,6 +199,17 @@ def test_validator_accepts_official_shareholder_approval():
     assert validator.validate_payload(payload([approved])) == []
 
 
+def test_validator_accepts_explicit_tinvest_last_buy_date():
+    enriched = event()
+    enriched["last_buy_date_source"] = "tinvest_explicit"
+    enriched["field_provenance"]["last_buy_date"] = "tinvest"
+    enriched["source_evidence"].append({
+        "source": "tinvest", "source_url": "https://www.tbank.ru/invest/",
+        "observed_at": "2026-07-10T12:00:00+03:00", "fields": ["last_buy_date"],
+    })
+    assert validator.validate_payload(payload([enriched])) == []
+
+
 def test_cache_fallback_and_empty_success_are_distinct():
     universe = {"AAA": security("AAA", None), "BBB": security("BBB", None)}
     cache = {"schema_version": "2.0", "records": {"BBB": {"rows": [row(ticker="BBB", isin=None)],

@@ -131,7 +131,7 @@ def validate_payload(payload: dict) -> list[str]:
             errors.append(f"{prefix}: неизвестный price_status={event.get('price_status')!r}")
         if event.get("price_field") not in {"LCLOSEPRICE", "LAST", "PREVPRICE", "cache", None}:
             errors.append(f"{prefix}: неизвестный price_field={event.get('price_field')!r}")
-        if event.get("last_buy_date_source") not in {"explicit_source", "calculated_settlement"}:
+        if event.get("last_buy_date_source") not in {"explicit_source", "calculated_settlement", "tinvest_explicit"}:
             errors.append(f"{prefix}: неизвестный last_buy_date_source")
         if core.is_finite_number(price) and price > 0 and event.get("currency") == event.get("price_currency"):
             expected_yield = amount / price * 100 if core.is_finite_number(amount) else None
