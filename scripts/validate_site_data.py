@@ -590,10 +590,31 @@ def check_alfa_index() -> None:
     print(f"  alfa-index.json: value={value}, status={current.get('status')}, stale={current.get('stale')}, history={len(history)}")
 
 
+def check_dividend_calendar() -> None:
+    path = os.path.join(SITE, "dividend_calendar.json")
+    if not os.path.exists(path):
+        if CURRENT_SEL == "dividends":
+            err("dividend_calendar.json отсутствует")
+        else:
+            warn("dividend_calendar.json отсутствует — пропуск")
+        return
+    sys.path.insert(0, os.path.join(REPO, "scripts"))
+    import validate_dividend_calendar as dividend_validator
+    payload = load("dividend_calendar.json")
+    if payload is None:
+        return
+    errors = dividend_validator.validate_payload(payload)
+    for message in errors:
+        err(f"dividend_calendar.json: {message}")
+    meta = payload.get("meta") or {}
+    print(f"  dividend_calendar.json: events={meta.get('event_count')}, actionable={meta.get('actionable_count')}, status={meta.get('status')}")
+
+
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
           "market_history": [check_market_history],
           "marlamov": [check_marlamov], "quality": [check_quality],
-          "bonds": [check_bonds], "news": [check_news], "alfa_index": [check_alfa_index]}
+          "bonds": [check_bonds], "news": [check_news], "alfa_index": [check_alfa_index],
+          "dividends": [check_dividend_calendar]}
 
 
 def main() -> int:

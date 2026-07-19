@@ -69,7 +69,9 @@ jobs:
       # кэш дивидендных дат MOEX: фолбэк для календаря событий при недоступности ISS
       - uses: actions/cache@v4
         with:
-          path: model_output/dividends_cache.json
+          path: |
+            model_output/dividends_cache.json
+            model_output/dividend_calendar_previous.json
           key: dividends-cache-${{ github.run_id }}
           restore-keys: |
             dividends-cache-
@@ -101,13 +103,18 @@ jobs:
         # SNGS/SNGSP (no_model_coverage), помечает split-like ряды needs_adjustment. Сбой не блокирует.
         run: python scripts/clean_portfolio_data.py || echo "[clean] пропуск — данные без доп. очистки"
 
-      - name: Сборка events_calendar.json (важные события РФ — дивиденды MOEX + заседания ЦБ)
-        # читает site/data.json (универсум), тянет дивидендные даты MOEX ISS + график ЦБ;
-        # кэш model_output/dividends_cache.json как фолбэк. Сбой НЕ блокирует деплой.
+      - name: Сборка официального дивидендного календаря РФ
+        env:
+          TINVEST_TOKEN: ${{ secrets.TINVEST_TOKEN }}
+        run: python scripts/build_dividend_calendar.py || echo "[div-calendar] live-сборка не удалась — predeploy восстановит last-good"
+
+      - name: Сборка короткого events_calendar.json из общего dividend core
         run: python scripts/update_events_calendar.py || echo "[events] пропуск — календарь не пересобран"
 
-      - name: Валидация events_calendar.json
-        run: python scripts/validate_events_calendar.py || echo "[events] валидация календаря не прошла (не блокирует деплой)"
+      - name: Валидация обоих календарных контрактов
+        run: |
+          python scripts/validate_dividend_calendar.py || echo "[div-calendar] current невалиден — predeploy восстановит last-good"
+          python scripts/validate_events_calendar.py || echo "[events] валидация короткого календаря не прошла"
 
       - name: Сборка marketsaw.json (фаза рынка по MCFTR, swing/zigzag)
         # сбой MCFTR НЕ должен блокировать дневной деплой цен; предыдущий валидный файл (кэш) остаётся
@@ -185,6 +192,7 @@ jobs:
           [ -f site/news.json ] && cp site/news.json "$TMP/"   # утренний новостной блок рынка РФ
           [ -f site/alfa-index.json ] && cp site/alfa-index.json "$TMP/"   # внешний индикатор настроения рынка
           [ -f site/alfa-index-history.json ] && cp site/alfa-index-history.json "$TMP/"   # история индикатора
+          [ -f site/dividend_calendar.json ] && cp site/dividend_calendar.json "$TMP/"   # официальный дивидендный календарь
           [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"   # «Сегодня важные события»
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback

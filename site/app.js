@@ -18,7 +18,7 @@ const isoDayLag = (older, newer) => {
 };
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
-let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
+let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, DIVIDEND_CALENDAR = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
@@ -38,7 +38,7 @@ let _dataCacheAt = Date.now();
 function invalidateStaleDataCaches() {
   if (Date.now() - _dataCacheAt < DATA_CACHE_TTL_MS) return false;
   SAW_DATA = null; IMOEX_SAW = null; MARKET_SAW_MANIFEST = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
-  EVENTS_DATA = null; MARKET_HISTORY = null; ALFA_INDEX = null; ALFA_INDEX_HISTORY = null; ALFA_INDEX_LOAD = null;
+  EVENTS_DATA = null; DIVIDEND_CALENDAR = null; MARKET_HISTORY = null; ALFA_INDEX = null; ALFA_INDEX_HISTORY = null; ALFA_INDEX_LOAD = null;
   if (typeof BONDS !== 'undefined') BONDS = null;
   if (typeof CBR_DATA !== 'undefined') CBR_DATA = null;
   if (typeof FINDER !== 'undefined') FINDER = null;
@@ -4604,7 +4604,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); }
+  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
@@ -4733,6 +4733,20 @@ function loadEvents(cb) {
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !Array.isArray(j.events)) throw new Error('пустой/битый events_calendar'); EVENTS_DATA = j; if (cb) cb(); })
     .catch((e) => { console.error('[events] не загрузились:', e); EVENTS_DATA = { failed: true, events: [], meta: {} }; if (cb) cb(); });
+}
+
+function loadDividendCalendar(cb) {
+  if (DIVIDEND_CALENDAR) { if (cb) cb(); return; }
+  fetch('dividend_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (!j || j.schema_version !== '2.0' || !Array.isArray(j.events)) throw new Error('неподдерживаемый контракт');
+      DIVIDEND_CALENDAR = j; if (cb) cb();
+    })
+    .catch((e) => {
+      console.error('[dividend-calendar] не загрузился:', e);
+      DIVIDEND_CALENDAR = { failed: true, events: [], meta: {}, error: e.message }; if (cb) cb();
+    });
 }
 
 function mskNow() {
@@ -4885,8 +4899,234 @@ function renderEventsToday() {
   el.innerHTML = html;
 }
 
+// ── Дивидендный календарь РФ: official-by-default + локальный cash-flow портфеля ──
+const DIVIDEND_CALENDAR_FILTER_KEY = 'dividendFactorStrategies.dividendCalendarFilters.v1';
+const DIVIDEND_DECISION_LABELS = {
+  shareholders_approved: ['утверждено', 'approved'], market_confirmed: ['подтверждено MOEX', 'confirmed'],
+  board_recommended: ['рекомендовано СД', 'recommended'], cancelled: ['отменено', 'cancelled'], unknown: ['статус не подтверждён', 'unknown'],
+};
+const DIVIDEND_EVENT_LABELS = {
+  buyable: 'можно купить', last_buy_today: 'последний день покупки', ex_dividend: 'экс-дивиденд',
+  record_closed: 'реестр закрыт', payment_scheduled: 'выплата назначена',
+  payment_deadline_open: 'ожидается выплата', payment_deadline_passed_unknown: 'срок прошёл, статус неизвестен', cancelled: 'отменено',
+};
+const DIVIDEND_ALLOWED_HOSTS = new Set(['iss.moex.com', 'moex.com', 'www.moex.com', 'e-disclosure.ru', 'www.e-disclosure.ru', 'tbank.ru', 'www.tbank.ru']);
+let DIVIDEND_FILTERS = (() => {
+  const base = { tab: 'confirmed', range: 90, search: '', portfolioOnly: false, buyableOnly: false, minYield: 0 };
+  try { return { ...base, ...JSON.parse(localStorage.getItem(DIVIDEND_CALENDAR_FILTER_KEY) || '{}') }; } catch (_e) { return base; }
+})();
+
+function dividendSaveFilters() {
+  try { localStorage.setItem(DIVIDEND_CALENDAR_FILTER_KEY, JSON.stringify(DIVIDEND_FILTERS)); } catch (_e) { /* optional */ }
+}
+function dividendDateLabel(value, withYear = false) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return '—';
+  return `${value.slice(8, 10)}.${value.slice(5, 7)}${withYear ? '.' + value.slice(0, 4) : ''}`;
+}
+function dividendSafeUrl(raw) {
+  try { const u = new URL(String(raw || '')); return u.protocol === 'https:' && DIVIDEND_ALLOWED_HOSTS.has(u.hostname) ? u.href : ''; }
+  catch (_e) { return ''; }
+}
+function dividendPortfolioMap() {
+  const map = {};
+  let rows = [];
+  try { rows = (typeof myPortfolioLoad === 'function' ? myPortfolioLoad() : []) || []; } catch (_e) { rows = []; }
+  rows.forEach((row) => {
+    const ticker = typeof pfxCanonTicker === 'function' ? pfxCanonTicker(row.ticker) : String(row.ticker || '').toUpperCase();
+    if (ticker && isNum(row.quantity) && row.quantity > 0) map[ticker] = (map[ticker] || 0) + row.quantity;
+  });
+  return map;
+}
+function dividendPortfolioGross(event, portfolio) {
+  const quantity = portfolio[event.secid] || 0;
+  return quantity && isNum(event.dividend_value) ? quantity * event.dividend_value : null;
+}
+function dividendRelevantDate(event, tab) {
+  if (tab === 'payment') return event.payment_date || event.payment_deadline_nominee || event.payment_deadline_registered;
+  if (tab === 'changes') return String(event.last_changed_at || '').slice(0, 10);
+  return event.last_buy_date || event.record_date;
+}
+function dividendFilteredEvents(events, todayIso, portfolio) {
+  const startMs = Date.parse(todayIso + 'T00:00:00+03:00');
+  const endMs = startMs + Number(DIVIDEND_FILTERS.range || 90) * 86400000;
+  const query = String(DIVIDEND_FILTERS.search || '').trim().toLowerCase();
+  return events.filter((event) => {
+    if (DIVIDEND_FILTERS.tab === 'confirmed' && !['shareholders_approved', 'market_confirmed'].includes(event.decision_status)) return false;
+    if (DIVIDEND_FILTERS.tab === 'recommended' && event.decision_status !== 'board_recommended') return false;
+    if (DIVIDEND_FILTERS.tab === 'payment' && !['record_closed', 'payment_scheduled', 'payment_deadline_open', 'payment_deadline_passed_unknown'].includes(event.event_status)) return false;
+    if (DIVIDEND_FILTERS.tab === 'changes' && !['new', 'updated', 'cancelled'].includes(event.change_type)) return false;
+    if (DIVIDEND_FILTERS.portfolioOnly && !portfolio[event.secid]) return false;
+    if (DIVIDEND_FILTERS.buyableOnly && !['buyable', 'last_buy_today'].includes(event.event_status)) return false;
+    if (isNum(event.yield_pct) ? event.yield_pct < Number(DIVIDEND_FILTERS.minYield || 0) : Number(DIVIDEND_FILTERS.minYield || 0) > 0) return false;
+    if (query && !String(event.secid || '').toLowerCase().includes(query) && !String(event.name || '').toLowerCase().includes(query)) return false;
+    const relevant = dividendRelevantDate(event, DIVIDEND_FILTERS.tab);
+    const valueMs = Date.parse(String(relevant || '') + 'T00:00:00+03:00');
+    if (!Number.isFinite(valueMs)) return false;
+    if (DIVIDEND_FILTERS.tab === 'changes') return valueMs >= startMs - 30 * 86400000 && valueMs <= startMs;
+    if (DIVIDEND_FILTERS.tab === 'payment') return valueMs >= startMs - 30 * 86400000 && valueMs <= endMs;
+    return valueMs >= startMs && valueMs <= endMs;
+  }).sort((a, b) => String(dividendRelevantDate(a, DIVIDEND_FILTERS.tab)).localeCompare(String(dividendRelevantDate(b, DIVIDEND_FILTERS.tab))) || String(a.secid).localeCompare(String(b.secid)));
+}
+function dividendDecisionBadge(event) {
+  const value = DIVIDEND_DECISION_LABELS[event.decision_status] || DIVIDEND_DECISION_LABELS.unknown;
+  return `<span class="dc-status dc-status-${value[1]}">${esc(value[0])}</span>`;
+}
+function dividendChangeBadges(event, inPortfolio) {
+  const out = [];
+  if (inPortfolio) out.push('<span class="dc-tag dc-tag-portfolio">в портфеле</span>');
+  if (event.change_type === 'new') out.push('<span class="dc-tag">новое</span>');
+  if (event.change_type === 'updated') out.push('<span class="dc-tag">изменено</span>');
+  if (event.has_conflict) out.push('<span class="dc-tag dc-tag-risk">конфликт</span>');
+  return out.join('');
+}
+function dividendSourceDetails(event) {
+  const evidence = (event.source_evidence || []).map((item) => {
+    const url = dividendSafeUrl(item.source_url);
+    const label = item.source === 'moex_iss' ? 'MOEX ISS' : item.source === 'e_disclosure' ? 'e-disclosure' : item.source;
+    return url ? `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a> · ${esc((item.fields || []).join(', '))}</li>` : '';
+  }).filter(Boolean).join('');
+  const flags = (event.quality_flags || []).map((flag) => `<span class="dc-quality-flag">${esc(flag.replaceAll('_', ' '))}</span>`).join('');
+  const conflicts = (event.conflicts || []).map((item) => `<li>${esc(item.field)}: ${esc((item.values || []).join(' / '))}</li>`).join('');
+  return `<details class="dc-source-details"><summary>Источник и качество</summary>
+    <div class="dc-source-panel">
+      <dl><dt>Проверено</dt><dd>${esc(String(event.last_verified_at || '—').replace('T', ' ').slice(0, 16))}</dd>
+        <dt>Цена</dt><dd>${event.price_asof ? `${esc(event.price_field || '')} на ${esc(event.price_asof)}` : 'нет цены'}</dd>
+        <dt>Статус события</dt><dd>${esc(DIVIDEND_EVENT_LABELS[event.event_status] || event.event_status || '—')}</dd></dl>
+      ${flags ? `<div class="dc-quality-flags">${flags}</div>` : ''}
+      ${conflicts ? `<div class="dc-conflicts"><b>Расхождения источников</b><ul>${conflicts}</ul></div>` : ''}
+      ${evidence ? `<ul class="dc-evidence">${evidence}</ul>` : '<div class="muted">Ссылка на evidence недоступна.</div>'}
+      <p class="muted">Крайний срок выплаты — правовая граница, а не прогноз даты зачисления брокером.</p>
+    </div></details>`;
+}
+function dividendPaymentLabel(event) {
+  if (event.payment_date) return `${dividendDateLabel(event.payment_date)} · дата источника`;
+  if (event.payment_deadline_nominee) return `до ${dividendDateLabel(event.payment_deadline_nominee)} · номинальному держателю`;
+  return '—';
+}
+function dividendRowsHTML(rows, portfolio, tab) {
+  if (!rows.length) {
+    const labels = {
+      confirmed: 'Подтверждённых событий в выбранном периоде нет.',
+      recommended: 'Новых рекомендаций совета директоров в выбранном периоде нет.',
+      payment: 'Событий в окне выплаты с выбранными условиями нет.',
+      changes: 'Новых, изменённых или отменённых событий за последние 30 дней нет.',
+    };
+    return `<div class="dc-empty">${labels[tab] || labels.confirmed} Измените фильтры.</div>`;
+  }
+  const desktop = rows.map((event) => {
+    const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
+    return `<tr>
+      <td class="left"><div class="dc-company"><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div><div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div></td>
+      <td class="left">${dividendDecisionBadge(event)}</td>
+      <td class="tnum"><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></td>
+      <td class="tnum">${isNum(event.yield_pct) ? `<b>${ru(event.yield_pct, 1)}%</b><small>цена ${dividendDateLabel(event.price_asof)}</small>` : '<span class="muted">нет сопоставимой цены</span>'}</td>
+      <td class="tnum"><b>${dividendDateLabel(event.last_buy_date)}</b><small>${esc(DIVIDEND_EVENT_LABELS[event.event_status] || '')}</small></td>
+      <td class="tnum">${dividendDateLabel(event.record_date)}</td>
+      <td class="tnum">${esc(dividendPaymentLabel(event))}</td>
+      <td class="tnum">${gross != null ? `<b>${ru(gross, 0)} ₽</b><small>валовыми · ${ru(portfolio[event.secid], 0)} акц.</small>` : '<span class="muted">—</span>'}</td>
+      <td class="left">${dividendSourceDetails(event)}</td>
+    </tr>`;
+  }).join('');
+  const mobile = rows.map((event) => {
+    const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
+    return `<article class="dc-mobile-card">
+      <header><div><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div>${dividendDecisionBadge(event)}</header>
+      <div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div>
+      <div class="dc-mobile-primary"><div><span>Дивиденд</span><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></div><div><span>Доходность к цене</span><b>${isNum(event.yield_pct) ? ru(event.yield_pct, 1) + '%' : '—'}</b></div></div>
+      <dl><dt>Купить до</dt><dd>${dividendDateLabel(event.last_buy_date, true)}</dd><dt>Реестр</dt><dd>${dividendDateLabel(event.record_date, true)}</dd><dt>Выплата / до</dt><dd>${esc(dividendPaymentLabel(event))}</dd>${gross != null ? `<dt>Мой портфель</dt><dd><b>${ru(gross, 0)} ₽ валовыми</b></dd>` : ''}</dl>
+      ${dividendSourceDetails(event)}
+    </article>`;
+  }).join('');
+  return `<div class="dc-table-wrap"><table class="dc-table"><thead><tr><th scope="col" class="left">Компания</th><th scope="col" class="left">Статус</th><th scope="col">На акцию</th><th scope="col">Доходность</th><th scope="col">Купить до</th><th scope="col">Реестр</th><th scope="col">Выплата / срок</th><th scope="col">Мой портфель</th><th scope="col" class="left">Качество</th></tr></thead><tbody>${desktop}</tbody></table></div><div class="dc-mobile-list">${mobile}</div>`;
+}
+function dividendCashflowStrip(events, portfolio, todayIso, rangeDays) {
+  const endMs = Date.parse(todayIso + 'T00:00:00+03:00') + rangeDays * 86400000;
+  const monthTotals = {};
+  events.forEach((event) => {
+    const when = event.payment_date || event.record_date;
+    const ms = Date.parse(String(when || '') + 'T00:00:00+03:00');
+    const gross = dividendPortfolioGross(event, portfolio);
+    if (gross != null && ms >= Date.parse(todayIso + 'T00:00:00+03:00') && ms <= endMs) monthTotals[String(when).slice(0, 7)] = (monthTotals[String(when).slice(0, 7)] || 0) + gross;
+  });
+  const entries = Object.entries(monthTotals).sort();
+  if (!entries.length) return '';
+  const max = Math.max(...entries.map(([, value]) => value));
+  return `<div class="dc-cashflow"><div class="dc-cashflow-head"><b>Валовой cash-flow портфеля</b><span>по record date; фактическое зачисление может быть позже</span></div><div class="dc-cashflow-bars">${entries.map(([month, value]) => `<div><span>${month.slice(5)}.${month.slice(2, 4)}</span><i style="--dc-bar:${Math.max(8, Math.round(value / max * 100))}%"></i><b>${ru(value, 0)} ₽</b></div>`).join('')}</div></div>`;
+}
+function wireDividendCalendar() {
+  const body = document.getElementById('dividend-calendar-body');
+  if (!body || body.dataset.wired) return;
+  body.dataset.wired = '1';
+  body.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-dc-tab]');
+    const range = event.target.closest('[data-dc-range]');
+    if (tab) { DIVIDEND_FILTERS.tab = tab.dataset.dcTab; dividendSaveFilters(); renderDividendCalendar(); }
+    if (range) { DIVIDEND_FILTERS.range = Number(range.dataset.dcRange); dividendSaveFilters(); renderDividendCalendar(); }
+  });
+  body.addEventListener('change', (event) => {
+    if (event.target.id === 'dc-portfolio-only') DIVIDEND_FILTERS.portfolioOnly = event.target.checked;
+    else if (event.target.id === 'dc-buyable-only') DIVIDEND_FILTERS.buyableOnly = event.target.checked;
+    else if (event.target.id === 'dc-min-yield') DIVIDEND_FILTERS.minYield = Number(event.target.value);
+    else return;
+    dividendSaveFilters(); renderDividendCalendar();
+  });
+  body.addEventListener('input', debounce((event) => {
+    if (event.target.id !== 'dc-search') return;
+    DIVIDEND_FILTERS.search = event.target.value; dividendSaveFilters(); renderDividendCalendar('dc-search');
+  }, 160));
+}
+function renderDividendCalendar(refocus) {
+  const body = document.getElementById('dividend-calendar-body');
+  const summary = document.getElementById('dividend-calendar-summary');
+  if (!body || !summary) return;
+  wireDividendCalendar();
+  if (!DIVIDEND_CALENDAR) { loadDividendCalendar(() => renderDividendCalendar()); body.innerHTML = '<div class="pulse-loading muted">Загрузка официальных событий…</div>'; return; }
+  if (DIVIDEND_CALENDAR.failed) {
+    summary.textContent = 'данные временно недоступны';
+    body.innerHTML = '<div class="dc-alert dc-alert-risk"><b>Календарь временно недоступен.</b><span>Остальные рыночные блоки продолжают работать; попробуйте обновить страницу позже.</span></div>';
+    return;
+  }
+  const meta = DIVIDEND_CALENDAR.meta || {}, events = DIVIDEND_CALENDAR.events || [];
+  const { iso: todayIso } = mskNow(), portfolio = dividendPortfolioMap();
+  const in90 = events.filter((event) => ['shareholders_approved', 'market_confirmed'].includes(event.decision_status)
+    && evDayDiff(event.last_buy_date || event.record_date, todayIso) >= 0 && evDayDiff(event.last_buy_date || event.record_date, todayIso) <= 90);
+  const nearest = in90.map((event) => event.last_buy_date).filter(Boolean).sort()[0];
+  const portfolioGross = in90.reduce((sum, event) => sum + (dividendPortfolioGross(event, portfolio) || 0), 0);
+  const filtered = dividendFilteredEvents(events, todayIso, portfolio);
+  const healthLabel = meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
+  summary.textContent = `${in90.length} подтверждённых на 90 дней · ${nearest ? 'ближайшая покупка до ' + dividendDateLabel(nearest) : 'ближайших отсечек нет'} · ${healthLabel}`;
+  const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
+  const tabs = [['confirmed', 'Подтверждены'], ['recommended', 'Рекомендованы'], ['payment', 'Ждут выплаты'], ['changes', 'Изменения']];
+  body.innerHTML = `${alert}
+    <div class="dc-kpis">
+      <div><span>Подтверждено · 90 дней</span><b>${in90.length}</b><small>MOEX / официальное решение</small></div>
+      <div><span>Ближайший дедлайн покупки</span><b>${nearest ? dividendDateLabel(nearest, true) : '—'}</b><small>${nearest ? Math.max(0, evDayDiff(nearest, todayIso)) + ' календ. дн.' : 'событий не найдено'}</small></div>
+      <div><span>Мой портфель · 90 дней</span><b>${Object.keys(portfolio).length ? ru(portfolioGross, 0) + ' ₽' : 'портфель пуст'}</b><small>${Object.keys(portfolio).length ? 'валовыми, до налога' : 'добавьте позиции во вкладке «Портфель»'}</small></div>
+      <div><span>Качество данных</span><b>${esc(healthLabel)}</b><small>${ru(meta.universe_coverage_pct || 0, 0)}% бумаг проверено</small></div>
+    </div>
+    ${dividendCashflowStrip(events, portfolio, todayIso, Number(DIVIDEND_FILTERS.range || 90))}
+    <div class="dc-toolbar">
+      <div class="dc-tabs" role="tablist" aria-label="Статус дивидендов">${tabs.map(([key, label]) => `<button type="button" role="tab" aria-selected="${DIVIDEND_FILTERS.tab === key}" class="${DIVIDEND_FILTERS.tab === key ? 'active' : ''}" data-dc-tab="${key}">${label}</button>`).join('')}</div>
+      ${DIVIDEND_FILTERS.tab === 'changes'
+    ? '<div class="dc-range-note" aria-label="Период изменений">последние 30 дней</div>'
+    : `<div class="dc-ranges" aria-label="Период">${[30, 90, 365].map((days) => `<button type="button" class="${Number(DIVIDEND_FILTERS.range) === days ? 'active' : ''}" data-dc-range="${days}">${days} дней</button>`).join('')}</div>`}
+    </div>
+    <div class="dc-filters">
+      <label class="dc-search"><span>Поиск</span><input id="dc-search" type="search" value="${esc(DIVIDEND_FILTERS.search)}" placeholder="Тикер или компания" aria-label="Поиск по тикеру или компании"></label>
+      <label><input id="dc-portfolio-only" type="checkbox" ${DIVIDEND_FILTERS.portfolioOnly ? 'checked' : ''}>Только мой портфель</label>
+      <label><input id="dc-buyable-only" type="checkbox" ${DIVIDEND_FILTERS.buyableOnly ? 'checked' : ''}>Ещё можно купить</label>
+      <label class="dc-select"><span>Мин. доходность</span><select id="dc-min-yield" aria-label="Минимальная дивидендная доходность">${[0, 5, 10, 15].map((value) => `<option value="${value}" ${Number(DIVIDEND_FILTERS.minYield) === value ? 'selected' : ''}>${value}%</option>`).join('')}</select></label>
+      <span class="dc-count" aria-live="polite">Найдено: <b>${filtered.length}</b></span>
+    </div>
+    ${dividendRowsHTML(filtered, portfolio, DIVIDEND_FILTERS.tab)}
+    <div class="dc-foot">Market-confirmed означает подтверждение записи в официальных рыночных данных MOEX, но не отдельную проверку протокола собрания. Суммы портфеля считаются локально и не отправляются по сети. Не ИИР.</div>`;
+  wireDividendCalendar();
+  if (refocus) requestAnimationFrame(() => { const input = document.getElementById(refocus); if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); } });
+}
+
 function ensureKpiData() {
   if (!EVENTS_DATA && typeof loadEvents === 'function') loadEvents(() => renderEventsToday());
+  if (!DIVIDEND_CALENDAR && typeof loadDividendCalendar === 'function') loadDividendCalendar(() => renderDividendCalendar());
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });

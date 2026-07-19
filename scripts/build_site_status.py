@@ -53,6 +53,7 @@ BLOCKS = [
     ("cbr", "Банки РФ (ЦБ)", "cbr/valuation.json", ["meta.moex_asof", "meta.generated_at"], "market", 1),
     ("news", "Новости", "news.json", ["generated_at", "date"], "news", None),
     ("events", "События дня", "events_calendar.json", ["meta.generated_at"], "market", 0),
+    ("dividend_calendar", "Дивидендный календарь", "dividend_calendar.json", ["meta.generated_at"], "market", 0),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], "periodic", 60),
 ]
 
@@ -230,8 +231,13 @@ def classify_block(cfg, obj, is_fallback: bool, now_utc: datetime) -> dict:
     if asof_raw is None and not is_fallback:
         unverified = True                                # источник без даты → «дата не подтверждена»
 
-    if is_fallback:
+    declared_status = dig(obj, "meta.status") if key == "dividend_calendar" else None
+    if is_fallback or declared_status == "fallback":
         fine = "fallback"
+    elif declared_status == "partial":
+        fine = "partial"
+    elif declared_status == "broken":
+        fine = "unavailable"
     elif src_type == "market":
         fine = classify_market(asof_date, now_msk, int(param or 0))
     elif src_type == "news":
@@ -240,8 +246,20 @@ def classify_block(cfg, obj, is_fallback: bool, now_utc: datetime) -> dict:
     else:  # periodic
         fine = classify_periodic(asof_raw, now_utc, float(param))
 
-    return _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk,
-                 unverified, gen_raw)
+    result = _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt,
+                   is_fallback or declared_status == "fallback", now_msk, unverified, gen_raw)
+    if key == "dividend_calendar":
+        meta = obj.get("meta") or {}
+        result["metrics"] = {
+            "universe_coverage_pct": meta.get("universe_coverage_pct"),
+            "event_count": meta.get("event_count"),
+            "actionable_count": meta.get("actionable_count"),
+            "recommended_count": meta.get("recommended_count"),
+            "cancelled_count": meta.get("cancelled_count"),
+            "conflict_count": meta.get("conflict_count"),
+            "source_health": meta.get("source_health"),
+        }
+    return result
 
 
 def _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback, now_msk,

@@ -49,7 +49,7 @@ ISS_CANDLES_URL = (
 )
 ISS_DIV_URL = (
     "https://iss.moex.com/iss/securities/{tk}/dividends.json"
-    "?iss.meta=off&dividends.columns=registryclosedate,value,currencyid"
+    "?iss.meta=off&dividends.columns=secid,isin,registryclosedate,value,currencyid"
 )
 ISS_OHLCV_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/{board}/securities/{tk}/candles.json"
@@ -193,17 +193,29 @@ def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int
     return out
 
 
+def fetch_dividend_records(ticker: str, timeout: int = 25, retries: int = 3) -> List[dict]:
+    """Official dividend rows with security identifiers and record dates."""
+    payload = _http_get_json(ISS_DIV_URL.format(tk=ticker), timeout=timeout, retries=retries)
+    out = []
+    for row in _rows(payload.get("dividends", {"columns": [], "data": []})):
+        value, currency, record_date = row.get("value"), row.get("currencyid"), row.get("registryclosedate")
+        if value is not None and float(value) > 0 and currency in (None, "SUR", "RUB") and record_date:
+            out.append({
+                "secid": row.get("secid") or ticker,
+                "isin": row.get("isin"),
+                "registryclosedate": str(record_date)[:10],
+                "value": float(value),
+                "currencyid": "RUB" if currency in (None, "SUR") else currency,
+            })
+    out.sort(key=lambda row: (row["registryclosedate"], row["value"]))
+    return out
+
+
 def fetch_dividends(ticker: str, timeout: int = 25, retries: int = 3) -> List[Tuple[str, float]]:
     """История выплат: [(дата отсечки YYYY-MM-DD, дивиденд на акцию ₽)], только рубли (SUR).
     Бесплатный публичный endpoint MOEX ISS. RuntimeError при недоступности."""
-    payload = _http_get_json(ISS_DIV_URL.format(tk=ticker), timeout=timeout, retries=retries)
-    out = []
-    for r in _rows(payload.get("dividends", {"columns": [], "data": []})):
-        v, cur, d = r.get("value"), r.get("currencyid"), r.get("registryclosedate")
-        if v is not None and float(v) > 0 and (cur in (None, "SUR", "RUB")) and d:
-            out.append((str(d)[:10], float(v)))
-    out.sort()
-    return out
+    return [(row["registryclosedate"], row["value"])
+            for row in fetch_dividend_records(ticker, timeout=timeout, retries=retries)]
 
 
 def _load_cache() -> dict:

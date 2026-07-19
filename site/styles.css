@@ -2454,6 +2454,126 @@ tbody tr:hover td,
   .events-today { padding: 14px; }
 }
 
+/* ═══════════ Дивидендный календарь РФ ═══════════ */
+.dividend-calendar-wrap { padding: 0; overflow: hidden; }
+.dividend-calendar-wrap > summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 14px;
+  padding: 13px 16px; list-style-position: inside; border-bottom: 1px solid transparent;
+}
+.dividend-calendar-wrap[open] > summary { border-bottom-color: var(--line); }
+.dividend-calendar-summary { margin-left: auto; font-size: .76rem; font-weight: 500; text-align: right; }
+.dividend-calendar-body { padding: 0 16px 16px; }
+.dc-alert { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 12px 0 0; padding: 9px 11px;
+  background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0; border-radius: 6px; font-size: .78rem; }
+.dc-alert-risk { background: var(--risk-fill); color: var(--risk-ink); border-color: #E8B9A7; }
+.dc-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 14px 0 0;
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.dc-kpis > div { min-width: 0; padding: 11px 13px; border-right: 1px solid var(--line); }
+.dc-kpis > div:last-child { border-right: 0; }
+.dc-kpis span, .dc-kpis small { display: block; color: var(--ink-faint); font-size: .7rem; line-height: 1.35; }
+.dc-kpis b { display: block; margin: 2px 0; color: var(--ink); font-size: 1rem; line-height: 1.25; overflow-wrap: anywhere; }
+.dc-cashflow { margin-top: 12px; padding: 10px 12px; background: #F2F7F4; border: 1px solid #D7E7DE; border-radius: 8px; }
+.dc-cashflow-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: .76rem; }
+.dc-cashflow-head span { color: var(--ink-faint); font-size: .68rem; text-align: right; }
+.dc-cashflow-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin-top: 8px; }
+.dc-cashflow-bars > div { display: grid; grid-template-columns: 34px 1fr; gap: 2px 6px; align-items: center; min-width: 0; }
+.dc-cashflow-bars span { color: var(--ink-faint); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.dc-cashflow-bars i { display: block; width: var(--dc-bar); min-width: 4px; max-width: 100%; height: 6px; border-radius: 3px; background: var(--good-ink); }
+.dc-cashflow-bars b { grid-column: 2; color: var(--ink-soft); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.dc-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.dc-tabs, .dc-ranges { display: inline-flex; min-width: 0; padding: 3px; background: #F0F2F7; border: 1px solid var(--line); border-radius: 8px; }
+.dc-tabs button, .dc-ranges button { min-height: 34px; border: 0; border-radius: 5px; padding: 6px 11px; background: transparent;
+  color: var(--ink-soft); font: inherit; font-size: .76rem; font-weight: 650; cursor: pointer; white-space: nowrap; }
+.dc-tabs button:hover, .dc-ranges button:hover { color: var(--ink); }
+.dc-tabs button.active, .dc-ranges button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(46,52,64,.12); }
+.dc-range-note { display: inline-flex; align-items: center; min-height: 42px; padding: 6px 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: #F0F2F7; color: var(--ink-faint); font-size: .74rem; font-weight: 650; white-space: nowrap; }
+.dc-tabs button:focus-visible, .dc-ranges button:focus-visible, .dc-filters input:focus-visible, .dc-filters select:focus-visible,
+.dc-source-details > summary:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.dc-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 10px 0; padding: 10px 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: .76rem; color: var(--ink-soft); }
+.dc-filters label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.dc-filters label > span { color: var(--ink-faint); }
+.dc-filters input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-deep); }
+.dc-filters .dc-search { flex: 1 1 210px; }
+.dc-filters .dc-search input { width: 100%; min-width: 0; }
+.dc-filters input[type="search"], .dc-filters select { min-height: 36px; border: 1px solid var(--line); border-radius: 6px;
+  padding: 6px 9px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; }
+.dc-filters .dc-select { margin-left: auto; }
+.dc-count { margin-left: auto; color: var(--ink-faint); white-space: nowrap; }
+.dc-count b { color: var(--ink); }
+.dc-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.dc-table { min-width: 1100px; font-size: .76rem; }
+.dc-table thead th { position: static; cursor: default; padding: 8px; font-size: .66rem; }
+.dc-table tbody td { padding: 9px 8px; vertical-align: top; white-space: normal; }
+.dc-table tbody tr:last-child td { border-bottom: 0; }
+.dc-table small { display: block; margin-top: 2px; color: var(--ink-faint); font-size: .66rem; line-height: 1.3; }
+.dc-company { display: flex; flex-direction: column; min-width: 118px; }
+.dc-company b { color: var(--ink); font-family: var(--mono); font-size: .8rem; }
+.dc-company span { color: var(--ink-soft); font-size: .7rem; line-height: 1.3; }
+.dc-status { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 7px; border-radius: 5px;
+  font-size: .67rem; font-weight: 700; line-height: 1.25; }
+.dc-status-approved, .dc-status-confirmed { background: var(--good-fill); color: var(--good-ink); }
+.dc-status-recommended { background: var(--warn-fill); color: var(--warn-ink); }
+.dc-status-cancelled { background: var(--risk-fill); color: var(--risk-ink); }
+.dc-status-unknown { background: var(--neut-fill); color: var(--neut-ink); }
+.dc-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.dc-tag { display: inline-block; padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-faint); font-size: .6rem; }
+.dc-tag-portfolio { border-color: #9CC7B2; color: var(--good-ink); background: #F2F8F5; }
+.dc-tag-risk { border-color: #E0AD99; color: var(--risk-ink); background: var(--risk-fill); }
+.dc-source-details > summary { cursor: pointer; color: var(--accent-deep); font-size: .68rem; font-weight: 650; white-space: nowrap; }
+.dc-source-panel { min-width: 250px; margin-top: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.dc-source-panel dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 8px; margin: 0; font-size: .67rem; }
+.dc-source-panel dt { color: var(--ink-faint); }.dc-source-panel dd { margin: 0; color: var(--ink-soft); }
+.dc-source-panel ul { margin: 6px 0 0; padding-left: 16px; }.dc-source-panel li { margin: 2px 0; overflow-wrap: anywhere; }
+.dc-source-panel a { color: var(--accent-deep); }.dc-source-panel p { margin: 7px 0 0; font-size: .64rem; line-height: 1.4; }
+.dc-quality-flags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.dc-quality-flag { padding: 1px 5px; border-radius: 4px; background: var(--warn-fill); color: var(--warn-ink); font-size: .6rem; }
+.dc-conflicts { margin-top: 6px; color: var(--risk-ink); font-size: .66rem; }
+.dc-empty { padding: 22px 14px; border: 1px dashed var(--line); border-radius: 8px; color: var(--ink-soft); text-align: center; font-size: .82rem; }
+.dc-foot { margin-top: 10px; color: var(--ink-faint); font-size: .68rem; line-height: 1.45; }
+.dc-mobile-list { display: none; }
+
+@media (max-width: 900px) {
+  .dc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dc-kpis > div:nth-child(2) { border-right: 0; }
+  .dc-kpis > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .dc-toolbar { align-items: stretch; flex-direction: column; }
+  .dc-tabs, .dc-ranges { width: 100%; overflow-x: auto; }
+  .dc-tabs button { flex: 1 0 auto; }
+  .dc-ranges button { flex: 1; }
+}
+@media (max-width: 640px) {
+  .dividend-calendar-wrap > summary { align-items: flex-start; flex-direction: column; gap: 3px; padding: 12px; }
+  .dividend-calendar-summary { margin-left: 0; text-align: left; line-height: 1.35; }
+  .dividend-calendar-body { padding: 0 12px 12px; }
+  .dc-kpis { grid-template-columns: 1fr 1fr; }
+  .dc-kpis > div { padding: 9px; }
+  .dc-kpis b { font-size: .88rem; }
+  .dc-tabs { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
+  .dc-tabs button { white-space: normal; }
+  .dc-filters { align-items: stretch; }
+  .dc-filters label { flex: 1 1 100%; }
+  .dc-filters .dc-select { margin-left: 0; justify-content: space-between; }
+  .dc-count { margin-left: 0; width: 100%; }
+  .dc-table-wrap { display: none; }
+  .dc-mobile-list { display: grid; gap: 8px; }
+  .dc-mobile-card { padding: 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .dc-mobile-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .dc-mobile-card header > div { display: flex; flex-direction: column; min-width: 0; }
+  .dc-mobile-card header b { font-family: var(--mono); font-size: .88rem; }
+  .dc-mobile-card header span:not(.dc-status) { color: var(--ink-soft); font-size: .7rem; overflow-wrap: anywhere; }
+  .dc-mobile-primary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; padding: 9px 0;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .dc-mobile-primary div { display: flex; flex-direction: column; }.dc-mobile-primary span { color: var(--ink-faint); font-size: .64rem; }
+  .dc-mobile-primary b { font-size: .92rem; font-variant-numeric: tabular-nums; }
+  .dc-mobile-card > dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0 0 8px; font-size: .72rem; }
+  .dc-mobile-card > dl dt { color: var(--ink-faint); }.dc-mobile-card > dl dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .dc-source-panel { min-width: 0; }
+  .dc-cashflow-head { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .dc-cashflow-head span { text-align: left; }
+}
+
 /* ══ Банки РФ: cockpit-полировка (единый выбор, ROE-линия, bridge, мобайл) ══ */
 .bval-takeaway { margin: 10px 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
 .bval-tw-head { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }

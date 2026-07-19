@@ -1,0 +1,82 @@
+name: dividend calendar (официальные события РФ)
+
+on:
+  schedule:
+    - cron: "0 5 * * *"    # 08:00 МСК ежедневно, включая выходные
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            model_output/prices_cache.json
+            model_output/dividends_cache.json
+            model_output/dividend_calendar_previous.json
+          key: dividend-calendar-${{ github.run_id }}
+          restore-keys: |
+            dividend-calendar-
+
+      - name: Сборка календарей
+        env:
+          TINVEST_TOKEN: ${{ secrets.TINVEST_TOKEN }}
+        run: |
+          python scripts/build_dividend_calendar.py --change-marker "$RUNNER_TEMP/dividend-calendar-change"
+          python scripts/update_events_calendar.py
+
+      - name: Contract gates
+        run: |
+          python scripts/validate_dividend_calendar.py
+          python scripts/validate_events_calendar.py
+          python scripts/validate_site_data.py dividends
+
+      - name: Commit business changes в source branch
+        run: |
+          if ! grep -qx "changed" "$RUNNER_TEMP/dividend-calendar-change"; then
+            echo "[div-calendar] business payload без изменений — source commit не нужен"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/dividend_calendar.json
+          git commit -m "data(dividends): обновить официальный календарь"
+          git push
+
+      - name: Additive publish calendar JSON → gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --quiet --branch gh-pages --single-branch \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          cp site/dividend_calendar.json "$TMP/dividend_calendar.json"
+          cp site/events_calendar.json "$TMP/events_calendar.json"
+          touch "$TMP/.nojekyll"
+          python scripts/patch_dividend_calendar_status.py "$TMP" || echo "[div-calendar] patch site_status пропущен"
+          if [ -z "$(git -C "$TMP" status --porcelain -- dividend_calendar.json events_calendar.json site_status.json .nojekyll)" ]; then
+            echo "[div-calendar] gh-pages без содержательных изменений"
+            rm -rf "$TMP"
+            exit 0
+          fi
+          git -C "$TMP" config user.name "github-actions[bot]"
+          git -C "$TMP" config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C "$TMP" add dividend_calendar.json events_calendar.json .nojekyll
+          [ -f "$TMP/site_status.json" ] && git -C "$TMP" add site_status.json
+          git -C "$TMP" commit -m "deploy(dividends): обновить календарь"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

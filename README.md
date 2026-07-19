@@ -297,3 +297,26 @@ scatter ROE×P/BV со справедливой линией `P/BV = ROE / COE` 
 **Обновление:** `update-cbr-banks.yml` (ежедневно; отчётность ЦБ месячная, цены MOEX ежедневно).
 Ручной запуск: `python3 scripts/cbr_banks/build_banks_valuation.py`; тесты
 `python3 scripts/cbr_banks/test_banks_valuation.py`.
+
+## Дивидендный календарь РФ
+
+`python scripts/build_dividend_calendar.py` собирает `site/dividend_calendar.json` из официального
+MOEX ISS, используя один bulk-запрос цен и ограниченный параллельный сбор дивидендов. Общий модуль
+`scripts/dividend_calendar_core.py` отвечает за stable ID, дедупликацию, T+1 по торговому календарю,
+статусы lifecycle, provenance и legal payment deadlines. `scripts/update_events_calendar.py` проецирует
+тот же payload в обратно совместимый короткий календарь событий, не запрашивая MOEX второй раз.
+
+`market_confirmed` означает подтверждение суммы и даты реестра в MOEX ISS, но не отдельную проверку
+решения собрания акционеров. SmartLab используется только как discovery для короткого блока и не
+становится actionable-событием. Точная дата выплаты не рассчитывается: без explicit source показывается
+только крайний срок. Портфельный cash-flow считается локально в браузере и не входит в статический JSON.
+
+```bash
+python scripts/build_dividend_calendar.py
+python scripts/validate_dividend_calendar.py
+python scripts/update_events_calendar.py
+python scripts/validate_events_calendar.py
+```
+
+Ежедневный lightweight workflow `.github/workflows/dividend_calendar.yml` публикует оба JSON аддитивно;
+при ошибке validation текущий `gh-pages` остаётся без изменений.

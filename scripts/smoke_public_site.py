@@ -105,6 +105,15 @@ def main() -> int:
         else:
             m = ev["meta"]
             sys.stdout.write(f"  [OK] events_calendar.json ({m.get('event_count')} событий, сегодня {m.get('today_event_count')})\n")
+        div, e = fetch(f"{base}/dividend_calendar.json", retries, True)
+        if e:
+            fails.append(f"dividend_calendar.json недоступен ({e})")
+        elif not (div.get("schema_version") == "2.0" and isinstance(div.get("events"), list)
+                  and (div.get("meta") or {}).get("status") in ("fresh", "partial", "fallback")):
+            fails.append("dividend_calendar.json нарушает schema/status contract")
+        else:
+            dm = div["meta"]
+            sys.stdout.write(f"  [OK] dividend_calendar.json ({dm.get('event_count')} событий, actionable={dm.get('actionable_count')})\n")
 
         # Двухконтурная «Пила»: manifest + IMOEX (не критично для ролбэка — новые файлы/лаг CDN)
         man, e = fetch(f"{base}/marketsaw_manifest.json", retries, True)

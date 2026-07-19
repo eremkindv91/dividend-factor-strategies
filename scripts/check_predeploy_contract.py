@@ -105,11 +105,33 @@ def check_quality(d) -> str | None:
     return None
 
 
+def check_dividend_calendar(d) -> str | None:
+    try:
+        from validate_dividend_calendar import validate_payload
+        errors = validate_payload(d)
+        return errors[0] if errors else None
+    except Exception as exc:  # noqa: BLE001
+        return f"validator error: {str(exc)[:80]}"
+
+
+def check_events_calendar(d) -> str | None:
+    meta, events = d.get("meta") or {}, d.get("events")
+    if meta.get("timezone") != "Europe/Moscow" or not meta.get("generated_at"):
+        return "нет timezone/generated_at"
+    if not isinstance(events, list):
+        return "events не массив"
+    if meta.get("event_count") != len(events):
+        return "meta.event_count не совпадает с events"
+    return None
+
+
 # обязательные (broken → block) и опциональные (broken → только пометка)
 REQUIRED = {
     "data.json": check_data,
     "marketsaw.json": check_marketsaw,
     "quality.json": check_quality,
+    "dividend_calendar.json": check_dividend_calendar,
+    "events_calendar.json": check_events_calendar,
 }
 OPTIONAL = [
     "marlamov.json",

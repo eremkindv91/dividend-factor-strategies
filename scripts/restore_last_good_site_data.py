@@ -26,7 +26,8 @@ from check_predeploy_contract import REQUIRED, load as _load  # noqa: E402
 
 # файлы, которые имеет смысл откатывать к last-good (core + важные опциональные)
 CANDIDATES = ["data.json", "marketsaw.json", "returns.json", "marlamov.json",
-              "quality.json", "bonds/screener.json", "cbr/valuation.json", "news.json", "site_financials.json"]
+              "quality.json", "dividend_calendar.json", "events_calendar.json", "bonds/screener.json", "cbr/valuation.json",
+              "news.json", "site_financials.json"]
 
 
 def is_valid(path: str) -> bool:

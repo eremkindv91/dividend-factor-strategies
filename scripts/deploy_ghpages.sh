@@ -22,6 +22,12 @@ python3 scripts/build_quality.py   # обновляет market/lot metadata по
 python3 market_saw/production/build_marketsaw.py || echo "[marketsaw] пропуск — сохранён предыдущий валидный файл, если он есть"
 python3 scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
 python3 scripts/build_market_history.py
+python3 scripts/build_dividend_calendar.py
+python3 scripts/validate_dividend_calendar.py
+python3 scripts/update_events_calendar.py
+python3 scripts/validate_events_calendar.py
+python3 scripts/check_predeploy_contract.py
+python3 scripts/build_site_status.py
 python3 scripts/validate_site_data.py
 
 cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
@@ -36,6 +42,9 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/news.json ] && cp site/news.json "$TMP/"
 [ -f site/alfa-index.json ] && cp site/alfa-index.json "$TMP/"
 [ -f site/alfa-index-history.json ] && cp site/alfa-index-history.json "$TMP/"
+[ -f site/dividend_calendar.json ] && cp site/dividend_calendar.json "$TMP/"
+[ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"
+[ -f site/site_status.json ] && cp site/site_status.json "$TMP/"
 [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"
 V="$(git rev-parse --short=8 HEAD)"
 python3 - "$TMP/index.html" "$V" <<'PY'

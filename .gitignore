@@ -79,6 +79,7 @@ site/_fallback.json
 # календарь важных событий: генерит CI (scripts/update_events_calendar.py) — в репо не нужен
 site/events_calendar.json
 model_output/dividends_cache.json
+model_output/dividend_calendar_previous.json
 
 # News pipeline: local collector/model inputs
 news/artifacts/
