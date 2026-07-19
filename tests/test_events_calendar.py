@@ -49,3 +49,23 @@ def test_all_meetings_past_returns_empty():
     today = date(2026, 12, 31)
     ev = uec.build_cbr_events(today - timedelta(days=4), today + timedelta(days=21), today)
     assert ev == []                                          # честно пусто, не выдумываем
+
+
+def test_smartlab_discovery_keeps_structured_fields(monkeypatch):
+    class FakeSmartlab:
+        @staticmethod
+        def fetch_dividends(_tickers):
+            return [{"ticker": "SBER", "record_date": "2026-07-20", "buy_before": "2026-07-17",
+                     "dividend": 37.64, "yield": 13.6}]
+
+    monkeypatch.setitem(sys.modules, "fetch_smartlab_dividends", FakeSmartlab)
+    events = uec.build_smartlab_dividend_events(
+        {"SBER": {"name": "Сбербанк", "mcap": 1}}, {"SBER": 1.0}, date(2026, 7, 10),
+        date(2026, 7, 6), date(2026, 7, 31), set())
+    registry = next(event for event in events if event["event_type"] == "dividend_registry_close")
+    assert registry["data_status"] == "announced"
+    assert registry["verification_status"] == "discovery_only"
+    assert registry["record_date"] == "2026-07-20"
+    assert registry["last_buy_date"] == "2026-07-17"
+    assert registry["dividend_value"] == 37.64
+    assert registry["yield_pct"] == 13.6

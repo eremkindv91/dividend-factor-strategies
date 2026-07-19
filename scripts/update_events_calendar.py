@@ -79,14 +79,17 @@ def composite_importance(base, mcap_pct, days_ahead, data_status):
     return int(round(clamp(score)))
 
 
-def _ev(eid, event_date, ticker, company, event_type, description, importance, source, url, data_status):
+def _ev(eid, event_date, ticker, company, event_type, description, importance, source, url, data_status,
+        **extra):
     title = EVENT_LABELS.get(event_type, (event_type, "Событие"))[0]
-    return {
+    event = {
         "id": eid, "date": event_date.isoformat(), "time_msk": None, "ticker": ticker,
         "company": company, "event_type": event_type, "title": title, "description": description,
         "importance": int(importance), "portfolio_relevant": False, "source": source,
         "source_url": url, "data_status": data_status,
     }
+    event.update({key: value for key, value in extra.items() if value is not None})
+    return event
 
 
 def build_smartlab_dividend_events(universe, percentiles, today, start, horizon, existing_keys):
@@ -105,22 +108,31 @@ def build_smartlab_dividend_events(universe, percentiles, today, start, horizon,
         yield_text = f" (≈{row['yield']:.1f}% к цене)" if isinstance(row.get("yield"), (int, float)) else ""
         amount_text = f"₽{amount:.2f} на акцию" if isinstance(amount, (int, float)) else "объявленный дивиденд"
         note = "Discovery-календарь SmartLab; это не официальное подтверждение, сверяйте с эмитентом/MOEX."
+        explicit = dividend_core.parse_date(row.get("buy_before"))
+        last_buy = explicit or dividend_core.calculate_last_buy_date(record)[0]
+        discovery_fields = {
+            "record_date": record.isoformat(),
+            "last_buy_date": last_buy.isoformat(),
+            "last_buy_date_source": "smartlab_explicit" if explicit else "calculated_settlement",
+            "dividend_value": amount if isinstance(amount, (int, float)) else None,
+            "yield_pct": row.get("yield") if isinstance(row.get("yield"), (int, float)) else None,
+            "currency": "RUB",
+            "verification_status": "discovery_only",
+        }
         if start <= record <= horizon and (ticker, record.isoformat(), "dividend_registry_close") not in existing_keys:
             events.append(_ev(
                 f"{ticker}-{record.isoformat()}-registry-sl", record, ticker, info["name"],
                 "dividend_registry_close", f"{amount_text}{yield_text}. {note}",
                 composite_importance(EVENT_IMPORTANCE["dividend_registry_close"], mcap_pct,
                                      (record - today).days, "announced"),
-                "smartlab", "https://smart-lab.ru/dividends/", "announced"))
-        explicit = dividend_core.parse_date(row.get("buy_before"))
-        last_buy = explicit or dividend_core.calculate_last_buy_date(record)[0]
+                "smartlab", "https://smart-lab.ru/dividends/", "announced", **discovery_fields))
         if start <= last_buy <= horizon and (ticker, last_buy.isoformat(), "last_buy_day") not in existing_keys:
             events.append(_ev(
                 f"{ticker}-{record.isoformat()}-lastbuy-sl", last_buy, ticker, info["name"],
                 "last_buy_day", f"Последний день покупки под {amount_text}{yield_text}; реестр {record}. {note}",
                 composite_importance(EVENT_IMPORTANCE["last_buy_day"], mcap_pct,
                                      (last_buy - today).days, "announced"),
-                "smartlab", "https://smart-lab.ru/dividends/", "announced"))
+                "smartlab", "https://smart-lab.ru/dividends/", "announced", **discovery_fields))
     return events
 
 

@@ -4904,17 +4904,18 @@ function renderEventsToday() {
 const DIVIDEND_CALENDAR_FILTER_KEY = 'dividendFactorStrategies.dividendCalendarFilters.v1';
 const DIVIDEND_DECISION_LABELS = {
   shareholders_approved: ['утверждено', 'approved'], market_confirmed: ['подтверждено MOEX', 'confirmed'],
-  board_recommended: ['рекомендовано СД', 'recommended'], cancelled: ['отменено', 'cancelled'], unknown: ['статус не подтверждён', 'unknown'],
+  board_recommended: ['рекомендовано СД', 'recommended'], discovery_announced: ['анонс SmartLab', 'announced'],
+  cancelled: ['отменено', 'cancelled'], unknown: ['статус не подтверждён', 'unknown'],
 };
 const DIVIDEND_EVENT_LABELS = {
   buyable: 'можно купить', last_buy_today: 'последний день покупки', ex_dividend: 'экс-дивиденд',
   record_closed: 'реестр закрыт', payment_scheduled: 'выплата назначена',
   payment_deadline_open: 'ожидается выплата', payment_deadline_passed_unknown: 'срок прошёл, статус неизвестен', cancelled: 'отменено',
 };
-const DIVIDEND_ALLOWED_HOSTS = new Set(['iss.moex.com', 'moex.com', 'www.moex.com', 'e-disclosure.ru', 'www.e-disclosure.ru', 'tbank.ru', 'www.tbank.ru']);
+const DIVIDEND_ALLOWED_HOSTS = new Set(['iss.moex.com', 'moex.com', 'www.moex.com', 'e-disclosure.ru', 'www.e-disclosure.ru', 'tbank.ru', 'www.tbank.ru', 'smart-lab.ru', 'www.smart-lab.ru']);
 let DIVIDEND_CURRENT_EVENTS = [];
 let DIVIDEND_FILTERS = (() => {
-  const base = { tab: 'confirmed', range: 90, search: '', portfolioOnly: false, buyableOnly: false, minYield: 0 };
+  const base = { tab: 'confirmed', range: 90, search: '', portfolioOnly: false, buyableOnly: false, minYield: 0, modeChosen: false };
   try { return { ...base, ...JSON.parse(localStorage.getItem(DIVIDEND_CALENDAR_FILTER_KEY) || '{}') }; } catch (_e) { return base; }
 })();
 
@@ -5005,6 +5006,7 @@ function dividendPortfolioGross(event, portfolio) {
 function dividendRelevantDate(event, tab) {
   if (tab === 'payment') return event.payment_date || event.payment_deadline_nominee || event.payment_deadline_registered;
   if (tab === 'changes') return String(event.last_changed_at || '').slice(0, 10);
+  if (tab === 'announcements') return event.record_date;
   return event.last_buy_date || event.record_date;
 }
 function dividendFilteredEvents(events, todayIso, portfolio) {
@@ -5012,6 +5014,7 @@ function dividendFilteredEvents(events, todayIso, portfolio) {
   const endMs = startMs + Number(DIVIDEND_FILTERS.range || 90) * 86400000;
   const query = String(DIVIDEND_FILTERS.search || '').trim().toLowerCase();
   return events.filter((event) => {
+    if (DIVIDEND_FILTERS.tab === 'announcements' && event.decision_status !== 'discovery_announced') return false;
     if (DIVIDEND_FILTERS.tab === 'confirmed' && !['shareholders_approved', 'market_confirmed'].includes(event.decision_status)) return false;
     if (DIVIDEND_FILTERS.tab === 'recommended' && event.decision_status !== 'board_recommended') return false;
     if (DIVIDEND_FILTERS.tab === 'payment' && !['record_closed', 'payment_scheduled', 'payment_deadline_open', 'payment_deadline_passed_unknown'].includes(event.event_status)) return false;
@@ -5028,6 +5031,31 @@ function dividendFilteredEvents(events, todayIso, portfolio) {
     return valueMs >= startMs && valueMs <= endMs;
   }).sort((a, b) => String(dividendRelevantDate(a, DIVIDEND_FILTERS.tab)).localeCompare(String(dividendRelevantDate(b, DIVIDEND_FILTERS.tab))) || String(a.secid).localeCompare(String(b.secid)));
 }
+function dividendDiscoveryEvents(todayIso) {
+  const rows = EVENTS_DATA && Array.isArray(EVENTS_DATA.events) ? EVENTS_DATA.events : [];
+  const lastBuyByKey = new Map(rows.filter((event) => event.source === 'smartlab' && event.event_type === 'last_buy_day')
+    .map((event) => [`${event.ticker}|${event.record_date || String(event.id || '').match(/\d{4}-\d{2}-\d{2}/)?.[0] || ''}`, event.date]));
+  return rows.filter((event) => event.source === 'smartlab' && event.data_status === 'announced' && event.event_type === 'dividend_registry_close')
+    .map((event) => {
+      const amountMatch = String(event.description || '').match(/₽([\d.,]+)/);
+      const yieldMatch = String(event.description || '').match(/≈([\d.,]+)%/);
+      const recordDate = event.record_date || event.date;
+      const lastBuyDate = event.last_buy_date || lastBuyByKey.get(`${event.ticker}|${recordDate}`) || null;
+      const lastBuyDiff = lastBuyDate ? evDayDiff(lastBuyDate, todayIso) : null;
+      const recordDiff = evDayDiff(recordDate, todayIso);
+      const eventStatus = lastBuyDiff === 0 ? 'last_buy_today' : lastBuyDiff > 0 ? 'buyable' : recordDiff >= 0 ? 'ex_dividend' : 'record_closed';
+      return {
+        id: event.id, secid: event.ticker, name: event.company, decision_status: 'discovery_announced',
+        verification_status: 'discovery_only', event_status: eventStatus, record_date: recordDate,
+        last_buy_date: lastBuyDate, last_buy_date_source: event.last_buy_date_source || 'calculated_settlement',
+        dividend_value: isNum(event.dividend_value) ? event.dividend_value : amountMatch ? Number(amountMatch[1].replace(',', '.')) : null,
+        yield_pct: isNum(event.yield_pct) ? event.yield_pct : yieldMatch ? Number(yieldMatch[1].replace(',', '.')) : null,
+        currency: event.currency || 'RUB', source_evidence: [{ source: 'smartlab', source_url: event.source_url, fields: ['discovery announcement'] }],
+        quality_flags: ['discovery_only', 'not_confirmed_by_moex'], last_verified_at: EVENTS_DATA?.meta?.generated_at || null,
+        discovery_description: event.description || '', change_type: 'new', has_conflict: false,
+      };
+    });
+}
 function dividendDecisionBadge(event) {
   const value = DIVIDEND_DECISION_LABELS[event.decision_status] || DIVIDEND_DECISION_LABELS.unknown;
   return `<span class="dc-status dc-status-${value[1]}">${esc(value[0])}</span>`;
@@ -5041,6 +5069,14 @@ function dividendChangeBadges(event, inPortfolio) {
   return out.join('');
 }
 function dividendSourceDetails(event) {
+  if (event.decision_status === 'discovery_announced') {
+    const source = dividendSafeUrl((event.source_evidence || [])[0]?.source_url);
+    return `<details class="dc-source-details"><summary>Источник и ограничения</summary><div class="dc-source-panel">
+      <p><b>Discovery-источник:</b> ${source ? `<a href="${esc(source)}" target="_blank" rel="noopener noreferrer">SmartLab</a>` : 'SmartLab'}.</p>
+      <p>${esc(event.discovery_description || '')}</p>
+      <p class="dc-discovery-warning">Дата, сумма и доходность не подтверждены MOEX или документом эмитента. Расчётный последний день покупки требует ручной сверки.</p>
+    </div></details>`;
+  }
   const evidence = (event.source_evidence || []).map((item) => {
     const url = dividendSafeUrl(item.source_url);
     const label = item.source === 'moex_iss' ? 'MOEX ISS' : item.source === 'e_disclosure' ? 'e-disclosure' : item.source === 'official_issuer' ? 'сайт эмитента' : item.source === 'tinvest' ? 'Т-Инвестиции' : item.source;
@@ -5071,6 +5107,7 @@ function dividendRowsHTML(rows, portfolio, tab) {
     const labels = {
       confirmed: 'Подтверждённых событий в выбранном периоде нет.',
       recommended: 'Новых рекомендаций совета директоров в выбранном периоде нет.',
+      announcements: 'Анонсов SmartLab в выбранном периоде нет.',
       payment: 'Событий в окне выплаты с выбранными условиями нет.',
       changes: 'Новых, изменённых или отменённых событий за последние 30 дней нет.',
     };
@@ -5124,7 +5161,11 @@ function wireDividendCalendar() {
     const tab = event.target.closest('[data-dc-tab]');
     const range = event.target.closest('[data-dc-range]');
     const exportButton = event.target.closest('[data-dc-export]');
-    if (tab) { DIVIDEND_FILTERS.tab = tab.dataset.dcTab; dividendSaveFilters(); renderDividendCalendar(); }
+    if (tab) {
+      DIVIDEND_FILTERS.tab = tab.dataset.dcTab; DIVIDEND_FILTERS.modeChosen = true;
+      if (DIVIDEND_FILTERS.tab === 'announcements') { DIVIDEND_FILTERS.buyableOnly = false; DIVIDEND_FILTERS.minYield = 0; }
+      dividendSaveFilters(); renderDividendCalendar();
+    }
     if (range) { DIVIDEND_FILTERS.range = Number(range.dataset.dcRange); dividendSaveFilters(); renderDividendCalendar(); }
     if (exportButton) downloadDividendExport(exportButton.dataset.dcExport);
   });
@@ -5146,6 +5187,7 @@ function renderDividendCalendar(refocus) {
   if (!body || !summary) return;
   wireDividendCalendar();
   if (!DIVIDEND_CALENDAR) { loadDividendCalendar(() => renderDividendCalendar()); body.innerHTML = '<div class="pulse-loading muted">Загрузка официальных событий…</div>'; return; }
+  if (!EVENTS_DATA) { loadEvents(() => { renderEventsToday(); renderDividendCalendar(); }); body.innerHTML = '<div class="pulse-loading muted">Сверяем официальный слой и анонсы…</div>'; return; }
   if (DIVIDEND_CALENDAR.failed) {
     summary.textContent = 'данные временно недоступны';
     body.innerHTML = '<div class="dc-alert dc-alert-risk"><b>Календарь временно недоступен.</b><span>Остальные рыночные блоки продолжают работать; попробуйте обновить страницу позже.</span></div>';
@@ -5154,16 +5196,24 @@ function renderDividendCalendar(refocus) {
   const meta = DIVIDEND_CALENDAR.meta || {}, events = DIVIDEND_CALENDAR.events || [];
   applyDividendDeepLink();
   const { iso: todayIso } = mskNow(), portfolio = dividendPortfolioMap();
+  const discoveryEvents = dividendDiscoveryEvents(todayIso);
   const in90 = events.filter((event) => ['shareholders_approved', 'market_confirmed'].includes(event.decision_status)
     && evDayDiff(event.last_buy_date || event.record_date, todayIso) >= 0 && evDayDiff(event.last_buy_date || event.record_date, todayIso) <= 90);
   const nearest = in90.map((event) => event.last_buy_date).filter(Boolean).sort()[0];
   const portfolioGross = in90.reduce((sum, event) => sum + (dividendPortfolioGross(event, portfolio) || 0), 0);
-  const filtered = dividendFilteredEvents(events, todayIso, portfolio);
+  const discoveryUpcoming = discoveryEvents.filter((event) => evDayDiff(event.record_date, todayIso) >= 0 && evDayDiff(event.record_date, todayIso) <= 90);
+  if (!DIVIDEND_FILTERS.modeChosen && !in90.length && discoveryUpcoming.length) {
+    DIVIDEND_FILTERS.tab = 'announcements'; DIVIDEND_FILTERS.buyableOnly = false; DIVIDEND_FILTERS.minYield = 0;
+    dividendSaveFilters();
+  }
+  const activeEvents = DIVIDEND_FILTERS.tab === 'announcements' ? discoveryEvents : events;
+  const filtered = dividendFilteredEvents(activeEvents, todayIso, portfolio);
   DIVIDEND_CURRENT_EVENTS = filtered;
   const healthLabel = meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
   summary.textContent = `${in90.length} подтверждённых на 90 дней · ${nearest ? 'ближайшая покупка до ' + dividendDateLabel(nearest) : 'ближайших отсечек нет'} · ${healthLabel}`;
   const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
-  const tabs = [['confirmed', 'Подтверждены'], ['recommended', 'Рекомендованы'], ['payment', 'Ждут выплаты'], ['changes', 'Изменения']];
+  const tabs = [['confirmed', 'Подтверждены'], ['recommended', 'Рекомендованы'], ['announcements', `Анонсы · ${discoveryUpcoming.length}`], ['payment', 'Ждут выплаты'], ['changes', 'Изменения']];
+  const discoveryAlert = discoveryUpcoming.length ? `<div class="dc-discovery-alert"><div><b>${discoveryUpcoming.length} анонсов SmartLab на 90 дней</b><span>Отдельный discovery-слой: это не официально подтверждённые решения и не входит в счётчик MOEX.</span></div>${DIVIDEND_FILTERS.tab === 'announcements' ? '<span class="dc-discovery-state">показаны ниже</span>' : '<button type="button" data-dc-tab="announcements">Показать анонсы</button>'}</div>` : '';
   body.innerHTML = `${alert}
     <div class="dc-kpis">
       <div><span>Подтверждено · 90 дней</span><b>${in90.length}</b><small>MOEX / официальное решение</small></div>
@@ -5171,6 +5221,7 @@ function renderDividendCalendar(refocus) {
       <div><span>Мой портфель · 90 дней</span><b>${Object.keys(portfolio).length ? ru(portfolioGross, 0) + ' ₽' : 'портфель пуст'}</b><small>${Object.keys(portfolio).length ? 'валовыми, до налога' : 'добавьте позиции во вкладке «Портфель»'}</small></div>
       <div><span>Качество данных</span><b>${esc(healthLabel)}</b><small>${ru(meta.universe_coverage_pct || 0, 0)}% бумаг проверено</small></div>
     </div>
+    ${discoveryAlert}
     ${dividendCashflowStrip(events, portfolio, todayIso, Number(DIVIDEND_FILTERS.range || 90))}
     <div class="dc-toolbar">
       <div class="dc-tabs" role="tablist" aria-label="Статус дивидендов">${tabs.map(([key, label]) => `<button type="button" role="tab" aria-selected="${DIVIDEND_FILTERS.tab === key}" class="${DIVIDEND_FILTERS.tab === key ? 'active' : ''}" data-dc-tab="${key}">${label}</button>`).join('')}</div>
@@ -5187,7 +5238,7 @@ function renderDividendCalendar(refocus) {
       <span class="dc-count" aria-live="polite">Найдено: <b>${filtered.length}</b></span>
     </div>
     ${dividendRowsHTML(filtered, portfolio, DIVIDEND_FILTERS.tab)}
-    <div class="dc-foot">Market-confirmed означает подтверждение записи в официальных рыночных данных MOEX, но не отдельную проверку протокола собрания. Суммы портфеля считаются локально и не отправляются по сети. Не ИИР.</div>`;
+    <div class="dc-foot">Market-confirmed означает подтверждение записи в официальных рыночных данных MOEX, но не отдельную проверку протокола собрания. Анонсы SmartLab показаны отдельно и не считаются подтверждёнными. Суммы портфеля считаются локально и не отправляются по сети. Не ИИР.</div>`;
   wireDividendCalendar();
   if (refocus) requestAnimationFrame(() => { const input = document.getElementById(refocus); if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); } });
 }
