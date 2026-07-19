@@ -275,9 +275,14 @@ def run_build(args) -> tuple[dict | None, bool]:
     if args.change_marker:
         Path(args.change_marker).write_text("changed\n" if changed else "unchanged\n", encoding="utf-8")
     meta = payload["meta"]
+    tinvest_health = meta["source_health"]["tinvest"]
     sys.stderr.write(
         f"[div-calendar] events={meta['event_count']} actionable={meta['actionable_count']} "
         f"coverage={meta['universe_coverage_pct']}% status={meta['status']} business_changed={changed}\n")
+    sys.stderr.write(
+        f"[div-calendar] tinvest status={tinvest_health['status']} success={tinvest_health['success']} "
+        f"cache_used={tinvest_health['cache_used']} failed={tinvest_health['failed']} "
+        f"enriched={tinvest_health['enriched']} errors={tinvest_health.get('errors', {})}\n")
     return payload, changed
 
 
