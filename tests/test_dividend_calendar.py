@@ -249,5 +249,6 @@ def test_frontend_and_deploy_contracts_are_wired():
     assert "navigator.sendBeacon" not in js
     assert ".dc-mobile-card" in css and "@media (max-width: 640px)" in css
     assert 'cron: "0 5 * * *"' in workflow and "group: gh-pages-publish" in workflow
+    assert "pip install --quiet requests" in workflow
     assert "validate_dividend_calendar.py" in workflow
     assert "site/dividend_calendar.json" in update and "site/dividend_calendar.json" in deploy
