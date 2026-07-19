@@ -132,6 +132,12 @@ jobs:
           if git clone --depth 1 --branch gh-pages \
                "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$LAST_GOOD" 2>/dev/null; then
             echo "LAST_GOOD=$LAST_GOOD" >> "$GITHUB_ENV"
+            # IMOEX-контур «Пилы» генерит market-saw-update.yml (не этот job). Восстанавливаем его
+            # файлы из last-good в site/ ДО сборки site_status — иначе блок marketsaw_imoex будет
+            # «unavailable» и overall уедет в broken (файл-то на gh-pages есть, просто не локально).
+            for f in marketsaw_imoex.json marketsaw_manifest.json marketsaw_mcftr.json; do
+              [ -f "$LAST_GOOD/$f" ] && cp "$LAST_GOOD/$f" "site/$f" || true
+            done
           else
             echo "[last-good] gh-pages ещё нет (первый деплой) — fallback/rollback недоступны"
             rm -rf "$LAST_GOOD"
