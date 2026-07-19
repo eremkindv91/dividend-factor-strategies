@@ -73,7 +73,7 @@ def test_tinvest_reports_only_sanitized_error_codes():
     )
 
     assert payloads == {}
-    assert stats["errors"] == {"http_401": 1}
+    assert stats["errors"] == {"find_instrument_http_401": 1}
     assert "secret" not in str(stats)
 
 
@@ -85,6 +85,18 @@ def test_tinvest_reports_instrument_lookup_miss_separately():
 
     assert payloads == {}
     assert stats["errors"] == {"instrument_not_found": 1}
+
+
+def test_tinvest_reports_failure_stage_and_exception_class_without_message():
+    def broken_find(_token, _method, _payload):
+        raise TypeError("response containing a sensitive value")
+
+    _payloads, stats = tinvest.collect_payloads(
+        [_event()], "secret", "2026-01-01", "2026-12-31", post=broken_find,
+    )
+
+    assert stats["errors"] == {"find_instrument_unexpected_typeerror": 1}
+    assert "sensitive" not in str(stats)
 
 
 def test_builder_keeps_p1_sources_optional_without_token(monkeypatch):

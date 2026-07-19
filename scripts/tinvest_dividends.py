@@ -140,7 +140,8 @@ def _post(token: str, method: str, payload: dict, timeout: int = DEFAULT_TIMEOUT
 def _safe_error_code(exc: Exception) -> str:
     if isinstance(exc, TInvestRequestError):
         return exc.code
-    return "unexpected_error"
+    name = type(exc).__name__.strip().lower()
+    return f"unexpected_{name}" if name and name.replace("_", "").isalnum() else "unexpected_error"
 
 
 def _instrument_id(body: dict, identifier: str) -> str | None:
@@ -212,6 +213,7 @@ def collect_payloads(
     success = cache_used = failed = 0
     errors: Counter[str] = Counter()
     for identifier in identifiers[:max_instruments]:
+        stage = "find_instrument"
         try:
             found = request(token, "FindInstrument", {"query": identifier})
             instrument_id = _instrument_id(found, identifier)
@@ -219,6 +221,7 @@ def collect_payloads(
                 failed += 1
                 errors["instrument_not_found"] += 1
                 continue
+            stage = "get_dividends"
             body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
             rows = body.get("dividends") or []
             payloads[identifier] = rows if isinstance(rows, list) else []
@@ -231,7 +234,7 @@ def collect_payloads(
                 cache_used += 1
             else:
                 failed += 1
-                errors[_safe_error_code(exc)] += 1
+                errors[f"{stage}_{_safe_error_code(exc)}"] += 1
     return payloads, {
         "status": "fresh" if success and not cache_used and not failed else ("partial" if success else ("fallback" if cache_used else "unavailable")),
         "enriched": 0,
