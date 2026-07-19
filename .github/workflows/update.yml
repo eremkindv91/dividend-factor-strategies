@@ -72,6 +72,7 @@ jobs:
           path: |
             model_output/dividends_cache.json
             model_output/dividend_calendar_previous.json
+            model_output/tinvest_dividends_cache.json
           key: dividends-cache-${{ github.run_id }}
           restore-keys: |
             dividends-cache-

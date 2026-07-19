@@ -2488,6 +2488,11 @@ tbody tr:hover td,
 .dc-tabs button.active, .dc-ranges button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(46,52,64,.12); }
 .dc-range-note { display: inline-flex; align-items: center; min-height: 42px; padding: 6px 12px; border: 1px solid var(--line);
   border-radius: 8px; background: #F0F2F7; color: var(--ink-faint); font-size: .74rem; font-weight: 650; white-space: nowrap; }
+.dc-actions { display: inline-flex; gap: 5px; margin-left: auto; }
+.dc-actions button { min-height: 34px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
+  color: var(--ink-soft); font: inherit; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.dc-actions button:hover { color: var(--ink); border-color: var(--accent-deep); }
+.dc-actions button:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
 .dc-tabs button:focus-visible, .dc-ranges button:focus-visible, .dc-filters input:focus-visible, .dc-filters select:focus-visible,
 .dc-source-details > summary:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
 .dc-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 10px 0; padding: 10px 0;
@@ -2530,6 +2535,8 @@ tbody tr:hover td,
 .dc-quality-flags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .dc-quality-flag { padding: 1px 5px; border-radius: 4px; background: var(--warn-fill); color: var(--warn-ink); font-size: .6rem; }
 .dc-conflicts { margin-top: 6px; color: var(--risk-ink); font-size: .66rem; }
+.dc-provenance { margin-top: 6px; color: var(--ink-soft); font-size: .66rem; }
+.dc-provenance ul { margin: 3px 0 0; padding-left: 16px; }
 .dc-empty { padding: 22px 14px; border: 1px dashed var(--line); border-radius: 8px; color: var(--ink-soft); text-align: center; font-size: .82rem; }
 .dc-foot { margin-top: 10px; color: var(--ink-faint); font-size: .68rem; line-height: 1.45; }
 .dc-mobile-list { display: none; }
@@ -2540,6 +2547,7 @@ tbody tr:hover td,
   .dc-kpis > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .dc-toolbar { align-items: stretch; flex-direction: column; }
   .dc-tabs, .dc-ranges { width: 100%; overflow-x: auto; }
+  .dc-actions { margin-left: 0; }
   .dc-tabs button { flex: 1 0 auto; }
   .dc-ranges button { flex: 1; }
 }

@@ -14,7 +14,9 @@ from typing import Callable
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import dividend_calendar_core as core  # noqa: E402
+import dividend_disclosure as disclosure  # noqa: E402
 import moex_iss  # noqa: E402
+import tinvest_dividends as tinvest  # noqa: E402
 import trading_calendar as tc  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
@@ -22,6 +24,7 @@ SITE = REPO / "site"
 DEFAULT_OUT = SITE / "dividend_calendar.json"
 DEFAULT_CACHE = REPO / "model_output" / "dividends_cache.json"
 DEFAULT_SNAPSHOT = REPO / "model_output" / "dividend_calendar_previous.json"
+DEFAULT_TINVEST_CACHE = REPO / "model_output" / "tinvest_dividends_cache.json"
 DEFAULT_SECURITY_MASTER = REPO / "data" / "security_master.json"
 DEFAULT_QUALITY = REPO / "model_output" / "quality_rf.json"
 DEFAULT_BACK_DAYS = 400
@@ -162,6 +165,8 @@ def build_payload(
     price_meta: dict,
     previous: dict | None,
     now: datetime,
+    tinvest_token: str = "",
+    tinvest_max_instruments: int = 120,
     back_days: int = DEFAULT_BACK_DAYS,
     forward_days: int = DEFAULT_FORWARD_DAYS,
 ) -> dict:
@@ -180,7 +185,25 @@ def build_payload(
             if event:
                 normalized.append(event)
     events = core.merge_normalized_events(normalized)
-    core.apply_change_tracking(events, previous, now.isoformat(timespec="seconds"))
+    observed_at = now.isoformat(timespec="seconds")
+
+    decisions, disclosure_rejected = disclosure.load_verified_decisions(REPO)
+    events, disclosure_applied = disclosure.apply_verified_decisions(
+        events, decisions, universe, prices, observed_at, today,
+    )
+
+    tinvest_cache = tinvest.load_cache(DEFAULT_TINVEST_CACHE)
+    tinvest_payloads, tinvest_stats = tinvest.collect_payloads(
+        events, tinvest_token, start.isoformat(), end.isoformat(), max_instruments=tinvest_max_instruments,
+        cache=tinvest_cache,
+    )
+    if tinvest_token:
+        tinvest.save_cache(DEFAULT_TINVEST_CACHE, tinvest_cache)
+    events, tinvest_enriched = tinvest.apply_tinvest_enrichment(events, tinvest_payloads, observed_at)
+    for event in events:
+        event["event_status"] = core.derive_event_status(event, today)
+    tinvest_stats["enriched"] = tinvest_enriched
+    core.apply_change_tracking(events, previous, observed_at)
 
     covered = source_stats["success"] + source_stats["cache_used"]
     coverage = covered / len(universe) if universe else 0.0
@@ -214,8 +237,12 @@ def build_payload(
             "prices": {"status": "fresh" if price_meta.get("source_ok") else "fallback",
                        "asof": price_meta.get("price_asof"), "fresh": price_meta.get("n_fresh", 0),
                        "cache_used": price_meta.get("n_cached", 0), "missing": price_meta.get("n_missing", 0)},
-            "tinvest": {"status": "disabled", "enriched": 0},
-            "disclosure": {"status": "not_configured", "verified": 0},
+            "tinvest": tinvest_stats,
+            "disclosure": {
+                "status": "fresh" if disclosure_applied else ("partial" if disclosure_rejected else "not_configured"),
+                "verified": disclosure_applied,
+                "rejected": len(disclosure_rejected),
+            },
         },
         "disclaimer": "Официальные рыночные данные MOEX ISS. Статус market_confirmed не означает отдельную проверку решения собрания акционеров. Не ИИР.",
     }
@@ -233,8 +260,12 @@ def run_build(args) -> tuple[dict | None, bool]:
     source_rows, source_stats = collect_moex_records(universe, cache, now.isoformat())
     core.atomic_write_json(str(cache_path), cache)
     prices, price_meta = _price_rows(universe)
-    payload = build_payload(universe, source_rows, source_stats, prices, price_meta, previous, now,
-                            args.back_days, args.forward_days)
+    payload = build_payload(
+        universe, source_rows, source_stats, prices, price_meta, previous, now,
+        tinvest_token=os.environ.get("TINVEST_TOKEN", ""),
+        tinvest_max_instruments=args.tinvest_max_instruments,
+        back_days=args.back_days, forward_days=args.forward_days,
+    )
     if payload["meta"]["status"] == "broken":
         sys.stderr.write("[div-calendar] broken source coverage; current last-good was not replaced\n")
         return None, False
@@ -259,6 +290,7 @@ def parse_args(argv=None):
     parser.add_argument("--back-days", type=int, default=DEFAULT_BACK_DAYS)
     parser.add_argument("--forward-days", type=int, default=DEFAULT_FORWARD_DAYS)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--tinvest-max-instruments", type=int, default=120)
     parser.add_argument("--change-marker", default=None)
     return parser.parse_args(argv)
 

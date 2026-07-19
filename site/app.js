@@ -4595,7 +4595,8 @@ const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bon
 
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
-  return SECTIONS.includes(h) ? h : 'market';
+  const section = h.split('?', 1)[0];
+  return SECTIONS.includes(section) ? section : 'market';
 }
 
 function openDetails(id) {
@@ -4604,7 +4605,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { openDetails('marketsaw'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
+  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
@@ -4911,6 +4912,7 @@ const DIVIDEND_EVENT_LABELS = {
   payment_deadline_open: 'ожидается выплата', payment_deadline_passed_unknown: 'срок прошёл, статус неизвестен', cancelled: 'отменено',
 };
 const DIVIDEND_ALLOWED_HOSTS = new Set(['iss.moex.com', 'moex.com', 'www.moex.com', 'e-disclosure.ru', 'www.e-disclosure.ru', 'tbank.ru', 'www.tbank.ru']);
+let DIVIDEND_CURRENT_EVENTS = [];
 let DIVIDEND_FILTERS = (() => {
   const base = { tab: 'confirmed', range: 90, search: '', portfolioOnly: false, buyableOnly: false, minYield: 0 };
   try { return { ...base, ...JSON.parse(localStorage.getItem(DIVIDEND_CALENDAR_FILTER_KEY) || '{}') }; } catch (_e) { return base; }
@@ -4926,6 +4928,65 @@ function dividendDateLabel(value, withYear = false) {
 function dividendSafeUrl(raw) {
   try { const u = new URL(String(raw || '')); return u.protocol === 'https:' && DIVIDEND_ALLOWED_HOSTS.has(u.hostname) ? u.href : ''; }
   catch (_e) { return ''; }
+}
+function dividendDeepLink() {
+  const raw = (location.hash || '').replace(/^#/, '');
+  const [section, query] = raw.split('?', 2);
+  if (section !== 'market') return { open: false, ticker: '' };
+  const params = new URLSearchParams(query || '');
+  if (params.get('calendar') !== 'dividends') return { open: false, ticker: '' };
+  return { open: true, ticker: String(params.get('ticker') || '').trim().toUpperCase() };
+}
+function applyDividendDeepLink() {
+  const link = dividendDeepLink();
+  if (link.open && link.ticker && DIVIDEND_FILTERS.search !== link.ticker) {
+    DIVIDEND_FILTERS.search = link.ticker;
+    dividendSaveFilters();
+  }
+}
+function dividendCsvCell(value) {
+  return `"${String(value == null ? '' : value).replaceAll('"', '""')}"`;
+}
+function dividendIcsText(value) {
+  return String(value == null ? '' : value).replace(/[\\,;]/g, '\\$&').replace(/\r?\n/g, '\\n');
+}
+function dividendDownload(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url; anchor.download = filename; anchor.hidden = true;
+  document.body.appendChild(anchor); anchor.click(); anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function downloadDividendExport(format) {
+  const rows = DIVIDEND_CURRENT_EVENTS || [];
+  const today = mskNow().iso;
+  if (format === 'csv') {
+    const header = ['ticker', 'company', 'decision_status', 'dividend_per_share', 'currency', 'yield_pct', 'last_buy_date', 'record_date', 'payment_date', 'payment_deadline_nominee', 'source_url'];
+    const lines = [header.map(dividendCsvCell).join(',')].concat(rows.map((event) => [
+      event.secid, event.name, event.decision_status, event.dividend_value, event.currency, event.yield_pct,
+      event.last_buy_date, event.record_date, event.payment_date, event.payment_deadline_nominee,
+      dividendSafeUrl((event.source_evidence || [])[0]?.source_url),
+    ].map(dividendCsvCell).join(',')));
+    dividendDownload(`dividend-calendar-${today}.csv`, '\uFEFF' + lines.join('\n'), 'text/csv;charset=utf-8');
+    return;
+  }
+  const events = rows.flatMap((event) => {
+    const output = [];
+    const source = dividendSafeUrl((event.source_evidence || [])[0]?.source_url);
+    for (const [kind, when, title] of [
+      ['last-buy', event.last_buy_date, 'Последний день покупки'], ['record', event.record_date, 'Закрытие реестра'],
+      ['payment', event.payment_date || event.payment_deadline_nominee, event.payment_date ? 'Дата выплаты источника' : 'Крайний срок номинальному держателю'],
+    ]) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(when || ''))) continue;
+      output.push(['BEGIN:VEVENT', `UID:${dividendIcsText(event.id)}-${kind}@dividend-factor-strategies`, `DTSTART;VALUE=DATE:${when.replaceAll('-', '')}`,
+        `SUMMARY:${dividendIcsText(`${event.secid}: ${title}`)}`,
+        `DESCRIPTION:${dividendIcsText(`${event.dividend_value ?? '—'} ${event.currency || ''}; ${event.decision_status}${source ? `; ${source}` : ''}`)}`,
+        'END:VEVENT'].join('\r\n'));
+    }
+    return output;
+  });
+  dividendDownload(`dividend-calendar-${today}.ics`, ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Dividend Factor Strategies//RU Dividend Calendar//RU', 'CALSCALE:GREGORIAN', ...events, 'END:VCALENDAR'].join('\r\n') + '\r\n', 'text/calendar;charset=utf-8');
 }
 function dividendPortfolioMap() {
   const map = {};
@@ -4982,17 +5043,19 @@ function dividendChangeBadges(event, inPortfolio) {
 function dividendSourceDetails(event) {
   const evidence = (event.source_evidence || []).map((item) => {
     const url = dividendSafeUrl(item.source_url);
-    const label = item.source === 'moex_iss' ? 'MOEX ISS' : item.source === 'e_disclosure' ? 'e-disclosure' : item.source;
+    const label = item.source === 'moex_iss' ? 'MOEX ISS' : item.source === 'e_disclosure' ? 'e-disclosure' : item.source === 'official_issuer' ? 'сайт эмитента' : item.source === 'tinvest' ? 'Т-Инвестиции' : item.source;
     return url ? `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a> · ${esc((item.fields || []).join(', '))}</li>` : '';
   }).filter(Boolean).join('');
   const flags = (event.quality_flags || []).map((flag) => `<span class="dc-quality-flag">${esc(flag.replaceAll('_', ' '))}</span>`).join('');
   const conflicts = (event.conflicts || []).map((item) => `<li>${esc(item.field)}: ${esc((item.values || []).join(' / '))}</li>`).join('');
+  const provenance = Object.entries(event.field_provenance || {}).map(([field, source]) => `<li>${esc(field)}: ${esc(source)}</li>`).join('');
   return `<details class="dc-source-details"><summary>Источник и качество</summary>
     <div class="dc-source-panel">
       <dl><dt>Проверено</dt><dd>${esc(String(event.last_verified_at || '—').replace('T', ' ').slice(0, 16))}</dd>
         <dt>Цена</dt><dd>${event.price_asof ? `${esc(event.price_field || '')} на ${esc(event.price_asof)}` : 'нет цены'}</dd>
         <dt>Статус события</dt><dd>${esc(DIVIDEND_EVENT_LABELS[event.event_status] || event.event_status || '—')}</dd></dl>
       ${flags ? `<div class="dc-quality-flags">${flags}</div>` : ''}
+      ${provenance ? `<div class="dc-provenance"><b>Происхождение полей</b><ul>${provenance}</ul></div>` : ''}
       ${conflicts ? `<div class="dc-conflicts"><b>Расхождения источников</b><ul>${conflicts}</ul></div>` : ''}
       ${evidence ? `<ul class="dc-evidence">${evidence}</ul>` : '<div class="muted">Ссылка на evidence недоступна.</div>'}
       <p class="muted">Крайний срок выплаты — правовая граница, а не прогноз даты зачисления брокером.</p>
@@ -5060,8 +5123,10 @@ function wireDividendCalendar() {
   body.addEventListener('click', (event) => {
     const tab = event.target.closest('[data-dc-tab]');
     const range = event.target.closest('[data-dc-range]');
+    const exportButton = event.target.closest('[data-dc-export]');
     if (tab) { DIVIDEND_FILTERS.tab = tab.dataset.dcTab; dividendSaveFilters(); renderDividendCalendar(); }
     if (range) { DIVIDEND_FILTERS.range = Number(range.dataset.dcRange); dividendSaveFilters(); renderDividendCalendar(); }
+    if (exportButton) downloadDividendExport(exportButton.dataset.dcExport);
   });
   body.addEventListener('change', (event) => {
     if (event.target.id === 'dc-portfolio-only') DIVIDEND_FILTERS.portfolioOnly = event.target.checked;
@@ -5087,12 +5152,14 @@ function renderDividendCalendar(refocus) {
     return;
   }
   const meta = DIVIDEND_CALENDAR.meta || {}, events = DIVIDEND_CALENDAR.events || [];
+  applyDividendDeepLink();
   const { iso: todayIso } = mskNow(), portfolio = dividendPortfolioMap();
   const in90 = events.filter((event) => ['shareholders_approved', 'market_confirmed'].includes(event.decision_status)
     && evDayDiff(event.last_buy_date || event.record_date, todayIso) >= 0 && evDayDiff(event.last_buy_date || event.record_date, todayIso) <= 90);
   const nearest = in90.map((event) => event.last_buy_date).filter(Boolean).sort()[0];
   const portfolioGross = in90.reduce((sum, event) => sum + (dividendPortfolioGross(event, portfolio) || 0), 0);
   const filtered = dividendFilteredEvents(events, todayIso, portfolio);
+  DIVIDEND_CURRENT_EVENTS = filtered;
   const healthLabel = meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
   summary.textContent = `${in90.length} подтверждённых на 90 дней · ${nearest ? 'ближайшая покупка до ' + dividendDateLabel(nearest) : 'ближайших отсечек нет'} · ${healthLabel}`;
   const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
@@ -5110,6 +5177,7 @@ function renderDividendCalendar(refocus) {
       ${DIVIDEND_FILTERS.tab === 'changes'
     ? '<div class="dc-range-note" aria-label="Период изменений">последние 30 дней</div>'
     : `<div class="dc-ranges" aria-label="Период">${[30, 90, 365].map((days) => `<button type="button" class="${Number(DIVIDEND_FILTERS.range) === days ? 'active' : ''}" data-dc-range="${days}">${days} дней</button>`).join('')}</div>`}
+      <div class="dc-actions" aria-label="Экспорт календаря"><button type="button" data-dc-export="csv" title="Скачать текущую выборку CSV">CSV</button><button type="button" data-dc-export="ics" title="Скачать календарь ICS">ICS</button></div>
     </div>
     <div class="dc-filters">
       <label class="dc-search"><span>Поиск</span><input id="dc-search" type="search" value="${esc(DIVIDEND_FILTERS.search)}" placeholder="Тикер или компания" aria-label="Поиск по тикеру или компании"></label>

@@ -311,11 +311,20 @@ MOEX ISS, используя один bulk-запрос цен и огранич
 становится actionable-событием. Точная дата выплаты не рассчитывается: без explicit source показывается
 только крайний срок. Портфельный cash-flow считается локально в браузере и не входит в статический JSON.
 
+P1-обогащение остаётся opt-in: при наличии `TINVEST_TOKEN` календарь сопоставляет уже найденные
+MOEX-события с ответами T-Invest и может добавить explicit `last_buy_date`, `payment_date` или
+отмену. Токен не попадает в JSON и логи. `shareholders_approved` создаётся только из строк
+`data/dividend_disclosure_decisions.csv` с `review_status=verified`: для них обязательны источник
+из доверенного реестра эмитента/e-disclosure, дата решения, сумма и дата реестра. Команда
+`python scripts/discover_dividend_disclosures.py --network` формирует только очередь кандидатов
+для ручной проверки и не меняет public calendar.
+
 ```bash
 python scripts/build_dividend_calendar.py
 python scripts/validate_dividend_calendar.py
 python scripts/update_events_calendar.py
 python scripts/validate_events_calendar.py
+python scripts/discover_dividend_disclosures.py --network --limit 30
 ```
 
 Ежедневный lightweight workflow `.github/workflows/dividend_calendar.yml` публикует оба JSON аддитивно;

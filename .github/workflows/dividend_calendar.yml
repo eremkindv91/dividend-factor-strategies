@@ -28,6 +28,7 @@ jobs:
             model_output/prices_cache.json
             model_output/dividends_cache.json
             model_output/dividend_calendar_previous.json
+            model_output/tinvest_dividends_cache.json
           key: dividend-calendar-${{ github.run_id }}
           restore-keys: |
             dividend-calendar-

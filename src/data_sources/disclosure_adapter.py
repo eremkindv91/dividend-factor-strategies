@@ -314,6 +314,66 @@ def is_ifrs_report_link(url: str, text: str = "") -> bool:
     return any(marker in hay for marker in required)
 
 
+DIVIDEND_DECISION_MARKERS = (
+    "дивиденд", "дивиденды", "выплате дивиденд", "выплатить дивиденд",
+    "recommendation on dividends", "dividend payment", "general meeting of shareholders",
+    "решение общего собрания", "годового общего собрания", "внеочередного общего собрания",
+)
+DIVIDEND_DISCOVERY_EXCLUSIONS = ("дивидендная политика", "dividend policy", "календарь дивиденд")
+
+
+def infer_dividend_decision_status(text: str) -> str:
+    hay = normalize_search_text(text)
+    if any(marker in hay for marker in ("не выплач", "отмен", "cancel")):
+        return "cancelled"
+    if any(marker in hay for marker in ("решение общего собрания", "годового общего собрания", "внеочередного общего собрания", "итоги голосования")):
+        return "shareholders_approved"
+    if any(marker in hay for marker in ("совет директоров", "рекоменд", "board of directors")):
+        return "board_recommended"
+    return "unknown"
+
+
+def is_dividend_decision_link(url: str, text: str = "") -> bool:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return False
+    hay = normalize_search_text(f"{url} {text}")
+    return any(marker in hay for marker in DIVIDEND_DECISION_MARKERS) and not any(marker in hay for marker in DIVIDEND_DISCOVERY_EXCLUSIONS)
+
+
+def discover_dividend_decision_links(
+    html: str,
+    base_url: str,
+    source_row: dict,
+    checked_at: str,
+) -> list[dict]:
+    """Return review candidates only; this function never declares an approval."""
+    parser = LinkExtractor()
+    parser.feed(html or "")
+    seen: set[str] = set()
+    candidates: list[dict] = []
+    for link in parser.links + extract_context_links(html or ""):
+        href = str(link.get("href") or "").strip()
+        text = " ".join(str(link.get("text") or "").split())
+        full_url = urljoin(base_url, href)
+        key = normalize_report_url(full_url)
+        if key in seen or not is_dividend_decision_link(full_url, text):
+            continue
+        seen.add(key)
+        status = infer_dividend_decision_status(text)
+        candidates.append({
+            "ticker": str(source_row.get("ticker") or "").upper(),
+            "inn": source_row.get("inn", ""),
+            "company_name": source_row.get("company_name", ""),
+            "source_url": full_url,
+            "document_title": text or full_url.rsplit("/", 1)[-1],
+            "candidate_status": status,
+            "discovery_status": "needs_manual_verification",
+            "checked_at": checked_at,
+        })
+    return candidates
+
+
 def is_source_ifrs_report(source_row: dict) -> bool:
     standard = str(source_row.get("reporting_standard") or "").strip().upper()
     source_type = str(source_row.get("source_type") or "")

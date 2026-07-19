@@ -245,6 +245,7 @@ def test_frontend_and_deploy_contracts_are_wired():
     deploy = (ROOT / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
     assert 'id="dividend-calendar"' in html and 'id="dividend-calendar-body"' in html
     assert "fetch('dividend_calendar.json" in js and "myPortfolioLoad()" in js
+    assert "downloadDividendExport" in js and "params.get('calendar')" in js and "field_provenance" in js
     assert "navigator.sendBeacon" not in js
     assert ".dc-mobile-card" in css and "@media (max-width: 640px)" in css
     assert 'cron: "0 5 * * *"' in workflow and "group: gh-pages-publish" in workflow
