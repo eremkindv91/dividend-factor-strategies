@@ -31,7 +31,10 @@ jobs:
           python-version: "3.11"
 
       - name: Установка зависимостей financial data layer
-        run: python -m pip install --quiet pandas pyarrow pyyaml requests ta openpyxl
+        run: |
+          python -m pip install --quiet pandas pyarrow pyyaml requests ta openpyxl
+          python -m pip install --quiet t-tech-investments==1.49.2 \
+            --index-url https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple
 
       - name: Резервное обновление новостей перед полным деплоем
         # Независимый второй триггер: если dedicated news cron задержан/пропущен,
@@ -107,6 +110,7 @@ jobs:
       - name: Сборка официального дивидендного календаря РФ
         env:
           TINVEST_TOKEN: ${{ secrets.TINVEST_TOKEN }}
+          SSL_TBANK_VERIFY: "True"
         run: python scripts/build_dividend_calendar.py || echo "[div-calendar] live-сборка не удалась — predeploy восстановит last-good"
 
       - name: Сборка короткого events_calendar.json из общего dividend core

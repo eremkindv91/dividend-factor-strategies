@@ -3,6 +3,7 @@ import csv
 import sys
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -15,7 +16,24 @@ from src.data_sources.disclosure_adapter import discover_dividend_decision_links
 
 
 def test_tinvest_uses_current_official_rest_host():
-    assert tinvest.API_BASE.startswith("https://invest-public-api.tbank.ru/")
+    assert tinvest.SDK_TARGET == "invest-public-api.tbank.ru"
+    assert tinvest.SDK_PACKAGE == "t-tech-investments==1.49.2"
+
+
+def test_tinvest_normalizes_official_sdk_responses():
+    found = tinvest._sdk_response_payload("FindInstrument", SimpleNamespace(instruments=[
+        SimpleNamespace(isin="RU000TEST000", ticker="TEST", uid="uid-1", figi="figi-1"),
+    ]))
+    assert found["instruments"][0]["uid"] == "uid-1"
+
+    dividend = SimpleNamespace(
+        record_date=__import__("datetime").datetime(2026, 7, 20, tzinfo=__import__("datetime").timezone.utc),
+        last_buy_date=None, payment_date=None, declared_date=None,
+        dividend_net=SimpleNamespace(units=10, nano=500_000_000), dividend_type="Regular Cash",
+    )
+    payload = tinvest._sdk_response_payload("GetDividends", SimpleNamespace(dividends=[dividend]))
+    assert payload["dividends"][0]["recordDate"].startswith("2026-07-20")
+    assert tinvest.quotation_to_float(payload["dividends"][0]["dividendNet"]) == 10.5
 
 
 def _event():

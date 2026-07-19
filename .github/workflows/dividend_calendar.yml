@@ -22,8 +22,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Установка HTTP-зависимости T-Invest adapter
-        run: python -m pip install --quiet requests
+      - name: Установка официального T-Invest SDK
+        run: >-
+          python -m pip install --quiet t-tech-investments==1.49.2
+          --index-url https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple
 
       - uses: actions/cache@v4
         with:
@@ -39,6 +41,7 @@ jobs:
       - name: Сборка календарей
         env:
           TINVEST_TOKEN: ${{ secrets.TINVEST_TOKEN }}
+          SSL_TBANK_VERIFY: "True"
         run: |
           python scripts/build_dividend_calendar.py --change-marker "$RUNNER_TEMP/dividend-calendar-change"
           python scripts/update_events_calendar.py

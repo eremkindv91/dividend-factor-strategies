@@ -11,13 +11,14 @@ import json
 import os
 import tempfile
 from collections import Counter
+from contextlib import contextmanager, nullcontext
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Callable
 
 
-API_BASE = "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService"
-DEFAULT_TIMEOUT_SECONDS = 10
+SDK_PACKAGE = "t-tech-investments==1.49.2"
+SDK_TARGET = "invest-public-api.tbank.ru"
 DEFAULT_MAX_CONSECUTIVE_FAILURES = 5
 
 
@@ -115,27 +116,74 @@ def apply_tinvest_enrichment(events: list[dict], payloads: dict[str, list[dict]]
     return events, enriched
 
 
-def _post(token: str, method: str, payload: dict, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> dict:
-    import requests
+def _sdk_error_code(exc: Exception) -> str:
+    code = getattr(exc, "code", None)
+    name = str(getattr(code, "name", code) or "").lower()
+    return {
+        "unauthenticated": "http_401",
+        "permission_denied": "http_403",
+        "deadline_exceeded": "timeout",
+        "resource_exhausted": "http_429",
+        "unavailable": "network_error",
+    }.get(name, f"grpc_{name}" if name and name.replace("_", "").isalnum() else "sdk_error")
 
+
+def _sdk_response_payload(method: str, response) -> dict:
+    if method == "FindInstrument":
+        return {"instruments": [
+            {"isin": str(getattr(item, "isin", "") or ""),
+             "ticker": str(getattr(item, "ticker", "") or ""),
+             "uid": str(getattr(item, "uid", "") or ""),
+             "figi": str(getattr(item, "figi", "") or "")}
+            for item in (getattr(response, "instruments", None) or [])
+        ]}
+    if method == "GetDividends":
+        rows = []
+        for item in (getattr(response, "dividends", None) or []):
+            money = getattr(item, "dividend_net", None)
+            rows.append({
+                "recordDate": getattr(item, "record_date", None).isoformat()
+                if getattr(item, "record_date", None) else None,
+                "lastBuyDate": getattr(item, "last_buy_date", None).isoformat()
+                if getattr(item, "last_buy_date", None) else None,
+                "paymentDate": getattr(item, "payment_date", None).isoformat()
+                if getattr(item, "payment_date", None) else None,
+                "declaredDate": getattr(item, "declared_date", None).isoformat()
+                if getattr(item, "declared_date", None) else None,
+                "dividendNet": {"units": getattr(money, "units", 0), "nano": getattr(money, "nano", 0)}
+                if money is not None else None,
+                "dividendType": str(getattr(item, "dividend_type", "") or ""),
+            })
+        return {"dividends": rows}
+    raise TInvestRequestError("unsupported_method")
+
+
+@contextmanager
+def _sdk_requester(token: str):
+    os.environ.setdefault("SSL_TBANK_VERIFY", "True")
     try:
-        response = requests.post(
-            f"{API_BASE}/{method}", json=payload, timeout=timeout,
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        )
-    except requests.Timeout as exc:
-        raise TInvestRequestError("timeout") from exc
-    except requests.RequestException as exc:
-        raise TInvestRequestError("network_error") from exc
-    if not 200 <= response.status_code < 300:
-        raise TInvestRequestError(f"http_{response.status_code}")
-    try:
-        body = response.json()
-    except ValueError as exc:
-        raise TInvestRequestError("invalid_json") from exc
-    if not isinstance(body, dict):
-        raise TInvestRequestError("invalid_payload")
-    return body
+        from t_tech.invest import Client, RequestError
+    except ModuleNotFoundError as exc:
+        raise TInvestRequestError("sdk_missing") from exc
+
+    with Client(token, target=SDK_TARGET, app_name="dividend-factor-strategies") as client:
+        def request(_token: str, method: str, payload: dict) -> dict:
+            try:
+                if method == "FindInstrument":
+                    response = client.instruments.find_instrument(query=str(payload.get("query") or ""))
+                elif method == "GetDividends":
+                    response = client.instruments.get_dividends(
+                        instrument_id=str(payload.get("instrumentId") or ""),
+                        from_=datetime.fromisoformat(str(payload["from"]).replace("Z", "+00:00")),
+                        to=datetime.fromisoformat(str(payload["to"]).replace("Z", "+00:00")),
+                    )
+                else:
+                    raise TInvestRequestError("unsupported_method")
+            except RequestError as exc:
+                raise TInvestRequestError(_sdk_error_code(exc)) from exc
+            return _sdk_response_payload(method, response)
+
+        yield request
 
 
 def _safe_error_code(exc: Exception) -> str:
@@ -203,7 +251,6 @@ def collect_payloads(
     if not token:
         return {}, {"status": "disabled", "enriched": 0, "success": 0, "cache_used": 0,
                     "failed": 0, "limited": 0, "errors": {}}
-    request = post or _post
     cache = cache if cache is not None else {"schema_version": 1, "records": {}}
     cached_records = cache.setdefault("records", {})
     identifiers: list[str] = []
@@ -216,43 +263,56 @@ def collect_payloads(
     errors: Counter[str] = Counter()
     consecutive_failures = 0
     selected_identifiers = identifiers[:max_instruments]
-    for index, identifier in enumerate(selected_identifiers):
-        stage = "find_instrument"
-        try:
-            found = request(token, "FindInstrument", {"query": identifier})
-            instrument_id = _instrument_id(found, identifier)
-            if not instrument_id:
-                failed += 1
-                errors["instrument_not_found"] += 1
-                continue
-            stage = "get_dividends"
-            body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
-            rows = body.get("dividends") or []
-            payloads[identifier] = rows if isinstance(rows, list) else []
-            cached_records[identifier] = {"rows": payloads[identifier], "instrument_id": instrument_id}
-            success += 1
-            consecutive_failures = 0
-        except Exception as exc:  # Aggregate only a sanitized code; never expose token or response body.
-            error_code = _safe_error_code(exc)
+    try:
+        request_context = nullcontext(post) if post is not None else _sdk_requester(token)
+        with request_context as request:
+            for index, identifier in enumerate(selected_identifiers):
+                stage = "find_instrument"
+                try:
+                    found = request(token, "FindInstrument", {"query": identifier})
+                    instrument_id = _instrument_id(found, identifier)
+                    if not instrument_id:
+                        failed += 1
+                        errors["instrument_not_found"] += 1
+                        continue
+                    stage = "get_dividends"
+                    body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
+                    rows = body.get("dividends") or []
+                    payloads[identifier] = rows if isinstance(rows, list) else []
+                    cached_records[identifier] = {"rows": payloads[identifier], "instrument_id": instrument_id}
+                    success += 1
+                    consecutive_failures = 0
+                except Exception as exc:  # Aggregate only a sanitized code; never expose token or response body.
+                    error_code = _safe_error_code(exc)
+                    cached = cached_records.get(identifier)
+                    if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
+                        payloads[identifier] = cached["rows"]
+                        cache_used += 1
+                    else:
+                        failed += 1
+                        errors[f"{stage}_{error_code}"] += 1
+                    consecutive_failures += 1
+                    auth_failure = error_code in {"http_401", "http_403"}
+                    if auth_failure or consecutive_failures >= max(1, max_consecutive_failures):
+                        for remaining in selected_identifiers[index + 1:]:
+                            cached = cached_records.get(remaining)
+                            if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
+                                payloads[remaining] = cached["rows"]
+                                cache_used += 1
+                            else:
+                                failed += 1
+                                errors["skipped_after_circuit_breaker"] += 1
+                        break
+    except Exception as exc:
+        error_code = _safe_error_code(exc)
+        for identifier in selected_identifiers:
             cached = cached_records.get(identifier)
             if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
                 payloads[identifier] = cached["rows"]
                 cache_used += 1
             else:
                 failed += 1
-                errors[f"{stage}_{error_code}"] += 1
-            consecutive_failures += 1
-            auth_failure = error_code in {"http_401", "http_403"}
-            if auth_failure or consecutive_failures >= max(1, max_consecutive_failures):
-                for remaining in selected_identifiers[index + 1:]:
-                    cached = cached_records.get(remaining)
-                    if isinstance(cached, dict) and isinstance(cached.get("rows"), list):
-                        payloads[remaining] = cached["rows"]
-                        cache_used += 1
-                    else:
-                        failed += 1
-                        errors["skipped_after_circuit_breaker"] += 1
-                break
+        errors[f"sdk_start_{error_code}"] += 1
     return payloads, {
         "status": "fresh" if success and not cache_used and not failed else ("partial" if success else ("fallback" if cache_used else "unavailable")),
         "enriched": 0,
