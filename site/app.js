@@ -4799,10 +4799,38 @@ function evCardHTML(e, pf, todayIso) {
       ${inPf ? `<span class="ev-badge ev-pfbadge">По вашему портфелю${wpct}</span>` : ''}
     </div>
     <div class="ev-title">${who} — ${esc(e.title)}</div>
-    <div class="ev-when">${whenTxt}${timeTxt}</div>
+    <div class="ev-when">${whenTxt}${timeTxt}${e.pair_note ? ` · ${esc(e.pair_note)}` : ''}</div>
     <div class="ev-desc">${esc(e.description || '')}</div>
     <div class="ev-src muted">Источник: ${src}${stale}</div>
   </div>`;
+}
+
+// «Одна выплата — одна карточка»: SmartLab присылает на каждый дивиденд два события
+// (последний день покупки + закрытие реестра). В ленте это выглядит дублем — та же бумага
+// попадает и в «Сегодня», и в «За выходные»/«Ближайшие». Оставляем одно событие на выплату
+// (будущее приоритетнее прошедшего, ближе к сегодня — лучше), вторую дату показываем строкой.
+function evCollapseDividendPairs(events, todayIso) {
+  const PAIR = new Set(['last_buy_day', 'dividend_registry_close']);
+  const groups = new Map();
+  events.forEach((e) => {
+    if (!PAIR.has(e.event_type) || !e.ticker) return;
+    const key = `${e.ticker}|${e.record_date || e.date}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(e);
+  });
+  const drop = new Set();
+  const dmy = (iso) => iso.slice(8, 10) + '.' + iso.slice(5, 7);
+  groups.forEach((pair) => {
+    if (pair.length < 2) return;
+    const score = (e) => { const d = evDayDiff(e.date, todayIso); return d >= 0 ? d : 1000 - d; };
+    const keep = pair.slice().sort((a, b) => score(a) - score(b))[0];
+    const other = pair.find((e) => e !== keep);
+    pair.forEach((e) => { if (e !== keep) drop.add(e); });
+    keep.pair_note = keep.event_type === 'dividend_registry_close'
+      ? (evDayDiff(other.date, todayIso) < 0 ? `покупка под дивиденд была до ${dmy(other.date)}` : `последний день покупки — ${dmy(other.date)}`)
+      : `закрытие реестра — ${dmy(other.date)}`;
+  });
+  return events.filter((e) => !drop.has(e));
 }
 
 function evSort(a, b, pf) {   // портфельные выше, затем по важности, затем по дате
@@ -4818,8 +4846,8 @@ function renderEventsToday() {
   if (!el) return;
   if (!EVENTS_DATA) { loadEvents(() => renderEventsToday()); el.innerHTML = '<div class="pulse-loading muted">Загрузка событий на сегодня…</div>'; return; }
   const meta = EVENTS_DATA.meta || {};
-  const events = Array.isArray(EVENTS_DATA.events) ? EVENTS_DATA.events : [];
   const { iso: todayIso, weekday } = mskNow();
+  const events = evCollapseDividendPairs(Array.isArray(EVENTS_DATA.events) ? EVENTS_DATA.events : [], todayIso);
   const pf = eventsPortfolioContext();
 
   // свежесть: приоритет — site_status.events (учитывает торговый календарь MOEX);
@@ -5065,7 +5093,9 @@ function dividendDiscoveryEvents(todayIso) {
 function dividendCombinedEvents(officialEvents, smartlabEvents) {
   const byKey = new Map();
   [...officialEvents, ...smartlabEvents].forEach((event) => {
-    const key = `${event.isin || event.secid}|${event.record_date}|${event.event_kind || 'cash_dividend'}`;
+    // ключ — по secid: у discovery-событий (SmartLab/T-Инвест) нет ISIN, и ключ по isin
+    // давал бы одной выплате две строки, как только официальный слой заполнит isin
+    const key = `${event.secid || event.isin}|${event.record_date}|${event.event_kind || 'cash_dividend'}`;
     if (!byKey.has(key)) byKey.set(key, event);
   });
   return Array.from(byKey.values());
