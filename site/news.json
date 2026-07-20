@@ -1,8 +1,8 @@
 {
   "date": "2026-07-20",
-  "generated_at": "2026-07-20T09:43:05+03:00",
+  "generated_at": "2026-07-20T12:36:04+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы и японский Nikkei закрылись снижением, в то время как Hang Seng растет, а нефть Brent превысила 90 долларов за баррель.",
+  "external_backdrop": "Американские и японские индексы снизились, в то время как индекс Hang Seng и стоимость золота выросли.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,202 +27,181 @@
     },
     {
       "name": "Hang Seng",
-      "value": "25036.16",
-      "change_pct": "+1.93%",
+      "value": "25143.05",
+      "change_pct": "+2.36%",
       "as_of": "2026-07-20",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "90.83",
-      "change_pct": "+3.10%",
+      "value": "88.00",
+      "change_pct": "-0.11%",
       "as_of": "2026-07-20",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4007.90",
-      "change_pct": "-0.12%",
+      "value": "4022.90",
+      "change_pct": "+0.25%",
       "as_of": "2026-07-20",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "1958.43",
-      "change_pct": "-3.16%",
-      "as_of": "2026-07-17 19:00:11",
+      "value": "1931.97",
+      "change_pct": "-1.35%",
+      "as_of": "2026-07-20 12:36:01",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "786.94",
-      "change_pct": "-3.26%",
-      "as_of": "2026-07-17 19:00:12",
+      "value": "776.30",
+      "change_pct": "-1.35%",
+      "as_of": "2026-07-20 12:36:02",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "78.63",
+      "change_pct": "+0.01%",
+      "as_of": "2026-07-20 12:35:58",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "11.56",
+      "change_pct": "-0.08%",
+      "as_of": "2026-07-20 12:36:03",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "massive-drone-attack",
-      "headline": "Силы ПВО нейтрализовали 381 беспилотник над российскими регионами в ходе массированной ночной атаки",
-      "context": "В Московском регионе зафиксированы повреждения инфраструктуры и пожар на складе «Южные врата» в Домодедово, СК возбудил уголовное дело о теракте.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1104279"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830251"
-        }
-      ],
-      "published_at": "2026-07-20T09:29:00+03:00"
-    },
-    {
-      "id": "ozon-shares-drop",
-      "headline": "Акции Ozon упали более чем на 10% на фоне новостей об атаках беспилотников на склады Wildberries",
-      "context": "Эксперты оценивают ущерб RWB от пожаров в 20–35,8 млрд рублей, а совокупные потери с учетом уничтоженных товаров продавцов могут достичь 100 млрд рублей.",
+      "id": "severstal-no-dividends-q2",
+      "headline": "Северсталь отказалась от выплаты дивидендов за второй квартал на фоне снижения чистой прибыли",
+      "context": "Чистая прибыль компании по МСФО в первом полугодии 2026 года упала на 89% до 4,12 млрд рублей.",
       "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/20/07/2026/6a5da5dc9a7947cd8abbdb23"
-        }
-      ],
-      "published_at": "2026-07-20T07:39:00+03:00"
-    },
-    {
-      "id": "sberbank-pref-drop",
-      "headline": "Привилегированные акции Сбербанка упали на 11% на Московской бирже после прохождения дивидендной отсечки",
-      "context": "Снижение котировок произошло на старте утренней сессии понедельника, также дивидендные гэпы зафиксированы в акциях ВТБ и ДОМ.РФ.",
-      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/20/1214880-tsena-privilegirovannih-aktsii"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1104273"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/20/1214936-severstal-ne-budet-platit"
         }
       ],
-      "published_at": "2026-07-20T07:22:00+03:00"
+      "published_at": "2026-07-20T11:36:00+03:00"
     },
     {
-      "id": "usa-iran-strikes",
-      "headline": "США и Иран ведут взаимные обстрелы на Ближнем Востоке при росте цены нефти выше 90 долларов",
-      "context": "Американские военные нанесли девятую серию ударов по Ирану, в ответ Корпус стражей исламской революции атаковал базы США в Кувейте и Иордании.",
+      "id": "nelsa-tanker-attacked-cpc",
+      "headline": "Гражданский танкер подвергся новой атаке беспилотника на морском терминале Каспийского трубопроводного консорциума",
+      "context": "В результате удара по стоявшему на погрузке судну NELSA на палубе возник пожар.",
       "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a5d1d3b9a7947e1cb053a30"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1104272"
+          "url": "https://www.rbc.ru/politics/17/07/2026/6a5a0ebc9a7947d43ae0c17c"
         }
       ],
-      "published_at": "2026-07-20T07:19:00+03:00"
+      "published_at": "2026-07-20T11:01:00+03:00"
     },
     {
-      "id": "budget-deficit-forecast",
-      "headline": "Дефицит федерального бюджета России по итогам 2026 года может составить 7 триллионов рублей",
-      "context": "Аналитики ЦМАКП называют главными причинами крепкий рубль, сокращение нефтегазовых доходов, снижение прибыли компаний и быстрый рост расходов.",
+      "id": "ozon-shares-drop-warehouse-risks",
+      "headline": "Акции Ozon снизились на Мосбирже на фоне опасений за сохранность логистической инфраструктуры",
+      "context": "Падение котировок произошло после атак беспилотников на склады Wildberries в Электростали и Котовске.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/20/1214908-tsena-aktsii-ozon"
+        }
+      ],
+      "published_at": "2026-07-20T09:54:00+03:00"
+    },
+    {
+      "id": "rwb-warehouse-damage-estimates",
+      "headline": "Эксперты оценили ущерб RWB от пожаров на складах в 20–35 миллиардов рублей",
+      "context": "В результате атак беспилотников из строя было выведено около 7% логистических мощностей компании.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8830100"
+        }
+      ],
+      "published_at": "2026-07-19T20:56:00+03:00"
+    },
+    {
+      "id": "massive-drone-attack-russia",
+      "headline": "Минобороны России заявило о нейтрализации 381 беспилотника над российскими регионами за ночь",
+      "context": "По словам мэра Москвы Сергея Собянина, в направлении столичного региона летело более 400 беспилотников.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1104279"
+        }
+      ],
+      "published_at": "2026-07-20T08:40:00+03:00"
+    },
+    {
+      "id": "brent-oil-price-us-iran-escalation",
+      "headline": "Стоимость нефти марки Brent превысила 90 долларов за баррель на фоне взаимных ударов США и Ирана",
+      "context": "США осуществили девятую волну ударов по иранским объектам, а Иран атаковал американские базы в Кувейте.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "ЦМАКП",
-          "url": "https://t.me/if_market_news/83834"
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/83831"
         }
       ],
-      "published_at": "2026-07-20T08:53:00+03:00"
+      "published_at": "2026-07-20T07:19:00+03:00"
     },
     {
-      "id": "eu-sanctions-rework",
-      "headline": "Европейская комиссия может переработать 21-й пакет санкций против России из-за позиции Греции",
-      "context": "Афины заблокировали запрет на перевозку российского СПГ из-за рисков для судоходной компании Dynagas, также из пакета могут убрать меры против Raiffeisen.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Politico",
-          "url": "https://t.me/markettwits/378146"
-        }
-      ],
-      "published_at": "2026-07-20T08:53:00+03:00"
-    },
-    {
-      "id": "cb-rate-consensus",
-      "headline": "Банк России на заседании 24 июля может сохранить ключевую ставку на уровне 14,25% годовых",
-      "context": "Консенсус-прогноз аналитиков предполагает сохранение ставки, при этом регулятор может повысить прогноз по инфляции на 2026 год до 6–7,5%.",
+      "id": "pboc-keeps-lpr-unchanged",
+      "headline": "Народный банк Китая сохранил базовые процентные ставки без изменений четырнадцатый месяц подряд",
+      "context": "Ставка по годовому кредиту LPR осталась на уровне 3%, по пятилетнему — 3,5%.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1330152.php"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293165"
         }
       ],
-      "published_at": "2026-07-20T07:09:00+03:00"
+      "published_at": "2026-07-20T07:28:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "trump-sanctions-iran-russia",
-      "headline": "Дональд Трамп призвал сенаторов включить Иран в законопроект о санкциях против России",
-      "context": "Инициатива предусматривает введение 100-процентных тарифов в отношении покупателей российских и иранских энергоносителей.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1104190"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8829991"
-        }
-      ],
-      "published_at": "2026-07-19T15:21:00+03:00"
-    },
-    {
-      "id": "cpc-terminal-attack",
-      "headline": "Морской терминал Каспийского трубопроводного консорциума в Черном море приостановил погрузку нефти после атаки беспилотников",
-      "context": "Два танкера подверглись ударам БПЛА во время погрузки, МИД Казахстана выразил обеспокоенность нарушением договоренностей и оценивает ущерб.",
-      "category": "corporate",
+      "id": "two-tankers-attacked-cpc-terminal",
+      "headline": "Два танкера подверглись атаке беспилотников во время погрузки на терминале Каспийского трубопроводного консорциума",
+      "context": "Погрузка нефти на терминале КТК в Черном море была временно остановлена.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/world/1104161"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8829900"
         }
       ],
-      "published_at": "2026-07-19T11:01:00+03:00"
+      "published_at": "2026-07-19T10:45:00+03:00"
     },
     {
-      "id": "putin-choe-meeting",
+      "id": "putin-meets-choe-son-hui",
       "headline": "Владимир Путин провел встречу с министром иностранных дел КНДР Цой Сон Хи в Кремле",
-      "context": "Президент России отметил развитие двусторонних отношений по всем направлениям и выразил признательность за поддержку специальной военной операции.",
+      "context": "Президент России выразил признательность за поддержку специальной военной операции.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
@@ -230,34 +209,45 @@
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/russia/1104205"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830074"
         }
       ],
-      "published_at": "2026-07-19T18:26:00+03:00"
+      "published_at": "2026-07-19T18:23:00+03:00"
     },
     {
-      "id": "us-saudi-nuclear",
-      "headline": "США могут подписать соглашение по ядерной энергетике с Саудовской Аравией без жестких проверок МАГАТЭ",
-      "context": "По данным источников, документ позволит Эр-Рияду самостоятельно обогащать уран и перерабатывать отработавшее топливо.",
+      "id": "kazakhstan-condemns-tanker-attacks",
+      "headline": "Министерство иностранных дел Казахстана осудило атаки беспилотников на танкеры в Черном море",
+      "context": "Ведомство заявило о проведении оценки ущерба и праве требовать его возмещения.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "CNN",
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1104202"
+        }
+      ],
+      "published_at": "2026-07-19T18:11:00+03:00"
+    },
+    {
+      "id": "us-saudi-nuclear-agreement",
+      "headline": "США могут подписать соглашение по атомной энергетике с Саудовской Аравией",
+      "context": "Документ предоставляет Эр-Рияду право самостоятельно обогащать уран без дополнительных проверок МАГАТЭ.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8830019"
         }
       ],
       "published_at": "2026-07-19T16:47:00+03:00"
     },
     {
-      "id": "iraq-syria-pipeline",
-      "headline": "Ирак и Сирия договорились о восстановлении нефтепровода Киркук—Банияс в обход Ормузского пролива",
-      "context": "Соглашение заключено на саммите Торговой палаты США в Вашингтоне, проект позволит транспортировать сырье в обход зоны конфликта с Ираном.",
-      "category": "corporate",
+      "id": "iraq-syria-kirkuk-baniyas-pipeline",
+      "headline": "Ирак и Сирия договорились о восстановлении нефтепровода в обход Ормузского пролива",
+      "context": "Соглашение по трубопроводу Киркук—Банияс было заключено на саммите Торговой палаты США.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
@@ -269,9 +259,24 @@
       "published_at": "2026-07-19T16:42:00+03:00"
     },
     {
-      "id": "bank-deposit-rates",
-      "headline": "Крупнейшие российские банки начали повышать процентные ставки по краткосрочным вкладам",
-      "context": "С конца июня доходность по депозитам увеличили Банк ДОМ.РФ, Газпромбанк и Совкомбанк на фоне ожидания решения ЦБ по ключевой ставке.",
+      "id": "trump-iran-russia-sanctions",
+      "headline": "Дональд Трамп призвал сенаторов включить Иран в законопроект о санкциях против России",
+      "context": "Президент США предложил дополнить документ ограничительными мерами в отношении Тегерана.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1104190"
+        }
+      ],
+      "published_at": "2026-07-19T15:21:00+03:00"
+    },
+    {
+      "id": "banks-raising-short-term-deposit-rates",
+      "headline": "Крупнейшие российские банки начали повышать процентные ставки по коротким вкладам",
+      "context": "Повышение ставок зафиксировано у банка ДОМ.РФ, Газпромбанка и Совкомбанка.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
@@ -284,9 +289,24 @@
       "published_at": "2026-07-19T15:10:00+03:00"
     },
     {
-      "id": "sberbank-loan-restructure",
-      "headline": "Сбербанк начал реструктуризацию кредитов предпринимателей, чьи товары пострадали при атаке на склады Wildberries",
-      "context": "Меры поддержки запущены после ударов беспилотников по логистическим комплексам маркетплейса в Тамбовской и Московской областях.",
+      "id": "us-strikes-iranian-nuclear-plant",
+      "headline": "Иран заявил об обстреле американскими военными строящейся атомной электростанции Дарховин",
+      "context": "В МАГАТЭ сообщили, что удары не привели к выбросу радиации из-за начального этапа строительства.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1104185"
+        }
+      ],
+      "published_at": "2026-07-19T14:16:00+03:00"
+    },
+    {
+      "id": "sberbank-vtb-support-sellers",
+      "headline": "Сбербанк и ВТБ реструктурируют кредиты предпринимателей после атак беспилотников на склады Wildberries",
+      "context": "Банки разработали комплексы мер для снижения финансовой нагрузки на пострадавших селлеров.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
@@ -299,65 +319,99 @@
       "published_at": "2026-07-19T11:29:00+03:00"
     },
     {
-      "id": "oracle-cds-record",
-      "headline": "Стоимость страховки от дефолта Oracle обновила исторический максимум на фоне опасений инвесторов по поводу ИИ",
-      "context": "Ранее агентство S&P Global Ratings понизило кредитный рейтинг компании до уровня BBB-, а CDS на долги крупнейших бигтехов США также растут.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": "https://t.me/markettwits/378113"
-        }
-      ],
-      "published_at": "2026-07-19T09:36:00+03:00"
-    },
-    {
-      "id": "china-eu-trade-war",
-      "headline": "Китай может ввести запрет на экспорт редкоземельных металлов в Евросоюз в случае закрепления пошлин на автопром",
-      "context": "В октябре 2026 года истекает срок действия временных договоренностей, при этом ЕС импортирует из КНР 98% потребляемых редкоземельных металлов.",
+      "id": "us-strikes-on-iran-wave",
+      "headline": "Центральное командование Вооруженных сил США начало новую серию ударов по территории Ирана",
+      "context": "Авиаудары наносятся по указанию президента США Дональда Трампа после гибели американских военных.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Известия",
-          "url": "https://t.me/markettwits/378110"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1104124"
         }
       ],
-      "published_at": "2026-07-19T09:02:00+03:00"
+      "published_at": "2026-07-19T02:03:00+03:00"
     },
     {
-      "id": "moszheldorproekt-rent",
-      "headline": "Компания Мосжелдорпроект арендовала 10 тысяч квадратных метров в московском бизнес-центре Новь",
-      "context": "Стоимость аренды площадей для структуры холдинга Нацпроектстрой составит около 300 миллионов рублей в год.",
+      "id": "wildberries-support-measures-sellers",
+      "headline": "Wildberries вводит скидки на хранение товаров для поддержки продавцов после атак беспилотников",
+      "context": "Компания предоставит скидки на хранение на 45 дней и обнулит стоимость транзитных поставок.",
       "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8829975"
+          "url": "https://www.kommersant.ru/doc/8829833"
         }
       ],
-      "published_at": "2026-07-19T14:40:00+03:00"
-    },
-    {
-      "id": "belkacar-claims",
-      "headline": "Сумма претензий контрагентов к каршеринговому сервису BelkaCar достигла 972,7 миллиона рублей",
-      "context": "С начала 2026 года к компании подано 39 исков, что более чем в два с половиной раза превышает показатель за весь прошлый год.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8829972"
-        }
-      ],
-      "published_at": "2026-07-19T14:36:00+03:00"
+      "published_at": "2026-07-19T00:48:00+03:00"
     }
   ],
-  "today_agenda": []
+  "today_agenda": [
+    {
+      "time": "04:15",
+      "event": "Решение Народного банка Китая по базовой процентной ставке LPR",
+      "ticker": "",
+      "type": "cb_minfin",
+      "importance": 3
+    },
+    {
+      "time": "09:00",
+      "event": "Публикация финансовой отчетности Ryanair за первый квартал",
+      "ticker": "",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "13:05",
+      "event": "Публикация финансовой отчетности Dominos Pizza",
+      "ticker": "",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "14:40",
+      "event": "Публикация финансовой отчетности AMC Entertainment",
+      "ticker": "",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "15:30",
+      "event": "Публикация индекса потребительских цен Канады за июнь",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "17:00",
+      "event": "Публикация индекса опережающих экономических индикаторов США за июнь",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "23:30",
+      "event": "Публикация финансовой отчетности Steel Dynamics",
+      "ticker": "",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "-",
+      "event": "Публикация финансовой отчетности Северстали по МСФО за первое полугодие 2026 года",
+      "ticker": "CHMF",
+      "type": "earnings",
+      "importance": 4
+    },
+    {
+      "time": "-",
+      "event": "Выходной день на биржах Японии, торги не проводятся",
+      "ticker": "",
+      "type": "macro",
+      "importance": 2
+    }
+  ]
 }
