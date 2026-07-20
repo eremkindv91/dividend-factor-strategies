@@ -1,0 +1,95 @@
+{
+  "metric": "market_pe_fy",
+  "title_ru": "P/E текущей корзины Индекса МосБиржи по последней годовой прибыли",
+  "value": 4.5,
+  "universe": "IMOEX_CURRENT",
+  "universe_name": "текущая корзина Индекса МосБиржи",
+  "market_date": "2026-07-17",
+  "composition_date": "2026-07-20",
+  "fundamentals_as_of": "2025-12-31",
+  "calculated_at": "2026-07-20T23:35:21+03:00",
+  "generated_at": "2026-07-20T23:35:21+03:00",
+  "total_market_cap_rub": 30134787839535,
+  "total_net_income_rub": 6693021166410,
+  "companies_total": 43,
+  "companies_included": 42,
+  "market_cap_coverage": 1.0,
+  "earnings_basis": "latest_fy_ifrs",
+  "is_stale": false,
+  "methodology_version": "1.0.0",
+  "note": "Не официальный P/E Индекса МосБиржи и не LTM. Прибыль — последняя годовая по МСФО (source: SmartLab), капитализация — close×ISSUESIZE (MOEX ISS).",
+  "top_contributors": [
+    {
+      "ticker": "SBER",
+      "market_cap_rub": 6264469594040,
+      "net_income_rub": 1707000000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "ROSN",
+      "market_cap_rub": 3136000816050,
+      "net_income_rub": 293000000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "LKOH",
+      "market_cap_rub": 2778391705620,
+      "net_income_rub": 92500000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "NVTK",
+      "market_cap_rub": 2640068067000,
+      "net_income_rub": 183000000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "GAZP",
+      "market_cap_rub": 1876836102712,
+      "net_income_rub": 1074000000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "GMKN",
+      "market_cap_rub": 1513653357094,
+      "net_income_rub": 164100000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "YDEX",
+      "market_cap_rub": 1306446745143,
+      "net_income_rub": 141400000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "PLZL",
+      "market_cap_rub": 1286672247346,
+      "net_income_rub": 314200000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "TATN",
+      "market_cap_rub": 955612947110,
+      "net_income_rub": 158600000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "VTBR",
+      "market_cap_rub": 756920723657,
+      "net_income_rub": 483700000000,
+      "fy": 2025
+    },
+    {
+      "ticker": "SNGS",
+      "market_cap_rub": 731127040122,
+      "net_income_rub": 1322113000000,
+      "fy": 2023
+    },
+    {
+      "ticker": "OZON",
+      "market_cap_rub": 644696510607,
+      "net_income_rub": -938000000,
+      "fy": 2025
+    }
+  ]
+}

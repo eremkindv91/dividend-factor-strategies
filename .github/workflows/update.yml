@@ -147,13 +147,18 @@ jobs:
             # IMOEX-контур «Пилы» генерит market-saw-update.yml (не этот job). Восстанавливаем его
             # файлы из last-good в site/ ДО сборки site_status — иначе блок marketsaw_imoex будет
             # «unavailable» и overall уедет в broken (файл-то на gh-pages есть, просто не локально).
-            for f in marketsaw_imoex.json marketsaw_manifest.json marketsaw_mcftr.json; do
+            for f in marketsaw_imoex.json marketsaw_manifest.json marketsaw_mcftr.json market_pe_current.json; do
               [ -f "$LAST_GOOD/$f" ] && cp "$LAST_GOOD/$f" "site/$f" || true
             done
           else
             echo "[last-good] gh-pages ещё нет (первый деплой) — fallback/rollback недоступны"
             rm -rf "$LAST_GOOD"
           fi
+
+      - name: Сборка market_pe_current.json (P/E рынка по последней годовой прибыли)
+        # base = свежайший опубликованный (восстановлен из LAST_GOOD выше). Скрипт при сбое ISS
+        # держит last-good (is_stale), при покрытии <85% не обновляет. Сбой не блокирует деплой.
+        run: python scripts/build_market_pe.py || echo "[market-pe] пропуск — сохранён предыдущий валидный файл (last-good)"
 
       - name: P0 — жёсткий pre-deploy контракт + last-good fallback
         # пустой/битый обязательный блок (data.json/marketsaw) НЕ должен попасть на сайт.
@@ -199,6 +204,7 @@ jobs:
           [ -f site/alfa-index-history.json ] && cp site/alfa-index-history.json "$TMP/"   # история индикатора
           [ -f site/dividend_calendar.json ] && cp site/dividend_calendar.json "$TMP/"   # официальный дивидендный календарь
           [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"   # «Сегодня важные события»
+          [ -f site/market_pe_current.json ] && cp site/market_pe_current.json "$TMP/"   # P/E рынка по последней годовой прибыли
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций

@@ -20,6 +20,8 @@ const isoDayLag = (older, newer) => {
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, DIVIDEND_CALENDAR = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
+let MARKET_PE = null;
+const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
@@ -756,6 +758,7 @@ function toggleDetail(tr, t) {
   dr.className = 'detail-row';
   dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail detail-investor">
     ${stockDetailSummaryHTML(t)}
+    ${stockPriceChartHTML(t)}
     <div class="detail-card"><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
     <div class="detail-card"><h4>Дивидендные метрики</h4>${dividendMetricsHTML(t)}</div>
     <div class="detail-card"><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
@@ -765,6 +768,7 @@ function toggleDetail(tr, t) {
   </div></td>`;
   tr.after(dr);
   wireCharts(dr);
+  wireStockChart(dr, t.ticker);
 }
 
 function renderCards() {
@@ -795,9 +799,10 @@ function renderCards() {
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
     const t = VIEW[+this.dataset.i];
-    box.innerHTML = stockDetailSummaryHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
+    box.innerHTML = stockDetailSummaryHTML(t) + stockPriceChartHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
+    wireStockChart(box, t.ticker);
   }));
 }
 
@@ -4605,7 +4610,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
+  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
@@ -5371,6 +5376,7 @@ function ensureKpiData() {
   if (!EVENTS_DATA && typeof loadEvents === 'function') loadEvents(() => renderEventsToday());
   // после загрузки календаря перерисовать и ленту: вердикт-строка портфеля берёт из него сумму
   if (!DIVIDEND_CALENDAR && typeof loadDividendCalendar === 'function') loadDividendCalendar(() => { renderDividendCalendar(); renderEventsToday(); });
+  if (!MARKET_PE && typeof loadMarketPE === 'function') loadMarketPE(() => renderMarketPE());
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
@@ -5388,6 +5394,73 @@ function renderMarketPulse() {
     return;
   }
   el.innerHTML = marketPulseHTML(SAW_DATA);
+}
+
+// ── P/E рынка по последней годовой прибыли (site/market_pe_current.json, генерит CI) ──
+function loadMarketPE(cb) {
+  if (MARKET_PE) { if (cb) cb(); return; }
+  fetch('market_pe_current.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (!j || j.metric !== 'market_pe_fy') throw new Error('неподдерживаемый контракт market_pe');
+      MARKET_PE = j; if (cb) cb();
+    })
+    .catch((e) => { console.error('[market-pe] не загрузился:', e); MARKET_PE = { failed: true }; if (cb) cb(); });
+}
+
+function marketPeHTML(d) {
+  const dt = (s) => (/^\d{4}-\d{2}-\d{2}/.test(String(s || '')) ? sawDate(String(s).slice(0, 10)) : '—');
+  const cov = isNum(d.market_cap_coverage) ? Math.round(d.market_cap_coverage * 100) : null;
+  const capT = isNum(d.total_market_cap_rub) ? ru(d.total_market_cap_rub / 1e12, 1) + ' трлн ₽' : '—';
+  const earnT = isNum(d.total_net_income_rub) ? ru(d.total_net_income_rub / 1e12, 1) + ' трлн ₽' : '—';
+  const val = isNum(d.value) && d.value > 0 ? d.value : null;
+  const eYield = val ? ru(100 / val, 1) + '%' : '—';   // доходность по прибыли = 1/PE (просто факт, не прогноз)
+  const stale = d.is_stale
+    ? `<div class="mpe-banner">Данные устарели${d.stale_reason ? ` (${esc(d.stale_reason)})` : ''}. Показано последнее корректное значение — рыночные цены на ${dt(d.market_date)}.</div>` : '';
+  const headVal = val
+    ? `<b class="mpe-num tnum">${ru(val, 1)}<span>×</span></b>`
+    : `<b class="mpe-num mpe-nd">н/д</b>`;
+  const contribs = Array.isArray(d.top_contributors) && d.top_contributors.length
+    ? `<div class="mpe-contribs"><span class="mpe-sub-h">Наибольший вес в капитализации</span>
+        <ul>${d.top_contributors.slice(0, 6).map((c) => `<li><b>${esc(c.ticker)}</b> ${isNum(c.market_cap_rub) ? ru(c.market_cap_rub / 1e12, 2) + ' трлн ₽' : '—'} · прибыль ${isNum(c.net_income_rub) ? ru(c.net_income_rub / 1e9, 0) + ' млрд' : 'н/д'}${c.fy ? ` (${c.fy})` : ''}</li>`).join('')}</ul></div>`
+    : '';
+  return `
+    <div class="mpe-head">
+      <div class="mpe-copy">
+        <span class="mpe-eyebrow">Оценка рынка по прибыли</span>
+        <div class="mpe-title">P/E текущей корзины Индекса МосБиржи</div>
+        <p class="mpe-note">По последней годовой прибыли по МСФО. Не официальный P/E индекса и не LTM. Капитализация — цена×число акций (MOEX ISS), прибыль учитывается раз на эмитента.</p>
+      </div>
+      <div class="mpe-values">
+        <div class="mpe-main">${headVal}<span class="mpe-lbl">${val ? 'цена/прибыль' : 'суммарная прибыль ≤ 0'}</span></div>
+        <div class="mpe-yield"><b class="tnum">${eYield}</b><span>доходность по прибыли (1/PE)</span></div>
+      </div>
+    </div>
+    ${stale}
+    <details class="mpe-details">
+      <summary>Как считалось и на какие даты</summary>
+      <div class="mpe-grid">
+        <div><span>Цены рынка</span><b>${dt(d.market_date)}</b></div>
+        <div><span>Отчётность</span><b>${dt(d.fundamentals_as_of)}</b></div>
+        <div><span>Компаний в расчёте</span><b>${d.companies_included ?? '—'} из ${d.companies_total ?? '—'}</b></div>
+        <div><span>Покрытие капитализации</span><b>${cov != null ? cov + '%' : '—'}</b></div>
+        <div><span>Суммарная капитализация</span><b>${capT}</b></div>
+        <div><span>Суммарная годовая прибыль</span><b>${earnT}</b></div>
+      </div>
+      ${contribs}
+      <p class="mpe-foot muted">Universe: ${esc(d.universe_name || d.universe || '—')}. Обновляется каждый торговый день (цены — ежедневно, прибыль — по мере выхода отчётности). Источники: MOEX ISS, SmartLab. Не индивидуальная инвестиционная рекомендация.</p>
+    </details>`;
+}
+
+function renderMarketPE() {
+  const el = document.getElementById('market-pe-card');
+  if (!el) return;
+  if (!MARKET_PE) { el.innerHTML = '<div class="pulse-loading muted">Загрузка P/E рынка…</div>'; return; }
+  if (MARKET_PE.failed) {
+    el.innerHTML = '<div class="mpe-fallback"><b>P/E рынка временно недоступен.</b> Остальные индикаторы работают.</div>';
+    return;
+  }
+  el.innerHTML = marketPeHTML(MARKET_PE);
 }
 
 function renderMarketSignals() {
@@ -5649,6 +5722,132 @@ function openMarketChart(id) {
   MARKET_CHART_STATE.id = id;
   if (!dialog.open) dialog.showModal();
   renderMarketChartDialog();
+}
+
+// ── График цены+объёма в карточке акции (дневные OHLC MOEX ISS, загрузка по клику) ──
+const STOCK_CHART_PERIODS = [['127', '6М'], ['252', '1Г'], ['756', '3Г'], ['0', 'Макс']];
+
+function stockChartFromDate(days) {
+  if (!days) return '2014-01-01';   // «Макс» — практический старт TQBR-истории
+  return new Date(Date.now() - (days + 25) * 86400000).toISOString().slice(0, 10);
+}
+
+function stockPriceChartHTML(t) {
+  return `<div class="detail-card stock-chart" data-sc-ticker="${esc(t.ticker)}">
+    <div class="sc-top">
+      <h4>Цена и объём торгов</h4>
+      <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
+    </div>
+    <div class="sc-ohlc tnum" aria-live="polite"></div>
+    <div class="sc-canvas"><div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div></div>
+    <div class="sc-foot muted">Дневные OHLC и объём — MOEX ISS, доска TQBR. Не индивидуальная инвестиционная рекомендация.</div>
+  </div>`;
+}
+
+// Пагинированная выборка дневной истории ISS (start=0,100,…). Отдаёт [date,o,h,l,c,vol].
+function fetchStockOHLC(ticker, fromDate, cb) {
+  const rows = [];
+  const cols = 'TRADEDATE,OPEN,HIGH,LOW,CLOSE,VOLUME';
+  const base = `https://iss.moex.com/iss/history/engines/stock/markets/shares/boards/TQBR/securities/${encodeURIComponent(ticker)}.json`
+    + `?iss.only=history&iss.meta=off&history.columns=${cols}&from=${fromDate}`;
+  const step = (start) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((j) => {
+        clearTimeout(timer);
+        const data = (j.history && j.history.data) || [];
+        data.forEach((d) => { if (isNum(d[4])) rows.push(d); });
+        if (data.length >= 100 && rows.length < 4000) step(start + data.length);
+        else cb(null, rows);
+      })
+      .catch((e) => { clearTimeout(timer); cb(e, rows); });
+  };
+  step(0);
+}
+
+function stockOhlcReadout(ticker, r) {
+  if (!r) return '';
+  const n = (v) => (isNum(v) ? ru(v, 2) : '—');
+  const up = isNum(r[4]) && isNum(r[1]) && r[4] >= r[1];
+  const volM = isNum(r[5]) ? (r[5] >= 1e6 ? ru(r[5] / 1e6, 1) + ' млн' : ru(r[5] / 1e3, 0) + ' тыс') : '—';
+  return `<span class="sc-date">${esc(sawDate(r[0]))}</span>
+    <span>O ${n(r[1])}</span><span>H ${n(r[2])}</span><span>L ${n(r[3])}</span>
+    <span class="${up ? 'sc-up' : 'sc-down'}">C ${n(r[4])}</span>
+    <span class="sc-vol">V ${volM} шт</span>`;
+}
+
+function renderStockChartData(container, ticker, rows) {
+  const canvas = container.querySelector('.sc-canvas');
+  const ohlc = container.querySelector('.sc-ohlc');
+  if (!canvas) return;
+  if (!window.LightweightCharts) { canvas.innerHTML = '<div class="sc-loading muted">График недоступен.</div>'; return; }
+  if (container._scChart) { try { container._scChart.remove(); } catch (_e) { /* noop */ } container._scChart = null; }
+  canvas.innerHTML = '';
+  const LC = window.LightweightCharts;
+  const chart = LC.createChart(canvas, {
+    autoSize: true,
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    localization: { locale: 'ru-RU', priceFormatter: (v) => ru(v, 2) },
+    grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
+    rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.28 } },
+    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 4, minBarSpacing: 2 },
+    crosshair: { mode: LC.CrosshairMode.Normal,
+      vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
+      horzLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' } },
+  });
+  container._scChart = chart;
+  const candles = chart.addCandlestickSeries({
+    upColor: '#16805E', downColor: '#B34A32', borderVisible: true,
+    borderUpColor: '#116B4F', borderDownColor: '#963923', wickUpColor: '#116B4F', wickDownColor: '#963923',
+  });
+  candles.setData(rows.map((r) => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
+  const vol = chart.addHistogramSeries({ priceScaleId: 'vol', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
+  vol.setData(rows.map((r) => ({ time: r[0], value: isNum(r[5]) ? r[5] : 0, color: (isNum(r[4]) && isNum(r[1]) && r[4] >= r[1]) ? 'rgba(22,128,94,.45)' : 'rgba(179,74,50,.45)' })));
+  chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+  chart.timeScale().fitContent();
+  if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
+  chart.subscribeCrosshairMove((param) => {
+    if (!ohlc || !param || !param.time || !param.seriesData) return;
+    const bar = param.seriesData.get(candles);
+    const v = param.seriesData.get(vol);
+    if (!bar) return;
+    const time = typeof param.time === 'string' ? param.time
+      : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
+    ohlc.innerHTML = stockOhlcReadout(ticker, [time, bar.open, bar.high, bar.low, bar.close, v ? v.value : null]);
+  });
+}
+
+function wireStockChart(root, ticker) {
+  const container = root.querySelector('.stock-chart');
+  if (!container || container.dataset.wired) return;
+  container.dataset.wired = '1';
+  const load = (days) => {
+    const from = stockChartFromDate(Number(days));
+    const key = `${ticker}|${from}`;
+    const canvas = container.querySelector('.sc-canvas');
+    if (STOCK_OHLC_CACHE[key]) { renderStockChartData(container, ticker, STOCK_OHLC_CACHE[key]); return; }
+    if (canvas) canvas.innerHTML = '<div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div>';
+    loadLWC((lerr) => {
+      if (lerr) { if (canvas) canvas.innerHTML = '<div class="sc-loading muted">Библиотека графиков не загрузилась.</div>'; return; }
+      fetchStockOHLC(ticker, from, (err, rows) => {
+        if (err || !rows.length) {
+          if (canvas) canvas.innerHTML = `<div class="sc-loading muted">Дневные котировки ${esc(ticker)} на MOEX ISS сейчас недоступны.</div>`;
+          return;
+        }
+        STOCK_OHLC_CACHE[key] = rows;
+        renderStockChartData(container, ticker, rows);
+      });
+    });
+  };
+  container.querySelector('.sc-periods').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-sc-days]');
+    if (!button) return;
+    container.querySelectorAll('.sc-periods button').forEach((b) => { b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', b === button); });
+    load(button.dataset.scDays);
+  });
+  load('252');
 }
 
 // initRouter() вызывается в самом конце файла (после ВСЕХ модулей и их let-глобалов) — см. низ app.js

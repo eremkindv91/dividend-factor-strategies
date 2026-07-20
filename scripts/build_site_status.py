@@ -54,6 +54,7 @@ BLOCKS = [
     ("news", "Новости", "news.json", ["generated_at", "date"], "news", None),
     ("events", "События дня", "events_calendar.json", ["meta.generated_at"], "market", 0),
     ("dividend_calendar", "Дивидендный календарь", "dividend_calendar.json", ["meta.generated_at"], "market", 0),
+    ("market_pe", "P/E рынка", "market_pe_current.json", ["market_date", "calculated_at"], "market", 1),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], "periodic", 60),
 ]
 

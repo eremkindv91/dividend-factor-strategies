@@ -115,6 +115,15 @@ def main() -> int:
             dm = div["meta"]
             sys.stdout.write(f"  [OK] dividend_calendar.json ({dm.get('event_count')} событий, actionable={dm.get('actionable_count')})\n")
 
+        # P/E рынка (не критично для ролбэка — новый файл/лаг CDN)
+        pe, e = fetch(f"{base}/market_pe_current.json", retries, True)
+        if e:
+            sys.stdout.write(f"  [~] market_pe_current.json ещё не опубликован ({e})\n")
+        elif not (isinstance(pe, dict) and pe.get("metric") == "market_pe_fy" and ("value" in pe)):
+            fails.append("market_pe_current без metric/value (broken)")
+        else:
+            sys.stdout.write(f"  [OK] market_pe_current.json (P/E={pe.get('value')}, покрытие {pe.get('market_cap_coverage')})\n")
+
         # Двухконтурная «Пила»: manifest + IMOEX (не критично для ролбэка — новые файлы/лаг CDN)
         man, e = fetch(f"{base}/marketsaw_manifest.json", retries, True)
         if e:
