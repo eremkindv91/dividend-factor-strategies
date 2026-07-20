@@ -90,43 +90,46 @@
 
       <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
       <section class="app-section" data-section="market">
-        <p class="section-intro">Сводка рыночного режима по индексу полной доходности MCFTR, безрисковой ставке (RFR) и доступным рыночным данным. Это индикаторы контекста, а не прогноз.</p>
-
-        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
-          <summary>Помощник фазы рынка <span class="muted">(где рынок относительно последнего экстремума MCFTR)</span></summary>
-          <div class="saw-body" id="saw-body">
-            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
-          </div>
-        </details>
+        <p class="section-intro">Где сейчас рынок, что будет дальше и что из этого касается вашего портфеля. Индикаторы контекста, не прогноз.</p>
 
         <div class="market-pulse" id="market-pulse">
           <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
         </div>
 
-        <details class="mapwrap alfa-index-details">
-          <summary>Внешний ориентир: настроение рынка <span class="muted">(Альфа-Инвестиции, методика не раскрыта — не основной сигнал сайта, см. «Помощник фазы рынка» выше)</span></summary>
-          <div class="alfa-index-shell" id="alfa-index-card" aria-live="polite">
-            <div class="pulse-loading muted">Загрузка индикатора настроения...</div>
+        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+          <summary>Помощник фазы рынка подробно <span class="muted">(волны MCFTR/IMOEX, зигзаг, историческое распределение)</span></summary>
+          <div class="saw-body" id="saw-body">
+            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
           </div>
         </details>
 
-        <div class="kpi-grid" id="market-kpi"></div>
-        <div class="market-signals" id="market-signals">
-          <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
-        </div>
-
-        <!-- Сегодня важные события (ежедневный инвесторский блок, фильтр по МСК) -->
+        <!-- Что впереди: единая лента событий + вердикт по портфелю (фильтр по МСК) -->
         <div class="events-today" id="events-today">
-          <div class="pulse-loading muted">Загрузка событий на сегодня…</div>
+          <div class="pulse-loading muted">Загрузка событий…</div>
         </div>
 
-        <details class="mapwrap dividend-calendar-wrap" id="dividend-calendar" open>
+        <details class="mapwrap dividend-calendar-wrap" id="dividend-calendar">
           <summary>
             <span>Дивидендный календарь РФ</span>
             <span class="dividend-calendar-summary muted" id="dividend-calendar-summary">Загрузка официальных событий…</span>
           </summary>
           <div class="dividend-calendar-body" id="dividend-calendar-body" aria-live="polite">
             <div class="pulse-loading muted">Загрузка дивидендного календаря…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap market-indicators-details">
+          <summary>Индикаторы режима <span class="muted">(ставка, импульс, дивидендный спред, охват данных)</span></summary>
+          <div class="kpi-grid" id="market-kpi"></div>
+          <div class="market-signals" id="market-signals">
+            <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
+          </div>
+        </details>
+
+        <details class="mapwrap alfa-index-details">
+          <summary>Внешний ориентир: настроение рынка <span class="muted">(Альфа-Инвестиции, методика не раскрыта — не основной сигнал сайта)</span></summary>
+          <div class="alfa-index-shell" id="alfa-index-card" aria-live="polite">
+            <div class="pulse-loading muted">Загрузка индикатора настроения...</div>
           </div>
         </details>
       </section>

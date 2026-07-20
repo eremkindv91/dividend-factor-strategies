@@ -4775,34 +4775,78 @@ function eventsPortfolioContext() {
   return { set, weights, hasPortfolio: rows.length > 0 };
 }
 
-function evCardHTML(e, pf, todayIso) {
+// Компактная строка ленты: категория + кто + что; подробности (описание, время, источник,
+// важность) — по клику внутри details. Толстые карточки заменены строками намеренно:
+// один взгляд — одна строка, экран вмещает всю картину дня.
+function evWeekdayRu(iso) {
+  try {
+    return new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone: 'Europe/Moscow' })
+      .format(new Date(iso + 'T12:00:00+03:00'));
+  } catch (_e) { return ''; }
+}
+function evRowHTML(e, pf, todayIso) {
   const [catLbl, catCls] = EV_CAT[e.event_type] || ['Событие', 'gen'];
   const imp = isNum(e.importance) ? e.importance : 0;
-  const impCls = imp >= 85 ? 'high' : imp >= 60 ? 'mid' : 'low';
   const impLbl = imp >= 85 ? 'высокая' : imp >= 60 ? 'средняя' : 'низкая';
   const inPf = e.ticker && pf.set.has(e.ticker);
-  const wpct = inPf && isNum(pf.weights[e.ticker]) ? ` · вес ${ru(pf.weights[e.ticker] * 100, 0)}%` : '';
-  const diff = evDayDiff(e.date, todayIso);
-  const dmy = e.date.slice(8, 10) + '.' + e.date.slice(5, 7);
-  const whenTxt = diff === 0 ? 'Сегодня' : (diff === 1 ? 'Завтра' : dmy);
-  const timeTxt = e.time_msk ? `, ${esc(e.time_msk)} МСК` : ', время н/д';
-  const who = e.ticker ? `${esc(e.company)} (${esc(e.ticker)})` : esc(e.company);
+  const wpct = inPf && isNum(pf.weights[e.ticker]) ? ` · ${ru(pf.weights[e.ticker] * 100, 0)}%` : '';
+  const who = e.ticker ? `<b>${esc(e.ticker)}</b> ${esc(e.company)}` : `<b>${esc(e.company)}</b>`;
+  const isAnnounced = e.data_status === 'announced';
   const srcLbl = EV_SRC_LABEL[e.source] || esc(e.source || 'источник н/д');
   const src = e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${srcLbl}</a>` : srcLbl;
-  const stale = e.data_status === 'announced'
-    ? ` <span class="ev-announced">анонс, сверьте у эмитента</span>`
-    : (e.data_status && !['fresh', 'scheduled'].includes(e.data_status) ? ` <span class="ev-stale">данные ${esc(e.data_status)}</span>` : '');
-  return `<div class="ev-card ev-imp-${impCls}${inPf ? ' ev-pf' : ''}">
-    <div class="ev-badges">
-      <span class="ev-badge ev-cat-${catCls}">${catLbl}</span>
-      <span class="ev-badge ev-impbadge ev-imp-${impCls}">важность: ${impLbl}</span>
-      ${inPf ? `<span class="ev-badge ev-pfbadge">По вашему портфелю${wpct}</span>` : ''}
-    </div>
-    <div class="ev-title">${who} — ${esc(e.title)}</div>
-    <div class="ev-when">${whenTxt}${timeTxt}${e.pair_note ? ` · ${esc(e.pair_note)}` : ''}</div>
-    <div class="ev-desc">${esc(e.description || '')}</div>
-    <div class="ev-src muted">Источник: ${src}${stale}</div>
-  </div>`;
+  const staleNote = e.data_status && !['fresh', 'scheduled', 'announced'].includes(e.data_status)
+    ? ` · <span class="ev-stale">данные ${esc(e.data_status)}</span>` : '';
+  const bodyBits = [
+    e.description ? `<p>${esc(e.description)}</p>` : '',
+    `<p class="ev-row-meta">${e.time_msk ? `${esc(e.time_msk)} МСК · ` : ''}${e.pair_note ? `${esc(e.pair_note)} · ` : ''}важность: ${impLbl} · Источник: ${src}${staleNote}${isAnnounced ? ' · <span class="ev-announced">анонс, сверьте у эмитента</span>' : ''}</p>`,
+  ].filter(Boolean).join('');
+  return `<details class="ev-row${inPf ? ' ev-row-pf' : ''}${imp < 60 ? ' ev-row-low' : ''}">
+    <summary>
+      <span class="ev-chip ev-cat-${catCls}">${catLbl}</span>
+      <span class="ev-row-main">${who} — ${esc(e.title)}</span>
+      ${inPf ? `<span class="ev-chip ev-chip-pf" title="Бумага есть в вашем портфеле${wpct ? `, вес${wpct}` : ''}">моё${wpct}</span>` : ''}
+      ${isAnnounced ? `<span class="ev-chip ev-chip-warn" title="Дата не подтверждена MOEX или документом эмитента">анонс</span>` : ''}
+    </summary>
+    <div class="ev-row-body">${bodyBits}</div>
+  </details>`;
+}
+
+// Строка-вердикт по портфелю: «что моё и сколько» — раньше эта информация была размазана
+// по бейджам карточек, KPI-плашкам календаря и summary. Сумма — та же логика, что в календаре.
+function eventsPortfolioVerdictHTML(pf, todayIso) {
+  const btn = (tab, label) => `<button type="button" class="events-verdict-btn" onclick="openDividendCalendarTab('${tab}')">${label}</button>`;
+  if (!pf.hasPortfolio) {
+    return `<div class="events-verdict events-verdict-empty">
+      <span class="events-verdict-text">Добавьте портфель во вкладке «Портфель» — события ваших бумаг будут подсвечены, а здесь появится сумма ожидаемых дивидендов.</span>
+      ${btn('upcoming', 'Весь календарь ↓')}</div>`;
+  }
+  if (!DIVIDEND_CALENDAR || DIVIDEND_CALENDAR.failed) {
+    return `<div class="events-verdict">
+      <span class="ev-chip ev-chip-pf">Мой портфель</span>
+      <span class="events-verdict-text">Сумма ожидаемых дивидендов недоступна: календарь выплат не загрузился. События ваших бумаг в ленте отмечены «моё».</span></div>`;
+  }
+  const portfolio = dividendPortfolioMap();
+  const combined = dividendCombinedEvents(DIVIDEND_CALENDAR.events || [], dividendDiscoveryEvents(todayIso));
+  const inWindow = (value, days = 90) => { const d = evDayDiff(value, todayIso); return d >= 0 && d <= days; };
+  const mine = combined.filter((ev) => portfolio[ev.secid]
+    && inWindow(ev.payment_date || ev.payment_deadline_nominee || ev.payment_deadline_registered || ev.record_date));
+  if (!mine.length) {
+    return `<div class="events-verdict">
+      <span class="ev-chip ev-chip-pf">Мой портфель</span>
+      <span class="events-verdict-text">По вашим бумагам опубликованных будущих выплат в ближайшие 90 дней нет.</span>
+      ${btn('upcoming', 'Весь календарь ↓')}</div>`;
+  }
+  const gross = mine.reduce((sum, ev) => sum + (dividendPortfolioGross(ev, portfolio) || 0), 0);
+  const relevant = (ev) => (inWindow(ev.record_date) ? ev.record_date : (ev.payment_date || ev.payment_deadline_nominee || ev.payment_deadline_registered || ev.record_date));
+  const nearest = mine.slice().sort((a, b) => String(relevant(a)).localeCompare(String(relevant(b))))[0];
+  const nearLbl = inWindow(nearest.record_date)
+    ? `отсечка ${dividendDateLabel(nearest.record_date)}`
+    : (nearest.payment_date ? `выплата ${dividendDateLabel(nearest.payment_date)}` : `выплата до ${dividendDateLabel(nearest.payment_deadline_nominee || nearest.payment_deadline_registered)}`);
+  const grossTxt = gross > 0 ? ` · ожидается ≈ <b>${ru(gross, 0)} ₽</b> валовыми` : '';
+  return `<div class="events-verdict" title="Валовая сумма до налога, если позиция удержана до отсечки; фактическое зачисление может быть позже">
+    <span class="ev-chip ev-chip-pf">Мой портфель</span>
+    <span class="events-verdict-text">Ближайшее — <b>${esc(nearest.secid)}</b>: ${nearLbl}${grossTxt} · ${mine.length} ${dividendEventWord(mine.length)} / 90 дней</span>
+    ${btn('portfolio', 'Календарь портфеля ↓')}</div>`;
 }
 
 // «Одна выплата — одна карточка»: SmartLab присылает на каждый дивиденд два события
@@ -4864,16 +4908,16 @@ function renderEventsToday() {
   const weekend = weekday === 'Mon'
     ? events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d <= -1 && d >= -3; }).sort((a, b) => evSort(a, b, pf))
     : [];
-  // ЦБ по ставке показываем отдельным постоянным якорем (ниже) — из 14-дневного списка исключаем,
-  // чтобы не дублировать. Остальные события (дивиденды и пр.) — обычный список «до 14 дней».
-  const upcoming = events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d >= 1 && d <= 14 && e.event_type !== 'cbr_rate_decision'; })
+  // Единая хронологическая лента до 14 дней ВКЛЮЧАЯ ЦБ (раньше ЦБ дублировался отдельным
+  // якорем — теперь якорь показываем только если заседание дальше горизонта ленты).
+  const upcoming = events.filter((e) => { const d = evDayDiff(e.date, todayIso); return d >= 1 && d <= 14; })
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : evSort(a, b, pf)));
-  // ближайшее будущее заседание ЦБ (постоянный якорь — график известен на год вперёд)
   const nextCbr = events.filter((e) => e.event_type === 'cbr_rate_decision' && evDayDiff(e.date, todayIso) >= 1)
     .sort((a, b) => (a.date < b.date ? -1 : 1))[0] || null;
+  const cbrInFeed = nextCbr && evDayDiff(nextCbr.date, todayIso) <= 14;
 
   let html = `<div class="events-head">
-    <h2>Сегодня важные события</h2>
+    <h2>Что впереди: события и дивиденды</h2>
     <span class="events-upd ${staleData ? 'events-stale' : ''}">Обновлено: ${updTxt}</span></div>`;
 
   if (EVENTS_DATA.failed) {
@@ -4884,44 +4928,52 @@ function renderEventsToday() {
     html += `<div class="events-banner events-banner-warn">Календарь событий устарел или резервный. Последнее успешное обновление: ${updTxt}. Актуальность сверяйте с источником.</div>`;
   }
 
-  // Сегодня
+  // Level 1: что моё (вердикт по портфелю)
+  html += eventsPortfolioVerdictHTML(pf, todayIso);
+
+  // Лента: Сегодня → будущие даты (сгруппировано по дням)
+  const dayHead = (iso, label) => `<div class="ev-day-head"><b>${label}</b><span>${evWeekdayRu(iso)}, ${iso.slice(8, 10)}.${iso.slice(5, 7)}</span></div>`;
+  html += `<div class="ev-feed">`;
+  html += dayHead(todayIso, 'Сегодня');
   if (!todays.length) {
-    html += `<div class="events-empty">На сегодня подтверждённых корпоративных событий и дивидендных отсечек по данным MOEX и календаря SmartLab не найдено. Ближайшие анонсированные отсечки и заседание ЦБ — ниже. Дивидендные <b>прогнозы</b> по всем бумагам — во вкладке «Акции».</div>`;
+    html += `<div class="ev-day-empty">Подтверждённых событий нет. Дивидендные <b>прогнозы</b> по всем бумагам — во вкладке «Акции».</div>`;
   } else {
-    const top = todays.slice(0, 5), rest = todays.slice(5);
-    html += `<div class="events-list">${top.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div>`;
+    const top = todays.slice(0, 8), rest = todays.slice(8);
+    html += top.map((e) => evRowHTML(e, pf, todayIso)).join('');
     if (rest.length) {
-      html += `<details class="events-more"><summary>Показать все события сегодня (${todays.length})</summary>
-        <div class="events-list">${rest.map((e) => evCardHTML(e, pf, todayIso)).join('')}</div></details>`;
+      html += `<details class="events-more"><summary>Ещё ${rest.length} ${dividendEventWord(rest.length)} сегодня</summary>${rest.map((e) => evRowHTML(e, pf, todayIso)).join('')}</details>`;
     }
   }
-  // Постоянный якорь: следующее заседание ЦБ по ставке (даже если далеко) — блок не «пустой» в межсезонье
-  if (nextCbr) {
+  // Будущие: первые ~8 строк видимы, остальные дни — под details
+  const byDate = new Map();
+  upcoming.forEach((e) => { if (!byDate.has(e.date)) byDate.set(e.date, []); byDate.get(e.date).push(e); });
+  const dayGroups = Array.from(byDate.entries());
+  let shown = 0; const visible = []; const folded = [];
+  dayGroups.forEach(([iso, list]) => { (shown < 8 ? visible : folded).push([iso, list]); shown += list.length; });
+  const dayBlock = ([iso, list]) => {
+    const d = evDayDiff(iso, todayIso);
+    return dayHead(iso, d === 1 ? 'Завтра' : `Через ${d} ${d % 10 === 1 && d % 100 !== 11 ? 'день' : (d % 10 >= 2 && d % 10 <= 4 && !(d % 100 >= 12 && d % 100 <= 14) ? 'дня' : 'дней')}`)
+      + list.map((e) => evRowHTML(e, pf, todayIso)).join('');
+  };
+  html += visible.map(dayBlock).join('');
+  if (folded.length) {
+    const foldedCount = folded.reduce((s, [, list]) => s + list.length, 0);
+    html += `<details class="events-more"><summary>Дальше в 14 днях — ещё ${foldedCount} ${dividendEventWord(foldedCount)}</summary>${folded.map(dayBlock).join('')}</details>`;
+  }
+  html += `</div>`;
+
+  // Якорь ЦБ — только когда заседание дальше горизонта ленты (иначе оно уже в ленте)
+  if (nextCbr && !cbrInFeed) {
     const nd = evDayDiff(nextCbr.date, todayIso);
     const dmy = nextCbr.date.slice(8, 10) + '.' + nextCbr.date.slice(5, 7) + '.' + nextCbr.date.slice(0, 4);
-    const when = nd === 1 ? 'завтра' : `через ${nd} ${nd % 10 === 1 && nd % 100 !== 11 ? 'день' : (nd % 10 >= 2 && nd % 10 <= 4 && !(nd % 100 >= 12 && nd % 100 <= 14) ? 'дня' : 'дней')}`;
+    const when = `через ${nd} ${nd % 10 === 1 && nd % 100 !== 11 ? 'день' : (nd % 10 >= 2 && nd % 10 <= 4 && !(nd % 100 >= 12 && nd % 100 <= 14) ? 'дня' : 'дней')}`;
     html += `<div class="events-anchor"><span class="events-anchor-cat">ЦБ</span>
       <span>Следующее заседание ЦБ по ключевой ставке — <b>${dmy}</b> (${when}). Влияет на весь рынок: акции, облигации, ОФЗ, ставку по вкладам.</span></div>`;
   }
-  if (!pf.hasPortfolio) {
-    html += `<div class="events-pfhint muted">События по вашим бумагам будут подсвечиваться после добавления портфеля во вкладке «Портфель».</div>`;
-  }
 
-  // Понедельник: что накопилось за выходные
+  // Понедельник: что накопилось за выходные (свёрнуто — прошлое не должно спорить с будущим)
   if (weekend.length) {
-    html += `<div class="events-sub"><h3>Что накопилось за выходные</h3>
-      <div class="events-list">${weekend.slice(0, 6).map((e) => evCardHTML(e, pf, todayIso)).join('')}</div></div>`;
-  }
-
-  // Ближайшие события (компактно)
-  if (upcoming.length) {
-    html += `<div class="events-sub"><h3>Ближайшие события <span class="muted">(до 14 дней)</span></h3>
-      <ul class="events-upcoming">${upcoming.slice(0, 10).map((e) => {
-        const [catLbl] = EV_CAT[e.event_type] || ['Событие'];
-        const inPf = e.ticker && pf.set.has(e.ticker);
-        const dmy = e.date.slice(8, 10) + '.' + e.date.slice(5, 7);
-        return `<li class="${inPf ? 'ev-up-pf' : ''}"><b>${dmy}</b> <span class="ev-up-cat">${catLbl}</span> ${e.ticker ? esc(e.ticker) + ' · ' : ''}${esc(e.title)}${inPf ? ' <span class="ev-up-pfmark">в портфеле</span>' : ''}</li>`;
-      }).join('')}</ul></div>`;
+    html += `<details class="events-more events-weekend"><summary>Что было за выходные (${weekend.length})</summary>${weekend.slice(0, 6).map((e) => evRowHTML(e, pf, todayIso)).join('')}</details>`;
   }
 
   html += `<div class="events-foot muted">События — из открытых источников (${(meta.sources || []).map((s) => EV_SRC_LABEL[s] || s).join(', ') || 'MOEX ISS, ЦБ'}). Фильтр «сегодня» — по московскому времени. Информационно, не индивидуальная инвестиционная рекомендация.</div>`;
@@ -5167,9 +5219,12 @@ function dividendRowsHTML(rows, portfolio, tab) {
     };
     return `<div class="dc-empty">${labels[tab] || labels.confirmed} Измените фильтры.</div>`;
   }
+  // Строки с закрытой покупкой (ex-dividend/реестр закрыт) приглушаются: они остаются для
+  // контекста, но не должны выглядеть как действующие возможности («ничего не работает»-эффект).
+  const closedCls = (event) => (['ex_dividend', 'record_closed'].includes(event.event_status) ? ' dc-row-closed' : '');
   const desktop = rows.map((event) => {
     const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
-    return `<tr>
+    return `<tr class="${closedCls(event).trim()}">
       <td class="left"><div class="dc-company"><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div><div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div></td>
       <td class="left">${dividendDecisionBadge(event)}</td>
       <td class="tnum"><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></td>
@@ -5183,7 +5238,7 @@ function dividendRowsHTML(rows, portfolio, tab) {
   }).join('');
   const mobile = rows.map((event) => {
     const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
-    return `<article class="dc-mobile-card">
+    return `<article class="dc-mobile-card${closedCls(event)}">
       <header><div><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div>${dividendDecisionBadge(event)}</header>
       <div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div>
       <div class="dc-mobile-primary"><div><span>Дивиденд</span><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></div><div><span>Доходность к цене</span><b>${isNum(event.yield_pct) ? ru(event.yield_pct, 1) + '%' : '—'}</b></div></div>
@@ -5203,10 +5258,23 @@ function dividendCashflowStrip(events, portfolio, todayIso, rangeDays) {
     if (gross != null && ms >= Date.parse(todayIso + 'T00:00:00+03:00') && ms <= endMs) monthTotals[String(when).slice(0, 7)] = (monthTotals[String(when).slice(0, 7)] || 0) + gross;
   });
   const entries = Object.entries(monthTotals).sort();
-  if (!entries.length) return '';
+  // Полоса-график имеет смысл от 2 месяцев; один бар — просто число, оно уже есть в вердикте выше
+  if (entries.length < 2) return '';
   const max = Math.max(...entries.map(([, value]) => value));
   return `<div class="dc-cashflow"><div class="dc-cashflow-head"><b>Ожидаемый валовой cash-flow портфеля</b><span>если позиция была удержана до отсечки; фактическое зачисление может быть позже</span></div><div class="dc-cashflow-bars">${entries.map(([month, value]) => `<div><span>${month.slice(5)}.${month.slice(2, 4)}</span><i style="--dc-bar:${Math.max(8, Math.round(value / max * 100))}%"></i><b>${ru(value, 0)} ₽</b></div>`).join('')}</div></div>`;
 }
+// Открыть календарь на нужном табе из других блоков (вердикт «Что впереди» и т.п.)
+function openDividendCalendarTab(tab) {
+  if (tab && ['portfolio', 'buyable', 'upcoming', 'confirmed', 'changes'].includes(tab)) {
+    DIVIDEND_FILTERS.tab = tab; DIVIDEND_FILTERS.modeChosen = true; dividendSaveFilters();
+  }
+  const details = document.getElementById('dividend-calendar');
+  if (!details) return;
+  details.open = true;
+  renderDividendCalendar();
+  requestAnimationFrame(() => details.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+}
+
 function wireDividendCalendar() {
   const body = document.getElementById('dividend-calendar-body');
   if (!body || body.dataset.wired) return;
@@ -5268,18 +5336,18 @@ function renderDividendCalendar(refocus) {
   const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
   const tabs = [['portfolio', `Мой портфель · ${portfolioUpcoming.length}`], ['buyable', `Можно купить · ${buyable.length}`],
     ['upcoming', `Все будущие · ${marketUpcoming.length}`], ['confirmed', `Подтверждены · ${officialUpcoming.length}`], ['changes', 'Изменения']];
-  const nearestMarketDate = marketUpcoming.map((event) => event.record_date).sort()[0];
-  const nearestMarketCount = nearestMarketDate ? marketUpcoming.filter((event) => event.record_date === nearestMarketDate).length : 0;
   const nearestBuyDate = buyable.map((event) => event.last_buy_date).sort()[0];
-  const discoveryAlert = nonOfficialUpcoming.length ? `<div class="dc-discovery-alert"><div><b>${nonOfficialUpcoming.length} будущих событий требуют подтверждения</b><span>Даты из SmartLab или календаря T-Инвестиций показаны как discovery и не входят в официальный счётчик MOEX.</span></div><button type="button" data-dc-tab="upcoming">Показать весь рынок</button></div>` : '';
+  // Компактная строка-статус вместо 4 KPI-плашек: смысл тот же, экрана — в 4 раза меньше.
+  // «Ожидается по портфелю» здесь не дублируем — оно в вердикте блока «Что впереди» и в summary.
+  const discoveryNote = nonOfficialUpcoming.length
+    ? `<span class="dc-stat dc-stat-warn" title="Даты из SmartLab или календаря T-Инвестиций не подтверждены MOEX и не входят в официальный счётчик"><b>${nonOfficialUpcoming.length}</b> ${nonOfficialUpcoming.length === 1 ? 'анонс ждёт' : 'анонсов ждут'} подтверждения <button type="button" class="dc-link" data-dc-tab="upcoming">показать</button></span>`
+    : '';
   body.innerHTML = `${alert}
-    <div class="dc-kpis">
-      <div><span>Ещё можно купить</span><b>${buyable.length}</b><small>${nearestBuyDate ? `ближайший дедлайн ${dividendDateLabel(nearestBuyDate, true)}` : 'открытых отсечек сейчас нет'}</small></div>
-      <div><span>Ожидается по портфелю</span><b>${Object.keys(portfolio).length ? ru(portfolioGross, 0) + ' ₽' : 'портфель пуст'}</b><small>${Object.keys(portfolio).length ? `${portfolioUpcoming.length} ${dividendEventWord(portfolioUpcoming.length)} · валовыми, при удержании до отсечки` : 'добавьте позиции во вкладке «Портфель»'}</small></div>
-      <div><span>Ближайшее событие рынка</span><b>${nearestMarketDate ? dividendDateLabel(nearestMarketDate, true) : '—'}</b><small>${nearestMarketDate ? `${nearestMarketCount} отсечек в эту дату` : 'опубликованных будущих дат нет'}</small></div>
-      <div><span>Подтверждено официально</span><b>${officialUpcoming.length}</b><small>MOEX / решение эмитента · discovery ${nonOfficialUpcoming.length}</small></div>
+    <div class="dc-statusline">
+      <span class="dc-stat"><b>${buyable.length}</b> можно купить${nearestBuyDate ? ` · дедлайн ${dividendDateLabel(nearestBuyDate)}` : ''}</span>
+      <span class="dc-stat"><b>${officialUpcoming.length}</b> подтверждено MOEX / эмитентом</span>
+      ${discoveryNote}
     </div>
-    ${discoveryAlert}
     ${dividendCashflowStrip(combined, portfolio, todayIso, Number(DIVIDEND_FILTERS.range || 90))}
     <div class="dc-toolbar">
       <div class="dc-tabs" role="tablist" aria-label="Статус дивидендов">${tabs.map(([key, label]) => `<button type="button" role="tab" aria-selected="${DIVIDEND_FILTERS.tab === key}" class="${DIVIDEND_FILTERS.tab === key ? 'active' : ''}" data-dc-tab="${key}">${label}</button>`).join('')}</div>
@@ -5301,7 +5369,8 @@ function renderDividendCalendar(refocus) {
 
 function ensureKpiData() {
   if (!EVENTS_DATA && typeof loadEvents === 'function') loadEvents(() => renderEventsToday());
-  if (!DIVIDEND_CALENDAR && typeof loadDividendCalendar === 'function') loadDividendCalendar(() => renderDividendCalendar());
+  // после загрузки календаря перерисовать и ленту: вердикт-строка портфеля берёт из него сумму
+  if (!DIVIDEND_CALENDAR && typeof loadDividendCalendar === 'function') loadDividendCalendar(() => { renderDividendCalendar(); renderEventsToday(); });
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });

@@ -2401,57 +2401,69 @@ tbody tr:hover td,
 .events-banner { font-size: .84rem; border-radius: 9px; padding: 9px 12px; margin-bottom: 12px; line-height: 1.45; }
 .events-banner-warn { background: var(--warn-fill); color: var(--warn-ink); }
 .events-banner-risk { background: var(--risk-fill); color: var(--risk-ink); }
-.events-empty { font-size: .9rem; color: var(--ink-soft); background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 16px; text-align: center; }
-.events-pfhint { font-size: .8rem; margin-top: 10px; }
 .events-anchor { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; padding: 11px 13px;
   background: var(--neut-fill); border: 1px solid var(--line); border-radius: 10px; font-size: .84rem; line-height: 1.4; color: var(--ink-soft); }
 .events-anchor-cat { flex: 0 0 auto; font-size: .66rem; font-weight: 800; color: var(--accent-deep);
   background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; text-transform: uppercase; letter-spacing: .04em; }
 .events-anchor b { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-.events-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-.ev-card { border: 1px solid var(--line); border-left: 4px solid var(--neut-bar); border-radius: 10px; padding: 11px 13px; background: var(--surface); display: flex; flex-direction: column; gap: 5px; }
-.ev-card.ev-imp-high { border-left-color: var(--risk-bar); }
-.ev-card.ev-imp-mid { border-left-color: var(--warn-bar); }
-.ev-card.ev-imp-low { border-left-color: var(--neut-bar); }
-.ev-card.ev-pf { border-left-color: var(--accent-deep); box-shadow: 0 0 0 1px rgba(76,92,134,.18) inset; }
-.ev-badges { display: flex; flex-wrap: wrap; gap: 5px; }
-.ev-badge { font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+/* Вердикт по портфелю: одна строка «что моё и сколько» над лентой */
+.events-verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 12px; padding: 10px 13px;
+  background: rgba(76,92,134,.07); border: 1px solid var(--line); border-radius: 10px; }
+.events-verdict-text { flex: 1 1 240px; font-size: .86rem; color: var(--ink-soft); line-height: 1.45; }
+.events-verdict-text b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.events-verdict-btn { flex: 0 0 auto; min-height: 36px; padding: 6px 12px; border: 1px solid var(--accent-deep); border-radius: 7px;
+  background: var(--surface); color: var(--accent-deep); font: inherit; font-size: .76rem; font-weight: 700; cursor: pointer; }
+.events-verdict-btn:hover { background: var(--accent-deep); color: #fff; }
+.events-verdict-btn:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.events-verdict-empty { background: var(--bg); }
+.events-verdict-empty .events-verdict-text { color: var(--ink-faint); }
+
+/* Хронологическая лента: заголовки дней + компактные строки-details */
+.ev-feed { display: flex; flex-direction: column; }
+.ev-day-head { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 3px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.ev-feed > .ev-day-head:first-child { margin-top: 0; }
+.ev-day-head b { font-size: .88rem; color: var(--ink); }
+.ev-day-head span { font-size: .74rem; color: var(--ink-faint); }
+.ev-day-empty { font-size: .84rem; color: var(--ink-faint); padding: 8px 2px 4px; }
+.ev-row { border-bottom: 1px dashed var(--line); }
+.ev-row > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 7px 6px; cursor: pointer; list-style: none; border-radius: 8px; }
+.ev-row > summary::-webkit-details-marker { display: none; }
+.ev-row > summary:hover { background: var(--bg); }
+.ev-row > summary:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: -2px; }
+.ev-row > summary::after { content: '▾'; flex: 0 0 auto; color: var(--ink-faint); font-size: .7rem; transition: transform .15s ease; }
+.ev-row[open] > summary::after { transform: rotate(180deg); }
+.ev-row-main { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .85rem; color: var(--ink-soft); }
+.ev-row-main b { color: var(--ink); }
+.ev-row-low .ev-row-main { color: var(--ink-faint); }
+.ev-row-pf > summary { background: rgba(76,92,134,.06); }
+.ev-row-pf > summary:hover { background: rgba(76,92,134,.11); }
+.ev-chip { flex: 0 0 auto; font-size: .66rem; font-weight: 750; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
 .ev-cat-div { background: var(--good-fill); color: var(--good-ink); }
 .ev-cat-cbr { background: #E4E1F2; color: #4B3B86; }
 .ev-cat-board, .ev-cat-gosa { background: var(--neut-fill); color: var(--neut-ink); }
 .ev-cat-earn { background: #E1ECF2; color: #2C6386; }
 .ev-cat-ofz { background: var(--sand); color: var(--warn-ink); }
 .ev-cat-macro, .ev-cat-gen { background: var(--neut-fill); color: var(--neut-ink); }
-.ev-impbadge.ev-imp-high { background: var(--risk-fill); color: var(--risk-ink); }
-.ev-impbadge.ev-imp-mid { background: var(--warn-fill); color: var(--warn-ink); }
-.ev-impbadge.ev-imp-low { background: var(--neut-fill); color: var(--neut-ink); }
-.ev-pfbadge { background: var(--accent-deep); color: #fff; }
-.ev-title { font-size: .92rem; font-weight: 700; color: var(--ink); line-height: 1.3; }
-.ev-when { font-size: .78rem; color: var(--accent-deep); font-weight: 600; }
-.ev-desc { font-size: .82rem; color: var(--ink-soft); line-height: 1.45; }
-.ev-src { font-size: .74rem; }
-.ev-src a { color: var(--accent-deep); }
+.ev-chip-pf { background: var(--accent-deep); color: #fff; }
+.ev-chip-warn { background: var(--warn-fill); color: var(--warn-ink); }
+.ev-row-body { padding: 2px 8px 11px; font-size: .8rem; color: var(--ink-soft); line-height: 1.5; }
+.ev-row-body p { margin: 0 0 4px; }
+.ev-row-body a { color: var(--accent-deep); }
+.ev-row-meta { color: var(--ink-faint); font-size: .74rem; }
 .ev-stale { color: var(--warn-ink); font-weight: 600; }
 .ev-announced { color: var(--ink-faint); font-weight: 600; font-size: .9em; }
-.events-more { margin-top: 10px; }
-.events-more > summary { cursor: pointer; font-size: .84rem; font-weight: 600; color: var(--accent-deep); padding: 6px 0; }
-.events-more .events-list { margin-top: 8px; }
-
-.events-sub { margin-top: 16px; }
-.events-sub h3 { margin: 0 0 8px; font-size: .95rem; color: var(--ink); }
-.events-upcoming { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.events-upcoming li { font-size: .85rem; color: var(--ink-soft); line-height: 1.4; padding: 5px 8px; border-radius: 7px; }
-.events-upcoming li:nth-child(odd) { background: var(--bg); }
-.events-upcoming li b { color: var(--accent-deep); font-variant-numeric: tabular-nums; margin-right: 6px; }
-.ev-up-cat { font-size: .7rem; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .03em; margin-right: 5px; }
-.events-upcoming li.ev-up-pf { background: rgba(76,92,134,.08); }
-.ev-up-pfmark { font-size: .68rem; font-weight: 700; color: var(--accent-deep); background: rgba(76,92,134,.14); padding: 1px 6px; border-radius: 999px; }
+.events-more { margin-top: 8px; }
+.events-more > summary { cursor: pointer; font-size: .84rem; font-weight: 600; color: var(--accent-deep); padding: 8px 0; min-height: 36px; }
+.events-weekend { margin-top: 12px; }
 .events-foot { font-size: .76rem; margin-top: 14px; line-height: 1.5; }
 
 @media (max-width: 760px) {
-  .events-list { grid-template-columns: 1fr; }
   .events-today { padding: 14px; }
+  .ev-row-main { white-space: normal; }
+  .ev-row > summary { align-items: flex-start; }
+  .ev-row > summary::after { margin-top: 5px; }
+  .ev-row > summary .ev-chip { margin-top: 2px; }
 }
 
 /* ═══════════ Дивидендный календарь РФ ═══════════ */
@@ -2466,19 +2478,16 @@ tbody tr:hover td,
 .dc-alert { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 12px 0 0; padding: 9px 11px;
   background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0; border-radius: 6px; font-size: .78rem; }
 .dc-alert-risk { background: var(--risk-fill); color: var(--risk-ink); border-color: #E8B9A7; }
-.dc-discovery-alert { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 10px 12px;
-  border: 1px solid #E6D2B0; border-radius: 8px; background: var(--warn-fill); color: var(--warn-ink); }
-.dc-discovery-alert > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.dc-discovery-alert b { font-size: .8rem; }.dc-discovery-alert span { font-size: .7rem; line-height: 1.4; }
-.dc-discovery-alert button { flex: 0 0 auto; min-height: 34px; padding: 6px 10px; border: 1px solid #C7984A; border-radius: 6px;
-  background: var(--surface); color: var(--warn-ink); font: inherit; font-size: .72rem; font-weight: 750; cursor: pointer; }
-.dc-discovery-state { flex: 0 0 auto; font-weight: 700; }
-.dc-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 14px 0 0;
-  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
-.dc-kpis > div { min-width: 0; padding: 11px 13px; border-right: 1px solid var(--line); }
-.dc-kpis > div:last-child { border-right: 0; }
-.dc-kpis span, .dc-kpis small { display: block; color: var(--ink-faint); font-size: .7rem; line-height: 1.35; }
-.dc-kpis b { display: block; margin: 2px 0; color: var(--ink); font-size: 1rem; line-height: 1.25; overflow-wrap: anywhere; }
+/* Компактная строка-статус: заменила 4 KPI-плашки + жёлтый discovery-баннер */
+.dc-statusline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin-top: 12px; font-size: .78rem; color: var(--ink-soft); }
+.dc-stat { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; }
+.dc-stat b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.dc-stat-warn { color: var(--warn-ink); }
+.dc-stat-warn b { color: var(--warn-ink); }
+.dc-link { display: inline-flex; align-items: center; min-height: 32px; padding: 0 5px; border: 0; background: none;
+  color: var(--accent-deep); font: inherit; font-size: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.dc-link:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.dc-row-closed { opacity: .55; }
 .dc-cashflow { margin-top: 12px; padding: 10px 12px; background: #F2F7F4; border: 1px solid #D7E7DE; border-radius: 8px; }
 .dc-cashflow-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: .76rem; }
 .dc-cashflow-head span { color: var(--ink-faint); font-size: .68rem; text-align: right; }
@@ -2552,9 +2561,6 @@ tbody tr:hover td,
 .dc-mobile-list { display: none; }
 
 @media (max-width: 900px) {
-  .dc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dc-kpis > div:nth-child(2) { border-right: 0; }
-  .dc-kpis > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .dc-toolbar { align-items: stretch; flex-direction: column; }
   .dc-tabs, .dc-ranges { width: 100%; overflow-x: auto; }
   .dc-actions { margin-left: 0; }
@@ -2565,9 +2571,7 @@ tbody tr:hover td,
   .dividend-calendar-wrap > summary { align-items: flex-start; flex-direction: column; gap: 3px; padding: 12px; }
   .dividend-calendar-summary { margin-left: 0; text-align: left; line-height: 1.35; }
   .dividend-calendar-body { padding: 0 12px 12px; }
-  .dc-kpis { grid-template-columns: 1fr 1fr; }
-  .dc-kpis > div { padding: 9px; }
-  .dc-kpis b { font-size: .88rem; }
+  .dc-statusline { gap: 2px 14px; }
   .dc-tabs { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
   .dc-tabs button { white-space: normal; }
   .dc-filters { align-items: stretch; }
@@ -2588,7 +2592,6 @@ tbody tr:hover td,
   .dc-mobile-card > dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0 0 8px; font-size: .72rem; }
   .dc-mobile-card > dl dt { color: var(--ink-faint); }.dc-mobile-card > dl dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
   .dc-source-panel { min-width: 0; }
-  .dc-discovery-alert { align-items: flex-start; flex-direction: column; }
   .dc-cashflow-head { align-items: flex-start; flex-direction: column; gap: 2px; }
   .dc-cashflow-head span { text-align: left; }
 }
