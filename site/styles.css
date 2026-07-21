@@ -2431,7 +2431,26 @@ tbody tr:hover td,
 .mpe-yield { display: flex; flex-direction: column; padding-left: 22px; border-left: 1px solid var(--line); }
 .mpe-yield b { font-size: 1.3rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
 .mpe-yield span { margin-top: 3px; font-size: .7rem; color: var(--ink-faint); max-width: 150px; line-height: 1.35; }
-.mpe-banner { margin-top: 12px; padding: 9px 12px; background: var(--warn-fill); color: var(--warn-ink); border-radius: 8px; font-size: .8rem; line-height: 1.45; }
+.mpe-unavailable { flex: 1 1 300px; max-width: 460px; padding: 12px 14px; background: var(--warn-fill); border: 1px solid #E6D2B0; border-radius: 10px; }
+.mpe-unavailable b { display: block; font-size: .92rem; color: var(--warn-ink); line-height: 1.35; }
+.mpe-unavailable span { display: block; margin-top: 5px; font-size: .78rem; color: var(--ink-soft); line-height: 1.45; }
+.mpe-blocklist { margin-top: 12px; }
+.mpe-blocklist ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.mpe-blocklist li { font-size: .78rem; color: var(--ink-soft); line-height: 1.4; padding: 5px 9px; background: var(--bg); border-radius: 7px; }
+.mpe-blocklist li b { color: var(--ink); }
+.mpe-blocklist .mpe-w { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.mpe-recon-h { margin-top: 12px; }
+.mpe-recon-wrap { margin-top: 6px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.mpe-recon { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .74rem; }
+.mpe-recon th { position: sticky; top: 0; background: var(--bg); text-align: right; padding: 7px 8px; font-size: .66rem; color: var(--ink-faint); font-weight: 700; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.mpe-recon th.left, .mpe-recon td.left { text-align: left; }
+.mpe-recon td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+.mpe-recon td.tnum { font-variant-numeric: tabular-nums; }
+.mpe-recon tbody tr:last-child td { border-bottom: 0; }
+.mpe-recon .mpe-r-out { background: rgba(138,98,36,.05); }
+.mpe-recon .mpe-in { color: var(--good-ink); font-weight: 650; }
+.mpe-recon .mpe-out { color: var(--warn-ink); font-weight: 650; }
+.mpe-recon .mpe-reason { max-width: 320px; white-space: normal; color: var(--ink-faint); line-height: 1.35; }
 .mpe-fallback { font-size: .86rem; color: var(--ink-soft); }
 .mpe-fallback b { color: var(--ink); }
 .mpe-details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 4px; }

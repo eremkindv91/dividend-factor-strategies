@@ -5402,53 +5402,82 @@ function loadMarketPE(cb) {
   fetch('market_pe_current.json?t=' + Date.now(), { cache: 'no-store' })
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
-      if (!j || j.metric !== 'market_pe_fy') throw new Error('неподдерживаемый контракт market_pe');
+      if (!j || j.metric !== 'aggregate_pe_imoex_basket') throw new Error('неподдерживаемый контракт market_pe');
       MARKET_PE = j; if (cb) cb();
     })
     .catch((e) => { console.error('[market-pe] не загрузился:', e); MARKET_PE = { failed: true }; if (cb) cb(); });
 }
 
+function marketPeCovPct(x) { return isNum(x) ? Math.round(x * 100) + '%' : '—'; }
+
+function marketPeReconTable(rows) {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const rub = (v, div, suf) => (isNum(v) ? ru(v / div, suf === ' трлн' ? 2 : 0) + suf : '<span class="muted">н/д</span>');
+  const body = rows.map((r) => {
+    const inc = r.included ? '<span class="mpe-in">включён</span>' : '<span class="mpe-out">исключён</span>';
+    return `<tr class="${r.included ? '' : 'mpe-r-out'}">
+      <td class="left"><b>${esc(r.ticker)}</b></td>
+      <td class="tnum">${isNum(r.weight_pct) ? ru(r.weight_pct, 2) + '%' : '—'}</td>
+      <td class="tnum">${r.fy ?? '—'}</td>
+      <td class="tnum">${rub(r.net_income_rub, 1e9, ' млрд')}</td>
+      <td class="left">${r.accounting_standard ? esc(r.accounting_standard) : '<span class="muted">н/д</span>'}</td>
+      <td class="left">${r.source ? esc(r.source) : '<span class="muted">н/д</span>'}</td>
+      <td class="tnum">${rub(r.market_cap_rub, 1e12, ' трлн')}</td>
+      <td class="left">${inc}</td>
+      <td class="left mpe-reason">${esc(r.reason || '')}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="mpe-recon-wrap"><table class="mpe-recon"><thead><tr>
+    <th class="left">Тикер</th><th>Вес</th><th>Год</th><th>Прибыль</th><th class="left">Стандарт</th>
+    <th class="left">Источник</th><th>Капит.</th><th class="left">Статус</th><th class="left">Причина</th>
+    </tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
 function marketPeHTML(d) {
   const dt = (s) => (/^\d{4}-\d{2}-\d{2}/.test(String(s || '')) ? sawDate(String(s).slice(0, 10)) : '—');
-  const cov = isNum(d.market_cap_coverage) ? Math.round(d.market_cap_coverage * 100) : null;
-  const capT = isNum(d.total_market_cap_rub) ? ru(d.total_market_cap_rub / 1e12, 1) + ' трлн ₽' : '—';
-  const earnT = isNum(d.total_net_income_rub) ? ru(d.total_net_income_rub / 1e12, 1) + ' трлн ₽' : '—';
-  const val = isNum(d.value) && d.value > 0 ? d.value : null;
-  const eYield = val ? ru(100 / val, 1) + '%' : '—';   // доходность по прибыли = 1/PE (просто факт, не прогноз)
-  const stale = d.is_stale
-    ? `<div class="mpe-banner">Данные устарели${d.stale_reason ? ` (${esc(d.stale_reason)})` : ''}. Показано последнее корректное значение — рыночные цены на ${dt(d.market_date)}.</div>` : '';
-  const headVal = val
-    ? `<b class="mpe-num tnum">${ru(val, 1)}<span>×</span></b>`
-    : `<b class="mpe-num mpe-nd">н/д</b>`;
-  const contribs = Array.isArray(d.top_contributors) && d.top_contributors.length
-    ? `<div class="mpe-contribs"><span class="mpe-sub-h">Наибольший вес в капитализации</span>
-        <ul>${d.top_contributors.slice(0, 6).map((c) => `<li><b>${esc(c.ticker)}</b> ${isNum(c.market_cap_rub) ? ru(c.market_cap_rub / 1e12, 2) + ' трлн ₽' : '—'} · прибыль ${isNum(c.net_income_rub) ? ru(c.net_income_rub / 1e9, 0) + ' млрд' : 'н/д'}${c.fy ? ` (${c.fy})` : ''}</li>`).join('')}</ul></div>`
+  const cov = d.coverage || {};
+  const ok = d.status === 'ok' && isNum(d.value) && d.value > 0;
+  const blocking = Array.isArray(d.blocking_reasons) ? d.blocking_reasons : [];
+
+  // Level 1: значение — ТОЛЬКО когда контракт качества пройден; иначе честное «недоступно»
+  const valueBlock = ok
+    ? `<div class="mpe-values">
+        <div class="mpe-main"><b class="mpe-num tnum">${ru(d.value, 1)}<span>×</span></b><span class="mpe-lbl">цена/прибыль</span></div>
+        <div class="mpe-yield"><b class="tnum">${ru(100 / d.value, 1)}%</b><span>доходность по прибыли (1/PE)</span></div>
+      </div>`
+    : `<div class="mpe-unavailable">
+        <b>${esc(d.unavailable_message || 'Расчёт временно недоступен: проводится проверка качества финансовых данных')}</b>
+        <span>Значение не публикуется, пока крупнейшие эмитенты не пройдут контракт прибыли (IFRS, прибыль акционерам материнской компании, полный год).</span>
+      </div>`;
+
+  const blockList = blocking.length
+    ? `<div class="mpe-blocklist"><span class="mpe-sub-h">Не прошли проверку (вес &gt; 2%)</span>
+        <ul>${blocking.slice(0, 8).map((b) => `<li><b>${esc(b.ticker)}</b> <span class="mpe-w">${isNum(b.weight_pct) ? ru(b.weight_pct, 1) + '%' : ''}</span> — ${esc(b.reason || '')}</li>`).join('')}</ul></div>`
     : '';
+
   return `
     <div class="mpe-head">
       <div class="mpe-copy">
         <span class="mpe-eyebrow">Оценка рынка по прибыли</span>
-        <div class="mpe-title">P/E текущей корзины Индекса МосБиржи</div>
-        <p class="mpe-note">По последней годовой прибыли по МСФО. Не официальный P/E индекса и не LTM. Капитализация — цена×число акций (MOEX ISS), прибыль учитывается раз на эмитента.</p>
+        <div class="mpe-title">Агрегированный P/E компаний текущей корзины IMOEX</div>
+        <p class="mpe-note">Не официальный P/E Индекса МосБиржи: расчёт по полной капитализации эмитентов (цена×число акций), тогда как IMOEX учитывает free-float. Прибыль — последняя годовая по МСФО, относящаяся к акционерам материнской компании, включая убытки. Значение публикуется только после контракта качества данных.</p>
       </div>
-      <div class="mpe-values">
-        <div class="mpe-main">${headVal}<span class="mpe-lbl">${val ? 'цена/прибыль' : 'суммарная прибыль ≤ 0'}</span></div>
-        <div class="mpe-yield"><b class="tnum">${eYield}</b><span>доходность по прибыли (1/PE)</span></div>
-      </div>
+      ${valueBlock}
     </div>
-    ${stale}
     <details class="mpe-details">
-      <summary>Как считалось и на какие даты</summary>
+      <summary>Проверка данных, покрытие и сверка по эмитентам</summary>
       <div class="mpe-grid">
         <div><span>Цены рынка</span><b>${dt(d.market_date)}</b></div>
         <div><span>Отчётность</span><b>${dt(d.fundamentals_as_of)}</b></div>
-        <div><span>Компаний в расчёте</span><b>${d.companies_included ?? '—'} из ${d.companies_total ?? '—'}</b></div>
-        <div><span>Покрытие капитализации</span><b>${cov != null ? cov + '%' : '—'}</b></div>
-        <div><span>Суммарная капитализация</span><b>${capT}</b></div>
-        <div><span>Суммарная годовая прибыль</span><b>${earnT}</b></div>
+        <div><span>Покрытие ценами</span><b>${marketPeCovPct(cov.price_coverage)}</b><small>${esc(cov.price_coverage_n || '')}</small></div>
+        <div><span>Покрытие прибылью</span><b>${marketPeCovPct(cov.earnings_coverage)}</b><small>${esc(cov.earnings_coverage_n || '')}</small></div>
+        <div><span>Прошли контракт</span><b>${marketPeCovPct(cov.issuer_coverage)}</b><small>${esc(cov.issuer_coverage_n || '')}</small></div>
+        <div><span>Universe</span><b>${esc(d.universe || '—')}</b></div>
       </div>
-      ${contribs}
-      <p class="mpe-foot muted">Universe: ${esc(d.universe_name || d.universe || '—')}. Обновляется каждый торговый день (цены — ежедневно, прибыль — по мере выхода отчётности). Источники: MOEX ISS, SmartLab. Не индивидуальная инвестиционная рекомендация.</p>
+      ${blockList}
+      <div class="mpe-recon-h"><span class="mpe-sub-h">Сверка по эмитентам (reconciliation)</span></div>
+      ${marketPeReconTable(d.reconciliation)}
+      <p class="mpe-foot muted">${esc(d.note || '')} Обновляется каждый торговый день. Источники: MOEX ISS, SmartLab. Не индивидуальная инвестиционная рекомендация.</p>
     </details>`;
 }
 

@@ -1,28 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""P/E рынка по последней ГОДОВОЙ прибыли — ежедневно пересчитываемый показатель.
+"""Агрегированный P/E компаний текущей корзины IMOEX — с валидируемым контрактом прибыли.
 
-ЧЕСТНАЯ методика (не официальный P/E Индекса МосБиржи, не LTM):
-    P/E_t = Σ MarketCap(i, t) / Σ NetIncome(company)
-где
-  • числитель — рыночная капитализация КАЖДОЙ бумаги корзины на конец последней
-    завершённой сессии: MarketCap = close_price × ISSUESIZE (кол-во бумаг в выпуске,
-    MOEX ISS). Обыкновенные и привилегированные акции одного эмитента складываются
-    в общую капитализацию компании (группировка по base_ticker из security_master).
-  • знаменатель — последняя доступная ГОДОВАЯ чистая прибыль по МСФО (site_financials),
-    учитывается ОДИН раз на эмитента, даже если торгуется несколько классов акций.
+Показатель НЕ является официальным P/E Индекса МосБиржи: расчёт использует ПОЛНУЮ
+капитализацию эмитентов (цена×ISSUESIZE по всем классам), тогда как IMOEX учитывает
+free-float и ограничивающие коэффициенты.
 
-Universe: текущая корзина Индекса МосБиржи (ISS analytics, машиночитаемый состав).
-Fallback universe: покрываемая выборка (тикеры data.json), если состав недоступен.
+    P/E = Σ MarketCap(эмитент) / Σ NetIncome(эмитент)
 
-Гейты качества (иначе итог НЕ обновляется — остаётся last-good):
-  • покрытие капитализации < 85 %  → не обновлять (карзина неполна из-за сбоя цен);
-  • отсутствующая цена НИКОГДА не подменяется нулём — бумага исключается;
-  • одна прибыль не учитывается дважды для разных классов акций;
-  • Σ прибыль ≤ 0  → P/E = null (н/д), но метаданные пишутся;
-  • при сбое источника — сохраняется предыдущее корректное значение (is_stale);
-  • атомарная замена JSON только после прохождения всех проверок;
-  • если value и market_date не изменились — файл не переписывается (нет git-шума).
+DATA CONTRACT для NetIncome (иначе запись НЕ валидна и в сумму НЕ входит):
+  • accounting_standard = IFRS (не РСБУ);
+  • statement_scope     = profit/loss attributable to owners of the parent, consolidated
+                          (не standalone, не total incl. NCI);
+  • период              = полный финансовый год (не промежуточный);
+  • показатель          = итоговый результат ВКЛЮЧАЯ отрицательные значения
+                          (не comprehensive income, не continuing operations, не EBITDA);
+  • валюта              = RUB.
+
+ВАЛИДАЦИЯ (двумерная, причины сохраняются в reconciliation):
+  A. earnings-quality (считается из истории слоя):
+     • YoY изменение > 3x или смена знака прибыли  → review;
+     • needs_manual_review / conflict_flag в слое   → review;
+     • период не годовой                            → review.
+  B. provenance (требует полей контракта в фундамент-слое):
+     • accounting_standard / statement_scope / period_end / published_at ОТСУТСТВУЮТ в
+       текущем слое → provenance_unverified (запись не подтверждена как IFRS-attributable).
+
+ГЕЙТ ПУБЛИКАЦИИ: value публикуется ТОЛЬКО если КАЖДЫЙ эмитент с весом в индексе > 2 %
+прошёл ОБЕ проверки (validation_status = validated). Иначе status = "validating",
+value = null, и UI показывает «Расчёт временно недоступен: проводится проверка качества
+финансовых данных». Значение не подставляется вручную — исправление в фундамент-слое.
 
 CLI:
   python scripts/build_market_pe.py                 # → site/market_pe_current.json
@@ -44,14 +51,29 @@ SECURITY_MASTER = os.path.join(ROOT, "data", "security_master.json")
 FINANCIALS = os.path.join(ROOT, "site", "site_financials.json")
 DATA_JSON = os.path.join(ROOT, "site", "data.json")
 
-COVERAGE_MIN = 0.85
-METHODOLOGY_VERSION = "1.0.0"
+WEIGHT_GATE_PCT = 2.0        # эмитенты с весом > 2 % обязаны быть validated для публикации
+YOY_MAX_RATIO = 3.0          # YoY изменение прибыли крупнее — в review
+METHODOLOGY_VERSION = "2.0.0"
+UNAVAILABLE_MSG = "Расчёт временно недоступен: проводится проверка качества финансовых данных"
 UA = {"User-Agent": "dividend-site/market-pe", "Cache-Control": "no-cache"}
+
+# Контракт прибыли (декларируется в JSON для прозрачности)
+NET_INCOME_CONTRACT = {
+    "accounting_standard": "IFRS",
+    "statement_scope": "profit_or_loss_attributable_to_owners_of_the_parent",
+    "consolidation": "consolidated",
+    "period": "full_financial_year",
+    "includes_negative": True,
+    "currency": "RUB",
+    "excludes": ["comprehensive_income", "continuing_operations_only", "EBITDA", "RAS", "interim_period", "standalone"],
+    "required_provenance_fields": ["accounting_standard", "statement_scope", "period_start", "period_end",
+                                   "metric_name_raw", "value_raw", "currency", "unit_multiplier",
+                                   "source_url", "published_at", "validation_status"],
+}
 
 ISS_INDEX = "https://iss.moex.com/iss/statistics/engines/stock/markets/index/analytics/IMOEX.json?limit=100&iss.meta=off"
 ISS_BOARD = ("https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
-             "?iss.meta=off&securities.columns=SECID,PREVLEGALCLOSEPRICE,PREVPRICE,PREVDATE,ISSUESIZE"
-             "&marketdata.columns=SECID")
+             "?iss.meta=off&securities.columns=SECID,PREVLEGALCLOSEPRICE,PREVPRICE,PREVDATE,ISSUESIZE")
 
 
 def log(msg: str) -> None:
@@ -77,14 +99,12 @@ def load_local(path: str):
 
 
 def build_masters():
-    """base_ticker → [активные TQBR-секиды всех классов]; secid → base_ticker."""
+    """base_ticker → [активные TQBR-секиды]; secid → base_ticker."""
     master = load_local(SECURITY_MASTER).get("securities", [])
     classes: dict[str, list[str]] = {}
     base_of: dict[str, str] = {}
     for row in master:
-        if row.get("instrument_type") != "share" or row.get("status") != "active":
-            continue
-        if row.get("board") != "TQBR":
+        if row.get("instrument_type") != "share" or row.get("status") != "active" or row.get("board") != "TQBR":
             continue
         secid = row.get("secid")
         base = row.get("base_ticker") or secid
@@ -95,21 +115,78 @@ def build_masters():
     return classes, base_of
 
 
-def latest_fy_net_income():
-    """ticker → (fiscal_year, net_income) по ПОСЛЕДНЕМУ доступному году."""
-    rows = load_local(FINANCIALS).get("rows", [])
-    best: dict[str, tuple[int, float]] = {}
+def income_history():
+    """ticker → отсортированный по году список записей прибыли с метаданными слоя."""
+    fin = load_local(FINANCIALS)
+    rows = fin.get("rows", [])
+    hist: dict[str, list[dict]] = {}
     for row in rows:
         ni, fy, tk = row.get("net_income"), row.get("fiscal_year"), row.get("ticker")
         if ni is None or fy is None or not tk:
             continue
-        if tk not in best or fy > best[tk][0]:
-            best[tk] = (int(fy), float(ni))
-    return best
+        hist.setdefault(tk, []).append({
+            "fy": int(fy), "value": float(ni),
+            "period": row.get("period"), "currency": row.get("currency"),
+            "source": row.get("source"), "source_status": row.get("source_status"),
+            "verification_status": row.get("verification_status"),
+            "needs_manual_review": bool(row.get("needs_manual_review")),
+            "conflict_flag": bool(row.get("conflict_flag")),
+            # Поля контракта, которых в текущем слое НЕТ (провенанс не подтверждён):
+            "accounting_standard": row.get("accounting_standard"),
+            "statement_scope": row.get("statement_scope"),
+            "period_end": row.get("period_end"),
+            "published_at": row.get("published_at"),
+            "source_url": row.get("source_url"),
+        })
+    for tk in hist:
+        hist[tk].sort(key=lambda r: r["fy"])
+    return hist, (fin.get("meta") or {})
+
+
+def validate_issuer(records: list[dict]):
+    """Возвращает (validation_status, latest_record, reasons[])."""
+    if not records:
+        return "missing", None, ["нет чистой прибыли в фундамент-слое"]
+    latest = records[-1]
+    reasons: list[str] = []
+
+    # ── A. earnings-quality ──
+    if latest.get("needs_manual_review"):
+        reasons.append("needs_manual_review в фундамент-слое")
+    if latest.get("conflict_flag"):
+        reasons.append("conflict_flag в фундамент-слое")
+    if latest.get("period") is not None and not str(latest["period"]).strip().isdigit():
+        reasons.append(f"период не годовой: {latest['period']}")
+    prior = records[-2] if len(records) >= 2 else None
+    if prior and prior["value"]:
+        sign_flip = (latest["value"] < 0) != (prior["value"] < 0)
+        ratio = abs(latest["value"]) / abs(prior["value"]) if prior["value"] else None
+        if sign_flip:
+            reasons.append(f"смена знака прибыли vs {prior['fy']}: "
+                           f"{prior['value']/1e9:.0f}→{latest['value']/1e9:.0f} млрд ₽")
+        elif ratio is not None and (ratio > YOY_MAX_RATIO or ratio < 1.0 / YOY_MAX_RATIO):
+            reasons.append(f"YoY изменение >{YOY_MAX_RATIO:.0f}x vs {prior['fy']}: "
+                           f"{prior['value']/1e9:.0f}→{latest['value']/1e9:.0f} млрд ₽")
+
+    # ── B. provenance (поля контракта отсутствуют в текущем слое) ──
+    missing_prov = [f for f in ("accounting_standard", "statement_scope", "period_end", "published_at")
+                    if not latest.get(f)]
+    if missing_prov:
+        reasons.append("провенанс не подтверждён (нет полей: " + ", ".join(missing_prov) + ")")
+
+    # validated — только без единой причины; иначе review (есть non-provenance проблема)
+    # или provenance_unverified (единственная проблема — отсутствие полей контракта в слое).
+    if not reasons:
+        status = "validated"
+    elif any("провенанс" not in r for r in reasons):
+        status = "review"
+    else:
+        status = "provenance_unverified"
+    return status, latest, reasons
 
 
 def index_universe():
-    """Текущая корзина IMOEX: [base_ticker...] + дата состава. None при сбое."""
+    """{base_ticker: weight_pct}, дата состава. None при сбое."""
     try:
         payload = fetch_json(ISS_INDEX)
     except RuntimeError as exc:
@@ -120,19 +197,19 @@ def index_universe():
     data = block.get("data", [])
     if not data or "ticker" not in cols:
         return None, None
-    tickers, dates = [], []
+    weights: dict[str, float] = {}
+    dates = []
     for row in data:
-        tk = row[cols["ticker"]]
+        tk = str(row[cols["ticker"]] or "").upper()
+        w = row[cols["weight"]] if "weight" in cols else None
         if tk:
-            tickers.append(str(tk).upper())
+            weights[tk] = weights.get(tk, 0.0) + (float(w) if isinstance(w, (int, float)) else 0.0)
         if "tradedate" in cols and row[cols["tradedate"]]:
             dates.append(str(row[cols["tradedate"]]))
-    composition_date = max(dates) if dates else None
-    return sorted(set(tickers)), composition_date
+    return weights, (max(dates) if dates else None)
 
 
 def board_prices():
-    """secid → (close_price, issuesize, prevdate). close = PREVLEGALCLOSEPRICE|PREVPRICE."""
     payload = fetch_json(ISS_BOARD)
     block = payload["securities"]
     cols = {c: i for i, c in enumerate(block["columns"])}
@@ -143,10 +220,9 @@ def board_prices():
         if price is None:
             price = row[cols["PREVPRICE"]]
         issuesize = row[cols["ISSUESIZE"]]
-        prevdate = row[cols.get("PREVDATE", -1)] if "PREVDATE" in cols else None
-        # НЕ подменяем отсутствующую цену/объём нулём — оставляем None, бумага выпадет
+        prevdate = row[cols["PREVDATE"]] if "PREVDATE" in cols else None
         out[secid] = (
-            float(price) if isinstance(price, (int, float)) and price > 0 else None,
+            float(price) if isinstance(price, (int, float)) and price > 0 else None,   # НЕ подменяем нулём
             float(issuesize) if isinstance(issuesize, (int, float)) and issuesize > 0 else None,
             prevdate,
         )
@@ -155,39 +231,31 @@ def board_prices():
 
 def compute():
     classes, base_of = build_masters()
-    net_income = latest_fy_net_income()
-    universe, composition_date = index_universe()
+    hist, fin_meta = income_history()
+    weights, composition_date = index_universe()
 
     universe_label = "IMOEX_CURRENT"
-    universe_name = "текущая корзина Индекса МосБиржи"
-    if not universe:
-        # Fallback: покрываемая выборка из data.json (тикеры с рейтингом/капой)
-        universe_label, universe_name = "COVERED_SAMPLE", "покрываемая выборка российского рынка"
+    if not weights:
+        universe_label = "COVERED_SAMPLE"
         try:
             tickers = [t.get("ticker") for t in load_local(DATA_JSON).get("tickers", []) if t.get("ticker")]
         except Exception:  # noqa: BLE001
             tickers = []
-        universe = sorted({base_of.get(tk, tk) for tk in tickers if base_of.get(tk, tk)})
+        weights = {base_of.get(tk, tk): 0.0 for tk in tickers if base_of.get(tk, tk)}
         composition_date = None
-        log(f"использую fallback-universe: {len(universe)} эмитентов")
+        log(f"fallback-universe: {len(weights)} эмитентов (веса недоступны)")
 
     prices = board_prices()
     price_dates = []
 
-    companies = []          # включённые (есть капа И прибыль)
-    total_cap_all = 0.0     # капа всех эмитентов корзины с валидной ценой (знаменатель покрытия)
-    total_market_cap = 0.0  # капа включённых
-    total_net_income = 0.0
-    n_no_cap = n_no_income = 0
+    recon = []                 # reconciliation по каждому эмитенту
+    sum_weight = sum(weights.values()) or 0.0
+    w_priced = w_earn_valid = w_validated = 0.0
+    n_priced = n_earn_valid = n_validated = 0
+    blocking = []              # эмитенты weight>2%, не прошедшие валидацию
 
-    seen_base = set()
-    for member in universe:
-        base = base_of.get(member, member)
-        if base in seen_base:
-            continue
-        seen_base.add(base)
-
-        share_secids = classes.get(base, [member])
+    for base, weight in sorted(weights.items(), key=lambda kv: -kv[1]):
+        share_secids = classes.get(base, [base])
         company_cap = 0.0
         ord_priced = False
         for secid in share_secids:
@@ -197,47 +265,67 @@ def compute():
             company_cap += price * issuesize
             if prevdate:
                 price_dates.append(str(prevdate))
-            if secid == base:  # обыкновенная бумага эмитента оценена
+            if secid == base:
                 ord_priced = True
-        # Капа считается валидной, если оценена хотя бы обыкновенная бумага эмитента
-        if company_cap <= 0 or not ord_priced:
-            n_no_cap += 1
-            continue
-        total_cap_all += company_cap
+        has_cap = company_cap > 0 and ord_priced
 
-        ni = net_income.get(base)
-        if ni is None:
-            n_no_income += 1
-            continue  # нет прибыли → не в числителе и не в знаменателе (честно)
+        v_status, latest, reasons = validate_issuer(hist.get(base, []))
+        earn_ok = v_status == "validated"
+        included = has_cap and earn_ok
 
-        total_market_cap += company_cap
-        total_net_income += ni[1]
-        companies.append({"ticker": base, "cap": company_cap, "net_income": ni[1], "fy": ni[0]})
+        if has_cap:
+            w_priced += weight; n_priced += 1
+        if earn_ok:
+            w_earn_valid += weight; n_earn_valid += 1
+        if included:
+            w_validated += weight; n_validated += 1
+        elif weight > WEIGHT_GATE_PCT:
+            reason = "; ".join(reasons) if reasons else ("нет валидной капитализации" if not has_cap else "не валидировано")
+            blocking.append({"ticker": base, "weight_pct": round(weight, 2), "reason": reason})
 
-    coverage = (total_market_cap / total_cap_all) if total_cap_all > 0 else 0.0
+        recon.append({
+            "ticker": base,
+            "weight_pct": round(weight, 3),
+            "fy": latest["fy"] if latest else None,
+            "net_income_rub": round(latest["value"]) if latest else None,
+            "accounting_standard": (latest or {}).get("accounting_standard"),   # None пока слой не обогащён
+            "statement_scope": (latest or {}).get("statement_scope"),
+            "source": (latest or {}).get("source"),
+            "source_url": (latest or {}).get("source_url"),
+            "market_cap_rub": round(company_cap) if has_cap else None,
+            "included": included,
+            "validation_status": v_status,
+            "reason": "; ".join(reasons) if reasons else ("нет капитализации" if not has_cap else "ok"),
+        })
+
+    def cov(w):
+        return round(w / sum_weight, 4) if sum_weight > 0 else None
+
     market_date = max(price_dates) if price_dates else None
-    fundamentals_year = max((c["fy"] for c in companies), default=None)
-    fundamentals_as_of = f"{fundamentals_year}-12-31" if fundamentals_year else None
+    fundamentals_year = max((r["fy"] for r in recon if r["fy"]), default=None)
 
+    # ГЕЙТ: публикуем только если нет блокеров weight>2% И есть хоть один валидный эмитент
+    can_publish = not blocking and n_validated > 0
     value = None
-    if total_net_income > 0:
-        value = round(total_market_cap / total_net_income, 2)
+    if can_publish:
+        total_cap = sum(r["market_cap_rub"] for r in recon if r["included"])
+        total_ni = sum((r["net_income_rub"] or 0) for r in recon if r["included"])
+        value = round(total_cap / total_ni, 2) if total_ni > 0 else None
 
     return {
-        "coverage": coverage,
         "universe_label": universe_label,
-        "universe_name": universe_name,
         "composition_date": composition_date,
         "market_date": market_date,
-        "fundamentals_as_of": fundamentals_as_of,
+        "fundamentals_as_of": f"{fundamentals_year}-12-31" if fundamentals_year else None,
+        "status": "ok" if can_publish else "validating",
         "value": value,
-        "total_market_cap": total_market_cap,
-        "total_net_income": total_net_income,
-        "companies_included": len(companies),
-        "companies_total": len(seen_base),
-        "n_no_cap": n_no_cap,
-        "n_no_income": n_no_income,
-        "companies": sorted(companies, key=lambda c: -c["cap"]),
+        "blocking": blocking,
+        "coverage": {
+            "price_coverage": cov(w_priced), "price_coverage_n": f"{n_priced}/{len(weights)}",
+            "earnings_coverage": cov(w_earn_valid), "earnings_coverage_n": f"{n_earn_valid}/{len(weights)}",
+            "issuer_coverage": cov(w_validated), "issuer_coverage_n": f"{n_validated}/{len(weights)}",
+        },
+        "reconciliation": sorted(recon, key=lambda r: -(r["weight_pct"] or 0)),
     }
 
 
@@ -250,31 +338,29 @@ def load_existing(path: str):
 
 def build_payload(result, generated_at):
     return {
-        "metric": "market_pe_fy",
-        "title_ru": "P/E текущей корзины Индекса МосБиржи по последней годовой прибыли",
+        "metric": "aggregate_pe_imoex_basket",
+        "title_ru": "Агрегированный P/E компаний текущей корзины IMOEX",
+        "status": result["status"],
         "value": result["value"],
+        "unavailable_message": UNAVAILABLE_MSG if result["status"] != "ok" else None,
+        "blocking_reasons": result["blocking"],
         "universe": result["universe_label"],
-        "universe_name": result["universe_name"],
+        "universe_name": "текущая корзина Индекса МосБиржи (полная капитализация эмитентов, не free-float)",
         "market_date": result["market_date"],
         "composition_date": result["composition_date"],
         "fundamentals_as_of": result["fundamentals_as_of"],
         "calculated_at": generated_at,
-        "generated_at": generated_at,  # алиас для build_site_status (GEN_FIELDS)
-        "total_market_cap_rub": round(result["total_market_cap"]),
-        "total_net_income_rub": round(result["total_net_income"]),
-        "companies_total": result["companies_total"],
-        "companies_included": result["companies_included"],
-        "market_cap_coverage": round(result["coverage"], 4),
-        "earnings_basis": "latest_fy_ifrs",
+        "generated_at": generated_at,
+        "coverage": result["coverage"],
+        "earnings_basis": "latest_fy_ifrs_attributable_to_parent",
+        "contract": NET_INCOME_CONTRACT,
+        "reconciliation": result["reconciliation"],
         "is_stale": False,
         "methodology_version": METHODOLOGY_VERSION,
-        "note": "Не официальный P/E Индекса МосБиржи и не LTM. Прибыль — последняя годовая "
-                "по МСФО (source: SmartLab), капитализация — close×ISSUESIZE (MOEX ISS).",
-        "top_contributors": [
-            {"ticker": c["ticker"], "market_cap_rub": round(c["cap"]),
-             "net_income_rub": round(c["net_income"]), "fy": c["fy"]}
-            for c in result["companies"][:12]
-        ],
+        "note": "Не официальный P/E Индекса МосБиржи: расчёт по ПОЛНОЙ капитализации эмитентов "
+                "(цена×ISSUESIZE), тогда как IMOEX учитывает free-float и коэффициенты. Значение "
+                "публикуется только после прохождения контракта качества прибыли (IFRS, attributable "
+                "to owners of the parent, полный год, включая убытки).",
     }
 
 
@@ -300,7 +386,7 @@ def main() -> int:
         result = compute()
     except RuntimeError as exc:
         log(f"расчёт не удался: {exc}")
-        if existing:  # last-good с пометкой устаревания
+        if existing:
             existing["is_stale"] = True
             existing["stale_reason"] = str(exc)[:120]
             existing["last_attempt_at"] = generated_at
@@ -308,39 +394,27 @@ def main() -> int:
                 atomic_write(out, existing)
             log("сохранён last-good (is_stale=true)")
             return 0
-        log("нет last-good — файл не создан")
         return 1
 
-    coverage = result["coverage"]
-    log(f"universe={result['universe_label']} companies={result['companies_included']}/{result['companies_total']} "
-        f"coverage={coverage:.1%} value={result['value']} no_cap={result['n_no_cap']} no_income={result['n_no_income']}")
-
-    # ГЕЙТ покрытия: неполная корзина (сбой цен) → не обновлять, держать last-good
-    if coverage < COVERAGE_MIN:
-        log(f"покрытие {coverage:.1%} < {COVERAGE_MIN:.0%} — итог НЕ обновляется")
-        if existing:
-            existing["is_stale"] = True
-            existing["stale_reason"] = f"coverage {coverage:.1%} < {COVERAGE_MIN:.0%}"
-            existing["last_attempt_at"] = generated_at
-            if not dry:
-                atomic_write(out, existing)
-        return 0
-
     payload = build_payload(result, generated_at)
+    log(f"status={payload['status']} value={payload['value']} "
+        f"issuer_cov={result['coverage']['issuer_coverage_n']} blockers={len(result['blocking'])}")
+    for b in result["blocking"][:6]:
+        log(f"  BLOCK {b['ticker']} (вес {b['weight_pct']}%): {b['reason'][:90]}")
 
     # Не переписывать при отсутствии материальных изменений (нет git-шума)
-    if existing and not existing.get("is_stale") \
+    if existing and existing.get("status") == payload["status"] \
             and existing.get("value") == payload["value"] \
             and existing.get("market_date") == payload["market_date"] \
-            and existing.get("companies_included") == payload["companies_included"]:
-        log("значение и дата не изменились — файл не переписан")
+            and len(existing.get("blocking_reasons") or []) == len(payload["blocking_reasons"]):
+        log("статус/значение/дата не изменились — файл не переписан")
         return 0
 
     if dry:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
     atomic_write(out, payload)
-    log(f"записан {out}: P/E={payload['value']} (покрытие {coverage:.1%})")
+    log(f"записан {out}")
     return 0
 
 

@@ -119,10 +119,10 @@ def main() -> int:
         pe, e = fetch(f"{base}/market_pe_current.json", retries, True)
         if e:
             sys.stdout.write(f"  [~] market_pe_current.json ещё не опубликован ({e})\n")
-        elif not (isinstance(pe, dict) and pe.get("metric") == "market_pe_fy" and ("value" in pe)):
-            fails.append("market_pe_current без metric/value (broken)")
+        elif not (isinstance(pe, dict) and pe.get("metric") == "aggregate_pe_imoex_basket" and ("value" in pe) and pe.get("status")):
+            fails.append("market_pe_current без metric/value/status (broken)")
         else:
-            sys.stdout.write(f"  [OK] market_pe_current.json (P/E={pe.get('value')}, покрытие {pe.get('market_cap_coverage')})\n")
+            sys.stdout.write(f"  [OK] market_pe_current.json (status={pe.get('status')}, value={pe.get('value')})\n")
 
         # Двухконтурная «Пила»: manifest + IMOEX (не критично для ролбэка — новые файлы/лаг CDN)
         man, e = fetch(f"{base}/marketsaw_manifest.json", retries, True)
