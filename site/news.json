@@ -1,411 +1,387 @@
 {
-  "date": "2026-07-21",
-  "generated_at": "2026-07-21T09:25:55+03:00",
+  "date": "2026-07-22",
+  "generated_at": "2026-07-22T11:47:29+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские рынки и золото растут, нефть марки Brent снижается, американские индексы закрылись в незначительном минусе",
+  "external_backdrop": "Американские индексы закрылись ростом, нефть Brent превысила 93 доллара за баррель, азиатские рынки снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7443.28",
-      "change_pct": "-0.19%",
-      "as_of": "2026-07-20",
+      "value": "7509.20",
+      "change_pct": "+0.89%",
+      "as_of": "2026-07-21",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25508.07",
-      "change_pct": "-0.05%",
-      "as_of": "2026-07-20",
+      "value": "25837.21",
+      "change_pct": "+1.29%",
+      "as_of": "2026-07-21",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "66056.29",
-      "change_pct": "+2.99%",
-      "as_of": "2026-07-21",
+      "value": "66115.60",
+      "change_pct": "-0.18%",
+      "as_of": "2026-07-22",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25180.38",
-      "change_pct": "+0.15%",
-      "as_of": "2026-07-21",
+      "value": "24892.66",
+      "change_pct": "-0.95%",
+      "as_of": "2026-07-22",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.50",
-      "change_pct": "-0.81%",
-      "as_of": "2026-07-21",
+      "value": "93.75",
+      "change_pct": "+3.01%",
+      "as_of": "2026-07-22",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4075.80",
-      "change_pct": "+1.63%",
-      "as_of": "2026-07-21",
+      "value": "4122.40",
+      "change_pct": "+1.26%",
+      "as_of": "2026-07-22",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2000.69",
-      "change_pct": "+2.16%",
-      "as_of": "2026-07-20 19:00:11",
+      "value": "2066.95",
+      "change_pct": "-0.57%",
+      "as_of": "2026-07-22 11:47:26",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "804.77",
-      "change_pct": "+2.27%",
-      "as_of": "2026-07-20 19:00:12",
+      "value": "828.90",
+      "change_pct": "-0.57%",
+      "as_of": "2026-07-22 11:47:27",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "78.91",
+      "change_pct": "+0.04%",
+      "as_of": "2026-07-22 11:47:28",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "11.60",
+      "change_pct": "-0.02%",
+      "as_of": "2026-07-22 11:47:29",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minfin-suspends-ofz-auctions",
-      "headline": "Минфин приостановил аукционы по размещению ОФЗ на неопределенный срок для стабилизации рынка",
-      "context": "Решение принято на фоне падения индекса RGBI и роста доходностей десятилетних гособлигаций до 16,86%.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830889"
-        }
-      ],
-      "published_at": "2026-07-20T22:09:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default",
-      "headline": "Компания ЕвроТранс допустила технический дефолт по облигациям серии БО-001Р-03",
-      "context": "Купон за 40-й период в размере 41,9 млн рублей не был выплачен в установленный срок 17 июля.",
+      "id": "wildberries-warehouses-attacked",
+      "headline": "Беспилотники атаковали логистические центры Wildberries в Краснодаре и Невинномысске",
+      "context": "На объектах возникли пожары, работа складов приостановлена, есть пострадавшие.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1330600.php"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293754"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8831766"
         }
       ],
-      "published_at": "2026-07-20T19:53:00+03:00"
+      "published_at": "2026-07-22T07:10:00+03:00"
     },
     {
-      "id": "us-iran-ceasefire-proposal",
-      "headline": "Посредники предложили США и Ирану десятидневное прекращение огня на фоне взаимных ударов",
-      "context": "Катар, Египет и Пакистан представили инициативу для временного открытия судоходных путей через Ормузский пролив.",
+      "id": "ozon-shares-drop",
+      "headline": "Акции Ozon упали более чем на семь процентов на фоне атак на склады Wildberries",
+      "context": "Распродажи в бумагах ритейлера вызваны новостями об ударах БПЛА по логистическим комплексам конкурента.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/22/07/2026/6a606fd39a7947ebd0092727"
+        }
+      ],
+      "published_at": "2026-07-22T11:25:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-placements",
+      "headline": "Минфин возобновит размещение облигаций федерального займа после улучшения рыночной конъюнктуры",
+      "context": "Ведомство приостановило аукционы для содействия стабилизации ситуации на долговом рынке.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/83896"
+        }
+      ],
+      "published_at": "2026-07-22T11:37:00+03:00"
+    },
+    {
+      "id": "rspp-bankruptcies-warning",
+      "headline": "Глава РСПП Шохин предупредил о рисках осенних банкротств при сохранении ключевой ставки",
+      "context": "По его словам, уязвимыми остаются импортозамещающие проекты, столкнувшиеся с нехваткой спроса на готовую продукцию.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8831874"
+        }
+      ],
+      "published_at": "2026-07-22T09:53:00+03:00"
+    },
+    {
+      "id": "sollers-sfi-limit-down",
+      "headline": "Акции Соллерс и ЭсЭфАй упали на десять процентов после резкого роста накануне",
+      "context": "Бумаги сменили верхние планки на нижние в ходе утренних торгов.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1331195.php"
+        }
+      ],
+      "published_at": "2026-07-22T09:04:00+03:00"
+    },
+    {
+      "id": "mobile-operators-tariffs",
+      "headline": "Крупнейшие сотовые операторы начали повышать стоимость архивных тарифных планов",
+      "context": "Изменения затронут до 25% абонентов Мегафона, Билайна и ВТБ Мобайл из-за роста расходов на инфраструктуру.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293800"
+        }
+      ],
+      "published_at": "2026-07-22T09:38:00+03:00"
+    },
+    {
+      "id": "us-iran-strikes-eleventh-night",
+      "headline": "США нанесли новые удары по Ирану одиннадцатую ночь подряд",
+      "context": "Иранская армия в ответ атаковала беспилотниками склады боеприпасов на базе США в Кувейте.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1104476"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8831726"
         }
       ],
-      "published_at": "2026-07-21T06:30:00+03:00"
+      "published_at": "2026-07-22T02:54:00+03:00"
     },
     {
-      "id": "cbr-restricts-teenagers-wallets",
-      "headline": "Банк России планирует ограничить подросткам самостоятельную регистрацию электронных кошельков",
-      "context": "Инициатива вошла в пакет мер против дропперства и потребует согласия родителей для лиц от 14 до 18 лет.",
-      "category": "cb_policy",
+      "id": "trump-saudi-nuclear-deal",
+      "headline": "Дональд Трамп одобрил ядерное соглашение с Саудовской Аравией",
+      "context": "Документ обеспечит королевству гражданскую ядерную программу и потенциально откроет возможность обогащения урана.",
+      "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/293439"
-        }
-      ],
-      "published_at": "2026-07-21T08:24:00+03:00"
-    },
-    {
-      "id": "minfin-excise-imported-metal",
-      "headline": "Минфин подготовил поправки в Налоговый кодекс о введении акзиса на импорт металлопроката",
-      "context": "Законопроект разработан на фоне сокращения потребления стали в России в первом полугодии на 7,5%.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1330695.php"
-        }
-      ],
-      "published_at": "2026-07-21T07:49:00+03:00"
-    },
-    {
-      "id": "record-corporate-overdue-debt",
-      "headline": "Рекордная просроченная задолженность российских компаний в восемь триллионов рублей усилила риски отраслей",
-      "context": "Наибольшие риски неплатежей фиксируются в обрабатывающей промышленности, торговле и транспортном секторе.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1330729.php"
-        }
-      ],
-      "published_at": "2026-07-21T09:11:00+03:00"
-    },
-    {
-      "id": "trump-canada-tariffs",
-      "headline": "Дональд Трамп ввел дополнительные пошлины в размере пятидесяти процентов на товары из Канады",
-      "context": "Ограничения коснутся импорта на сумму 20 млрд долларов и вступят в силу через 30 дней.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830914"
+          "url": "https://www.kommersant.ru/doc/8831859"
         }
       ],
-      "published_at": "2026-07-21T01:59:00+03:00"
+      "published_at": "2026-07-22T09:43:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "severstal-refuses-q2-dividends",
-      "headline": "Северсталь отказалась от выплаты дивидендов за второй квартал на фоне отрицательного денежного потока",
-      "context": "Свободный денежный поток компании в первом полугодии составил минус 29,8 млрд рублей при падении чистой прибыли на 89%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830471"
-        }
-      ],
-      "published_at": "2026-07-20T13:22:00+03:00"
-    },
-    {
-      "id": "moex-bans-eurotrans-shorts",
-      "headline": "Московская биржа ввела запрет на короткие продажи акций Евротранса с двадцать первого июля",
-      "context": "На фоне этой новости котировки акций компании в ходе торгов понедельника выросли более чем на 100%.",
-      "category": "markets",
+      "id": "crypto-regulation-law-passed",
+      "headline": "Госдума приняла закон о легализации и регулировании криптовалют в России",
+      "context": "Документ признает цифровые валюты имуществом, разрешает трансграничные расчеты для экспортеров, но запрещает платежи внутри страны.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/20/1215124-mosbirzha-zapretila"
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/21/1215360-zakon-kriptovalyut"
         }
       ],
-      "published_at": "2026-07-20T19:50:00+03:00"
+      "published_at": "2026-07-21T14:55:00+03:00"
     },
     {
-      "id": "state-duma-crypto-bill",
-      "headline": "Государственная дума рассмотрит законопроект о регулировании криптовалют во втором и третьем чтениях",
-      "context": "Документ направлен на создание правовых условий для использования цифровых валют в экспортно-импортных операциях.",
-      "category": "markets",
+      "id": "inflation-expectations-jump",
+      "headline": "Инфляционные ожидания населения России в июле подскочили до четырнадцати и семи десятых процента",
+      "context": "Показатель вырос на 2,3 процентных пункта по сравнению с июнем, достигнув максимума с начала года.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/378179"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/21/1215377-inflyatsionnie-ozhidaniya"
         }
       ],
-      "published_at": "2026-07-20T12:32:00+03:00"
+      "published_at": "2026-07-21T15:55:00+03:00"
     },
     {
-      "id": "cbr-gold-reserves-minimum",
-      "headline": "Золотой запас Банка России в июне снизился до минимального значения с февраля две тысячи двадцатого года",
-      "context": "По состоянию на 1 июля резервы монетарного золота регулятора составили 73,4 млн тройских унций.",
+      "id": "foreign-investors-buyback-ban",
+      "headline": "Госдума приняла закон о лишении недружественных инвесторов права на обратный выкуп активов",
+      "context": "Судебный механизм позволит блокировать исполнение опционов на обратный выкуп акций и долей вышедших из РФ компаний.",
       "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830738"
+          "url": "https://www.kommersant.ru/doc/8831554"
         }
       ],
-      "published_at": "2026-07-20T18:03:00+03:00"
+      "published_at": "2026-07-21T18:10:00+03:00"
     },
     {
-      "id": "bspb-h1-net-profit-falls",
-      "headline": "Чистая прибыль банка Санкт-Петербург по РСБУ за первое полугодие сократилась на тридцать девять процентов",
-      "context": "Показатель снизился до 16,6 млрд рублей из-за роста операционных расходов и увеличения отчислений в резервы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3732"
-        }
-      ],
-      "published_at": "2026-07-20T15:25:00+03:00"
-    },
-    {
-      "id": "phosagro-cyprus-rights-suspended",
-      "headline": "Суд приостановил корпоративные права кипрской структуры Owl Nebula в цепочке владения Фосагро",
-      "context": "Решение принято Арбитражным судом Московской области по иску Минпромторга до конца 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1104350"
-        }
-      ],
-      "published_at": "2026-07-20T14:23:00+03:00"
-    },
-    {
-      "id": "ozon-shares-fall-wildberries-attacks",
-      "headline": "Акции Ozon упали на десять процентов после атак беспилотников на склады конкурента Wildberries",
-      "context": "Инвесторы отреагировали распродажами на повреждение логистических мощностей Wildberries в Электростали и Котовске.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/378148"
-        }
-      ],
-      "published_at": "2026-07-20T09:00:00+03:00"
-    },
-    {
-      "id": "cmacp-budget-deficit-forecast",
-      "headline": "Дефицит федерального бюджета России по итогам года может достигнуть семи триллионов рублей",
-      "context": "Аналитики ЦМАКП называют причинами крепкий рубль, сокращение нефтегазовых доходов и быстрый рост расходов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/83834"
-        }
-      ],
-      "published_at": "2026-07-20T08:53:00+03:00"
-    },
-    {
-      "id": "mfo-debts-price-maximum",
-      "headline": "Средняя стоимость просроченной задолженности микрофинансовых организаций достигла максимума с начала две тысячи двадцать третьего года",
-      "context": "Во втором квартале средняя цена покупки портфелей просроченных долгов МФО выросла до 20,89%.",
+      "id": "electronic-wallets-insurance",
+      "headline": "Госдума приняла закон о включении идентифицированных электронных кошельков в систему страхования вкладов",
+      "context": "На остатки средств на кошельках будет распространяться стандартный лимит страхового возмещения в 1,4 миллиона рублей.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/293164"
+          "url": "https://frankmedia.ru/293637"
         }
       ],
-      "published_at": "2026-07-20T08:01:00+03:00"
+      "published_at": "2026-07-21T15:49:00+03:00"
     },
     {
-      "id": "china-increases-russian-oil-imports",
-      "headline": "Китай увеличил импорт российской нефти в первом полугодии на шестнадцать процентов",
-      "context": "Общий объем поставок за первые шесть месяцев составил 57,28 млн тонн по данным таможни КНР.",
+      "id": "fuel-damper-tax-changes",
+      "headline": "Госдума приняла поправки в Налоговый кодекс для стабилизации цен на топливо",
+      "context": "Закон предусматривает изменение механизма топливного демпфера и введение импортного демпфера на дизель.",
       "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/378147"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/07/21/1215414-dlya-stabilizatsii-tsen"
         }
       ],
-      "published_at": "2026-07-20T08:55:00+03:00"
+      "published_at": "2026-07-21T17:41:00+03:00"
     },
     {
-      "id": "x5-buys-gorod-77",
-      "headline": "Ритейлер X5 закрыл сделку по покупке алкогольного дистрибутора Город семьдесят семь",
-      "context": "В периметр сделки вошли сто процентов долей трех юридических лиц, сумма могла составить до 600 млн рублей.",
+      "id": "mts-bank-kd-pay-acquisition",
+      "headline": "МТС Банк приобрел контрольную долю в платежном сервисе KD Pay",
+      "context": "Кредитная организация купила 51% акций владельца сервиса для создания собственного инструмента оплаты покупок.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293473"
+        }
+      ],
+      "published_at": "2026-07-21T11:21:00+03:00"
+    },
+    {
+      "id": "nvidia-nebius-stake",
+      "headline": "Американская корпорация Nvidia раскрыла долю в размере девяти процентов в Nebius Group",
+      "context": "Технологическая компания Nebius Group под руководством Аркадия Воложа привлекла 775 миллионов долларов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8831562"
+        }
+      ],
+      "published_at": "2026-07-21T18:28:00+03:00"
+    },
+    {
+      "id": "vnukovo-domodedovo-deal",
+      "headline": "Аэропорт Внуково выкупит у Шереметьево долю в контролирующей Домодедово компании",
+      "context": "Сумма сделки составит 16,5 миллиарда рублей, аэропорты планируют совместное управление Домодедово.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/07/21/1215259-vnukovo-u-sheremetevo-domodedovo"
+        }
+      ],
+      "published_at": "2026-07-21T11:43:00+03:00"
+    },
+    {
+      "id": "fas-fuel-market-cases",
+      "headline": "ФАС возбудила пятнадцать дел против участников топливного рынка из-за цен на бензин",
+      "context": "Ведомство также выдало 38 предупреждений нефтяным компаниям и независимым операторам.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/07/21/1215280-fas-toplivnogo-rinka"
+        }
+      ],
+      "published_at": "2026-07-21T13:06:00+03:00"
+    },
+    {
+      "id": "goldman-brent-forecast",
+      "headline": "Аналитики Goldman Sachs спрогнозировали рост цены нефти Brent выше ста двадцати долларов",
+      "context": "Повышение стоимости возможно в четвертом квартале в случае сохранения проблем с судоходством в Ормузском проливе.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8831143"
+        }
+      ],
+      "published_at": "2026-07-21T11:44:00+03:00"
+    },
+    {
+      "id": "kazakhstan-black-sea-oil",
+      "headline": "Казахстан прекратит транспортировку нефти через Черное море из-за атак на танкеры",
+      "context": "Решение принято на фоне обострения ситуации с безопасностью судоходства в Черноморском регионе.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/83869"
+        }
+      ],
+      "published_at": "2026-07-21T14:25:00+03:00"
+    },
+    {
+      "id": "gosuslugi-loan-notifications",
+      "headline": "Госдума обязала банки уведомлять граждан об оформлении кредитов через Госуслуги",
+      "context": "Закон вступит в силу с 1 октября 2027 года и потребует от кредиторов отправки сведений в бюро кредитных историй.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8830202"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/07/21/1215359-kredita-gosuslugi"
         }
       ],
-      "published_at": "2026-07-20T08:19:00+03:00"
-    },
-    {
-      "id": "pboc-keeps-lpr-unchanged",
-      "headline": "Народный банк Китая сохранил базовые процентные ставки без изменений четырнадцатый месяц подряд",
-      "context": "Ставка по годовым кредитам LPR осталась на уровне 3%, по пятилетним — на уровне 3,5%.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/293165"
-        }
-      ],
-      "published_at": "2026-07-20T07:28:00+03:00"
+      "published_at": "2026-07-21T14:44:00+03:00"
     }
   ],
-  "today_agenda": [
-    {
-      "time": "09:00",
-      "event": "Публикация данных по безработице в Великобритании за май",
-      "ticker": "",
-      "type": "macro",
-      "importance": 2
-    },
-    {
-      "time": "10:00",
-      "event": "Рассмотрение Государственной думой законопроекта о криптовалютах во втором и третьем чтениях",
-      "ticker": "",
-      "type": "cb_minfin",
-      "importance": 4
-    },
-    {
-      "time": "12:00",
-      "event": "Публикация индекса экономических настроений ZEW в Германии и Еврозоне за июль",
-      "ticker": "",
-      "type": "macro",
-      "importance": 2
-    },
-    {
-      "time": "13:30",
-      "event": "Публикация финансовой отчетности General Motors за второй квартал",
-      "ticker": "GM",
-      "type": "earnings",
-      "importance": 3
-    },
-    {
-      "time": "13:45",
-      "event": "Публикация финансовой отчетности Halliburton за второй квартал",
-      "ticker": "HAL",
-      "type": "earnings",
-      "importance": 3
-    },
-    {
-      "time": "15:15",
-      "event": "Публикация данных по занятости ADP в США",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "-",
-      "event": "Публикация операционных результатов Европлана за первое полугодие 2026 года",
-      "ticker": "LEAS",
-      "type": "earnings",
-      "importance": 4
-    },
-    {
-      "time": "-",
-      "event": "Публикация Банком России данных по потребительским инфляционным ожиданиям",
-      "ticker": "",
-      "type": "cb_minfin",
-      "importance": 4
-    }
-  ]
+  "today_agenda": []
 }
