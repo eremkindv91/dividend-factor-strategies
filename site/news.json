@@ -1,85 +1,237 @@
 {
-  "date": "2026-07-22",
-  "generated_at": "2026-07-22T20:18:54+03:00",
+  "date": "2026-07-23",
+  "generated_at": "2026-07-23T11:46:36+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись разнонаправленно, азиатские рынки преимущественно растут, нефть Brent и золото дорожают.",
+  "external_backdrop": "Азиатские индексы растут, американские рынки закрылись снижением, котировки Brent и золота снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7518.74",
-      "change_pct": "+0.13%",
+      "value": "7498.96",
+      "change_pct": "-0.14%",
       "as_of": "2026-07-22",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25805.60",
-      "change_pct": "-0.12%",
+      "value": "25690.90",
+      "change_pct": "-0.57%",
       "as_of": "2026-07-22",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "66232.19",
-      "change_pct": "+3.26%",
-      "as_of": "2026-07-21",
+      "value": "66422.60",
+      "change_pct": "+0.46%",
+      "as_of": "2026-07-23",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25132.29",
-      "change_pct": "-0.04%",
-      "as_of": "2026-07-21",
+      "value": "25210.81",
+      "change_pct": "+1.28%",
+      "as_of": "2026-07-23",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "93.80",
-      "change_pct": "+3.07%",
-      "as_of": "2026-07-22",
+      "value": "86.30",
+      "change_pct": "-8.26%",
+      "as_of": "2026-07-23",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4149.70",
-      "change_pct": "+1.93%",
-      "as_of": "2026-07-22",
+      "value": "4095.10",
+      "change_pct": "-1.25%",
+      "as_of": "2026-07-23",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2136.11",
-      "change_pct": "+2.76%",
-      "as_of": "2026-07-22 19:00:11",
+      "value": "2107.16",
+      "change_pct": "-1.36%",
+      "as_of": "2026-07-23 11:46:32",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "857.49",
-      "change_pct": "+2.86%",
-      "as_of": "2026-07-22 19:00:11",
+      "value": "846.00",
+      "change_pct": "-1.34%",
+      "as_of": "2026-07-23 11:46:34",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "78.41",
+      "value": "78.81",
       "change_pct": "-0.11%",
-      "as_of": "2026-07-22 20:18:52",
+      "as_of": "2026-07-23 11:46:33",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.54",
-      "change_pct": "-0.47%",
-      "as_of": "2026-07-22 19:15:00",
+      "value": "11.58",
+      "change_pct": "+0.02%",
+      "as_of": "2026-07-23 11:46:35",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "shohin-rate-warning",
-      "headline": "Глава РСПП Александр Шохин предупредил о рисках массовых банкротств при сохранении ключевой ставки ЦБ",
-      "context": "По его словам, сохранение жесткой денежно-кредитной политики приведет к реализации накопительного эффекта негативных факторов в экономике.",
+      "id": "eu-sanctions-21-package-agreement",
+      "headline": "Послы Евросоюза согласовали сокращенный двадцать первый пакет санкций против России",
+      "context": "Греция сняла вето в обмен на исключение полного запрета на морские перевозки российского сжиженного природного газа.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8832767"
+        }
+      ],
+      "published_at": "2026-07-23T10:28:00+03:00"
+    },
+    {
+      "id": "eurotrans-bankruptcy-filing",
+      "headline": "Банк Россия уведомил о намерении обанкротить ЕвроТранс после технических дефолтов",
+      "context": "Акции компании на Московской бирже обвалились на фоне сообщений о возможном банкротстве.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/23/07/2026/6a61bd4b9a794767dce4f3eb"
+        }
+      ],
+      "published_at": "2026-07-23T10:27:00+03:00"
+    },
+    {
+      "id": "lavrov-rubio-manila-meeting",
+      "headline": "Сергей Лавров и Марко Рубио провели тридцатипятиминутную встречу на саммите в Маниле",
+      "context": "Стороны обсудили ситуацию на Украине и в Персидском заливе, договорившись продолжать контакты по линии дипведомств.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8832637"
+        }
+      ],
+      "published_at": "2026-07-23T07:42:00+03:00"
+    },
+    {
+      "id": "hormuz-strait-red-sea-escalation",
+      "headline": "Корпус стражей исламской революции заминировал южный маршрут Ормузского пролива",
+      "context": "Один из танкеров подорвался на мине, а йеменские хуситы атаковали два саудовских судна в Красном море.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/23/1215829-ksir-zaminiroval-yuzhnie"
+        }
+      ],
+      "published_at": "2026-07-23T00:27:00+03:00"
+    },
+    {
+      "id": "alphabet-q2-2026-results",
+      "headline": "Капитальные затраты Alphabet на искусственный интеллект привели к отрицательному свободному денежному потоку",
+      "context": "Выручка корпорации во втором квартале выросла на 24% до 119,8 млрд долларов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8832788"
+        }
+      ],
+      "published_at": "2026-07-23T11:28:00+03:00"
+    },
+    {
+      "id": "mmk-h1-2026-financial-results",
+      "headline": "Магнитогорский металлургический комбинат получил девятнадцать миллиардов рублей чистого убытка по МСФО",
+      "context": "Выручка компании за первое полугодие снизилась на 10% до 282,3 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1331816.php"
+        }
+      ],
+      "published_at": "2026-07-23T11:07:00+03:00"
+    },
+    {
+      "id": "wildberries-uav-attacks-losses",
+      "headline": "Атаки беспилотников в июле повредили восемь процентов логистических мощностей маркетплейса Wildberries",
+      "context": "Стоимость пострадавшей от пожаров недвижимости оценивается участниками рынка как минимум в 60 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/294210"
+        }
+      ],
+      "published_at": "2026-07-23T08:18:00+03:00"
+    },
+    {
+      "id": "weekly-inflation-russia-july",
+      "headline": "Недельная инфляция в России осталась на уровне семнадцати сотых процента",
+      "context": "Годовая инфляция на 20 июля ускорилась до 5,84% по сравнению с 5,62% неделей ранее.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/294160"
+        }
+      ],
+      "published_at": "2026-07-22T19:09:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "duma-relocants-restrictions",
+      "headline": "Госдума приняла законы об ограничениях для осужденных релокантов включая блокировку банковских приложений",
+      "context": "Меры коснутся лиц, уклоняющихся от наказания за дискредитацию армии и нарушение законов об иноагентах.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8832214"
+        }
+      ],
+      "published_at": "2026-07-22T15:14:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-pause",
+      "headline": "Минфин России возобновит размещение ОФЗ после улучшения рыночной конъюнктуры",
+      "context": "Министерство ожидает, что временная пауза в аукционах будет способствовать стабилизации долгового рынка.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/294009"
+        }
+      ],
+      "published_at": "2026-07-22T13:22:00+03:00"
+    },
+    {
+      "id": "shohin-rate-bankruptcy-risk",
+      "headline": "Глава РСПП Шохин предупредил о рисках банкротств при сохранении ключевой ставки",
+      "context": "По его словам, в случае сохранения ставки на текущем уровне может сработать накопительный эффект негативных факторов.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
@@ -92,276 +244,154 @@
       "published_at": "2026-07-22T09:53:00+03:00"
     },
     {
-      "id": "evrotrans-technical-default",
-      "headline": "Компания ЕвроТранс допустила технические дефолты по трем выпускам облигаций",
-      "context": "Выплаты купонов за соответствующие периоды не были произведены эмитентом в установленный срок 21 июля 2026 года.",
-      "category": "corporate",
+      "id": "duma-foreign-investors-assets",
+      "headline": "Госдума приняла закон о лишении недружественных инвесторов права на возврат активов",
+      "context": "Речь идет о сделках с инвесторами из недружественных государств, совершенных после 22 февраля 2022 года.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1331609.php"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378398"
         }
       ],
-      "published_at": "2026-07-22T19:55:00+03:00"
+      "published_at": "2026-07-22T08:55:00+03:00"
     },
     {
-      "id": "weekly-inflation-rosstat",
-      "headline": "Инфляция в России за неделю составила 0,17% при ускорении годового показателя до 5,84%",
-      "context": "По данным Росстата, с начала года потребительские цены в стране выросли на 4,82%.",
+      "id": "inflation-expectations-july",
+      "headline": "Инфляционные ожидания россиян в июле выросли до четырнадцати и семи десятых процента",
+      "context": "В июне показатель составлял 12,4%, рост произошел на фоне топливного кризиса.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8832453"
-        }
-      ],
-      "published_at": "2026-07-22T19:02:00+03:00"
-    },
-    {
-      "id": "sberbank-iva-share-increase",
-      "headline": "Сбербанк увеличил свою долю в ПАО ИВА до 23,35% голосующих акций",
-      "context": "Сделка по приобретению доли участия была совершена финансовой организацией 17 июля 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1331592.php"
-        }
-      ],
-      "published_at": "2026-07-22T19:14:00+03:00"
-    },
-    {
-      "id": "minfin-ofz-auctions-pause",
-      "headline": "Министерство финансов возобновит аукционы по размещению ОФЗ после стабилизации рыночной конъюнктуры",
-      "context": "Ранее ведомство приостановило аукционы для содействия стабилизации ситуации на долговом рынке.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "ТАСС",
+          "name": "Frank Media",
           "url": ""
         }
       ],
-      "published_at": "2026-07-22T11:36:00+03:00"
+      "published_at": "2026-07-22T06:59:00+03:00"
     },
     {
-      "id": "wildberries-warehouses-attacked",
-      "headline": "Логистические центры Wildberries в Краснодаре и Невинномысске приостановили работу после атак беспилотников",
-      "context": "В результате ударов возникли пожары, пострадали несколько сотрудников маркетплейса.",
+      "id": "sberbank-q2-profit-forecast",
+      "headline": "Аналитики прогнозируют рекордную чистую прибыль Сбера во втором квартале на уровне пятисот трех миллиардов рублей",
+      "context": "Консенсус-прогноз предполагает рост показателя на 19% в годовом выражении при сохранении высокой рентабельности капитала.",
       "category": "corporate",
-      "investment_relevant": false,
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378483"
+        }
+      ],
+      "published_at": "2026-07-22T18:27:00+03:00"
+    },
+    {
+      "id": "softline-insider-trading",
+      "headline": "Центробанк выявил использование инсайда бывшим топ-менеджером Softline Игорем Громовым перед допэмиссией",
+      "context": "Сделки в июне 2024 года позволили крупнейшему акционеру компании избежать убытков от обвала котировок.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831814"
+          "url": "https://www.kommersant.ru/doc/8832386"
         }
       ],
-      "published_at": "2026-07-22T08:30:00+03:00"
+      "published_at": "2026-07-22T18:00:00+03:00"
     },
     {
-      "id": "june-industrial-production-rosstat",
-      "headline": "Промышленное производство в России в июне выросло на 0,6% после майского спада",
-      "context": "По итогам первого полугодия рост промышленного производства составил 0,4%.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "duma-state-minority-offer-exemption",
+      "headline": "Госдума освободила государство от оферты миноритариям при переходе активов по суду на полтора года",
+      "context": "Поправки в закон об акционерных обществах позволяют временно не выставлять обязательное предложение миноритарным акционерам.",
+      "category": "cb_policy",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/357226"
+          "url": "https://www.interfax.ru/russia/1104790"
         }
       ],
-      "published_at": "2026-07-22T19:20:00+03:00"
+      "published_at": "2026-07-22T13:49:00+03:00"
     },
     {
-      "id": "relocants-restrictions-law",
-      "headline": "Госдума приняла закон о блокировке банковских приложений и других ограничениях для осужденных релокантов",
-      "context": "Меры коснутся граждан, скрывающихся за границей от наказания по ряду административных и уголовных статей.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/294089"
-        }
-      ],
-      "published_at": "2026-07-22T15:41:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "inflation-expectations-jump",
-      "headline": "Инфляционные ожидания населения России в июле выросли до 14,7 процента",
-      "context": "Показатель подскочил на 2,3 процентных пункта по сравнению с июнем на фоне топливного кризиса.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/293626"
-        }
-      ],
-      "published_at": "2026-07-21T15:31:00+03:00"
-    },
-    {
-      "id": "cryptocurrency-legalization-law",
-      "headline": "Государственная дума приняла закон о легализации и регулировании криптовалютного рынка в России",
-      "context": "Документ признает цифровые валюты имуществом и разрешает их использование для трансграничных расчетов.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831345"
-        }
-      ],
-      "published_at": "2026-07-21T14:26:00+03:00"
-    },
-    {
-      "id": "foreign-investors-buyback-ban",
-      "headline": "Госдума приняла закон о лишении недружественных иностранных инвесторов права на обратный выкуп активов",
-      "context": "Ограничение касается сделок с инвесторами из недружественных государств, совершенных после 22 февраля 2022 года.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831554"
-        }
-      ],
-      "published_at": "2026-07-21T18:10:00+03:00"
-    },
-    {
-      "id": "mts-bank-kd-pay-acquisition",
-      "headline": "МТС Банк приобрел контрольную долю в размере 51 процента в платежном сервисе KD Pay",
-      "context": "На основе приобретенного сервиса банк планирует запустить собственную систему оплаты покупок.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/293473"
-        }
-      ],
-      "published_at": "2026-07-21T11:21:00+03:00"
-    },
-    {
-      "id": "nvidia-nebius-share-disclosure",
-      "headline": "Американская корпорация Nvidia раскрыла владение долей в размере 9,3 процента в компании Nebius Group",
-      "context": "Nebius Group под руководством Аркадия Воложа является бывшей материнской структурой Яндекса.",
+      "id": "duma-marketplace-fines",
+      "headline": "Госдума приняла закон о штрафах для маркетплейсов за нарушение правил платформенной экономики",
+      "context": "Документ вводит административную ответственность за неуведомление партнеров об одностороннем изменении договора.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831562"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293977"
         }
       ],
-      "published_at": "2026-07-21T18:28:00+03:00"
+      "published_at": "2026-07-22T12:23:00+03:00"
     },
     {
-      "id": "e-wallets-insurance-law",
-      "headline": "Госдума приняла закон о включении идентифицированных электронных кошельков в систему страхования вкладов",
-      "context": "На остатки средств на кошельках будет распространяться стандартный лимит возмещения в 1,4 млн рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831411"
-        }
-      ],
-      "published_at": "2026-07-21T15:57:00+03:00"
-    },
-    {
-      "id": "sollers-trading-halt",
-      "headline": "Московская биржа дважды за день проводила дискретные аукционы по акциям Соллерса из-за резкого роста",
-      "context": "Торги обыкновенными акциями автопроизводителя приостанавливались после скачка котировок более чем на 20%.",
+      "id": "ozon-shares-drop",
+      "headline": "Акции Ozon упали на восемь процентов на фоне атак беспилотников на склады Wildberries",
+      "context": "Падение котировок на Московской бирже происходило из-за опасений инвесторов относительно рисков логистического сектора.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831262"
+          "url": "https://www.kommersant.ru/doc/8831985"
         }
       ],
-      "published_at": "2026-07-21T13:18:00+03:00"
+      "published_at": "2026-07-22T11:46:00+03:00"
     },
     {
-      "id": "fas-fuel-market-cases",
-      "headline": "Федеральная антимонопольная служба возбудила 15 дел против участников топливного рынка из-за цен",
-      "context": "Ведомство также выдало 38 предупреждений нефтяным компаниям и независимым операторам.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "t-bank-qr-payments-abroad",
+      "headline": "Т-Банк запустил оплату по QR-кодам во Вьетнаме и еще четырех странах",
+      "context": "Сервис также стал доступен в Таджикистане, Киргизии, Армении и Азербайджане без комиссии за операции.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831218"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293762"
         }
       ],
-      "published_at": "2026-07-21T12:50:00+03:00"
+      "published_at": "2026-07-22T08:45:00+03:00"
     },
     {
-      "id": "diesel-import-damper-law",
-      "headline": "Госдума приняла закон о введении импортного демпфера на дизельное топливо для стабилизации рынка",
-      "context": "Механизм будет задействован только в периоды действия запрета на экспорт топлива из России.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831350"
-        }
-      ],
-      "published_at": "2026-07-21T14:37:00+03:00"
-    },
-    {
-      "id": "gosuslugi-credit-notification-law",
-      "headline": "Госдума обязала банки и микрофинансовые организации уведомлять граждан о кредитах через Госуслуги",
-      "context": "Новые правила вступят в силу с 1 октября 2027 года для борьбы с мошенничеством.",
-      "category": "banks",
+      "id": "postgres-professional-layoffs",
+      "headline": "Российский разработчик систем управления базами данных Postgres Professional может сократить до тридцати процентов штата",
+      "context": "Сокращения могут затронуть разработчиков и менеджеров, на конец прошлого года в компании работали 538 человек.",
+      "category": "corporate",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831421"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/294091"
         }
       ],
-      "published_at": "2026-07-21T15:41:00+03:00"
+      "published_at": "2026-07-22T15:35:00+03:00"
     },
     {
-      "id": "cb-gold-reserves-decline",
-      "headline": "Золотые резервы Банка России сократились до минимального уровня с февраля 2020 года",
-      "context": "По состоянию на 1 июля текущего года объем золотого запаса регулятора снизился до 73,4 млн унций.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "telecom-tariffs-increase",
+      "headline": "Крупные сотовые операторы начали повышать стоимость архивных тарифов на двенадцать-шестнадцать процентов",
+      "context": "Изменения затронули абонентов Мегафона, Билайна и Yota в связи с необходимостью модернизации инфраструктуры.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8831073"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/293800"
         }
       ],
-      "published_at": "2026-07-21T10:52:00+03:00"
+      "published_at": "2026-07-22T09:38:00+03:00"
     }
   ],
   "today_agenda": []
