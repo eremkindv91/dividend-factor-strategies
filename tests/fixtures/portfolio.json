@@ -1,0 +1,14 @@
+{
+  "_comment": "Регрессионная фикстура портфеля (Итерация 0). Формат строк совпадает с парсером pfxParseValidate: 'тикер; количество; средняя цена'. НЕ менять до конца редизайна (§7.1). Тикеры выбраны на снапшоте прод-данных для покрытия проблемных кейсов.",
+  "snapshot_date": "2026-07-23",
+  "input": "SBER; 2000; 250\nSBERP; 100; 270\nGAZP; 500; 120\nLKOH; 10; 6000\nTCSG; 50; 3000\nAPTK; 1000; 15\nSNGS; 300; 28\nMOEX; 200; 200\nROSN; 50; 550",
+  "cases": {
+    "full_history": ["SBER", "GAZP", "LKOH", "MOEX", "ROSN"],
+    "pref_plus_ordinary_same_issuer": ["SBER", "SBERP"],
+    "renamed_alias": ["TCSG -> T"],
+    "dominant_position_ge_25pct": "SBER (2000*250 = 500k, ~56% портфеля) -> алерт концентрации",
+    "no_dividend_history": ["APTK"],
+    "dr_excl_no_data": ["SNGS (есть в data.json, нет в returns.json -> DR_EXCL no_data)"],
+    "short_history_lt_60mo": "НЕ представимо в текущем снапшоте: все 232 тикера returns.json имеют 91 мес. Задокументировано в RUNBOOK; кейс покрывается синтетически при появлении IPO-бумаг с короткой историей."
+  }
+}

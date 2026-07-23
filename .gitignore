@@ -101,3 +101,7 @@ site/daily/
 site/marketsaw_imoex.json
 site/marketsaw_manifest.json
 site/marketsaw_mcftr.json
+
+# redesign: снапшот прод-данных для локального запуска (не коммитить)
+site/_snapshot/
+artifacts/

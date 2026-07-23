@@ -1,0 +1,122 @@
+[
+  {
+    "rank": 1,
+    "ticker": "SIBN",
+    "verdict_score": 1.3391,
+    "dividend_yield_expected": 4.18
+  },
+  {
+    "rank": 2,
+    "ticker": "BSPB",
+    "verdict_score": 1.3365,
+    "dividend_yield_expected": 7.16
+  },
+  {
+    "rank": 3,
+    "ticker": "BANEP",
+    "verdict_score": 1.3203,
+    "dividend_yield_expected": 5.78
+  },
+  {
+    "rank": 4,
+    "ticker": "NMTP",
+    "verdict_score": 1.2901,
+    "dividend_yield_expected": 7.48
+  },
+  {
+    "rank": 5,
+    "ticker": "SBER",
+    "verdict_score": 1.2466,
+    "dividend_yield_expected": 6.26
+  },
+  {
+    "rank": 6,
+    "ticker": "RDRB",
+    "verdict_score": 1.1357,
+    "dividend_yield_expected": 4.88
+  },
+  {
+    "rank": 7,
+    "ticker": "RTKM",
+    "verdict_score": 1.1185,
+    "dividend_yield_expected": 10.81
+  },
+  {
+    "rank": 8,
+    "ticker": "IRAO",
+    "verdict_score": 1.0697,
+    "dividend_yield_expected": 9.82
+  },
+  {
+    "rank": 9,
+    "ticker": "TATNP",
+    "verdict_score": 1.06,
+    "dividend_yield_expected": 5.1
+  },
+  {
+    "rank": 10,
+    "ticker": "GCHE",
+    "verdict_score": 0.9956,
+    "dividend_yield_expected": 4.56
+  },
+  {
+    "rank": 11,
+    "ticker": "RTKMP",
+    "verdict_score": 0.9751,
+    "dividend_yield_expected": 8.47
+  },
+  {
+    "rank": 12,
+    "ticker": "MOEX",
+    "verdict_score": 0.9239,
+    "dividend_yield_expected": 4.22
+  },
+  {
+    "rank": 13,
+    "ticker": "LSRG",
+    "verdict_score": 0.911,
+    "dividend_yield_expected": 6.19
+  },
+  {
+    "rank": 14,
+    "ticker": "LKOH",
+    "verdict_score": 0.9004,
+    "dividend_yield_expected": 6.26
+  },
+  {
+    "rank": 15,
+    "ticker": "NAUK",
+    "verdict_score": 0.8964,
+    "dividend_yield_expected": 2.06
+  },
+  {
+    "rank": 16,
+    "ticker": "BANE",
+    "verdict_score": 0.8724,
+    "dividend_yield_expected": 7.21
+  },
+  {
+    "rank": 17,
+    "ticker": "TTLK",
+    "verdict_score": 0.8534,
+    "dividend_yield_expected": 18.53
+  },
+  {
+    "rank": 18,
+    "ticker": "DIOD",
+    "verdict_score": 0.8389,
+    "dividend_yield_expected": 5.9
+  },
+  {
+    "rank": 19,
+    "ticker": "HNFG",
+    "verdict_score": 0.8268,
+    "dividend_yield_expected": 4
+  },
+  {
+    "rank": 20,
+    "ticker": "SFIN",
+    "verdict_score": 0.8268,
+    "dividend_yield_expected": 11.53
+  }
+]
