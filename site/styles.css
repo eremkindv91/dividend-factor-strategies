@@ -3086,3 +3086,8 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
     transition-duration: 0.001ms !important; scroll-behavior: auto !important;
   }
 }
+
+/* P/E рынка — мягкий режим: явный caveat под числом (не выдаём оценочный ориентир за точный P/E) */
+.mpe-caveat { margin: 10px 0 0; padding: 10px 13px; border-radius: 10px; font-size: .82rem; line-height: 1.45;
+  color: var(--warn-ink, #6b4e12); background: var(--warn-fill, #FBF3E2); border: 1px solid var(--warn-bar, #E4C06B); }
+.mpe-caveat b { color: var(--warn-ink, #6b4e12); }

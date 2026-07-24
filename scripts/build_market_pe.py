@@ -51,9 +51,10 @@ SECURITY_MASTER = os.path.join(ROOT, "data", "security_master.json")
 FINANCIALS = os.path.join(ROOT, "site", "site_financials.json")
 DATA_JSON = os.path.join(ROOT, "site", "data.json")
 
-WEIGHT_GATE_PCT = 2.0        # эмитенты с весом > 2 % обязаны быть validated для публикации
-YOY_MAX_RATIO = 3.0          # YoY изменение прибыли крупнее — в review
-METHODOLOGY_VERSION = "2.0.0"
+WEIGHT_GATE_PCT = 2.0        # эмитенты с весом > 2 % — материальные (в excluded_material, если не включены)
+YOY_MAX_RATIO = 3.0          # YoY изменение прибыли крупнее — в review (исключается из расчёта)
+MIN_PUBLISH_COVERAGE = 0.50  # мягкий гейт: публикуем P/E, если включённое подмножество ≥ 50 % капитализации корзины
+METHODOLOGY_VERSION = "2.1.0"  # 2.1: мягкий гейт по покрытию + earnings_verified/coverage-пометка
 UNAVAILABLE_MSG = "Расчёт временно недоступен: проводится проверка качества финансовых данных"
 UA = {"User-Agent": "dividend-site/market-pe", "Cache-Control": "no-cache"}
 
@@ -271,7 +272,12 @@ def compute():
 
         v_status, latest, reasons = validate_issuer(hist.get(base, []))
         earn_ok = v_status == "validated"
-        included = has_cap and earn_ok
+        # «Мягкий» режим (по решению владельца, с явной пометкой покрытия): в расчёт идут и записи,
+        # где ЕДИНСТВЕННАЯ проблема — отсутствие полей провенанса (значение есть, YoY-аномалии/смены
+        # знака/конфликта/ручной проверки НЕТ). Прибыль таких — из SmartLab, НЕ сверена с первоисточником.
+        # Записи со статусом "review" (YoY>3x, смена знака, conflict, needs_manual_review) — исключены.
+        earn_incl = v_status in ("validated", "provenance_unverified") and latest and latest.get("value") is not None
+        included = has_cap and earn_incl
 
         if has_cap:
             w_priced += weight; n_priced += 1
@@ -280,7 +286,7 @@ def compute():
         if included:
             w_validated += weight; n_validated += 1
         elif weight > WEIGHT_GATE_PCT:
-            reason = "; ".join(reasons) if reasons else ("нет валидной капитализации" if not has_cap else "не валидировано")
+            reason = "; ".join(reasons) if reasons else ("нет валидной капитализации" if not has_cap else "не включено")
             blocking.append({"ticker": base, "weight_pct": round(weight, 2), "reason": reason})
 
         recon.append({
@@ -304,13 +310,23 @@ def compute():
     market_date = max(price_dates) if price_dates else None
     fundamentals_year = max((r["fy"] for r in recon if r["fy"]), default=None)
 
-    # ГЕЙТ: публикуем только если нет блокеров weight>2% И есть хоть один валидный эмитент
-    can_publish = not blocking and n_validated > 0
+    # ГЕЙТ (мягкий, по решению владельца): публикуем P/E по ВКЛЮЧЁННОМУ подмножеству, если оно
+    # покрывает ≥ MIN_PUBLISH_COVERAGE капитализации корзины. Значение подписывается покрытием;
+    # earnings_verified=False, если хоть один включённый эмитент не прошёл строгий контракт провенанса
+    # (прибыль из SmartLab, не сверена с первоисточником). Аномалии (YoY/смена знака) остаются исключены.
+    incl_coverage = cov(w_validated)
+    can_publish = (incl_coverage is not None and incl_coverage >= MIN_PUBLISH_COVERAGE
+                   and n_validated > 0)
     value = None
+    total_ni = 0.0
     if can_publish:
         total_cap = sum(r["market_cap_rub"] for r in recon if r["included"])
         total_ni = sum((r["net_income_rub"] or 0) for r in recon if r["included"])
         value = round(total_cap / total_ni, 2) if total_ni > 0 else None
+        if value is None:
+            can_publish = False
+    earnings_verified = (n_validated == n_earn_valid) and n_earn_valid > 0
+    excluded = [r for r in recon if not r["included"] and (r["weight_pct"] or 0) > WEIGHT_GATE_PCT]
 
     return {
         "universe_label": universe_label,
@@ -319,6 +335,12 @@ def compute():
         "fundamentals_as_of": f"{fundamentals_year}-12-31" if fundamentals_year else None,
         "status": "ok" if can_publish else "validating",
         "value": value,
+        "earnings_verified": earnings_verified,
+        "earnings_note": ("прибыль первоисточник-verified" if earnings_verified
+                          else "прибыль из SmartLab, не сверена с первоисточником; аномалии YoY/смены знака исключены"),
+        "included_coverage": incl_coverage,
+        "included_n": n_validated,
+        "excluded_material": excluded,
         "blocking": blocking,
         "coverage": {
             "price_coverage": cov(w_priced), "price_coverage_n": f"{n_priced}/{len(weights)}",
@@ -343,6 +365,11 @@ def build_payload(result, generated_at):
         "status": result["status"],
         "value": result["value"],
         "unavailable_message": UNAVAILABLE_MSG if result["status"] != "ok" else None,
+        "earnings_verified": result.get("earnings_verified"),
+        "earnings_note": result.get("earnings_note"),
+        "included_coverage": result.get("included_coverage"),
+        "included_n": result.get("included_n"),
+        "excluded_material": result.get("excluded_material"),
         "blocking_reasons": result["blocking"],
         "universe": result["universe_label"],
         "universe_name": "текущая корзина Индекса МосБиржи (полная капитализация эмитентов, не free-float)",
@@ -352,15 +379,17 @@ def build_payload(result, generated_at):
         "calculated_at": generated_at,
         "generated_at": generated_at,
         "coverage": result["coverage"],
-        "earnings_basis": "latest_fy_ifrs_attributable_to_parent",
+        "earnings_basis": "latest_fy_net_income_smartlab_unverified",
         "contract": NET_INCOME_CONTRACT,
         "reconciliation": result["reconciliation"],
         "is_stale": False,
         "methodology_version": METHODOLOGY_VERSION,
         "note": "Не официальный P/E Индекса МосБиржи: расчёт по ПОЛНОЙ капитализации эмитентов "
-                "(цена×ISSUESIZE), тогда как IMOEX учитывает free-float и коэффициенты. Значение "
-                "публикуется только после прохождения контракта качества прибыли (IFRS, attributable "
-                "to owners of the parent, полный год, включая убытки).",
+                "(цена×ISSUESIZE), тогда как IMOEX учитывает free-float и коэффициенты. Мягкий режим: "
+                "значение считается по подмножеству, покрывающему ≥50% капитализации корзины; прибыль — "
+                "годовая из SmartLab, НЕ сверена с первоисточником (IFRS attributable-to-parent не "
+                "подтверждён по каждому эмитенту), эмитенты с аномалией прибыли (YoY>3x / смена знака) "
+                "и убыточные исключены. Это оценочный ориентир, не точный P/E; см. earnings_note и покрытие.",
     }
 
 

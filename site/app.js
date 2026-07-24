@@ -5745,23 +5745,40 @@ function marketPeHTML(d) {
         <ul>${blocking.slice(0, 8).map((b) => `<li><b>${esc(b.ticker)}</b> <span class="mpe-w">${isNum(b.weight_pct) ? ru(b.weight_pct, 1) + '%' : ''}</span> — ${esc(b.reason || '')}</li>`).join('')}</ul></div>`
     : '';
 
+  // Мягкий режим (earnings_verified=false): значение опубликовано, но это ОЦЕНОЧНЫЙ ориентир —
+  // максимально явные пометки прямо под числом (покрытие, исключённые крупные имена, несверенность).
+  const excludedTk = (d.excluded_material || []).map((r) => esc(r.ticker)).join(', ');
+  const caveat = (ok && d.earnings_verified === false)
+    ? `<div class="mpe-caveat">
+         <b>⚠ Оценочный ориентир, не точный P/E рынка.</b>
+         Покрытие <b>${marketPeCovPct(d.included_coverage)}</b> капитализации корзины (${d.included_n || '—'} эмитентов).
+         Прибыль — годовая из <b>SmartLab, не сверена с первоисточником</b> (IFRS attributable-to-parent не подтверждён поэмитентно).
+         ${excludedTk ? `Исключены (аномалия прибыли / убыток), в т.ч. крупные: <b>${excludedTk}</b>.` : ''}
+       </div>`
+    : '';
+
+  const noteText = (ok && d.earnings_verified === false)
+    ? (d.note || 'Мягкий режим: значение по подмножеству корзины на несверённой прибыли SmartLab; оценочный ориентир, не точный P/E.')
+    : 'Не официальный P/E Индекса МосБиржи: расчёт по полной капитализации эмитентов (цена×число акций), тогда как IMOEX учитывает free-float. Прибыль — последняя годовая по МСФО, относящаяся к акционерам материнской компании, включая убытки.';
+
   return `
     <div class="mpe-head">
       <div class="mpe-copy">
         <span class="mpe-eyebrow">Оценка рынка по прибыли</span>
         <div class="mpe-title">Агрегированный P/E компаний текущей корзины IMOEX</div>
-        <p class="mpe-note">Не официальный P/E Индекса МосБиржи: расчёт по полной капитализации эмитентов (цена×число акций), тогда как IMOEX учитывает free-float. Прибыль — последняя годовая по МСФО, относящаяся к акционерам материнской компании, включая убытки. Значение публикуется только после контракта качества данных.</p>
+        <p class="mpe-note">${esc(noteText)}</p>
       </div>
       ${valueBlock}
     </div>
+    ${caveat}
     <details class="mpe-details">
       <summary>Проверка данных, покрытие и сверка по эмитентам</summary>
       <div class="mpe-grid">
         <div><span>Цены рынка</span><b>${dt(d.market_date)}</b></div>
         <div><span>Отчётность</span><b>${dt(d.fundamentals_as_of)}</b></div>
         <div><span>Покрытие ценами</span><b>${marketPeCovPct(cov.price_coverage)}</b><small>${esc(cov.price_coverage_n || '')}</small></div>
-        <div><span>Покрытие прибылью</span><b>${marketPeCovPct(cov.earnings_coverage)}</b><small>${esc(cov.earnings_coverage_n || '')}</small></div>
-        <div><span>Прошли контракт</span><b>${marketPeCovPct(cov.issuer_coverage)}</b><small>${esc(cov.issuer_coverage_n || '')}</small></div>
+        <div><span>Строго сверено (контракт)</span><b>${marketPeCovPct(cov.earnings_coverage)}</b><small>${esc(cov.earnings_coverage_n || '')}</small></div>
+        <div><span>Включено в расчёт (мягко)</span><b>${marketPeCovPct(d.included_coverage)}</b><small>${d.included_n || '—'} эмит.${d.earnings_verified === false ? ' · не сверено' : ''}</small></div>
         <div><span>Universe</span><b>${esc(d.universe || '—')}</b></div>
       </div>
       ${blockList}
