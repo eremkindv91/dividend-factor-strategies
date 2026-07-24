@@ -3064,3 +3064,25 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bonds-limits-body { padding: 2px 0 12px; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
 .bonds-limits-body ul { margin: 8px 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 .bonds-limits-body b { color: var(--ink); }
+
+/* ═══════ §21 Accessibility — полировка (редизайн, Итерация 7) ═══════ */
+/* Видимый фокус ТОЛЬКО с клавиатуры (не мышью) — глобально по всем интерактивным */
+:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; border-radius: 5px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
+.section-tab:focus-visible, .pfx-tab:focus-visible, .stock-chip:focus-visible, .stock-view-btn:focus-visible,
+.tax-opt:focus-visible, .app-more-btn:focus-visible, .app-nav-toggle:focus-visible, .pro-card:focus-visible {
+  outline: 2px solid var(--accent-deep); outline-offset: 2px;
+}
+/* мышиный фокус не даёт кольца (только клавиатурный) */
+:focus:not(:focus-visible) { outline: none; }
+/* touch targets: базовые интерактивы не меньше комфортных для пальца (§21 ≥44px где уместно) */
+.app-bottomnav .section-tab, .app-more-btn { min-height: 48px; }
+
+/* Расширенный prefers-reduced-motion — гасим все анимации/переходы/плавный скролл */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+}

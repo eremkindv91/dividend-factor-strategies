@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- CSP (редизайн, Итерация 7, §6.4). Отклонения от идеала 'self'-only задокументированы в docs/redesign/COMPONENTS.md:
+       script-src допускает jsdelivr/unpkg — оттуда on-demand грузятся Chart.js и LightweightCharts (графики);
+       style-src допускает 'unsafe-inline' — в шаблонах ~44 динамических inline-стиля (ширины баров, цвета). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://iss.moex.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'self'; object-src 'none'; form-action 'none'">
   <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
   <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
   <link rel="icon" href="data:,">
@@ -246,10 +250,10 @@
         <p class="section-intro">Стратегии: портфельные и сценарные инструменты поверх данных по акциям. Это исследовательские расчёты, а не готовые рекомендации.</p>
 
         <div class="strategy-mode-tabs" role="tablist" aria-label="Тип стратегии">
-          <button type="button" class="strategy-mode active" data-strategy="quality" role="tab">RU Quality</button>
-          <button type="button" class="strategy-mode" data-strategy="momentum" role="tab">Momentum</button>
-          <button type="button" class="strategy-mode" data-strategy="marlamov" role="tab">Дивидендная переоценка</button>
-          <button type="button" class="strategy-mode" data-strategy="optmv" role="tab">Оптимизаторы</button>
+          <button type="button" class="strategy-mode active" data-strategy="quality" role="tab" aria-selected="true">RU Quality</button>
+          <button type="button" class="strategy-mode" data-strategy="momentum" role="tab" aria-selected="false">Momentum</button>
+          <button type="button" class="strategy-mode" data-strategy="marlamov" role="tab" aria-selected="false">Дивидендная переоценка</button>
+          <button type="button" class="strategy-mode" data-strategy="optmv" role="tab" aria-selected="false">Оптимизаторы</button>
         </div>
 
         <details class="mapwrap pfwrap" id="pf" hidden>
