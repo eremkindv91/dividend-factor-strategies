@@ -3055,3 +3055,12 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 [data-stock-view="map"] .table-card, [data-stock-view="map"] .cards { display: none; }
 [data-stock-view="map"] #mapwrap { display: block; }
 @media (max-width: 560px) { .stock-view-toggle { width: 100%; } .stock-view-btn { flex: 1 1 0; } }
+
+/* Облигации — маркеры §5.6 (редизайн, Итерация 6) */
+.b-mark { display: inline-block; margin-left: 5px; font-size: .6rem; font-weight: 600; color: var(--ink-faint);
+  background: var(--bg); padding: 1px 5px; border-radius: 6px; vertical-align: middle; letter-spacing: .01em; }
+.bonds-limits { margin: 14px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 2px 14px; }
+.bonds-limits > summary { cursor: pointer; font-weight: 650; font-size: .9rem; color: var(--accent-deep); padding: 11px 0; list-style-position: inside; }
+.bonds-limits-body { padding: 2px 0 12px; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
+.bonds-limits-body ul { margin: 8px 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.bonds-limits-body b { color: var(--ink); }
