@@ -4598,9 +4598,23 @@ function renderDataCoverage() {
 // ══════════════════════════════════════════════════════════════════════════
 const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology', 'pro'];
 
+// Заголовок и подзаголовок раздела для topbar (редизайн, Итерация 2).
+const SECTION_META = {
+  market: ['Обзор', 'Состояние рынка РФ, события и портфель'],
+  'my-portfolio': ['Портфель', 'Portfolio X-Ray — риск и доходность, расчёт локально в браузере'],
+  stocks: ['Акции', 'Скринер: прогноз дивидендов, оценка, риск невыплаты'],
+  strategies: ['Стратегии', 'Факторные и сценарные портфели поверх данных по акциям'],
+  news: ['Новости', 'Утренний брифинг рынка РФ'],
+  bonds: ['Облигации', 'Скринер рублёвых корпоративных облигаций MOEX'],
+  cbr: ['Банки РФ', 'Отчётность банков по формам ЦБ РФ'],
+  methodology: ['Методология', 'Источники, расчёты и ограничения'],
+  pro: ['О проекте', 'Честно о проекте и тарифах-гипотезе'],
+};
+
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
-  const section = h.split('?', 1)[0];
+  let section = h.split('?', 1)[0];
+  if (section === 'overview') section = 'market';   // двусторонний алиас overview↔market (§9)
   return SECTIONS.includes(section) ? section : 'market';
 }
 
@@ -4651,6 +4665,15 @@ function setActiveSection(sec) {
     t.classList.toggle('active', active);
     t.setAttribute('aria-current', active ? 'page' : 'false');
   });
+  // topbar: заголовок/подзаголовок раздела (редизайн, Итерация 2)
+  const meta = SECTION_META[sec] || [sec, ''];
+  const tt = document.getElementById('topbar-title'); if (tt) tt.textContent = meta[0];
+  const ts = document.getElementById('topbar-sub'); if (ts) ts.textContent = meta[1];
+  // закрыть мобильный «Ещё»-sheet при переходе в раздел
+  const sheet = document.getElementById('app-more-sheet');
+  if (sheet) sheet.hidden = true;
+  const moreBtn = document.getElementById('app-more-btn');
+  if (moreBtn) moreBtn.setAttribute('aria-expanded', 'false');
   window.scrollTo({ top: 0, behavior: 'auto' });
   onSectionShown(sec);
 }
@@ -4674,6 +4697,30 @@ function initRouter() {
       e.preventDefault(); location.hash = e.target.dataset.goto;
     }
   });
+  // App-shell (Итерация 2): свёртка сайдбара в icon-rail (desktop) + мобильный «Ещё»-sheet
+  const navToggle = document.getElementById('app-nav-toggle');
+  const shell = document.querySelector('.app-shell');
+  if (navToggle && shell) {
+    try { if (localStorage.getItem('dfs.ui.sidebar') === 'collapsed') { shell.classList.add('sidebar-collapsed'); navToggle.setAttribute('aria-expanded', 'false'); } } catch (_e) { /* optional */ }
+    navToggle.addEventListener('click', () => {
+      const collapsed = shell.classList.toggle('sidebar-collapsed');
+      navToggle.setAttribute('aria-expanded', String(!collapsed));
+      try { localStorage.setItem('dfs.ui.sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (_e) { /* optional */ }
+    });
+  }
+  const moreBtn = document.getElementById('app-more-btn');
+  const moreSheet = document.getElementById('app-more-sheet');
+  if (moreBtn && moreSheet) {
+    moreBtn.addEventListener('click', () => {
+      const open = moreSheet.hidden;
+      moreSheet.hidden = !open;
+      moreBtn.setAttribute('aria-expanded', String(open));
+    });
+    moreSheet.addEventListener('click', (e) => {
+      if (e.target === moreSheet) { moreSheet.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); }
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !moreSheet.hidden) { moreSheet.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); } });
+  }
   window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
   setActiveSection(getSectionFromHash());
 }
