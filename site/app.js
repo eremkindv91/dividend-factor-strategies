@@ -66,9 +66,28 @@ document.addEventListener('visibilitychange', refreshVisibleSectionIfStale);
 const RATING_TOOLTIP = 'Основной рейтинг: надёжность дивиденда × оценка, со штрафом за долг и governance. Экстремальная доходность, payout выше 100%, старая цена и неполные данные автоматически исключаются до ручной проверки.';
 
 let DATA = null;
-let VIEW = [];
+let VIEW = [];        // результат computeView() — БАЗОВЫЙ срез (его читает регрессия, не менять контракт)
+let SHOWN = [];       // VIEW после быстрых чип-фильтров — то, что отображается (редизайн, Итерация 5)
 let sortKey = 'verdict_score';
 let sortDir = -1; // -1 desc, 1 asc
+
+// Быстрые фильтр-чипы (§13). Предикаты — только по существующим полям тикера, без новой математики.
+// По умолчанию ни один не активен → SHOWN === VIEW → baseline топ-20 совпадает.
+const STOCK_CHIPS = [
+  { id: 'top', label: 'Высокий рейтинг', test: (t) => t.verdict && t.verdict.color === 'good' },
+  { id: 'reliable', label: 'Надёжный дивиденд', test: (t) => isNum(t.stability_score) && t.stability_score >= 0.6 },
+  { id: 'undervalued', label: 'Недооценённые', test: (t) => t.verdict && isNum(t.verdict.v) && t.verdict.v >= 5 },
+  { id: 'yield', label: 'Высокая дивдоходность', test: (t) => isNum(t.dividend_yield_expected) && t.dividend_yield_expected >= 10 },
+  { id: 'lowrisk', label: 'Низкий риск невыплаты', test: (t) => isNum(t.cut_risk) && t.cut_risk <= 0.25 },
+  { id: 'fulldata', label: 'Полные данные', test: (t) => stockRankingEligible(t) },
+];
+const activeStockChips = new Set();
+function applyStockChips(rows) {
+  if (!activeStockChips.size) return rows;
+  const tests = STOCK_CHIPS.filter((c) => activeStockChips.has(c.id)).map((c) => c.test);
+  return rows.filter((t) => tests.every((fn) => fn(t)));
+}
+let STOCK_VIEW_MODE = '';   // '' = адаптив (desktop таблица / mobile карточки); 'table'|'cards'|'map' — явный выбор
 
 // ── классификация для бейджей ──
 function riskBadge(cr) {
@@ -127,8 +146,50 @@ function verdictChip(v, full) {
   return `<span class="badge vchip ${cls}" data-tooltip="${esc(tip)}">${esc(full ? v.label : v.short)}</span>`;
 }
 
+// ── кэш-манифест данных (редизайн, Итерация 3, §6.1) ──
+// build.json пишет CI при каждой публикации: { "version": "<sha|ts>", ... }. Статичные JSON
+// грузятся как dataURL(path)=path?v=<version> → стабильный URL в пределах сборки кэшируется
+// браузером (быстрый повторный визит), новая публикация меняет version → кэш инвалидируется.
+// Живые котировки MOEX ISS (индекс/свечи) остаются no-store — им нужна максимальная свежесть.
+const BUILD = { version: '' };
+function dataURL(path) {
+  if (!BUILD.version) return path;   // до загрузки манифеста / локально — ETag-ревалидация
+  return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(BUILD.version);
+}
+function loadBuildManifest() {
+  return fetch('build.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { if (j && j.version != null) BUILD.version = String(j.version); })
+    .catch(() => { /* build.json может отсутствовать (локально / до первого деплоя) */ });
+}
+loadBuildManifest();
+
+// ── версионируемое хранилище UI-настроек (редизайн, Итерация 3, §6.6) ──
+// Единый ключ dfs.ui.v1 с полем версии → безопасная миграция при смене схемы.
+// Портфель (dividendFactorStrategies.myPortfolio.v1) и фильтры календаря НЕ трогаем —
+// у них своя схема и свой контракт; читаются как прежде.
+const UI_STATE_KEY = 'dfs.ui.v1';
+const UI_STATE_DEFAULT = { v: 1, sidebar: '', taxRate: 0.13 };
+function uiStateLoad() {
+  try {
+    const raw = localStorage.getItem(UI_STATE_KEY);
+    if (raw) { const o = JSON.parse(raw); if (o && o.v === 1) return { ...UI_STATE_DEFAULT, ...o }; }
+    // миграция плоского ключа dfs.ui.sidebar из Итерации 2
+    const legacy = localStorage.getItem('dfs.ui.sidebar');
+    return { ...UI_STATE_DEFAULT, sidebar: legacy || '' };
+  } catch (_e) { return { ...UI_STATE_DEFAULT }; }
+}
+function uiStateSave(patch) {
+  try {
+    const next = { ...uiStateLoad(), ...patch, v: 1 };
+    localStorage.setItem(UI_STATE_KEY, JSON.stringify(next));
+    localStorage.removeItem('dfs.ui.sidebar');   // подчистить legacy после первой записи
+    return next;
+  } catch (_e) { return null; }
+}
+
 // ── загрузка ──
-fetch('data.json', { cache: 'no-store' })
+fetch(dataURL('data.json'))
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(init)
   .catch((e) => {
@@ -163,7 +224,7 @@ function renderDateChips(m) {
 // listener'ы), поэтому здесь ТОЛЬКО обновляем DATA и перерисовываем DATA-зависимые вью,
 // без ре-wiring. Дополняет invalidateStaleDataCaches() (тот чинил lazy-глобалы, но не DATA).
 function refreshCoreData(cb) {
-  fetch('data.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('data.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (j && Array.isArray(j.tickers) && j.meta) {
@@ -183,6 +244,7 @@ function init(data) {
   DATA = data;
   const m = data.meta;
 
+  applyTaxRate(uiStateLoad().taxRate);   // §5.1 — применить сохранённую ставку НДФЛ до рендеров (дефолт 13% → NET_OF_TAX=0.87)
   renderDateChips(m);   // даты (Прогноз/Цены/Горизонт/Эмитентов/лаг модельного среза)
 
   if (m.prices_stale) {
@@ -207,10 +269,30 @@ function init(data) {
   // события
   document.getElementById('controls').hidden = false;
   document.getElementById('mapwrap').hidden = false;
-  document.getElementById('search').addEventListener('input', debounce(render, 130));
+  document.getElementById('search').addEventListener('input', debounce(render, 250));   // §13: debounce 250мс
   document.getElementById('sector').addEventListener('change', render);
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
+  // §13: быстрые фильтр-чипы (тоггл активности → пересчёт SHOWN)
+  const chipsEl = document.getElementById('stock-chips');
+  if (chipsEl) chipsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-chip]'); if (!b) return;
+    if (b.dataset.chip === '__clear') activeStockChips.clear();
+    else if (activeStockChips.has(b.dataset.chip)) activeStockChips.delete(b.dataset.chip);
+    else activeStockChips.add(b.dataset.chip);
+    render();
+  });
+  // §13: переключатель вида Таблица/Карточки/Карта
+  const vt = document.getElementById('stock-view-toggle');
+  if (vt) vt.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-view]'); if (!b) return;
+    STOCK_VIEW_MODE = b.dataset.view;
+    uiStateSave({ stockView: STOCK_VIEW_MODE });
+    applyStockViewMode();
+    if (STOCK_VIEW_MODE === 'map') renderMap();
+  });
+  STOCK_VIEW_MODE = uiStateLoad().stockView || '';
+  applyStockViewMode();
   wirePortfolio();
   wireQuality();
   wireMyPortfolio();
@@ -283,12 +365,34 @@ function renderRanks() {
   }));
 }
 
+// ── быстрые фильтр-чипы (§13) — тоггл активности, пересчёт SHOWN ──
+function renderStockChips() {
+  const el = document.getElementById('stock-chips');
+  if (!el) return;
+  el.innerHTML = STOCK_CHIPS.map((c) =>
+    `<button type="button" class="stock-chip${activeStockChips.has(c.id) ? ' active' : ''}" data-chip="${c.id}" aria-pressed="${activeStockChips.has(c.id) ? 'true' : 'false'}">${esc(c.label)}</button>`
+  ).join('') + (activeStockChips.size ? `<button type="button" class="stock-chip stock-chip-clear" data-chip="__clear">Сбросить</button>` : '');
+}
+
+// ── переключатель вида Таблица / Карточки / Карта (§13) ──
+function applyStockViewMode() {
+  const sec = document.querySelector('.app-section[data-section="stocks"]');
+  if (sec) { if (STOCK_VIEW_MODE) sec.setAttribute('data-stock-view', STOCK_VIEW_MODE); else sec.removeAttribute('data-stock-view'); }
+  document.querySelectorAll('#stock-view-toggle .stock-view-btn').forEach((b) => {
+    const on = b.dataset.view === (STOCK_VIEW_MODE || 'table');
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const mw = document.getElementById('mapwrap');
+  if (mw && STOCK_VIEW_MODE === 'map' && !mw.open) mw.open = true;
+}
+
 // ── Карта рынка: scatter Надёжность(Y) × Оценка(X), цвет = вердикт ──
 function renderMap() {
   const el = document.getElementById('map');
   if (!el) return;
-  const pts = VIEW.filter((t) => t.verdict && t.verdict.v != null && isNum(t.stability_score));
-  const na = VIEW.filter((t) => t.verdict && t.verdict.v == null).length;
+  const pts = SHOWN.filter((t) => t.verdict && t.verdict.v != null && isNum(t.stability_score));
+  const na = SHOWN.filter((t) => t.verdict && t.verdict.v == null).length;
   if (pts.length < 3) { el.innerHTML = `<p class="map-note muted">Недостаточно оценённых имён для карты (с оценкой: ${pts.length}).</p>`; return; }
   const W = 720, H = 430, mL = 54, mR = 18, mT = 30, mB = 46;
   const iw = W - mL - mR, ih = H - mT - mB, XCL = 100;
@@ -326,8 +430,10 @@ function renderMap() {
 }
 
 function render() {
-  VIEW = computeView();
-  document.getElementById('count').textContent = `${VIEW.length} из ${DATA.tickers.length}`;
+  VIEW = computeView();            // базовый срез (контракт регрессии) — не фильтруем чипами
+  SHOWN = applyStockChips(VIEW);   // отображаемый срез (быстрые чипы)
+  document.getElementById('count').textContent = `${SHOWN.length} из ${DATA.tickers.length}`;
+  renderStockChips();
   const gate = document.getElementById('stock-quality-gate');
   if (gate) {
     const eligible = DATA.tickers.filter(stockRankingEligible).length;
@@ -349,7 +455,7 @@ function renderTable() {
   const head = '<tr>' + COLS.map((c) =>
     `<th class="${c.left ? 'left' : ''}" data-key="${c.key}"${c.title ? ` title="${c.title}"` : ''}>${c.label}${arrow(c.key)}</th>`).join('') + '</tr>';
 
-  const body = VIEW.length ? VIEW.map((t, i) => {
+  const body = SHOWN.length ? SHOWN.map((t, i) => {
     const payoutTxt = isNum(t.payout)
       ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}`
       : mdash;
@@ -377,7 +483,7 @@ function renderTable() {
     render();
   }));
   document.querySelectorAll('tr.data-row').forEach((tr) =>
-    tr.addEventListener('click', () => toggleDetail(tr, VIEW[+tr.dataset.i])));
+    tr.addEventListener('click', () => toggleDetail(tr, SHOWN[+tr.dataset.i])));
   renderCards();
 }
 
@@ -774,7 +880,7 @@ function toggleDetail(tr, t) {
 function renderCards() {
   const el = document.getElementById('cards');
   if (!el) return;
-  el.innerHTML = VIEW.length ? VIEW.map((t, i) => {
+  el.innerHTML = SHOWN.length ? SHOWN.map((t, i) => {
     const statusChip = statusChipHTML(t);
     return `<div class="card">
       <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
@@ -798,7 +904,7 @@ function renderCards() {
     if (!this.open) return;
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
-    const t = VIEW[+this.dataset.i];
+    const t = SHOWN[+this.dataset.i];
     box.innerHTML = stockDetailSummaryHTML(t) + stockPriceChartHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
@@ -822,7 +928,7 @@ function exportCSV() {
     return '"' + String(v).replace(/"/g, '""') + '"';
   };
   const lines = [cols.map((c) => c[1]).join(';')];
-  VIEW.forEach((t) => lines.push(cols.map((c) => cell(t[c[0]])).join(';')));
+  SHOWN.forEach((t) => lines.push(cols.map((c) => cell(t[c[0]])).join(';')));
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -832,7 +938,41 @@ function exportCSV() {
 }
 
 // ══════════ Конструктор портфеля ══════════
-const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходность «на руки»
+// ── налоговый профиль (редизайн, Итерация 3, §5.1) ──
+// Ставка НДФЛ на дивиденды/доход конфигурируема. Фактор «на руки» берётся из таблицы
+// ТОЧНЫХ литералов (не 1−rate — это дало бы float-дрейф и расхождение регрессии).
+// Дефолт 13% → NET_OF_TAX ровно 0.87 → расчётный слой идентичен baseline.
+// Влияет ТОЛЬКО на клиентский дивидендный net (акции/портфель/X-Ray). Купонный YTM-net
+// облигаций и форвардная доходность считаются сервером при 13% и помечены как фикс.
+const TAX_OPTIONS = [
+  { rate: 0.13, factor: 0.87, label: '13%', hint: 'Стандартная ставка НДФЛ для резидента' },
+  { rate: 0.15, factor: 0.85, label: '15%', hint: 'Повышенная ставка (доход свыше порога прогрессии)' },
+  { rate: 0, factor: 1, label: '0%', hint: 'ЛДВ (>3 лет) или ИИС — налог не удерживается' },
+];
+function taxOption() { const r = uiStateLoad().taxRate; return TAX_OPTIONS.find((o) => o.rate === r) || TAX_OPTIONS[0]; }
+function taxPct() { return Math.round(taxOption().rate * 100); }
+let NET_OF_TAX = 0.87;                // ×(1−НДФЛ) — доходность «на руки»; переопределяется applyTaxRate()
+function applyTaxRate(rate) {
+  const opt = TAX_OPTIONS.find((o) => o.rate === rate) || TAX_OPTIONS[0];
+  NET_OF_TAX = opt.factor;
+  try { if (typeof PFX === 'object' && PFX) PFX.TAX = opt.factor; } catch (_e) { /* PFX ещё в TDZ на самом раннем вызове */ }
+  uiStateSave({ taxRate: opt.rate });
+}
+function renderTaxControl() {
+  const box = document.getElementById('tax-profile-opts');
+  if (!box) return;
+  const cur = taxOption().rate;
+  box.innerHTML = TAX_OPTIONS.map((o) =>
+    `<button type="button" class="tax-opt${o.rate === cur ? ' active' : ''}" data-rate="${o.rate}" aria-pressed="${o.rate === cur}" data-tooltip="${esc(o.hint)}">${esc(o.label)}</button>`
+  ).join('');
+}
+function onTaxChange(rate) {
+  applyTaxRate(rate);
+  renderTaxControl();
+  if (typeof render === 'function') render();                       // таблица акций (net-доходность)
+  if (typeof renderPortfolio === 'function') renderPortfolio();     // конструктор портфеля
+  if (typeof renderMyPortfolio === 'function') renderMyPortfolio(); // Portfolio X-Ray (NET_OF_TAX + PFX.TAX)
+}
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor
 const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — отсечь нетендерные (стоячие цены → ложный low-vol в оптимизаторе)
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
@@ -863,7 +1003,7 @@ function loadQuality(cb) {
   if (QUALITY) { if (cb) cb(null, QUALITY); return; }
   if (QUALITY_LOADING) return;
   QUALITY_LOADING = true;
-  fetch('quality.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('quality.json'))
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
     .then((payload) => { QUALITY = payload; QUALITY_LOADING = false; renderQualityPanel(); if (cb) cb(null, payload); })
     .catch((error) => {
@@ -1026,6 +1166,8 @@ function openQualityDrawer(ticker) {
       Источник: ${esc((row.provenance || {}).source_name || (row.provenance || {}).source_type || '—')} · normalization: ${esc(row.normalization_scope || '—')} · coverage: ${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}<br>
       ${periodDetails ? `Винтажи факторов: ${esc(periodDetails)}<br>` : ''}
       Предупреждения: ${esc((row.warnings || []).join(', ') || 'нет')}<br>Исключения: ${esc((row.exclusion_reasons || []).join(', ') || 'нет')}</div>`;
+  // §13 a11y: запомнить элемент-триггер, чтобы вернуть фокус при закрытии (showModal сам даёт Escape+фокус-трап)
+  dialog._returnFocus = document.activeElement;
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
 
@@ -1269,7 +1411,13 @@ function wireQuality() {
     renderPortfolio();
   });
   const close = document.getElementById('quality-drawer-close');
-  if (close) close.addEventListener('click', () => document.getElementById('quality-drawer').close());
+  const qDrawer = document.getElementById('quality-drawer');
+  if (close && qDrawer) close.addEventListener('click', () => qDrawer.close());
+  if (qDrawer) {
+    // §13 a11y: клик по бэкдропу закрывает; при закрытии (в т.ч. по Escape) — возврат фокуса на триггер
+    qDrawer.addEventListener('click', (e) => { if (e.target === qDrawer) qDrawer.close(); });
+    qDrawer.addEventListener('close', () => { try { if (qDrawer._returnFocus && qDrawer._returnFocus.focus) qDrawer._returnFocus.focus(); } catch (_e) { /* noop */ } });
+  }
   syncStrategyPanels();
   loadQuality();
 }
@@ -1489,7 +1637,7 @@ function loadReturns(cb) {
   if (PF_RETURNS) { if (cb) cb(); return; }
   if (PF_RET_LOADING) return;
   PF_RET_LOADING = true;
-  fetch('returns.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust: уникальный URL обходит любой кэш/404
+  fetch(dataURL('returns.json'))   // cache-bust: уникальный URL обходит любой кэш/404
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
     .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {}, div: (j && j.div) || null, series_status: (j && j.meta && j.meta.series_status) || {} }; PF_RET_LOADING = false; if (cb) cb(); })   // + series_status (needs_adjustment) из meta
     .catch((e) => { console.error('[pf] returns.json не загрузился:', e); PF_RETURNS = { months: [], data: {}, failed: true }; PF_RET_LOADING = false; if (cb) cb(); });
@@ -1895,10 +2043,19 @@ function renderMyPortfolio() {
   const rows = parsed.rows;
   if (!rows.length) {
     out.innerHTML = `<div class="mp-empty mp-empty-rich">
-      <b>Портфель пока пуст</b>
-      <span>Вставьте позиции строками или загрузите пример. Формат: <code>тикер; количество; средняя цена</code></span>
-      <em>Расчёт локальный, в браузере: файл никуда не отправляется. Не ИИР.</em>
+      <div class="mp-empty-ico" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 24V6a18 18 0 1 0 18 18z"/><path d="M28 20h16A18 18 0 0 0 28 4z"/></svg>
+      </div>
+      <b>Добавьте портфель для анализа</b>
+      <span>Введите позиции сверху (поиск бумаги · количество · цена покупки) или нажмите «Пример».
+      Получите: стоимость и P&L, риск (VaR/CVaR, beta), дивидендный поток, концентрацию, сценарии и memo.</span>
+      <div class="mp-empty-cta">
+        <button class="btn" type="button" id="mp-empty-sample">Заполнить пример</button>
+      </div>
+      <em>Расчёт локальный, в браузере: состав портфеля никуда не отправляется. Не индивидуальная инвестиционная рекомендация. Импорт CSV и ручной ввод — в редакторе выше.</em>
     </div>`;
+    const es = document.getElementById('mp-empty-sample');
+    if (es) es.addEventListener('click', () => { input.value = MY_PORTFOLIO_SAMPLE; renderMyPortfolio(); });
     return;
   }
   // риск-движок требует returns.json + MCFTR (marketsaw) + RFR (marlamov) — грузим лениво
@@ -1923,9 +2080,10 @@ function renderMyPortfolio() {
   PFX_STATE = c;
   myPortfolioSave(rows);
   out.innerHTML = pfxRenderHTML(c);
-  pfxDrawCharts(c);
-  pfxWireButtons(c);
-  try { pfxDailyRiskLoad(c); } catch (e) { console.error('[daily-risk] load:', e); }   // дневной риск — ленивый веб-мост
+  pfxWireDashboard(c);   // copy/export — стабильные кнопки, вяжем один раз
+  document.querySelectorAll('.pfx-tab').forEach((t) => t.addEventListener('click', () => pfxSelectTab(t.dataset.pfxTab)));
+  const savedTab = uiStateLoad().pfxTab;
+  pfxSelectTab(savedTab || 'summary');   // рендер панели активной вкладки + её графики + daily-risk (для «Риск»)
 }
 
 // ── формат-хелперы (frac = доля; PU = уже проценты) ──────────────────────────
@@ -2002,41 +2160,19 @@ function pfxCommitteeSummary(c) {
   </div>`;
 }
 
-function pfxRenderHTML(c) {
-  const diag = pfxDiagnosis(c);
-  const benchPerf = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
-  c._rb = pfxRateBond(c);   // P4: связка со ставкой/облигациями (для модуля и графика)
-  c._corr = pfxCorrelation(c);   // корреляции — для «Итога» и модуля матрицы
-  let html = '';
+// Вкладки X-Ray (редизайн, Итерация 4, §12). Математика в модулях не меняется — только группировка.
+const PFX_TAB_LIST = [
+  { id: 'summary', label: 'Резюме' },
+  { id: 'holdings', label: 'Состав' },
+  { id: 'returns', label: 'Доходность' },
+  { id: 'risk', label: 'Риск' },
+  { id: 'dividends', label: 'Дивиденды' },
+  { id: 'scenarios', label: 'Сценарии' },
+  { id: 'memo', label: 'Memo' },
+];
 
-  // −1. Итог инвесткомитета — Level-1 вывод «за 20 секунд» (Bible I/IV)
-  html += pfxCommitteeSummary(c);
-
-  // 0. Заголовок + дисклеймеры
-  html += `<div class="pfx-top">
-    <div class="pfx-type pfx-${c.cls.tone}">${esc(c.cls.type)}</div>
-    <div class="pfx-diag">${esc(diag)}</div>
-    <div class="pfx-btns">
-      <button class="btn btn-secondary" id="pfx-copy">Скопировать отчёт</button>
-      <button class="btn btn-secondary" id="pfx-export">Экспорт диагностики CSV</button>
-    </div>
-  </div>
-  <div class="pfx-disc">Backfilled-портфель по <b>текущему составу</b> и историческим месячным ретёрнам — это НЕ фактическая история ваших сделок. Данные месячные (${c.pf ? c.pf.n + ' мес' : 'н/д'}); дневной риск не оценивается. Не индивидуальная инвестиционная рекомендация.</div>`;
-  if (c._warnings && c._warnings.length) {
-    html += `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>`;
-  }
-
-  // P2: Daily Portfolio Brief — «сегодня важно для портфеля» (герой-блок)
-  const brief = pfxDailyBrief(c);
-  if (brief.length) {
-    html += `<div class="pfx-brief"><div class="pfx-brief-head">📌 Сегодня важно для портфеля</div>${
-      brief.map((b) => `<div class="pfx-brief-item pfx-bi-${b.tone}"><span class="pfx-bi-dot"></span><span>${esc(b.text)}</span></div>`).join('')}
-      <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. раздел дивидендов. Не ИИР.</div></div>`;
-  }
-
-  // (риски «человеческим языком» теперь в «Итоге инвесткомитета» выше)
-
-  // 1. Portfolio X-Ray — KPI grid
+// полный KPI-грид (21 метрика) — вкладка «Резюме»
+function pfxKpiGrid(c) {
   const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
   const g = [];
   g.push(pfxKpi('Стоимость', rub0(c.total)));
@@ -2060,67 +2196,142 @@ function pfxRenderHTML(c) {
   g.push(pfxKpi('Data Quality', c.dq.score + '/100', '', c.dq.score >= 70 ? 'good' : c.dq.score >= 45 ? 'warn' : 'risk'));
   const rscore = pfxRiskScore(c);
   g.push(pfxKpi('Portfolio Risk Score', rscore.score + '/100', rscore.label, rscore.score >= 66 ? 'risk' : rscore.score >= 40 ? 'warn' : 'good'));
-  html += pfxDetails('Portfolio X-Ray', '(верхняя диагностика портфеля)', `<div class="pfx-grid">${g.join('')}</div>`, true);
+  return g;
+}
 
-  // 2. Performance vs MCFTR
-  html += pfxDetails('Performance vs MCFTR', '(total return, риск-adjusted)', pfxPerfHTML(c, benchPerf));
+// компактная headline-лента (≤6) — всегда на виду над вкладками; на мобиле горизонтальный скролл
+function pfxHeadlineKpis(c) {
+  const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
+  const rscore = pfxRiskScore(c);
+  const g = [];
+  g.push(pfxKpi('Стоимость', rub0(c.total)));
+  g.push(pfxKpi('Нереализ. P&L', rub0(pnlAbs), PP(pnlPct), pnlAbs >= 0 ? 'good' : 'risk'));
+  g.push(pfxKpi('Ожид. дивдоход/год', c.div ? rub0(c.div.baseIncome) : NA, `≈ ${PU(c.grossYield, 1)}% gross`));
+  g.push(pfxKpi('Beta к MCFTR', c.capm && c.capm.ok ? PU(c.capm.beta, 2) : NA, c.capm && c.capm.ok ? pfxBetaBucket(c.capm.beta) : ''));
+  g.push(pfxKpi('VaR 95% (мес)', c.vaR && c.vaR.ok ? PN(c.vaR.hist95) : NA, c.vaR && c.vaR.ok ? rub0(c.vaR.hist95 * c.total) : '', 'risk'));
+  g.push(pfxKpi('Risk Score', rscore.score + '/100', rscore.label, rscore.score >= 66 ? 'risk' : rscore.score >= 40 ? 'warn' : 'good'));
+  return `<div class="pfx-kpistrip">${g.join('')}</div>`;
+}
 
-  // 3. Alpha / Beta
-  html += pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
+function pfxTabNav() {
+  return `<div class="pfx-tabs" role="tablist" aria-label="Разделы анализа портфеля">${
+    PFX_TAB_LIST.map((t) => `<button class="pfx-tab" type="button" role="tab" data-pfx-tab="${t.id}" aria-selected="false">${esc(t.label)}</button>`).join('')
+  }</div>`;
+}
 
-  // 4. Дневной риск (Daily Risk Engine v1 — по дневным данным MOEX, клиентский расчёт)
-  html += pfxDetails('Дневной риск (VaR / CVaR / волатильность)', '(по дневным данным MOEX · краткосрочный горизонт)',
-    '<div id="pfx-daily-risk"><div class="pulse-loading muted">Загрузка дневных данных портфеля…</div></div>', true);
+// HTML активной вкладки — переиспользует существующие модули без изменения математики
+function pfxTabHTML(c, tab) {
+  const bp = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
+  switch (tab) {
+    case 'summary':
+      return `<div class="pfx-grid">${pfxKpiGrid(c).join('')}</div>`;
+    case 'holdings':
+      return pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c), true)
+        + pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c))
+        + pfxDetails('Атрибуция доходности', '(вклад бумаг и секторов в фактический P&L)', pfxAttrHTML(c))
+        + pfxDetails('Возможности и внимание', '(потенциал к справедливой цене · флаги внимания)', pfxOppHTML(c));
+    case 'returns':
+      return pfxDetails('Performance vs MCFTR', '(total return, риск-adjusted)', pfxPerfHTML(c, bp), true)
+        + pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
+    case 'risk':
+      return pfxDetails('Дневной риск (VaR / CVaR / волатильность)', '(по дневным данным MOEX · краткосрочный горизонт)',
+          '<div id="pfx-daily-risk"><div class="pulse-loading muted">Загрузка дневных данных портфеля…</div></div>', true)
+        + pfxDetails('Долгосрочный риск: VaR / CVaR (месячная база)', '(многолетняя месячная история — иной горизонт)', pfxVaRHTML(c))
+        + pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c))
+        + pfxDetails('Корреляционная матрица', '(как связаны бумаги — диверсификация)', pfxCorrHTML(c))
+        + pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c))
+        + pfxDetails('Ставка и облигации против портфеля', '(премия к безриску · порог замещения · дюрация к ставке)', pfxRateBondHTML(c), (c._rb && c._rb.ok && c._rb.substituted));
+    case 'dividends':
+      return pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c), true);
+    case 'scenarios':
+      return pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c), true)
+        + pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c))
+        + pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
+    case 'memo': {
+      const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
+      return pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`, true)
+        + pfxDetails('Data Quality Layer', '(confidence по бумагам)', pfxDQHTML(c))
+        + pfxDetails('Методология и предупреждения', '', pfxMethodHTML());
+    }
+    default:
+      return '';
+  }
+}
 
-  // 4b. Долгосрочный риск (месячная база)
-  html += pfxDetails('Долгосрочный риск: VaR / CVaR (месячная база)', '(многолетняя месячная история — иной горизонт)', pfxVaRHTML(c));
+// «Данные и ограничения» — исключённые позиции, длина/частота истории, дата снапшота (§12)
+function pfxLimitationsHTML(c) {
+  const warns = (c._warnings && c._warnings.length)
+    ? `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>` : '';
+  const meta = `<div class="pfx-limit-meta muted">`
+    + `История: <b>${c.pf ? c.pf.n + ' мес' : 'н/д'}</b> · частота: <b>месячная</b> (дневной риск — отдельным модулем во вкладке «Риск»)`
+    + (c.pf && isNum(c.pf.covered) ? ` · риск-покрытие: <b>${Math.round(c.pf.covered * 100)}%</b> веса` : '')
+    + (DATA && DATA.meta && DATA.meta.price_asof ? ` · снапшот цен: <b>${esc(DATA.meta.price_asof)}</b>` : '')
+    + `. Backfilled по текущему составу — НЕ история ваших сделок. Не ИИР.</div>`;
+  return pfxDetails('Данные и ограничения', '(исключённые позиции, длина/частота истории, снапшот)', warns + meta, false);
+}
 
-  // 5. Risk Budget
-  html += pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c));
+function pfxRenderHTML(c) {
+  const diag = pfxDiagnosis(c);
+  c._rb = pfxRateBond(c);        // P4: связка со ставкой/облигациями (для модуля и графика)
+  c._corr = pfxCorrelation(c);   // корреляции — для «Итога» и модуля матрицы
+  let html = '';
 
-  // 5b. Корреляционная матрица (диверсификация — Bible VIII/XI)
-  html += pfxDetails('Корреляционная матрица', '(как связаны бумаги — диверсификация)', pfxCorrHTML(c));
+  // Дашборд: итог инвесткомитета (Level-1 вывод «за 20 секунд») + заголовок + кнопки отчёта
+  html += pfxCommitteeSummary(c);
+  html += `<div class="pfx-top">
+    <div class="pfx-type pfx-${c.cls.tone}">${esc(c.cls.type)}</div>
+    <div class="pfx-diag">${esc(diag)}</div>
+    <div class="pfx-btns">
+      <button class="btn btn-secondary" id="pfx-copy">Скопировать отчёт</button>
+      <button class="btn btn-secondary" id="pfx-export">Экспорт диагностики CSV</button>
+    </div>
+  </div>`;
 
-  // 6. Dividend Stress Test
-  html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
+  // Headline KPI-лента (всегда на виду)
+  html += pfxHeadlineKpis(c);
 
-  // 6a. P4: Ставка и облигации против портфеля (Rate & Bond Reality Check)
-  html += pfxDetails('Ставка и облигации против портфеля', '(премия к безриску · порог замещения · дюрация к ставке)', pfxRateBondHTML(c), (c._rb && c._rb.ok && c._rb.substituted));
+  // «Что требует внимания» — приоритетные алерты (переиспользуем pfxTopRisks)
+  const risks = pfxTopRisks(c);
+  if (risks.length) {
+    html += `<div class="pfx-alerts"><div class="pfx-alerts-h">Что требует внимания</div>${
+      risks.map((r) => `<div class="pfx-alert pfx-a-${r.tone}"><span class="pfx-alert-dot"></span><span class="pfx-alert-tx">${esc(r.text)}</span></div>`).join('')
+    }</div>`;
+  }
 
-  // 6b. Факторная диагностика (P1)
-  html += pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c));
+  // Daily Portfolio Brief — «сегодня важно для портфеля» (герой-блок)
+  const brief = pfxDailyBrief(c);
+  if (brief.length) {
+    html += `<div class="pfx-brief"><div class="pfx-brief-head">📌 Сегодня важно для портфеля</div>${
+      brief.map((b) => `<div class="pfx-brief-item pfx-bi-${b.tone}"><span class="pfx-bi-dot"></span><span>${esc(b.text)}</span></div>`).join('')}
+      <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. вкладку «Дивиденды». Не ИИР.</div></div>`;
+  }
 
-  // 7. Bootstrap
-  html += pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c));
+  // Вкладки + панель (наполняется активной вкладкой в pfxSelectTab — графики в скрытых панелях = 0 ширины)
+  html += pfxTabNav();
+  html += `<div class="pfx-tabpanel" id="pfx-tabpanel" role="tabpanel"></div>`;
 
-  // 7b. Scenario Lab — реакция на макро-шоки (Bible VIII)
-  html += pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c));
-
-  // 8. Smart Rebalancer
-  html += pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
-
-  // 9. Allocation
-  html += pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c));
-
-  // 9b. Атрибуция доходности — что двигало P&L (Bible VIII)
-  html += pfxDetails('Атрибуция доходности', '(вклад бумаг и секторов в фактический P&L)', pfxAttrHTML(c));
-
-  // 10. Position Diagnostics
-  html += pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c));
-
-  // 10b. Возможности и внимание (Bible XI Opportunity Engine)
-  html += pfxDetails('Возможности и внимание', '(потенциал к справедливой цене · флаги внимания)', pfxOppHTML(c));
-
-  // 11. Investment Committee Memo
-  const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
-  html += pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`);
-
-  // 12. Data Quality
-  html += pfxDetails('Data Quality Layer', '(confidence по бумагам)', pfxDQHTML(c));
-
-  // 13. Methodology
-  html += pfxDetails('Методология и предупреждения', '', pfxMethodHTML());
+  // Данные и ограничения
+  html += pfxLimitationsHTML(c);
   return html;
+}
+
+// Переключение вкладки: рендерим только её модули + рисуем только её графики (ленивый рендер).
+function pfxSelectTab(tab) {
+  const c = PFX_STATE;
+  if (!c) return;
+  const valid = PFX_TAB_LIST.some((t) => t.id === tab) ? tab : 'summary';
+  uiStateSave({ pfxTab: valid });
+  document.querySelectorAll('.pfx-tab').forEach((t) => {
+    const on = t.dataset.pfxTab === valid;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const panel = document.getElementById('pfx-tabpanel');
+  if (!panel) return;
+  panel.innerHTML = pfxTabHTML(c, valid);
+  pfxDrawCharts(c);     // рисует только графики, чьи контейнеры сейчас в DOM (активная вкладка)
+  pfxWirePanel();       // кнопки внутри панели (ребалансер) — свежий DOM, без двойных listener'ов
+  if (valid === 'risk') { try { pfxDailyRiskLoad(c); } catch (e) { console.error('[daily-risk] load:', e); } }
 }
 
 function pfxDiagnosis(c) {
@@ -2461,7 +2672,7 @@ function drCompute(positions, benchmark) {
 function pfxDailyRiskLoad(c) {
   const box = document.getElementById('pfx-daily-risk'); if (!box) return;
   const idxUrl = 'daily/web/_index.json';
-  const getJSON = (u) => fetch(u + '?t=' + Date.now(), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  const getJSON = (u) => fetch(dataURL(u)).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
   const ensureIdx = PFX_DAILY.index ? Promise.resolve(PFX_DAILY.index) : getJSON(idxUrl).then((j) => { PFX_DAILY.index = j; return j; });
   ensureIdx.then((idx) => {
     const aliases = idx.aliases || {}; const secInfo = idx.securities || {};
@@ -2765,7 +2976,7 @@ function pfxRateBondHTML(c) {
     <h4 class="pfx-rb-h">Порог замещения облигациями — что даёт та же сумма «на руки»</h4>
     ${subTbl}${sub}${picks}
     <h4 class="pfx-rb-h">Чувствительность к ставке</h4>${rate}
-    <div class="pfx-note muted">Дивдоходность — ожидаемая (прогноз проекта), не гарантирована и плавает; YTM облигации — контрактная к погашению при удержании (кредитный риск эмитента остаётся). Обе «на руки» = после НДФЛ 13%. Дюрация дивпотока — стилизованная оценка по модели Гордона (1/дивдоходность), не прогноз цены. КБД — G-кривая ОФЗ MOEX. Не ИИР.</div>`;
+    <div class="pfx-note muted">Дивдоходность — ожидаемая (прогноз проекта), не гарантирована и плавает; YTM облигации — контрактная к погашению при удержании (кредитный риск эмитента остаётся). Дивдоходность «на руки» — после НДФЛ ${taxPct()}%; облигационная YTM — при 13% (серверный расчёт). Дюрация дивпотока — стилизованная оценка по модели Гордона (1/дивдоходность), не прогноз цены. КБД — G-кривая ОФЗ MOEX. Не ИИР.</div>`;
 }
 
 // ── модуль 6b: факторная диагностика (P1) ────────────────────────────────────
@@ -3229,7 +3440,8 @@ function pfxDrawCharts(c) {
 function pfxDD(cum) { let peak = cum[0]; return cum.map((v) => { if (v > peak) peak = v; return (v / peak - 1) * 100; }); }
 
 // ── кнопки: копировать отчёт / экспорт CSV / переключение сценария ребаланса ──
-function pfxWireButtons(c) {
+// Кнопки дашборда (copy/export) — стабильны, вяжутся ОДИН раз в renderMyPortfolio.
+function pfxWireDashboard(c) {
   const copyBtn = document.getElementById('pfx-copy');
   if (copyBtn) copyBtn.addEventListener('click', () => {
     const lines = [`Portfolio X-Ray — ${c.cls.type}`, pfxDiagnosis(c), ''];
@@ -3245,6 +3457,11 @@ function pfxWireButtons(c) {
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'portfolio_diagnostics.csv'; a.click();
   });
+}
+
+// Кнопки внутри панели вкладки (ребалансер) — панель перерисовывается на каждой смене вкладки,
+// DOM свежий, поэтому addEventListener без риска двойных listener'ов.
+function pfxWirePanel() {
   document.querySelectorAll('.pfx-rbtn').forEach((btn) => btn.addEventListener('click', () => {
     document.querySelectorAll('.pfx-rbtn').forEach((b) => b.classList.toggle('on', b === btn));
     const body = document.getElementById('pfx-rebal-body');
@@ -3414,7 +3631,7 @@ function wireMarketSaw() {
 
 function loadMarketSaw(cb) {
   if (SAW_DATA) { cb(); return; }
-  fetch('marketsaw.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust, как returns.json
+  fetch(dataURL('marketsaw.json'))   // cache-bust, как returns.json
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.current_phase || !j.series) throw new Error('пустой/битый marketsaw.json'); SAW_DATA = j; cb(); })
     .catch((e) => { console.error('[saw] marketsaw.json не загрузился:', e); cb(e); });
@@ -3560,8 +3777,7 @@ function alfaDate(value) {
 function loadAlfaIndex(cb) {
   if (ALFA_INDEX) { cb && cb(); return; }
   if (ALFA_INDEX_LOAD) { ALFA_INDEX_LOAD.then(() => cb && cb()).catch((e) => cb && cb(e)); return; }
-  const stamp = Date.now();
-  const getJSON = (path) => fetch(`${path}?t=${stamp}`, { cache: 'no-store' })
+  const getJSON = (path) => fetch(dataURL(path))
     .then((response) => { if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`); return response.json(); });
   ALFA_INDEX_LOAD = Promise.allSettled([getJSON('alfa-index.json'), getJSON('alfa-index-history.json')])
     .then((results) => {
@@ -3818,7 +4034,7 @@ function renderSawActive() {
 
 function loadImoexSaw(cb) {
   if (IMOEX_SAW) { cb(); return; }
-  fetch('marketsaw_imoex.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('marketsaw_imoex.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || j.index !== 'IMOEX' || !j.current_state || !j.series) throw new Error('пустой/битый marketsaw_imoex.json'); IMOEX_SAW = j; cb(); })
     .catch((e) => { console.error('[saw-imoex] не загрузился:', e); cb(e); });
@@ -4184,11 +4400,10 @@ function wireBonds() {
 
 function loadBonds(cb) {
   if (BONDS) { cb(); return; }
-  const t = Date.now();
   Promise.all([
-    fetch('bonds/screener.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
-    fetch('bonds/chart_data.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
-    fetch('bonds/portfolios.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/screener.json')).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/chart_data.json')).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/portfolios.json')).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
   ]).then(([screener, chart, portfolios]) => {
     if (!screener || !screener.bonds || !chart) throw new Error('пустые/битые JSON облигаций');
     BONDS = { meta: screener.meta || {}, bonds: screener.bonds, chart, portfolios: (portfolios && portfolios.portfolios) || {} };
@@ -4254,6 +4469,22 @@ function bondsUIHTML(d) {
     <div class="bonds-section-title">Скринер (${d.bonds.length} бумаг, сортировка по апсайду)</div>
     ${bondsTableHTML(d.bonds)}
 
+    <details class="bonds-limits">
+      <summary>Ограничения данных (§5.6) — что не размечено в скринере</summary>
+      <div class="bonds-limits-body">
+        <p>Справедливая цена строится от G-кривой ОФЗ (КБД MOEX) и модельного спреда рейтинга. Ряд критичных для розницы полей в данных <b>отсутствует</b> — по ним ничего не выводится и не додумывается:</p>
+        <ul>
+          <li><b>Оферта (put/call).</b> Дата/цена оферты не размечены → YTM и дюрация считаются к погашению; для бумаг с офертой это может быть неверно. <b>Оферта не проверена.</b></li>
+          <li><b>Тип купона (фикс/флоатер).</b> Купон принят фиксированным; флоатеры (плавающая база + спред) не классифицированы → их YTM к погашению условна.</li>
+          <li><b>Амортизация.</b> Амортизация номинала не размечена → дюрация/YTM амортизируемых выпусков — с оговоркой.</li>
+          <li><b>НКД / чистая vs грязная цена.</b> Показана <b>чистая</b> цена MOEX (% номинала); НКД не выделен. Цена лота в калькуляторе — тоже чистая.</li>
+          <li><b>Ликвидность.</b> Есть дневной оборот выпуска; bid/ask-спред не размечен.</li>
+          <li><b>G-спред.</b> Отдельного G-спреда (к базе КБД на дату) в данных нет; «Апсайд» — модельное отклонение справедливой цены, а не G-спред.</li>
+        </ul>
+        <p class="muted">Ввод этих полей — задача пайплайна данных облигаций, не фронта. «YTM−налог» уже посчитан сервером после НДФЛ 13%. Не ИИР.</p>
+      </div>
+    </details>
+
     <div class="bonds-disc">Индикатор не является индивидуальной инвестиционной рекомендацией. Справедливая цена опирается на плоский спред рейтинга (модельное допущение) — крупный «апсайд» у имён A-/BBB отражает некомпенсированную в модели кредит-премию, а не гарантированную недооценку. Данные MOEX ISS.</div>
   `;
 }
@@ -4276,12 +4507,15 @@ function bondsTableHTML(bonds) {
   }).join('');
   return `<div class="bonds-table-wrap"><table class="bonds-table">
     <thead><tr>
-      <th>Бумага</th><th>Рейтинг</th><th>Цена</th>
-      <th data-tooltip="Доходность к погашению по рыночной цене (WAPRICE), считается из реальных потоков">YTM</th>
+      <th>Бумага</th><th>Рейтинг</th>
+      <th data-tooltip="Чистая цена MOEX (% номинала), без НКД. НКД/грязная цена в данных не размечены — см. «Ограничения данных».">Цена<span class="b-mark">чистая</span></th>
+      <th data-tooltip="Доходность к погашению по рыночной цене (WAPRICE), считается из реальных потоков. К погашению: оферты и амортизация в данных не размечены — см. «Ограничения данных».">YTM</th>
       <th data-tooltip="Справедливая YTM по G-кривой MOEX + плоский спред рейтинга">Fair YTM</th>
       <th data-tooltip="Апсайд справедливой цены к рыночной. Плоский спред занижает кредит-премию A-/BBB → большой «+» = модельное допущение">Апсайд</th>
       <th data-tooltip="Чистая YTM после НДФЛ 13% (купоны и ценовой доход)">YTM−налог</th>
-      <th>Дюрация</th><th>Купон</th><th>Погашение</th>
+      <th>Дюрация</th>
+      <th data-tooltip="Купон принят фиксированным. Флоатеры (плавающая база + спред) в данных не классифицированы — для них YTM к погашению условна. См. «Ограничения данных».">Купон</th>
+      <th>Погашение</th>
     </tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -4397,7 +4631,7 @@ function wireMarlamov() {
 
 function loadMarlamov(cb) {
   if (MARLAMOV) { cb(); return; }
-  fetch('marlamov.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('marlamov.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.rows) throw new Error('пустой marlamov.json'); MARLAMOV = j; cb(); })
     .catch((e) => { console.error('[marlamov] не загрузился:', e); cb(e); });
@@ -4473,7 +4707,7 @@ SITE_FINANCIALS = null;
 
 function loadSiteFinancials(cb) {
   if (SITE_FINANCIALS) { cb && cb(); return; }
-  fetch('site_financials.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_financials.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { SITE_FINANCIALS = j; cb && cb(); })
     .catch((e) => { console.warn('[site_financials]', e); cb && cb(e); });
@@ -4491,7 +4725,7 @@ function wireMethodology() {
 function renderMethodology() {
   const body = document.getElementById('method-body');
   if (METHODOLOGY) { body.innerHTML = methodologyHTML(METHODOLOGY); return; }
-  fetch('methodology.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('methodology.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { METHODOLOGY = j; body.innerHTML = methodologyHTML(j); })
     .catch((e) => { console.error('[methodology]', e); body.innerHTML = '<div class="muted" style="padding:10px 2px">Методология временно недоступна.</div>'; });
@@ -4517,7 +4751,7 @@ function wireDataCoverage() {
 
 function loadDataCoverage(cb) {
   if (DATA_COVERAGE) { cb && cb(); return; }
-  fetch('site_coverage.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_coverage.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { DATA_COVERAGE = j; cb && cb(); })
     .catch((e) => { cb && cb(e); });
@@ -4598,9 +4832,23 @@ function renderDataCoverage() {
 // ══════════════════════════════════════════════════════════════════════════
 const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology', 'pro'];
 
+// Заголовок и подзаголовок раздела для topbar (редизайн, Итерация 2).
+const SECTION_META = {
+  market: ['Обзор', 'Состояние рынка РФ, события и портфель'],
+  'my-portfolio': ['Портфель', 'Portfolio X-Ray — риск и доходность, расчёт локально в браузере'],
+  stocks: ['Акции', 'Скринер: прогноз дивидендов, оценка, риск невыплаты'],
+  strategies: ['Стратегии', 'Факторные и сценарные портфели поверх данных по акциям'],
+  news: ['Новости', 'Утренний брифинг рынка РФ'],
+  bonds: ['Облигации', 'Скринер рублёвых корпоративных облигаций MOEX'],
+  cbr: ['Банки РФ', 'Отчётность банков по формам ЦБ РФ'],
+  methodology: ['Методология', 'Источники, расчёты и ограничения'],
+  pro: ['О проекте', 'Честно о проекте и тарифах-гипотезе'],
+};
+
 function getSectionFromHash() {
   const h = (location.hash || '').replace('#', '');
-  const section = h.split('?', 1)[0];
+  let section = h.split('?', 1)[0];
+  if (section === 'overview') section = 'market';   // двусторонний алиас overview↔market (§9)
   return SECTIONS.includes(section) ? section : 'market';
 }
 
@@ -4651,6 +4899,15 @@ function setActiveSection(sec) {
     t.classList.toggle('active', active);
     t.setAttribute('aria-current', active ? 'page' : 'false');
   });
+  // topbar: заголовок/подзаголовок раздела (редизайн, Итерация 2)
+  const meta = SECTION_META[sec] || [sec, ''];
+  const tt = document.getElementById('topbar-title'); if (tt) tt.textContent = meta[0];
+  const ts = document.getElementById('topbar-sub'); if (ts) ts.textContent = meta[1];
+  // закрыть мобильный «Ещё»-sheet при переходе в раздел
+  const sheet = document.getElementById('app-more-sheet');
+  if (sheet) sheet.hidden = true;
+  const moreBtn = document.getElementById('app-more-btn');
+  if (moreBtn) moreBtn.setAttribute('aria-expanded', 'false');
   window.scrollTo({ top: 0, behavior: 'auto' });
   onSectionShown(sec);
 }
@@ -4674,6 +4931,39 @@ function initRouter() {
       e.preventDefault(); location.hash = e.target.dataset.goto;
     }
   });
+  // App-shell (Итерация 2): свёртка сайдбара в icon-rail (desktop) + мобильный «Ещё»-sheet
+  const navToggle = document.getElementById('app-nav-toggle');
+  const shell = document.querySelector('.app-shell');
+  if (navToggle && shell) {
+    if (uiStateLoad().sidebar === 'collapsed') { shell.classList.add('sidebar-collapsed'); navToggle.setAttribute('aria-expanded', 'false'); }
+    navToggle.addEventListener('click', () => {
+      const collapsed = shell.classList.toggle('sidebar-collapsed');
+      navToggle.setAttribute('aria-expanded', String(!collapsed));
+      uiStateSave({ sidebar: collapsed ? 'collapsed' : 'expanded' });
+    });
+  }
+  const moreBtn = document.getElementById('app-more-btn');
+  const moreSheet = document.getElementById('app-more-sheet');
+  if (moreBtn && moreSheet) {
+    moreBtn.addEventListener('click', () => {
+      const open = moreSheet.hidden;
+      moreSheet.hidden = !open;
+      moreBtn.setAttribute('aria-expanded', String(open));
+    });
+    moreSheet.addEventListener('click', (e) => {
+      if (e.target === moreSheet) { moreSheet.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); }
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !moreSheet.hidden) { moreSheet.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); } });
+  }
+  // §5.1 — переключатель налогового профиля
+  const taxOpts = document.getElementById('tax-profile-opts');
+  if (taxOpts) {
+    taxOpts.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-rate]');
+      if (b) onTaxChange(Number(b.dataset.rate));
+    });
+    renderTaxControl();
+  }
   window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
   setActiveSection(getSectionFromHash());
 }
@@ -4681,7 +4971,7 @@ function initRouter() {
 // ── global data status bar (даты ТОЛЬКО из реальных JSON, не Date.now()) ──
 function loadSiteStatus(cb) {
   if (SITE_STATUS) { if (cb) cb(); return; }
-  fetch('site_status.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_status.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { SITE_STATUS = j; if (cb) cb(); })
     .catch(() => { SITE_STATUS = { failed: true, blocks: {} }; if (cb) cb(); });   // нет файла → деградируем к датам
@@ -4735,7 +5025,7 @@ const EV_SRC_LABEL = { moex_iss: 'MOEX ISS', cbr_schedule: 'график ЦБ Р
 
 function loadEvents(cb) {
   if (EVENTS_DATA) { if (cb) cb(); return; }
-  fetch('events_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('events_calendar.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !Array.isArray(j.events)) throw new Error('пустой/битый events_calendar'); EVENTS_DATA = j; if (cb) cb(); })
     .catch((e) => { console.error('[events] не загрузились:', e); EVENTS_DATA = { failed: true, events: [], meta: {} }; if (cb) cb(); });
@@ -4743,7 +5033,7 @@ function loadEvents(cb) {
 
 function loadDividendCalendar(cb) {
   if (DIVIDEND_CALENDAR) { if (cb) cb(); return; }
-  fetch('dividend_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('dividend_calendar.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || j.schema_version !== '2.0' || !Array.isArray(j.events)) throw new Error('неподдерживаемый контракт');
@@ -5399,7 +5689,7 @@ function renderMarketPulse() {
 // ── P/E рынка по последней годовой прибыли (site/market_pe_current.json, генерит CI) ──
 function loadMarketPE(cb) {
   if (MARKET_PE) { if (cb) cb(); return; }
-  fetch('market_pe_current.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('market_pe_current.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || j.metric !== 'aggregate_pe_imoex_basket') throw new Error('неподдерживаемый контракт market_pe');
@@ -5521,7 +5811,7 @@ function renderMarketKPI() {
 
 function loadMarketHistory(cb) {
   if (MARKET_HISTORY) { if (cb) cb(); return; }
-  fetch('market_history.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('market_history.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || !Array.isArray(j.instruments) || !j.instruments.length) throw new Error('empty');
@@ -5906,8 +6196,7 @@ const cbrRub = (v) => {
 
 function loadCbr(cb) {
   if (CBR_DATA) { cb(); return; }
-  const t = Date.now();
-  const f = (n) => fetch('cbr/' + n + '?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
+  const f = (n) => fetch(dataURL('cbr/' + n)).then((r) => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
   Promise.all([f('banks.json'), f('bank_timeseries.json'), f('metadata.json'), f('data_quality.json'), f('metric_mapping.json')])
     .then(([banks, ts, meta, dq, mapping]) => { CBR_DATA = { banks, ts, meta, dq, mapping }; cb(); })
     .catch((e) => { console.error('[cbr] не загрузился:', e); cb(e); });
@@ -6276,7 +6565,7 @@ let FINDER_SORT = { key: 'score', dir: -1 };
 
 function loadFinder(cb) {
   if (FINDER) { cb(); return; }
-  fetch('bonds/finder.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('bonds/finder.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.profiles) throw new Error('пустой finder.json'); FINDER = j; cb(); })
     .catch((e) => { console.error('[finder]', e); cb(e); });
@@ -6514,7 +6803,7 @@ function bvalN1Trend(b) {
 
 function loadBanksValuation(cb) {
   if (BVAL) { cb(); return; }
-  fetch('cbr/valuation.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('cbr/valuation.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.banks) throw new Error('empty'); BVAL = j; cb(); })
     .catch((e) => { console.error('[bval]', e); cb(e); });
@@ -6522,7 +6811,7 @@ function loadBanksValuation(cb) {
 
 function loadBanksHistory(cb) {
   if (BHIST) { cb(); return; }
-  fetch('cbr/history.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('cbr/history.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.banks) throw new Error('empty'); BHIST = j; cb(); })
     .catch((e) => { console.error('[bhist]', e); cb(e); });
@@ -7109,7 +7398,7 @@ function loadNews(cb, force = false) {
   if (NEWS && !force && Date.now() - NEWS_FETCHED_AT < NEWS_REFRESH_MS) { cb(null, false); return; }
   if (!NEWS_LOAD_PROMISE) {
     const previousVersion = NEWS && NEWS.generated_at;
-    NEWS_LOAD_PROMISE = fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
+    NEWS_LOAD_PROMISE = fetch(dataURL('news.json'))
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((j) => {
         if (!j || !Array.isArray(j.market_snapshot) || !j.market_snapshot.length) throw new Error('empty');

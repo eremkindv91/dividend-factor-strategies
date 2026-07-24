@@ -227,6 +227,7 @@ jobs:
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
           sed -i "s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
+          printf '{"version":"%s","generated":"%s"}\n' "$V" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TMP/build.json"   # §6.1: манифест кэша данных (dataURL ?v=)
           touch "$TMP/.nojekyll"
           git -C "$TMP" init -q
           git -C "$TMP" checkout -q -b gh-pages
