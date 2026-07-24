@@ -3030,3 +3030,28 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
   .pfx-kpistrip .pfx-kpi { flex: 0 0 auto; min-width: 150px; scroll-snap-align: start; }
   .pfx-tab { padding: 9px 12px; font-size: .86rem; }
 }
+
+/* ═══════ Акции — быстрые фильтры + переключатель вида (редизайн, Итерация 5, §13) ═══════ */
+.stock-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px 16px; flex-wrap: wrap; margin: 12px 0 6px; }
+.stock-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.stock-chip { font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); padding: 6px 12px; border-radius: var(--r-pill, 999px); }
+.stock-chip:hover { border-color: var(--accent); color: var(--ink); }
+.stock-chip.active { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
+.stock-chip-clear { border-style: dashed; color: var(--ink-faint); }
+.stock-view-toggle { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg); border: 1px solid var(--line); border-radius: 9px; flex: 0 0 auto; }
+.stock-view-btn { font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; border: 0; background: transparent; color: var(--ink-soft); padding: 6px 12px; border-radius: 7px; }
+.stock-view-btn:hover { color: var(--ink); }
+.stock-view-btn.active { background: var(--accent-deep); color: #fff; }
+/* при принудительной таблице на узком экране — горизонтальный скролл ВНУТРИ карточки, не страницы */
+.table-card { overflow-x: auto; }
+/* явный режим вида перекрывает адаптив (attribute-селектор выше по специфичности) */
+[data-stock-view="table"] .cards { display: none; }
+[data-stock-view="table"] .table-card { display: block; }
+[data-stock-view="table"] #mapwrap { display: none; }
+[data-stock-view="cards"] .table-card { display: none; }
+[data-stock-view="cards"] .cards { display: block; }
+[data-stock-view="cards"] #mapwrap { display: none; }
+[data-stock-view="map"] .table-card, [data-stock-view="map"] .cards { display: none; }
+[data-stock-view="map"] #mapwrap { display: block; }
+@media (max-width: 560px) { .stock-view-toggle { width: 100%; } .stock-view-btn { flex: 1 1 0; } }

@@ -217,6 +217,15 @@
           <button class="btn" id="csv">Экспорт CSV</button>
         </div>
 
+        <div class="stock-toolbar">
+          <div class="stock-chips" id="stock-chips" role="group" aria-label="Быстрые фильтры"></div>
+          <div class="stock-view-toggle" id="stock-view-toggle" role="group" aria-label="Вид списка">
+            <button class="stock-view-btn" type="button" data-view="table" aria-pressed="true" title="Таблица">Таблица</button>
+            <button class="stock-view-btn" type="button" data-view="cards" aria-pressed="false" title="Карточки">Карточки</button>
+            <button class="stock-view-btn" type="button" data-view="map" aria-pressed="false" title="Карта рынка">Карта</button>
+          </div>
+        </div>
+
         <div class="ranks" id="ranks" hidden>
           <span class="ranks-lbl" data-tooltip="Основной рейтинг автоматически исключает строки с экстремальной доходностью, payout выше 100%, старой ценой или неполными данными.">Рейтинг ↓</span>
         </div>

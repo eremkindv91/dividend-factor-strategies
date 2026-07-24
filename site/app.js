@@ -66,9 +66,28 @@ document.addEventListener('visibilitychange', refreshVisibleSectionIfStale);
 const RATING_TOOLTIP = 'Основной рейтинг: надёжность дивиденда × оценка, со штрафом за долг и governance. Экстремальная доходность, payout выше 100%, старая цена и неполные данные автоматически исключаются до ручной проверки.';
 
 let DATA = null;
-let VIEW = [];
+let VIEW = [];        // результат computeView() — БАЗОВЫЙ срез (его читает регрессия, не менять контракт)
+let SHOWN = [];       // VIEW после быстрых чип-фильтров — то, что отображается (редизайн, Итерация 5)
 let sortKey = 'verdict_score';
 let sortDir = -1; // -1 desc, 1 asc
+
+// Быстрые фильтр-чипы (§13). Предикаты — только по существующим полям тикера, без новой математики.
+// По умолчанию ни один не активен → SHOWN === VIEW → baseline топ-20 совпадает.
+const STOCK_CHIPS = [
+  { id: 'top', label: 'Высокий рейтинг', test: (t) => t.verdict && t.verdict.color === 'good' },
+  { id: 'reliable', label: 'Надёжный дивиденд', test: (t) => isNum(t.stability_score) && t.stability_score >= 0.6 },
+  { id: 'undervalued', label: 'Недооценённые', test: (t) => t.verdict && isNum(t.verdict.v) && t.verdict.v >= 5 },
+  { id: 'yield', label: 'Высокая дивдоходность', test: (t) => isNum(t.dividend_yield_expected) && t.dividend_yield_expected >= 10 },
+  { id: 'lowrisk', label: 'Низкий риск невыплаты', test: (t) => isNum(t.cut_risk) && t.cut_risk <= 0.25 },
+  { id: 'fulldata', label: 'Полные данные', test: (t) => stockRankingEligible(t) },
+];
+const activeStockChips = new Set();
+function applyStockChips(rows) {
+  if (!activeStockChips.size) return rows;
+  const tests = STOCK_CHIPS.filter((c) => activeStockChips.has(c.id)).map((c) => c.test);
+  return rows.filter((t) => tests.every((fn) => fn(t)));
+}
+let STOCK_VIEW_MODE = '';   // '' = адаптив (desktop таблица / mobile карточки); 'table'|'cards'|'map' — явный выбор
 
 // ── классификация для бейджей ──
 function riskBadge(cr) {
@@ -250,10 +269,30 @@ function init(data) {
   // события
   document.getElementById('controls').hidden = false;
   document.getElementById('mapwrap').hidden = false;
-  document.getElementById('search').addEventListener('input', debounce(render, 130));
+  document.getElementById('search').addEventListener('input', debounce(render, 250));   // §13: debounce 250мс
   document.getElementById('sector').addEventListener('change', render);
   document.getElementById('statusFilter').addEventListener('change', render);
   document.getElementById('csv').addEventListener('click', exportCSV);
+  // §13: быстрые фильтр-чипы (тоггл активности → пересчёт SHOWN)
+  const chipsEl = document.getElementById('stock-chips');
+  if (chipsEl) chipsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-chip]'); if (!b) return;
+    if (b.dataset.chip === '__clear') activeStockChips.clear();
+    else if (activeStockChips.has(b.dataset.chip)) activeStockChips.delete(b.dataset.chip);
+    else activeStockChips.add(b.dataset.chip);
+    render();
+  });
+  // §13: переключатель вида Таблица/Карточки/Карта
+  const vt = document.getElementById('stock-view-toggle');
+  if (vt) vt.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-view]'); if (!b) return;
+    STOCK_VIEW_MODE = b.dataset.view;
+    uiStateSave({ stockView: STOCK_VIEW_MODE });
+    applyStockViewMode();
+    if (STOCK_VIEW_MODE === 'map') renderMap();
+  });
+  STOCK_VIEW_MODE = uiStateLoad().stockView || '';
+  applyStockViewMode();
   wirePortfolio();
   wireQuality();
   wireMyPortfolio();
@@ -326,12 +365,34 @@ function renderRanks() {
   }));
 }
 
+// ── быстрые фильтр-чипы (§13) — тоггл активности, пересчёт SHOWN ──
+function renderStockChips() {
+  const el = document.getElementById('stock-chips');
+  if (!el) return;
+  el.innerHTML = STOCK_CHIPS.map((c) =>
+    `<button type="button" class="stock-chip${activeStockChips.has(c.id) ? ' active' : ''}" data-chip="${c.id}" aria-pressed="${activeStockChips.has(c.id) ? 'true' : 'false'}">${esc(c.label)}</button>`
+  ).join('') + (activeStockChips.size ? `<button type="button" class="stock-chip stock-chip-clear" data-chip="__clear">Сбросить</button>` : '');
+}
+
+// ── переключатель вида Таблица / Карточки / Карта (§13) ──
+function applyStockViewMode() {
+  const sec = document.querySelector('.app-section[data-section="stocks"]');
+  if (sec) { if (STOCK_VIEW_MODE) sec.setAttribute('data-stock-view', STOCK_VIEW_MODE); else sec.removeAttribute('data-stock-view'); }
+  document.querySelectorAll('#stock-view-toggle .stock-view-btn').forEach((b) => {
+    const on = b.dataset.view === (STOCK_VIEW_MODE || 'table');
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const mw = document.getElementById('mapwrap');
+  if (mw && STOCK_VIEW_MODE === 'map' && !mw.open) mw.open = true;
+}
+
 // ── Карта рынка: scatter Надёжность(Y) × Оценка(X), цвет = вердикт ──
 function renderMap() {
   const el = document.getElementById('map');
   if (!el) return;
-  const pts = VIEW.filter((t) => t.verdict && t.verdict.v != null && isNum(t.stability_score));
-  const na = VIEW.filter((t) => t.verdict && t.verdict.v == null).length;
+  const pts = SHOWN.filter((t) => t.verdict && t.verdict.v != null && isNum(t.stability_score));
+  const na = SHOWN.filter((t) => t.verdict && t.verdict.v == null).length;
   if (pts.length < 3) { el.innerHTML = `<p class="map-note muted">Недостаточно оценённых имён для карты (с оценкой: ${pts.length}).</p>`; return; }
   const W = 720, H = 430, mL = 54, mR = 18, mT = 30, mB = 46;
   const iw = W - mL - mR, ih = H - mT - mB, XCL = 100;
@@ -369,8 +430,10 @@ function renderMap() {
 }
 
 function render() {
-  VIEW = computeView();
-  document.getElementById('count').textContent = `${VIEW.length} из ${DATA.tickers.length}`;
+  VIEW = computeView();            // базовый срез (контракт регрессии) — не фильтруем чипами
+  SHOWN = applyStockChips(VIEW);   // отображаемый срез (быстрые чипы)
+  document.getElementById('count').textContent = `${SHOWN.length} из ${DATA.tickers.length}`;
+  renderStockChips();
   const gate = document.getElementById('stock-quality-gate');
   if (gate) {
     const eligible = DATA.tickers.filter(stockRankingEligible).length;
@@ -392,7 +455,7 @@ function renderTable() {
   const head = '<tr>' + COLS.map((c) =>
     `<th class="${c.left ? 'left' : ''}" data-key="${c.key}"${c.title ? ` title="${c.title}"` : ''}>${c.label}${arrow(c.key)}</th>`).join('') + '</tr>';
 
-  const body = VIEW.length ? VIEW.map((t, i) => {
+  const body = SHOWN.length ? SHOWN.map((t, i) => {
     const payoutTxt = isNum(t.payout)
       ? `${ru(t.payout, 1)}%${t.payout_year ? ` <span class="muted">(${t.payout_year})</span>` : ''}`
       : mdash;
@@ -420,7 +483,7 @@ function renderTable() {
     render();
   }));
   document.querySelectorAll('tr.data-row').forEach((tr) =>
-    tr.addEventListener('click', () => toggleDetail(tr, VIEW[+tr.dataset.i])));
+    tr.addEventListener('click', () => toggleDetail(tr, SHOWN[+tr.dataset.i])));
   renderCards();
 }
 
@@ -817,7 +880,7 @@ function toggleDetail(tr, t) {
 function renderCards() {
   const el = document.getElementById('cards');
   if (!el) return;
-  el.innerHTML = VIEW.length ? VIEW.map((t, i) => {
+  el.innerHTML = SHOWN.length ? SHOWN.map((t, i) => {
     const statusChip = statusChipHTML(t);
     return `<div class="card">
       <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
@@ -841,7 +904,7 @@ function renderCards() {
     if (!this.open) return;
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
-    const t = VIEW[+this.dataset.i];
+    const t = SHOWN[+this.dataset.i];
     box.innerHTML = stockDetailSummaryHTML(t) + stockPriceChartHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
     wireCharts(box);
@@ -865,7 +928,7 @@ function exportCSV() {
     return '"' + String(v).replace(/"/g, '""') + '"';
   };
   const lines = [cols.map((c) => c[1]).join(';')];
-  VIEW.forEach((t) => lines.push(cols.map((c) => cell(t[c[0]])).join(';')));
+  SHOWN.forEach((t) => lines.push(cols.map((c) => cell(t[c[0]])).join(';')));
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1103,6 +1166,8 @@ function openQualityDrawer(ticker) {
       Источник: ${esc((row.provenance || {}).source_name || (row.provenance || {}).source_type || '—')} · normalization: ${esc(row.normalization_scope || '—')} · coverage: ${isNum(row.coverage_ratio) ? ru(row.coverage_ratio * 100, 0) + '%' : '—'}<br>
       ${periodDetails ? `Винтажи факторов: ${esc(periodDetails)}<br>` : ''}
       Предупреждения: ${esc((row.warnings || []).join(', ') || 'нет')}<br>Исключения: ${esc((row.exclusion_reasons || []).join(', ') || 'нет')}</div>`;
+  // §13 a11y: запомнить элемент-триггер, чтобы вернуть фокус при закрытии (showModal сам даёт Escape+фокус-трап)
+  dialog._returnFocus = document.activeElement;
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
 
@@ -1346,7 +1411,13 @@ function wireQuality() {
     renderPortfolio();
   });
   const close = document.getElementById('quality-drawer-close');
-  if (close) close.addEventListener('click', () => document.getElementById('quality-drawer').close());
+  const qDrawer = document.getElementById('quality-drawer');
+  if (close && qDrawer) close.addEventListener('click', () => qDrawer.close());
+  if (qDrawer) {
+    // §13 a11y: клик по бэкдропу закрывает; при закрытии (в т.ч. по Escape) — возврат фокуса на триггер
+    qDrawer.addEventListener('click', (e) => { if (e.target === qDrawer) qDrawer.close(); });
+    qDrawer.addEventListener('close', () => { try { if (qDrawer._returnFocus && qDrawer._returnFocus.focus) qDrawer._returnFocus.focus(); } catch (_e) { /* noop */ } });
+  }
   syncStrategyPanels();
   loadQuality();
 }
