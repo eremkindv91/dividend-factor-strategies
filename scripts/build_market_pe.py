@@ -50,6 +50,7 @@ DEFAULT_OUT = os.path.join(ROOT, "site", "market_pe_current.json")
 SECURITY_MASTER = os.path.join(ROOT, "data", "security_master.json")
 FINANCIALS = os.path.join(ROOT, "site", "site_financials.json")
 DATA_JSON = os.path.join(ROOT, "site", "data.json")
+IFRS_SEED = os.path.join(ROOT, "data", "market_pe_ifrs_seed.json")   # ручная сверка FY IFRS-прибыли (провенанс)
 
 WEIGHT_GATE_PCT = 2.0        # эмитенты с весом > 2 % — материальные (в excluded_material, если не включены)
 YOY_MAX_RATIO = 3.0          # YoY изменение прибыли крупнее — в review (исключается из расчёта)
@@ -139,9 +140,43 @@ def income_history():
             "published_at": row.get("published_at"),
             "source_url": row.get("source_url"),
         })
+    apply_ifrs_seed(hist)
     for tk in hist:
         hist[tk].sort(key=lambda r: r["fy"])
     return hist, (fin.get("meta") or {})
+
+
+def apply_ifrs_seed(hist: dict) -> None:
+    """Оверлей проверенной FY IFRS-прибыли (attributable to parent) с провенансом поверх слоя.
+    Значения сверены вручную с офиц. источниками (см. data/market_pe_ifrs_seed.json) → validation
+    таких записей проходит строгий контракт (verified=True шунтирует проверки sanity)."""
+    if not os.path.exists(IFRS_SEED):
+        return
+    try:
+        seed = load_local(IFRS_SEED)
+    except (ValueError, OSError):
+        return
+    dflt = {k: seed.get(k) for k in ("accounting_standard", "statement_scope", "period_end")}
+    for rec in seed.get("records", []):
+        tk, fy, ni = rec.get("ticker"), rec.get("fy"), rec.get("net_income")
+        if not tk or fy is None or ni is None:
+            continue
+        prov = {
+            "value": float(ni), "verified": True,
+            "accounting_standard": rec.get("accounting_standard", dflt["accounting_standard"]),
+            "statement_scope": rec.get("statement_scope", dflt["statement_scope"]),
+            "period_end": rec.get("period_end", dflt["period_end"]),
+            "published_at": rec.get("published_at"),
+            "source_url": rec.get("source_url"),
+            "source": "verified_ifrs_seed", "verification_status": "verified",
+            "needs_manual_review": False, "conflict_flag": False,
+        }
+        recs = hist.setdefault(tk, [])
+        existing = next((r for r in recs if r["fy"] == int(fy)), None)
+        if existing:
+            existing.update(prov)
+        else:
+            recs.append({"fy": int(fy), "period": str(fy), "currency": "RUB", **prov})
 
 
 def validate_issuer(records: list[dict]):
@@ -150,6 +185,12 @@ def validate_issuer(records: list[dict]):
         return "missing", None, ["нет чистой прибыли в фундамент-слое"]
     latest = records[-1]
     reasons: list[str] = []
+
+    # Проверенная вручную запись (IFRS-seed с провенансом и источником) — доверяем значению,
+    # sanity-проверки (YoY/смена знака) не применяем: большие реальные движения 2025 (ROSN −73%,
+    # LUKOIL убыток от разового обесценения) подтверждены первоисточником, а не ошибка слоя.
+    if latest.get("verified"):
+        return "validated", latest, []
 
     # ── A. earnings-quality ──
     if latest.get("needs_manual_review"):

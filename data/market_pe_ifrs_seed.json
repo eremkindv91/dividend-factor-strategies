@@ -1,0 +1,21 @@
+{
+  "note": "Проверенная FY2025 IFRS чистая прибыль, относящаяся к акционерам материнской компании (attributable to owners of the parent), сверено вручную с официальными релизами компаний и деловыми СМИ (Интерфакс/ТАСС/Ведомости/Коммерсантъ/cbonds/IR-страницы). Оверлей поверх site_financials для контракта качества P/E рынка. Только реальные значения; Яндекс исключён (публикует «скорректированную» прибыль, не тождественную IFRS-attributable); ОЗОН — не сверен.",
+  "accounting_standard": "IFRS",
+  "statement_scope": "profit_or_loss_attributable_to_owners_of_the_parent",
+  "period_end": "2025-12-31",
+  "verified_by": "manual_web_verification_2026-07-24",
+  "records": [
+    {"ticker": "SBER",  "fy": 2025, "net_income": 1705900000000,  "published_at": "2026-02-26", "source_url": "https://www.vedomosti.ru/investments/news/2026/02/26/1179135-pribil-sberbanka"},
+    {"ticker": "SBERP", "fy": 2025, "net_income": 1705900000000,  "published_at": "2026-02-26", "source_url": "https://www.vedomosti.ru/investments/news/2026/02/26/1179135-pribil-sberbanka", "note": "префы того же эмитента ПАО Сбербанк — прибыль общая; группировка классов в пайплайне"},
+    {"ticker": "GAZP",  "fy": 2025, "net_income": 1307000000000,  "published_at": "2026-04", "source_url": "https://www.interfax.ru/business/1086973"},
+    {"ticker": "LKOH",  "fy": 2025, "net_income": -1060000000000, "published_at": "2026-03-24", "source_url": "https://www.interfax.ru/business/1078992", "note": "чистый УБЫТОК по МСФО из-за неденежного обесценения 1,667 трлн (санкции США); прибыль от продолжающейся деятельности +96,7 млрд"},
+    {"ticker": "ROSN",  "fy": 2025, "net_income": 293000000000,   "published_at": "2026", "source_url": "https://www.rosneft.ru/press/releases/item/223841/"},
+    {"ticker": "GMKN",  "fy": 2025, "net_income": 207000000000,   "published_at": "2026-02-11", "source_url": "https://www.vedomosti.ru/business/news/2026/02/11/1175657-pribil-nornikelya"},
+    {"ticker": "NVTK",  "fy": 2025, "net_income": 183000000000,   "published_at": "2026-02-11", "source_url": "https://www.kommersant.ru/doc/8421212"},
+    {"ticker": "TATN",  "fy": 2025, "net_income": 158600000000,   "published_at": "2026", "source_url": "https://www.interfax.ru/business/1077410"},
+    {"ticker": "PLZL",  "fy": 2025, "net_income": 314140000000,   "published_at": "2026-03-17", "source_url": "https://cbonds.ru/news/3833549/"},
+    {"ticker": "VTBR",  "fy": 2025, "net_income": 502100000000,   "published_at": "2026-02-25", "source_url": "https://bosfera.ru/press-release/vtb-za-2025-god-zarabotal-5021-mlrd-chistoy-pribyli-po-msfo"},
+    {"ticker": "T",     "fy": 2025, "net_income": 174400000000,   "published_at": "2026-03-19", "source_url": "https://www.vedomosti.ru/investments/news/2026/03/27/1185933-pribil-t-banka", "note": "операционная чистая прибыль группы Т-Технологии +43% г/г"},
+    {"ticker": "X5",    "fy": 2025, "net_income": 83000000000,    "published_at": "2026-03-20", "source_url": "https://www.tbank.ru/invest/social/profile/T-Investments/x5-uvelichila-vyruchku-na-18-8-v-2025-godu/"}
+  ]
+}

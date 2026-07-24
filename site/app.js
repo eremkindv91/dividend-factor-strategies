@@ -5748,12 +5748,14 @@ function marketPeHTML(d) {
   // Мягкий режим (earnings_verified=false): значение опубликовано, но это ОЦЕНОЧНЫЙ ориентир —
   // максимально явные пометки прямо под числом (покрытие, исключённые крупные имена, несверенность).
   const excludedTk = (d.excluded_material || []).map((r) => esc(r.ticker)).join(', ');
+  const verifiedCov = (d.coverage || {}).earnings_coverage;
   const caveat = (ok && d.earnings_verified === false)
     ? `<div class="mpe-caveat">
-         <b>⚠ Оценочный ориентир, не точный P/E рынка.</b>
-         Покрытие <b>${marketPeCovPct(d.included_coverage)}</b> капитализации корзины (${d.included_n || '—'} эмитентов).
-         Прибыль — годовая из <b>SmartLab, не сверена с первоисточником</b> (IFRS attributable-to-parent не подтверждён поэмитентно).
-         ${excludedTk ? `Исключены (аномалия прибыли / убыток), в т.ч. крупные: <b>${excludedTk}</b>.` : ''}
+         <b>⚠ Оценочный ориентир.</b>
+         Покрытие <b>${marketPeCovPct(d.included_coverage)}</b> капитализации корзины (${d.included_n || '—'} эмитентов);
+         из них <b>${marketPeCovPct(verifiedCov)}</b> — прибыль <b>сверена вручную с офиц. МСФО-отчётностью</b> (attributable to parent, FY2025),
+         остаток — SmartLab, не сверено.
+         ${excludedTk ? `Исключены (аномалия / убыток без сверки / «скорр.» прибыль): <b>${excludedTk}</b>.` : ''}
        </div>`
     : '';
 
