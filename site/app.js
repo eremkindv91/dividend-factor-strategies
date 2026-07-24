@@ -127,8 +127,50 @@ function verdictChip(v, full) {
   return `<span class="badge vchip ${cls}" data-tooltip="${esc(tip)}">${esc(full ? v.label : v.short)}</span>`;
 }
 
+// ── кэш-манифест данных (редизайн, Итерация 3, §6.1) ──
+// build.json пишет CI при каждой публикации: { "version": "<sha|ts>", ... }. Статичные JSON
+// грузятся как dataURL(path)=path?v=<version> → стабильный URL в пределах сборки кэшируется
+// браузером (быстрый повторный визит), новая публикация меняет version → кэш инвалидируется.
+// Живые котировки MOEX ISS (индекс/свечи) остаются no-store — им нужна максимальная свежесть.
+const BUILD = { version: '' };
+function dataURL(path) {
+  if (!BUILD.version) return path;   // до загрузки манифеста / локально — ETag-ревалидация
+  return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(BUILD.version);
+}
+function loadBuildManifest() {
+  return fetch('build.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { if (j && j.version != null) BUILD.version = String(j.version); })
+    .catch(() => { /* build.json может отсутствовать (локально / до первого деплоя) */ });
+}
+loadBuildManifest();
+
+// ── версионируемое хранилище UI-настроек (редизайн, Итерация 3, §6.6) ──
+// Единый ключ dfs.ui.v1 с полем версии → безопасная миграция при смене схемы.
+// Портфель (dividendFactorStrategies.myPortfolio.v1) и фильтры календаря НЕ трогаем —
+// у них своя схема и свой контракт; читаются как прежде.
+const UI_STATE_KEY = 'dfs.ui.v1';
+const UI_STATE_DEFAULT = { v: 1, sidebar: '', taxRate: 0.13 };
+function uiStateLoad() {
+  try {
+    const raw = localStorage.getItem(UI_STATE_KEY);
+    if (raw) { const o = JSON.parse(raw); if (o && o.v === 1) return { ...UI_STATE_DEFAULT, ...o }; }
+    // миграция плоского ключа dfs.ui.sidebar из Итерации 2
+    const legacy = localStorage.getItem('dfs.ui.sidebar');
+    return { ...UI_STATE_DEFAULT, sidebar: legacy || '' };
+  } catch (_e) { return { ...UI_STATE_DEFAULT }; }
+}
+function uiStateSave(patch) {
+  try {
+    const next = { ...uiStateLoad(), ...patch, v: 1 };
+    localStorage.setItem(UI_STATE_KEY, JSON.stringify(next));
+    localStorage.removeItem('dfs.ui.sidebar');   // подчистить legacy после первой записи
+    return next;
+  } catch (_e) { return null; }
+}
+
 // ── загрузка ──
-fetch('data.json', { cache: 'no-store' })
+fetch(dataURL('data.json'))
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(init)
   .catch((e) => {
@@ -163,7 +205,7 @@ function renderDateChips(m) {
 // listener'ы), поэтому здесь ТОЛЬКО обновляем DATA и перерисовываем DATA-зависимые вью,
 // без ре-wiring. Дополняет invalidateStaleDataCaches() (тот чинил lazy-глобалы, но не DATA).
 function refreshCoreData(cb) {
-  fetch('data.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('data.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (j && Array.isArray(j.tickers) && j.meta) {
@@ -183,6 +225,7 @@ function init(data) {
   DATA = data;
   const m = data.meta;
 
+  applyTaxRate(uiStateLoad().taxRate);   // §5.1 — применить сохранённую ставку НДФЛ до рендеров (дефолт 13% → NET_OF_TAX=0.87)
   renderDateChips(m);   // даты (Прогноз/Цены/Горизонт/Эмитентов/лаг модельного среза)
 
   if (m.prices_stale) {
@@ -832,7 +875,41 @@ function exportCSV() {
 }
 
 // ══════════ Конструктор портфеля ══════════
-const NET_OF_TAX = 0.87;              // ×(1−НДФЛ 13%) — доходность «на руки»
+// ── налоговый профиль (редизайн, Итерация 3, §5.1) ──
+// Ставка НДФЛ на дивиденды/доход конфигурируема. Фактор «на руки» берётся из таблицы
+// ТОЧНЫХ литералов (не 1−rate — это дало бы float-дрейф и расхождение регрессии).
+// Дефолт 13% → NET_OF_TAX ровно 0.87 → расчётный слой идентичен baseline.
+// Влияет ТОЛЬКО на клиентский дивидендный net (акции/портфель/X-Ray). Купонный YTM-net
+// облигаций и форвардная доходность считаются сервером при 13% и помечены как фикс.
+const TAX_OPTIONS = [
+  { rate: 0.13, factor: 0.87, label: '13%', hint: 'Стандартная ставка НДФЛ для резидента' },
+  { rate: 0.15, factor: 0.85, label: '15%', hint: 'Повышенная ставка (доход свыше порога прогрессии)' },
+  { rate: 0, factor: 1, label: '0%', hint: 'ЛДВ (>3 лет) или ИИС — налог не удерживается' },
+];
+function taxOption() { const r = uiStateLoad().taxRate; return TAX_OPTIONS.find((o) => o.rate === r) || TAX_OPTIONS[0]; }
+function taxPct() { return Math.round(taxOption().rate * 100); }
+let NET_OF_TAX = 0.87;                // ×(1−НДФЛ) — доходность «на руки»; переопределяется applyTaxRate()
+function applyTaxRate(rate) {
+  const opt = TAX_OPTIONS.find((o) => o.rate === rate) || TAX_OPTIONS[0];
+  NET_OF_TAX = opt.factor;
+  try { if (typeof PFX === 'object' && PFX) PFX.TAX = opt.factor; } catch (_e) { /* PFX ещё в TDZ на самом раннем вызове */ }
+  uiStateSave({ taxRate: opt.rate });
+}
+function renderTaxControl() {
+  const box = document.getElementById('tax-profile-opts');
+  if (!box) return;
+  const cur = taxOption().rate;
+  box.innerHTML = TAX_OPTIONS.map((o) =>
+    `<button type="button" class="tax-opt${o.rate === cur ? ' active' : ''}" data-rate="${o.rate}" aria-pressed="${o.rate === cur}" data-tooltip="${esc(o.hint)}">${esc(o.label)}</button>`
+  ).join('');
+}
+function onTaxChange(rate) {
+  applyTaxRate(rate);
+  renderTaxControl();
+  if (typeof render === 'function') render();                       // таблица акций (net-доходность)
+  if (typeof renderPortfolio === 'function') renderPortfolio();     // конструктор портфеля
+  if (typeof renderMyPortfolio === 'function') renderMyPortfolio(); // Portfolio X-Ray (NET_OF_TAX + PFX.TAX)
+}
 const PF_MIN_MCAP = 5000;            // млн ₽ (5 млрд): лёгкий liquidity-floor
 const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — отсечь нетендерные (стоячие цены → ложный low-vol в оптимизаторе)
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
@@ -863,7 +940,7 @@ function loadQuality(cb) {
   if (QUALITY) { if (cb) cb(null, QUALITY); return; }
   if (QUALITY_LOADING) return;
   QUALITY_LOADING = true;
-  fetch('quality.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('quality.json'))
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
     .then((payload) => { QUALITY = payload; QUALITY_LOADING = false; renderQualityPanel(); if (cb) cb(null, payload); })
     .catch((error) => {
@@ -1489,7 +1566,7 @@ function loadReturns(cb) {
   if (PF_RETURNS) { if (cb) cb(); return; }
   if (PF_RET_LOADING) return;
   PF_RET_LOADING = true;
-  fetch('returns.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust: уникальный URL обходит любой кэш/404
+  fetch(dataURL('returns.json'))   // cache-bust: уникальный URL обходит любой кэш/404
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
     .then((j) => { PF_RETURNS = { months: (j && j.meta && j.meta.months) || [], data: (j && j.data) || {}, div: (j && j.div) || null, series_status: (j && j.meta && j.meta.series_status) || {} }; PF_RET_LOADING = false; if (cb) cb(); })   // + series_status (needs_adjustment) из meta
     .catch((e) => { console.error('[pf] returns.json не загрузился:', e); PF_RETURNS = { months: [], data: {}, failed: true }; PF_RET_LOADING = false; if (cb) cb(); });
@@ -2461,7 +2538,7 @@ function drCompute(positions, benchmark) {
 function pfxDailyRiskLoad(c) {
   const box = document.getElementById('pfx-daily-risk'); if (!box) return;
   const idxUrl = 'daily/web/_index.json';
-  const getJSON = (u) => fetch(u + '?t=' + Date.now(), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  const getJSON = (u) => fetch(dataURL(u)).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
   const ensureIdx = PFX_DAILY.index ? Promise.resolve(PFX_DAILY.index) : getJSON(idxUrl).then((j) => { PFX_DAILY.index = j; return j; });
   ensureIdx.then((idx) => {
     const aliases = idx.aliases || {}; const secInfo = idx.securities || {};
@@ -2765,7 +2842,7 @@ function pfxRateBondHTML(c) {
     <h4 class="pfx-rb-h">Порог замещения облигациями — что даёт та же сумма «на руки»</h4>
     ${subTbl}${sub}${picks}
     <h4 class="pfx-rb-h">Чувствительность к ставке</h4>${rate}
-    <div class="pfx-note muted">Дивдоходность — ожидаемая (прогноз проекта), не гарантирована и плавает; YTM облигации — контрактная к погашению при удержании (кредитный риск эмитента остаётся). Обе «на руки» = после НДФЛ 13%. Дюрация дивпотока — стилизованная оценка по модели Гордона (1/дивдоходность), не прогноз цены. КБД — G-кривая ОФЗ MOEX. Не ИИР.</div>`;
+    <div class="pfx-note muted">Дивдоходность — ожидаемая (прогноз проекта), не гарантирована и плавает; YTM облигации — контрактная к погашению при удержании (кредитный риск эмитента остаётся). Дивдоходность «на руки» — после НДФЛ ${taxPct()}%; облигационная YTM — при 13% (серверный расчёт). Дюрация дивпотока — стилизованная оценка по модели Гордона (1/дивдоходность), не прогноз цены. КБД — G-кривая ОФЗ MOEX. Не ИИР.</div>`;
 }
 
 // ── модуль 6b: факторная диагностика (P1) ────────────────────────────────────
@@ -3414,7 +3491,7 @@ function wireMarketSaw() {
 
 function loadMarketSaw(cb) {
   if (SAW_DATA) { cb(); return; }
-  fetch('marketsaw.json?t=' + Date.now(), { cache: 'no-store' })   // cache-bust, как returns.json
+  fetch(dataURL('marketsaw.json'))   // cache-bust, как returns.json
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.current_phase || !j.series) throw new Error('пустой/битый marketsaw.json'); SAW_DATA = j; cb(); })
     .catch((e) => { console.error('[saw] marketsaw.json не загрузился:', e); cb(e); });
@@ -3560,8 +3637,7 @@ function alfaDate(value) {
 function loadAlfaIndex(cb) {
   if (ALFA_INDEX) { cb && cb(); return; }
   if (ALFA_INDEX_LOAD) { ALFA_INDEX_LOAD.then(() => cb && cb()).catch((e) => cb && cb(e)); return; }
-  const stamp = Date.now();
-  const getJSON = (path) => fetch(`${path}?t=${stamp}`, { cache: 'no-store' })
+  const getJSON = (path) => fetch(dataURL(path))
     .then((response) => { if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`); return response.json(); });
   ALFA_INDEX_LOAD = Promise.allSettled([getJSON('alfa-index.json'), getJSON('alfa-index-history.json')])
     .then((results) => {
@@ -3818,7 +3894,7 @@ function renderSawActive() {
 
 function loadImoexSaw(cb) {
   if (IMOEX_SAW) { cb(); return; }
-  fetch('marketsaw_imoex.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('marketsaw_imoex.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || j.index !== 'IMOEX' || !j.current_state || !j.series) throw new Error('пустой/битый marketsaw_imoex.json'); IMOEX_SAW = j; cb(); })
     .catch((e) => { console.error('[saw-imoex] не загрузился:', e); cb(e); });
@@ -4184,11 +4260,10 @@ function wireBonds() {
 
 function loadBonds(cb) {
   if (BONDS) { cb(); return; }
-  const t = Date.now();
   Promise.all([
-    fetch('bonds/screener.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
-    fetch('bonds/chart_data.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
-    fetch('bonds/portfolios.json?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/screener.json')).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/chart_data.json')).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/portfolios.json')).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
   ]).then(([screener, chart, portfolios]) => {
     if (!screener || !screener.bonds || !chart) throw new Error('пустые/битые JSON облигаций');
     BONDS = { meta: screener.meta || {}, bonds: screener.bonds, chart, portfolios: (portfolios && portfolios.portfolios) || {} };
@@ -4397,7 +4472,7 @@ function wireMarlamov() {
 
 function loadMarlamov(cb) {
   if (MARLAMOV) { cb(); return; }
-  fetch('marlamov.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('marlamov.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.rows) throw new Error('пустой marlamov.json'); MARLAMOV = j; cb(); })
     .catch((e) => { console.error('[marlamov] не загрузился:', e); cb(e); });
@@ -4473,7 +4548,7 @@ SITE_FINANCIALS = null;
 
 function loadSiteFinancials(cb) {
   if (SITE_FINANCIALS) { cb && cb(); return; }
-  fetch('site_financials.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_financials.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { SITE_FINANCIALS = j; cb && cb(); })
     .catch((e) => { console.warn('[site_financials]', e); cb && cb(e); });
@@ -4491,7 +4566,7 @@ function wireMethodology() {
 function renderMethodology() {
   const body = document.getElementById('method-body');
   if (METHODOLOGY) { body.innerHTML = methodologyHTML(METHODOLOGY); return; }
-  fetch('methodology.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('methodology.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { METHODOLOGY = j; body.innerHTML = methodologyHTML(j); })
     .catch((e) => { console.error('[methodology]', e); body.innerHTML = '<div class="muted" style="padding:10px 2px">Методология временно недоступна.</div>'; });
@@ -4517,7 +4592,7 @@ function wireDataCoverage() {
 
 function loadDataCoverage(cb) {
   if (DATA_COVERAGE) { cb && cb(); return; }
-  fetch('site_coverage.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_coverage.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { DATA_COVERAGE = j; cb && cb(); })
     .catch((e) => { cb && cb(e); });
@@ -4701,11 +4776,11 @@ function initRouter() {
   const navToggle = document.getElementById('app-nav-toggle');
   const shell = document.querySelector('.app-shell');
   if (navToggle && shell) {
-    try { if (localStorage.getItem('dfs.ui.sidebar') === 'collapsed') { shell.classList.add('sidebar-collapsed'); navToggle.setAttribute('aria-expanded', 'false'); } } catch (_e) { /* optional */ }
+    if (uiStateLoad().sidebar === 'collapsed') { shell.classList.add('sidebar-collapsed'); navToggle.setAttribute('aria-expanded', 'false'); }
     navToggle.addEventListener('click', () => {
       const collapsed = shell.classList.toggle('sidebar-collapsed');
       navToggle.setAttribute('aria-expanded', String(!collapsed));
-      try { localStorage.setItem('dfs.ui.sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (_e) { /* optional */ }
+      uiStateSave({ sidebar: collapsed ? 'collapsed' : 'expanded' });
     });
   }
   const moreBtn = document.getElementById('app-more-btn');
@@ -4721,6 +4796,15 @@ function initRouter() {
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !moreSheet.hidden) { moreSheet.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); } });
   }
+  // §5.1 — переключатель налогового профиля
+  const taxOpts = document.getElementById('tax-profile-opts');
+  if (taxOpts) {
+    taxOpts.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-rate]');
+      if (b) onTaxChange(Number(b.dataset.rate));
+    });
+    renderTaxControl();
+  }
   window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
   setActiveSection(getSectionFromHash());
 }
@@ -4728,7 +4812,7 @@ function initRouter() {
 // ── global data status bar (даты ТОЛЬКО из реальных JSON, не Date.now()) ──
 function loadSiteStatus(cb) {
   if (SITE_STATUS) { if (cb) cb(); return; }
-  fetch('site_status.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('site_status.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { SITE_STATUS = j; if (cb) cb(); })
     .catch(() => { SITE_STATUS = { failed: true, blocks: {} }; if (cb) cb(); });   // нет файла → деградируем к датам
@@ -4782,7 +4866,7 @@ const EV_SRC_LABEL = { moex_iss: 'MOEX ISS', cbr_schedule: 'график ЦБ Р
 
 function loadEvents(cb) {
   if (EVENTS_DATA) { if (cb) cb(); return; }
-  fetch('events_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('events_calendar.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !Array.isArray(j.events)) throw new Error('пустой/битый events_calendar'); EVENTS_DATA = j; if (cb) cb(); })
     .catch((e) => { console.error('[events] не загрузились:', e); EVENTS_DATA = { failed: true, events: [], meta: {} }; if (cb) cb(); });
@@ -4790,7 +4874,7 @@ function loadEvents(cb) {
 
 function loadDividendCalendar(cb) {
   if (DIVIDEND_CALENDAR) { if (cb) cb(); return; }
-  fetch('dividend_calendar.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('dividend_calendar.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || j.schema_version !== '2.0' || !Array.isArray(j.events)) throw new Error('неподдерживаемый контракт');
@@ -5446,7 +5530,7 @@ function renderMarketPulse() {
 // ── P/E рынка по последней годовой прибыли (site/market_pe_current.json, генерит CI) ──
 function loadMarketPE(cb) {
   if (MARKET_PE) { if (cb) cb(); return; }
-  fetch('market_pe_current.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('market_pe_current.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || j.metric !== 'aggregate_pe_imoex_basket') throw new Error('неподдерживаемый контракт market_pe');
@@ -5568,7 +5652,7 @@ function renderMarketKPI() {
 
 function loadMarketHistory(cb) {
   if (MARKET_HISTORY) { if (cb) cb(); return; }
-  fetch('market_history.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('market_history.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (!j || !Array.isArray(j.instruments) || !j.instruments.length) throw new Error('empty');
@@ -5953,8 +6037,7 @@ const cbrRub = (v) => {
 
 function loadCbr(cb) {
   if (CBR_DATA) { cb(); return; }
-  const t = Date.now();
-  const f = (n) => fetch('cbr/' + n + '?t=' + t, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
+  const f = (n) => fetch(dataURL('cbr/' + n)).then((r) => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
   Promise.all([f('banks.json'), f('bank_timeseries.json'), f('metadata.json'), f('data_quality.json'), f('metric_mapping.json')])
     .then(([banks, ts, meta, dq, mapping]) => { CBR_DATA = { banks, ts, meta, dq, mapping }; cb(); })
     .catch((e) => { console.error('[cbr] не загрузился:', e); cb(e); });
@@ -6323,7 +6406,7 @@ let FINDER_SORT = { key: 'score', dir: -1 };
 
 function loadFinder(cb) {
   if (FINDER) { cb(); return; }
-  fetch('bonds/finder.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('bonds/finder.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.profiles) throw new Error('пустой finder.json'); FINDER = j; cb(); })
     .catch((e) => { console.error('[finder]', e); cb(e); });
@@ -6561,7 +6644,7 @@ function bvalN1Trend(b) {
 
 function loadBanksValuation(cb) {
   if (BVAL) { cb(); return; }
-  fetch('cbr/valuation.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('cbr/valuation.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.banks) throw new Error('empty'); BVAL = j; cb(); })
     .catch((e) => { console.error('[bval]', e); cb(e); });
@@ -6569,7 +6652,7 @@ function loadBanksValuation(cb) {
 
 function loadBanksHistory(cb) {
   if (BHIST) { cb(); return; }
-  fetch('cbr/history.json?t=' + Date.now(), { cache: 'no-store' })
+  fetch(dataURL('cbr/history.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.banks) throw new Error('empty'); BHIST = j; cb(); })
     .catch((e) => { console.error('[bhist]', e); cb(e); });
@@ -7156,7 +7239,7 @@ function loadNews(cb, force = false) {
   if (NEWS && !force && Date.now() - NEWS_FETCHED_AT < NEWS_REFRESH_MS) { cb(null, false); return; }
   if (!NEWS_LOAD_PROMISE) {
     const previousVersion = NEWS && NEWS.generated_at;
-    NEWS_LOAD_PROMISE = fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
+    NEWS_LOAD_PROMISE = fetch(dataURL('news.json'))
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((j) => {
         if (!j || !Array.isArray(j.market_snapshot) || !j.market_snapshot.length) throw new Error('empty');

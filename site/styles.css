@@ -2970,3 +2970,15 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
   .app-more-panel .section-tab.active { background: var(--c-brand-050); color: var(--accent-deep); }
   .app-more-panel .section-tab[data-section="bonds"] { background: transparent; color: var(--ink); border: 0; }
 }
+
+/* Налоговый профиль (редизайн, Итерация 3, §5.1) */
+.tax-profile { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 0 0 14px;
+  padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card, 14px); }
+.tax-profile-lbl { font-size: .86rem; font-weight: 650; color: var(--ink); }
+.tax-profile-opts { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg); border: 1px solid var(--line); border-radius: 9px; }
+.tax-opt { font: inherit; font-size: .84rem; font-weight: 650; cursor: pointer; border: 0; background: transparent;
+  color: var(--ink-soft); padding: 5px 12px; border-radius: 7px; font-variant-numeric: tabular-nums; }
+.tax-opt:hover { color: var(--ink); }
+.tax-opt.active { background: var(--accent-deep); color: #fff; }
+.tax-profile-note { flex: 1 1 240px; min-width: 0; font-size: .76rem; line-height: 1.35; }
+@media (max-width: 560px) { .tax-profile-note { flex-basis: 100%; } }

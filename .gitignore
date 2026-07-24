@@ -105,3 +105,4 @@ site/marketsaw_mcftr.json
 # redesign: снапшот прод-данных для локального запуска (не коммитить)
 site/_snapshot/
 artifacts/
+site/build.json
