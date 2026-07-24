@@ -52,17 +52,75 @@ def accum_year(dt: str) -> int:
     return y if m > 1 else y - 1
 
 
+def prev_month(dt: str) -> str:
+    """Календарный месяц (YYYY-MM), к которому ОТНОСИТСЯ месячная дельта Ф.102 с отчётной датой dt.
+    Отчёт на 1-е число — накопл. итог на конец ПРЕДЫДУЩЕГО месяца; поэтому дельта (отчёт_D − отчёт_D−1)
+    = прибыль за месяц ПЕРЕД D. '2026-06-01' → '2026-05' (май); '2026-01-01' → '2025-12' (декабрь)."""
+    y, m = int(dt[:4]), int(dt[5:7])
+    y, m = (y - 1, 12) if m == 1 else (y, m - 1)
+    return f"{y:04d}-{m:02d}"
+
+
 def add_quarter_deltas(points: list[dict]) -> None:
-    """К накопленным точкам Ф.102 добавить value_q = «чистый квартал» (разность внутри года накопления)."""
+    """К накопленным точкам Ф.102 добавить value_q = «за период» (разность внутри года накопления)
+    и period_month — календарный месяц, к которому ОТНОСИТСЯ дельта (= отчётная дата − 1 мес).
+    Дата точки остаётся отчётной (для накопл. режима), а период дельты фиксируется явно, чтобы
+    фронт не реконструировал его из даты (иначе «за 01.06» ошибочно подписывается июнем, а это май)."""
     pts = sorted(points, key=lambda p: p["date"])
     prev = None
     for p in pts:
         if prev is not None and accum_year(prev["date"]) == accum_year(p["date"]):
             p["value_q"] = round(p["value"] - prev["value"], 2)
         else:
-            p["value_q"] = p["value"]          # первый квартал года накопления
+            p["value_q"] = p["value"]          # первый месяц года накопления (январь не вычитается из декабря)
         p["value_q_method"] = "calculated_from_official"
+        p["period_month"] = prev_month(p["date"])   # месяц, к которому относится «за период»
         prev = p
+
+
+PIPELINE_VERSION = "cbr-banks/2.1.0"   # 2.1: явный period_month у Ф.102-дельт + DQ-валидация + is_stale
+
+
+def compute_is_stale(last_report: str | None, today: date) -> bool:
+    """Свежесть Ф.102: ЦБ публикует данные за прошлый месяц ориентировочно к 22–25 числу. До этого
+    ожидаемая последняя отчётная дата — 1-е ПРОШЛОГО месяца; с 22-го — 1-е ТЕКУЩЕГО. Если фактическая
+    last_report_date раньше ожидаемой — данные устарели (не подтянулся свежий отчёт)."""
+    if not last_report:
+        return True
+    if today.day >= 22:
+        y, m = today.year, today.month
+    else:
+        y, m = (today.year - 1, 12) if today.month == 1 else (today.year, today.month - 1)
+    return last_report < f"{y:04d}-{m:02d}-01"
+
+
+def validate_timeseries(timeseries: dict, metrics: list) -> tuple[str, list]:
+    """DQ-контракт набора (§11): по каждому банку/метрике — даты уникальны и строго возрастают,
+    единицы единообразны, нет None/NaN у опубликованных точек, каждое значение связано с датой (ключ,
+    не позиция), у накопленных Ф.102-метрик есть period_month и он = отчётная дата − 1 мес.
+    Возвращает (status, issues). Расхождения не блокируют публикацию (guard-репорт), но помечают статус."""
+    cum_ids = {m["metric_id"] for m in metrics if m.get("cumulative")}
+    issues = []
+    for reg, ts in timeseries.items():
+        for mid, points in ts.items():
+            dates = [p.get("date") for p in points]
+            if len(dates) != len(set(dates)):
+                issues.append(f"{reg}/{mid}: дубли отчётных дат")
+            if dates != sorted(dates):
+                issues.append(f"{reg}/{mid}: даты не строго возрастают")
+            units = {p.get("unit") for p in points}
+            if len(units) > 1:
+                issues.append(f"{reg}/{mid}: разные единицы {units}")
+            for p in points:
+                v = p.get("value")
+                if v is None or (isinstance(v, float) and v != v):
+                    issues.append(f"{reg}/{mid}@{p.get('date')}: null/NaN у опубликованной точки")
+                if mid in cum_ids:
+                    if "period_month" not in p:
+                        issues.append(f"{reg}/{mid}@{p.get('date')}: нет period_month у дельты")
+                    elif p["period_month"] != prev_month(p["date"]):
+                        issues.append(f"{reg}/{mid}@{p.get('date')}: period_month≠дата−1мес")
+    return ("passed" if not issues else "warning"), issues
 
 
 def main() -> int:
@@ -173,6 +231,10 @@ def main() -> int:
     banks.sort(key=lambda b: (not b["is_active"], b["name"]))
     last_dates = {f: (max(s) if s else None) for f, s in all_report_dates.items()}
 
+    # DQ-контракт набора + свежесть (§11)
+    validation_status, validation_issues = validate_timeseries(timeseries, metrics)
+    is_stale = compute_is_stale(last_dates["102"], date.today())
+
     metadata = {
         "generated_at": checked_at, "last_checked_at": checked_at,
         "source": "Банк России, веб-сервис CreditOrgInfo (формы 102/123/135)",
@@ -180,12 +242,24 @@ def main() -> int:
         "forms": ["102", "123", "135"],
         "last_report_date": last_dates["102"],
         "last_report_dates": last_dates,
+        # ЦБ SOAP отдаёт только отчётные даты периодов, не дату публикации файла →
+        # latest_publication_date фиксируем как момент нашего фетча (когда данные стали доступны нам).
+        "latest_report_date": last_dates["102"],
+        "latest_publication_date": checked_at,
+        "is_stale": is_stale,
+        "pipeline_version": PIPELINE_VERSION,
+        "validation_status": validation_status,
         "banks_count": len(banks),
         "unit": mapping["unit"], "cumulative": mapping["cumulative"],
-        "note": "Ф.102 — квартальная, тыс. руб. накопленным итогом («за квартал» — расчётная разность "
-                "накопленных значений). Ф.123 (капитал) и Ф.135 (нормативы, %) — месячные, на дату. "
-                "Реестр — 12 системно значимых банков; имена и значения из ЦБ. Не ИИР.",
+        "note": "Ф.102 — месячная, тыс. руб. накопленным итогом с начала года. «За период» — расчётная "
+                "разность накопленных, ОТНОСИТСЯ к месяцу перед отчётной датой (отчёт на 01.06 = итог на "
+                "конец мая → дельта = май); период зафиксирован в поле period_month. Ф.123 (капитал) и "
+                "Ф.135 (нормативы, %) — месячные, на дату. Реестр — 12 системно значимых банков; имена и "
+                "значения из ЦБ. Не ИИР.",
     }
+    if validation_issues:
+        sys.stderr.write(f"[cbr] DQ-замечания ({len(validation_issues)}): "
+                         + "; ".join(validation_issues[:8]) + ("…" if len(validation_issues) > 8 else "") + "\n")
     data_quality = {
         "generated_at": checked_at,
         "banks_total": len(banks),
@@ -193,6 +267,8 @@ def main() -> int:
         "banks_sib": sum(1 for b in banks if b["is_systemically_important"]),
         "values_loaded": values_loaded, "missing": missing, "errors": errors,
         "last_report_date": last_dates["102"], "last_report_dates": last_dates,
+        "is_stale": is_stale, "validation_status": validation_status,
+        "validation_issues": validation_issues, "pipeline_version": PIPELINE_VERSION,
         "metrics": [{"metric_id": m["metric_id"], "name": m["display_name_ru"], "form": m["form"],
                      "symbol": m["symbol"], "reliability": m["reliability_level"]} for m in metrics],
         "unavailable_metrics": mapping.get("unavailable", []),

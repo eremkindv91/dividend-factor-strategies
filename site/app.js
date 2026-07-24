@@ -6185,6 +6185,17 @@ const CBR_QUICK_METRICS = [
   { id: 'n2', label: 'Ликвидность' },
 ];
 const cbrMon = (iso) => { const [y, m] = String(iso).split('-'); return CBR_MONTHS[+m] + ' ' + y; };
+// Метка точки: «за период» (value_q, Ф.102) относится к месяцу ПЕРЕД отчётной датой (отчёт на 01.06 =
+// итог на конец мая → дельта = май). Берём явный period_month из данных; fallback для старых данных
+// без поля — отчётная дата минус 1 месяц. Накопительный режим подписывается отчётной датой как есть.
+function cbrPointLabel(p, mode) {
+  if (mode === 'q') {
+    if (p.period_month) return cbrMon(p.period_month);
+    const [y, m] = String(p.date).split('-').map(Number);
+    return CBR_MONTHS[m === 1 ? 12 : m - 1] + ' ' + (m === 1 ? y - 1 : y);
+  }
+  return cbrMon(p.date);
+}
 const cbrBn = (v) => isNum(v) ? (v / 1e6).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' млрд ₽' : ND;
 const cbrRub = (v) => {
   if (!isNum(v)) return ND;
@@ -6481,7 +6492,7 @@ function cbrDraw() {
   tw.innerHTML = `<div class="cbr-table-scroll"><table class="cbr-table">
     <thead><tr><th>Дата</th><th>Банк</th><th>Метрика</th><th>Значение</th><th>Ед.</th><th>Форма ЦБ</th><th>Символ</th><th>Статус</th></tr></thead>
     <tbody>${rows.slice().reverse().map((p) => `<tr>
-      <td>${esc(cbrMon(p.date))}</td><td class="cbr-bname">${esc(bank.name || '')}</td><td>${esc(metricName)}${esc(s.modeLabel)}</td>
+      <td>${esc(cbrPointLabel(p, s.mode))}</td><td class="cbr-bname">${esc(bank.name || '')}</td><td>${esc(metricName)}${esc(s.modeLabel)}</td>
       <td class="tnum ${p.v >= 0 ? 'cbr-up' : 'cbr-down'}">${fmt(p.v)}</td>
       <td>${isPct ? '%' : 'тыс.₽ (сыро: ' + ru(p.v, 0) + ')'}</td><td>Ф.${esc(p.form)}</td><td>${esc(p.symbol)}</td>
       <td><span class="cbr-status s-${esc(p.status)}">${esc(p.status)}</span></td>
@@ -6516,7 +6527,7 @@ function cbrChartDraw(s) {
   if (!ctx || !window.Chart) return;
   if (window.__cbrChart) { try { window.__cbrChart.destroy(); } catch (e) { /* noop */ } }
   const isPct = s.unit === '%';
-  const labels = s.rows.map((p) => cbrMon(p.date));
+  const labels = s.rows.map((p) => cbrPointLabel(p, s.mode));
   const vals = s.rows.map((p) => isPct ? p.v : p.v / 1e6);
   const colors = vals.map((v) => v >= 0 ? '#1E6F4C' : '#A2452C');
   const yTitle = isPct ? '%' : 'млрд ₽';
