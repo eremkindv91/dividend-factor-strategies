@@ -2982,3 +2982,51 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .tax-opt.active { background: var(--accent-deep); color: #fff; }
 .tax-profile-note { flex: 1 1 240px; min-width: 0; font-size: .76rem; line-height: 1.35; }
 @media (max-width: 560px) { .tax-profile-note { flex-basis: 100%; } }
+
+/* ═══════ Portfolio X-Ray — дашборд + вкладки (редизайн, Итерация 4, §12) ═══════ */
+/* Headline KPI-лента: грид на desktop, горизонтальный скролл на мобиле */
+.pfx-kpistrip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+
+/* «Что требует внимания» */
+.pfx-alerts { margin: 14px 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card, 16px); }
+.pfx-alerts-h { font-size: .95rem; font-weight: 750; color: var(--ink); margin-bottom: 10px; }
+.pfx-alert { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 10px; margin-bottom: 6px;
+  background: var(--bg); border-left: 3px solid var(--line); font-size: .88rem; line-height: 1.4; color: var(--ink-soft); }
+.pfx-alert:last-child { margin-bottom: 0; }
+.pfx-alert-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--ink-faint); }
+.pfx-a-risk { border-left-color: var(--risk-bar, #C0563A); background: var(--risk-fill, #FBEEE9); }
+.pfx-a-risk .pfx-alert-dot { background: var(--risk-bar, #C0563A); }
+.pfx-a-warn { border-left-color: var(--warn-bar, #B8862E); background: var(--warn-fill, #FBF3E2); }
+.pfx-a-warn .pfx-alert-dot { background: var(--warn-bar, #B8862E); }
+
+/* Вкладки X-Ray */
+.pfx-tabs { display: flex; gap: 4px; margin: 16px 0 4px; padding-bottom: 2px; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--line); }
+.pfx-tabs::-webkit-scrollbar { display: none; }
+.pfx-tab { font: inherit; font-size: .9rem; font-weight: 650; cursor: pointer; white-space: nowrap; border: 0;
+  background: transparent; color: var(--ink-soft); padding: 9px 14px; border-radius: 9px 9px 0 0; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.pfx-tab:hover { color: var(--ink); background: var(--bg); }
+.pfx-tab.active { color: var(--accent-deep); border-bottom-color: var(--accent-deep); font-weight: 750; }
+.pfx-tabpanel { margin-top: 12px; }
+/* любая широкая таблица/контент модуля скроллится ВНУТРИ модуля, не страницы */
+.pfx-mod-body { overflow-x: auto; }
+
+/* Данные и ограничения */
+.pfx-limit-meta { margin-top: 8px; font-size: .82rem; line-height: 1.5; }
+
+/* Пустое состояние (§12) */
+.mp-empty-rich { text-align: center; padding: 32px 20px; }
+.mp-empty-ico { width: 56px; height: 56px; margin: 0 auto 14px; color: var(--accent); }
+.mp-empty-ico svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linejoin: round; }
+.mp-empty-rich b { display: block; font-size: 1.15rem; color: var(--ink); margin-bottom: 8px; }
+.mp-empty-rich span { display: block; max-width: 520px; margin: 0 auto 16px; color: var(--ink-soft); font-size: .92rem; line-height: 1.5; }
+.mp-empty-cta { display: flex; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.mp-empty-rich em { display: block; font-size: .8rem; color: var(--ink-faint); font-style: normal; }
+
+@media (max-width: 720px) {
+  .pfx-kpistrip { display: flex; overflow-x: auto; scroll-snap-type: x proximity; gap: 8px; scrollbar-width: none;
+    margin-left: -2px; margin-right: -2px; padding: 2px; }
+  .pfx-kpistrip::-webkit-scrollbar { display: none; }
+  .pfx-kpistrip .pfx-kpi { flex: 0 0 auto; min-width: 150px; scroll-snap-align: start; }
+  .pfx-tab { padding: 9px 12px; font-size: .86rem; }
+}

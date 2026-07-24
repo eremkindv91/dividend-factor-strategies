@@ -1972,10 +1972,19 @@ function renderMyPortfolio() {
   const rows = parsed.rows;
   if (!rows.length) {
     out.innerHTML = `<div class="mp-empty mp-empty-rich">
-      <b>Портфель пока пуст</b>
-      <span>Вставьте позиции строками или загрузите пример. Формат: <code>тикер; количество; средняя цена</code></span>
-      <em>Расчёт локальный, в браузере: файл никуда не отправляется. Не ИИР.</em>
+      <div class="mp-empty-ico" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 24V6a18 18 0 1 0 18 18z"/><path d="M28 20h16A18 18 0 0 0 28 4z"/></svg>
+      </div>
+      <b>Добавьте портфель для анализа</b>
+      <span>Введите позиции сверху (поиск бумаги · количество · цена покупки) или нажмите «Пример».
+      Получите: стоимость и P&L, риск (VaR/CVaR, beta), дивидендный поток, концентрацию, сценарии и memo.</span>
+      <div class="mp-empty-cta">
+        <button class="btn" type="button" id="mp-empty-sample">Заполнить пример</button>
+      </div>
+      <em>Расчёт локальный, в браузере: состав портфеля никуда не отправляется. Не индивидуальная инвестиционная рекомендация. Импорт CSV и ручной ввод — в редакторе выше.</em>
     </div>`;
+    const es = document.getElementById('mp-empty-sample');
+    if (es) es.addEventListener('click', () => { input.value = MY_PORTFOLIO_SAMPLE; renderMyPortfolio(); });
     return;
   }
   // риск-движок требует returns.json + MCFTR (marketsaw) + RFR (marlamov) — грузим лениво
@@ -2000,9 +2009,10 @@ function renderMyPortfolio() {
   PFX_STATE = c;
   myPortfolioSave(rows);
   out.innerHTML = pfxRenderHTML(c);
-  pfxDrawCharts(c);
-  pfxWireButtons(c);
-  try { pfxDailyRiskLoad(c); } catch (e) { console.error('[daily-risk] load:', e); }   // дневной риск — ленивый веб-мост
+  pfxWireDashboard(c);   // copy/export — стабильные кнопки, вяжем один раз
+  document.querySelectorAll('.pfx-tab').forEach((t) => t.addEventListener('click', () => pfxSelectTab(t.dataset.pfxTab)));
+  const savedTab = uiStateLoad().pfxTab;
+  pfxSelectTab(savedTab || 'summary');   // рендер панели активной вкладки + её графики + daily-risk (для «Риск»)
 }
 
 // ── формат-хелперы (frac = доля; PU = уже проценты) ──────────────────────────
@@ -2079,41 +2089,19 @@ function pfxCommitteeSummary(c) {
   </div>`;
 }
 
-function pfxRenderHTML(c) {
-  const diag = pfxDiagnosis(c);
-  const benchPerf = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
-  c._rb = pfxRateBond(c);   // P4: связка со ставкой/облигациями (для модуля и графика)
-  c._corr = pfxCorrelation(c);   // корреляции — для «Итога» и модуля матрицы
-  let html = '';
+// Вкладки X-Ray (редизайн, Итерация 4, §12). Математика в модулях не меняется — только группировка.
+const PFX_TAB_LIST = [
+  { id: 'summary', label: 'Резюме' },
+  { id: 'holdings', label: 'Состав' },
+  { id: 'returns', label: 'Доходность' },
+  { id: 'risk', label: 'Риск' },
+  { id: 'dividends', label: 'Дивиденды' },
+  { id: 'scenarios', label: 'Сценарии' },
+  { id: 'memo', label: 'Memo' },
+];
 
-  // −1. Итог инвесткомитета — Level-1 вывод «за 20 секунд» (Bible I/IV)
-  html += pfxCommitteeSummary(c);
-
-  // 0. Заголовок + дисклеймеры
-  html += `<div class="pfx-top">
-    <div class="pfx-type pfx-${c.cls.tone}">${esc(c.cls.type)}</div>
-    <div class="pfx-diag">${esc(diag)}</div>
-    <div class="pfx-btns">
-      <button class="btn btn-secondary" id="pfx-copy">Скопировать отчёт</button>
-      <button class="btn btn-secondary" id="pfx-export">Экспорт диагностики CSV</button>
-    </div>
-  </div>
-  <div class="pfx-disc">Backfilled-портфель по <b>текущему составу</b> и историческим месячным ретёрнам — это НЕ фактическая история ваших сделок. Данные месячные (${c.pf ? c.pf.n + ' мес' : 'н/д'}); дневной риск не оценивается. Не индивидуальная инвестиционная рекомендация.</div>`;
-  if (c._warnings && c._warnings.length) {
-    html += `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>`;
-  }
-
-  // P2: Daily Portfolio Brief — «сегодня важно для портфеля» (герой-блок)
-  const brief = pfxDailyBrief(c);
-  if (brief.length) {
-    html += `<div class="pfx-brief"><div class="pfx-brief-head">📌 Сегодня важно для портфеля</div>${
-      brief.map((b) => `<div class="pfx-brief-item pfx-bi-${b.tone}"><span class="pfx-bi-dot"></span><span>${esc(b.text)}</span></div>`).join('')}
-      <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. раздел дивидендов. Не ИИР.</div></div>`;
-  }
-
-  // (риски «человеческим языком» теперь в «Итоге инвесткомитета» выше)
-
-  // 1. Portfolio X-Ray — KPI grid
+// полный KPI-грид (21 метрика) — вкладка «Резюме»
+function pfxKpiGrid(c) {
   const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
   const g = [];
   g.push(pfxKpi('Стоимость', rub0(c.total)));
@@ -2137,67 +2125,142 @@ function pfxRenderHTML(c) {
   g.push(pfxKpi('Data Quality', c.dq.score + '/100', '', c.dq.score >= 70 ? 'good' : c.dq.score >= 45 ? 'warn' : 'risk'));
   const rscore = pfxRiskScore(c);
   g.push(pfxKpi('Portfolio Risk Score', rscore.score + '/100', rscore.label, rscore.score >= 66 ? 'risk' : rscore.score >= 40 ? 'warn' : 'good'));
-  html += pfxDetails('Portfolio X-Ray', '(верхняя диагностика портфеля)', `<div class="pfx-grid">${g.join('')}</div>`, true);
+  return g;
+}
 
-  // 2. Performance vs MCFTR
-  html += pfxDetails('Performance vs MCFTR', '(total return, риск-adjusted)', pfxPerfHTML(c, benchPerf));
+// компактная headline-лента (≤6) — всегда на виду над вкладками; на мобиле горизонтальный скролл
+function pfxHeadlineKpis(c) {
+  const pnlAbs = c.total - c.cost, pnlPct = c.cost > 0 ? c.total / c.cost - 1 : null;
+  const rscore = pfxRiskScore(c);
+  const g = [];
+  g.push(pfxKpi('Стоимость', rub0(c.total)));
+  g.push(pfxKpi('Нереализ. P&L', rub0(pnlAbs), PP(pnlPct), pnlAbs >= 0 ? 'good' : 'risk'));
+  g.push(pfxKpi('Ожид. дивдоход/год', c.div ? rub0(c.div.baseIncome) : NA, `≈ ${PU(c.grossYield, 1)}% gross`));
+  g.push(pfxKpi('Beta к MCFTR', c.capm && c.capm.ok ? PU(c.capm.beta, 2) : NA, c.capm && c.capm.ok ? pfxBetaBucket(c.capm.beta) : ''));
+  g.push(pfxKpi('VaR 95% (мес)', c.vaR && c.vaR.ok ? PN(c.vaR.hist95) : NA, c.vaR && c.vaR.ok ? rub0(c.vaR.hist95 * c.total) : '', 'risk'));
+  g.push(pfxKpi('Risk Score', rscore.score + '/100', rscore.label, rscore.score >= 66 ? 'risk' : rscore.score >= 40 ? 'warn' : 'good'));
+  return `<div class="pfx-kpistrip">${g.join('')}</div>`;
+}
 
-  // 3. Alpha / Beta
-  html += pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
+function pfxTabNav() {
+  return `<div class="pfx-tabs" role="tablist" aria-label="Разделы анализа портфеля">${
+    PFX_TAB_LIST.map((t) => `<button class="pfx-tab" type="button" role="tab" data-pfx-tab="${t.id}" aria-selected="false">${esc(t.label)}</button>`).join('')
+  }</div>`;
+}
 
-  // 4. Дневной риск (Daily Risk Engine v1 — по дневным данным MOEX, клиентский расчёт)
-  html += pfxDetails('Дневной риск (VaR / CVaR / волатильность)', '(по дневным данным MOEX · краткосрочный горизонт)',
-    '<div id="pfx-daily-risk"><div class="pulse-loading muted">Загрузка дневных данных портфеля…</div></div>', true);
+// HTML активной вкладки — переиспользует существующие модули без изменения математики
+function pfxTabHTML(c, tab) {
+  const bp = (c.bench && c.perf) ? pfxPerf(c.bench, c.rf.monthly) : null;
+  switch (tab) {
+    case 'summary':
+      return `<div class="pfx-grid">${pfxKpiGrid(c).join('')}</div>`;
+    case 'holdings':
+      return pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c), true)
+        + pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c))
+        + pfxDetails('Атрибуция доходности', '(вклад бумаг и секторов в фактический P&L)', pfxAttrHTML(c))
+        + pfxDetails('Возможности и внимание', '(потенциал к справедливой цене · флаги внимания)', pfxOppHTML(c));
+    case 'returns':
+      return pfxDetails('Performance vs MCFTR', '(total return, риск-adjusted)', pfxPerfHTML(c, bp), true)
+        + pfxDetails('Alpha / Beta / Risk-adjusted', '(CAPM-регрессия к MCFTR)', pfxCapmHTML(c));
+    case 'risk':
+      return pfxDetails('Дневной риск (VaR / CVaR / волатильность)', '(по дневным данным MOEX · краткосрочный горизонт)',
+          '<div id="pfx-daily-risk"><div class="pulse-loading muted">Загрузка дневных данных портфеля…</div></div>', true)
+        + pfxDetails('Долгосрочный риск: VaR / CVaR (месячная база)', '(многолетняя месячная история — иной горизонт)', pfxVaRHTML(c))
+        + pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c))
+        + pfxDetails('Корреляционная матрица', '(как связаны бумаги — диверсификация)', pfxCorrHTML(c))
+        + pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c))
+        + pfxDetails('Ставка и облигации против портфеля', '(премия к безриску · порог замещения · дюрация к ставке)', pfxRateBondHTML(c), (c._rb && c._rb.ok && c._rb.substituted));
+    case 'dividends':
+      return pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c), true);
+    case 'scenarios':
+      return pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c), true)
+        + pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c))
+        + pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
+    case 'memo': {
+      const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
+      return pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`, true)
+        + pfxDetails('Data Quality Layer', '(confidence по бумагам)', pfxDQHTML(c))
+        + pfxDetails('Методология и предупреждения', '', pfxMethodHTML());
+    }
+    default:
+      return '';
+  }
+}
 
-  // 4b. Долгосрочный риск (месячная база)
-  html += pfxDetails('Долгосрочный риск: VaR / CVaR (месячная база)', '(многолетняя месячная история — иной горизонт)', pfxVaRHTML(c));
+// «Данные и ограничения» — исключённые позиции, длина/частота истории, дата снапшота (§12)
+function pfxLimitationsHTML(c) {
+  const warns = (c._warnings && c._warnings.length)
+    ? `<div class="pfx-warns-panel">${c._warnings.map((w) => `<div class="pfx-wline pfx-w-${w.tone}">${esc(w.msg)}</div>`).join('')}</div>` : '';
+  const meta = `<div class="pfx-limit-meta muted">`
+    + `История: <b>${c.pf ? c.pf.n + ' мес' : 'н/д'}</b> · частота: <b>месячная</b> (дневной риск — отдельным модулем во вкладке «Риск»)`
+    + (c.pf && isNum(c.pf.covered) ? ` · риск-покрытие: <b>${Math.round(c.pf.covered * 100)}%</b> веса` : '')
+    + (DATA && DATA.meta && DATA.meta.price_asof ? ` · снапшот цен: <b>${esc(DATA.meta.price_asof)}</b>` : '')
+    + `. Backfilled по текущему составу — НЕ история ваших сделок. Не ИИР.</div>`;
+  return pfxDetails('Данные и ограничения', '(исключённые позиции, длина/частота истории, снапшот)', warns + meta, false);
+}
 
-  // 5. Risk Budget
-  html += pfxDetails('Risk Budget', '(вклад бумаг в риск, component VaR)', pfxRiskBudgetHTML(c));
+function pfxRenderHTML(c) {
+  const diag = pfxDiagnosis(c);
+  c._rb = pfxRateBond(c);        // P4: связка со ставкой/облигациями (для модуля и графика)
+  c._corr = pfxCorrelation(c);   // корреляции — для «Итога» и модуля матрицы
+  let html = '';
 
-  // 5b. Корреляционная матрица (диверсификация — Bible VIII/XI)
-  html += pfxDetails('Корреляционная матрица', '(как связаны бумаги — диверсификация)', pfxCorrHTML(c));
+  // Дашборд: итог инвесткомитета (Level-1 вывод «за 20 секунд») + заголовок + кнопки отчёта
+  html += pfxCommitteeSummary(c);
+  html += `<div class="pfx-top">
+    <div class="pfx-type pfx-${c.cls.tone}">${esc(c.cls.type)}</div>
+    <div class="pfx-diag">${esc(diag)}</div>
+    <div class="pfx-btns">
+      <button class="btn btn-secondary" id="pfx-copy">Скопировать отчёт</button>
+      <button class="btn btn-secondary" id="pfx-export">Экспорт диагностики CSV</button>
+    </div>
+  </div>`;
 
-  // 6. Dividend Stress Test
-  html += pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c));
+  // Headline KPI-лента (всегда на виду)
+  html += pfxHeadlineKpis(c);
 
-  // 6a. P4: Ставка и облигации против портфеля (Rate & Bond Reality Check)
-  html += pfxDetails('Ставка и облигации против портфеля', '(премия к безриску · порог замещения · дюрация к ставке)', pfxRateBondHTML(c), (c._rb && c._rb.ok && c._rb.substituted));
+  // «Что требует внимания» — приоритетные алерты (переиспользуем pfxTopRisks)
+  const risks = pfxTopRisks(c);
+  if (risks.length) {
+    html += `<div class="pfx-alerts"><div class="pfx-alerts-h">Что требует внимания</div>${
+      risks.map((r) => `<div class="pfx-alert pfx-a-${r.tone}"><span class="pfx-alert-dot"></span><span class="pfx-alert-tx">${esc(r.text)}</span></div>`).join('')
+    }</div>`;
+  }
 
-  // 6b. Факторная диагностика (P1)
-  html += pfxDetails('Факторная диагностика', '(экспозиции vs рынок + вывод)', pfxFactorsHTML(c));
+  // Daily Portfolio Brief — «сегодня важно для портфеля» (герой-блок)
+  const brief = pfxDailyBrief(c);
+  if (brief.length) {
+    html += `<div class="pfx-brief"><div class="pfx-brief-head">📌 Сегодня важно для портфеля</div>${
+      brief.map((b) => `<div class="pfx-brief-item pfx-bi-${b.tone}"><span class="pfx-bi-dot"></span><span>${esc(b.text)}</span></div>`).join('')}
+      <div class="pfx-brief-foot muted">Синтез по доступным данным (месячные ретёрны, новости, фаза MCFTR, RFR). Дат дивотсечек в наборе нет — см. вкладку «Дивиденды». Не ИИР.</div></div>`;
+  }
 
-  // 7. Bootstrap
-  html += pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c));
+  // Вкладки + панель (наполняется активной вкладкой в pfxSelectTab — графики в скрытых панелях = 0 ширины)
+  html += pfxTabNav();
+  html += `<div class="pfx-tabpanel" id="pfx-tabpanel" role="tabpanel"></div>`;
 
-  // 7b. Scenario Lab — реакция на макро-шоки (Bible VIII)
-  html += pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c));
-
-  // 8. Smart Rebalancer
-  html += pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
-
-  // 9. Allocation
-  html += pfxDetails('Allocation / Exposure', '(разрезы книги + лимиты)', pfxAllocHTML(c));
-
-  // 9b. Атрибуция доходности — что двигало P&L (Bible VIII)
-  html += pfxDetails('Атрибуция доходности', '(вклад бумаг и секторов в фактический P&L)', pfxAttrHTML(c));
-
-  // 10. Position Diagnostics
-  html += pfxDetails('Position Diagnostics', '(по каждой бумаге)', pfxPosHTML(c));
-
-  // 10b. Возможности и внимание (Bible XI Opportunity Engine)
-  html += pfxDetails('Возможности и внимание', '(потенциал к справедливой цене · флаги внимания)', pfxOppHTML(c));
-
-  // 11. Investment Committee Memo
-  const memo = pfxMemo(c).map(([h, b]) => `<div class="pfx-memo-block"><h4>${esc(h)}</h4><p>${esc(b)}</p></div>`).join('');
-  html += pfxDetails('Investment Committee Memo', '(rule-based, тон аналитика)', `<div class="pfx-memo">${memo}</div>`);
-
-  // 12. Data Quality
-  html += pfxDetails('Data Quality Layer', '(confidence по бумагам)', pfxDQHTML(c));
-
-  // 13. Methodology
-  html += pfxDetails('Методология и предупреждения', '', pfxMethodHTML());
+  // Данные и ограничения
+  html += pfxLimitationsHTML(c);
   return html;
+}
+
+// Переключение вкладки: рендерим только её модули + рисуем только её графики (ленивый рендер).
+function pfxSelectTab(tab) {
+  const c = PFX_STATE;
+  if (!c) return;
+  const valid = PFX_TAB_LIST.some((t) => t.id === tab) ? tab : 'summary';
+  uiStateSave({ pfxTab: valid });
+  document.querySelectorAll('.pfx-tab').forEach((t) => {
+    const on = t.dataset.pfxTab === valid;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const panel = document.getElementById('pfx-tabpanel');
+  if (!panel) return;
+  panel.innerHTML = pfxTabHTML(c, valid);
+  pfxDrawCharts(c);     // рисует только графики, чьи контейнеры сейчас в DOM (активная вкладка)
+  pfxWirePanel();       // кнопки внутри панели (ребалансер) — свежий DOM, без двойных listener'ов
+  if (valid === 'risk') { try { pfxDailyRiskLoad(c); } catch (e) { console.error('[daily-risk] load:', e); } }
 }
 
 function pfxDiagnosis(c) {
@@ -3306,7 +3369,8 @@ function pfxDrawCharts(c) {
 function pfxDD(cum) { let peak = cum[0]; return cum.map((v) => { if (v > peak) peak = v; return (v / peak - 1) * 100; }); }
 
 // ── кнопки: копировать отчёт / экспорт CSV / переключение сценария ребаланса ──
-function pfxWireButtons(c) {
+// Кнопки дашборда (copy/export) — стабильны, вяжутся ОДИН раз в renderMyPortfolio.
+function pfxWireDashboard(c) {
   const copyBtn = document.getElementById('pfx-copy');
   if (copyBtn) copyBtn.addEventListener('click', () => {
     const lines = [`Portfolio X-Ray — ${c.cls.type}`, pfxDiagnosis(c), ''];
@@ -3322,6 +3386,11 @@ function pfxWireButtons(c) {
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'portfolio_diagnostics.csv'; a.click();
   });
+}
+
+// Кнопки внутри панели вкладки (ребалансер) — панель перерисовывается на каждой смене вкладки,
+// DOM свежий, поэтому addEventListener без риска двойных listener'ов.
+function pfxWirePanel() {
   document.querySelectorAll('.pfx-rbtn').forEach((btn) => btn.addEventListener('click', () => {
     document.querySelectorAll('.pfx-rbtn').forEach((b) => b.classList.toggle('on', b === btn));
     const body = document.getElementById('pfx-rebal-body');
