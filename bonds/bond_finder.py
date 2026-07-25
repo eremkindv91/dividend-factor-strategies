@@ -553,12 +553,30 @@ def main() -> int:
     # из одного имени, а `min_issuers_meaningful` не выполнялся и портфель не строился вообще.
     # Ограничиваем число выпусков ОДНОГО эмитента в пуле кандидатов (issuer_cap_candidates).
     pool = sorted([r for r in universe if r["offer"] is None], key=lambda r: -r["rough_spread"])
+
+    # РЕЙТИНГ-ОСВЕДОМЛЁННЫЙ ОТБОР. Сортировка по спреду тянет в пул самые рискованные выпуски
+    # (у них по определению нет инвест-рейтинга), поэтому conservative/balanced оставались почти
+    # пустыми. Официальные рейтинги выпусков (АКРА/Эксперт РА/НКР) уже собраны разом по всем
+    # эмиссиям — вытягиваем их ДО отбора (тот же самый сетевой вызов, что и позже; результат
+    # переиспользуется) и резервируем квоту под бумаги инвестиционного уровня.
+    universe_isins = {r["secid"] for r in universe}
+    ratings, ratings_meta = load_official_ratings(
+        universe_isins, cache_path=DEFAULT_CACHE, refresh=False
+    )
+    ig_floor = RATING_RANK.get(cfg.get("investment_grade_floor", "BBB-"), 11)
+    ig_isins = {isin for isin, rec in ratings.items()
+                if (RATING_RANK.get(rec.get("rating")) or -1) >= ig_floor}
+    qual_rated = [r for r in pool if r["secid"] in ig_isins]
+    log(f"инвест-грейд в чистой вселенной: {len(qual_rated)} выпусков (порог "
+        f"{cfg.get('investment_grade_floor', 'BBB-')}, рейтингов в базе {len(ratings)})")
+
     qual_a = [r for r in pool if str(r.get("listlevel")) in ("1", "2") and r["issue_rub"] >= 3e9]
     qual_b = [r for r in pool if r["issue_rub"] >= 1e9]
     issuer_cap = int(cfg.get("issuer_cap_candidates", 2))
     per_issuer: dict[str, int] = {}
     main_cand, seen_sel = [], set()
-    for src, quota in ((qual_a, 20), (qual_b, 20), (pool, cfg["max_candidates"])):
+    for src, quota in ((qual_rated, int(cfg.get("quota_investment_grade", 60))),
+                       (qual_a, 20), (qual_b, 20), (pool, cfg["max_candidates"])):
         for r in src:
             if len(main_cand) >= cfg["max_candidates"] and src is pool:
                 break
@@ -614,10 +632,7 @@ def main() -> int:
         cands = [r for r in cands if r["new_placement"] or r["median_vol"] >= min_vol]
         log(f"фильтр ликвидности: исключено {len(illiq)} бумаг (медиана < {min_vol:,.0f} ₽/день)")
 
-    rating_isins = {r["secid"] for r in cands + offers_ok}
-    ratings, ratings_meta = load_official_ratings(
-        rating_isins, cache_path=DEFAULT_CACHE, refresh=False
-    )
+    # ratings/ratings_meta уже загружены выше (перед отбором кандидатов) — повторно не тянем
     if ratings_meta.get("sources_ok", 0) == 0:
         log("СТОП: все официальные источники рейтингов недоступны — finder.json не перезаписываем")
         return 1

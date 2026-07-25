@@ -93,5 +93,7 @@
     "review_max_entries": 12
   },
   "min_median_volume_rub": 100000,
-  "issuer_cap_candidates": 2
+  "issuer_cap_candidates": 2,
+  "investment_grade_floor": "BBB-",
+  "quota_investment_grade": 60
 }
