@@ -60,9 +60,30 @@ lines.forEach((line, idx) => {
   });
 });
 
+// ── inline-обработчики: под CSP (script-src без 'unsafe-inline') они МОЛЧА не работают ──
+// Именно так сломался переключатель MCFTR/IMOEX после ввода CSP. Здесь — жёсткий гард:
+// любой on*="..." в шаблонах app.js или в index.html = сломанная кнопка, а не стилистика.
+const INLINE_RE = /\bon(?:click|change|input|submit|keydown|keyup|keypress|focus|blur|mouseover|mouseout|load|error)\s*=\s*["']/gi;
+const inlineHandlers = [];
+const scanInline = (text, label) => {
+  text.split('\n').forEach((line, i) => {
+    const m = line.match(INLINE_RE);
+    if (m) inlineHandlers.push({ file: label, line: i + 1, handlers: m.map((s) => s.replace(/\s*=\s*["']$/, '')) });
+  });
+};
+scanInline(src, 'site/app.js');
+const INDEX = path.join(__dirname, '..', 'site', 'index.html');
+if (fs.existsSync(INDEX)) scanInline(fs.readFileSync(INDEX, 'utf8'), 'site/index.html');
+
 const report = {
   generated_at: new Date().toISOString(),
   source: 'site/app.js',
+  csp_inline_handlers: {
+    count: inlineHandlers.length,
+    note: 'CSP (script-src без unsafe-inline) блокирует inline-обработчики — они не сработают. '
+        + 'Выносить в делегированные слушатели (см. initRouter: data-saw-index / data-divcal-tab / data-goto).',
+    findings: inlineHandlers,
+  },
   heuristic: 'template-literal ${} interpolation classification (см. шапку tools/xss-guard.js)',
   limitations: [
     'сканируются все шаблонные литералы, не только innerHTML-контекст (консервативно, возможны ложные срабатывания)',
@@ -75,3 +96,9 @@ const report = {
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(report, null, 2));
 console.log(`[xss-guard] интерполяций: ${total} · безопасных/форматированных: ${safe} · на ревью: ${review.length} → ${path.relative(path.join(__dirname, '..'), OUT)}`);
+if (inlineHandlers.length) {
+  console.error(`[xss-guard] ❌ CSP-РЕГРЕСС: найдено ${inlineHandlers.length} inline-обработчик(ов) — под CSP они НЕ работают:`);
+  inlineHandlers.forEach((f) => console.error(`    ${f.file}:${f.line} → ${f.handlers.join(', ')}`));
+  process.exit(1);
+}
+console.log('[xss-guard] inline-обработчиков нет — CSP не ломает интерактив ✓');

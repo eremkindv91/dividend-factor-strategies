@@ -3986,7 +3986,9 @@ function loadLWC(cb) {
 }
 
 function sawSwitcherHTML() {
-  const b = (id, lbl) => `<button type="button" class="saw-tab${MARKET_SAW_ACTIVE === id ? ' saw-tab-active' : ''}" data-saw-index="${id}" onclick="setMarketSawIndex('${id}')">${lbl}</button>`;
+  // Без инлайнового onclick: CSP (§6.4) запрещает inline-обработчики — клик ловит делегированный
+  // слушатель в initRouter() по data-saw-index.
+  const b = (id, lbl) => `<button type="button" class="saw-tab${MARKET_SAW_ACTIVE === id ? ' saw-tab-active' : ''}" data-saw-index="${id}" aria-pressed="${MARKET_SAW_ACTIVE === id}">${lbl}</button>`;
   return `<div class="saw-switch" role="tablist">${b('MCFTR', 'Полная доходность · MCFTR')}${b('IMOEX', 'Ценовой индекс · IMOEX')}</div>`;
 }
 
@@ -3994,7 +3996,11 @@ function setMarketSawIndex(id) {
   if (id !== 'MCFTR' && id !== 'IMOEX') return;
   MARKET_SAW_ACTIVE = id;
   const sw = document.querySelector('.saw-switch');
-  if (sw) sw.querySelectorAll('.saw-tab').forEach((t) => t.classList.toggle('saw-tab-active', t.dataset.sawIndex === id));
+  if (sw) sw.querySelectorAll('.saw-tab').forEach((t) => {
+    const on = t.dataset.sawIndex === id;
+    t.classList.toggle('saw-tab-active', on);
+    t.setAttribute('aria-pressed', String(on));
+  });
   renderSawActive();
 }
 
@@ -4918,7 +4924,13 @@ function initRouter() {
   });
   // P5-лендинг: карточки/кнопки с data-goto ведут на соответствующий раздел;
   // кнопки «ранний доступ» показывают честную заглушку (контакт-канал добавим позже)
+  // Делегированные слушатели вместо inline-onclick (CSP §6.4 запрещает inline-обработчики).
+  // Элементы рендерятся динамически, поэтому слушаем на document по data-атрибуту.
   document.addEventListener('click', (e) => {
+    const saw = e.target.closest('[data-saw-index]');
+    if (saw && typeof setMarketSawIndex === 'function') { setMarketSawIndex(saw.dataset.sawIndex); return; }
+    const dc = e.target.closest('[data-divcal-tab]');
+    if (dc && typeof openDividendCalendarTab === 'function') { openDividendCalendarTab(dc.dataset.divcalTab); return; }
     const g = e.target.closest('[data-goto]');
     if (g && SECTIONS.includes(g.dataset.goto)) { location.hash = g.dataset.goto; return; }
     if (e.target.closest('#pro-waitlist, #pro-waitlist2, #pro-waitlist3')) {
@@ -5109,7 +5121,8 @@ function evRowHTML(e, pf, todayIso) {
 // Строка-вердикт по портфелю: «что моё и сколько» — раньше эта информация была размазана
 // по бейджам карточек, KPI-плашкам календаря и summary. Сумма — та же логика, что в календаре.
 function eventsPortfolioVerdictHTML(pf, todayIso) {
-  const btn = (tab, label) => `<button type="button" class="events-verdict-btn" onclick="openDividendCalendarTab('${tab}')">${label}</button>`;
+  // Без инлайнового onclick (CSP §6.4) — делегированный слушатель в initRouter() по data-divcal-tab.
+  const btn = (tab, label) => `<button type="button" class="events-verdict-btn" data-divcal-tab="${esc(tab)}">${label}</button>`;
   if (!pf.hasPortfolio) {
     return `<div class="events-verdict events-verdict-empty">
       <span class="events-verdict-text">Добавьте портфель во вкладке «Портфель» — события ваших бумаг будут подсвечены, а здесь появится сумма ожидаемых дивидендов.</span>

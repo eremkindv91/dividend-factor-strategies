@@ -53,5 +53,9 @@ touch targets ≥44–48px в нижней навигации · `prefers-reduce
   грузятся Chart.js и LightweightCharts), `style-src` допускает `'unsafe-inline'` (~44 динамических
   inline-стиля в шаблонах: ширины баров, цвета). Идеал `'self'`-only не достигнут без вендоринга
   библиотек и рефактора inline-стилей — осознанный компромисс.
+- **Inline-обработчики (`onclick=` и т.п.) запрещены** — CSP их молча блокирует (так сломался
+  переключатель MCFTR/IMOEX). Вешать делегированные слушатели на `document` по `data-`атрибуту
+  (см. `initRouter`: `data-saw-index`, `data-divcal-tab`, `data-goto`). Гард: `node tools/xss-guard.js`
+  падает с exit 1, если inline-обработчик появился снова.
 - **Стили дописаны блоками** в конец `styles.css` по итерациям — не единый модульный слой.
 - **XSS-guard** (`tools/xss-guard.js`) — эвристика, не полный анализ потоков (см. шапку скрипта).
