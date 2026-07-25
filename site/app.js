@@ -4864,7 +4864,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderAlfaIndex(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
+  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());

@@ -1,6 +1,6 @@
 {
   "_note": "MOEX Bond Finder config: score weights and risk profiles. CLI/JS never hardcode these.",
-  "max_candidates": 60,
+  "max_candidates": 140,
   "max_offer_candidates": 20,
   "throttle_workers": 3,
   "score_weights": {
@@ -92,5 +92,6 @@
     "max_entries": 24,
     "review_max_entries": 12
   },
-  "min_median_volume_rub": 100000
+  "min_median_volume_rub": 100000,
+  "issuer_cap_candidates": 2
 }

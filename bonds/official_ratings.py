@@ -12,9 +12,11 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 import time
 from datetime import date, datetime, timezone
 from io import BytesIO
+from pathlib import Path
 from typing import Callable, Iterable
 
 import requests
@@ -122,8 +124,60 @@ def _record(
     }
 
 
+# ACRA присылает ТОЛЬКО листовой сертификат, без промежуточного CA (ошибка их конфигурации:
+# openssl verify → 21 "unable to verify the first certificate"). Штатное решение — AIA chasing:
+# берём URI издателя из расширения Authority Information Access самого сертификата, скачиваем
+# промежуточный (публичный GlobalSign RSA OV SSL CA 2018, цепляется к корню из доверенного
+# хранилища) и добавляем его к CA-бандлу. Проверка TLS при этом ОСТАЁТСЯ ВКЛЮЧЁННОЙ —
+# отключать её нельзя, это дало бы MITM-дыру ради удобства.
+_CA_BUNDLE_CACHE: str | None = None
+
+
+def _acra_ca_bundle() -> str | None:
+    """certifi-бандл + промежуточный CA из AIA сертификата ACRA. None, если собрать не удалось."""
+    global _CA_BUNDLE_CACHE
+    if _CA_BUNDLE_CACHE is not None:
+        return _CA_BUNDLE_CACHE or None
+    try:
+        import ssl
+        import certifi
+        # 1) листовой сертификат → URI издателя (AIA)
+        leaf = ssl.get_server_certificate(("www.acra-ratings.ru", 443))
+        text = subprocess.run(["openssl", "x509", "-noout", "-text"], input=leaf,
+                              capture_output=True, text=True, timeout=20, check=False).stdout
+        m = re.search(r"CA Issuers - URI:(\S+)", text)
+        if not m:
+            _CA_BUNDLE_CACHE = ""
+            return None
+        # 2) промежуточный CA (DER или PEM) → PEM
+        der = subprocess.run(["curl", "--fail", "--silent", "--max-time", "20", m.group(1)],
+                             capture_output=True, timeout=25, check=False).stdout
+        if not der:
+            _CA_BUNDLE_CACHE = ""
+            return None
+        pem = subprocess.run(["openssl", "x509", "-inform", "DER"], input=der,
+                             capture_output=True, timeout=20, check=False).stdout.decode("utf-8", "replace")
+        if "BEGIN CERTIFICATE" not in pem:
+            pem = der.decode("utf-8", "replace")
+        if "BEGIN CERTIFICATE" not in pem:
+            _CA_BUNDLE_CACHE = ""
+            return None
+        # 3) бандл = доверенные корни + этот промежуточный
+        fd, path = tempfile.mkstemp(prefix="acra-ca-", suffix=".pem")
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(Path(certifi.where()).read_text(encoding="utf-8"))
+            handle.write("\n")
+            handle.write(pem)
+        _CA_BUNDLE_CACHE = path
+        return path
+    except Exception:  # noqa: BLE001  (сеть/openssl недоступны — просто нет бандла)
+        _CA_BUNDLE_CACHE = ""
+        return None
+
+
 def _curl_post_json(url: str, payload: dict, timeout: int) -> dict:
-    """TLS-verified curl fallback for ACRA's occasionally incomplete cert chain."""
+    """TLS-verified curl fallback for ACRA's incomplete cert chain (AIA-догруженный бандл)."""
+    bundle = _acra_ca_bundle()
     cmd = [
         "curl",
         "--fail",
@@ -131,6 +185,7 @@ def _curl_post_json(url: str, payload: dict, timeout: int) -> dict:
         "--show-error",
         "--max-time",
         str(timeout),
+        *(["--cacert", bundle] if bundle else []),
         "-A",
         ACRA_UA,
         "-H",
@@ -158,6 +213,15 @@ def _post_json(session: requests.Session, url: str, payload: dict, timeout: int 
         response.raise_for_status()
         return response.json()
     except requests.exceptions.SSLError:
+        # сначала пробуем тот же запрос с AIA-догруженным промежуточным CA (верификация включена)
+        bundle = _acra_ca_bundle()
+        if bundle:
+            try:
+                response = session.post(url, json=payload, timeout=timeout, verify=bundle)
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException:
+                pass
         # No certificate checks are disabled. curl uses the host trust store and
         # succeeds when Python/OpenSSL cannot build ACRA's intermediate chain.
         return _curl_post_json(url, payload, timeout)

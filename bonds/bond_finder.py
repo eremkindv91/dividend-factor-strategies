@@ -26,6 +26,7 @@ import concurrent.futures
 import json
 import math
 import os
+import re
 import statistics
 import sys
 from datetime import date, datetime, timezone
@@ -327,6 +328,17 @@ def bucket_of(dur: float, edges: list[float]) -> int:
     return len(edges)
 
 
+def issuer_key(name: str) -> str:
+    """Грубый ключ эмитента из биржевого имени выпуска — для ограничения числа выпусков одного
+    эмитента в пуле кандидатов. Имена MOEX устроены как «<эмитент><код выпуска>»:
+    СамолетP13 / СамолетP18 → «самолет»; Брус 2Р08 → «брус»; iКарРус1P3 → «каррус»;
+    УралСт1Р05 → «уралст». Режем по первой цифре, снимаем префикс «i» и пунктуацию.
+    Приблизительно, но на этой стадии INN эмитента ещё не загружен (он приходит в fine stage)."""
+    s = re.sub(r"^i", "", str(name).strip(), flags=re.IGNORECASE)
+    s = re.split(r"\d", s, maxsplit=1)[0]
+    return re.sub(r"[^a-zа-яё]", "", s.lower())
+
+
 def attach_rating(rec: dict, ratings: dict[str, dict]) -> None:
     """Attach a current official issue rating matched strictly by ISIN/SECID."""
     official = ratings.get(str(rec["secid"]).upper())
@@ -535,10 +547,16 @@ def main() -> int:
 
     # stratified candidate selection: pure top-by-spread is junk-heavy (ПИР/floaters), which
     # starves conservative/balanced pools. Quotas: 20 quality (LL1-2, ≥3bn), 20 mid (≥1bn),
-    # rest by raw spread — 60 unique total.
+    # rest by raw spread.
+    # ВАЖНО (иначе шорт-лист вырождается): внутри каждой квоты сортировка по спреду, поэтому один
+    # эмитент со множеством выпусков (Самолёт P13/P16/P18…) съедал все слоты — на выходе портфель
+    # из одного имени, а `min_issuers_meaningful` не выполнялся и портфель не строился вообще.
+    # Ограничиваем число выпусков ОДНОГО эмитента в пуле кандидатов (issuer_cap_candidates).
     pool = sorted([r for r in universe if r["offer"] is None], key=lambda r: -r["rough_spread"])
     qual_a = [r for r in pool if str(r.get("listlevel")) in ("1", "2") and r["issue_rub"] >= 3e9]
     qual_b = [r for r in pool if r["issue_rub"] >= 1e9]
+    issuer_cap = int(cfg.get("issuer_cap_candidates", 2))
+    per_issuer: dict[str, int] = {}
     main_cand, seen_sel = [], set()
     for src, quota in ((qual_a, 20), (qual_b, 20), (pool, cfg["max_candidates"])):
         for r in src:
@@ -548,8 +566,12 @@ def main() -> int:
                 continue
             if src is not pool and quota <= 0:
                 break
+            ikey = issuer_key(r.get("name") or r.get("secid") or "")
+            if per_issuer.get(ikey, 0) >= issuer_cap:
+                continue                      # эмитент уже представлен — освобождаем слот другим
             main_cand.append(r)
             seen_sel.add(r["secid"])
+            per_issuer[ikey] = per_issuer.get(ikey, 0) + 1
             if src is not pool:
                 quota -= 1
     main_cand = main_cand[:cfg["max_candidates"]]
