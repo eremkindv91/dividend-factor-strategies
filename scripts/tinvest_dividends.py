@@ -21,7 +21,10 @@ import dividend_calendar_core as core
 
 SDK_PACKAGE = "t-tech-investments==1.49.2"
 SDK_TARGET = "invest-public-api.tbank.ru"
-DEFAULT_MAX_CONSECUTIVE_FAILURES = 5
+# Порог circuit breaker. Был 5 при сканировании 120 инструментов; теперь вселенная ~270+,
+# поэтому редкие транзиентные ошибки сети встречаются чаще и порог 5 гасил весь остаток списка.
+# Ошибки авторизации (401/403) по-прежнему вырубают сбор МГНОВЕННО, не дожидаясь порога.
+DEFAULT_MAX_CONSECUTIVE_FAILURES = 12
 
 
 class TInvestRequestError(RuntimeError):
@@ -366,6 +369,11 @@ def collect_payloads(
                     if not instrument_id:
                         failed += 1
                         errors["instrument_not_found"] += 1
+                        # «Инструмент не найден» — ШТАТНЫЙ исход (у брокера нет части бумаг вселенной),
+                        # а не сбой источника. Раньше счётчик подряд-идущих сбоев здесь не сбрасывался,
+                        # и на большой вселенной circuit breaker добивался разрозненными ошибками и
+                        # выключал остаток списка (в проде: skipped_after_circuit_breaker=231 из 270).
+                        consecutive_failures = 0
                         continue
                     stage = "get_dividends"
                     body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
