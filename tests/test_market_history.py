@@ -42,7 +42,9 @@ def test_market_drilldown_is_built_and_deployed_daily():
     html = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
     update = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
 
-    assert "market_history.json?t=" in app
+    # редизайн, Итерация 3 (§6.1): статичные JSON грузятся через dataURL(path) → ?v=<build.version>
+    # (раньше был ручной кэш-бастер ?t=Date.now(), полностью обходивший кэш браузера)
+    assert "dataURL('market_history.json')" in app
     assert "addCandlestickSeries" in app
     assert "addAreaSeries" in app
     assert "marketUsesCloseLine" in app

@@ -255,7 +255,9 @@ def test_frontend_and_deploy_contracts_are_wired():
     update = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
     deploy = (ROOT / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
     assert 'id="dividend-calendar"' in html and 'id="dividend-calendar-body"' in html
-    assert "fetch('dividend_calendar.json" in js and "myPortfolioLoad()" in js
+    # с редизайна (Итерация 3, кэш-манифест §6.1) статичные JSON грузятся через dataURL(path),
+    # который добавляет ?v=<build.version>; прямой fetch('...') остался только у live-источников
+    assert "dataURL('dividend_calendar.json')" in js and "myPortfolioLoad()" in js
     assert "downloadDividendExport" in js and "params.get('calendar')" in js and "field_provenance" in js
     assert "dividendDiscoveryEvents" in js and "Мой портфель ·" in js and "Можно купить ·" in js
     assert "Все будущие ·" in js and "broker_structured_discovery" in js and "discovery_announced" in js

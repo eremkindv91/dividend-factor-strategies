@@ -292,6 +292,7 @@ def test_tracked_public_payload_is_real_and_consistent():
     assert all(row["source_url"].startswith("https://alfabank.ru/alfa-investor/t/hod-torgov-") for row in history)
 
 
+@pytest.mark.skip(reason="Блок «Внешний ориентир: настроение рынка» снят с сайта 2026-07-25: alfabank.ru закрыл автоматический доступ (WAF → 403 на статьи и robots.txt). Коллектор и его тесты оставлены на случай, если источник снова откроется.")
 def test_frontend_loads_public_payload_and_has_all_states():
     app = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
     html = (ROOT / "site" / "index.html").read_text(encoding="utf-8")

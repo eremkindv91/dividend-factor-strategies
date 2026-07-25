@@ -15,7 +15,7 @@ def test_quality_ui_uses_independent_ru_quality_name_and_not_public_barra_label(
 def test_quality_ui_loads_precomputed_json_and_has_explainability_drawer():
     app = (ROOT / "site/app.js").read_text(encoding="utf-8")
     html = (ROOT / "site/index.html").read_text(encoding="utf-8")
-    assert "fetch('quality.json" in app
+    assert "dataURL('quality.json')" in app
     assert "function buildQualityPortfolio(config)" in app
     assert 'id="quality-drawer"' in html
     assert "openQualityDrawer" in app

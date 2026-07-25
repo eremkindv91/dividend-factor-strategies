@@ -326,14 +326,19 @@ def collect_payloads(
     from_date: str,
     to_date: str,
     post: Callable[[str, str, dict], dict] | None = None,
-    max_instruments: int = 120,
+    max_instruments: int = 400,
     max_consecutive_failures: int = DEFAULT_MAX_CONSECUTIVE_FAILURES,
     cache: dict | None = None,
 ) -> tuple[dict[str, list[dict]], dict]:
     """Fetch at most one structured response per unique instrument identifier.
 
     ``max_instruments`` keeps the optional broker enrichment polite; it does not
-    affect MOEX collection or publication correctness.
+    affect MOEX collection or publication correctness. Он должен покрывать ВСЮ вселенную:
+    T-Invest — единственный источник АНОНСИРОВАННЫХ дивидендов (MOEX ISS отдаёт только
+    исторический реестр, отстающий больше чем на год), поэтому при отсечке инструменты за
+    границей окна вообще не опрашиваются и их анонсы не попадают в календарь (так пропал
+    Русагро: limited=228 из 270). Дефолт 400 покрывает текущую вселенную с запасом;
+    от перегрузки защищает circuit breaker (max_consecutive_failures).
     """
     if not token:
         return {}, {"status": "disabled", "enriched": 0, "success": 0, "cache_used": 0,

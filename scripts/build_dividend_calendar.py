@@ -166,7 +166,7 @@ def build_payload(
     previous: dict | None,
     now: datetime,
     tinvest_token: str = "",
-    tinvest_max_instruments: int = 120,
+    tinvest_max_instruments: int = 400,
     back_days: int = DEFAULT_BACK_DAYS,
     forward_days: int = DEFAULT_FORWARD_DAYS,
 ) -> dict:
@@ -307,7 +307,7 @@ def parse_args(argv=None):
     parser.add_argument("--back-days", type=int, default=DEFAULT_BACK_DAYS)
     parser.add_argument("--forward-days", type=int, default=DEFAULT_FORWARD_DAYS)
     parser.add_argument("--limit", type=int, default=0)
-    parser.add_argument("--tinvest-max-instruments", type=int, default=120)
+    parser.add_argument("--tinvest-max-instruments", type=int, default=400)
     parser.add_argument("--change-marker", default=None)
     return parser.parse_args(argv)
 
