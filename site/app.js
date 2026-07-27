@@ -19,6 +19,7 @@ const isoDayLag = (older, newer) => {
 // хойст глобалов данных в топ: renderMyPortfolio/pfx* читают их, а wireMyPortfolio() вызывается
 // top-level до их прежних объявлений ниже по файлу → без хойста был бы TDZ ('use strict')
 let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, QUALITY = null, SITE_FINANCIALS = null, SITE_STATUS = null, NEWS = null, EVENTS_DATA = null, DIVIDEND_CALENDAR = null, ALFA_INDEX = null, ALFA_INDEX_HISTORY = null;
+let ML_STRATEGY = null, ML_STRATEGY_LOADING = null, ACTIVE_STRATEGY_MODE = 'quality';
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let MARKET_PE = null;
 const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
@@ -40,6 +41,7 @@ let _dataCacheAt = Date.now();
 function invalidateStaleDataCaches() {
   if (Date.now() - _dataCacheAt < DATA_CACHE_TTL_MS) return false;
   SAW_DATA = null; IMOEX_SAW = null; MARKET_SAW_MANIFEST = null; MARLAMOV = null; QUALITY = null; SITE_FINANCIALS = null; SITE_STATUS = null;
+  ML_STRATEGY = null; ML_STRATEGY_LOADING = null;
   EVENTS_DATA = null; DIVIDEND_CALENDAR = null; MARKET_HISTORY = null; ALFA_INDEX = null; ALFA_INDEX_HISTORY = null; ALFA_INDEX_LOAD = null;
   if (typeof BONDS !== 'undefined') BONDS = null;
   if (typeof CBR_DATA !== 'undefined') CBR_DATA = null;
@@ -1021,6 +1023,13 @@ function qualityMethodSelected() {
 
 function syncStrategyPanels() {
   const method = (document.getElementById('pf-method') || {}).value || 'quality';
+  ACTIVE_STRATEGY_MODE = method;
+  const pf = document.getElementById('pf');
+  const marlamov = document.getElementById('marlamov');
+  const mlPanel = document.getElementById('ml-strategy-panel');
+  if (pf) pf.hidden = false;
+  if (marlamov) marlamov.hidden = false;
+  if (mlPanel) mlPanel.hidden = true;
   const qualityPanel = document.getElementById('quality-panel');
   if (qualityPanel) qualityPanel.hidden = method !== 'quality';
   document.querySelectorAll('.strategy-mode').forEach((button) => {
@@ -1393,6 +1402,10 @@ function wireQuality() {
     const method = document.getElementById('pf-method');
     if (!method) return;
     const requested = button.dataset.strategy;
+    if (requested === 'ml') {
+      activateMlStrategy();
+      return;
+    }
     const option = method.querySelector(`option[value="${requested}"]`);
     if (option && option.disabled) return;
     method.value = requested;
@@ -1420,6 +1433,169 @@ function wireQuality() {
   }
   syncStrategyPanels();
   loadQuality();
+}
+
+function activateMlStrategy() {
+  ACTIVE_STRATEGY_MODE = 'ml';
+  const pf = document.getElementById('pf');
+  const marlamov = document.getElementById('marlamov');
+  const quality = document.getElementById('quality-panel');
+  const panel = document.getElementById('ml-strategy-panel');
+  if (pf) pf.hidden = true;
+  if (marlamov) marlamov.hidden = true;
+  if (quality) quality.hidden = true;
+  if (panel) panel.hidden = false;
+  document.querySelectorAll('.strategy-mode').forEach((button) => {
+    const active = button.dataset.strategy === 'ml';
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  renderMlStrategy();
+}
+
+function loadMlStrategy() {
+  if (ML_STRATEGY) return Promise.resolve(ML_STRATEGY);
+  if (ML_STRATEGY_LOADING) return ML_STRATEGY_LOADING;
+  const get = (name) => {
+    const base = dataURL('ml_strategy/' + name);
+    const refresh = Math.floor(Date.now() / DATA_CACHE_TTL_MS);
+    return fetch(base + (base.includes('?') ? '&' : '?') + 'ml_refresh=' + refresh).then((response) => {
+    if (!response.ok) throw new Error(name + ': HTTP ' + response.status);
+    return response.json();
+    });
+  };
+  ML_STRATEGY_LOADING = Promise.all([
+    get('latest.json'), get('backtest.json'), get('model_card.json'), get('data_quality.json'),
+  ]).then(([latest, backtest, modelCard, dataQuality]) => {
+    ML_STRATEGY = { latest, backtest, modelCard, dataQuality };
+    ML_STRATEGY_LOADING = null;
+    return ML_STRATEGY;
+  }).catch((error) => {
+    ML_STRATEGY_LOADING = null;
+    throw error;
+  });
+  return ML_STRATEGY_LOADING;
+}
+
+function mlsPct(value, digits = 1) {
+  return isNum(value) ? ru(value * 100, digits) + '%' : '—';
+}
+
+function mlsActionLabel(action) {
+  return ({
+    NO_ACTION: 'Без действий', WATCH: 'Наблюдать', REBALANCE: 'Ребалансировать',
+    RISK_OFF: 'Снизить риск', DATA_STALE: 'Данные устарели',
+    MODEL_UNCERTAIN: 'Модель не уверена', DEGRADED: 'Ограниченный режим',
+  })[action] || action || '—';
+}
+
+function mlsCheckLabel(name) {
+  return ({
+    price_series: 'Ценовые ряды',
+    history_depth: 'Глубина истории',
+    benchmark_history: 'История MCFTR',
+    latest_investable_cross_section: 'Ликвидный universe',
+    staleness: 'Свежесть',
+    official_dividend_coverage: 'Дивиденды MOEX',
+    macro_market_features: 'Рыночные и макро-факторы',
+    unresolved_extreme_moves: 'Экстремальные движения',
+    historical_membership: 'Исторический состав',
+  })[name] || String(name || '').replaceAll('_', ' ');
+}
+
+function mlsCurveSvg(curve) {
+  if (!Array.isArray(curve) || curve.length < 2) return '<div class="mls-empty">Истории пока недостаточно.</div>';
+  const width = 800, height = 210, pad = 16;
+  const values = curve.flatMap((row) => [row.portfolio_nav, row.benchmark_nav]).filter(isNum);
+  const low = Math.min(...values), high = Math.max(...values);
+  const range = Math.max(0.0001, high - low);
+  const path = (key) => curve.map((row, index) => {
+    const x = pad + index * (width - pad * 2) / (curve.length - 1);
+    const y = height - pad - (row[key] - low) / range * (height - pad * 2);
+    return `${index ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  return `<div class="mls-chart" role="img" aria-label="Динамика модельного портфеля и MCFTR">
+    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+      <path class="mls-grid" d="M${pad},${height / 2}H${width - pad}"/>
+      <path class="mls-line benchmark" d="${path('benchmark_nav')}"/>
+      <path class="mls-line portfolio" d="${path('portfolio_nav')}"/>
+    </svg>
+    <div class="mls-legend"><span><i class="portfolio"></i>Модель после издержек</span><span><i class="benchmark"></i>MCFTR</span></div>
+  </div>`;
+}
+
+function renderMlStrategy() {
+  const target = document.getElementById('mls-content');
+  const state = document.getElementById('mls-state');
+  if (!target || ACTIVE_STRATEGY_MODE !== 'ml') return;
+  if (!ML_STRATEGY) {
+    target.innerHTML = '<div class="mls-loading">Загрузка проверенного snapshot…</div>';
+    loadMlStrategy().then(renderMlStrategy).catch((error) => {
+      if (state) { state.textContent = 'Недоступно'; state.className = 'mls-state blocked'; }
+      target.innerHTML = `<div class="mls-error"><b>ML snapshot не опубликован</b><span>${esc(error.message)}</span><small>Предыдущие стратегии продолжают работать; расчёт на клиенте не подменяется заглушкой.</small></div>`;
+    });
+    return;
+  }
+  const { latest, backtest, modelCard, dataQuality } = ML_STRATEGY;
+  const action = (latest.signal || {}).action;
+  const model = latest.model || {};
+  const portfolio = latest.portfolio || {};
+  const metrics = backtest.portfolio_metrics || {};
+  const positions = portfolio.positions || [];
+  if (state) {
+    state.textContent = mlsActionLabel(action);
+    state.className = 'mls-state ' + (action === 'REBALANCE' ? 'good' : (action === 'DATA_STALE' ? 'blocked' : 'watch'));
+  }
+  const rows = positions.map((row) => `<tr>
+    <td><b>${esc(row.ticker)}</b><span>${esc(row.name || '')}</span></td>
+    <td>${esc(row.sector || '—')}</td>
+    <td>${mlsPct(row.current_weight)}</td>
+    <td><b>${mlsPct(row.target_weight)}</b><small>${row.shares || 0} шт.</small></td>
+    <td class="${row.change_weight > 0 ? 'up' : (row.change_weight < 0 ? 'down' : '')}">${row.change_weight > 0 ? '+' : ''}${mlsPct(row.change_weight)}</td>
+    <td>${mlsPct(row.expected_excess_return_20d, 2)}</td>
+  </tr>`).join('');
+  const dqChecks = (dataQuality.checks || []).map((check) =>
+    `<li><span>${esc(mlsCheckLabel(check.name))}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
+  ).join('');
+  const limitations = (modelCard.limitations || []).map((text) => `<li>${esc(text)}</li>`).join('');
+  target.innerHTML = `
+    <div class="mls-action">
+      <div><span>Текущее действие</span><b>${esc(mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
+      <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Горизонт <b>${latest.horizon_sessions || 20} сессий</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span></div>
+    </div>
+    <div class="mls-kpis">
+      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(model.status || '—')}</small></div>
+      <div><span>Портфель</span><b>${positions.length} бумаг</b><small>${esc(portfolio.method || '—')}</small></div>
+      <div><span>Оборот</span><b>${mlsPct(portfolio.turnover)}</b><small>лимит и lot-rounding</small></div>
+      <div><span>Издержки</span><b>${isNum(portfolio.estimated_cost_rub) ? ru(portfolio.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(portfolio.one_way_cost_bps) ? ru(portfolio.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
+      <div><span>Волатильность</span><b>${mlsPct(portfolio.annualized_volatility)}</b><small>годовая оценка</small></div>
+      <div><span>Качество данных</span><b>${esc(dataQuality.status || '—')}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
+    </div>
+    <div class="mls-layout">
+      <div class="mls-main">
+        <div class="mls-section-head"><div><h3>Модельный портфель</h3><p>Теоретический прогноз превращён в исполнимые веса с учётом ликвидности, лотов и cash.</p></div><b>${mlsPct(portfolio.cash_weight)} cash</b></div>
+        <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Было</th><th>Цель</th><th>Изменение</th><th>Excess 20д</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>
+      <aside class="mls-side">
+        <h3>Контроль качества</h3>
+        <ul class="mls-checks">${dqChecks}</ul>
+      </aside>
+    </div>
+    <div class="mls-backtest">
+      <div class="mls-section-head"><div><h3>Out-of-sample против MCFTR</h3><p>Purged walk-forward, следующий торговый день, после заданных издержек.</p></div></div>
+      ${mlsCurveSvg(backtest.curve)}
+      <div class="mls-metrics">
+        <span>CAGR <b>${mlsPct(metrics.cagr_after_costs)}</b></span>
+        <span>Sharpe <b>${isNum(metrics.sharpe_after_costs) ? ru(metrics.sharpe_after_costs, 2) : '—'}</b></span>
+        <span>Max drawdown <b>${mlsPct(metrics.max_drawdown)}</b></span>
+        <span>Excess <b>${mlsPct(metrics.excess_cumulative_return)}</b></span>
+        <span>Периодов <b>${metrics.periods || '—'}</b></span>
+      </div>
+    </div>
+    <details class="mls-method">
+      <summary>Методология и ограничения</summary>
+      <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><ul>${limitations}</ul></div>
+    </details>`;
 }
 
 function eligibleForPortfolio(t) {
@@ -4870,7 +5046,10 @@ function onSectionShown(sec) {
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
     renderMyPortfolio();
   }
-  else if (sec === 'strategies') { openDetails('pf'); openDetails('marlamov'); }
+  else if (sec === 'strategies') {
+    if (ACTIVE_STRATEGY_MODE === 'ml') renderMlStrategy();
+    else { openDetails('pf'); openDetails('marlamov'); }
+  }
   else if (sec === 'news') { renderNews(true); if (MARKET_HISTORY) renderMarketInstruments(); else loadMarketHistory(() => renderMarketInstruments()); }
   else if (sec === 'bonds') { openDetails('bonds'); renderFinder(); }
   else if (sec === 'cbr') {

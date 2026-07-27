@@ -46,6 +46,7 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"
 [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"
 [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"
+[ -d site/ml_strategy ] && mkdir -p "$TMP/ml_strategy" && cp -R site/ml_strategy/. "$TMP/ml_strategy/"
 V="$(git rev-parse --short=8 HEAD)"
 python3 - "$TMP/index.html" "$V" <<'PY'
 from pathlib import Path

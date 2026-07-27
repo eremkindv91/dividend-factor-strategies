@@ -93,8 +93,10 @@ news/artifacts/
 
 # Daily Market Data Foundation: дневные OHLCV parquet генерятся в CI (большие) — в репо не нужны
 data/daily/
+data/ml_strategy/
 # Daily Market Data quality artifact — генерит CI, публикует в gh-pages
 site/daily_market_data_quality.json
+site/ml_strategy/
 # Веб-мост дневных доходностей — генерит CI, публикует в gh-pages
 site/daily/
 # двухконтурная Пила: IMOEX/manifest/зеркало генерит market-saw-update.yml

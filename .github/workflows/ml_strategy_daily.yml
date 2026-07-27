@@ -1,0 +1,60 @@
+name: ml-strategy-daily (MOEX inference + validated snapshot)
+
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  inference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install bounded runtime
+        run: python -m pip install --quiet pandas pyarrow numpy scipy scikit-learn requests lxml
+      - uses: actions/cache@v4
+        with:
+          path: |
+            data/daily
+            data/ml_strategy
+          key: daily-ohlcv-${{ github.run_id }}
+          restore-keys: |
+            daily-ohlcv-
+      - name: Increment official MOEX history
+        run: python scripts/daily_ingest.py --years 8
+      - name: Build and validate point-in-time snapshot
+        run: |
+          python scripts/build_ml_strategy.py --allow-network
+          python scripts/validate_ml_strategy.py
+          python scripts/validate_site_data.py ml_strategy
+      - name: Publish validated snapshot additively
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --depth 1 --branch gh-pages \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          rm -rf "$TMP/ml_strategy"
+          mkdir -p "$TMP/ml_strategy"
+          cp -R site/ml_strategy/. "$TMP/ml_strategy/"
+          if [ -z "$(git -C "$TMP" status --porcelain -- ml_strategy)" ]; then
+            echo "[ml-strategy] no snapshot changes"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" add ml_strategy
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "deploy: ML strategy daily snapshot"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

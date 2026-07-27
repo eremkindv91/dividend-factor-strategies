@@ -610,11 +610,34 @@ def check_dividend_calendar() -> None:
     print(f"  dividend_calendar.json: events={meta.get('event_count')}, actionable={meta.get('actionable_count')}, status={meta.get('status')}")
 
 
+def check_ml_strategy() -> None:
+    directory = os.path.join(SITE, "ml_strategy")
+    if not os.path.isdir(directory):
+        if CURRENT_SEL == "ml_strategy":
+            err("ml_strategy/: snapshot bundle отсутствует")
+        else:
+            warn("ml_strategy/: snapshot bundle отсутствует — пропуск")
+        return
+    sys.path.insert(0, REPO)
+    from ml_strategy.schemas import validate_bundle
+
+    errors = validate_bundle(directory)
+    for message in errors:
+        err(f"ml_strategy/: {message}")
+    latest = load("ml_strategy/latest.json") or {}
+    print(
+        "  ml_strategy/: "
+        f"action={(latest.get('signal') or {}).get('action')}, "
+        f"positions={len((latest.get('portfolio') or {}).get('positions') or [])}, "
+        f"as_of={latest.get('data_as_of')}"
+    )
+
+
 CHECKS = {"data": [check_data, check_returns], "marketsaw": [check_marketsaw],
           "market_history": [check_market_history],
           "marlamov": [check_marlamov], "quality": [check_quality],
           "bonds": [check_bonds], "news": [check_news], "alfa_index": [check_alfa_index],
-          "dividends": [check_dividend_calendar]}
+          "dividends": [check_dividend_calendar], "ml_strategy": [check_ml_strategy]}
 
 
 def main() -> int:

@@ -1,0 +1,129 @@
+from __future__ import annotations
+
+import json
+import math
+import os
+import tempfile
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+SNAPSHOT_FILES = ("latest.json", "backtest.json", "model_card.json", "data_quality.json")
+SIGNALS = {
+    "NO_ACTION",
+    "WATCH",
+    "REBALANCE",
+    "RISK_OFF",
+    "DATA_STALE",
+    "MODEL_UNCERTAIN",
+    "DEGRADED",
+}
+
+
+def _finite(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def validate_latest(payload: dict) -> list[str]:
+    errors: list[str] = []
+    required = ("schema_version", "generated_at", "data_as_of", "signal", "portfolio", "model", "data_quality")
+    errors.extend(f"latest: missing {key}" for key in required if key not in payload)
+    try:
+        datetime.fromisoformat(str(payload.get("generated_at", "")).replace("Z", "+00:00"))
+    except ValueError:
+        errors.append("latest: generated_at is not ISO-8601")
+    if payload.get("signal", {}).get("action") not in SIGNALS:
+        errors.append("latest: invalid signal action")
+    positions = payload.get("portfolio", {}).get("positions")
+    if not isinstance(positions, list) or not positions:
+        errors.append("latest: portfolio.positions is empty")
+    else:
+        weights = [row.get("target_weight") for row in positions]
+        if any(not _finite(weight) or weight < 0 for weight in weights):
+            errors.append("latest: invalid target weights")
+        cash = payload.get("portfolio", {}).get("cash_weight")
+        if not _finite(cash) or cash < 0:
+            errors.append("latest: invalid cash weight")
+        elif abs(sum(weights) + cash - 1.0) > 1e-5:
+            errors.append("latest: positions plus cash do not sum to one")
+    return errors
+
+
+def validate_backtest(payload: dict) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(payload.get("folds"), list) or not payload["folds"]:
+        errors.append("backtest: folds is empty")
+    if not isinstance(payload.get("model_metrics"), dict):
+        errors.append("backtest: model_metrics missing")
+    if not isinstance(payload.get("portfolio_metrics"), dict):
+        errors.append("backtest: portfolio_metrics missing")
+    return errors
+
+
+def validate_model_card(payload: dict) -> list[str]:
+    errors: list[str] = []
+    for key in ("champion", "challengers", "features", "target", "limitations"):
+        if key not in payload:
+            errors.append(f"model_card: missing {key}")
+    if payload.get("target", {}).get("horizon_sessions") != 20:
+        errors.append("model_card: target horizon must be 20 sessions")
+    return errors
+
+
+def validate_data_quality(payload: dict) -> list[str]:
+    errors: list[str] = []
+    if payload.get("status") not in {"PASS", "DEGRADED", "BLOCKED"}:
+        errors.append("data_quality: invalid status")
+    if not isinstance(payload.get("checks"), list):
+        errors.append("data_quality: checks missing")
+    if payload.get("production_data") != "real_sources_only":
+        errors.append("data_quality: production data declaration missing")
+    return errors
+
+
+def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
+    root = Path(directory)
+    errors: list[str] = []
+    validators = {
+        "latest.json": validate_latest,
+        "backtest.json": validate_backtest,
+        "model_card.json": validate_model_card,
+        "data_quality.json": validate_data_quality,
+    }
+    for name, validator in validators.items():
+        path = root / name
+        if not path.exists():
+            errors.append(f"missing {name}")
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{name}: invalid JSON ({exc})")
+            continue
+        errors.extend(validator(payload))
+    return errors
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as handle:
+        handle.write(text)
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
+
+
+def publish_bundle(bundle: dict[str, dict], data_root: Path, site_root: Path, history_date: str) -> None:
+    with tempfile.TemporaryDirectory(prefix="ml-strategy-") as tmp:
+        stage = Path(tmp)
+        for name in SNAPSHOT_FILES:
+            write_json(stage / name, bundle[name])
+        errors = validate_bundle(stage)
+        if errors:
+            raise ValueError("snapshot validation failed: " + "; ".join(errors))
+        for root in (data_root, site_root):
+            root.mkdir(parents=True, exist_ok=True)
+            for name in SNAPSHOT_FILES:
+                write_json(root / name, bundle[name])
+        write_json(data_root / "history" / f"{history_date}.json", bundle["latest.json"])
+        write_json(site_root / "history" / f"{history_date}.json", bundle["latest.json"])

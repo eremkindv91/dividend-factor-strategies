@@ -253,6 +253,7 @@
           <button type="button" class="strategy-mode" data-strategy="momentum" role="tab" aria-selected="false">Momentum</button>
           <button type="button" class="strategy-mode" data-strategy="marlamov" role="tab" aria-selected="false">Дивидендная переоценка</button>
           <button type="button" class="strategy-mode" data-strategy="optmv" role="tab" aria-selected="false">Оптимизаторы</button>
+          <button type="button" class="strategy-mode" data-strategy="ml" role="tab" aria-selected="false">ML-оптимизатор</button>
         </div>
 
         <details class="mapwrap pfwrap" id="pf" hidden>
@@ -341,6 +342,18 @@
             <div class="ml-loading muted">Посчитаем 2-летнюю форвардную дивдоходность…</div>
           </div>
         </details>
+
+        <section class="mls-panel" id="ml-strategy-panel" hidden aria-labelledby="mls-title">
+          <div class="mls-head">
+            <div>
+              <span class="mls-kicker">Point-in-time · MOEX ISS · MCFTR</span>
+              <h2 id="mls-title">ML-оптимизатор</h2>
+              <p>Модельный портфель с purged walk-forward проверкой, ограничениями ликвидности, лотности и издержек. Расчёт выполняется в GitHub Actions, браузер только показывает проверенный snapshot.</p>
+            </div>
+            <span class="mls-state" id="mls-state">Загрузка</span>
+          </div>
+          <div id="mls-content" aria-live="polite"><div class="mls-loading">Загрузка ML snapshot…</div></div>
+        </section>
       </section>
 
       <!-- ─────────── ОБЛИГАЦИИ ─────────── -->
