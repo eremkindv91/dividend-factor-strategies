@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "registry_version": "2026-07-27",
+  "sources": [
+    {
+      "series_id": "MOEX_USDRUB",
+      "label": "USD/RUB",
+      "provider": "MOEX ISS",
+      "source_url": "https://iss.moex.com/",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["OIL_AND_GAS", "STEEL_AND_FERROUS_METALS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_RGBI",
+      "label": "RGBI",
+      "provider": "MOEX ISS",
+      "source_url": "https://iss.moex.com/",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["BANKS_AND_FINANCIALS", "REAL_ESTATE_DEVELOPERS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "CBR_KEY_RATE",
+      "label": "Ключевая ставка Банка России",
+      "provider": "Банк России",
+      "source_url": "https://www.cbr.ru/hd_base/KeyRate/",
+      "frequency": "event",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "effective_date_vintage",
+      "required_by": ["BANKS_AND_FINANCIALS", "REAL_ESTATE_DEVELOPERS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "BRENT_URALS_AUDITED",
+      "label": "Brent/Urals audited history",
+      "provider": null,
+      "source_url": null,
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "not_configured",
+      "required_by": ["OIL_AND_GAS"],
+      "status": "BLOCKED",
+      "reason": "No stable licensed or official point-in-time history is configured."
+    },
+    {
+      "series_id": "STEEL_INPUTS_AUDITED",
+      "label": "Steel, iron ore and coking coal audited history",
+      "provider": null,
+      "source_url": null,
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "not_configured",
+      "required_by": ["STEEL_AND_FERROUS_METALS"],
+      "status": "BLOCKED",
+      "reason": "No stable licensed point-in-time commodity history is configured."
+    },
+    {
+      "series_id": "CBR_MORTGAGE_VINTAGES",
+      "label": "Ипотечная выдача и ставки с vintages",
+      "provider": "Банк России",
+      "source_url": "https://www.cbr.ru/statistics/bank_sector/mortgage/",
+      "frequency": "monthly",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "vintage_store_required",
+      "required_by": ["REAL_ESTATE_DEVELOPERS"],
+      "status": "BLOCKED",
+      "reason": "Publication-aware vintage ingestion is not configured yet."
+    }
+  ]
+}

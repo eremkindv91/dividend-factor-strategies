@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "default_calendar_days": 1,
+  "series": {
+    "MOEX_USDRUB": 0,
+    "MOEX_RGBI": 0,
+    "CBR_KEY_RATE": 0
+  },
+  "decision_timestamp": "after_official_market_close"
+}

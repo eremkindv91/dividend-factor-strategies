@@ -1466,8 +1466,9 @@ function loadMlStrategy() {
   };
   ML_STRATEGY_LOADING = Promise.all([
     get('latest.json'), get('backtest.json'), get('model_card.json'), get('data_quality.json'),
-  ]).then(([latest, backtest, modelCard, dataQuality]) => {
-    ML_STRATEGY = { latest, backtest, modelCard, dataQuality };
+    get('sector_features/latest_quality.json'), get('sector_features/latest_registry.json'),
+  ]).then(([latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry]) => {
+    ML_STRATEGY = { latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry };
     ML_STRATEGY_LOADING = null;
     return ML_STRATEGY;
   }).catch((error) => {
@@ -1536,7 +1537,7 @@ function renderMlStrategy() {
     });
     return;
   }
-  const { latest, backtest, modelCard, dataQuality } = ML_STRATEGY;
+  const { latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry } = ML_STRATEGY;
   const action = (latest.signal || {}).action;
   const model = latest.model || {};
   const portfolio = latest.portfolio || {};
@@ -1546,18 +1547,35 @@ function renderMlStrategy() {
     state.textContent = mlsActionLabel(action);
     state.className = 'mls-state ' + (action === 'REBALANCE' ? 'good' : (action === 'DATA_STALE' ? 'blocked' : 'watch'));
   }
-  const rows = positions.map((row) => `<tr>
+  const rows = positions.map((row) => {
+    const drivers = (row.sector_drivers || []).slice(0, 3);
+    const driverHtml = drivers.length
+      ? `<div class="mls-drivers">${drivers.map((driver) =>
+        `<span class="${esc(driver.direction)}">${esc(driver.factor)} <b>${isNum(driver.value) ? ru(driver.value * 100, 2) + '%' : '—'}</b></span>`
+      ).join('')}</div>`
+      : '';
+    return `<tr>
     <td><b>${esc(row.ticker)}</b><span>${esc(row.name || '')}</span></td>
-    <td>${esc(row.sector || '—')}</td>
+    <td>${esc(row.sector || '—')}${driverHtml}</td>
     <td>${mlsPct(row.current_weight)}</td>
     <td><b>${mlsPct(row.target_weight)}</b><small>${row.shares || 0} шт.</small></td>
     <td class="${row.change_weight > 0 ? 'up' : (row.change_weight < 0 ? 'down' : '')}">${row.change_weight > 0 ? '+' : ''}${mlsPct(row.change_weight)}</td>
     <td>${mlsPct(row.expected_excess_return_20d, 2)}</td>
-  </tr>`).join('');
+  </tr>`;
+  }).join('');
   const dqChecks = (dataQuality.checks || []).map((check) =>
     `<li><span>${esc(mlsCheckLabel(check.name))}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
   ).join('');
   const limitations = (modelCard.limitations || []).map((text) => `<li>${esc(text)}</li>`).join('');
+  const sectorPacks = (sectorQuality.packs || []).map((pack) => {
+    const ablation = (pack.status || '').toLowerCase();
+    const blocked = (pack.blocked_sources || []).length
+      ? ` · недоступны: ${(pack.blocked_sources || []).join(', ')}`
+      : '';
+    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(pack.reason || '')}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${esc(pack.status || '—')}</strong></li>`;
+  }).join('');
+  const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
+  const approvedSources = (sectorRegistry.sources || []).filter((source) => source.status === 'APPROVED').length;
   target.innerHTML = `
     <div class="mls-action">
       <div><span>Текущее действие</span><b>${esc(mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
@@ -1570,6 +1588,10 @@ function renderMlStrategy() {
       <div><span>Издержки</span><b>${isNum(portfolio.estimated_cost_rub) ? ru(portfolio.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(portfolio.one_way_cost_bps) ? ru(portfolio.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
       <div><span>Волатильность</span><b>${mlsPct(portfolio.annualized_volatility)}</b><small>годовая оценка</small></div>
       <div><span>Качество данных</span><b>${esc(dataQuality.status || '—')}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
+    </div>
+    <div class="mls-sector-summary">
+      <div><span>Отраслевые признаки</span><b>${approvedPackCount} из 4 в production</b><small>${approvedSources} официальных ряда · остальные не подменяются суррогатами</small></div>
+      <ul>${sectorPacks}</ul>
     </div>
     <div class="mls-layout">
       <div class="mls-main">
@@ -1594,7 +1616,7 @@ function renderMlStrategy() {
     </div>
     <details class="mls-method">
       <summary>Методология и ограничения</summary>
-      <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><ul>${limitations}</ul></div>
+      <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><p><b>Отраслевые признаки:</b> Base, sector ID и каждый pack сравниваются на одинаковых датах, universe, модели, оптимизаторе и издержках. Issuer exposures заблокированы до появления versioned disclosures.</p><ul>${limitations}</ul></div>
     </details>`;
 }
 

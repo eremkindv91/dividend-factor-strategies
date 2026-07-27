@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import ElasticNet, Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -76,6 +76,16 @@ def _elastic_net(config: StrategyConfig) -> Pipeline:
                     random_state=config.random_seed,
                 ),
             ),
+        ]
+    )
+
+
+def _ridge() -> Pipeline:
+    return Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
+            ("scaler", StandardScaler()),
+            ("model", Ridge(alpha=10.0)),
         ]
     )
 
@@ -165,7 +175,13 @@ def walk_forward(
     panel: pd.DataFrame,
     config: StrategyConfig,
     include_tree_challengers: bool = False,
+    feature_columns: list[str] | None = None,
+    linear_model: str = "elastic_net",
 ) -> ModelEvaluation:
+    feature_columns = feature_columns or FEATURE_COLUMNS
+    missing_features = sorted(set(feature_columns) - set(panel.columns))
+    if missing_features:
+        raise ValueError(f"feature columns missing from panel: {missing_features}")
     dates = panel.index.get_level_values("date").unique().sort_values()
     valid_dates = dates[config.min_history : -config.horizon : config.rebalance_frequency_sessions]
     if len(valid_dates) > config.evaluation_folds:
@@ -193,18 +209,23 @@ def walk_forward(
         train = train[train["adv_20d"] >= config.min_adv_rub]
         if len(train) < config.min_training_rows:
             continue
-        x_train = train[FEATURE_COLUMNS].replace([np.inf, -np.inf], np.nan)
+        x_train = train[feature_columns].replace([np.inf, -np.inf], np.nan)
         y_train = train[TARGET].astype(float)
-        x_test = cross_section[FEATURE_COLUMNS].replace([np.inf, -np.inf], np.nan)
+        x_test = cross_section[feature_columns].replace([np.inf, -np.inf], np.nan)
         actual = cross_section[TARGET].astype(float)
         forecasts: dict[str, np.ndarray] = {
             "zero": np.zeros(len(cross_section)),
             "historical_mean": np.full(len(cross_section), float(y_train.mean())),
             "momentum_12_1": cross_section["momentum_12_1"].fillna(0).clip(-0.5, 0.5).to_numpy() / 12.0,
         }
-        elastic = _elastic_net(config)
-        elastic.fit(x_train, y_train)
-        forecasts["elastic_net"] = elastic.predict(x_test)
+        if linear_model == "elastic_net":
+            linear = _elastic_net(config)
+        elif linear_model == "ridge":
+            linear = _ridge()
+        else:
+            raise ValueError(f"unsupported linear model: {linear_model}")
+        linear.fit(x_train, y_train)
+        forecasts[linear_model] = linear.predict(x_test)
         for name, model, reason in tree_specs:
             if model is None:
                 continue
@@ -257,18 +278,23 @@ def walk_forward(
         latest_forecasts = latest["momentum_12_1"].fillna(0).clip(-0.5, 0.5) / 12.0
     else:
         model: object
-        if champion == "elastic_net":
-            model = _elastic_net(config)
-            model.fit(train[FEATURE_COLUMNS].replace([np.inf, -np.inf], np.nan), train[TARGET])
-            values = model.predict(latest[FEATURE_COLUMNS].replace([np.inf, -np.inf], np.nan))
+        if champion in {"elastic_net", "ridge"}:
+            model = _elastic_net(config) if champion == "elastic_net" else _ridge()
+            model.fit(train[feature_columns].replace([np.inf, -np.inf], np.nan), train[TARGET])
+            values = model.predict(latest[feature_columns].replace([np.inf, -np.inf], np.nan))
         else:
             spec = next(item for item in tree_specs if item[0] == champion)
             model = spec[1]
             imputer = SimpleImputer(strategy="median", keep_empty_features=True).fit(
-                train[FEATURE_COLUMNS].replace([np.inf, -np.inf], np.nan)
+                train[feature_columns].replace([np.inf, -np.inf], np.nan)
             )
-            model.fit(imputer.transform(train[FEATURE_COLUMNS]), train[TARGET])
-            values = model.predict(imputer.transform(latest[FEATURE_COLUMNS]))
+            model.fit(
+                imputer.transform(train[feature_columns].replace([np.inf, -np.inf], np.nan)),
+                train[TARGET],
+            )
+            values = model.predict(
+                imputer.transform(latest[feature_columns].replace([np.inf, -np.inf], np.nan))
+            )
         latest_forecasts = pd.Series(values, index=latest.index, name="forecast")
     return ModelEvaluation(
         champion=champion,

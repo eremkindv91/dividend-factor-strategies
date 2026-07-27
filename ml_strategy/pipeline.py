@@ -13,6 +13,8 @@ from .features import FEATURE_COLUMNS, build_feature_panel, eligible_cross_secti
 from .models import ModelEvaluation, walk_forward
 from .optimization import build_portfolio
 from .schemas import publish_bundle
+from .sector_features import build_sector_features, evaluate_sector_ablation
+from .sector_features.registry import load_config
 
 
 def _round(value, digits: int = 6):
@@ -226,8 +228,52 @@ def build_bundle(
     if quality["status"] == "BLOCKED":
         reasons = [row["name"] for row in quality["checks"] if row["status"] == "BLOCKED"]
         raise ValueError("data quality blocked: " + ", ".join(reasons))
-    evaluation = walk_forward(panel, config, include_tree_challengers=include_tree_challengers)
+    sector_result = build_sector_features(data, panel, repo)
+    feature_flags = load_config(repo / "config" / "ml_strategy" / "sector_feature_flags.yml")
+    ablation_rows, approved_columns, ablation_evaluations = evaluate_sector_ablation(
+        sector_result,
+        config,
+        feature_flags["promotion"],
+    )
+    base_portfolio_metrics = _portfolio_backtest(ablation_evaluations["BASE"], config)[1]
+    for row in ablation_rows:
+        candidate = ablation_evaluations[f"{row['pack_id']}:SECTOR_FEATURES"]
+        candidate_metrics = _portfolio_backtest(candidate, config)[1]
+        row["base_after_costs"] = base_portfolio_metrics
+        row["candidate_after_costs"] = candidate_metrics
+        after_costs_pass = (
+            (candidate_metrics.get("excess_cumulative_return") or -1.0)
+            > (base_portfolio_metrics.get("excess_cumulative_return") or -1.0)
+            and (candidate_metrics.get("sharpe_after_costs") or -1.0)
+            >= (base_portfolio_metrics.get("sharpe_after_costs") or -1.0)
+        )
+        row["after_costs_gate"] = "PASS" if after_costs_pass else "FAIL"
+        if row["status"] == "APPROVED" and not after_costs_pass:
+            row["status"] = "RESEARCH_ONLY"
+            row["reason"] = "Forecast gate passed, but the fixed after-cost portfolio gate failed."
+            pack_columns = sector_result.pack_columns[row["pack_id"]]
+            sector_column = f"sector_id__{row['pack_id'].lower()}"
+            approved_columns = [
+                column for column in approved_columns if column not in {sector_column, *pack_columns}
+            ]
+    ablation_by_pack = {row["pack_id"]: row for row in ablation_rows}
+    for row in sector_result.pack_rows:
+        result = ablation_by_pack[row["pack_id"]]
+        row["ablation_status"] = result["status"]
+        row["status"] = result["status"]
+        row["ablation_reason"] = result["reason"]
+    sector_result.quality_payload["packs"] = sector_result.pack_rows
+    sector_result.quality_payload["approved_feature_columns"] = approved_columns
+    sector_result.quality_payload["ablation"] = ablation_rows
+    feature_columns = FEATURE_COLUMNS + approved_columns
+    evaluation = walk_forward(
+        sector_result.panel,
+        config,
+        include_tree_challengers=include_tree_challengers,
+        feature_columns=feature_columns,
+    )
     as_of = data.as_of
+    panel = sector_result.panel
     latest = eligible_cross_section(panel, as_of, config)
     latest = latest.reindex(evaluation.latest_forecasts.index)
     latest["lot_size"] = [
@@ -251,8 +297,7 @@ def build_bundle(
         current = float(previous.get(ticker, 0))
         target = float(portfolio.executable_weights.get(ticker, 0))
         theoretical = float(portfolio.theoretical_weights.get(ticker, 0))
-        positions.append(
-            {
+        position = {
                 "ticker": ticker,
                 "name": data.master.get(ticker, {}).get("name") or ticker,
                 "sector": data.master.get(ticker, {}).get("sector") or "Не определён",
@@ -265,8 +310,44 @@ def build_bundle(
                 "expected_excess_return_20d": _round(evaluation.latest_forecasts.get(ticker)),
                 "adv_20d_rub": _round(latest.at[ticker, "adv_20d"], 2),
                 "beta_120d": _round(latest.at[ticker, "beta_120d"], 3),
+                "sector_drivers": [],
             }
+        pack_id = next(
+            (
+                row["pack_id"]
+                for row in sector_result.pack_rows
+                if row["status"] == "APPROVED"
+                and latest.at[ticker, f"sector_id__{row['pack_id'].lower()}"] == 1
+            ),
+            None,
         )
+        driver_labels = {
+            "oil_fx_driver": "USD/RUB, 20 дней",
+            "steel_fx_driver": "USD/RUB, 20 дней",
+            "bank_key_rate_level": "Ключевая ставка",
+            "bank_key_rate_change_60d": "Изменение ставки, 60 дней",
+            "bank_rgbi_driver": "RGBI, 20 дней",
+            "developer_key_rate_level": "Ключевая ставка",
+            "developer_key_rate_change_60d": "Изменение ставки, 60 дней",
+            "developer_rgbi_driver": "RGBI, 20 дней",
+        }
+        if pack_id:
+            for column in sector_result.pack_columns[pack_id]:
+                if column.endswith("_missing") or pd.isna(latest.at[ticker, column]):
+                    continue
+                value = float(latest.at[ticker, column])
+                position["sector_drivers"].append(
+                    {
+                        "factor": driver_labels.get(column, column),
+                        "value": _round(value, 4),
+                        "direction": "positive" if value > 0 else ("negative" if value < 0 else "neutral"),
+                        "data_as_of": as_of.date().isoformat(),
+                        "status": "APPROVED",
+                    }
+                )
+                if len(position["sector_drivers"]) == 3:
+                    break
+        positions.append(position)
     positions.sort(key=lambda row: row["target_weight"], reverse=True)
     curve, portfolio_metrics = _portfolio_backtest(evaluation, config)
     production_status = evaluation.champion_status
@@ -316,6 +397,17 @@ def build_bundle(
             "investable_companies": int(len(latest)),
             "stale_days": data_age_days(as_of, today),
         },
+        "sector_features": {
+            "status": sector_result.quality_payload["status"],
+            "approved_packs": [
+                row["pack_id"] for row in sector_result.pack_rows if row["status"] == "APPROVED"
+            ],
+            "research_only_packs": [
+                row["pack_id"] for row in sector_result.pack_rows if row["status"] == "RESEARCH_ONLY"
+            ],
+            "blocked_issuer_exposures": True,
+            "last_checked_at": sector_result.quality_payload["generated_at"],
+        },
         "limitations": [
             "Исследовательский модельный портфель, не индивидуальная инвестиционная рекомендация.",
             "Исторический состав бумаг пока неполон: в backtest остаётся остаточный survivorship risk.",
@@ -332,6 +424,7 @@ def build_bundle(
         "folds": evaluation.folds,
         "model_metrics": evaluation.metrics,
         "portfolio_metrics": portfolio_metrics,
+        "sector_ablation": ablation_rows,
         "curve": curve,
     }
     model_card = {
@@ -359,7 +452,16 @@ def build_bundle(
                 ),
             },
         ],
-        "features": FEATURE_COLUMNS,
+        "features": feature_columns,
+        "sector_features": {
+            "packs": sector_result.pack_rows,
+            "approved_feature_columns": approved_columns,
+            "issuer_exposures": "BLOCKED",
+            "ablation_protocol": (
+                "same folds, universe, model, optimizer config, costs and test dates; "
+                "fixed promotion thresholds declared before evaluation"
+            ),
+        },
         "target": {
             "name": "forward_excess_total_return_20d_vs_MCFTR",
             "horizon_sessions": config.horizon,
@@ -384,6 +486,8 @@ def build_bundle(
         "backtest.json": backtest,
         "model_card.json": model_card,
         "data_quality.json": quality,
+        "sector_features/latest_registry.json": sector_result.registry_payload,
+        "sector_features/latest_quality.json": sector_result.quality_payload,
     }
 
 

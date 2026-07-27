@@ -369,6 +369,20 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-kpis > div:last-child { border-right: 0; }
 .mls-kpis span, .mls-kpis small { display: block; color: var(--ink-faint); font-size: .64rem; line-height: 1.25; }
 .mls-kpis b { display: block; margin: 3px 0 2px; color: var(--ink); font-size: .91rem; overflow-wrap: anywhere; }
+.mls-sector-summary { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; margin: 0 0 12px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; background: #F8FAFC; }
+.mls-sector-summary > div { display: grid; align-content: start; gap: 2px; }
+.mls-sector-summary > div span, .mls-sector-summary small { color: var(--ink-faint); font-size: .65rem; line-height: 1.35; }
+.mls-sector-summary > div b { color: var(--ink); font-size: .88rem; }
+.mls-sector-summary ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.mls-sector-summary li { display: flex; justify-content: space-between; gap: 8px; min-width: 0; padding: 7px 8px; border: 1px solid #E1E7EF; border-radius: 6px; background: #fff; }
+.mls-sector-summary li span { min-width: 0; }
+.mls-sector-summary li b, .mls-sector-summary li small { display: block; overflow-wrap: anywhere; }
+.mls-sector-summary li b { color: var(--ink-soft); font-size: .68rem; }
+.mls-sector-summary li small { margin-top: 2px; }
+.mls-sector-summary strong { flex: 0 0 auto; font-size: .56rem; }
+.mls-sector-summary strong.approved { color: var(--good-ink); }
+.mls-sector-summary strong.research_only { color: #8A5B22; }
+.mls-sector-summary strong.blocked { color: var(--risk-ink); }
 .mls-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 12px; align-items: start; }
 .mls-main, .mls-side, .mls-backtest { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
 .mls-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 11px 13px; border-bottom: 1px solid var(--line); }
@@ -381,6 +395,10 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-table th:first-child, .mls-table th:nth-child(2), .mls-table td:first-child, .mls-table td:nth-child(2) { text-align: left; }
 .mls-table td { padding: 8px 9px; border-top: 1px solid #EDF0F4; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .mls-table td span, .mls-table td small { display: block; color: var(--ink-faint); font-size: .62rem; }
+.mls-drivers { display: flex !important; flex-wrap: wrap; gap: 3px; margin-top: 4px; max-width: 240px; white-space: normal; }
+.mls-drivers span { display: inline-flex !important; gap: 3px; padding: 2px 4px; border-radius: 3px; background: #F2F5F8; font-size: .55rem !important; line-height: 1.25; }
+.mls-drivers span.positive b { color: var(--good-ink); }
+.mls-drivers span.negative b { color: var(--risk-ink); }
 .mls-table td.up { color: var(--good-ink); font-weight: 800; }
 .mls-table td.down { color: var(--risk-ink); font-weight: 800; }
 .mls-side h3 { padding: 11px 12px 8px; border-bottom: 1px solid var(--line); }
@@ -428,6 +446,8 @@ tbody tr.data-row:hover { background: #FAFBFD; }
   .mls-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mls-kpis > div:nth-child(2n) { border-right: 0; }
   .mls-layout { grid-template-columns: 1fr; }
+  .mls-sector-summary { grid-template-columns: 1fr; }
+  .mls-sector-summary ul { grid-template-columns: 1fr; }
   .mls-side { order: -1; }
   .mls-metrics { grid-template-columns: repeat(2, 1fr); }
   .mls-metrics span:nth-child(2n) { border-right: 0; }

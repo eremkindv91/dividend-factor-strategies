@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "mapping_version": "2026-07-27",
+  "effective_from": "2018-01-01",
+  "packs": {
+    "OIL_AND_GAS": {
+      "security_master_sectors": ["Нефть и газ"],
+      "priority_tickers": ["LKOH", "ROSN", "SIBN", "TATN", "TATNP", "NVTK", "GAZP", "TRNFP"]
+    },
+    "STEEL_AND_FERROUS_METALS": {
+      "security_master_sectors": ["Металлы и добыча"],
+      "priority_tickers": ["CHMF", "NLMK", "MAGN", "MTLR"]
+    },
+    "BANKS_AND_FINANCIALS": {
+      "security_master_sectors": ["Финансы (Банки)"],
+      "priority_tickers": ["SBER", "SBERP", "T", "VTBR", "BSPB", "SVCB"]
+    },
+    "REAL_ESTATE_DEVELOPERS": {
+      "security_master_sectors": ["Недвижимость"],
+      "priority_tickers": ["PIKK", "SMLT", "LSRG", "ETLN"]
+    }
+  },
+  "issuer_exposures": [],
+  "issuer_exposure_status": "BLOCKED",
+  "issuer_exposure_reason": "No versioned issuer disclosures with published_at and available_at are configured."
+}

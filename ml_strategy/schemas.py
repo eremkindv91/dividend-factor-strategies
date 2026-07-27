@@ -8,7 +8,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-SNAPSHOT_FILES = ("latest.json", "backtest.json", "model_card.json", "data_quality.json")
+SNAPSHOT_FILES = (
+    "latest.json",
+    "backtest.json",
+    "model_card.json",
+    "data_quality.json",
+    "sector_features/latest_registry.json",
+    "sector_features/latest_quality.json",
+)
 SIGNALS = {
     "NO_ACTION",
     "WATCH",
@@ -81,6 +88,36 @@ def validate_data_quality(payload: dict) -> list[str]:
     return errors
 
 
+def validate_sector_registry(payload: dict) -> list[str]:
+    errors: list[str] = []
+    if payload.get("schema_version") != 1:
+        errors.append("sector registry: invalid schema_version")
+    sources = payload.get("sources")
+    if not isinstance(sources, list) or not sources:
+        errors.append("sector registry: sources missing")
+    else:
+        for row in sources:
+            if row.get("status") == "APPROVED" and (
+                not row.get("provider") or not row.get("source_url")
+            ):
+                errors.append(f"sector registry: {row.get('series_id')} lacks provenance")
+    return errors
+
+
+def validate_sector_quality(payload: dict) -> list[str]:
+    errors: list[str] = []
+    if payload.get("status") not in {"PASS", "DEGRADED", "BLOCKED"}:
+        errors.append("sector quality: invalid status")
+    if payload.get("point_in_time_policy") != "available_at <= prediction_timestamp":
+        errors.append("sector quality: point-in-time policy missing")
+    packs = payload.get("packs")
+    if not isinstance(packs, list) or len(packs) != 4:
+        errors.append("sector quality: four priority packs required")
+    elif any(row.get("status") not in {"APPROVED", "RESEARCH_ONLY", "BLOCKED"} for row in packs):
+        errors.append("sector quality: invalid pack status")
+    return errors
+
+
 def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
     root = Path(directory)
     errors: list[str] = []
@@ -89,6 +126,8 @@ def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
         "backtest.json": validate_backtest,
         "model_card.json": validate_model_card,
         "data_quality.json": validate_data_quality,
+        "sector_features/latest_registry.json": validate_sector_registry,
+        "sector_features/latest_quality.json": validate_sector_quality,
     }
     for name, validator in validators.items():
         path = root / name

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,8 @@ import pytest
 @pytest.fixture
 def market_repo(tmp_path: Path) -> Path:
     repo = tmp_path
+    source_config = Path(__file__).resolve().parents[2] / "config" / "ml_strategy"
+    shutil.copytree(source_config, repo / "config" / "ml_strategy")
     (repo / "data" / "daily" / "prices").mkdir(parents=True)
     (repo / "data" / "daily" / "benchmarks").mkdir(parents=True)
     dates = pd.bdate_range("2022-01-03", periods=760)
