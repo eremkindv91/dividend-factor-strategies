@@ -1,273 +1,252 @@
 {
   "date": "2026-07-27",
-  "generated_at": "2026-07-27T13:12:04+03:00",
+  "generated_at": "2026-07-27T20:47:12+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы снижаются, нефть марки Brent демонстрирует резкое падение, золото торгуется в плюсе.",
+  "external_backdrop": "Мировые фондовые индексы преимущественно снижаются, в то время как цены на нефть марки Brent демонстрируют резкое падение.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7408.30",
-      "change_pct": "-1.21%",
-      "as_of": "2026-07-23",
+      "value": "7392.77",
+      "change_pct": "-0.26%",
+      "as_of": "2026-07-27",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25137.69",
-      "change_pct": "-2.15%",
-      "as_of": "2026-07-23",
+      "value": "24839.33",
+      "change_pct": "-0.55%",
+      "as_of": "2026-07-27",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64931.19",
-      "change_pct": "-2.25%",
-      "as_of": "2026-07-27",
+      "value": "64611.15",
+      "change_pct": "-2.73%",
+      "as_of": "2026-07-24",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25207.18",
-      "change_pct": "-0.01%",
-      "as_of": "2026-07-27",
+      "value": "24963.23",
+      "change_pct": "-0.98%",
+      "as_of": "2026-07-24",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "87.85",
-      "change_pct": "-9.23%",
+      "value": "88.80",
+      "change_pct": "-8.25%",
       "as_of": "2026-07-27",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4097.60",
-      "change_pct": "+0.74%",
+      "value": "4076.20",
+      "change_pct": "+0.21%",
       "as_of": "2026-07-27",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2193.93",
-      "change_pct": "+1.31%",
-      "as_of": "2026-07-27 13:12:00",
+      "value": "2216.92",
+      "change_pct": "+2.37%",
+      "as_of": "2026-07-27 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "885.74",
-      "change_pct": "+1.31%",
-      "as_of": "2026-07-27 13:12:02",
+      "value": "895.16",
+      "change_pct": "+2.39%",
+      "as_of": "2026-07-27 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "78.24",
-      "change_pct": "-0.17%",
-      "as_of": "2026-07-27 13:11:52",
+      "value": "78.58",
+      "change_pct": "+0.29%",
+      "as_of": "2026-07-27 20:47:10",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.51",
-      "change_pct": "+0.01%",
-      "as_of": "2026-07-27 13:12:03",
+      "value": "11.55",
+      "change_pct": "-0.07%",
+      "as_of": "2026-07-27 19:15:01",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "brent-crude-oil-plunge",
-      "headline": "Цены на нефть Brent резко снизились на фоне приостановки взаимных ударов США и Ирана",
-      "context": "В начале торгов стоимость Brent опускалась до 85,5 доллара за баррель, скорректировавшись к утру до 92,1 доллара.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845242"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1105771"
-        }
-      ],
-      "published_at": "2026-07-27T08:24:00+03:00"
-    },
-    {
-      "id": "gazprom-power-of-siberia-record",
-      "headline": "«Газпром» обновил исторический рекорд суточных поставок газа в Китай по «Силе Сибири»",
-      "context": "По данным холдинга, это уже третий суточный рекорд поставок с начала 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845115"
-        },
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378900"
-        }
-      ],
-      "published_at": "2026-07-26T19:55:00+03:00"
-    },
-    {
-      "id": "cb-tightens-macroprudential-limits",
-      "headline": "Банк России ужесточил макропруденциальные лимиты по необеспеченным кредитам на четвертый квартал",
-      "context": "Ограничения коснутся потребительских кредитов без лимита кредитования и нецелевых ссуд под залог недвижимости и автотранспорта.",
+      "id": "cb-rate-cut",
+      "headline": "Банк России неожиданно снизил ключевую ставку на 25 базисных пунктов до 14 процентов годовых",
+      "context": "Решение стало неожиданным для большинства аналитиков, ожидавших сохранения ставки на прежнем уровне.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1105817"
-        },
+          "name": "mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3746"
+        }
+      ],
+      "published_at": "2026-07-27T09:37:00+03:00"
+    },
+    {
+      "id": "cb-mpl-tightening",
+      "headline": "Банк России ужесточил макропруденциальные лимиты по необеспеченным потребительским и автомобильным кредитам",
+      "context": "Новые ограничения на выдачу займов закредитованным гражданам вступят в силу в четвертом квартале.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/295039"
         }
       ],
-      "published_at": "2026-07-27T12:18:00+03:00"
+      "published_at": "2026-07-27T12:24:00+03:00"
     },
     {
-      "id": "nornickel-h1-production-results",
-      "headline": "«Норникель» представил производственные результаты за первое полугодие 2026 года",
-      "context": "Производство никеля снизилось на 2% до 85 тысяч тонн, меди — на 5% до 213,1 тысячи тонн, палладия — на 14%.",
-      "category": "corporate",
+      "id": "oil-price-drop",
+      "headline": "Мировые цены на нефть марки Brent резко снизились на фоне приостановки взаимных ударов США и Ирана",
+      "context": "Котировки опускались более чем на 11 процентов, достигая локального минимума на уровне 85,5 доллара за баррель.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378937"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1333193.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8845162"
         }
       ],
-      "published_at": "2026-07-27T13:01:00+03:00"
+      "published_at": "2026-07-27T01:38:00+03:00"
     },
     {
-      "id": "kamaz-cancels-four-day-week",
-      "headline": "«КАМАЗ» отменил переход на четырехдневную рабочую неделю из-за роста заказов",
-      "context": "Режим неполной рабочей недели планировался на период с августа по октябрь 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378923"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1105802"
-        }
-      ],
-      "published_at": "2026-07-27T10:44:00+03:00"
-    },
-    {
-      "id": "eu-allows-seized-oil-sales",
-      "headline": "Евросоюз разрешил продавать российскую нефть с задержанных танкеров без выплаты компенсаций",
-      "context": "Соответствующий регламент был обнародован в Официальном журнале ЕС в рамках 21-го пакета санкций.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378915"
-        }
-      ],
-      "published_at": "2026-07-27T09:48:00+03:00"
-    },
-    {
-      "id": "rnpk-leaves-antiterrorism-pool",
-      "headline": "Российская национальная перестраховочная компания готовится выйти из антитеррористического страхового пула",
-      "context": "Стороны не договорились о механизме принятия решений по страхованию крупных рисков.",
+      "id": "rnpk-exit-pool",
+      "headline": "Российская национальная перестраховочная компания готовится выйти из состава Российского антитеррористического страхового пула",
+      "context": "Стороны не смогли согласовать порядок принятия решений по страхованию крупных рисков.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845100"
-        },
-        {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/294857"
         }
       ],
-      "published_at": "2026-07-26T19:19:00+03:00"
+      "published_at": "2026-07-27T08:11:00+03:00"
     },
     {
-      "id": "cxmt-shanghai-ipo-success",
-      "headline": "Китайский производитель чипов CXMT привлек 9,8 миллиарда долларов в ходе IPO в Шанхае",
-      "context": "Акции компании выросли более чем на 500% в первый день торгов, сделав ее самой дорогой компанией Китая.",
-      "category": "markets",
+      "id": "digital-ruble-balances",
+      "headline": "Общий объем остатков цифровых рублей на счетах российских банков превысил 25 миллионов рублей",
+      "context": "При этом почти треть системно значимых кредитных организаций пока не готова к расчетам в цифровой валюте.",
+      "category": "banks",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845192"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295025"
+          "url": "https://www.kommersant.ru/doc/8845169"
         }
       ],
-      "published_at": "2026-07-27T06:48:00+03:00"
+      "published_at": "2026-07-27T07:01:00+03:00"
+    },
+    {
+      "id": "coal-price-drop",
+      "headline": "Стоимость кузбасского коксующегося угля в портах Дальнего Востока снизилась на 7,5 процента за месяц",
+      "context": "Снижение котировок до 148 долларов за тонну обусловлено слабым спросом на сталь в Китае.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8845174"
+        }
+      ],
+      "published_at": "2026-07-27T00:58:00+03:00"
+    },
+    {
+      "id": "gazprom-record-china",
+      "headline": "Газпром обновил исторический рекорд суточных поставок природного газа в Китай по Силе Сибири",
+      "context": "Зафиксированный показатель стал третьим суточным рекордом холдинга с начала текущего года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8845110"
+        }
+      ],
+      "published_at": "2026-07-26T19:55:00+03:00"
+    },
+    {
+      "id": "svoy-acquisition",
+      "headline": "Финтехгруппа Свой приобрела 100 процентов долей страховой компании Кредит Европа лайф",
+      "context": "Сумма сделки по выкупу актива у Кредит Европа банка официально не раскрывается.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/294898"
+        }
+      ],
+      "published_at": "2026-07-27T08:52:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "russia-extends-gasoline-export-ban",
-      "headline": "Правительство России продлит запрет на экспорт бензина до конца 2026 года",
+      "id": "gasoline-export-ban",
+      "headline": "Правительство России планирует продлить запрет на экспорт бензина до конца года",
       "context": "Ограничения на вывоз дизельного топлива могут быть сняты раньше по мере восстановления рынка.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378906"
-        },
-        {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8845035"
         }
       ],
-      "published_at": "2026-07-26T09:42:00+03:00"
+      "published_at": "2026-07-26T18:26:00+03:00"
     },
     {
-      "id": "putin-signs-ai-regulation-law",
-      "headline": "Президент России Владимир Путин подписал базовый закон о регулировании искусственного интеллекта",
-      "context": "Документ регулирует разработку, внедрение и применение больших фундаментальных моделей ИИ.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 5,
+      "id": "tanker-explosion-ormuz",
+      "headline": "Министерство обороны Ирана сообщило о подрыве коммерческого нефтетанкера на мине в Ормузском проливе",
+      "context": "Судно следовало по морскому коридору, который не был одобрен официальными иранскими властями.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1105679"
-        },
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8845073"
+        }
+      ],
+      "published_at": "2026-07-26T18:17:00+03:00"
+    },
+    {
+      "id": "ai-regulation-law",
+      "headline": "Президент России подписал базовый закон о государственной поддержке развития искусственного интеллекта",
+      "context": "Документ регулирует разработку и применение больших фундаментальных моделей в стране.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8844995"
         }
       ],
-      "published_at": "2026-07-26T15:19:00+03:00"
+      "published_at": "2026-07-26T15:23:00+03:00"
     },
     {
-      "id": "sukhoi-log-largest-gold-deposit",
-      "headline": "Сухой Лог официально признан крупнейшим золоторудным месторождением России",
-      "context": "Запасы месторождения в Иркутской области превышают 2,77 тысячи тонн золота.",
+      "id": "sukhoi-log-status",
+      "headline": "Месторождение Сухой Лог официально признано крупнейшим золоторудным объектом в России",
+      "context": "Российские золотодобытчики ранее перестроили экспортные поставки на рынки Китая, Индии, Турции и ОАЭ.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -275,37 +254,14 @@
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/business/news/2026/07/26/1216513-suhoi-log-priznali"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1333153.php"
         }
       ],
       "published_at": "2026-07-26T10:30:00+03:00"
     },
     {
-      "id": "russian-gold-miners-adapt-to-sanctions",
-      "headline": "Российские золотодобытчики перестроили экспортные поставки в Азию и Ближний Восток",
-      "context": "Компании адаптировались к санкциям ЕС, перенаправив торговлю в Китай, Индию, Турцию и ОАЭ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378865"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844948"
-        }
-      ],
-      "published_at": "2026-07-26T09:48:00+03:00"
-    },
-    {
-      "id": "us-increases-russian-fertilizer-imports",
-      "headline": "США увеличили импорт российских удобрений до рекордного уровня",
-      "context": "Об этом сообщает РИА Новости со ссылкой на статистические данные.",
+      "id": "fertilizer-export-usa",
+      "headline": "Соединенные Штаты увеличили импорт российских минеральных удобрений до рекордного уровня",
+      "context": "Российские производители продолжают наращивать поставки на американский рынок вопреки санкционному давлению.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 4,
@@ -318,138 +274,80 @@
       "published_at": "2026-07-26T09:49:00+03:00"
     },
     {
-      "id": "migrant-minimum-income-law-signed",
-      "headline": "Президент России подписал закон о минимальном доходе для трудовых мигрантов",
-      "context": "Иностранные работники обязаны содержать членов семьи на уровне не ниже прожиточного минимума.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844991"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/26/1216542-putin-trudovim-migrantam"
-        }
-      ],
-      "published_at": "2026-07-26T14:54:00+03:00"
-    },
-    {
-      "id": "tes-owner-accused-of-fraud",
-      "headline": "Совладельца крымской сети АЗС ТЭС Сергея Бейма обвинили в хищении на миллиард рублей",
-      "context": "Ему инкриминируется хищение более 1,1 млрд рублей при исполнении контрактов на поставку топлива.",
-      "category": "corporate",
+      "id": "deepseek-funding-pause",
+      "headline": "Китайский разработчик искусственного интеллекта DeepSeek временно приостановил второй раунд привлечения финансирования",
+      "context": "Компания устно уведомила потенциальных инвесторов о заморозке процесса сбора средств.",
+      "category": "tech",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845007"
+          "url": "https://www.kommersant.ru/doc/8845042"
         }
       ],
-      "published_at": "2026-07-26T15:51:00+03:00"
+      "published_at": "2026-07-26T17:11:00+03:00"
     },
     {
-      "id": "hotel-company-liquidations-rise",
-      "headline": "Количество ликвидаций гостиничных и санаторных компаний в России выросло на 21,8%",
-      "context": "В первом полугодии было ликвидировано 2,13 тысячи организаций этой сферы.",
-      "category": "corporate",
+      "id": "hotel-liquidations",
+      "headline": "Число ликвидированных гостиничных и санаторно-курортных организаций в России выросло на 21,8 процента",
+      "context": "За первую половину года в стране прекратили деятельность 2,13 тысячи профильных компаний.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8845022"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1333043.php"
         }
       ],
       "published_at": "2026-07-26T16:17:00+03:00"
     },
     {
-      "id": "telecom-access-fines-for-uk",
-      "headline": "Президент России подписал закон о штрафах для управляющих компаний за недопуск операторов связи",
-      "context": "Штрафы для юридических лиц за нарушение правил взаимодействия составят от 100 до 500 тысяч рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "migrant-income-law",
+      "headline": "Президент России подписал закон об обязательном минимальном доходе для иностранных работников",
+      "context": "Трудовые мигранты обязаны содержать себя и иждивенцев на уровне не ниже прожиточного минимума.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845070"
+          "url": "https://www.kommersant.ru/doc/8844991"
         }
       ],
-      "published_at": "2026-07-26T17:09:00+03:00"
+      "published_at": "2026-07-26T14:54:00+03:00"
     },
     {
-      "id": "bitmart-crypto-exchange-closes",
-      "headline": "Криптобиржа Bitmart объявила о прекращении существования и закрытии в августе",
-      "context": "Регистрация новых пользователей прекращена, нативный токен BMX упал на 60%.",
+      "id": "iraq-pipeline-project",
+      "headline": "Правительство Ирака одобрило проект строительства нового нефтепровода для экспорта через Сирию",
+      "context": "Сроки реализации, мощность и источники финансирования нового маршрута к Средиземному морю пока не раскрываются.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378872"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8844956"
         }
       ],
-      "published_at": "2026-07-26T10:25:00+03:00"
+      "published_at": "2026-07-26T13:35:00+03:00"
+    },
+    {
+      "id": "friedman-arbitration",
+      "headline": "Михаил Фридман инициировал инвестиционный арбитраж против Нидерландов в Постоянной палате третейского суда",
+      "context": "Карточка соответствующего дела появилась на официальном сайте международного арбитражного органа.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8844777"
+        }
+      ],
+      "published_at": "2026-07-26T04:49:00+03:00"
     }
   ],
-  "today_agenda": [
-    {
-      "time": "08:00",
-      "event": "Astrazeneca - публикация финансовой отчетности",
-      "ticker": "AZN",
-      "type": "earnings",
-      "importance": 3
-    },
-    {
-      "time": "11:00",
-      "event": "Германия - публикация индекса делового климата Ifo за июль",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "15:30",
-      "event": "США - объем заказов на товары длительного пользования за июнь",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "-",
-      "event": "ГОСА по дивидендам ПАО Русагро",
-      "ticker": "RAGR",
-      "type": "dividend_cutoff",
-      "importance": 4
-    },
-    {
-      "time": "-",
-      "event": "Норникель - публикация производственных результатов за 1 полугодие 2026 года",
-      "ticker": "GMKN",
-      "type": "earnings",
-      "importance": 4
-    },
-    {
-      "time": "-",
-      "event": "Группа Позитив - публикация МСФО за 1 полугодие 2025 года",
-      "ticker": "POSI",
-      "type": "earnings",
-      "importance": 4
-    },
-    {
-      "time": "-",
-      "event": "Заседание Совета Безопасности ООН по Украине",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    }
-  ]
+  "today_agenda": []
 }
