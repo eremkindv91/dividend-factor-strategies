@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install bounded runtime
-        run: python -m pip install --quiet pandas pyarrow numpy scipy scikit-learn requests lxml
+        run: python -m pip install --quiet pandas pyarrow numpy scipy scikit-learn requests lxml ta
       - uses: actions/cache@v4
         with:
           path: |
