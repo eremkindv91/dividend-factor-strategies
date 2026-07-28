@@ -4,7 +4,7 @@ import json
 from datetime import date
 
 from ml_strategy.config import StrategyConfig
-from ml_strategy.pipeline import run_pipeline
+from ml_strategy.pipeline import _previous_positions, run_pipeline
 from ml_strategy.schemas import validate_bundle, validate_latest
 
 
@@ -59,6 +59,41 @@ def test_pipeline_writes_atomic_valid_snapshots(market_repo):
     history = market_repo / "data" / "ml_strategy" / "history" / f"{latest['data_as_of']}.json"
     assert history.exists()
     assert bundle["backtest.json"]["portfolio_metrics"]["average_turnover"] <= config.turnover_cap + 1e-9
+
+
+def test_previous_positions_migrates_legacy_same_cutoff_shares(tmp_path):
+    latest_path = tmp_path / "latest.json"
+    latest_path.write_text(
+        json.dumps(
+            {
+                "data_as_of": "2026-07-27",
+                "portfolio": {
+                    "positions": [
+                        {
+                            "ticker": "SIBN",
+                            "current_weight": 0.101341,
+                            "target_weight": 0.132984,
+                            "shares": 311,
+                        },
+                        {
+                            "ticker": "SBER",
+                            "current_weight": 0.099365,
+                            "target_weight": 0.127912,
+                            "shares": 466,
+                            "current_shares": 0,
+                        },
+                    ]
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    positions = _previous_positions(latest_path, "2026-07-27")
+
+    assert positions["SIBN"]["shares"] == 237
+    assert positions["SIBN"]["target_weight"] == 0.101341
+    assert positions["SBER"]["shares"] == 0
 
 
 def test_pipeline_keeps_last_good_when_input_is_blocked(market_repo):

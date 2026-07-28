@@ -24,6 +24,18 @@ def _round(value, digits: int = 6):
     return round(float(value), digits)
 
 
+def _same_cutoff_current_shares(row: dict) -> int:
+    explicit = row.get("current_shares")
+    if explicit is not None:
+        return int(explicit)
+    target_shares = int(row.get("shares") or 0)
+    current_weight = float(row.get("current_weight") or 0)
+    target_weight = float(row.get("target_weight") or 0)
+    if target_shares <= 0 or target_weight <= 0:
+        return 0
+    return max(0, int(round(target_shares * current_weight / target_weight)))
+
+
 def _previous_positions(latest_path: Path, data_cutoff: str | None = None) -> dict[str, dict]:
     if not latest_path.exists():
         return {}
@@ -40,7 +52,7 @@ def _previous_positions(latest_path: Path, data_cutoff: str | None = None) -> di
                     else row.get("target_weight", 0)
                 ),
                 "shares": (
-                    row.get("current_shares", row.get("shares", 0))
+                    _same_cutoff_current_shares(row)
                     if same_cutoff
                     else row.get("shares", 0)
                 ),
