@@ -1,49 +1,49 @@
 {
-  "date": "2026-07-27",
-  "generated_at": "2026-07-27T20:47:12+03:00",
+  "date": "2026-07-28",
+  "generated_at": "2026-07-28T09:23:57+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы преимущественно снижаются, в то время как цены на нефть марки Brent демонстрируют резкое падение.",
+  "external_backdrop": "Азиатские фондовые индексы снижаются во главе с японским Nikkei 225, котировки нефти Brent и золота также демонстрируют снижение.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7392.77",
-      "change_pct": "-0.26%",
+      "value": "7413.18",
+      "change_pct": "+0.02%",
       "as_of": "2026-07-27",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "24839.33",
-      "change_pct": "-0.55%",
+      "value": "24932.08",
+      "change_pct": "-0.18%",
       "as_of": "2026-07-27",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64611.15",
-      "change_pct": "-2.73%",
-      "as_of": "2026-07-24",
+      "value": "62119.23",
+      "change_pct": "-4.33%",
+      "as_of": "2026-07-28",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24963.23",
-      "change_pct": "-0.98%",
-      "as_of": "2026-07-24",
+      "value": "25175.98",
+      "change_pct": "-0.12%",
+      "as_of": "2026-07-28",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.80",
-      "change_pct": "-8.25%",
-      "as_of": "2026-07-27",
+      "value": "87.90",
+      "change_pct": "-0.52%",
+      "as_of": "2026-07-28",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4076.20",
-      "change_pct": "+0.21%",
-      "as_of": "2026-07-27",
+      "value": "4045.50",
+      "change_pct": "-0.71%",
+      "as_of": "2026-07-28",
       "group": "commodity"
     },
     {
@@ -59,42 +59,150 @@
       "change_pct": "+2.39%",
       "as_of": "2026-07-27 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "78.58",
-      "change_pct": "+0.29%",
-      "as_of": "2026-07-27 20:47:10",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "11.55",
-      "change_pct": "-0.07%",
-      "as_of": "2026-07-27 19:15:01",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-rate-cut",
-      "headline": "Банк России неожиданно снизил ключевую ставку на 25 базисных пунктов до 14 процентов годовых",
-      "context": "Решение стало неожиданным для большинства аналитиков, ожидавших сохранения ставки на прежнем уровне.",
+      "id": "tatneft-rsbu-1h-2026",
+      "headline": "Чистая прибыль Татнефти по РСБУ в первом полугодии выросла на 129% до 152,98 миллиарда рублей",
+      "context": "Годом ранее показатель чистой прибыли компании за аналогичный период составлял 66,76 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/markettwits/379025"
+        }
+      ],
+      "published_at": "2026-07-28T08:51:00+03:00"
+    },
+    {
+      "id": "msc-bpla-attack",
+      "headline": "Силы противовоздушной обороны отразили атаку более 390 беспилотников на Московский регион",
+      "context": "По заявлению мэра Москвы Сергея Собянина, большая часть дронов была уничтожена на дальних подступах.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/07/28/1216926-sobyanin-s-vechera"
+        }
+      ],
+      "published_at": "2026-07-28T07:12:00+03:00"
+    },
+    {
+      "id": "cb-crypto-regulations",
+      "headline": "Банк России разработал первые проекты нормативных актов для запуска рынка криптовалют в стране",
+      "context": "Документы определяют порядок организованных торгов цифровыми валютами и принципы учета активов.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3746"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846031"
         }
       ],
-      "published_at": "2026-07-27T09:37:00+03:00"
+      "published_at": "2026-07-27T21:20:00+03:00"
+    },
+    {
+      "id": "ozon-insurance-tariffs",
+      "headline": "Маркетплейс Ozon повысит тариф на страхование товаров от атак беспилотников в 3,3 раза",
+      "context": "Решение связано с ростом рисков и вынужденным пересмотром тарифов со стороны страхового партнера Ингосстрах.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/84042"
+        }
+      ],
+      "published_at": "2026-07-28T09:08:00+03:00"
+    },
+    {
+      "id": "fas-fuel-investigation",
+      "headline": "Федеральная антимонопольная служба возбудила дела из-за необоснованного роста цен на бензин в четырех регионах",
+      "context": "Дела возбуждены в Нижегородской, Пермской, Новосибирской областях и Республике Коми.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/28/07/2026/6a68449f9a794772dcbf8933"
+        }
+      ],
+      "published_at": "2026-07-28T09:00:00+03:00"
+    },
+    {
+      "id": "wb-bank-loans",
+      "headline": "Подконтрольный Wildberries банк увеличил объем кредитования индивидуальных предпринимателей более чем в пять раз",
+      "context": "В июне объем таких ссуд на балансе ВБ Банка подскочил на 9,7 миллиарда рублей.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/society/24/07/2026/6a630acb9a794762d97fc9b6"
+        }
+      ],
+      "published_at": "2026-07-28T08:01:00+03:00"
+    },
+    {
+      "id": "vtb-holiday-inn-sale",
+      "headline": "Банк ВТБ полностью реализовал свои гостиничные активы после продажи отеля Holiday Inn в Сокольниках",
+      "context": "Объект вошел в периметр июньской сделки по продаже девелопера Галс-девелопмент группе инвесторов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a1b97539a794700ad7812cd"
+        }
+      ],
+      "published_at": "2026-07-28T07:01:00+03:00"
+    },
+    {
+      "id": "iran-us-talks-rejection",
+      "headline": "Иран отклонил предложение США на переговорах через посредников из-за чрезмерных требований",
+      "context": "Американская делегация покинула переговоры в Омане после отклонения плана Тегераном.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846070"
+        }
+      ],
+      "published_at": "2026-07-28T01:41:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "nornickel-production-1h-2026",
+      "headline": "Норникель снизил производство никеля на 2% за первое полугодие 2026 года",
+      "context": "Компания подтвердила производственный прогноз на весь 2026 год.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378937"
+        }
+      ],
+      "published_at": "2026-07-27T13:01:00+03:00"
     },
     {
       "id": "cb-mpl-tightening",
-      "headline": "Банк России ужесточил макропруденциальные лимиты по необеспеченным потребительским и автомобильным кредитам",
-      "context": "Новые ограничения на выдачу займов закредитованным гражданам вступят в силу в четвертом квартале.",
+      "headline": "Банк России ужесточил макропруденциальные лимиты по необеспеченным потребительским и автомобильным кредитам на четвертый квартал",
+      "context": "Меры направлены на ограничение выдачи займов гражданам с высокой долговой нагрузкой.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -107,27 +215,132 @@
       "published_at": "2026-07-27T12:24:00+03:00"
     },
     {
-      "id": "oil-price-drop",
-      "headline": "Мировые цены на нефть марки Brent резко снизились на фоне приостановки взаимных ударов США и Ирана",
-      "context": "Котировки опускались более чем на 11 процентов, достигая локального минимума на уровне 85,5 доллара за баррель.",
-      "category": "markets",
+      "id": "cb-key-rate-cut",
+      "headline": "Банк России неожиданно снизил ключевую ставку на 25 базисных пунктов до 14,00% годовых",
+      "context": "Решение принято на заседании 24 июля и стало десятым шагом в цикле смягчения денежно-кредитной политики.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845162"
+          "name": "Mozgovik Research",
+          "url": "https://t.me/mozgovikresearch/3746"
         }
       ],
-      "published_at": "2026-07-27T01:38:00+03:00"
+      "published_at": "2026-07-27T09:37:00+03:00"
     },
     {
-      "id": "rnpk-exit-pool",
-      "headline": "Российская национальная перестраховочная компания готовится выйти из состава Российского антитеррористического страхового пула",
-      "context": "Стороны не смогли согласовать порядок принятия решений по страхованию крупных рисков.",
-      "category": "banks",
+      "id": "promomed-rsbu-1h-2026",
+      "headline": "Чистая прибыль компании Промомед по РСБУ в первом полугодии выросла в 47,7 раза",
+      "context": "Показатель чистой прибыли за отчетный период составил 2,94 миллиарда рублей.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1333376.php"
+        }
+      ],
+      "published_at": "2026-07-27T18:45:00+03:00"
+    },
+    {
+      "id": "ru-army-size-increase",
+      "headline": "Президент Владимир Путин подписал указ об увеличении штатной численности Вооруженных сил России",
+      "context": "С 1 августа численность возрастет на 27 тысяч человек до 2,426 миллиона человек.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378982"
+        }
+      ],
+      "published_at": "2026-07-27T17:52:00+03:00"
+    },
+    {
+      "id": "montenegro-visa-regime",
+      "headline": "Черногория отменит безвизовый режим для граждан России и Белоруссии с 1 ноября",
+      "context": "До 31 октября граждане этих стран могут находиться в Черногории без визы до 30 дней.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/358158"
+        }
+      ],
+      "published_at": "2026-07-27T17:51:00+03:00"
+    },
+    {
+      "id": "ofz-nonresidents-share",
+      "headline": "Доля инвестиций нерезидентов в российских облигациях федерального займа в июне снизилась до 3%",
+      "context": "Объем вложений иностранных инвесторов сократился на 49 миллиардов рублей до 980 миллиардов рублей.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378968"
+        }
+      ],
+      "published_at": "2026-07-27T16:15:00+03:00"
+    },
+    {
+      "id": "positive-technologies-1h-2026",
+      "headline": "Группа Позитив увеличила объем отгрузок на 45% до 10,7 миллиарда рублей в первом полугодии",
+      "context": "Выручка компании по МСФО за шесть месяцев выросла на 41% до 9,5 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/378942"
+        }
+      ],
+      "published_at": "2026-07-27T14:02:00+03:00"
+    },
+    {
+      "id": "ovk-rsbu-1h-2026",
+      "headline": "Чистая прибыль Объединенной вагонной компании по РСБУ в первом полугодии выросла в 2,5 раза",
+      "context": "Выручка компании за отчетный период снизилась на 7,7% до 1,75 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1333335.php"
+        }
+      ],
+      "published_at": "2026-07-27T17:27:00+03:00"
+    },
+    {
+      "id": "eu-sable-fur-sanctions-lift",
+      "headline": "Евросоюз вывел из-под санкций российский соболиный мех по просьбе Италии и Греции",
+      "context": "Исключение согласовано в рамках 21-го пакета санкций из-за доминирования России в этой сфере.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8845324"
+        }
+      ],
+      "published_at": "2026-07-27T10:04:00+03:00"
+    },
+    {
+      "id": "rnpk-ratsp-exit",
+      "headline": "Российская национальная перестраховочная компания готовится выйти из антитеррористического страхового пула",
+      "context": "Причиной стали разногласия участников по поводу принятия решений по крупным рискам.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
@@ -135,218 +348,6 @@
         }
       ],
       "published_at": "2026-07-27T08:11:00+03:00"
-    },
-    {
-      "id": "digital-ruble-balances",
-      "headline": "Общий объем остатков цифровых рублей на счетах российских банков превысил 25 миллионов рублей",
-      "context": "При этом почти треть системно значимых кредитных организаций пока не готова к расчетам в цифровой валюте.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845169"
-        }
-      ],
-      "published_at": "2026-07-27T07:01:00+03:00"
-    },
-    {
-      "id": "coal-price-drop",
-      "headline": "Стоимость кузбасского коксующегося угля в портах Дальнего Востока снизилась на 7,5 процента за месяц",
-      "context": "Снижение котировок до 148 долларов за тонну обусловлено слабым спросом на сталь в Китае.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845174"
-        }
-      ],
-      "published_at": "2026-07-27T00:58:00+03:00"
-    },
-    {
-      "id": "gazprom-record-china",
-      "headline": "Газпром обновил исторический рекорд суточных поставок природного газа в Китай по Силе Сибири",
-      "context": "Зафиксированный показатель стал третьим суточным рекордом холдинга с начала текущего года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845110"
-        }
-      ],
-      "published_at": "2026-07-26T19:55:00+03:00"
-    },
-    {
-      "id": "svoy-acquisition",
-      "headline": "Финтехгруппа Свой приобрела 100 процентов долей страховой компании Кредит Европа лайф",
-      "context": "Сумма сделки по выкупу актива у Кредит Европа банка официально не раскрывается.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/294898"
-        }
-      ],
-      "published_at": "2026-07-27T08:52:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "gasoline-export-ban",
-      "headline": "Правительство России планирует продлить запрет на экспорт бензина до конца года",
-      "context": "Ограничения на вывоз дизельного топлива могут быть сняты раньше по мере восстановления рынка.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845035"
-        }
-      ],
-      "published_at": "2026-07-26T18:26:00+03:00"
-    },
-    {
-      "id": "tanker-explosion-ormuz",
-      "headline": "Министерство обороны Ирана сообщило о подрыве коммерческого нефтетанкера на мине в Ормузском проливе",
-      "context": "Судно следовало по морскому коридору, который не был одобрен официальными иранскими властями.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845073"
-        }
-      ],
-      "published_at": "2026-07-26T18:17:00+03:00"
-    },
-    {
-      "id": "ai-regulation-law",
-      "headline": "Президент России подписал базовый закон о государственной поддержке развития искусственного интеллекта",
-      "context": "Документ регулирует разработку и применение больших фундаментальных моделей в стране.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844995"
-        }
-      ],
-      "published_at": "2026-07-26T15:23:00+03:00"
-    },
-    {
-      "id": "sukhoi-log-status",
-      "headline": "Месторождение Сухой Лог официально признано крупнейшим золоторудным объектом в России",
-      "context": "Российские золотодобытчики ранее перестроили экспортные поставки на рынки Китая, Индии, Турции и ОАЭ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/26/1216513-suhoi-log-priznali"
-        }
-      ],
-      "published_at": "2026-07-26T10:30:00+03:00"
-    },
-    {
-      "id": "fertilizer-export-usa",
-      "headline": "Соединенные Штаты увеличили импорт российских минеральных удобрений до рекордного уровня",
-      "context": "Российские производители продолжают наращивать поставки на американский рынок вопреки санкционному давлению.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/378866"
-        }
-      ],
-      "published_at": "2026-07-26T09:49:00+03:00"
-    },
-    {
-      "id": "deepseek-funding-pause",
-      "headline": "Китайский разработчик искусственного интеллекта DeepSeek временно приостановил второй раунд привлечения финансирования",
-      "context": "Компания устно уведомила потенциальных инвесторов о заморозке процесса сбора средств.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845042"
-        }
-      ],
-      "published_at": "2026-07-26T17:11:00+03:00"
-    },
-    {
-      "id": "hotel-liquidations",
-      "headline": "Число ликвидированных гостиничных и санаторно-курортных организаций в России выросло на 21,8 процента",
-      "context": "За первую половину года в стране прекратили деятельность 2,13 тысячи профильных компаний.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845022"
-        }
-      ],
-      "published_at": "2026-07-26T16:17:00+03:00"
-    },
-    {
-      "id": "migrant-income-law",
-      "headline": "Президент России подписал закон об обязательном минимальном доходе для иностранных работников",
-      "context": "Трудовые мигранты обязаны содержать себя и иждивенцев на уровне не ниже прожиточного минимума.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844991"
-        }
-      ],
-      "published_at": "2026-07-26T14:54:00+03:00"
-    },
-    {
-      "id": "iraq-pipeline-project",
-      "headline": "Правительство Ирака одобрило проект строительства нового нефтепровода для экспорта через Сирию",
-      "context": "Сроки реализации, мощность и источники финансирования нового маршрута к Средиземному морю пока не раскрываются.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844956"
-        }
-      ],
-      "published_at": "2026-07-26T13:35:00+03:00"
-    },
-    {
-      "id": "friedman-arbitration",
-      "headline": "Михаил Фридман инициировал инвестиционный арбитраж против Нидерландов в Постоянной палате третейского суда",
-      "context": "Карточка соответствующего дела появилась на официальном сайте международного арбитражного органа.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8844777"
-        }
-      ],
-      "published_at": "2026-07-26T04:49:00+03:00"
     }
   ],
   "today_agenda": []
