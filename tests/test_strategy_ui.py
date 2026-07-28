@@ -59,7 +59,8 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert "scripts/build_ml_strategy.py --allow-network" in workflow
     assert "locked-spec refit" in workflow
     assert "Bootstrap previous validated model state" in workflow
-    assert 'cp -a -n "$TMP/ml_strategy/." data/ml_strategy/' in workflow
+    assert 'cp -a "$TMP/ml_strategy/." data/ml_strategy/' in workflow
+    assert 'cp -a -n "$TMP/ml_strategy/." data/ml_strategy/' not in workflow
     assert "Publish validated snapshot additively" in workflow
 
 
@@ -102,4 +103,6 @@ def test_ml_research_ui_is_governed_and_degrades_safely():
     assert "advanced_challenger_evaluation.md" in daily
     assert "advanced_challenger_evaluation.md" in monthly
     assert "Bootstrap previous validated model state" in monthly
+    assert 'cp -a "$TMP/ml_strategy/." data/ml_strategy/' in monthly
+    assert 'cp -a -n "$TMP/ml_strategy/." data/ml_strategy/' not in monthly
     assert "advanced_challenger_evaluation.md" in manual_deploy

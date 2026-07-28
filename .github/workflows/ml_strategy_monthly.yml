@@ -40,7 +40,7 @@ jobs:
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
           if [ -d "$TMP/ml_strategy" ]; then
             mkdir -p data/ml_strategy
-            cp -a -n "$TMP/ml_strategy/." data/ml_strategy/
+            cp -a "$TMP/ml_strategy/." data/ml_strategy/
           fi
           rm -rf "$TMP"
       - name: Full refresh, purged walk-forward and challenger review
