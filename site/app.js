@@ -1470,10 +1470,12 @@ function loadMlStrategy() {
   ML_STRATEGY_LOADING = Promise.all([
     get('latest.json'), get('backtest.json'), get('model_card.json'), get('data_quality.json'),
     get('sector_features/latest_quality.json'), get('sector_features/latest_registry.json'),
-    getOptional('advanced_models.json'),
-  ]).then(([latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry, advancedResult]) => {
+    getOptional('ledger/index.json'), getOptional('advanced_models.json'),
+  ]).then(([latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry, ledgerResult, advancedResult]) => {
     ML_STRATEGY = {
       latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry,
+      ledger: ledgerResult.data || { metrics: {}, recent_forecasts: [], resolutions: [] },
+      ledgerError: ledgerResult.error,
       advancedModels: advancedResult.data, advancedModelsError: advancedResult.error,
     };
     ML_STRATEGY_LOADING = null;
@@ -1495,6 +1497,25 @@ function mlsActionLabel(action) {
     RISK_OFF: 'Снизить риск', DATA_STALE: 'Данные устарели',
     MODEL_UNCERTAIN: 'Модель не уверена', DEGRADED: 'Ограниченный режим',
   })[action] || action || '—';
+}
+
+function mlsQualityStatusLabel(status) {
+  return ({
+    PASS: 'Проверки пройдены',
+    DEGRADED: 'Есть ограничения',
+    BLOCKED: 'Расчёт заблокирован',
+    APPROVED: 'Прошла отбор',
+    RESEARCH_ONLY: 'Только исследование',
+    MODEL_PORTFOLIO_READY: 'Модельный портфель рассчитан',
+  })[status] || status || '—';
+}
+
+function mlsExecutionStatusLabel(status) {
+  return ({
+    BLOCKED: 'Не использовать',
+    RESEARCH_ONLY: 'Только наблюдение',
+    MODEL_PORTFOLIO_READY: 'Портфель рассчитан',
+  })[status] || 'Только наблюдение';
 }
 
 function mlsResearchStatusLabel(status) {
@@ -1622,7 +1643,7 @@ function renderMlStrategy() {
     return;
   }
   const {
-    latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry,
+    latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry, ledger, ledgerError,
     advancedModels, advancedModelsError,
   } = ML_STRATEGY;
   const action = (latest.signal || {}).action;
@@ -1630,28 +1651,53 @@ function renderMlStrategy() {
   const portfolio = latest.portfolio || {};
   const metrics = backtest.portfolio_metrics || {};
   const positions = portfolio.positions || [];
+  const diagnostics = portfolio.diagnostics || {};
+  const execution = latest.execution_policy || {
+    status: 'RESEARCH_ONLY',
+    auto_execution_allowed: false,
+    uses_user_holdings: false,
+    reason: 'Snapshot не содержит подтверждения готовности к автоматическому исполнению.',
+  };
   if (state) {
-    state.textContent = mlsActionLabel(action);
-    state.className = 'mls-state ' + (action === 'REBALANCE' ? 'good' : (action === 'DATA_STALE' ? 'blocked' : 'watch'));
+    state.textContent = execution.status === 'MODEL_PORTFOLIO_READY'
+      ? (action === 'REBALANCE' ? 'Есть ребаланс' : 'Портфель рассчитан')
+      : mlsExecutionStatusLabel(execution.status);
+    state.className = 'mls-state ' + (
+      execution.status === 'BLOCKED'
+        ? 'blocked'
+        : (execution.status === 'MODEL_PORTFOLIO_READY' ? 'good' : 'watch')
+    );
   }
+  const buyRows = positions.filter((row) => row.trade_action === 'BUY');
+  const sellRows = positions.filter((row) => row.trade_action === 'SELL');
+  const holdRows = positions.filter((row) => row.trade_action === 'HOLD');
+  const buyValue = buyRows.reduce((sum, row) => sum + (Number(row.trade_value_rub) || 0), 0);
+  const sellValue = sellRows.reduce((sum, row) => sum + (Number(row.trade_value_rub) || 0), 0);
   const rows = positions.map((row) => {
+    const pack = row.sector_feature_pack || null;
     const drivers = (row.sector_drivers || []).slice(0, 3);
     const driverHtml = drivers.length
       ? `<div class="mls-drivers">${drivers.map((driver) =>
         `<span class="${esc(driver.direction)}">${esc(driver.factor)} <b>${isNum(driver.value) ? ru(driver.value * 100, 2) + '%' : '—'}</b></span>`
       ).join('')}</div>`
       : '';
+    const packHtml = pack
+      ? `<small class="mls-pack-status ${pack.included_in_model ? 'approved' : 'research'}">${esc(pack.label)} · ${pack.included_in_model ? 'в модели' : 'только контекст'}</small>`
+      : '<small class="mls-pack-status base">Базовая модель</small>';
+    const tradeLabel = row.trade_action === 'BUY'
+      ? `Купить в модель ${Math.abs(row.trade_shares || 0)} шт.`
+      : (row.trade_action === 'SELL' ? `Продать из модели ${Math.abs(row.trade_shares || 0)} шт.` : 'Без изменения');
+    const tradeClass = row.trade_action === 'BUY' ? 'buy' : (row.trade_action === 'SELL' ? 'sell' : 'hold');
     return `<tr>
     <td><b>${esc(row.ticker)}</b><span>${esc(row.name || '')}</span></td>
-    <td>${esc(row.sector || '—')}${driverHtml}</td>
-    <td>${mlsPct(row.current_weight)}</td>
-    <td><b>${mlsPct(row.target_weight)}</b><small>${row.shares || 0} шт.</small></td>
-    <td class="${row.change_weight > 0 ? 'up' : (row.change_weight < 0 ? 'down' : '')}">${row.change_weight > 0 ? '+' : ''}${mlsPct(row.change_weight)}</td>
+    <td>${esc(row.sector || '—')}${packHtml}${driverHtml}</td>
+    <td><b>${mlsPct(row.target_weight)}</b><small>прошлый snapshot ${mlsPct(row.current_weight)} · цель ${row.shares || 0} шт.</small></td>
+    <td><b class="mls-trade-action ${tradeClass}">${tradeLabel}</b><small>${row.trade_action === 'HOLD' ? 'вес без изменения' : `≈ ${ru(row.trade_value_rub || 0, 0)} ₽ · ${row.change_weight > 0 ? '+' : ''}${mlsPct(row.change_weight)}`}</small></td>
     <td>${mlsPct(row.expected_excess_return_20d, 2)}</td>
   </tr>`;
   }).join('');
   const dqChecks = (dataQuality.checks || []).map((check) =>
-    `<li><span>${esc(mlsCheckLabel(check.name))}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
+    `<li><span>${esc(mlsCheckLabel(check.name))}</span><b class="${String(check.status).toLowerCase()}">${esc(mlsQualityStatusLabel(check.status))}</b></li>`
   ).join('');
   const limitations = (modelCard.limitations || []).map((text) => `<li>${esc(text)}</li>`).join('');
   const sectorPacks = (sectorQuality.packs || []).map((pack) => {
@@ -1659,34 +1705,73 @@ function renderMlStrategy() {
     const blocked = (pack.blocked_sources || []).length
       ? ` · недоступны: ${(pack.blocked_sources || []).join(', ')}`
       : '';
-    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(pack.reason || '')}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${esc(pack.status || '—')}</strong></li>`;
+    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(pack.reason || '')}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${esc(mlsQualityStatusLabel(pack.status))}</strong></li>`;
   }).join('');
   const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
   const approvedSources = (sectorRegistry.sources || []).filter((source) => source.status === 'APPROVED').length;
+  const liveMetrics = ledger.metrics || {};
+  const resolvedIds = new Set((ledger.resolutions || []).map((row) => row.forecast_id));
+  const recentForecasts = (ledger.recent_forecasts || []).slice(-12).reverse();
+  const liveRows = recentForecasts.map((record) => `<tr>
+    <td>${esc(String(record.created_at || '').slice(0, 10))}</td>
+    <td><b>${esc(record.ticker)}</b></td>
+    <td>${mlsPct(record.point_forecast_excess_return, 2)}</td>
+    <td>${esc(record.confidence_label || 'UNAVAILABLE')}</td>
+    <td>${resolvedIds.has(record.forecast_id) ? 'RESOLVED' : esc(record.status || 'OPEN')}</td>
+    <td><code>${esc(String(record.content_hash || '').slice(0, 10))}</code></td>
+  </tr>`).join('');
+  const concentrationWarnings = (diagnostics.warnings || []).map((warning) => ({
+    TOP5_NEAR_LIMIT: 'Пять крупнейших позиций близки к установленному лимиту.',
+    SECTOR_NEAR_LIMIT: 'Крупнейший сектор близок к установленному лимиту.',
+  })[warning] || warning);
+  const qualityWarnings = (dataQuality.checks || [])
+    .filter((check) => check.status !== 'PASS')
+    .map((check) => mlsCheckLabel(check.name));
+  const warningItems = [...concentrationWarnings, ...qualityWarnings];
+  const executionEvidence = execution.evidence || {};
+  const updatePolicy = model.update_policy || {};
   target.innerHTML = `
+    <div class="mls-product-gate ${esc(String(execution.status || '').toLowerCase())}">
+      <div><span>Статус модельного портфеля</span><b>${esc(mlsExecutionStatusLabel(execution.status))}</b><small>${esc(execution.reason || '')}${isNum(executionEvidence.cagr_after_costs) ? ` CAGR после издержек ${mlsPct(executionEvidence.cagr_after_costs, 2)}, Sharpe ${isNum(executionEvidence.sharpe_after_costs) ? ru(executionEvidence.sharpe_after_costs, 2) : '—'}.` : ''}</small></div>
+      <strong>${execution.manual_rebalance_plan_available ? 'Ручной план доступен' : 'Автоисполнение выключено'}</strong>
+    </div>
     <div class="mls-action">
-      <div><span>Текущее действие</span><b>${esc(mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
-      <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Горизонт <b>${latest.horizon_sessions || 20} сессий</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span></div>
+      <div><span>Ребаланс модельного портфеля</span><b>${esc(mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')} Сравнение с прошлым опубликованным составом; итог ниже показывает, что купить или сократить в эталонном портфеле.</small></div>
+      <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Горизонт <b>${latest.horizon_sessions || 20} сессий</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span><span>Обновление <b>${updatePolicy.specification_locked ? 'ежедневный refit' : 'по snapshot'}</b></span></div>
     </div>
     <div class="mls-kpis">
-      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(model.status || '—')}</small></div>
+      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(mlsQualityStatusLabel(model.status))}</small></div>
       <div><span>Портфель</span><b>${positions.length} бумаг</b><small>${esc(portfolio.method || '—')}</small></div>
       <div><span>Оборот</span><b>${mlsPct(portfolio.turnover)}</b><small>лимит и lot-rounding</small></div>
       <div><span>Издержки</span><b>${isNum(portfolio.estimated_cost_rub) ? ru(portfolio.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(portfolio.one_way_cost_bps) ? ru(portfolio.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
       <div><span>Волатильность</span><b>${mlsPct(portfolio.annualized_volatility)}</b><small>годовая оценка</small></div>
-      <div><span>Качество данных</span><b>${esc(dataQuality.status || '—')}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
+      <div><span>Качество данных</span><b>${esc(mlsQualityStatusLabel(dataQuality.status))}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} бумаг прошло фильтры</small></div>
+      <div><span>Live record</span><b>${liveMetrics.resolved_forecasts || 0} закрыто</b><small>${liveMetrics.open_forecasts || 0} открыто · SHADOW</small></div>
     </div>
+    <div class="mls-risk-strip">
+      <span>Top‑5 <b>${mlsPct(diagnostics.top5_weight)}</b><small>лимит ${mlsPct(diagnostics.top5_limit)}</small></span>
+      <span>Крупнейший сектор <b>${esc(diagnostics.largest_sector || '—')} · ${mlsPct(diagnostics.largest_sector_weight)}</b><small>лимит ${mlsPct(diagnostics.sector_limit)}</small></span>
+      <span>Эффективных позиций <b>${isNum(diagnostics.effective_positions) ? ru(diagnostics.effective_positions, 1) : '—'}</b><small>при ${positions.length} бумагах</small></span>
+      <span>Cash <b>${mlsPct(portfolio.cash_weight)}</b><small>технический остаток, не прогноз рынка</small></span>
+    </div>
+    ${warningItems.length ? `<details class="mls-risk-notice"><summary>${warningItems.length} ограничения расчёта</summary><ul>${warningItems.map((item) => `<li>${esc(item)}</li>`).join('')}</ul></details>` : ''}
     <div class="mls-sector-summary">
       <div><span>Отраслевые признаки</span><b>${approvedPackCount} из 4 в production</b><small>${approvedSources} официальных ряда · остальные не подменяются суррогатами</small></div>
       <ul>${sectorPacks}</ul>
     </div>
     <div class="mls-layout">
       <div class="mls-main">
-        <div class="mls-section-head"><div><h3>Модельный портфель</h3><p>Теоретический прогноз превращён в исполнимые веса с учётом ликвидности, лотов и cash.</p></div><b>${mlsPct(portfolio.cash_weight)} cash</b></div>
-        <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Было</th><th>Цель</th><th>Изменение</th><th>Excess 20д</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="mls-section-head"><div><h3>ML-портфель на ${esc(latest.data_as_of || 'последнюю дату')}</h3><p>Эталонный состав на капитал ${ru(portfolio.capital_rub || 0, 0)} ₽ после лотов, ликвидности и издержек. Колонка ребаланса сравнивает его с предыдущим опубликованным составом.</p></div><b>${mlsPct(portfolio.cash_weight)} остаток</b></div>
+        <div class="mls-trade-summary">
+          <span>Увеличить в модели <b>${buyRows.length} бумаг</b><small>≈ ${ru(buyValue, 0)} ₽</small></span>
+          <span>Снизить в модели <b>${sellRows.length} бумаг</b><small>≈ ${ru(sellValue, 0)} ₽</small></span>
+          <span>Без сделки <b>${holdRows.length} бумаг</b><small>внутри no-trade zone</small></span>
+          <span>Остаток <b>${mlsPct(portfolio.cash_weight)}</b><small>лоты и ограничения</small></span>
+        </div>
+        <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Отраслевой контекст</th><th>Целевой вес</th><th>Изменение модели</th><th>Прогноз excess 20д</th></tr></thead><tbody>${rows}</tbody></table></div>
       </div>
       <aside class="mls-side">
-        <h3>Контроль качества</h3>
+        <h3>Ограничения данных</h3>
         <ul class="mls-checks">${dqChecks}</ul>
       </aside>
     </div>
@@ -1702,6 +1787,18 @@ function renderMlStrategy() {
       </div>
     </div>
     ${mlsAdvancedComparisonHtml(advancedModels, advancedModelsError)}
+    <div class="mls-ledger">
+      <div class="mls-section-head"><div><h3>Live Model Record</h3><p>Неизменяемые прогнозы после публикации. Это SHADOW LIVE, отдельно от исторического backtest.</p></div><b>${esc(liveMetrics.status || '—')}</b></div>
+      <div class="mls-ledger-kpis">
+        <span>Открыто <b>${liveMetrics.open_forecasts || 0}</b></span>
+        <span>Разрешено <b>${liveMetrics.resolved_forecasts || 0}</b></span>
+        <span>Точность направления <b>${mlsPct(liveMetrics.directional_accuracy)}</b></span>
+        <span>Live IC <b>${isNum(liveMetrics.spearman_ic) ? ru(liveMetrics.spearman_ic, 3) : '—'}</b></span>
+        <span>Покрытие интервала <b>${mlsPct(liveMetrics.interval_coverage)}</b></span>
+      </div>
+      ${ledgerError ? '<div class="mls-ledger-note">Live record временно недоступен; основной модельный snapshot продолжает отображаться.</div>' : ''}
+      <div class="mls-table-wrap"><table class="mls-table mls-ledger-table"><thead><tr><th>Создан</th><th>Бумага</th><th>Прогноз</th><th>Уверенность</th><th>Статус</th><th>Hash</th></tr></thead><tbody>${liveRows || '<tr><td colspan="6">Live-прогнозов пока нет.</td></tr>'}</tbody></table></div>
+    </div>
     <details class="mls-method">
       <summary>Методология и ограничения</summary>
       <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><p><b>Отраслевые признаки:</b> Base, sector ID и каждый pack сравниваются на одинаковых датах, universe, модели, оптимизаторе и издержках. Issuer exposures заблокированы до появления versioned disclosures.</p><ul>${limitations}</ul></div>

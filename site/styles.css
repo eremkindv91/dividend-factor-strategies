@@ -360,15 +360,30 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-action span { color: var(--ink-faint); font-size: .68rem; }
 .mls-action b { color: var(--ink); font-size: 1rem; }
 .mls-action small { color: var(--ink-soft); font-size: .76rem; line-height: 1.4; }
+.mls-product-gate { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 10px; padding: 11px 13px; border: 1px solid #E4C895; border-left: 4px solid #B27A28; border-radius: 7px; background: #FFF9ED; }
+.mls-product-gate > div { display: grid; gap: 2px; }
+.mls-product-gate span, .mls-product-gate small { color: var(--ink-soft); font-size: .68rem; line-height: 1.4; }
+.mls-product-gate b { color: #76521D; font-size: .92rem; }
+.mls-product-gate strong { flex: 0 0 auto; padding: 5px 7px; border-radius: 4px; background: #F5E4BF; color: #76521D; font-size: .65rem; }
+.mls-product-gate.blocked { border-color: #E5B5AD; border-left-color: #A94A3D; background: #FFF4F1; }
+.mls-product-gate.blocked b, .mls-product-gate.blocked strong { color: var(--risk-ink); }
 .mls-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .mls-meta span { padding: 5px 7px; border: 1px solid #D5DEE9; border-radius: 5px; background: #fff; white-space: nowrap; }
 .mls-meta b { margin-left: 3px; font-size: .72rem; }
-.mls-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 12px 0; border: 1px solid var(--line);
+.mls-kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin: 12px 0; border: 1px solid var(--line);
   border-radius: 8px; overflow: hidden; background: #fff; }
 .mls-kpis > div { min-width: 0; padding: 10px; border-right: 1px solid var(--line); }
 .mls-kpis > div:last-child { border-right: 0; }
 .mls-kpis span, .mls-kpis small { display: block; color: var(--ink-faint); font-size: .64rem; line-height: 1.25; }
 .mls-kpis b { display: block; margin: 3px 0 2px; color: var(--ink); font-size: .91rem; overflow-wrap: anywhere; }
+.mls-risk-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
+.mls-risk-strip span { min-width: 0; padding: 9px 11px; border-right: 1px solid var(--line); color: var(--ink-faint); font-size: .62rem; }
+.mls-risk-strip span:last-child { border-right: 0; }
+.mls-risk-strip b, .mls-risk-strip small { display: block; overflow-wrap: anywhere; }
+.mls-risk-strip b { margin: 2px 0; color: var(--ink); font-size: .78rem; }
+.mls-risk-notice { margin: -4px 0 12px; border: 1px solid #E4C895; border-radius: 7px; background: #FFF9ED; }
+.mls-risk-notice summary { padding: 8px 11px; color: #76521D; font-size: .68rem; font-weight: 800; cursor: pointer; }
+.mls-risk-notice ul { margin: 0; padding: 0 28px 9px; color: var(--ink-soft); font-size: .66rem; line-height: 1.45; }
 .mls-sector-summary { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; margin: 0 0 12px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; background: #F8FAFC; }
 .mls-sector-summary > div { display: grid; align-content: start; gap: 2px; }
 .mls-sector-summary > div span, .mls-sector-summary small { color: var(--ink-faint); font-size: .65rem; line-height: 1.35; }
@@ -384,11 +399,17 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-sector-summary strong.research_only { color: #8A5B22; }
 .mls-sector-summary strong.blocked { color: var(--risk-ink); }
 .mls-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 12px; align-items: start; }
-.mls-main, .mls-side, .mls-backtest, .mls-advanced { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
+.mls-main, .mls-side, .mls-backtest, .mls-advanced, .mls-ledger { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
 .mls-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 11px 13px; border-bottom: 1px solid var(--line); }
 .mls-section-head h3, .mls-side h3 { margin: 0 0 3px; font-size: .88rem; letter-spacing: 0; }
 .mls-section-head p { margin: 0; color: var(--ink-faint); font-size: .7rem; line-height: 1.35; }
 .mls-section-head > b { color: var(--ink-soft); font-size: .75rem; white-space: nowrap; }
+.mls-trade-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); background: #FBFCFD; }
+.mls-trade-summary span { min-width: 0; padding: 9px 11px; border-right: 1px solid var(--line); color: var(--ink-faint); font-size: .62rem; }
+.mls-trade-summary span:last-child { border-right: 0; }
+.mls-trade-summary b, .mls-trade-summary small { display: block; }
+.mls-trade-summary b { margin-top: 2px; color: var(--ink); font-size: .8rem; }
+.mls-trade-summary small { margin-top: 1px; overflow-wrap: anywhere; }
 .mls-table-wrap { overflow-x: auto; }
 .mls-table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: .73rem; }
 .mls-table th { padding: 7px 9px; background: #F7F9FB; color: var(--ink-faint); font-size: .6rem; text-transform: uppercase; text-align: right; }
@@ -399,6 +420,14 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-drivers span { display: inline-flex !important; gap: 3px; padding: 2px 4px; border-radius: 3px; background: #F2F5F8; font-size: .55rem !important; line-height: 1.25; }
 .mls-drivers span.positive b { color: var(--good-ink); }
 .mls-drivers span.negative b { color: var(--risk-ink); }
+.mls-pack-status { width: max-content; max-width: 220px; margin-top: 3px; padding: 2px 4px; border-radius: 3px; white-space: normal; }
+.mls-pack-status.approved { background: #E9F5F0; color: var(--good-ink) !important; }
+.mls-pack-status.research { background: #FFF4DD; color: #76521D !important; }
+.mls-pack-status.base { background: #F1F4F8; color: var(--ink-faint) !important; }
+.mls-trade-action { font-size: .72rem; }
+.mls-trade-action.buy { color: var(--good-ink); }
+.mls-trade-action.sell { color: var(--risk-ink); }
+.mls-trade-action.hold { color: var(--ink-soft); }
 .mls-table td.up { color: var(--good-ink); font-weight: 800; }
 .mls-table td.down { color: var(--risk-ink); font-weight: 800; }
 .mls-side h3 { padding: 11px 12px 8px; border-bottom: 1px solid var(--line); }
@@ -444,6 +473,13 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-research-empty { display: grid; gap: 3px; padding: 16px 13px; color: var(--ink-soft); }
 .mls-research-empty b { color: var(--ink); font-size: .8rem; }
 .mls-research-empty span { font-size: .7rem; line-height: 1.4; }
+.mls-ledger { margin-top: 12px; }
+.mls-ledger-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.mls-ledger-kpis span { padding: 9px 11px; border-right: 1px solid var(--line); color: var(--ink-faint); font-size: .64rem; }
+.mls-ledger-kpis span:last-child { border-right: 0; }
+.mls-ledger-kpis b { display: block; margin-top: 2px; color: var(--ink); font-size: .82rem; }
+.mls-ledger-table code { color: var(--ink-soft); font-size: .62rem; }
+.mls-ledger-note { padding: 8px 11px; border-bottom: 1px solid #E4C895; background: #FFF9ED; color: #76521D; font-size: .67rem; }
 .mls-chart { position: relative; height: 220px; padding: 8px 12px 28px; }
 .mls-chart svg { width: 100%; height: 100%; overflow: visible; }
 .mls-grid { fill: none; stroke: #E7EBF1; stroke-width: 1; }
@@ -480,12 +516,17 @@ tbody tr.data-row:hover { background: #FAFBFD; }
   .mls-kpis > div:nth-child(2n) { border-right: 0; }
   .mls-layout { grid-template-columns: 1fr; }
   .mls-sector-summary { grid-template-columns: 1fr; }
+  .mls-risk-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mls-product-gate { align-items: flex-start; flex-direction: column; }
   .mls-sector-summary ul { grid-template-columns: 1fr; }
   .mls-research-hero { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mls-research-hero > div:nth-child(2n) { border-right: 0; }
   .mls-sector-research { grid-template-columns: 1fr; gap: 4px; }
+  .mls-trade-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mls-trade-summary span:nth-child(2n) { border-right: 0; }
   .mls-side { order: -1; }
   .mls-metrics { grid-template-columns: repeat(2, 1fr); }
+  .mls-ledger-kpis { grid-template-columns: repeat(2, 1fr); }
   .mls-metrics span:nth-child(2n) { border-right: 0; }
 }
 

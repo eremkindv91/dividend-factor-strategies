@@ -34,7 +34,16 @@ def _finite(value: Any) -> bool:
 
 def validate_latest(payload: dict) -> list[str]:
     errors: list[str] = []
-    required = ("schema_version", "generated_at", "data_as_of", "signal", "portfolio", "model", "data_quality")
+    required = (
+        "schema_version",
+        "generated_at",
+        "data_as_of",
+        "signal",
+        "portfolio",
+        "model",
+        "data_quality",
+        "execution_policy",
+    )
     errors.extend(f"latest: missing {key}" for key in required if key not in payload)
     try:
         datetime.fromisoformat(str(payload.get("generated_at", "")).replace("Z", "+00:00"))
@@ -54,6 +63,43 @@ def validate_latest(payload: dict) -> list[str]:
             errors.append("latest: invalid cash weight")
         elif abs(sum(weights) + cash - 1.0) > 1e-5:
             errors.append("latest: positions plus cash do not sum to one")
+        diagnostics = payload.get("portfolio", {}).get("diagnostics", {})
+        if not isinstance(diagnostics, dict):
+            errors.append("latest: portfolio diagnostics missing")
+        elif diagnostics.get("cash", {}).get("is_market_timing_signal") is not False:
+            errors.append("latest: cash must not be presented as a market-timing signal")
+        else:
+            sorted_weights = sorted(weights, reverse=True)
+            if diagnostics.get("positions_count") != len(positions):
+                errors.append("latest: diagnostics positions_count mismatch")
+            if not _finite(diagnostics.get("top5_weight")) or abs(
+                diagnostics["top5_weight"] - sum(sorted_weights[:5])
+            ) > 1e-5:
+                errors.append("latest: diagnostics top5_weight mismatch")
+            if not _finite(diagnostics.get("largest_position_weight")) or abs(
+                diagnostics["largest_position_weight"] - sorted_weights[0]
+            ) > 1e-5:
+                errors.append("latest: diagnostics largest_position_weight mismatch")
+            if diagnostics.get("cash", {}).get("weight") != cash:
+                errors.append("latest: diagnostics cash weight mismatch")
+    execution = payload.get("execution_policy", {})
+    if execution.get("status") not in {
+        "BLOCKED",
+        "RESEARCH_ONLY",
+        "MODEL_PORTFOLIO_READY",
+    }:
+        errors.append("latest: invalid execution policy status")
+    if execution.get("auto_execution_allowed") is not False:
+        errors.append("latest: automatic execution must be disabled")
+    if execution.get("uses_user_holdings") is not False:
+        errors.append("latest: model snapshot must not claim to use user holdings")
+    ready = execution.get("status") == "MODEL_PORTFOLIO_READY"
+    if execution.get("model_portfolio_ready") is not ready:
+        errors.append("latest: model portfolio readiness mismatch")
+    if execution.get("manual_rebalance_plan_available") is not ready:
+        errors.append("latest: manual rebalance availability mismatch")
+    if not execution.get("reason"):
+        errors.append("latest: execution policy reason missing")
     return errors
 
 
@@ -117,6 +163,12 @@ def validate_sector_quality(payload: dict) -> list[str]:
     elif any(row.get("status") not in {"APPROVED", "RESEARCH_ONLY", "BLOCKED"} for row in packs):
         errors.append("sector quality: invalid pack status")
     return errors
+
+
+def validate_ledger_index(payload: dict) -> list[str]:
+    from .ledger import validate_ledger
+
+    return validate_ledger(payload)
 
 
 def validate_advanced_models(payload: dict) -> list[str]:
@@ -284,6 +336,7 @@ def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
         "data_quality.json": validate_data_quality,
         "sector_features/latest_registry.json": validate_sector_registry,
         "sector_features/latest_quality.json": validate_sector_quality,
+        "ledger/index.json": validate_ledger_index,
     }
     for name, validator in validators.items():
         path = root / name
@@ -319,14 +372,14 @@ def write_json(path: Path, payload: dict) -> None:
 def publish_bundle(bundle: dict[str, dict], data_root: Path, site_root: Path, history_date: str) -> None:
     with tempfile.TemporaryDirectory(prefix="ml-strategy-") as tmp:
         stage = Path(tmp)
-        for name in SNAPSHOT_FILES:
-            write_json(stage / name, bundle[name])
+        for name, payload in bundle.items():
+            write_json(stage / name, payload)
         errors = validate_bundle(stage)
         if errors:
             raise ValueError("snapshot validation failed: " + "; ".join(errors))
         for root in (data_root, site_root):
             root.mkdir(parents=True, exist_ok=True)
-            for name in SNAPSHOT_FILES:
-                write_json(root / name, bundle[name])
+            for name, payload in bundle.items():
+                write_json(root / name, payload)
         write_json(data_root / "history" / f"{history_date}.json", bundle["latest.json"])
         write_json(site_root / "history" / f"{history_date}.json", bundle["latest.json"])

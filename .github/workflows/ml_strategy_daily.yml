@@ -1,4 +1,4 @@
-name: ml-strategy-daily (MOEX inference + validated snapshot)
+name: ml-strategy-daily (locked-spec refit + validated snapshot)
 
 on:
   schedule:
@@ -31,9 +31,21 @@ jobs:
           key: daily-ohlcv-${{ github.run_id }}
           restore-keys: |
             daily-ohlcv-
+      - name: Bootstrap previous validated model state
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --quiet --depth 1 --branch gh-pages \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          if [ -d "$TMP/ml_strategy" ]; then
+            mkdir -p data/ml_strategy
+            cp -a -n "$TMP/ml_strategy/." data/ml_strategy/
+          fi
+          rm -rf "$TMP"
       - name: Increment official MOEX history
         run: python scripts/daily_ingest.py --years 8
-      - name: Build and validate point-in-time snapshot
+      - name: Refit locked ElasticNet specification and validate snapshot
         run: |
           python scripts/build_ml_strategy.py --allow-network
           python scripts/validate_ml_strategy.py

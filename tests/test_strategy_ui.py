@@ -57,6 +57,9 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert ".mls-table" in styles
     assert "check_ml_strategy" in validator
     assert "scripts/build_ml_strategy.py --allow-network" in workflow
+    assert "locked-spec refit" in workflow
+    assert "Bootstrap previous validated model state" in workflow
+    assert 'cp -a -n "$TMP/ml_strategy/." data/ml_strategy/' in workflow
     assert "Publish validated snapshot additively" in workflow
 
 
@@ -82,6 +85,13 @@ def test_ml_research_ui_is_governed_and_degrades_safely():
     assert "Формат исследования не поддерживается" in app
     assert "Последнее исследование старше" in app
     assert "Как проходит отбор моделей" in app
+    assert "Автоисполнение выключено" in app
+    assert "Ручной план доступен" in app
+    assert "ML-портфель на" in app
+    assert "Купить в модель" in app
+    assert "технический остаток, не прогноз рынка" in app
+    assert "предыдущим опубликованным составом" in app
+    assert "getOptional('ledger/index.json')" in app
     assert ".mls-research-hero" in styles
     assert ".mls-table-wrap" in styles
     assert "evaluate_advanced_models.py" in challenger
@@ -91,4 +101,5 @@ def test_ml_research_ui_is_governed_and_degrades_safely():
     assert "evaluate_advanced_models.py" not in monthly
     assert "advanced_challenger_evaluation.md" in daily
     assert "advanced_challenger_evaluation.md" in monthly
+    assert "Bootstrap previous validated model state" in monthly
     assert "advanced_challenger_evaluation.md" in manual_deploy

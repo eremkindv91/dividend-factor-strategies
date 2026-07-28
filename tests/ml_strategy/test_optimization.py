@@ -54,3 +54,14 @@ def test_executable_portfolio_obeys_weight_sector_lot_and_turnover_caps():
     assert result.executable_weights.sum() + result.cash_weight <= 1 + 1e-9
     sector_weights = result.executable_weights.groupby(metadata["sector"]).sum()
     assert (sector_weights <= config.sector_cap + 0.01).all()
+
+
+def test_previous_holding_outside_new_top_n_is_kept_as_explicit_reduction():
+    returns, metadata, forecasts = _inputs()
+    config = StrategyConfig(holdings=5)
+    previous = pd.Series({"T11": 0.10})
+    result = build_portfolio(forecasts, returns, metadata, previous, config, True)
+    assert "T11" in result.executable_weights.index
+    assert result.executable_weights["T11"] < previous["T11"]
+    assert result.shares["T11"] > 0
+    assert result.turnover <= config.turnover_cap + 1e-9

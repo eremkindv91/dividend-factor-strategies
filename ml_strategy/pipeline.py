@@ -10,6 +10,7 @@ import pandas as pd
 from .config import StrategyConfig
 from .data import MarketData, data_age_days, load_market_data
 from .features import FEATURE_COLUMNS, build_feature_panel, eligible_cross_section
+from .ledger import prepare_ledger
 from .models import ModelEvaluation, walk_forward
 from .optimization import build_portfolio
 from .schemas import publish_bundle
@@ -23,18 +24,46 @@ def _round(value, digits: int = 6):
     return round(float(value), digits)
 
 
-def _previous_weights(latest_path: Path) -> pd.Series:
+def _previous_positions(latest_path: Path, data_cutoff: str | None = None) -> dict[str, dict]:
     if not latest_path.exists():
-        return pd.Series(dtype=float)
+        return {}
     try:
         payload = json.loads(latest_path.read_text(encoding="utf-8"))
         positions = payload.get("portfolio", {}).get("positions", [])
-        return pd.Series(
-            {row["ticker"]: float(row.get("target_weight", 0)) for row in positions if row.get("ticker")},
-            dtype=float,
-        )
+        same_cutoff = bool(data_cutoff and payload.get("data_as_of") == data_cutoff)
+        return {
+            str(row["ticker"]): {
+                **row,
+                "target_weight": (
+                    row.get("current_weight", row.get("target_weight", 0))
+                    if same_cutoff
+                    else row.get("target_weight", 0)
+                ),
+                "shares": (
+                    row.get("current_shares", row.get("shares", 0))
+                    if same_cutoff
+                    else row.get("shares", 0)
+                ),
+            }
+            for row in positions
+            if isinstance(row, dict) and row.get("ticker")
+        }
     except (OSError, ValueError, TypeError):
-        return pd.Series(dtype=float)
+        return {}
+
+
+def _previous_weights(
+    latest_path: Path,
+    data_cutoff: str | None = None,
+) -> pd.Series:
+    positions = _previous_positions(latest_path, data_cutoff)
+    return pd.Series(
+        {
+            ticker: float(row.get("target_weight", 0))
+            for ticker, row in positions.items()
+        },
+        dtype=float,
+    )
 
 
 def _data_quality(data: MarketData, panel: pd.DataFrame, config: StrategyConfig, today: date) -> dict:
@@ -202,6 +231,101 @@ def _portfolio_backtest(evaluation: ModelEvaluation, config: StrategyConfig) -> 
     return curve, metrics
 
 
+def _portfolio_diagnostics(positions: list[dict], cash_weight: float, config: StrategyConfig) -> dict:
+    weights = sorted(
+        (float(row.get("target_weight") or 0) for row in positions),
+        reverse=True,
+    )
+    invested_weight = float(sum(weights))
+    normalized = [weight / invested_weight for weight in weights] if invested_weight > 0 else []
+    sector_weights: dict[str, float] = {}
+    for row in positions:
+        sector = str(row.get("sector") or "Не определён")
+        sector_weights[sector] = sector_weights.get(sector, 0.0) + float(
+            row.get("target_weight") or 0
+        )
+    largest_sector, largest_sector_weight = (
+        max(sector_weights.items(), key=lambda item: item[1])
+        if sector_weights
+        else (None, 0.0)
+    )
+    top5_weight = float(sum(weights[:5]))
+    squared_weight_sum = sum(weight**2 for weight in normalized)
+    effective_positions = 1.0 / squared_weight_sum if squared_weight_sum > 0 else None
+    warnings: list[str] = []
+    if top5_weight >= config.top5_cap * 0.90:
+        warnings.append("TOP5_NEAR_LIMIT")
+    if largest_sector_weight >= config.sector_cap * 0.85:
+        warnings.append("SECTOR_NEAR_LIMIT")
+    return {
+        "positions_count": len(weights),
+        "invested_weight": _round(invested_weight),
+        "top5_weight": _round(top5_weight),
+        "top5_limit": config.top5_cap,
+        "largest_position_weight": _round(weights[0] if weights else 0),
+        "position_limit": config.max_weight,
+        "largest_sector": largest_sector,
+        "largest_sector_weight": _round(largest_sector_weight),
+        "sector_limit": config.sector_cap,
+        "effective_positions": _round(effective_positions, 2),
+        "warnings": warnings,
+        "cash": {
+            "weight": _round(cash_weight),
+            "meaning": "residual_after_constraints_and_lot_rounding",
+            "is_market_timing_signal": False,
+        },
+    }
+
+
+def _execution_policy(
+    production_status: str,
+    data_quality_status: str,
+    portfolio_metrics: dict,
+) -> dict:
+    cagr = portfolio_metrics.get("cagr_after_costs")
+    sharpe = portfolio_metrics.get("sharpe_after_costs")
+    absolute_gates = {
+        "positive_cagr_after_costs": bool(cagr is not None and cagr > 0),
+        "sharpe_after_costs_at_least_0_50": bool(sharpe is not None and sharpe >= 0.50),
+        "production_model_approved": production_status == "APPROVED",
+        "data_not_blocked": data_quality_status != "BLOCKED",
+    }
+    absolute_quality_pass = all(absolute_gates.values())
+    model_portfolio_ready = (
+        production_status == "APPROVED" and data_quality_status != "BLOCKED"
+    )
+    if data_quality_status == "BLOCKED":
+        status = "BLOCKED"
+        reason = "Критические проверки данных не пройдены."
+    elif model_portfolio_ready:
+        status = "MODEL_PORTFOLIO_READY"
+        reason = (
+            "Целевые веса и ребаланс модельного портфеля рассчитаны по последним "
+            "официальным данным. Абсолютные результаты backtest остаются слабыми, "
+            "поэтому автоматическое исполнение отключено."
+        )
+    else:
+        status = "RESEARCH_ONLY"
+        reason = (
+            "Модель не прошла production-gate; целевые веса доступны только для исследования."
+        )
+    return {
+        "status": status,
+        "model_portfolio_ready": model_portfolio_ready,
+        "manual_rebalance_plan_available": model_portfolio_ready,
+        "auto_execution_allowed": False,
+        "uses_user_holdings": False,
+        "comparison_basis": "previous_published_model_snapshot",
+        "absolute_quality_pass": absolute_quality_pass,
+        "absolute_quality_gates": absolute_gates,
+        "evidence": {
+            "cagr_after_costs": _round(cagr),
+            "sharpe_after_costs": _round(sharpe),
+        },
+        "reason": reason,
+    }
+
+
 def build_bundle(
     repo: Path,
     config: StrategyConfig | None = None,
@@ -279,7 +403,10 @@ def build_bundle(
     latest["lot_size"] = [
         int(data.master.get(ticker, {}).get("lot_size") or 1) for ticker in latest.index
     ]
-    previous = _previous_weights(repo / "data" / "ml_strategy" / "latest.json")
+    previous_path = repo / "data" / "ml_strategy" / "latest.json"
+    data_cutoff = as_of.date().isoformat()
+    previous_positions = _previous_positions(previous_path, data_cutoff)
+    previous = _previous_weights(previous_path, data_cutoff)
     price_returns = data.close.reindex(data.benchmark.index.intersection(data.close.index)).pct_change(
         fill_method=None
     )
@@ -297,6 +424,10 @@ def build_bundle(
         current = float(previous.get(ticker, 0))
         target = float(portfolio.executable_weights.get(ticker, 0))
         theoretical = float(portfolio.theoretical_weights.get(ticker, 0))
+        price = float(latest.at[ticker, "close"])
+        target_shares = int(portfolio.shares.get(ticker, 0))
+        current_shares = int(previous_positions.get(ticker, {}).get("shares") or 0)
+        trade_shares = target_shares - current_shares
         position = {
                 "ticker": ticker,
                 "name": data.master.get(ticker, {}).get("name") or ticker,
@@ -305,19 +436,23 @@ def build_bundle(
                 "theoretical_weight": _round(theoretical),
                 "target_weight": _round(target),
                 "change_weight": _round(target - current),
-                "shares": int(portfolio.shares.get(ticker, 0)),
-                "price_rub": _round(latest.at[ticker, "close"], 4),
+                "shares": target_shares,
+                "current_shares": current_shares,
+                "trade_shares": trade_shares,
+                "trade_value_rub": _round(abs(trade_shares) * price, 2),
+                "trade_action": "BUY" if trade_shares > 0 else ("SELL" if trade_shares < 0 else "HOLD"),
+                "price_rub": _round(price, 4),
                 "expected_excess_return_20d": _round(evaluation.latest_forecasts.get(ticker)),
                 "adv_20d_rub": _round(latest.at[ticker, "adv_20d"], 2),
                 "beta_120d": _round(latest.at[ticker, "beta_120d"], 3),
+                "sector_feature_pack": None,
                 "sector_drivers": [],
             }
-        pack_id = next(
+        pack_row = next(
             (
-                row["pack_id"]
+                row
                 for row in sector_result.pack_rows
-                if row["status"] == "APPROVED"
-                and latest.at[ticker, f"sector_id__{row['pack_id'].lower()}"] == 1
+                if latest.at[ticker, f"sector_id__{row['pack_id'].lower()}"] == 1
             ),
             None,
         )
@@ -331,7 +466,15 @@ def build_bundle(
             "developer_key_rate_change_60d": "Изменение ставки, 60 дней",
             "developer_rgbi_driver": "RGBI, 20 дней",
         }
-        if pack_id:
+        if pack_row:
+            pack_id = pack_row["pack_id"]
+            position["sector_feature_pack"] = {
+                "pack_id": pack_id,
+                "label": pack_row["label"],
+                "status": pack_row["status"],
+                "included_in_model": pack_row["status"] == "APPROVED",
+                "blocked_sources": pack_row.get("blocked_sources", []),
+            }
             for column in sector_result.pack_columns[pack_id]:
                 if column.endswith("_missing") or pd.isna(latest.at[ticker, column]):
                     continue
@@ -342,7 +485,7 @@ def build_bundle(
                         "value": _round(value, 4),
                         "direction": "positive" if value > 0 else ("negative" if value < 0 else "neutral"),
                         "data_as_of": as_of.date().isoformat(),
-                        "status": "APPROVED",
+                        "status": pack_row["status"],
                     }
                 )
                 if len(position["sector_drivers"]) == 3:
@@ -367,13 +510,19 @@ def build_bundle(
     else:
         action, reason = "NO_ACTION", "Изменение остаётся внутри no-trade zone."
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    diagnostics = _portfolio_diagnostics(positions, portfolio.cash_weight, config)
+    execution_policy = _execution_policy(
+        production_status,
+        quality["status"],
+        portfolio_metrics,
+    )
     latest_payload = {
         "schema_version": 1,
         "generated_at": generated_at,
         "data_as_of": as_of.date().isoformat(),
         "benchmark": "MCFTR",
         "horizon_sessions": config.horizon,
-        "signal": {"action": action, "reason": reason, "mode": "monthly_threshold"},
+        "signal": {"action": action, "reason": reason, "mode": "20_session_rebalance_threshold"},
         "portfolio": {
             "method": portfolio.method,
             "capital_rub": config.capital_rub,
@@ -385,13 +534,22 @@ def build_bundle(
             "annualized_volatility": _round(portfolio.annualized_volatility),
             "beta": _round(portfolio.beta),
             "fallback_reason": portfolio.fallback_reason,
+            "diagnostics": diagnostics,
         },
         "model": {
             "champion": evaluation.champion,
             "status": production_status,
             "prediction_gate_status": evaluation.champion_status,
             "forecast_shrinkage": config.forecast_shrinkage,
+            "update_policy": {
+                "daily_process": "locked_spec_expanding_window_refit",
+                "specification_locked": True,
+                "hyperparameters_locked": True,
+                "selection_scope": "elastic_net_vs_naive_baselines",
+                "challenger_promotion": "separate_scheduled_evaluation_only",
+            },
         },
+        "execution_policy": execution_policy,
         "data_quality": {
             "status": quality["status"],
             "investable_companies": int(len(latest)),
@@ -410,6 +568,8 @@ def build_bundle(
         },
         "limitations": [
             "Исследовательский модельный портфель, не индивидуальная инвестиционная рекомендация.",
+            "Изменения сравниваются с предыдущим модельным snapshot, а не с портфелем пользователя.",
+            "Cash — технический остаток после ограничений и округления до лотов, а не прогноз падения рынка.",
             "Исторический состав бумаг пока неполон: в backtest остаётся остаточный survivorship risk.",
             "Неразрешённые split-like наблюдения исключаются, а не исправляются догадкой.",
             "Прогнозы неопределённы; система может воздержаться от изменения портфеля.",
@@ -500,7 +660,21 @@ def run_pipeline(
     include_tree_challengers: bool = False,
     today: date | None = None,
 ) -> dict[str, dict]:
-    bundle = build_bundle(repo, config=config, include_tree_challengers=include_tree_challengers, today=today)
+    effective_config = config or StrategyConfig()
+    bundle = build_bundle(
+        repo,
+        config=effective_config,
+        include_tree_challengers=include_tree_challengers,
+        today=today,
+    )
+    ledger_files, live_track_record = prepare_ledger(
+        repo,
+        bundle["latest.json"],
+        bundle["model_card.json"],
+        effective_config,
+    )
+    bundle["latest.json"]["live_track_record"] = live_track_record
+    bundle.update(ledger_files)
     history_date = bundle["latest.json"]["data_as_of"]
     publish_bundle(
         bundle,

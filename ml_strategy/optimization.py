@@ -147,7 +147,9 @@ def minimum_variance(
 
 
 def _turnover_limit(target: pd.Series, previous: pd.Series, cap: float) -> tuple[pd.Series, float]:
-    previous = previous.reindex(target.index).fillna(0)
+    universe = target.index.union(previous[previous > 0].index)
+    target = target.reindex(universe).fillna(0)
+    previous = previous.reindex(universe).fillna(0)
     gross = float((target - previous).abs().sum())
     if gross <= cap or gross == 0:
         return target, gross
@@ -163,6 +165,7 @@ def build_portfolio(
     config: StrategyConfig,
     prefer_max_sharpe: bool,
 ) -> PortfolioResult:
+    all_returns = returns
     ranked = forecasts.sort_values(ascending=False).head(config.holdings)
     names = ranked.index.intersection(returns.columns)
     ranked = ranked.reindex(names).dropna()
@@ -193,16 +196,23 @@ def build_portfolio(
             theoretical = pd.Series(1 / len(ranked), index=ranked.index)
             method = "equal_weight_fallback"
     theoretical = _constraint_adjust(theoretical.reindex(ranked.index).fillna(0), sectors, config)
-    theoretical, turnover = _turnover_limit(theoretical, previous_weights, config.turnover_cap)
+    actionable_previous = previous_weights.reindex(metadata.index).dropna()
+    theoretical, turnover = _turnover_limit(
+        theoretical,
+        actionable_previous,
+        config.turnover_cap,
+    )
     if theoretical.sum() > 1:
         theoretical /= theoretical.sum()
+    execution_returns = all_returns.reindex(columns=theoretical.index).tail(config.feature_history)
+    execution_covariance = execution_returns.cov(min_periods=60).fillna(0) * 252
     preliminary_volatility = float(
         np.sqrt(
             max(
                 0.0,
-                theoretical.reindex(covariance.index).fillna(0).to_numpy()
-                @ covariance.to_numpy()
-                @ theoretical.reindex(covariance.index).fillna(0).to_numpy(),
+                theoretical.reindex(execution_covariance.index).fillna(0).to_numpy()
+                @ execution_covariance.to_numpy()
+                @ theoretical.reindex(execution_covariance.index).fillna(0).to_numpy(),
             )
         )
     )
@@ -236,9 +246,9 @@ def build_portfolio(
     )
     estimated_cost = executed_turnover * config.capital_rub * config.one_way_cost_bps / 10_000
     portfolio_variance = float(
-        executable_weights.reindex(covariance.index).fillna(0).to_numpy()
-        @ covariance.to_numpy()
-        @ executable_weights.reindex(covariance.index).fillna(0).to_numpy()
+        executable_weights.reindex(execution_covariance.index).fillna(0).to_numpy()
+        @ execution_covariance.to_numpy()
+        @ executable_weights.reindex(execution_covariance.index).fillna(0).to_numpy()
     )
     beta = metadata.get("beta_120d", pd.Series(dtype=float)).reindex(executable_weights.index)
     portfolio_beta = float((executable_weights * beta.fillna(0)).sum()) if not beta.empty else None
