@@ -1,0 +1,84 @@
+name: ml-strategy-challengers (ICEEMDAN + PatchTST research)
+
+on:
+  schedule:
+    - cron: "20 6 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-ml-advanced.txt
+      - name: Install bounded research runtime
+        run: |
+          python -m pip install --quiet pandas pyarrow numpy scipy scikit-learn requests lxml ta
+          python -m pip install --quiet -r requirements-ml-advanced.txt
+          python -m pip install --quiet "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/cache@v4
+        with:
+          path: |
+            data/daily
+            data/ml_strategy/advanced/iceemdan_cache
+          key: advanced-models-${{ runner.os }}-${{ hashFiles('config/ml_strategy/advanced_models.yml') }}-${{ github.run_id }}
+          restore-keys: |
+            advanced-models-${{ runner.os }}-${{ hashFiles('config/ml_strategy/advanced_models.yml') }}-
+            advanced-models-${{ runner.os }}-
+      - name: Refresh real MOEX inputs
+        run: python scripts/daily_ingest.py --years 8
+      - name: Train and compare challengers
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+        run: |
+          python scripts/evaluate_advanced_models.py
+          python scripts/validate_advanced_models.py
+      - name: Upload checkpoints, histories and OOS predictions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: advanced-model-evaluation-${{ github.run_id }}
+          path: |
+            data/ml_strategy/advanced/
+            data/ml_strategy/advanced_models.json
+          retention-days: 90
+      - name: Publish comparison artifact only
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          git clone --depth 1 --branch gh-pages \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          mkdir -p "$TMP/ml_strategy"
+          cp site/ml_strategy/advanced_models.json "$TMP/ml_strategy/advanced_models.json"
+          cp docs/ml_strategy/ADVANCED_CHALLENGER_EVALUATION.md \
+            "$TMP/ml_strategy/advanced_challenger_evaluation.md"
+          if [ -z "$(git -C "$TMP" status --porcelain -- \
+               ml_strategy/advanced_models.json \
+               ml_strategy/advanced_challenger_evaluation.md)" ]; then
+            echo "[advanced-models] no comparison changes"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" add \
+            ml_strategy/advanced_models.json \
+            ml_strategy/advanced_challenger_evaluation.md
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "deploy: advanced model comparison"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

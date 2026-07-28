@@ -440,15 +440,18 @@ def build_bundle(
         + [
             {
                 "name": "PatchTST",
-                "status": "BLOCKED",
-                "reason": "Not activated: verified panel length and sequence infrastructure are insufficient for production use.",
+                "status": "IMPLEMENTED_NOT_EVALUATED",
+                "reason": (
+                    "Implemented as a channel-independent patched Transformer. "
+                    "Promotion is decided only by the separate scheduled production evaluation."
+                ),
             },
             {
-                "name": "ICEEMDAN",
-                "status": "BLOCKED",
+                "name": "ElasticNet + ICEEMDAN features",
+                "status": "IMPLEMENTED_NOT_EVALUATED",
                 "reason": (
-                    "Expanding-only leakage-safe adapter exists, but no audited ICEEMDAN backend or "
-                    "stable out-of-sample ablation is available. CEEMDAN is not relabelled as ICEEMDAN."
+                    "The Colominas et al. ICEEMDAN port is implemented as a feature ablation. "
+                    "Promotion is decided only by the separate scheduled production evaluation."
                 ),
             },
         ],

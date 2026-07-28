@@ -11,6 +11,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 REMOTE="https://github.com/eremkindv91/dividend-factor-strategies.git"
 TMP="$(mktemp -d)"
+LAST_GOOD="$(mktemp -d)"
 
 cd "$REPO"
 python3 -m src.pipeline.run_all --skip-ocr --allow-network
@@ -47,6 +48,16 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"
 [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"
 [ -d site/ml_strategy ] && mkdir -p "$TMP/ml_strategy" && cp -R site/ml_strategy/. "$TMP/ml_strategy/"
+# The research workflow publishes these files additively. A manual orphan deploy
+# must preserve them when they are not present in the local ignored site bundle.
+if git clone --quiet --depth 1 --branch gh-pages "$REMOTE" "$LAST_GOOD" 2>/dev/null; then
+  mkdir -p "$TMP/ml_strategy"
+  for file in advanced_models.json advanced_challenger_evaluation.md; do
+    if [ ! -f "$TMP/ml_strategy/$file" ] && [ -f "$LAST_GOOD/ml_strategy/$file" ]; then
+      cp "$LAST_GOOD/ml_strategy/$file" "$TMP/ml_strategy/$file"
+    fi
+  done
+fi
 V="$(git rev-parse --short=8 HEAD)"
 python3 - "$TMP/index.html" "$V" <<'PY'
 from pathlib import Path
@@ -68,4 +79,5 @@ git -C "$TMP" -c user.name="Dmitry Eremkin" -c user.email="eremkindv1991@gmail.c
 echo "[deploy] публикация в gh-pages…"
 git -C "$TMP" push -f "$REMOTE" gh-pages
 rm -rf "$TMP"
+rm -rf "$LAST_GOOD"
 echo "[deploy] готово → https://eremkindv91.github.io/dividend-factor-strategies/"

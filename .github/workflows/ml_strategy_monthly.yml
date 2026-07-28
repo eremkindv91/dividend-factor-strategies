@@ -44,9 +44,17 @@ jobs:
           TMP="$(mktemp -d)"
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP"
+          RESEARCH="$(mktemp -d)"
+          for file in advanced_models.json advanced_challenger_evaluation.md; do
+            if [ -f "$TMP/ml_strategy/$file" ]; then
+              cp "$TMP/ml_strategy/$file" "$RESEARCH/$file"
+            fi
+          done
           rm -rf "$TMP/ml_strategy"
           mkdir -p "$TMP/ml_strategy"
           cp -R site/ml_strategy/. "$TMP/ml_strategy/"
+          cp -R "$RESEARCH/." "$TMP/ml_strategy/"
+          rm -rf "$RESEARCH"
           git -C "$TMP" add ml_strategy
           if [ -z "$(git -C "$TMP" diff --cached --name-only)" ]; then
             echo "[ml-strategy] no monthly changes"; rm -rf "$TMP"; exit 0

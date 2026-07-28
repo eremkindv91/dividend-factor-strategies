@@ -58,3 +58,37 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert "check_ml_strategy" in validator
     assert "scripts/build_ml_strategy.py --allow-network" in workflow
     assert "Publish validated snapshot additively" in workflow
+
+
+def test_ml_research_ui_is_governed_and_degrades_safely():
+    app = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
+    styles = (ROOT / "site" / "styles.css").read_text(encoding="utf-8")
+    challenger = (
+        ROOT / ".github" / "workflows" / "ml_strategy_challengers.yml"
+    ).read_text(encoding="utf-8")
+    daily = (ROOT / ".github" / "workflows" / "ml_strategy_daily.yml").read_text(
+        encoding="utf-8"
+    )
+    monthly = (
+        ROOT / ".github" / "workflows" / "ml_strategy_monthly.yml"
+    ).read_text(encoding="utf-8")
+    manual_deploy = (ROOT / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
+
+    assert "Исследовательские модели" in app
+    assert "affects_current_portfolio" in app
+    assert "Слабая, требует улучшения" not in app  # value must come from JSON
+    assert "Загрузка проверенного snapshot" in app
+    assert "Исследование ещё не опубликовано" in app
+    assert "Формат исследования не поддерживается" in app
+    assert "Последнее исследование старше" in app
+    assert "Как проходит отбор моделей" in app
+    assert ".mls-research-hero" in styles
+    assert ".mls-table-wrap" in styles
+    assert "evaluate_advanced_models.py" in challenger
+    assert "validate_advanced_models.py" in challenger
+    assert "advanced_challenger_evaluation.md" in challenger
+    assert "evaluate_advanced_models.py" not in daily
+    assert "evaluate_advanced_models.py" not in monthly
+    assert "advanced_challenger_evaluation.md" in daily
+    assert "advanced_challenger_evaluation.md" in monthly
+    assert "advanced_challenger_evaluation.md" in manual_deploy

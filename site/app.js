@@ -1464,11 +1464,18 @@ function loadMlStrategy() {
     return response.json();
     });
   };
+  const getOptional = (name) => get(name)
+    .then((data) => ({ data, error: null }))
+    .catch((error) => ({ data: null, error: String(error && error.message ? error.message : error) }));
   ML_STRATEGY_LOADING = Promise.all([
     get('latest.json'), get('backtest.json'), get('model_card.json'), get('data_quality.json'),
     get('sector_features/latest_quality.json'), get('sector_features/latest_registry.json'),
-  ]).then(([latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry]) => {
-    ML_STRATEGY = { latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry };
+    getOptional('advanced_models.json'),
+  ]).then(([latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry, advancedResult]) => {
+    ML_STRATEGY = {
+      latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry,
+      advancedModels: advancedResult.data, advancedModelsError: advancedResult.error,
+    };
     ML_STRATEGY_LOADING = null;
     return ML_STRATEGY;
   }).catch((error) => {
@@ -1488,6 +1495,83 @@ function mlsActionLabel(action) {
     RISK_OFF: 'Снизить риск', DATA_STALE: 'Данные устарели',
     MODEL_UNCERTAIN: 'Модель не уверена', DEGRADED: 'Ограниченный режим',
   })[action] || action || '—';
+}
+
+function mlsResearchStatusLabel(status) {
+  return ({
+    PRODUCTION_CHAMPION: 'Текущая production-модель',
+    EVALUATED_APPROVED: 'Прошла исследовательский отбор',
+    EVALUATED_REJECTED: 'Проверена, но не прошла отбор',
+    IMPLEMENTED_NOT_EVALUATED: 'Реализована, оценка не завершена',
+    NOT_IMPLEMENTED: 'Не реализована',
+    EXECUTION_FAILED: 'Ошибка выполнения',
+    RESEARCH_ONLY: 'Только исследование',
+  })[status] || status || '—';
+}
+
+function mlsDateRu(value) {
+  if (!value) return '—';
+  const bits = String(value).slice(0, 10).split('-');
+  return bits.length === 3 ? `${bits[2]}.${bits[1]}.${bits[0]}` : esc(value);
+}
+
+function mlsAdvancedComparisonHtml(advancedModels, loadError) {
+  if (!advancedModels) {
+    const malformed = loadError && !String(loadError).includes('HTTP 404');
+    return `<div class="mls-advanced mls-research-unavailable">
+      <div class="mls-section-head"><div><h3>Исследовательские модели</h3><p>Модели не влияют на текущий портфель без завершённой OOS-проверки.</p></div><b>IMPLEMENTED_NOT_EVALUATED</b></div>
+      <div class="mls-research-empty"><b>${malformed ? 'Comparison artifact временно недоступен' : 'Исследование ещё не опубликовано'}</b><span>${malformed ? 'Опубликованный JSON не прошёл загрузку. Production-модель продолжает работать независимо.' : 'После следующего weekly research run здесь появятся проверенные результаты challengers.'}</span></div>
+    </div>`;
+  }
+  if (advancedModels.schema_version !== 2 || !Array.isArray(advancedModels.models)) {
+    return `<div class="mls-advanced mls-research-unavailable">
+      <div class="mls-section-head"><div><h3>Исследовательские модели</h3><p>Production-портфель не использует неподдерживаемый research artifact.</p></div><b>EXECUTION_FAILED</b></div>
+      <div class="mls-research-empty"><b>Формат исследования не поддерживается</b><span>Текущий ElasticNet snapshot остаётся независимым и не изменён.</span></div>
+    </div>`;
+  }
+  const statusLabels = {
+    production: 'Production',
+    research_challenger: 'Challenger',
+  };
+  const rows = advancedModels.models.map((model) => {
+    const status = model.status || 'IMPLEMENTED_NOT_EVALUATED';
+    return `<tr>
+      <td data-label="Модель"><b>${esc(model.model || model.model_id)}</b><small>${esc(model.decision_reason || '')}</small></td>
+      <td data-label="Роль">${esc(statusLabels[model.role] || model.role || '—')}</td>
+      <td data-label="Rank IC">${isNum(model.rank_ic) ? ru(model.rank_ic, 3) : '—'}</td>
+      <td data-label="ICIR">${isNum(model.icir) ? ru(model.icir, 2) : '—'}</td>
+      <td data-label="CAGR net">${mlsPct(model.cagr_net, 2)}</td>
+      <td data-label="Sharpe net">${isNum(model.sharpe_net) ? ru(model.sharpe_net, 2) : '—'}</td>
+      <td data-label="Max DD">${mlsPct(model.max_drawdown, 2)}</td>
+      <td data-label="Решение"><span class="mls-eval-status ${esc(status.toLowerCase())}">${esc(mlsResearchStatusLabel(status))}</span></td>
+      <td data-label="Влияет">${model.affects_current_portfolio ? '<b class="mls-affects yes">Да</b>' : '<b class="mls-affects no">Нет</b>'}</td>
+    </tr>`;
+  }).join('');
+  const window = advancedModels.evaluation_window || {};
+  const governance = advancedModels.production_governance || {};
+  const quality = governance.absolute_performance_assessment || {};
+  const sector = advancedModels.sector_packs || {};
+  const costs = advancedModels.transaction_costs || {};
+  const generated = String(advancedModels.generated_at || '');
+  const generatedMs = Date.parse(generated);
+  const staleDays = Number(advancedModels.stale_after_days || 10);
+  const ageDays = Number.isFinite(generatedMs) ? (Date.now() - generatedMs) / 86400000 : Infinity;
+  const stale = ageDays > staleDays;
+  const docsUrl = ((advancedModels.methodology || {}).documentation_url || '');
+  return `<div class="mls-advanced">
+    <div class="mls-section-head mls-research-head"><div><h3>Исследовательские модели</h3><p>Модели действительно обучены и проверены вне выборки. Они не влияют на текущий портфель, пока не докажут преимущество над production-моделью.</p></div><b>Исследование ${mlsDateRu(generated)}</b></div>
+    ${stale ? `<div class="mls-research-stale">Последнее исследование старше ${staleDays} дней. Production snapshot продолжает работать, но comparison требует обновления.</div>` : ''}
+    <div class="mls-research-hero">
+      <div><span>Production model</span><b>${esc(governance.production_model || 'ElasticNet')}</b><small>Используется в текущем портфеле</small></div>
+      <div><span>Период OOS</span><b>${mlsDateRu(window.common_oos_start)}–${mlsDateRu(window.common_oos_end)}</b><small>${window.folds || '—'} folds · ${window.oos_rows || '—'} наблюдений</small></div>
+      <div><span>Издержки</span><b>${isNum(costs.one_way_bps) ? ru(costs.one_way_bps, 0) + ' б.п.' : '—'}</b><small>одинаковы для всех моделей</small></div>
+      <div class="quality-weak"><span>Абсолютное качество</span><b>${esc(quality.label || 'Требует оценки')}</b><small>${esc(quality.reason || '')}</small></div>
+    </div>
+    <div class="mls-production-note"><b>Почему ElasticNet:</b> ${esc(governance.selection_reason || '')} Это сравнительный лидер, но не безусловно сильная стратегия.</div>
+    <div class="mls-table-wrap"><table class="mls-table mls-eval-table"><thead><tr><th>Модель</th><th>Роль</th><th>Rank IC</th><th>ICIR</th><th>CAGR net</th><th>Sharpe net</th><th>Max DD</th><th>Решение</th><th>Влияет на портфель</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="mls-sector-research"><b>Sector Packs · ${esc(mlsResearchStatusLabel(sector.status))}</b><span>${esc(sector.summary || '')}</span></div>
+    <details class="mls-selection-method"><summary>Как проходит отбор моделей</summary><ol><li>Все модели получают одинаковые исторические данные.</li><li>Используется purged walk-forward OOS-проверка.</li><li>Сравнение проводится на общих датах и одинаковом наборе бумаг.</li><li>Учитываются комиссии и оборот портфеля.</li><li>Новая модель включается только при улучшении сигнала и портфельных результатов.</li><li>Сложность модели сама по себе не является основанием для включения.</li></ol>${docsUrl ? `<a href="${esc(dataURL(docsUrl))}" target="_blank" rel="noopener">Подробная методология</a>` : ''}</details>
+  </div>`;
 }
 
 function mlsCheckLabel(name) {
@@ -1537,7 +1621,10 @@ function renderMlStrategy() {
     });
     return;
   }
-  const { latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry } = ML_STRATEGY;
+  const {
+    latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry,
+    advancedModels, advancedModelsError,
+  } = ML_STRATEGY;
   const action = (latest.signal || {}).action;
   const model = latest.model || {};
   const portfolio = latest.portfolio || {};
@@ -1614,6 +1701,7 @@ function renderMlStrategy() {
         <span>Периодов <b>${metrics.periods || '—'}</b></span>
       </div>
     </div>
+    ${mlsAdvancedComparisonHtml(advancedModels, advancedModelsError)}
     <details class="mls-method">
       <summary>Методология и ограничения</summary>
       <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><p><b>Отраслевые признаки:</b> Base, sector ID и каждый pack сравниваются на одинаковых датах, universe, модели, оптимизаторе и издержках. Issuer exposures заблокированы до появления versioned disclosures.</p><ul>${limitations}</ul></div>

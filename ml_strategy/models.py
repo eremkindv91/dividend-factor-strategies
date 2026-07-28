@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -177,8 +178,12 @@ def walk_forward(
     include_tree_challengers: bool = False,
     feature_columns: list[str] | None = None,
     linear_model: str = "elastic_net",
+    model_name: str | None = None,
+    force_model: bool = False,
+    checkpoint_path: Path | None = None,
 ) -> ModelEvaluation:
     feature_columns = feature_columns or FEATURE_COLUMNS
+    linear_label = model_name or linear_model
     missing_features = sorted(set(feature_columns) - set(panel.columns))
     if missing_features:
         raise ValueError(f"feature columns missing from panel: {missing_features}")
@@ -225,7 +230,7 @@ def walk_forward(
         else:
             raise ValueError(f"unsupported linear model: {linear_model}")
         linear.fit(x_train, y_train)
-        forecasts[linear_model] = linear.predict(x_test)
+        forecasts[linear_label] = linear.predict(x_test)
         for name, model, reason in tree_specs:
             if model is None:
                 continue
@@ -264,6 +269,8 @@ def walk_forward(
     predictions = pd.concat(prediction_parts, ignore_index=True)
     metrics = _aggregate_metrics(predictions)
     champion, status = _choose_champion(metrics)
+    if force_model:
+        champion, status = linear_label, "EVALUATED"
 
     latest_date = dates[-1]
     latest = eligible_cross_section(panel, latest_date, config)
@@ -278,10 +285,24 @@ def walk_forward(
         latest_forecasts = latest["momentum_12_1"].fillna(0).clip(-0.5, 0.5) / 12.0
     else:
         model: object
-        if champion in {"elastic_net", "ridge"}:
-            model = _elastic_net(config) if champion == "elastic_net" else _ridge()
+        if champion == linear_label:
+            model = _elastic_net(config) if linear_model == "elastic_net" else _ridge()
             model.fit(train[feature_columns].replace([np.inf, -np.inf], np.nan), train[TARGET])
             values = model.predict(latest[feature_columns].replace([np.inf, -np.inf], np.nan))
+            if checkpoint_path is not None:
+                import joblib
+
+                checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+                joblib.dump(
+                    {
+                        "model": model,
+                        "feature_columns": feature_columns,
+                        "model_name": linear_label,
+                        "trained": True,
+                        "random_seed": config.random_seed,
+                    },
+                    checkpoint_path,
+                )
         else:
             spec = next(item for item in tree_specs if item[0] == champion)
             model = spec[1]

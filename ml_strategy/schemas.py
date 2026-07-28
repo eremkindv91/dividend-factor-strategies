@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -118,6 +119,161 @@ def validate_sector_quality(payload: dict) -> list[str]:
     return errors
 
 
+def validate_advanced_models(payload: dict) -> list[str]:
+    errors: list[str] = []
+    taxonomy = {
+        "NOT_IMPLEMENTED",
+        "IMPLEMENTED_NOT_EVALUATED",
+        "EVALUATED_REJECTED",
+        "EVALUATED_APPROVED",
+        "PRODUCTION_CHAMPION",
+        "EXECUTION_FAILED",
+    }
+    if payload.get("execution_mode") != "production_evaluation":
+        errors.append("advanced_models: execution_mode must be production_evaluation")
+    models = payload.get("models")
+    if not isinstance(models, dict) or set(models) != {
+        "elastic_net",
+        "elastic_net_iceemdan",
+        "patchtst",
+    }:
+        errors.append("advanced_models: three model records required")
+        return errors
+    for name, row in models.items():
+        if row.get("status") not in taxonomy:
+            errors.append(f"advanced_models: {name} has invalid status")
+        execution = row.get("execution", {})
+        for key in (
+            "execution_mode",
+            "trained",
+            "backend",
+            "checkpoint",
+            "folds",
+            "prediction_count",
+            "common_test_window",
+        ):
+            if key not in execution:
+                errors.append(f"advanced_models: {name} missing execution.{key}")
+        if execution.get("trained") is not True:
+            errors.append(f"advanced_models: {name} trained=false")
+        if execution.get("mock_backend") is not False:
+            errors.append(f"advanced_models: {name} mock backend")
+        if execution.get("checkpoint_exists") is not True:
+            errors.append(f"advanced_models: {name} checkpoint missing")
+        if not isinstance(execution.get("prediction_count"), int) or execution["prediction_count"] <= 0:
+            errors.append(f"advanced_models: {name} predictions empty")
+    common = payload.get("common_test_window", {})
+    if (
+        not common.get("identical_rows")
+        or not common.get("identical_targets")
+        or not common.get("rows")
+    ):
+        errors.append("advanced_models: common test window integrity failed")
+    integrity = payload.get("comparison_integrity", {})
+    for key in (
+        "same_universe_rows",
+        "same_targets",
+        "same_rebalance_dates",
+        "same_transaction_costs",
+        "same_optimizer_constraints",
+    ):
+        if integrity.get(key) is not True:
+            errors.append(f"advanced_models: comparison_integrity.{key} failed")
+    return errors
+
+
+def validate_public_advanced_models(payload: dict) -> list[str]:
+    errors: list[str] = []
+    if payload.get("schema_version") != 2:
+        errors.append("public advanced_models: schema_version must be 2")
+    if not payload.get("generated_at"):
+        errors.append("public advanced_models: generated_at missing")
+    window = payload.get("evaluation_window", {})
+    if not window.get("common_oos_start") or not window.get("common_oos_end"):
+        errors.append("public advanced_models: evaluation window missing")
+    if not isinstance(window.get("folds"), int) or window["folds"] <= 0:
+        errors.append("public advanced_models: folds missing")
+    if not isinstance(window.get("oos_rows"), int) or window["oos_rows"] <= 0:
+        errors.append("public advanced_models: OOS rows missing")
+    governance = payload.get("production_governance", {})
+    if governance.get("production_model") != "ElasticNet":
+        errors.append("public advanced_models: production model must remain ElasticNet")
+    if governance.get("challengers_can_switch_production_automatically") is not False:
+        errors.append("public advanced_models: automatic challenger promotion is forbidden")
+    models = payload.get("models")
+    if not isinstance(models, list) or len(models) != 3:
+        errors.append("public advanced_models: exactly three model rows required")
+        models = []
+    production = [row for row in models if row.get("role") == "production"]
+    if len(production) != 1 or production[0].get("model_id") != "elastic_net":
+        errors.append("public advanced_models: ElasticNet must be the only production model")
+    for row in models:
+        model_id = row.get("model_id", "unknown")
+        if row.get("trained") is not True or row.get("evaluated") is not True:
+            errors.append(f"public advanced_models: {model_id} lacks real evaluation evidence")
+        expected_affects = model_id == "elastic_net"
+        if row.get("affects_current_portfolio") is not expected_affects:
+            errors.append(
+                f"public advanced_models: {model_id} affects_current_portfolio is invalid"
+            )
+        if model_id != "elastic_net" and row.get("status") != "EVALUATED_REJECTED":
+            errors.append(f"public advanced_models: {model_id} must remain rejected")
+        for key in ("rank_ic", "icir", "cagr_net", "sharpe_net", "max_drawdown"):
+            if not _finite(row.get(key)):
+                errors.append(f"public advanced_models: {model_id}.{key} is not finite")
+    sector = payload.get("sector_packs", {})
+    if sector.get("affects_current_portfolio") is not False:
+        errors.append("public advanced_models: sector packs must not affect the portfolio")
+    integrity = payload.get("integrity", {})
+    for key in (
+        "same_universe",
+        "same_targets",
+        "same_rebalance_dates",
+        "same_transaction_costs",
+        "same_optimizer_constraints",
+        "production_model_unchanged",
+    ):
+        if integrity.get(key) is not True:
+            errors.append(f"public advanced_models: integrity.{key} failed")
+    if integrity.get("mock_backends_used") is not False:
+        errors.append("public advanced_models: mock backend evidence is forbidden")
+
+    forbidden_keys = {
+        "checkpoint",
+        "checkpoint_sha256",
+        "checkpoints",
+        "fold_records",
+        "training_history",
+        "artifacts",
+        "predictions",
+        "dataset",
+    }
+    path_pattern = re.compile(r"(^|[\"'\s])(?:/tmp/|/private/|/Users/|[A-Za-z]:\\\\)")
+    secret_pattern = re.compile(
+        r"(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
+        r"(?:api[_-]?key|token|secret|password)\s*[:=]\s*\S+)",
+        re.IGNORECASE,
+    )
+
+    def inspect(value: Any, location: str = "root") -> None:
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                if key.lower() in forbidden_keys:
+                    errors.append(f"public advanced_models: forbidden key {location}.{key}")
+                inspect(nested, f"{location}.{key}")
+        elif isinstance(value, list):
+            for index, nested in enumerate(value):
+                inspect(nested, f"{location}[{index}]")
+        elif isinstance(value, str):
+            if path_pattern.search(value):
+                errors.append(f"public advanced_models: machine path at {location}")
+            if secret_pattern.search(value):
+                errors.append(f"public advanced_models: possible secret at {location}")
+
+    inspect(payload)
+    return errors
+
+
 def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
     root = Path(directory)
     errors: list[str] = []
@@ -140,6 +296,14 @@ def validate_bundle(directory: str | os.PathLike[str]) -> list[str]:
             errors.append(f"{name}: invalid JSON ({exc})")
             continue
         errors.extend(validator(payload))
+    advanced_path = root / "advanced_models.json"
+    if advanced_path.exists():
+        try:
+            advanced_payload = json.loads(advanced_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"advanced_models.json: invalid JSON ({exc})")
+        else:
+            errors.extend(validate_public_advanced_models(advanced_payload))
     return errors
 
 

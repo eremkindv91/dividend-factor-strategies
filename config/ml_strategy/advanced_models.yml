@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "promotion": {
+    "minimum_spearman_ic_improvement": 0.01,
+    "minimum_hit_rate_change": 0.0,
+    "require_positive_top_bottom_spread": true,
+    "require_identical_test_rows": true,
+    "require_better_after_cost_excess": true,
+    "require_nonworse_after_cost_sharpe": true
+  },
+  "iceemdan": {
+    "enabled": true,
+    "backend": "colominas_2014_pyemd",
+    "ensemble_size": 8,
+    "noise_width": 0.2,
+    "max_sift_iterations": 40,
+    "max_imfs": 6,
+    "snr_mode": 1,
+    "min_history": 252,
+    "schedule_sessions": 20,
+    "training_window_sessions": 1008,
+    "seed": 42,
+    "cache_version": 1
+  },
+  "patchtst": {
+    "enabled": true,
+    "sequence_columns": [
+      "return_1d",
+      "mcftr_return_20d",
+      "usdrub_return_20d",
+      "key_rate_pct"
+    ],
+    "lookback": 128,
+    "patch_length": 16,
+    "patch_stride": 8,
+    "d_model": 24,
+    "attention_heads": 4,
+    "encoder_layers": 1,
+    "dropout": 0.1,
+    "epochs": 4,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "validation_fraction": 0.1,
+    "early_stopping_patience": 2,
+    "max_training_samples": 24000,
+    "seed": 42
+  }
+}
