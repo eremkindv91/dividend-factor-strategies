@@ -137,6 +137,43 @@ def build_smartlab_dividend_events(universe, percentiles, today, start, horizon,
     return events
 
 
+def build_smartlab_calendar_events(universe, percentiles, today, start, horizon, existing_keys):
+    """Корпоративные события (отчётности, ГОСА/ВОСА, СД) — тоже discovery-only.
+
+    Наполняет типы, которые EVENT_IMPORTANCE описывал, а пайплайн раньше не поставлял.
+    Дивидендные отсечки сюда не попадают: их даёт build_smartlab_dividend_events().
+    """
+    try:
+        import fetch_smartlab_events as smartlab_events
+    except Exception:  # noqa: BLE001
+        return []
+    note = "Discovery-календарь SmartLab; это не официальное подтверждение, сверяйте с эмитентом/MOEX."
+    events = []
+    for row in smartlab_events.fetch_events(start, horizon, set(universe)):
+        ticker = row.get("ticker")
+        event_date = dividend_core.parse_date(row.get("date"))
+        event_type = row.get("event_type")
+        # Все типы этого календаря привязаны к эмитенту: событие без бумаги в универсуме
+        # нечем подсветить в портфеле и не с чем сверить — не публикуем.
+        if not ticker or ticker not in universe or event_date is None:
+            continue
+        if event_type not in EVENT_IMPORTANCE or not (start <= event_date <= horizon):
+            continue
+        key = (ticker, event_date.isoformat(), event_type)
+        if key in existing_keys:
+            continue
+        existing_keys.add(key)
+        description = row.get("description") or EVENT_LABELS.get(event_type, ("",))[0]
+        events.append(_ev(
+            f"{ticker}-{event_date.isoformat()}-{event_type}-sl", event_date, ticker,
+            universe[ticker]["name"], event_type, f"{description}. {note}",
+            composite_importance(EVENT_IMPORTANCE[event_type], percentiles.get(ticker, 0.0),
+                                 (event_date - today).days, "announced"),
+            "smartlab", row.get("url") or smartlab_events.URL, "announced",
+            time_msk=row.get("time_msk"), verification_status="discovery_only"))
+    return events
+
+
 def _cbr_event(meeting_date):
     meeting = next((row for row in CBR_RATE_MEETINGS if row.get("date") == meeting_date.isoformat()), {})
     key = " (опорное, со среднесрочным прогнозом)" if meeting.get("is_key") else ""
@@ -191,8 +228,10 @@ def main() -> int:
     official = dividend_core.legacy_events_from_calendar(full, today, start, horizon)
     keys = {(row.get("ticker"), row.get("date"), row.get("event_type")) for row in official}
     discovery = build_smartlab_dividend_events(universe, percentiles, today, start, horizon, keys)
+    keys |= {(row.get("ticker"), row.get("date"), row.get("event_type")) for row in discovery}
+    corporate = build_smartlab_calendar_events(universe, percentiles, today, start, horizon, keys)
     cbr = build_cbr_events(start, horizon, today)
-    events = official + discovery + cbr
+    events = official + discovery + corporate + cbr
     events.sort(key=lambda row: (-row["importance"], row["date"], row["id"]))
 
     health = ((full.get("meta") or {}).get("source_health") or {}).get("moex") or {}
@@ -211,7 +250,8 @@ def main() -> int:
         "events": events,
     }
     dividend_core.atomic_write_json(args.out, payload)
-    sys.stderr.write(f"[events] events={len(events)} official={len(official)} discovery={len(discovery)} cbr={len(cbr)}\n")
+    sys.stderr.write(f"[events] events={len(events)} official={len(official)} discovery={len(discovery)} "
+                     f"corporate={len(corporate)} cbr={len(cbr)}\n")
     return 0
 
 
