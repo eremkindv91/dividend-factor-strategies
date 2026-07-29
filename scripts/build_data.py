@@ -36,6 +36,7 @@ ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
 MOMENTUM = os.path.join(REPO, "model_output", "momentum.json")
 QUALITY = os.path.join(REPO, "model_output", "quality_rf.json")
 OUT_JSON = os.path.join(REPO, "site", "data.json")
+DIV_CALENDAR = os.path.join(REPO, "site", "dividend_calendar.json")
 
 YIELD_MAX = 100.0   # >100% или <0 — невозможно → reject поля
 YIELD_HIGH = 30.0   # возможно, но требует внимания → флаг
@@ -53,6 +54,59 @@ DISCLAIMER = (
     "факторы вероятности выплаты — вклад усреднён по моделям ансамбля (top-3). Цены — MOEX ISS "
     "(борд TQBR), с задержкой/на закрытие. Реальная доходность ограничена ликвидностью и издержками."
 )
+
+
+def load_announced_dividends() -> dict:
+    """Ближайший ОБЪЯВЛЕННЫЙ дивиденд по каждой бумаге из дивидендного календаря.
+
+    Зачем: прогноз модели пересчитывается раз в квартал (по годовой отчётности), а
+    решения советов директоров выходят непрерывно. Из-за этого скринер показывал
+    цифру, уже опровергнутую официальным решением: по AKRN модель давала 430,23 ₽
+    (интервал 394,63–656,68), тогда как объявлено было 235,00 ₽ — вдвое меньше и
+    даже вне доверительного интервала. Правильное число при этом лежало в соседней
+    вкладке того же сайта.
+
+    Календарь и модель НЕ смешиваются: анонс кладётся отдельным блоком со своим
+    статусом достоверности, а прогноз остаётся как есть. Решение, что показать
+    инвестору первым, принимает фронт — по `verification_status`:
+      official_market_data        — подтверждено раскрытием MOEX;
+      broker_structured_discovery — есть только у брокера, Мосбиржей НЕ подтверждено.
+    Отсутствие календаря или битый файл — не повод рушить сборку: просто нет анонсов.
+    """
+    if not os.path.exists(DIV_CALENDAR):
+        print("[build_data] дивидендный календарь недоступен — анонсы не подмешиваются")
+        return {}
+    try:
+        with open(DIV_CALENDAR, encoding="utf-8") as fh:
+            payload = json.load(fh)
+    except (OSError, ValueError) as e:
+        print(f"[build_data] календарь не прочитан ({e}) — анонсы не подмешиваются")
+        return {}
+
+    today = datetime.now(timezone.utc).date().isoformat()
+    best: dict = {}
+    for event in payload.get("events", []):
+        if event.get("event_kind") != "cash_dividend" or event.get("cancelled"):
+            continue
+        secid = str(event.get("secid") or "").upper()
+        record = str(event.get("record_date") or "")
+        value = event.get("dividend_value")
+        if not secid or record < today or not isinstance(value, (int, float)) or value <= 0:
+            continue
+        # ближайшая будущая отсечка — та, по которой инвестор принимает решение сейчас
+        current = best.get(secid)
+        if current is None or record < current["record_date"]:
+            best[secid] = {
+                "value": round(float(value), 6),
+                "currency": event.get("currency"),
+                "record_date": record,
+                "last_buy_date": event.get("last_buy_date"),
+                "verification_status": event.get("verification_status"),
+                "decision_status": event.get("decision_status"),
+                "confirmed_by_moex": event.get("verification_status") == "official_market_data",
+            }
+    print(f"[build_data] анонсов дивидендов из календаря: {len(best)}")
+    return best
 
 
 def fail(msg: str) -> "NoReturn":  # type: ignore[name-defined]
@@ -214,6 +268,8 @@ def main() -> int:
     out_rows = []
     n_ok = n_insuff = n_yield_rejected = n_yield_high = n_payout_neg = n_payout_high = 0
 
+    announced_dividends = load_announced_dividends()
+
     for r in records:
         tk = r["ticker"]
         p = prices.get(tk, {})
@@ -275,7 +331,26 @@ def main() -> int:
 
         ranking_quality = classify_ranking_quality(status, flags)
 
+        # ── объявленный дивиденд (если есть) ──
+        # Прогноз НЕ подменяем: анонс идёт отдельным блоком со своим статусом
+        # достоверности. Расхождение считаем здесь, чтобы фронт мог показать его
+        # без арифметики и чтобы оно попало в экспорт CSV.
+        announced = announced_dividends.get(tk)
+        if announced:
+            announced = dict(announced)
+            if isinstance(dps, (int, float)) and dps > 0:
+                announced["model_forecast"] = num(dps)
+                announced["divergence_pct"] = num(round(
+                    100.0 * (announced["value"] - dps) / dps, 1))
+                lo, hi = r.get("dividend_forecast_lo"), r.get("dividend_forecast_hi")
+                if isinstance(lo, (int, float)) and isinstance(hi, (int, float)):
+                    # факт вне интервала модели — сигнал, что прогноз устарел по этой бумаге
+                    announced["outside_model_band"] = not (lo <= announced["value"] <= hi)
+            if price and price > 0:
+                announced["yield_pct"] = num(round(100.0 * announced["value"] / price, 2))
+
         out_rows.append({
+            "announced_dividend": announced,
             "ticker": tk,
             "name": p.get("name") or tk,
             "sector": r.get("sector") or ND,

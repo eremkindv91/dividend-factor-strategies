@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from collections import Counter
 from contextlib import contextmanager, nullcontext
 from datetime import date, datetime, timezone
@@ -217,6 +218,34 @@ def _sdk_error_code(exc: Exception) -> str:
     }.get(name, f"grpc_{name}" if name and name.replace("_", "").isalnum() else "sdk_error")
 
 
+# Транзиентные коды: сеть моргнула / сервис на секунду недоступен / упёрлись в лимит.
+# Без повтора такая ошибка выкидывала КОНКРЕТНУЮ бумагу из обхода, и состав анонсов
+# скакал от прогона к прогону: Русагро то появлялся, то исчезал из календаря при
+# неизменных данных у брокера. Плюс эти же ошибки копились в счётчике подряд-идущих
+# сбоев и добивали circuit breaker.
+TRANSIENT_CODES = {"network_error", "timeout", "http_429", "http_502", "http_503"}
+REQUEST_ATTEMPTS = 3
+REQUEST_BACKOFF_SEC = (1.5, 4.0)
+
+
+def _request_with_retry(request, token: str, method: str, payload: dict):
+    """Один вызов API с повтором ТОЛЬКО на транзиентных ошибках.
+
+    Ошибки авторизации и «инструмент не найден» повторять бессмысленно — они
+    прокидываются наверх сразу, чтобы circuit breaker и статистика видели их как есть.
+    """
+    last: Exception | None = None
+    for attempt in range(1, REQUEST_ATTEMPTS + 1):
+        try:
+            return request(token, method, payload)
+        except Exception as exc:  # noqa: BLE001
+            last = exc
+            if attempt == REQUEST_ATTEMPTS or _safe_error_code(exc) not in TRANSIENT_CODES:
+                raise
+            time.sleep(REQUEST_BACKOFF_SEC[min(attempt - 1, len(REQUEST_BACKOFF_SEC) - 1)])
+    raise last if last else RuntimeError("request failed")
+
+
 def _sdk_response_payload(method: str, response) -> dict:
     if method == "FindInstrument":
         return {"instruments": [
@@ -364,7 +393,7 @@ def collect_payloads(
             for index, identifier in enumerate(selected_identifiers):
                 stage = "find_instrument"
                 try:
-                    found = request(token, "FindInstrument", {"query": identifier})
+                    found = _request_with_retry(request, token, "FindInstrument", {"query": identifier})
                     instrument_id = _instrument_id(found, identifier)
                     if not instrument_id:
                         failed += 1
@@ -376,7 +405,10 @@ def collect_payloads(
                         consecutive_failures = 0
                         continue
                     stage = "get_dividends"
-                    body = request(token, "GetDividends", {"instrumentId": instrument_id, "from": f"{from_date}T00:00:00Z", "to": f"{to_date}T23:59:59Z"})
+                    body = _request_with_retry(request, token, "GetDividends",
+                                              {"instrumentId": instrument_id,
+                                               "from": f"{from_date}T00:00:00Z",
+                                               "to": f"{to_date}T23:59:59Z"})
                     rows = body.get("dividends") or []
                     payloads[identifier] = rows if isinstance(rows, list) else []
                     cached_records[identifier] = {"rows": payloads[identifier], "instrument_id": instrument_id}

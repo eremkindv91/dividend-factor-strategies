@@ -2096,6 +2096,15 @@ tbody tr:hover td,
 .news-updated b { color: var(--ink); }
 .news-stale, .news-refresh-error { display: inline-flex; margin-left: 8px; padding: 2px 6px; border-radius: 4px; font-size: .72rem; font-weight: 700; }
 .news-stale { color: var(--risk-ink); background: var(--risk-fill); }
+/* Объявленный дивиденд в скринере акций. Ведёт объявленное значение, прогноз модели
+   остаётся рядом как оценка. Тон различает уровень доверия: подтверждённое раскрытием
+   Мосбиржи (good) против анонса брокера без подтверждения (neut). */
+.ann-chip { display: inline-flex; align-items: center; gap: 4px; margin-top: 3px;
+  padding: 1px 6px; border-radius: 4px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.ann-good { color: var(--good-ink); background: var(--good-fill); }
+.ann-neut { color: var(--neut-ink); background: var(--neut-fill); }
+.ann-warn { display: inline-flex; margin-left: 4px; padding: 1px 5px; border-radius: 4px;
+  font-size: .68rem; font-weight: 700; color: var(--warn-ink); background: var(--warn-fill); }
 /* Тип выпуска (до открытия / итоги дня / обзор недели) — нейтральная метка слева
    от времени: сообщает контекст, но не спорит за внимание со статусом свежести. */
 .news-kind { display: inline-flex; margin-right: 8px; padding: 2px 7px; border-radius: 4px;

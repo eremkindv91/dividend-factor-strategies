@@ -174,7 +174,13 @@ def test_tinvest_stops_after_consecutive_infrastructure_failures():
     )
 
     assert payloads == {}
-    assert len(calls) == 2
+    # Предохранитель считает ЛОГИЧЕСКИЕ сбои по инструментам, а не сетевые вызовы:
+    # каждый инструмент теперь переспрашивается до 3 раз на транзиентных кодах
+    # (timeout/network_error/429), иначе одиночное моргание сети выкидывало бумагу
+    # из обхода и состав анонсов скакал от прогона к прогону.
+    attempted = {payload["query"] for _method, payload in calls}
+    assert attempted == {"RU000TEST000", "RU000TEST001"}, "breaker обязан остановиться на 3-м инструменте"
+    assert len(calls) == 2 * tinvest.REQUEST_ATTEMPTS
     assert stats["failed"] == 3
     assert stats["errors"] == {
         "find_instrument_timeout": 2,
@@ -253,3 +259,43 @@ def test_disclosure_candidate_parser_needs_manual_verification():
     assert len(rows) == 1
     assert rows[0]["candidate_status"] == "shareholders_approved"
     assert rows[0]["discovery_status"] == "needs_manual_verification"
+
+
+def test_transient_network_error_is_retried_and_recovers():
+    """Одиночное моргание сети не должно выкидывать бумагу из обхода.
+
+    Из-за этого состав анонсов скакал между прогонами при неизменных данных
+    у брокера: Русагро то появлялся в календаре, то исчезал.
+    """
+    attempts = {"n": 0}
+    event = _event()
+    event["isin"], event["secid"] = "RU000TEST000", "TEST0"
+
+    def flaky(_token, method, payload):
+        if method == "FindInstrument":
+            attempts["n"] += 1
+            if attempts["n"] == 1:
+                raise tinvest.TInvestRequestError("network_error")
+            return {"instruments": [{"isin": "RU000TEST000", "ticker": "TEST0", "uid": "uid-1"}]}
+        return {"dividends": []}
+
+    payloads, stats = tinvest.collect_payloads(
+        [event], "secret", "2026-01-01", "2026-12-31", post=flaky)
+
+    assert attempts["n"] == 2, "первый вызов упал, второй обязан пройти"
+    assert stats["success"] == 1 and stats["failed"] == 0
+    assert "RU000TEST000" in payloads
+
+
+def test_permanent_error_is_not_retried():
+    """Ошибка авторизации повторов не заслуживает — она не пройдёт и на третий раз."""
+    calls = []
+    event = _event()
+    event["isin"], event["secid"] = "RU000TEST000", "TEST0"
+
+    def denied(_token, method, payload):
+        calls.append(method)
+        raise tinvest.TInvestRequestError("http_401")
+
+    tinvest.collect_payloads([event], "secret", "2026-01-01", "2026-12-31", post=denied)
+    assert len(calls) == 1, "401 не должен переспрашиваться"

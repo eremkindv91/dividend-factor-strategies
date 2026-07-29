@@ -467,7 +467,7 @@ function renderTable() {
       <td class="left">${verdictChip(t.verdict, false)}</td>
       <td>${stabilityCell(t.stability_score)}</td>
       <td>${riskBadge(t.cut_risk)}</td>
-      <td class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</td>
+      <td class="tnum">${cellNum(t.dividend_forecast, fmtRub)}${announcedBadgeHTML(t) ? '<br>' + announcedBadgeHTML(t) : ''}</td>
       <td class="tnum">${payoutTxt}</td>
       <td class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</td>
       <td class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</td>
@@ -785,9 +785,46 @@ function sectorPercentilesHTML(t) {
   return `<div class="pctl"><div class="pctl-head muted">Сектор: ${esc(sp.sector)} · бар = «лучше N% сектора»</div>${rows}</div>`;
 }
 
+// ── объявленный дивиденд против прогноза модели ──────────────────────────────
+// Прогноз пересчитывается раз в квартал (по годовой отчётности), а решения советов
+// директоров выходят непрерывно. Без этой связки скринер показывал цифру, уже
+// опровергнутую официальным решением: AKRN — модель 430,23 ₽ против объявленных
+// 235,00 ₽. Объявленное значение ВЕДЁТ, прогноз остаётся рядом как модельная оценка.
+// Уровень доверия подписываем честно: анонс брокера ≠ подтверждение Мосбиржи.
+function announcedNote(a) {
+  if (!a || !isNum(a.value)) return null;
+  const confirmed = a.confirmed_by_moex === true;
+  return {
+    value: a.value,
+    label: confirmed ? 'Объявлен' : 'Объявлен (анонс)',
+    title: confirmed
+      ? `Подтверждено раскрытием Мосбиржи. Отсечка ${a.record_date || '—'}.`
+      : `Данные брокера, Мосбиржей пока НЕ подтверждено. Отсечка ${a.record_date || '—'}.`,
+    tone: confirmed ? 'good' : 'neut',
+    recordDate: a.record_date || null,
+    yieldPct: isNum(a.yield_pct) ? a.yield_pct : null,
+    divergence: isNum(a.divergence_pct) ? a.divergence_pct : null,
+    outsideBand: a.outside_model_band === true,
+  };
+}
+
+function announcedBadgeHTML(t) {
+  const a = announcedNote(t && t.announced_dividend);
+  if (!a) return '';
+  const warn = a.outsideBand
+    ? ` <span class="ann-warn" title="Объявленная сумма вне интервала прогноза — модельная оценка по этой бумаге устарела">прогноз разошёлся</span>`
+    : '';
+  return `<span class="ann-chip ann-${a.tone}" title="${esc(a.title)}">${esc(a.label)} ${fmtRub(a.value)}</span>${warn}`;
+}
+
 function detailKV(t) {
   const lohi = (isNum(t.dividend_forecast_lo) && isNum(t.dividend_forecast_hi))
     ? `${ru(t.dividend_forecast_lo, 1)}–${ru(t.dividend_forecast_hi, 1)} ₽` : ND;
+  const ann = announcedNote(t.announced_dividend);
+  const annRows = ann ? `
+    <dt>${esc(ann.label)} дивиденд</dt><dd class="tnum"><b>${fmtRub(ann.value)}</b>${
+      ann.yieldPct != null ? ` <span class="muted">· ${ru(ann.yieldPct, 2)}% к цене</span>` : ''}</dd>
+    <dt>Отсечка</dt><dd class="tnum">${ann.recordDate ? esc(ann.recordDate) : ND}<span class="muted"> · ${esc(ann.title)}</span></dd>` : '';
   const flagMap = {
     y_paid_invalid: 'доходность при выплате вне диапазона — скрыта',
     y_exp_invalid: 'ожидаемая доходность вне диапазона — скрыта',
@@ -802,8 +839,9 @@ function detailKV(t) {
   };
   const flags = (t.flags || []).map((f) => flagMap[f] || f);
   return `<dl class="kv">
-    <dt>Текущая цена</dt><dd class="tnum">${fmtRub(t.price)}${t.price_field ? ` <span class="muted">(${esc(t.price_field)})</span>` : ''}</dd>
-    <dt>Прогноз дивиденда</dt><dd class="tnum">${fmtRub(t.dividend_forecast)}</dd>
+    <dt>Текущая цена</dt><dd class="tnum">${fmtRub(t.price)}${t.price_field ? ` <span class="muted">(${esc(t.price_field)})</span>` : ''}</dd>${annRows}
+    <dt>Прогноз дивиденда${ann ? ' <span class="muted">(модель)</span>' : ''}</dt><dd class="tnum">${fmtRub(t.dividend_forecast)}${
+      ann && ann.divergence != null ? ` <span class="muted">· ${ann.divergence > 0 ? '+' : ''}${ru(ann.divergence, 1)}% к объявленному</span>` : ''}</dd>
     <dt>Интервал прогноза</dt><dd class="tnum">${lohi}</dd>
     <dt>Дивиденд за посл. год</dt><dd class="tnum">${fmtRub(t.current_dps)}</dd>
     <dt>Серия лет выплат</dt><dd class="tnum">${t.div_streak ?? ND}</dd>
@@ -840,7 +878,7 @@ function stockDetailSummaryHTML(t) {
     <div class="issuer-kpis">
       <div><span>Устойчивость</span>${stabilityCell(t.stability_score)}</div>
       <div><span>Доходность ожид.</span><b class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</b></div>
-      <div><span>Прогноз дивиденда</span><b class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</b></div>
+      <div><span>Прогноз дивиденда</span><b class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</b>${announcedBadgeHTML(t)}</div>
       <div><span>Цена</span><b class="tnum">${cellNum(t.price, fmtRub)}</b></div>
     </div>
   </div>`;
@@ -890,7 +928,7 @@ function renderCards() {
       <div class="card-verdict">${verdictChip(t.verdict, true)}</div>
       <div class="grid">
         <div><span class="lbl">Устойчивость</span>${stabilityCell(t.stability_score)}</div>
-        <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</span></div>
+        <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</span>${announcedBadgeHTML(t)}</div>
         <div><span class="lbl">Доходн. ожид.</span><span class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</span></div>
         <div><span class="lbl">Доходн. при выплате</span><span class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</span></div>
         <div><span class="lbl">Payout</span><span class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%' : mdash}</span></div>
@@ -919,7 +957,11 @@ function exportCSV() {
   const cols = [
     ['ticker', 'Тикер'], ['name', 'Название'], ['sector', 'Отрасль'],
     ['stability_score', 'Устойчивость'], ['cut_risk', 'Риск невыплаты'],
-    ['dividend_forecast', 'Прогноз дивиденда, ₽'], ['payout', 'Payout, %'],
+    ['dividend_forecast', 'Прогноз дивиденда (модель), ₽'],
+    ['announced_dividend_value', 'Объявленный дивиденд, ₽'],
+    ['announced_dividend_record_date', 'Отсечка'],
+    ['announced_dividend_confirmed', 'Подтверждён Мосбиржей'],
+    ['payout', 'Payout, %'],
     ['dividend_yield_expected', 'Доходность ожидаемая, %'],
     ['dividend_yield_if_paid', 'Доходность при выплате, %'],
     ['price', 'Цена, ₽'], ['status', 'Полнота данных'], ['ranking_status', 'Статус рейтинга'],
@@ -929,8 +971,19 @@ function exportCSV() {
     if (typeof v === 'number') return ru(v, 4).replace(/ /g, '');
     return '"' + String(v).replace(/"/g, '""') + '"';
   };
+  // announced_dividend приходит вложенным объектом — раскладываем в плоские колонки,
+  // иначе в CSV попало бы "[object Object]"
+  const pick = (t, key) => {
+    if (!key.startsWith('announced_dividend_')) return t[key];
+    const a = t.announced_dividend;
+    if (!a) return ND;
+    if (key === 'announced_dividend_value') return isNum(a.value) ? a.value : ND;
+    if (key === 'announced_dividend_record_date') return a.record_date || ND;
+    if (key === 'announced_dividend_confirmed') return a.confirmed_by_moex ? 'да' : 'нет (анонс брокера)';
+    return ND;
+  };
   const lines = [cols.map((c) => c[1]).join(';')];
-  SHOWN.forEach((t) => lines.push(cols.map((c) => cell(t[c[0]])).join(';')));
+  SHOWN.forEach((t) => lines.push(cols.map((c) => cell(pick(t, c[0]))).join(';')));
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
