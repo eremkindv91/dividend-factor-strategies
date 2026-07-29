@@ -189,3 +189,32 @@ def last_weekday_slot(now_msk: datetime, slots: list[time]) -> datetime:
                     return cand
         d -= timedelta(days=1)
     return datetime.combine(d, sorted(slots)[0], tzinfo=MSK)
+
+
+# ── недельное расписание: РАЗНЫЕ слоты в разные дни ───────────────────────────
+# Функции выше считают, что расписание одинаково пн–пт, а в выходные его нет.
+# Для новостей это перестало быть правдой: у брифинга появились субботний и
+# воскресный выпуски, и без учёта этого блок либо помечался устаревшим в субботу,
+# либо, наоборот, всю субботу выглядел свежим с пятничными данными.
+# schedule — {номер дня недели (пн=0 … вс=6): [времена МСК]}; дни без слотов опускаются.
+
+def next_weekly_slot(now_msk: datetime, schedule: dict[int, list[time]]) -> datetime:
+    d = now_msk.date()
+    for _ in range(0, 14):
+        for t in sorted(schedule.get(d.weekday(), [])):
+            cand = datetime.combine(d, t, tzinfo=MSK)
+            if cand > now_msk:
+                return cand
+        d += timedelta(days=1)
+    return now_msk
+
+
+def last_weekly_slot(now_msk: datetime, schedule: dict[int, list[time]]) -> datetime:
+    d = now_msk.date()
+    for _ in range(0, 14):
+        for t in sorted(schedule.get(d.weekday(), []), reverse=True):
+            cand = datetime.combine(d, t, tzinfo=MSK)
+            if cand <= now_msk:
+                return cand
+        d -= timedelta(days=1)
+    return now_msk

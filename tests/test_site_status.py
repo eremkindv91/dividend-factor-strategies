@@ -88,10 +88,38 @@ def test_15_older_than_last_session():                 # данные старш
 
 # ── новости: своя частота, не наследуют рынок ──
 
-def test_14_news_fresh_while_market_closed():
-    # суббота: рынок закрыт, но пятничный вечерний дайджест (19:00) — свежий
+def test_14_news_weekend_briefing_supersedes_friday():
+    # Контракт изменён вместе с появлением ВЫХОДНЫХ выпусков (cron сб 10:23 / вс 17:23).
+    # Раньше пятничная сводка считалась свежей всю субботу — но только потому, что
+    # субботнего выпуска не существовало и разрыв в 61–62 ч выдавался за норму.
     fri_evening = datetime(2026, 7, 10, 19, 5, tzinfo=tc.MSK)
-    assert bss.classify_news(fri_evening, msk(2026, 7, 11, 12, 0), True) == "fresh"
+    # сб 09:00 — субботний слот (10:23) ещё не настал, пятничная сводка честно свежая
+    assert bss.classify_news(fri_evening, msk(2026, 7, 11, 9, 0), True) == "fresh"
+    # сб 12:00 — слот настал, идёт генерация (в пределах NEWS_GRACE): «обновляется», не «свежо»
+    assert bss.classify_news(fri_evening, msk(2026, 7, 11, 12, 0), True) == "updating"
+    # сб 16:00 — окно очереди вышло, субботнего выпуска нет: честно «задержан»
+    assert bss.classify_news(fri_evening, msk(2026, 7, 11, 16, 0), True) == "delayed"
+    # субботний выпуск пришёл — снова свежо
+    sat_briefing = datetime(2026, 7, 11, 12, 40, tzinfo=tc.MSK)
+    assert bss.classify_news(sat_briefing, msk(2026, 7, 11, 16, 0), True) == "fresh"
+
+
+def test_news_sunday_briefing_covers_monday_open():
+    """Воскресный выпуск (cron 17:23) должен закрывать ночь до понедельника."""
+    sun_briefing = datetime(2026, 7, 12, 18, 40, tzinfo=tc.MSK)
+    assert bss.classify_news(sun_briefing, msk(2026, 7, 12, 22, 0), True) == "fresh"
+    # понедельник 07:00: слот 05:37 настал, очередь ещё может тянуть → «обновляется»
+    assert bss.classify_news(sun_briefing, msk(2026, 7, 13, 7, 0), True) == "updating"
+
+
+def test_news_premarket_slot_lands_before_open():
+    """Утренний прогон обязан давать свежую сводку ДО открытия сессии (10:00 МСК).
+
+    Это и есть исходная жалоба: при старом расписании (cron 07:00 + очередь +2.4 ч)
+    сводка приезжала в 09:26, а «предторговый контроль» — в 11:54, уже после открытия.
+    """
+    mon_premarket = datetime(2026, 7, 13, 8, 10, tzinfo=tc.MSK)
+    assert bss.classify_news(mon_premarket, msk(2026, 7, 13, 9, 45), True) == "fresh"
 
 
 def test_news_overnight_reflects_last_slot():

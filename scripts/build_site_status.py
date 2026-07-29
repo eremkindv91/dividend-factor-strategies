@@ -34,7 +34,21 @@ SITE = os.path.join(REPO, "site")
 
 # Слоты плановых прогонов (МСК, пн–пт) — источник истины: cron в .github/workflows.
 MARKET_SLOTS = [time(9, 0), time(19, 0)]                 # update.yml
-NEWS_SLOTS = [time(7, 0), time(9, 20), time(19, 0)]      # news.yml
+# news.yml: слоты = ВРЕМЯ CRON (МСК), один в один с .github/workflows/news.yml.
+# Сравнивать свежесть надо с моментом ЗАПУСКА, а не с ожидаемым прибытием: сводка,
+# пришедшая раньше ожидаемого, — это хорошо, а не «слот не отработал».
+# Задержку очереди GitHub (+1.4…+2.6 ч, замер 40 прогонов 10–29.07.2026) поглощает
+# NEWS_GRACE: пока она не вышла, статус «обновляется», а не «задержан».
+NEWS_SCHEDULE = {
+    0: [time(5, 37), time(7, 47), time(18, 13)],   # пн
+    1: [time(5, 37), time(7, 47), time(18, 13)],   # вт
+    2: [time(5, 37), time(7, 47), time(18, 13)],   # ср
+    3: [time(5, 37), time(7, 47), time(18, 13)],   # чт
+    4: [time(5, 37), time(7, 47), time(18, 13)],   # пт
+    5: [time(10, 23)],                             # сб — обзор недели
+    6: [time(17, 23)],                             # вс — к новой неделе
+}
+NEWS_GRACE = timedelta(hours=3)   # очередь GitHub + пайплайн + пропагация Pages CDN
 GRACE = timedelta(hours=2)   # запас на исполнение пайплайна + пропагацию Pages CDN
 
 # блок → (имя, файл, поля-даты по приоритету, тип источника, параметр)
@@ -137,12 +151,12 @@ def classify_news(asof_dt: datetime | None, now_msk: datetime, has_content: bool
         return "unavailable"
     if asof_dt is None:
         return "stale"
-    last = tc.last_weekday_slot(now_msk, NEWS_SLOTS)
+    last = tc.last_weekly_slot(now_msk, NEWS_SCHEDULE)
     if asof_dt >= last:                        # дайджест отражает последний плановый слот
         return "fresh"
-    if now_msk < last + GRACE:                 # слот только что настал — вероятно, идёт генерация
+    if now_msk < last + NEWS_GRACE:            # слот настал, но очередь GitHub ещё может тянуть
         return "updating"
-    prev = tc.last_weekday_slot(last - timedelta(minutes=1), NEWS_SLOTS)
+    prev = tc.last_weekly_slot(last - timedelta(minutes=1), NEWS_SCHEDULE)
     return "delayed" if asof_dt >= prev else "stale"
 
 
@@ -271,7 +285,7 @@ def _pack(key, title, src_type, fine, asof_raw, asof_date, asof_dt, is_fallback,
     if src_type == "market":
         nxt = tc.next_weekday_slot(now_msk, MARKET_SLOTS)
     elif src_type == "news":
-        nxt = tc.next_weekday_slot(now_msk, NEWS_SLOTS)
+        nxt = tc.next_weekly_slot(now_msk, NEWS_SCHEDULE)
     else:
         nxt = None
     # источник без подтверждённой даты данных → честное сообщение, не подставляем дату

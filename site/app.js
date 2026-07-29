@@ -5042,7 +5042,7 @@ const SECTION_META = {
   'my-portfolio': ['Портфель', 'Portfolio X-Ray — риск и доходность, расчёт локально в браузере'],
   stocks: ['Акции', 'Скринер: прогноз дивидендов, оценка, риск невыплаты'],
   strategies: ['Стратегии', 'Факторные и сценарные портфели поверх данных по акциям'],
-  news: ['Новости', 'Утренний брифинг рынка РФ'],
+  news: ['Новости', 'Брифинг рынка РФ'],
   bonds: ['Облигации', 'Скринер рублёвых корпоративных облигаций MOEX'],
   cbr: ['Банки РФ', 'Отчётность банков по формам ЦБ РФ'],
   methodology: ['Методология', 'Источники, расчёты и ограничения'],
@@ -7746,9 +7746,25 @@ function newsAgendaHTML(items) {
   }).join('');
 }
 
+// Один пайплайн отдаёт разные по смыслу выпуски: до открытия, во время сессии,
+// по итогам дня, выходной обзор, повестка новой недели. Раньше всё называлось
+// «утренним брифингом» — вечером и в выходные это была неправда. Тип проставляет
+// генератор (поле briefing), а не модель; старые news.json без поля — просто без метки.
+const NEWS_KIND_LABEL = {
+  premarket:  'До открытия',
+  intraday:   'К текущей сессии',
+  evening:    'Итоги дня',
+  weekend:    'Обзор недели',
+  week_ahead: 'К новой неделе',
+};
+
 function newsShellHTML(d) {
   const upd = newsMskTime(d.generated_at);
   const freshness = newsFreshness(d.generated_at);
+  const kind = d.briefing && NEWS_KIND_LABEL[d.briefing.kind] ? d.briefing.kind : null;
+  const kindTag = kind
+    ? `<span class="news-kind" title="${esc(d.briefing.context || '')}">${esc(NEWS_KIND_LABEL[kind])}</span>`
+    : '';
   const stale = freshness.stale
     ? `<span class="news-stale">данные устарели${freshness.ageHours == null ? '' : ` · ${freshness.ageHours} ч`}</span>`
     : '';
@@ -7761,7 +7777,7 @@ function newsShellHTML(d) {
     .map(newsChipHTML).join('');
   return `
     <div class="news-topbar">
-      <div class="news-updated">Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}${stale}</div>
+      <div class="news-updated">${kindTag}Обновлено ${upd ? `в <b>${esc(upd)}</b> МСК` : '—'}${d.date ? ` · ${esc(d.date)}` : ''}${stale}</div>
       <label class="news-toggle"><input type="checkbox" id="news-invest"${NEWS_INVEST_ONLY ? ' checked' : ''}> только инвестиции</label>
     </div>
     ${back}

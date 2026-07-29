@@ -75,8 +75,13 @@ def test_news_importance_contract_repairs_only_numeric_formatting():
 def test_news_workflow_uses_secrets_and_publishes_additively():
     workflow = (ROOT / ".github" / "workflows" / "news.yml").read_text(encoding="utf-8")
 
-    assert workflow.count("cron:") == 3
-    assert 'cron: "20 6 * * 1-5"' in workflow
+    # Было 3 будних слота; добавлены субботний и воскресный — выходные перестали быть
+    # дырой в 61–62 ч. Будние слоты сдвинуты раньше и на некруглые минуты, потому что
+    # очередь GitHub давала +2.4…+2.6 ч и предторговая сводка приходила ПОСЛЕ открытия.
+    assert workflow.count("cron:") == 5
+    assert 'cron: "37 2 * * 1-5"' in workflow   # основная сводка до открытия
+    assert 'cron: "23 7 * * 6"' in workflow     # суббота
+    assert 'cron: "23 14 * * 0"' in workflow    # воскресенье
     assert "python -m news.generate_news" in workflow
     assert "python scripts/validate_site_data.py news" in workflow
     assert "site/news.json" in workflow

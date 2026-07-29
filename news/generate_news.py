@@ -10,6 +10,7 @@ import subprocess
 import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
+from time import sleep   # ВНИМАНИЕ: имя `time` уже занято под datetime.time
 from typing import Any
 
 
@@ -64,12 +65,60 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def last_trading_day(today) -> Any:
+    """Последний ЗАВЕРШЁННЫЙ торговый день до `today` (не календарное «вчера»).
+
+    Раньше промпт подставлял `today - 1 день`, поэтому в понедельник «вчера» было
+    воскресенье, а «закрытие РФ вчера» — время, когда биржа не работала. Модель
+    получала заведомо ложную опору и путала, что относить в yesterday, а что в
+    overnight. По той же причине ломались брифинги после праздников.
+    """
+    try:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import trading_calendar as tc  # type: ignore
+        return tc.prev_trading_day(today)
+    except Exception:  # noqa: BLE001 — календарь недоступен: откат на будни без праздников
+        probe = today - timedelta(days=1)
+        while probe.weekday() >= 5:
+            probe -= timedelta(days=1)
+        return probe
+
+
+# Тип выпуска. Один и тот же пайплайн отдаёт РАЗНЫЕ по смыслу сводки, а раньше
+# промпт всегда представлялся «утренним блоком до открытия» — в вечернем и
+# выходном выпуске это была неправда прямо в первой строке.
+BRIEFING_KINDS = {
+    "premarket":  ("Сводка до открытия",     "до открытия основной сессии Мосбиржи (10:00 МСК)"),
+    "intraday":   ("Сводка к текущей сессии", "уже во время основной сессии Мосбиржи"),
+    "evening":    ("Итоги торгового дня",     "после закрытия основной сессии Мосбиржи (18:50 МСК)"),
+    "weekend":    ("Обзор недели",            "в выходной день, когда биржа закрыта"),
+    "week_ahead": ("К новой неделе",          "в воскресенье, накануне открытия недели"),
+}
+
+
+def briefing_kind(now: datetime) -> str:
+    weekday, moment = now.weekday(), now.time()
+    if weekday == 5:
+        return "weekend"
+    if weekday == 6:
+        return "week_ahead"
+    if moment < time(10, 0):
+        return "premarket"
+    if moment < time(18, 50):
+        return "intraday"
+    return "evening"
+
+
 def build_prompt(template: str, now: datetime) -> str:
     today = now.date()
-    yesterday = today - timedelta(days=1)
+    yesterday = last_trading_day(today)
+    kind = briefing_kind(now)
+    kind_title, kind_context = BRIEFING_KINDS[kind]
     values = {
         "TODAY": today.isoformat(),
         "YESTERDAY": yesterday.isoformat(),
+        "BRIEFING_TITLE": kind_title,
+        "BRIEFING_CONTEXT": kind_context,
         "NOW_ISO": now.isoformat(),
         "SESSION_OPEN": "10:00 MSK",
         "RU_CLOSE": f"{yesterday.isoformat()} 18:50 MSK",
@@ -82,6 +131,20 @@ def build_prompt(template: str, now: datetime) -> str:
     return template
 
 
+# Коды, при которых модель просто перегружена и повтор через паузу обычно помогает.
+# Разбор падений news.yml за 10–29.07.2026: около четверти прогонов гибли на
+# «503 UNAVAILABLE: model is currently experiencing high demand», хотя это временно.
+# Раньше ретрая не было — одна такая ошибка убивала весь брифинг до следующего слота.
+RETRYABLE_MARKERS = ("503", "UNAVAILABLE", "429", "RESOURCE_EXHAUSTED", "INTERNAL", "500", "deadline")
+GEMINI_ATTEMPTS = 4
+GEMINI_BACKOFF_SEC = (8, 25, 60)
+
+
+def _is_retryable(exc: Exception) -> bool:
+    text = f"{type(exc).__name__}: {exc}"
+    return any(marker.lower() in text.lower() for marker in RETRYABLE_MARKERS)
+
+
 def call_gemini(prompt: str, model_name: str) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -92,18 +155,30 @@ def call_gemini(prompt: str, model_name: str) -> str:
     except Exception as e:  # noqa: BLE001
         raise RuntimeError(f"google-genai is not installed: {e}") from e
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.1,
-        ),
+    config = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        temperature=0.1,
     )
-    text = getattr(response, "text", "") or ""
-    if not text.strip():
-        raise RuntimeError("Gemini returned empty response")
-    return text
+    last_error: Exception | None = None
+    for attempt in range(1, GEMINI_ATTEMPTS + 1):
+        try:
+            response = client.models.generate_content(
+                model=model_name, contents=prompt, config=config)
+            text = getattr(response, "text", "") or ""
+            if not text.strip():
+                raise RuntimeError("Gemini returned empty response")
+            if attempt > 1:
+                print(f"[news] Gemini ответил с попытки {attempt}", file=sys.stderr)
+            return text
+        except Exception as e:  # noqa: BLE001
+            last_error = e
+            if attempt == GEMINI_ATTEMPTS or not _is_retryable(e):
+                raise
+            pause = GEMINI_BACKOFF_SEC[min(attempt - 1, len(GEMINI_BACKOFF_SEC) - 1)]
+            print(f"[news] Gemini временно недоступен (попытка {attempt}/{GEMINI_ATTEMPTS}): "
+                  f"{e}; повтор через {pause} с", file=sys.stderr)
+            sleep(pause)
+    raise last_error if last_error else RuntimeError("Gemini call failed")
 
 
 def ensure_iso(value: Any, field: str) -> None:
@@ -219,8 +294,19 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"[news] generation failed; existing {args.output} was not overwritten: {e}", file=sys.stderr)
         return 1
+    # Тип выпуска проставляем САМИ, а не спрашиваем у модели: это факт о времени
+    # запуска, а не предмет генерации. Фронт по нему честно подписывает блок —
+    # раньше вечерняя и выходная сводка одинаково называлась «утренним брифингом».
+    kind = briefing_kind(now)
+    data["briefing"] = {
+        "kind": kind,
+        "title": BRIEFING_KINDS[kind][0],
+        "context": BRIEFING_KINDS[kind][1],
+        "last_trading_day": last_trading_day(now.date()).isoformat(),
+    }
     write_json_atomic(args.output, data)
-    print(f"[news] wrote {args.output} model={args.model} importance_repairs={repaired}")
+    print(f"[news] wrote {args.output} model={args.model} "
+          f"importance_repairs={repaired} briefing={kind}")
     return 0
 
 
