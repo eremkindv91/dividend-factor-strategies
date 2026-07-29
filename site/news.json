@@ -1,115 +1,238 @@
 {
-  "date": "2026-07-28",
-  "generated_at": "2026-07-28T12:07:31+03:00",
+  "date": "2026-07-29",
+  "generated_at": "2026-07-29T09:28:37+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатский индекс Nikkei 225 и нефть Brent снижаются, американские индексы закрылись разнонаправленно.",
+  "external_backdrop": "Азиатские рынки торгуются разнонаправленно, нефть марки Brent выросла на 3,78%, золото стабильно.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7413.18",
-      "change_pct": "+0.02%",
-      "as_of": "2026-07-27",
+      "value": "7428.78",
+      "change_pct": "+0.21%",
+      "as_of": "2026-07-28",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "24932.08",
-      "change_pct": "-0.18%",
-      "as_of": "2026-07-27",
+      "value": "24876.91",
+      "change_pct": "-0.22%",
+      "as_of": "2026-07-28",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "62364.92",
-      "change_pct": "-3.95%",
-      "as_of": "2026-07-28",
+      "value": "61051.32",
+      "change_pct": "-2.11%",
+      "as_of": "2026-07-29",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25310.85",
-      "change_pct": "+0.41%",
-      "as_of": "2026-07-28",
+      "value": "25707.87",
+      "change_pct": "+1.57%",
+      "as_of": "2026-07-29",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "85.31",
-      "change_pct": "-3.45%",
-      "as_of": "2026-07-28",
+      "value": "87.27",
+      "change_pct": "+3.78%",
+      "as_of": "2026-07-29",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4043.20",
-      "change_pct": "-0.77%",
-      "as_of": "2026-07-28",
+      "value": "4038.00",
+      "change_pct": "+0.04%",
+      "as_of": "2026-07-29",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2194.55",
-      "change_pct": "-1.01%",
-      "as_of": "2026-07-28 12:07:28",
+      "value": "2191.18",
+      "change_pct": "-1.16%",
+      "as_of": "2026-07-28 18:50:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "886.13",
-      "change_pct": "-1.01%",
-      "as_of": "2026-07-28 12:07:29",
+      "value": "877.11",
+      "change_pct": "-2.02%",
+      "as_of": "2026-07-28 18:50:11",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "78.80",
-      "change_pct": "-0.07%",
-      "as_of": "2026-07-28 12:07:01",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "11.59",
-      "change_pct": "+0.38%",
-      "as_of": "2026-07-28 12:07:30",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "gazprom-pribyl-rsbu-1h-2026",
-      "headline": "«Газпром» получил 78,37 млрд рублей чистой прибыли по РСБУ за первое полугодие 2026 года",
-      "context": "Годом ранее головная компания зафиксировала чистый убыток в размере 10,76 млрд рублей, при этом во втором квартале убыток составил 69,2 млрд рублей.",
+      "id": "yandex-h1-2026-results-and-dividends",
+      "headline": "Яндекс увеличил полугодовую выручку на девятнадцать процентов и рекомендовал дивиденды в размере сто десять рублей",
+      "context": "Скорректированная чистая прибыль компании за первое полугодие 2026 года выросла на 90% до 82,2 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106044"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295361"
         }
       ],
-      "published_at": "2026-07-28T11:38:00+03:00"
+      "published_at": "2026-07-29T09:01:00+03:00"
     },
     {
-      "id": "vtb-msfo-1h-2026",
-      "headline": "ВТБ отчитался о снижении чистой прибыли по МСФО за первое полугодие 2026 года на 19,8%",
-      "context": "Финансовый результат группы составил 225,2 млрд рублей, а за второй квартал чистая прибыль упала на 33,6% до 92,6 млрд рублей.",
-      "category": "banks",
+      "id": "durov-wanted-terrorism-charges",
+      "headline": "ФСБ России предъявила Павлу Дурову обвинение в содействии терроризму и объявила его в розыск",
+      "context": "По данным ведомства, администрация мессенджера Telegram не удаляла каналы и боты, используемые для подготовки терактов.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847075"
+        }
+      ],
+      "published_at": "2026-07-29T08:49:00+03:00"
+    },
+    {
+      "id": "us-senate-procedural-vote-sanctions",
+      "headline": "Сенат США поддержал в первом голосовании законопроект об ужесточении санкций против России",
+      "context": "Документ предусматривает тарифы до 100% на импорт из стран, закупающих российские энергоносители.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846920"
+        }
+      ],
+      "published_at": "2026-07-29T04:53:00+03:00"
+    },
+    {
+      "id": "iran-attacks-us-base-jordan",
+      "headline": "Иран нанес ракетный удар по военной базе США в Иордании после четырех дней перемирия",
+      "context": "В ответ силы США и Саудовской Аравии атаковали объекты поддерживаемых Ираном группировок в Ираке.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846908"
+        }
+      ],
+      "published_at": "2026-07-29T01:35:00+03:00"
+    },
+    {
+      "id": "wildberries-searches-warehouses-kazakhstan",
+      "headline": "Объединенная компания Wildberries и Russ ищет складские площади в Казахстане объемом сто тысяч квадратных метров",
+      "context": "Компания готова забрать все доступные в стране склады на фоне ограниченного предложения складских площадей.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846905"
+        }
+      ],
+      "published_at": "2026-07-29T08:00:00+03:00"
+    },
+    {
+      "id": "fingrid-stops-lep-maintenance",
+      "headline": "Финская Fingrid прекратит обслуживание опор линий электропередачи с Россией с две тысячи двадцать седьмого года",
+      "context": "На этих опорах подвешены волоконно-оптические линии связи российских операторов связи.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846903"
+        }
+      ],
+      "published_at": "2026-07-29T01:23:00+03:00"
+    },
+    {
+      "id": "eu-prepares-sanctions-1600-companies",
+      "headline": "Евросоюз готовит новый пакет санкций против одной тысячи шестисот связанных с Россией компаний",
+      "context": "Ограничения планируется представить в ближайшие недели, а их принятие может состояться в октябре.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295462"
+        }
+      ],
+      "published_at": "2026-07-28T18:51:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "russia-inflation-expectations-july-rise",
+      "headline": "Инфляционные ожидания граждан России в июле выросли до четырнадцати и семи десятых процента",
+      "context": "По данным опроса инФОМ для ЦБ, склонность населения к сбережению в июле заметно снизилась.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1333848.php"
+        }
+      ],
+      "published_at": "2026-07-28T18:21:00+03:00"
+    },
+    {
+      "id": "surgutneftegas-cash-pile-recovery",
+      "headline": "Ликвидные активы Сургутнефтегаза на конец две тысячи двадцать пятого года могли восстановиться до пяти триллионов рублей",
+      "context": "По расчетам Интерфакса, показатель вырос до 5,8 трлн рублей после снижения до 5,5 трлн рублей в середине года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/294964"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1333844.php"
         }
       ],
-      "published_at": "2026-07-28T10:00:00+03:00"
+      "published_at": "2026-07-28T18:13:00+03:00"
     },
     {
-      "id": "tatneft-pribyl-rsbu-1h-2026",
-      "headline": "Чистая прибыль «Татнефти» по РСБУ за первое полугодие 2026 года выросла в 2,3 раза",
-      "context": "Показатель достиг 152,98 млрд рублей против 66,76 млрд рублей за аналогичный период прошлого года.",
+      "id": "rusagro-h1-2026-dividends-approved",
+      "headline": "Акционеры Русагро утвердили выплату дивидендов в размере шестнадцать рублей сорок восемь копеек на акцию",
+      "context": "Дивидендная отсечка по выплатам из прибыли прошлых лет установлена на 6 августа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846448"
+        }
+      ],
+      "published_at": "2026-07-28T12:54:00+03:00"
+    },
+    {
+      "id": "gazprom-h1-2026-rsbu-profit",
+      "headline": "Головная компания Газпрома получила семьдесят восемь миллиардов рублей чистой прибыли по РСБУ в первом полугодии",
+      "context": "Выручка компании выросла на 3% до 3,14 трлн рублей по сравнению с аналогичным периодом прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846433"
+        }
+      ],
+      "published_at": "2026-07-28T12:45:00+03:00"
+    },
+    {
+      "id": "tatneft-h1-2026-rsbu-profit",
+      "headline": "Чистая прибыль Татнефти по РСБУ в первом полугодии выросла в два и три десятых раза",
+      "context": "Показатель достиг 152,98 млрд рублей против 66,76 млрд рублей годом ранее.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -119,329 +242,169 @@
           "url": "https://www.kommersant.ru/doc/8846355"
         }
       ],
-      "published_at": "2026-07-28T08:51:00+03:00"
+      "published_at": "2026-07-28T11:56:00+03:00"
     },
     {
-      "id": "cb-proekty-kriptovalyuta",
-      "headline": "Банк России разработал первые проекты нормативных актов для запуска рынка криптовалют в России",
-      "context": "Документы определяют порядок организованных торгов цифровыми валютами и требования к капиталу цифровых депозитариев.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295211"
-        }
-      ],
-      "published_at": "2026-07-27T19:13:00+03:00"
-    },
-    {
-      "id": "wildberries-ozon-fas-predpisaniya",
-      "headline": "Wildberries и Ozon исполнили предупреждения ФАС по синхронизации сроков выплат продавцам",
-      "context": "Маркетплейсы синхронизировали сроки выплат, зачисляя деньги в течение 30 дней с момента реализации товара.",
+      "id": "vtb-h1-2026-earnings-and-dividends",
+      "headline": "Чистая прибыль ВТБ по МСФО за первое полугодие снизилась на девятнадцать и восемь десятых процента",
+      "context": "Первый зампред банка Дмитрий Пьянов назвал маловероятной выплату дивидендов в размере 50% прибыли за 2026 год.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/business/27/07/2026/6a6799909a7947a2760bbfc4"
-        }
-      ],
-      "published_at": "2026-07-28T11:01:00+03:00"
-    },
-    {
-      "id": "vtb-prognoz-stavki-cb",
-      "headline": "ВТБ повысил прогноз ключевой ставки ЦБ на конец года до 13,5%",
-      "context": "Ранее банк ожидал ставку на уровне 12% годовых.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/379049"
-        }
-      ],
-      "published_at": "2026-07-28T10:50:00+03:00"
-    },
-    {
-      "id": "geotek-bashneftegeofizika-obyedinenie",
-      "headline": "Началось объединение нефтесервисных холдингов «Геотек» и «Башнефтегеофизика»",
-      "context": "Комплекс мероприятий по объединению активов двух компаний планируется завершить до конца текущего года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106008"
-        }
-      ],
-      "published_at": "2026-07-28T09:49:00+03:00"
-    },
-    {
-      "id": "ozon-strahovanie-bpla-povyshenie",
-      "headline": "Ozon повысит тарифы на страхование товаров от атак беспилотников в 3,3 раза",
-      "context": "С 28 июля ставка страхования от СПАО «Ингосстрах» вырастет до 0,0115% в день от стоимости продукции.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/27/1216905"
-        }
-      ],
-      "published_at": "2026-07-27T22:58:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "putin-uvelichil-chislennost-vs",
-      "headline": "Президент Владимир Путин увеличил штатную численность Вооруженных сил России до 2,426 млн человек",
-      "context": "Согласно указу, численность военнослужащих с 1 августа возрастет на 25 тысяч человек.",
-      "category": "geopolitics",
-      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845909"
+          "url": "https://www.kommersant.ru/doc/8846452"
         }
       ],
-      "published_at": "2026-07-27T17:46:00+03:00"
+      "published_at": "2026-07-28T10:00:00+03:00"
     },
     {
-      "id": "cb-uzhestochil-limity-potrebkredit",
-      "headline": "Банк России ужесточил макропруденциальные лимиты по необеспеченным потребительским и автомобильным кредитам",
-      "context": "Новые более строгие правила будут действовать в четвертом квартале 2026 года для ограничения выдач заемщикам с высокой долговой нагрузкой.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295039"
-        }
-      ],
-      "published_at": "2026-07-27T12:16:00+03:00"
-    },
-    {
-      "id": "cb-snizil-stavku-14",
-      "headline": "ЦБ РФ неожиданно понизил ключевую ставку на 25 базисных пунктов до 14,00% годовых",
-      "context": "Регулятор принял решение на заседании 24 июля, снизив ставку с 14,25% годовых.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3746"
-        }
-      ],
-      "published_at": "2026-07-27T09:37:00+03:00"
-    },
-    {
-      "id": "chernogoriya-otmena-bezviza",
-      "headline": "Черногория отменит безвизовый режим для граждан России и Белоруссии с 1 ноября",
-      "context": "До 31 октября 2026 года граждане РФ могут находиться в стране без визы до 30 дней.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "rusal-dividend-demand-sual-partners",
+      "headline": "Акционер СУАЛ Партнерс потребовал от Русала созвать внеочередное собрание для объявления дивидендов за полугодие",
+      "context": "Совет директоров Русала рассмотрит этот вопрос на заседании 31 августа.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1105901"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1333823.php"
         }
       ],
-      "published_at": "2026-07-27T17:01:00+03:00"
+      "published_at": "2026-07-28T17:50:00+03:00"
     },
     {
-      "id": "dof-ofz-nerezidenty-snizhenie",
-      "headline": "Доля инвестиций нерезидентов в российские ОФЗ в июне снизилась до 3%",
-      "context": "Объем вложений нерезидентов сократился на 49 млрд рублей до 980 млрд рублей.",
+      "id": "euroclear-lawsuit-silicium-2-partial-victory",
+      "headline": "Московский арбитражный суд взыскал с Euroclear Bank сто девяносто четыре миллиона долларов по иску Силициум-2",
+      "context": "Суд частично удовлетворил требования истца, изначально заявлявшего сумму свыше 2,2 млрд долларов.",
       "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/27/1216821"
-        }
-      ],
-      "published_at": "2026-07-27T16:15:00+03:00"
-    },
-    {
-      "id": "positive-technologies-otchet-1h-2026",
-      "headline": "«Группа Позитив» отчиталась о росте выручки на 41% за первое полугодие 2026 года",
-      "context": "Выручка по МСФО составила 9,5 млрд рублей, а чистый убыток сократился до 1,3 млрд рублей.",
-      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/27/1216762"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8846387"
         }
       ],
-      "published_at": "2026-07-27T14:05:00+03:00"
+      "published_at": "2026-07-28T12:24:00+03:00"
     },
     {
-      "id": "nornikel-proizvodstvo-1h-2026",
-      "headline": "«Норникель» снизил объем производства никеля на 2% в первом полугодии 2026 года",
-      "context": "Компания при этом подтвердила производственный прогноз на весь 2026 год.",
-      "category": "corporate",
+      "id": "russian-ai-developers-state-support-request",
+      "headline": "Российские разработчики искусственного интеллекта попросили у государства новый пакет поддержки на семьдесят два миллиарда рублей",
+      "context": "Предложения включают налоговые льготы, субсидии на строительство ЦОДов и льготные кредиты на закупку процессоров.",
+      "category": "tech",
       "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/27/1216729"
-        }
-      ],
-      "published_at": "2026-07-27T13:01:00+03:00"
-    },
-    {
-      "id": "kamaz-otmena-chetyrehdnevki",
-      "headline": "«Камаз» отменил режим четырехдневной рабочей недели на период с августа по октябрь",
-      "context": "Решение принято генеральным директором Сергеем Когогиным в связи с ростом заказов на ближайшие месяцы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/27/1216659"
-        }
-      ],
-      "published_at": "2026-07-27T10:44:00+03:00"
-    },
-    {
-      "id": "rnpk-vyhod-iz-pul-ratsp",
-      "headline": "Российская национальная перестраховочная компания готовится выйти из антитеррористического страхового пула",
-      "context": "Стороны не договорились о порядке принятия решений по страхованию крупных рисков.",
-      "category": "banks",
-      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/294857"
+          "url": "https://frankmedia.ru/295264"
         }
       ],
-      "published_at": "2026-07-27T08:11:00+03:00"
+      "published_at": "2026-07-28T11:42:00+03:00"
     },
     {
-      "id": "ovk-chistaya-pribyl-rsbu-1h-2026",
-      "headline": "Чистая прибыль ОВК по РСБУ в первом полугодии 2026 года увеличилась в 2,5 раза",
-      "context": "Финансовые результаты опубликованы в официальной отчетности компании.",
+      "id": "ozon-insurance-rate-increase-uav-risks",
+      "headline": "Ozon повысит тарифы страхования товаров для продавцов в три и три десятых раза",
+      "context": "Повышение ставки до 0,0115% в день связано с ростом рисков атак беспилотников и терактов.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/27/1216844-ovk-po-rsbu"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84042"
         }
       ],
-      "published_at": "2026-07-27T18:17:00+03:00"
+      "published_at": "2026-07-28T09:08:00+03:00"
     },
     {
-      "id": "eu-vyvel-iz-pod-sankcij-sobol",
-      "headline": "Евросоюз вывел из-под санкций необработанные шкурки российского соболя",
-      "context": "Разрешение на закупки было восстановлено по просьбе Италии и Греции в рамках 21-го пакета санкций.",
-      "category": "geopolitics",
+      "id": "fas-fuel-cartel-investigation",
+      "headline": "Федеральная антимонопольная служба возбудила дела против владельцев АЗС из-за необоснованного роста цен на топливо",
+      "context": "Признаки картельного сговора на оптовом рынке топлива были выявлены в Новосибирской области.",
+      "category": "macro",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845324"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84041"
         }
       ],
-      "published_at": "2026-07-27T10:04:00+03:00"
-    },
-    {
-      "id": "koksuyushchij-ugol-dalnij-vostok-snizhenie",
-      "headline": "Коксующийся уголь из Кузбасса в портах Дальнего Востока подешевел на 7,5% за месяц",
-      "context": "Стоимость угля снизилась до 148 долларов за тонну на фоне слабого спроса на сталь в Китае.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8845174"
-        }
-      ],
-      "published_at": "2026-07-27T00:58:00+03:00"
+      "published_at": "2026-07-28T09:01:00+03:00"
     }
   ],
   "today_agenda": [
     {
-      "time": "10:00",
-      "event": "Публикация финансовой отчетности по МСФО за первое полугодие 2026 года",
-      "ticker": "VTBR",
+      "time": "04:30",
+      "event": "Австралия - потребительская инфляция CPI за второй квартал",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "08:30",
+      "event": "UBS - публикация финансовой отчетности",
+      "ticker": "UBS",
       "type": "earnings",
-      "importance": 5
+      "importance": 3
     },
     {
-      "time": "11:00",
-      "event": "Публикация операционных результатов за второй квартал и первое полугодие 2026 года",
-      "ticker": "VSEH",
+      "time": "09:50",
+      "event": "Сбербанк - публикация финансовой отчетности по МСФО за первое полугодие 2026 года",
+      "ticker": "SBER",
       "type": "earnings",
-      "importance": 4
-    },
-    {
-      "time": "15:15",
-      "event": "Публикация данных по изменению числа занятых в несельскохозяйственном секторе от ADP в США",
-      "ticker": "-",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "15:30",
-      "event": "Публикация данных по торговому балансу США за июнь",
-      "ticker": "-",
-      "type": "macro",
-      "importance": 2
-    },
-    {
-      "time": "16:30",
-      "event": "Встреча президента США Дональда Трампа с президентом Украины Владимиром Зеленским в Вашингтоне",
-      "ticker": "-",
-      "type": "macro",
-      "importance": 5
-    },
-    {
-      "time": "17:00",
-      "event": "Публикация индекса доверия потребителей от CB в США за июль",
-      "ticker": "-",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "23:30",
-      "event": "Публикация данных по запасам сырой нефти от API в США",
-      "ticker": "-",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "-",
-      "event": "Голосование в Сенате США по законопроекту об ужесточении санкций против России",
-      "ticker": "-",
-      "type": "macro",
       "importance": 5
     },
     {
       "time": "-",
-      "event": "Публикация финансовой отчетности по РСБУ за первое полугодие 2026 года",
-      "ticker": "SFIN",
+      "event": "Яндекс - публикация финансовой отчетности по МСФО за первое полугодие 2026 года",
+      "ticker": "YDEX",
+      "type": "earnings",
+      "importance": 5
+    },
+    {
+      "time": "-",
+      "event": "Юнипро - публикация финансовой отчетности по РСБУ за первое полугодие 2026 года",
+      "ticker": "UPRO",
       "type": "earnings",
       "importance": 4
+    },
+    {
+      "time": "-",
+      "event": "Акрон - внеочередное общее собрание акционеров по дивидендам",
+      "ticker": "AKRN",
+      "type": "dividend_cutoff",
+      "importance": 4
+    },
+    {
+      "time": "17:30",
+      "event": "США - публикация данных по запасам нефти от EIA",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "19:00",
+      "event": "Россия - публикация данных по недельной потребительской инфляции CPI",
+      "ticker": "",
+      "type": "macro",
+      "importance": 4
+    },
+    {
+      "time": "21:00",
+      "event": "США - решение ФРС по процентной ставке FOMC",
+      "ticker": "",
+      "type": "cb_minfin",
+      "importance": 5
+    },
+    {
+      "time": "21:30",
+      "event": "США - пресс-конференция Федерального комитета по открытым рынкам ФРС",
+      "ticker": "",
+      "type": "cb_minfin",
+      "importance": 5
     }
   ]
 }
