@@ -9,6 +9,13 @@ const fmtRub = (x) => isNum(x) ? ru(x, 2) + ' ₽' : ND;
 const fmtScore = (x) => isNum(x) ? ru(x * 100, 1) + '%' : ND;   // 0..1 → %
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mdash = '<span class="muted" title="нет данных">—</span>';
+// склонение существительного при числе: 1 позиция / 2 позиции / 5 позиций
+const plural = (n, one, few, many) => {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b > 1 && b < 5) return few;
+  return b === 1 ? one : many;
+};
 const cellNum = (x, fmt) => isNum(x) ? fmt(x) : mdash;   // «—» с тултипом вместо «нет данных»
 const debounce = (fn, ms = 130) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 const isoDayLag = (older, newer) => {
@@ -1831,6 +1838,467 @@ function maxSharpe(cov, mu) {   // tangency long-only: w ∝ Σ⁻¹μ, клип
   return s > 1e-9 ? w.map((v) => v / s) : cov.map(() => 1 / cov.length);
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   ГРАНИЦА ЭФФЕКТИВНОСТИ (модуль «Эффективность портфеля» в X-Ray → Сценарии)
+
+   Чистая математика: ни одна функция ниже не трогает DOM и не знает о портфеле
+   пользователя — на вход только матрицы. Состав портфеля не покидает браузер.
+
+   Почему НЕ переиспользуется соседний maxSharpe(): он решает w ∝ Σ⁻¹μ с клипом
+   отрицательных весов. Это численно хрупко и не гарантирует касательный портфель
+   при ограничениях. Здесь Max Sharpe выбирается среди точек ОГРАНИЧЕННОЙ границы —
+   то есть среди заведомо допустимых портфелей.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const EF = {
+  MIN_OBS: 36,          // меньше — бумага не входит в оптимизатор
+  PREF_OBS: 60,         // ниже — пониженная уверенность
+  COV_MIN: 70,          // покрытие по стоимости, % — ниже не показываем границу
+  COV_FULL: 85,         // выше — полный расчёт без предупреждения
+  FRONTIER_PTS: 40,     // точек на границе
+  MAX_ITER: 1200,       // потолок итераций; выход раньше по сходимости
+  TOL: 1e-10,
+  PENALTY: [1e2, 1e3, 1e4, 1e5],   // рост штрафа за отклонение от целевой доходности
+  RET_TOL: 2e-4,        // допуск попадания в целевую доходность (годовых, доли)
+  MONTHS_Y: 12,
+};
+
+/** Ledoit–Wolf shrinkage ковариации к масштабированной единичной матрице.
+ *
+ *  Реализация повторяет sklearn.covariance.LedoitWolf (identity-scaled target).
+ *  Формула выведена из четвёртых моментов, поэтому правдоподобная опечатка даёт
+ *  правдоподобную матрицу — ошибку не увидеть глазами. Отсюда parity-тест против
+ *  sklearn на фиксированных данных: tests/fixtures/ledoit_wolf.json.
+ *
+ *  @param {number[][]} X — T×N матрица доходностей (строка = наблюдение)
+ *  @returns {{cov:number[][], shrinkage:number, mu:number}}
+ */
+function efLedoitWolf(X) {
+  const T = X.length, N = X[0].length;
+  const mean = new Array(N).fill(0);
+  for (let t = 0; t < T; t++) for (let i = 0; i < N; i++) mean[i] += X[t][i] / T;
+  const Z = X.map((row) => row.map((v, i) => v - mean[i]));   // центрируем
+
+  // выборочная ковариация (смещённая, делитель T — как в sklearn)
+  const S = Array.from({ length: N }, () => new Array(N).fill(0));
+  for (let t = 0; t < T; t++) {
+    const z = Z[t];
+    for (let i = 0; i < N; i++) { const zi = z[i]; for (let j = i; j < N; j++) S[i][j] += zi * z[j]; }
+  }
+  for (let i = 0; i < N; i++) for (let j = i; j < N; j++) { S[i][j] /= T; S[j][i] = S[i][j]; }
+
+  let mu = 0;
+  for (let i = 0; i < N; i++) mu += S[i][i];
+  mu /= N;                                   // средняя дисперсия = масштаб цели
+
+  // delta² = ||S − mu·I||²_F / N — насколько выборочная матрица далека от цели
+  let delta = 0;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const d = S[i][j] - (i === j ? mu : 0);
+    delta += d * d;
+  }
+  delta /= N;
+
+  // beta² — дисперсия оценки самой ковариации (по четвёртым моментам)
+  let beta = 0;
+  for (let t = 0; t < T; t++) {
+    const z = Z[t];
+    for (let i = 0; i < N; i++) { const zi = z[i]; for (let j = 0; j < N; j++) { const d = zi * z[j] - S[i][j]; beta += d * d; } }
+  }
+  beta /= (T * T * N);
+  beta = Math.min(beta, delta);              // shrinkage не может превысить 1
+
+  const shrinkage = delta > 0 ? beta / delta : 0;
+  const cov = S.map((row, i) => row.map((v, j) => (1 - shrinkage) * v + (i === j ? shrinkage * mu : 0)));
+  return { cov, shrinkage, mu };
+}
+
+/** James–Stein сжатие средних доходностей к общему cross-sectional якорю.
+ *
+ *  Простое историческое среднее — худший вход для квадратичного оптимизатора:
+ *  ошибка оценки μ бьёт по результату сильнее, чем ошибка Σ, и solver охотно
+ *  ставит максимум веса в бумагу, которой «повезло» на выборке. Сжатие к общему
+ *  среднему гасит именно эти выбросы.
+ *
+ *  λ = min(1, (N−2)·σ̄² / (T·Σ(μᵢ−μ̄)²)) — классическая форма, воспроизводимая и
+ *  не требующая произвольных коэффициентов.
+ */
+function efJamesStein(X, cov) {
+  const T = X.length, N = X[0].length;
+  const sample = new Array(N).fill(0);
+  for (let t = 0; t < T; t++) for (let i = 0; i < N; i++) sample[i] += X[t][i] / T;
+
+  // Якорь — доходность портфеля минимальной дисперсии (Jorion 1986), а не простое
+  // среднее по бумагам: в портфельной задаче осмысленная «точка притяжения» —
+  // это доходность наименее рискованной комбинации, а не арифметика по тикерам.
+  // Если ковариация не передана, откатываемся на кросс-секционное среднее.
+  let anchor;
+  let lambda;
+  if (cov && cov.length === N) {
+    const ones = new Array(N).fill(1);
+    let invOnes, invDiff;
+    try { invOnes = _solve(cov, ones); } catch (e) { invOnes = null; }
+    const denom = invOnes ? invOnes.reduce((a, b) => a + b, 0) : 0;
+    if (invOnes && Math.abs(denom) > 1e-12) {
+      const wMin = invOnes.map((v) => v / denom);
+      anchor = wMin.reduce((s, w, i) => s + w * sample[i], 0);
+      const diff = sample.map((m) => m - anchor);
+      try { invDiff = _solve(cov, diff); } catch (e) { invDiff = null; }
+      const quad = invDiff ? diff.reduce((s, d, i) => s + d * invDiff[i], 0) : 0;
+      // Bayes-Stein: λ = (N+2) / ((N+2) + T·(μ̂−μ_g)ᵀΣ⁻¹(μ̂−μ_g)).
+      // Строго в (0,1): не схлопывает все доходности в одну точку даже когда
+      // выборочные средние почти неразличимы — просто сильно их сближает.
+      lambda = (N + 2) / ((N + 2) + T * Math.max(0, quad));
+    }
+  }
+  if (!isNum(anchor) || !isNum(lambda)) {
+    anchor = sample.reduce((a, b) => a + b, 0) / N;
+    const disp = sample.reduce((a, m) => a + (m - anchor) ** 2, 0);
+    let varSum = 0;
+    for (let i = 0; i < N; i++) {
+      let v = 0;
+      for (let t = 0; t < T; t++) { const d = X[t][i] - sample[i]; v += d * d; }
+      varSum += v / Math.max(1, T - 1);
+    }
+    lambda = (disp > 0 && N > 2) ? ((N - 2) * (varSum / N)) / (T * disp) : 1;
+  }
+  lambda = Math.max(0, Math.min(1, lambda));
+  return { mu: sample.map((m) => (1 - lambda) * m + lambda * anchor), lambda, anchor, sample };
+}
+
+/** Проекция на {Σw=1, lo ≤ w ≤ hi} — точная, через бинарный поиск по сдвигу.
+ *  Нужна вместо обычной проекции на симплекс, потому что у нас есть потолок веса. */
+function efProjectCapped(v, lo, hi) {
+  const N = v.length;
+  if (lo * N > 1 + 1e-12 || hi * N < 1 - 1e-12) return null;   // множество пусто
+
+  // Решение имеет вид wᵢ = clip(vᵢ − τ, lo, hi), где τ подобрано так, что Σw = 1.
+  // g(τ) = Σ clip(vᵢ − τ) — кусочно-линейная убывающая функция с изломами в
+  // точках vᵢ−lo и vᵢ−hi, поэтому τ находится ТОЧНО: ищем отрезок, где g
+  // пересекает 1, и решаем на нём линейное уравнение.
+  //
+  // Раньше здесь стояла 100-шаговая бисекция. Она давала верный ответ, но
+  // проекция вызывается на КАЖДОЙ итерации градиента (164 000 раз на построение
+  // границы) — замер показал 3,3 с на границу и 6,5 с на оценку устойчивости.
+  const bp = new Array(2 * N);
+  for (let i = 0; i < N; i++) { bp[i] = v[i] - hi; bp[N + i] = v[i] - lo; }
+  bp.sort((a, b) => a - b);
+
+  const g = (tau) => {
+    let s = 0;
+    for (let i = 0; i < N; i++) { const x = v[i] - tau; s += x < lo ? lo : (x > hi ? hi : x); }
+    return s;
+  };
+  // g убывает по τ → бинарный поиск по ОТСОРТИРОВАННЫМ изломам (O(log N) шагов)
+  let a = 0, b = bp.length - 1;
+  if (g(bp[0]) <= 1) { a = -1; } else if (g(bp[b]) >= 1) { a = b; } else {
+    while (b - a > 1) { const m = (a + b) >> 1; if (g(bp[m]) >= 1) a = m; else b = m; }
+  }
+  // на отрезке [bp[a], bp[a+1]] активное множество не меняется → g линейна
+  const tauLo = a < 0 ? bp[0] - (hi - lo) - 1 : bp[a];
+  const tauHi = a >= bp.length - 1 ? bp[bp.length - 1] + (hi - lo) + 1 : bp[a + 1];
+  const gLo = g(tauLo), gHi = g(tauHi);
+  const tau = Math.abs(gLo - gHi) < 1e-15 ? tauLo : tauLo + ((gLo - 1) * (tauHi - tauLo)) / (gLo - gHi);
+
+  const out = new Array(N);
+  for (let i = 0; i < N; i++) { const x = v[i] - tau; out[i] = x < lo ? lo : (x > hi ? hi : x); }
+  return out;
+}
+
+/** min wᵀΣw при Σw=1, lo≤w≤hi и (мягко) μᵀw = target.
+ *
+ *  Целевая доходность вводится растущим квадратичным штрафом, а не жёстким
+ *  равенством: проекция на пересечение симплекса, box и гиперплоскости не имеет
+ *  дешёвой замкнутой формы, а штраф с проверкой невязки даёт тот же результат и
+ *  ЧЕСТНО сообщает, если точка недостижима (см. ok в ответе).
+ */
+function efMinVarAtTarget(cov, mu, target, lo, hi, warm) {
+  const N = cov.length;
+  // target === null → чистый минимум дисперсии без ограничения на доходность.
+  // Раньше это эмулировалось «недостижимой» целью −1e9, из-за чего штрафной
+  // градиент 2ρ(μᵀw − target) разносил веса в бесконечность и расчёт вис.
+  const pure = target === null || !isNum(target);
+  let L = 1e-9;
+  for (let i = 0; i < N; i++) { let s = 0; for (let j = 0; j < N; j++) s += Math.abs(cov[i][j]); L = Math.max(L, s); }
+  // тёплый старт: соседняя точка границы — почти тот же портфель, поэтому
+  // стартовать от предыдущего решения кратно дешевле, чем от равных весов
+  let w = efProjectCapped(warm && warm.length === N ? warm.slice() : new Array(N).fill(1 / N), lo, hi);
+  if (!w) return { ok: false, reason: 'bounds_infeasible' };
+
+  const muNorm = mu.reduce((a, m) => a + m * m, 0);
+  const stages = pure ? [0] : EF.PENALTY;
+  const iters = Math.round(EF.MAX_ITER / stages.length);
+  for (const rho of stages) {
+    const step = 1 / (2 * L + 2 * rho * muNorm + 1e-12);
+    for (let k = 0; k < iters; k++) {
+      const g = _sigma(cov, w).map((x) => 2 * x);
+      if (rho) {
+        let dot = 0; for (let i = 0; i < N; i++) dot += mu[i] * w[i];
+        const pen = 2 * rho * (dot - target);
+        for (let i = 0; i < N; i++) g[i] += pen * mu[i];
+      }
+      const prev = w;
+      const next = new Array(N);
+      for (let i = 0; i < N; i++) next[i] = w[i] - step * g[i];
+      const proj = efProjectCapped(next, lo, hi);
+      if (!proj || proj.some((v) => !Number.isFinite(v))) return { ok: false, reason: 'numeric_failure' };
+      w = proj;
+      if (k % 25 === 24) {                       // проверка сходимости — не каждый шаг
+        let d = 0; for (let i = 0; i < N; i++) d += Math.abs(w[i] - prev[i]);
+        if (d < EF.TOL * N) break;               // веса перестали двигаться
+      }
+    }
+  }
+  let achieved = 0; for (let i = 0; i < N; i++) achieved += mu[i] * w[i];
+  return { ok: pure || Math.abs(achieved - target) <= EF.RET_TOL, w, achieved, target };
+}
+
+/** Статистики портфеля. Годовые: доходность ×12, волатильность ×√12. */
+function efStats(w, mu, cov, rf) {
+  let ret = 0, varm = 0;
+  const N = w.length;
+  for (let i = 0; i < N; i++) ret += mu[i] * w[i];
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) varm += w[i] * cov[i][j] * w[j];
+  const retA = ret * EF.MONTHS_Y;
+  const volA = Math.sqrt(Math.max(0, varm) * EF.MONTHS_Y);
+  return { ret: retA, vol: volA, sharpe: volA > 1e-9 ? (retA - (rf || 0)) / volA : null };
+}
+
+/** Ограниченная граница эффективности: серия min-var при целевой доходности.
+ *  Monte Carlo сознательно НЕ используется — случайное облако не гарантирует
+ *  нахождения касательного портфеля и выдаёт случайную точку за оптимум (§1.8). */
+function efFrontier(mu, cov, lo, hi, rf) {
+  const N = mu.length;
+  const gmv = efMinVarAtTarget(cov, mu, null, lo, hi);       // null → чистый min-var, без штрафа за доходность
+  if (!gmv.w) return { ok: false, reason: gmv.reason || 'solver_failed' };
+  const gmvStats = efStats(gmv.w, mu, cov, rf);
+
+  // верхний предел доходности при заданных границах весов: жадно по μ
+  const order = mu.map((m, i) => [m, i]).sort((a, b) => b[0] - a[0]);
+  const wMax = new Array(N).fill(lo);
+  let left = 1 - lo * N;
+  for (const [, i] of order) { const add = Math.min(hi - lo, left); wMax[i] += add; left -= add; if (left <= 1e-12) break; }
+  const retMax = efStats(wMax, mu, cov, rf).ret;
+
+  const points = [{ ...gmvStats, w: gmv.w, target: null }];
+  let warm = gmv.w;
+  const lowM = gmvStats.ret / EF.MONTHS_Y, highM = retMax / EF.MONTHS_Y;
+  for (let k = 1; k <= EF.FRONTIER_PTS; k++) {
+    const target = lowM + (highM - lowM) * (k / EF.FRONTIER_PTS);
+    const sol = efMinVarAtTarget(cov, mu, target, lo, hi, warm);
+    if (!sol.w) continue;
+    warm = sol.w;                                            // следующая цель стартует отсюда
+    if (!sol.ok) continue;                                   // цель не достигнута — точку не рисуем
+    points.push({ ...efStats(sol.w, mu, cov, rf), w: sol.w, target: target * EF.MONTHS_Y });
+  }
+  points.sort((a, b) => a.vol - b.vol);
+  // оставляем только недоминируемые: при большей волатильности доходность обязана расти
+  const eff = [];
+  let best = -Infinity;
+  for (const p of points) { if (p.ret > best + 1e-12) { eff.push(p); best = p.ret; } }
+  const tangency = eff.reduce((a, p) => (a === null || (p.sharpe != null && p.sharpe > a.sharpe) ? p : a), null);
+  return { ok: eff.length >= 2, points: eff, gmv: points[0], tangency, retMax };
+}
+
+/** Сбор входов оптимизатора из позиций X-Ray.
+ *
+ *  Ряды у бумаг разной длины (недавние размещения), поэтому берём общий ХВОСТ —
+ *  так одна свежая бумага не обрезает всю матрицу до нескольких месяцев. Если её
+ *  включение роняет глубину истории ниже минимума, честнее исключить её и сказать
+ *  об этом, чем считать ковариацию по 8 наблюдениям.
+ *
+ *  Покрытие считается ПО СТОИМОСТИ, а не по числу бумаг: исключение одной позиции
+ *  на 40% портфеля — совсем не то же самое, что исключение трёх по 1%.
+ */
+function efBuildInputs(positions) {
+  const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
+  if (!(total > 0)) return { ok: false, reason: 'no_value' };
+
+  const excluded = [];
+  const usable = [];
+  positions.forEach((p) => {
+    if (!isNum(p.value) || p.value <= 0) { excluded.push({ ticker: p.ticker, value: p.value || 0, reason: 'нулевая или некорректная стоимость' }); return; }
+    if (p._anomaly) { excluded.push({ ticker: p.ticker, value: p.value, reason: 'нераспознанное корпоративное действие в ряду' }); return; }
+    if (!p._tr || !p._tr.length) { excluded.push({ ticker: p.ticker, value: p.value, reason: 'нет истории доходностей' }); return; }
+    usable.push(p);
+  });
+  if (usable.length < 2) return { ok: false, reason: 'too_few_assets', excluded, total };
+
+  // общий хвост: максимизируем покрытие по стоимости при глубине ≥ MIN_OBS
+  const byLen = [...usable].sort((a, b) => b._tr.length - a._tr.length);
+  let best = null;
+  for (let k = 2; k <= byLen.length; k++) {
+    const subset = byLen.slice(0, k);
+    const depth = Math.min(...subset.map((p) => p._tr.length));
+    if (depth < EF.MIN_OBS) break;
+    const cov = subset.reduce((s, p) => s + p.value, 0) / total;
+    if (!best || cov > best.cov) best = { subset, depth, cov };
+  }
+  if (!best) return { ok: false, reason: 'insufficient_history', excluded, total };
+
+  best.subset.forEach(() => {});
+  usable.filter((p) => !best.subset.includes(p)).forEach((p) => {
+    excluded.push({ ticker: p.ticker, value: p.value, reason: `история короче ${EF.MIN_OBS} мес. — не входит в оптимизатор` });
+  });
+
+  const T = best.depth;
+  const tickers = best.subset.map((p) => p.ticker);
+  // X[t][i]: берём ПОСЛЕДНИЕ T наблюдений каждой бумаги — общий календарный хвост
+  const X = [];
+  for (let t = 0; t < T; t++) {
+    X.push(best.subset.map((p) => p._tr[p._tr.length - T + t]));
+  }
+  const subTotal = best.subset.reduce((s, p) => s + p.value, 0);
+  return {
+    ok: true, tickers, X, obs: T,
+    weights: best.subset.map((p) => p.value / subTotal),   // веса ВНУТРИ eligible-подмножества
+    values: best.subset.map((p) => p.value),
+    positions: best.subset,
+    coverage: best.cov * 100,
+    excluded, total, subTotal,
+    confidence: T >= EF.PREF_OBS ? 'high' : 'reduced',
+  };
+}
+
+/** Оборот: половина суммы модулей изменений весов — доля капитала, которую надо
+ *  перекласть (продажи и покупки не считаются дважды). */
+function efTurnover(wCur, wNew) {
+  let s = 0;
+  for (let i = 0; i < wCur.length; i++) s += Math.abs(wNew[i] - wCur[i]);
+  return s / 2;
+}
+
+/** Разовые издержки. Годовой доходностью НЕ являются: чтобы сравнить с выигрышем,
+ *  комиссию раскладывают на горизонт удержания (§ методологии). */
+function efCosts(turnover, capital, feeBps) {
+  const rub = turnover * capital * (feeBps / 10000) * 2;   // ×2: продажа + покупка
+  return { rub, pctOfCapital: capital > 0 ? (rub / capital) * 100 : null, feeBps };
+}
+
+/** Перевод теоретических весов в исполнимый портфель: округление вниз по лотам.
+ *  Теоретические веса нельзя купить — биржа торгует лотами, и остаток уходит в кэш. */
+function efLotRound(tickers, targetW, positions, capital) {
+  const rows = [];
+  let spent = 0;
+  tickers.forEach((tk, i) => {
+    const p = positions[i];
+    const price = (p.t && isNum(p.t.price) && p.t.price > 0) ? p.t.price : p.current_price;
+    const lot = Math.max(1, Math.round((p.t && p.t.lot_size) || 1));
+    if (!isNum(price) || price <= 0) { rows.push({ ticker: tk, ok: false }); return; }
+    const lotValue = price * lot;
+    const targetRub = targetW[i] * capital;
+    const lots = Math.floor(targetRub / lotValue);
+    const actual = lots * lotValue;
+    spent += actual;
+    rows.push({ ticker: tk, ok: true, price, lot, lots, quantity: lots * lot, targetRub, actualRub: actual });
+  });
+  const cash = capital - spent;
+  const wExec = rows.map((r) => (r.ok && spent > 0 ? r.actualRub / capital : 0));
+  return { rows, cash, cashPct: capital > 0 ? (cash / capital) * 100 : 0, wExec };
+}
+
+/** Устойчивость сценария: пересчёт на двух половинах истории.
+ *  Если веса разъезжаются между подпериодами, «оптимум» держится на конкретной
+ *  выборке, а не на структуре рынка — это надо показать, а не прятать. */
+function efStability(X, lo, hi, rf) {
+  const T = X.length;
+  if (T < EF.MIN_OBS * 2) return { ok: false, reason: 'short_history' };
+  const half = Math.floor(T / 2);
+  const run = (rows) => {
+    const { cov } = efLedoitWolf(rows);
+    const { mu } = efJamesStein(rows, cov);
+    const f = efFrontier(mu, cov, lo, hi, rf);
+    return f.ok && f.tangency ? f.tangency.w : null;
+  };
+  const a = run(X.slice(0, half)), b = run(X.slice(half));
+  if (!a || !b) return { ok: false, reason: 'solver_failed' };
+  const l1 = a.reduce((s, v, i) => s + Math.abs(v - b[i]), 0) / 2;   // 0 = идентичны, 1 = не пересекаются
+  return {
+    ok: true, divergence: l1,
+    grade: l1 < 0.15 ? 'high' : (l1 < 0.35 ? 'moderate' : 'low'),
+    label: l1 < 0.15 ? 'высокая' : (l1 < 0.35 ? 'умеренная' : 'низкая'),
+  };
+}
+
+/** Полный анализ: граница + сценарии + Efficiency Gap + устойчивость.
+ *
+ *  Возвращает СТАТУС, а не молча пустой результат: недостаточное покрытие, короткая
+ *  история и отказ солвера — разные ситуации, и пользователю показывается разное.
+ *  Убедительно выглядящую границу на плохих данных не рисуем (§ политика покрытия).
+ */
+function efAnalyze(positions, opts) {
+  const o = Object.assign({ cap: 0.35, feeBps: 5, rf: 0 }, opts || {});
+  const inp = efBuildInputs(positions);
+  if (!inp.ok) return { status: 'insufficient_data', reason: inp.reason, excluded: inp.excluded || [] };
+  if (inp.coverage < EF.COV_MIN) {
+    return { status: 'insufficient_data', reason: 'low_coverage', coverage: inp.coverage, excluded: inp.excluded };
+  }
+  const N = inp.tickers.length;
+  const hi = Math.max(o.cap, 1 / N + 1e-9);       // потолок не может быть ниже равных весов — иначе задача пуста
+  const { cov, shrinkage } = efLedoitWolf(inp.X);
+  const { mu, lambda, anchor } = efJamesStein(inp.X, cov);
+
+  const frontier = efFrontier(mu, cov, 0, hi, o.rf);
+  if (!frontier.ok) return { status: 'solver_failed', reason: frontier.reason || 'frontier_empty', excluded: inp.excluded };
+
+  const current = Object.assign({ w: inp.weights }, efStats(inp.weights, mu, cov, o.rf));
+  const capital = inp.subTotal;
+
+  const mk = (name, label, point, note) => {
+    if (!point) return null;
+    const turnover = efTurnover(inp.weights, point.w);
+    return {
+      name, label, note,
+      ret: point.ret, vol: point.vol, sharpe: point.sharpe, w: point.w,
+      turnover, costs: efCosts(turnover, capital, o.feeBps),
+      exec: efLotRound(inp.tickers, point.w, inp.positions, capital),
+    };
+  };
+
+  // «Сохранить доходность, снизить риск»: ближайшая точка границы с доходностью
+  // не ниже текущей и минимальной волатильностью
+  const sameRet = frontier.points.filter((p) => p.ret >= current.ret - 1e-9)
+    .reduce((a, p) => (a === null || p.vol < a.vol ? p : a), null);
+  // «Сохранить риск, поднять доходность»
+  const sameRisk = frontier.points.filter((p) => p.vol <= current.vol + 1e-9)
+    .reduce((a, p) => (a === null || p.ret > a.ret ? p : a), null);
+
+  // Если НИ ОДИН допустимый портфель не обгоняет безрисковую ставку, максимизация
+  // Sharpe вырождается: при отрицательной премии (r−rf)/σ РАСТЁТ с ростом σ, и
+  // «оптимум» уезжает в самый рискованный угол границы. Показывать такую точку как
+  // цель — вводить в заблуждение, поэтому сценарий снимается, а причина называется.
+  const noPremium = !frontier.tangency || !isNum(frontier.tangency.sharpe) || frontier.tangency.sharpe <= 0;
+
+  const scenarios = [
+    mk('gmv', 'Минимальный риск', frontier.gmv, 'Глобальный минимум волатильности при заданных ограничениях.'),
+    noPremium ? null : mk('sharpe', 'Максимальный Sharpe', frontier.tangency, 'Лучшее отношение премии к риску среди допустимых портфелей.'),
+    mk('same_return', 'Сохранить доходность', sameRet, 'Та же оценочная доходность при меньшем модельном риске.'),
+    noPremium ? null : mk('same_risk', 'Сохранить риск', sameRisk, 'Тот же модельный риск при большей оценочной доходности.'),
+  ].filter(Boolean);
+
+  // Efficiency Gap — насколько ниже могла быть волатильность при сопоставимой доходности
+  const gap = sameRet ? {
+    volNow: current.vol, volBest: sameRet.vol,
+    deltaPp: (current.vol - sameRet.vol) * 100,
+    relPct: current.vol > 0 ? ((current.vol - sameRet.vol) / current.vol) * 100 : null,
+    dominated: sameRet.vol < current.vol - 1e-6,
+  } : { dominated: false, deltaPp: 0, relPct: 0, volNow: current.vol, volBest: current.vol };
+
+  return {
+    status: 'ok',
+    tickers: inp.tickers, obs: inp.obs, coverage: inp.coverage, confidence: inp.confidence,
+    excluded: inp.excluded, capital, cap: hi, rf: o.rf,
+    current, frontier, scenarios, gap, noPremium,
+    stability: efStability(inp.X, 0, hi, o.rf),
+    model: { shrinkage, lambda, anchor: anchor * EF.MONTHS_Y, returnBasis: 'total_return_monthly' },
+    warnings: [].concat(
+      inp.coverage < EF.COV_FULL ? [`покрытие ${ru(inp.coverage, 0)}% стоимости портфеля — часть позиций вне расчёта`] : [],
+      inp.confidence === 'reduced' ? [`история ${inp.obs} мес. (меньше ${EF.PREF_OBS}) — пониженная уверенность`] : [],
+      noPremium ? [`ни один допустимый портфель не даёт положительной премии к безрисковой ставке (${ru((o.rf || 0) * 100, 1)}% годовых) — сценарии по Sharpe сняты как экономически бессмысленные`] : [],
+    ),
+  };
+}
+
 function buildOptimized(method, opts) {
   if (!PF_RETURNS || !PF_RETURNS.months || !PF_RETURNS.months.length) return null;
   const months = PF_RETURNS.months, R = PF_RETURNS.data;
@@ -2495,7 +2963,8 @@ function pfxTabHTML(c, tab) {
     case 'dividends':
       return pfxDetails('Дивидендный стресс-тест', '(base / conservative / stress / crisis + yield trap)', pfxDivHTML(c), true);
     case 'scenarios':
-      return pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c), true)
+      return pfxDetails('Эффективность портфеля', '(положение относительно границы эффективности · сценарии перераспределения)', pfxFrontierHTML(c), true)
+        + pfxDetails('Веер сценариев года', '(1000 виртуальных лет из вашей истории · не прогноз)', pfxBootHTML(c))
         + pfxDetails('Стресс-сценарии рынка', '(рынок · ставка · рецессия — по исторической beta)', pfxScenarioHTML(c))
         + pfxDetails('Smart Rebalancer', '(Suggested Diagnostic Weights — не рекомендация)', pfxRebalHTML(c));
     case 'memo': {
@@ -3445,6 +3914,133 @@ function pfxScenarioHTML(c) {
 }
 
 // ── модуль 8: Smart Rebalancer ───────────────────────────────────────────────
+/* ── UI модуля «Эффективность портфеля» ─────────────────────────────────────
+   График рисуется inline-SVG: внешние библиотеки запрещены CSP, а зависимость
+   ради одного scatter-графика не оправдана. */
+
+function efChartSVG(a, activeName) {
+  const W = 620, H = 320, P = { l: 54, r: 16, t: 14, b: 40 };
+  const pts = a.frontier.points;
+  const xs = pts.map((p) => p.vol).concat([a.current.vol]);
+  const ys = pts.map((p) => p.ret).concat([a.current.ret]);
+  const pad = (v) => (v > 0 ? v * 0.12 : 0.02);
+  const x0 = Math.max(0, Math.min(...xs) - pad(Math.min(...xs))), x1 = Math.max(...xs) + pad(Math.max(...xs));
+  const y0 = Math.min(...ys) - pad(Math.abs(Math.min(...ys))), y1 = Math.max(...ys) + pad(Math.abs(Math.max(...ys)));
+  const X = (v) => P.l + ((v - x0) / ((x1 - x0) || 1)) * (W - P.l - P.r);
+  const Y = (v) => H - P.b - ((v - y0) / ((y1 - y0) || 1)) * (H - P.t - P.b);
+
+  const path = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.vol).toFixed(1)},${Y(p.ret).toFixed(1)}`).join('');
+  const ticks = (lo, hi, n) => Array.from({ length: n + 1 }, (_, i) => lo + ((hi - lo) * i) / n);
+  const gridX = ticks(x0, x1, 4).map((v) =>
+    `<line class="ef-grid" x1="${X(v).toFixed(1)}" y1="${P.t}" x2="${X(v).toFixed(1)}" y2="${H - P.b}"/>
+     <text class="ef-ax" x="${X(v).toFixed(1)}" y="${H - P.b + 16}" text-anchor="middle">${ru(v * 100, 0)}%</text>`).join('');
+  const gridY = ticks(y0, y1, 4).map((v) =>
+    `<line class="ef-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>
+     <text class="ef-ax" x="${P.l - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v * 100, 0)}%</text>`).join('');
+
+  const marks = a.scenarios.map((s) => {
+    const on = s.name === activeName;
+    return `<circle class="ef-pt ef-pt-${esc(s.name)}${on ? ' on' : ''}" cx="${X(s.vol).toFixed(1)}" cy="${Y(s.ret).toFixed(1)}" r="${on ? 7 : 5}"><title>${esc(s.label)}: доходность ${ru(s.ret * 100, 1)}%, риск ${ru(s.vol * 100, 1)}%</title></circle>`;
+  }).join('');
+
+  return `<svg class="ef-svg" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="Граница эффективности: текущий портфель — доходность ${ru(a.current.ret * 100, 1)}%, риск ${ru(a.current.vol * 100, 1)}%">
+    ${gridX}${gridY}
+    <path class="ef-frontier" d="${path}"/>
+    ${marks}
+    <circle class="ef-cur" cx="${X(a.current.vol).toFixed(1)}" cy="${Y(a.current.ret).toFixed(1)}" r="7">
+      <title>Текущий портфель: доходность ${ru(a.current.ret * 100, 1)}%, риск ${ru(a.current.vol * 100, 1)}%</title></circle>
+    <text class="ef-axlbl" x="${(W / 2).toFixed(0)}" y="${H - 6}" text-anchor="middle">риск — годовая волатильность</text>
+    <text class="ef-axlbl" x="14" y="${(H / 2).toFixed(0)}" text-anchor="middle" transform="rotate(-90 14 ${(H / 2).toFixed(0)})">оценочная доходность, годовых</text>
+  </svg>`;
+}
+
+function efScenarioHTML(a, name) {
+  const s = a.scenarios.find((x) => x.name === name) || a.scenarios[0];
+  if (!s) return '';
+  const dRet = (s.ret - a.current.ret) * 100, dVol = (s.vol - a.current.vol) * 100;
+  const sign = (v, d) => `${v > 0 ? '+' : ''}${ru(v, d)}`;
+  const rows = a.tickers.map((tk, i) => ({ tk, cur: a.current.w[i] * 100, tgt: s.w[i] * 100, lots: s.exec.rows[i] }))
+    .filter((r) => Math.abs(r.tgt - r.cur) > 0.5)
+    .sort((x, y) => Math.abs(y.tgt - y.cur) - Math.abs(x.tgt - x.cur)).slice(0, 12);
+
+  const changes = rows.length ? `<table class="pfx-tbl ef-tbl"><thead><tr>
+      <th class="left">Бумага</th><th>Сейчас</th><th>Сценарий</th><th>Δ</th><th>Лотов</th></tr></thead><tbody>
+      ${rows.map((r) => `<tr><td class="left"><b>${esc(r.tk)}</b></td>
+        <td class="tnum">${ru(r.cur, 1)}%</td><td class="tnum">${ru(r.tgt, 1)}%</td>
+        <td class="tnum ${r.tgt > r.cur ? 'ef-up' : 'ef-dn'}">${sign(r.tgt - r.cur, 1)} п.п.</td>
+        <td class="tnum">${r.lots && r.lots.ok ? ru(r.lots.lots, 0) : mdash}</td></tr>`).join('')}
+    </tbody></table>` : `<div class="pfx-note">Веса сценария практически совпадают с текущими.</div>`;
+
+  return `<div class="ef-cmp">
+      <div><span>Оценочная доходность</span><b class="tnum">${ru(s.ret * 100, 1)}%</b><small>${sign(dRet, 1)} п.п. к текущей</small></div>
+      <div><span>Риск (волатильность)</span><b class="tnum">${ru(s.vol * 100, 1)}%</b><small>${sign(dVol, 1)} п.п. к текущему</small></div>
+      <div><span>Sharpe</span><b class="tnum">${s.sharpe == null ? mdash : ru(s.sharpe, 2)}</b><small>текущий ${a.current.sharpe == null ? mdash : ru(a.current.sharpe, 2)}</small></div>
+      <div><span>Оборот</span><b class="tnum">${ru(s.turnover * 100, 0)}%</b><small>переложить ${fmtRub(s.turnover * a.capital)}</small></div>
+      <div><span>Разовые издержки</span><b class="tnum">${fmtRub(s.costs.rub)}</b><small>${ru(s.costs.pctOfCapital, 2)}% капитала · ${s.costs.feeBps} б.п.</small></div>
+      <div><span>Остаток в деньгах</span><b class="tnum">${fmtRub(s.exec.cash)}</b><small>после округления по лотам</small></div>
+    </div>
+    <div class="pfx-note muted">${esc(s.note)}</div>
+    ${changes}`;
+}
+
+function pfxFrontierHTML(c) {
+  const a = efAnalyze(c.positions, { rf: (c.rf && isNum(c.rf.annual)) ? c.rf.annual / 100 : 0 });
+  c._ef = a;
+  if (a.status !== 'ok') {
+    const why = {
+      low_coverage: `бумаги с историей покрывают лишь ${ru(a.coverage || 0, 0)}% стоимости портфеля (нужно ≥${EF.COV_MIN}%)`,
+      too_few_assets: 'нужно минимум 2 бумаги с историей доходностей',
+      insufficient_history: `нужно минимум ${EF.MIN_OBS} общих месяцев истории`,
+      no_value: 'не удалось определить стоимость позиций',
+      solver_failed: 'оптимизатор не сошёлся на этих данных',
+      frontier_empty: 'при заданных ограничениях допустимых портфелей не нашлось',
+    }[a.reason] || 'недостаточно данных';
+    const exc = (a.excluded || []).length
+      ? `<div class="pfx-note muted">Вне расчёта: ${a.excluded.slice(0, 8).map((e) => `${esc(e.ticker)} (${esc(e.reason)})`).join('; ')}.</div>` : '';
+    return `<div class="pfx-note">${NA}: ${esc(why)}. Граница эффективности не показывается — рисовать убедительный график на недостаточных данных нельзя.${exc ? '' : ''}</div>${exc}`;
+  }
+
+  const first = (a.scenarios.find((s) => s.name === 'same_return') || a.scenarios[0]).name;
+  const verdict = a.gap.dominated
+    ? `Портфель <b>доминируется</b>: при сопоставимой оценочной доходности модельная волатильность могла быть ниже на <b>${ru(a.gap.deltaPp, 1)} п.п.</b> (${ru(a.gap.relPct, 0)}% относительно текущей).`
+    : `Портфель лежит <b>близко к границе</b>: заметного запаса по снижению риска при той же оценочной доходности модель не видит.`;
+
+  const btns = a.scenarios.map((s, i) =>
+    `<button class="pfx-rbtn ef-btn${s.name === first ? ' on' : ''}" data-ef="${esc(s.name)}" aria-pressed="${s.name === first}">${esc(s.label)}</button>`).join('');
+
+  const excl = a.excluded.length
+    ? `<details class="ef-excl"><summary>Вне расчёта: ${a.excluded.length} ${plural(a.excluded.length, 'позиция', 'позиции', 'позиций')}</summary>
+        <ul>${a.excluded.map((e) => `<li><b>${esc(e.ticker)}</b> — ${esc(e.reason)}</li>`).join('')}</ul>
+        <p class="muted">Эти позиции остаются в вашем портфеле и учитываются в остальных блоках X-Ray — они лишь не участвуют в оптимизации.</p></details>` : '';
+
+  const warn = a.warnings.length
+    ? `<div class="ef-warn">⚠ ${a.warnings.map(esc).join(' · ')}</div>` : '';
+
+  const stab = a.stability.ok
+    ? `Устойчивость сценария: <b>${esc(a.stability.label)}</b> (расхождение весов между половинами истории ${ru(a.stability.divergence * 100, 0)}%).`
+    : 'Устойчивость не оценивалась: истории хватает лишь на один период.';
+
+  return `${warn}
+    <div class="ef-verdict">${verdict}</div>
+    <div class="ef-chart">${efChartSVG(a, first)}</div>
+    <div class="ef-legend">
+      <span class="ef-lg ef-lg-cur">Текущий портфель</span>
+      <span class="ef-lg ef-lg-fr">Граница эффективности</span>
+      <span class="ef-lg ef-lg-sc">Сценарии</span>
+    </div>
+    <div class="pfx-rbtns">${btns}</div>
+    <div id="pfx-ef-body">${efScenarioHTML(a, first)}</div>
+    <div class="pfx-note muted">${stab}</div>
+    ${excl}
+    <div class="pfx-note muted">Расчёт на <b>${a.obs} мес.</b> общей истории по ${a.tickers.length} ${plural(a.tickers.length, 'бумаге', 'бумагам', 'бумагам')},
+      покрытие <b>${ru(a.coverage, 0)}%</b> стоимости портфеля. База — месячный <b>total return</b> (цена MOEX + фактические дивиденды),
+      номинальный рубль, до налогов. Ковариация — Ledoit–Wolf (сжатие ${ru(a.model.shrinkage * 100, 1)}%),
+      ожидаемая доходность — robust estimate: James–Stein со сжатием ${ru(a.model.lambda * 100, 1)}% к общему среднему ${ru(a.model.anchor * 100, 1)}% годовых.
+      Перераспределение только между уже имеющимися бумагами, без плеча и коротких позиций, потолок ${ru(a.cap * 100, 0)}% на бумагу.
+      Ожидаемая доходность — <b>модельная оценка по прошлому</b>, а не прогноз. Не ИИР.</div>`;
+}
+
 function pfxRebalHTML(c) {
   const modes = [['lowrisk', 'Lower Risk'], ['sharpe', 'Better Sharpe'], ['dividend', 'Dividend Stability'], ['benchmark', 'Benchmark-Aware'], ['balanced', 'Balanced']];
   c._rebal = {};
@@ -3713,10 +4309,27 @@ function pfxWireDashboard(c) {
 // Кнопки внутри панели вкладки (ребалансер) — панель перерисовывается на каждой смене вкладки,
 // DOM свежий, поэтому addEventListener без риска двойных listener'ов.
 function pfxWirePanel() {
-  document.querySelectorAll('.pfx-rbtn').forEach((btn) => btn.addEventListener('click', () => {
-    document.querySelectorAll('.pfx-rbtn').forEach((b) => b.classList.toggle('on', b === btn));
+  // Две группы кнопок с одним классом .pfx-rbtn: ребалансер (data-mode) и
+  // «Эффективность портфеля» (data-ef). Различаем по атрибуту и подсвечиваем
+  // только внутри своей группы — иначе клик в одном блоке гасил активную
+  // кнопку в другом и рендерил чужое тело.
+  document.querySelectorAll('.pfx-rbtn[data-mode]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('.pfx-rbtn[data-mode]').forEach((b) => b.classList.toggle('on', b === btn));
     const body = document.getElementById('pfx-rebal-body');
     if (body && PFX_STATE) body.innerHTML = pfxRebalScenarioHTML(PFX_STATE, btn.dataset.mode);
+  }));
+  document.querySelectorAll('.pfx-rbtn[data-ef]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('.pfx-rbtn[data-ef]').forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    const body = document.getElementById('pfx-ef-body');
+    const chart = document.querySelector('.ef-chart');
+    if (PFX_STATE && PFX_STATE._ef && PFX_STATE._ef.status === 'ok') {
+      if (body) body.innerHTML = efScenarioHTML(PFX_STATE._ef, btn.dataset.ef);
+      if (chart) chart.innerHTML = efChartSVG(PFX_STATE._ef, btn.dataset.ef);   // подсветка активной точки
+    }
   }));
 }
 

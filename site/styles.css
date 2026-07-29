@@ -3206,3 +3206,39 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .mpe-caveat { margin: 10px 0 0; padding: 10px 13px; border-radius: 10px; font-size: .82rem; line-height: 1.45;
   color: var(--warn-ink, #6b4e12); background: var(--warn-fill, #FBF3E2); border: 1px solid var(--warn-bar, #E4C06B); }
 .mpe-caveat b { color: var(--warn-ink, #6b4e12); }
+
+/* ── «Эффективность портфеля» (X-Ray → Сценарии) ──────────────────────────────
+   График — inline-SVG: внешние библиотеки запрещены CSP, а ради одного scatter
+   тянуть зависимость не оправдано. Цвета — из существующих токенов темы. */
+.ef-verdict { margin: 6px 0 10px; padding: 10px 12px; border-radius: 8px;
+  background: var(--surface-soft); border-left: 3px solid var(--accent-deep); line-height: 1.45; }
+.ef-warn { margin-bottom: 8px; padding: 7px 10px; border-radius: 6px;
+  color: var(--warn-ink); background: var(--warn-fill); font-size: .86rem; font-weight: 600; }
+.ef-chart { overflow-x: auto; margin: 4px 0 2px; }
+.ef-svg { width: 100%; min-width: 460px; height: auto; display: block; }
+.ef-grid { stroke: var(--neut-fill); stroke-width: 1; }
+.ef-ax, .ef-axlbl { fill: var(--ink-soft); font-size: 11px; }
+.ef-axlbl { font-size: 10px; }
+.ef-frontier { fill: none; stroke: var(--accent-deep); stroke-width: 2.2; stroke-linejoin: round; }
+.ef-pt { fill: var(--neut-ink); opacity: .55; transition: r .12s ease, opacity .12s ease; }
+.ef-pt.on { fill: var(--accent-deep); opacity: 1; }
+.ef-cur { fill: var(--risk-ink); stroke: var(--surface-soft); stroke-width: 2; }
+.ef-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 2px 0 10px; font-size: .78rem; color: var(--ink-soft); }
+.ef-lg::before { content: '●'; margin-right: 5px; }
+.ef-lg-cur::before { color: var(--risk-ink); }
+.ef-lg-fr::before { color: var(--accent-deep); content: '—'; }
+.ef-lg-sc::before { color: var(--neut-ink); }
+.ef-cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 10px 0; }
+.ef-cmp > div { padding: 8px 10px; border-radius: 8px; background: var(--surface-soft); }
+.ef-cmp span { display: block; font-size: .74rem; color: var(--ink-soft); }
+.ef-cmp b { display: block; font-size: 1.05rem; margin: 2px 0 1px; }
+.ef-cmp small { color: var(--ink-soft); font-size: .72rem; }
+.ef-up { color: var(--good-ink); }
+.ef-dn { color: var(--risk-ink); }
+.ef-excl { margin-top: 8px; font-size: .84rem; }
+.ef-excl summary { cursor: pointer; color: var(--ink-soft); }
+.ef-excl ul { margin: 6px 0 4px 18px; }
+@media (max-width: 640px) {
+  .ef-cmp { grid-template-columns: 1fr 1fr; }
+  .ef-svg { min-width: 420px; }
+}
