@@ -152,3 +152,25 @@ def test_status_schedule_matches_workflow_crons():
     from_status = {(day, t.hour, t.minute)
                    for day, slots in bss.NEWS_SCHEDULE.items() for t in slots}
     assert from_status == from_workflow, "расписание в build_site_status разошлось с news.yml"
+
+
+def test_truncated_json_is_retryable():
+    """Обрезанный ответ модели — сбой попытки, а не фатальная ошибка прогона.
+
+    Боевой прогон 29.07.2026: ретрай успешно пережил 503 и 429, Gemini ответил
+    с 3-й попытки — но ответ пришёл неполным («Unterminated string ... char 6687»),
+    и прогон всё равно упал, потому что json.loads стоял ВНЕ цикла ретраев.
+    """
+    import json as _json
+    try:
+        _json.loads('{"overnight": [{"headline": "обрыв')
+    except _json.JSONDecodeError as exc:
+        assert gn._is_retryable(exc) is True
+    else:
+        pytest.fail("ожидался JSONDecodeError")
+
+
+def test_output_token_ceiling_is_explicit():
+    """Потолок вывода задан явно: без него модель обрывала JSON на середине."""
+    source = (ROOT / "news" / "generate_news.py").read_text(encoding="utf-8")
+    assert "max_output_tokens=32768" in source

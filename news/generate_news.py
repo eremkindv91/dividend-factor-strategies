@@ -141,6 +141,10 @@ GEMINI_BACKOFF_SEC = (8, 25, 60)
 
 
 def _is_retryable(exc: Exception) -> bool:
+    # Обрезанный/битый JSON — почти всегда следствие обрыва генерации, а не
+    # систематической ошибки: повтор обычно даёт целый ответ.
+    if isinstance(exc, json.JSONDecodeError):
+        return True
     text = f"{type(exc).__name__}: {exc}"
     return any(marker.lower() in text.lower() for marker in RETRYABLE_MARKERS)
 
@@ -158,6 +162,10 @@ def call_gemini(prompt: str, model_name: str) -> str:
     config = types.GenerateContentConfig(
         response_mime_type="application/json",
         temperature=0.1,
+        # Без явного потолка модель обрывала ответ на середине JSON, и парсинг падал
+        # «Unterminated string». Брифинг — это до ~30 новостей с контекстом и источниками,
+        # поэтому запас нужен ощутимый.
+        max_output_tokens=32768,
     )
     last_error: Exception | None = None
     for attempt in range(1, GEMINI_ATTEMPTS + 1):
@@ -167,6 +175,10 @@ def call_gemini(prompt: str, model_name: str) -> str:
             text = getattr(response, "text", "") or ""
             if not text.strip():
                 raise RuntimeError("Gemini returned empty response")
+            # Разбор ДОЛЖЕН быть внутри цикла: обрезанный ответ — это тоже сбой попытки,
+            # а не фатальная ошибка. Раньше json.loads стоял снаружи, поэтому удачный
+            # ретрай по 503 всё равно ронял прогон, если ответ пришёл неполным.
+            json.loads(text)
             if attempt > 1:
                 print(f"[news] Gemini ответил с попытки {attempt}", file=sys.stderr)
             return text
