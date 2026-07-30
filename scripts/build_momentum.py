@@ -40,6 +40,84 @@ MAX_MONTHS = 96            # ось ряда доходностей (8 лет)
 VOL_WINDOW = 60            # окно для скалярной vol_ann (5 лет)
 
 
+LINEAGE = os.path.join(REPO, "data", "corporate_lineage.json")
+LINEAGE_MAX_GAP = 0            # дыра на МЕСЯЧНОЙ сетке
+LINEAGE_MAX_JUNCTION = 0.35    # |доходность стыка| выше → похоже на нераспознанный сплит
+
+
+def load_lineages() -> dict:
+    """successor → запись правопреемства. Ничего не выводится из похожести названий."""
+    try:
+        with open(LINEAGE, encoding="utf-8") as fh:
+            rows = json.load(fh).get("lineages", [])
+    except (OSError, ValueError) as e:
+        sys.stderr.write(f"[momentum] правопреемства не прочитаны ({e})\n")
+        return {}
+    return {str(r["successor"]).upper(): r for r in rows
+            if r.get("successor") and r.get("predecessor")}
+
+
+def apply_lineage(successor: str, rec: dict, candles: list) -> tuple[list, dict]:
+    """Продлить ряд действующей бумаги рядом предшественника — если склейка доказуема.
+
+    Гейты (любой не пройден → склейки НЕТ, причина возвращается):
+      1) у предшественника есть месячные свечи;
+      2) на МЕСЯЧНОЙ сетке между последним месяцем предшественника и первым месяцем
+         преемника нет пропущенных месяцев. Пропуск нельзя ни занулить (фиктивная
+         нулевая волатильность), ни слепить в один прыжок (фиктивная доходность —
+         именно так FIVE→X5 дал бы +15,5% за один месяц вместо 8 неторговых);
+      3) доходность стыка правдоподобна (|r| ≤ 35%) — иначе это скорее нераспознанный
+         сплит/деноминация, чем рыночное движение при конверсии 1:1;
+      4) месяцы не перекрываются (двойной учёт одного периода).
+    Коэффициент конверсии применяется к ценам предшественника, если он не 1:1.
+    """
+    pred = str(rec["predecessor"]).upper()
+    ratio = float(rec.get("ratio") or 1.0)
+    base = {"successor": successor, "predecessor": pred, "ratio": ratio,
+            "junction": rec.get("junction"), "kind": rec.get("kind"),
+            "evidence": rec.get("evidence"), "applied": False}
+
+    if not candles:
+        return candles, {**base, "status": "rejected", "reason": "у преемника нет свечей"}
+    try:
+        pred_candles = fetch_candles(pred, days=HISTORY_DAYS * 2, interval=31)
+    except Exception as e:  # noqa: BLE001
+        return candles, {**base, "status": "rejected", "reason": f"история предшественника не получена: {e}"}
+    if not pred_candles:
+        return candles, {**base, "status": "rejected", "reason": "у предшественника нет свечей"}
+
+    pred_months = [d[:7] for d, _, _ in pred_candles]
+    succ_months = [d[:7] for d, _, _ in candles]
+    overlap = sorted(set(pred_months) & set(succ_months))
+    if overlap:
+        return candles, {**base, "status": "rejected",
+                         "reason": f"месяцы перекрываются ({overlap[0]}…{overlap[-1]}) — двойной учёт"}
+
+    ly, lm = map(int, pred_months[-1].split("-"))
+    fy, fm = map(int, succ_months[0].split("-"))
+    gap = (fy - ly) * 12 + (fm - lm) - 1
+    if gap > LINEAGE_MAX_GAP:
+        return candles, {**base, "status": "rejected", "gap_months": gap,
+                         "reason": (f"дыра {gap} мес. между {pred_months[-1]} и {succ_months[0]}: "
+                                    "пропуск нельзя ни занулить, ни слепить в один месяц")}
+
+    last_pred_close = pred_candles[-1][1] * ratio
+    first_succ_close = candles[0][1]
+    junction = first_succ_close / last_pred_close - 1.0 if last_pred_close else None
+    if junction is None or abs(junction) > LINEAGE_MAX_JUNCTION:
+        return candles, {**base, "status": "rejected", "junction_return": junction,
+                         "reason": (f"доходность стыка {junction:+.2%} выше порога "
+                                    f"{LINEAGE_MAX_JUNCTION:.0%} — похоже на нераспознанный сплит"
+                                    if junction is not None else "цена стыка недоступна")}
+
+    stitched = [(d, c * ratio, v) for d, c, v in pred_candles] + list(candles)
+    return stitched, {**base, "status": "applied", "applied": True, "gap_months": gap,
+                      "junction_return": round(junction, 6),
+                      "months_added": len(pred_candles), "months_total": len(stitched),
+                      "reason": (f"продлено на {len(pred_candles)} мес. предшественника; "
+                                 f"стык {junction:+.2%}, дыры нет")}
+
+
 def main() -> int:
     art = json.load(open(ARTIFACT, encoding="utf-8"))
     tickers = [r["ticker"] for r in art["tickers"]]
@@ -91,9 +169,16 @@ def main() -> int:
 
     consec_err = n_ok = n_skip = n_err = 0
     tripped = False
+    lineages, lineage_log = load_lineages(), {}
     for tk in tickers:
         try:
             candles = fetch_candles(tk, days=HISTORY_DAYS, interval=31)   # месячные
+            # Корпоративное правопреемство: ряд предшественника продлевает ряд действующей
+            # бумаги, но ТОЛЬКО если склейка проходит гейты (см. data/corporate_lineage.json).
+            if tk in lineages:
+                candles, note = apply_lineage(tk, lineages[tk], candles)
+                lineage_log[tk] = note
+                sys.stderr.write(f"[momentum] lineage {tk}: {note['status']} — {note['reason']}\n")
             consec_err = 0
         except Exception as e:  # noqa: BLE001
             consec_err += 1
@@ -155,6 +240,9 @@ def main() -> int:
                         "tripped": tripped, "source": "MOEX ISS monthly candles (TQBR), WML 12-1 + vol_ann"},
                "data": mom_out}, open(OUT_MOM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"meta": {"asof": asof, "months": axis, "n_tickers": len(ret_data),
+                        # Провенанс склеек: и применённых, и ОТВЕРГНУТЫХ гейтом. Отказ должен
+                        # быть виден в данных, иначе «почему у X5 всего 19 месяцев» не проверить.
+                        "lineage": lineage_log,
                         "note": "месячные ценовые доходности + реальная дивдоходность (блок div)"},
                "data": ret_data, "div": div_data,
                # тип инструмента для бумаг вне ML-модели: фронт по нему отличает пай БПИФ
