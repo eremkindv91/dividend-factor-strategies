@@ -211,6 +211,7 @@ jobs:
           [ -f site/dividend_calendar.json ] && cp site/dividend_calendar.json "$TMP/"   # официальный дивидендный календарь
           [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"   # «Сегодня важные события»
           [ -f site/market_pe_current.json ] && cp site/market_pe_current.json "$TMP/"   # P/E рынка по последней годовой прибыли
+          [ -f site/macro_cbr.json ] && cp site/macro_cbr.json "$TMP/"   # макро ЦБ: ключевая ставка + инфляция
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
