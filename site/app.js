@@ -2111,6 +2111,76 @@ function efFrontier(mu, cov, lo, hi, rf) {
  *  Покрытие считается ПО СТОИМОСТИ, а не по числу бумаг: исключение одной позиции
  *  на 40% портфеля — совсем не то же самое, что исключение трёх по 1%.
  */
+/* ── Классификация инструмента: почему бумага в расчёте или вне него ──────────
+   Раньше все исключения получали одну строку «нет истории доходностей», и три
+   совершенно разные ситуации выглядели одинаково: недавнее размещение, снятая с
+   торгов бумага и опечатка в коде. Пользователь не мог понять, что делать. */
+
+// Подсказки по частым ошибкам в кодах. Это ПОДСКАЗКА, а не подмена: тикер никогда не
+// заменяется молча (иначе можно незаметно создать дубль уже имеющейся позиции).
+const PFX_SUGGEST = {
+  MMK: 'MAGN',     // ММК торгуется под кодом MAGN
+  YNDX: 'YDEX',    // прежний код Яндекса; continuity официально НЕ подтверждена — только подсказка
+  FIVE: 'X5',      // прежняя расписка; ряды НЕ склеиваются
+  RSTI: 'FEES',    // Россети реорганизованы; conversion ratio не подтверждён
+};
+
+const EF_STATUS = {
+  supported_equity:    { label: 'обычная акция',     tone: 'good' },
+  supported_preferred: { label: 'преф. акция',       tone: 'good' },
+  supported_fund:      { label: 'биржевой фонд',     tone: 'good' },
+  short_history:       { label: 'короткая история',  tone: 'warn' },
+  insufficient_common_window: { label: 'мало общих месяцев', tone: 'warn' },
+  history_empty:       { label: 'истории нет',       tone: 'warn' },
+  corporate_action_unresolved: { label: 'корп. действие', tone: 'risk' },
+  unknown_ticker:      { label: 'код не найден',     tone: 'risk' },
+  invalid_data:        { label: 'некорректные данные', tone: 'risk' },
+};
+
+function efClassify(p) {
+  const months = p._tr ? p._tr.length : 0;
+  const t = p.t || null;
+  const itype = t && t.instrument_type ? t.instrument_type : null;
+  // instrument_type проставляется только бумагам из дополнительного универсума
+  // (их тип спрашивается у ISS). Бумаги ML-универсума — по определению акции, поэтому
+  // при наличии строки в data.json подписываем «акция», а не пустой прочерк.
+  const typeLabel = itype === 'fund' ? 'фонд'
+    : (itype === 'equity_preferred' ? 'преф'
+      : (itype === 'equity_ordinary' ? 'акция' : (t ? 'акция' : '—')));
+
+  if (!t) {
+    const hint = PFX_SUGGEST[String(p.ticker || '').toUpperCase()];
+    return {
+      eligible: false, status: 'unknown_ticker', months, type: typeLabel,
+      reason: 'такого кода нет в данных MOEX по нашему покрытию',
+      action: hint ? `вероятно, имелся в виду ${hint} — проверьте код в брокерском отчёте и введите его сами` : 'проверьте актуальный торговый код',
+      suggest: hint || null,
+    };
+  }
+  if (!isNum(p.value) || p.value <= 0) {
+    return { eligible: false, status: 'invalid_data', months, type: typeLabel,
+      reason: 'нулевая или некорректная стоимость позиции', action: 'проверьте количество и цену' };
+  }
+  if (p._anomaly) {
+    return { eligible: false, status: 'corporate_action_unresolved', months, type: typeLabel,
+      reason: 'в ряду цен split-like разрыв (нераспознанное корпоративное действие)',
+      action: 'позиция учтена в стоимости и P&L, но исключена из риск-метрик до корректировки ряда' };
+  }
+  if (!months) {
+    return { eligible: false, status: 'history_empty', months, type: typeLabel,
+      reason: 'ряда месячных доходностей нет (недавнее размещение либо нет данных)',
+      action: 'позиция учтена в стоимости и P&L; в оптимизацию войдёт, когда наберётся история' };
+  }
+  if (months < EF.MIN_OBS) {
+    return { eligible: false, status: 'short_history', months, type: typeLabel,
+      reason: `доступно ${months} мес. из необходимых ${EF.MIN_OBS}`,
+      action: 'позиция учтена в стоимости и P&L, но не участвует в оптимизации' };
+  }
+  const ok = itype === 'fund' ? 'supported_fund'
+    : (itype === 'equity_preferred' ? 'supported_preferred' : 'supported_equity');
+  return { eligible: true, status: ok, months, type: typeLabel, reason: '', action: 'включена автоматически' };
+}
+
 function efBuildInputs(positions) {
   const total = positions.reduce((s, p) => s + (isNum(p.value) ? p.value : 0), 0);
   if (!(total > 0)) return { ok: false, reason: 'no_value' };
@@ -2118,10 +2188,9 @@ function efBuildInputs(positions) {
   const excluded = [];
   const usable = [];
   positions.forEach((p) => {
-    if (!isNum(p.value) || p.value <= 0) { excluded.push({ ticker: p.ticker, value: p.value || 0, reason: 'нулевая или некорректная стоимость' }); return; }
-    if (p._anomaly) { excluded.push({ ticker: p.ticker, value: p.value, reason: 'нераспознанное корпоративное действие в ряду' }); return; }
-    if (!p._tr || !p._tr.length) { excluded.push({ ticker: p.ticker, value: p.value, reason: 'нет истории доходностей' }); return; }
-    usable.push(p);
+    const cls = efClassify(p);
+    if (cls.eligible) { usable.push(p); return; }
+    excluded.push({ ticker: p.ticker, value: isNum(p.value) ? p.value : 0, ...cls });
   });
   if (usable.length < 2) return { ok: false, reason: 'too_few_assets', excluded, total };
 
@@ -2139,7 +2208,13 @@ function efBuildInputs(positions) {
 
   best.subset.forEach(() => {});
   usable.filter((p) => !best.subset.includes(p)).forEach((p) => {
-    excluded.push({ ticker: p.ticker, value: p.value, reason: `история короче ${EF.MIN_OBS} мес. — не входит в оптимизатор` });
+    const months = p._tr ? p._tr.length : 0;
+    excluded.push({
+      ticker: p.ticker, value: p.value, status: 'insufficient_common_window', months,
+      type: (p.t && p.t.instrument_type === 'fund') ? 'фонд' : 'акция',
+      reason: `после выравнивания общего окна остаётся ${months} мес. — меньше ${EF.MIN_OBS}`,
+      action: 'позиция учтена в стоимости и P&L; включение сузило бы окно всем бумагам',
+    });
   });
 
   const T = best.depth;
@@ -3992,6 +4067,39 @@ function efScenarioHTML(a, name) {
     ${changes}`;
 }
 
+/** Таблица исключений: тикер · тип · статус · история · причина · что делать.
+ *  Заменяет прежний плоский список одинаковых причин — теперь по каждой строке видно,
+ *  это опечатка в коде, недавнее размещение или снятая с торгов бумага. */
+function efExclusionsHTML(a) {
+  const rows = [...a.excluded].sort((x, y) => (y.value || 0) - (x.value || 0));
+  const sumExcl = rows.reduce((s, e) => s + (e.value || 0), 0);
+  const share = a.capital + sumExcl > 0 ? (sumExcl / (a.capital + sumExcl)) * 100 : 0;
+  const dupWarn = (e) => (e.suggest && (a.tickers || []).includes(e.suggest))
+    ? ` <span class="ef-dup" title="Объединять позиции нельзя молча: количество и средняя цена изменятся">${esc(e.suggest)} уже есть в портфеле</span>` : '';
+  const body = rows.map((e) => {
+    const st = EF_STATUS[e.status] || { label: e.status || '—', tone: 'neut' };
+    return `<tr>
+      <td class="left"><b>${esc(e.ticker)}</b></td>
+      <td class="left">${esc(e.type || '—')}</td>
+      <td class="left"><span class="ef-st ef-st-${st.tone}">${esc(st.label)}</span></td>
+      <td class="tnum">${e.months ? e.months + ' мес.' : mdash}</td>
+      <td class="left">${esc(e.reason || '')}${dupWarn(e)}</td>
+      <td class="left muted">${esc(e.action || '')}</td>
+    </tr>`;
+  }).join('');
+  return `<details class="ef-excl" open>
+    <summary>Вне оптимизации: ${rows.length} ${plural(rows.length, 'позиция', 'позиции', 'позиций')}
+      на ${fmtRub(sumExcl)} (${ru(share, 0)}% портфеля)</summary>
+    <div class="ef-excl-wrap"><table class="pfx-tbl ef-tbl"><thead><tr>
+      <th class="left">Тикер</th><th class="left">Тип</th><th class="left">Статус</th>
+      <th>История</th><th class="left">Причина</th><th class="left">Что делать</th>
+    </tr></thead><tbody>${body}</tbody></table></div>
+    <p class="muted">Эти позиции <b>остаются в портфеле</b>: стоимость, вложенная сумма, P&L, веса и
+      концентрация считаются по ним полностью. Они не участвуют только в оптимизации и метриках,
+      которым нужна история. Тикеры никогда не подменяются автоматически — подсказка требует
+      вашего подтверждения, потому что иначе можно незаметно создать дубль позиции.</p></details>`;
+}
+
 function pfxFrontierHTML(c) {
   const a = efAnalyze(c.positions, { rf: (c.rf && isNum(c.rf.annual)) ? c.rf.annual / 100 : 0 });
   c._ef = a;
@@ -4017,10 +4125,7 @@ function pfxFrontierHTML(c) {
   const btns = a.scenarios.map((s, i) =>
     `<button class="pfx-rbtn ef-btn${s.name === first ? ' on' : ''}" data-ef="${esc(s.name)}" aria-pressed="${s.name === first}">${esc(s.label)}</button>`).join('');
 
-  const excl = a.excluded.length
-    ? `<details class="ef-excl"><summary>Вне расчёта: ${a.excluded.length} ${plural(a.excluded.length, 'позиция', 'позиции', 'позиций')}</summary>
-        <ul>${a.excluded.map((e) => `<li><b>${esc(e.ticker)}</b> — ${esc(e.reason)}</li>`).join('')}</ul>
-        <p class="muted">Эти позиции остаются в вашем портфеле и учитываются в остальных блоках X-Ray — они лишь не участвуют в оптимизации.</p></details>` : '';
+  const excl = a.excluded.length ? efExclusionsHTML(a) : '';
 
   const warn = a.warnings.length
     ? `<div class="ef-warn">⚠ ${a.warnings.map(esc).join(' · ')}</div>` : '';
