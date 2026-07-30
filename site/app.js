@@ -8563,10 +8563,10 @@ function newsShellHTML(d) {
       <h3 class="news-h">Главное вчера</h3>
       <div class="news-list" id="news-yesterday">${newsListHTML(d.yesterday, 'ys')}</div>
     </section>
-    <section class="news-block">
-      <h3 class="news-h">Сегодня в календаре</h3>
-      <div class="news-agenda" id="news-agenda">${newsAgendaHTML(d.today_agenda)}</div>
-    </section>
+    <!-- «Сегодня в календаре» убрано: те же события полнее показывает блок «Сегодня важные
+         события» во вкладке «Обзор» (дивиденды MOEX + заседания ЦБ + отчётности, с подсветкой
+         бумаг портфеля). Дублировать в брифинге незачем; newsAgendaHTML оставлен — данные
+         today_agenda остаются в news.json и используются моделью для раздела «Главное». -->
     <div class="news-disc muted">Источники — открытые ленты и каналы; формулировки структурированы автоматически. Не индивидуальная инвестиционная рекомендация.</div>`;
 }
 
