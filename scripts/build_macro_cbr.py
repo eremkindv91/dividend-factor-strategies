@@ -134,8 +134,104 @@ def fetch_inflation() -> list[dict]:
     return out
 
 
+EXPECT_PAGE = "https://www.cbr.ru/statistics/ddkp/inflationary_expectations/"
+EXPECT_SHEET = "Данные за все годы"
+EXPECT_ROWS = {                     # подпись в первой колонке → ключ ряда
+    "наблюдаемая инфляция (в %)": "perceived",
+    "ожидаемая инфляция (в %)": "expected",
+}
+EXPECT_RANGE = (0.0, 60.0)          # медиана опроса вне коридора — ошибка разбора
+MIN_EXPECT_POINTS = 60
+
+
+def fetch_expectations() -> dict:
+    """Инфляционные ожидания и наблюдаемая инфляция населением (опрос ФОМ по заказу ЦБ).
+
+    Зачем инвестору: официальный ИПЦ и то, как люди ОЩУЩАЮТ рост цен, расходятся в разы
+    (июль 2026: ИПЦ 6,0% против наблюдаемых 15,1%). ЦБ прямо ссылается на ожидания в
+    решениях по ставке, поэтому разрыв «ожидания минус цель» объясняет жёсткость ДКП
+    лучше, чем сам ИПЦ.
+
+    Файл публикуется помесячно (Infl_exp_YY-MM.xlsx) и содержит ВСЮ историю, поэтому
+    берём последний и не копим архив. Ссылку НЕ хардкодим — она меняется каждый месяц
+    вместе с числовым id: ищем самую свежую на странице статистики.
+    """
+    html = http(EXPECT_PAGE, timeout=45).decode("utf-8", "replace")
+    links = re.findall(r'href="(/Collection/Collection/File/\d+/Infl_exp_(\d\d)-(\d\d)\.xlsx)"', html)
+    if not links:
+        raise RuntimeError("на странице ожиданий нет ссылок Infl_exp_*.xlsx")
+    href, yy, mm = max(links, key=lambda x: (x[1], x[2]))     # самый свежий период
+    raw = http("https://www.cbr.ru" + href, timeout=90)
+
+    import io
+    import openpyxl
+    wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True, read_only=True)
+    if EXPECT_SHEET not in wb.sheetnames:
+        raise RuntimeError(f"лист «{EXPECT_SHEET}» не найден: {wb.sheetnames[:4]}")
+    ws = wb[EXPECT_SHEET]
+
+    dates, series = None, {}
+    for row in ws.iter_rows(values_only=True):
+        if dates is None:
+            n = sum(1 for c in row if isinstance(c, datetime))
+            if n > 20:
+                dates = row
+            continue
+        label = str(row[0] or "").strip().lower()
+        key = EXPECT_ROWS.get(label)
+        # Метка «ожидаемая инфляция (в %)» встречается в файле ДВАЖДЫ: сначала годовая
+        # («прямые оценки годовой инфляции»), ниже — ПЯТИЛЕТНЯЯ. Берём только первое
+        # вхождение, иначе в блок «на 12 месяцев» уехал бы пятилетний ряд.
+        if not key or key in series:
+            continue
+        points = []
+        for d, v in zip(dates, row):
+            if not isinstance(d, datetime) or not isinstance(v, (int, float)):
+                continue
+            if not (EXPECT_RANGE[0] <= float(v) <= EXPECT_RANGE[1]):
+                continue
+            points.append({"month": d.strftime("%Y-%m"), "value": round(float(v), 2)})
+        points.sort(key=lambda x: x["month"])
+        if points:
+            series[key] = points
+    wb.close()
+
+    missing = [k for k in EXPECT_ROWS.values() if k not in series]
+    if missing:
+        raise RuntimeError(f"ряды не найдены: {missing}")
+    for key, pts in series.items():
+        if len(pts) < MIN_EXPECT_POINTS:
+            raise RuntimeError(f"{key}: {len(pts)} точек, нужно ≥{MIN_EXPECT_POINTS}")
+    return {
+        "source_file": href, "period": f"20{yy}-{mm}",
+        "expected": series["expected"], "perceived": series["perceived"],
+        "latest_expected": series["expected"][-1], "latest_perceived": series["perceived"][-1],
+        "note": ("Медианные оценки опроса населения (ФОМ по заказу Банка России): «ожидаемая» — "
+                 "инфляция на 12 месяцев вперёд, «наблюдаемая» — за прошедшие 12 месяцев. Это "
+                 "ВОСПРИЯТИЕ людей, а не измеренный индекс цен, и оно систематически выше ИПЦ."),
+    }
+
+
+def prev_expectations():
+    """Прошлые ожидания из уже опубликованного файла: при сбое источника лучше показать
+    вчерашние данные с честной датой, чем стереть блок."""
+    try:
+        with open(OUT, encoding="utf-8") as fh:
+            return (json.load(fh).get("inflation") or {}).get("expectations")
+    except (OSError, ValueError):
+        return None
+
+
 def main() -> int:
     generated = datetime.now(MSK).replace(microsecond=0)
+    expectations, expect_error = None, None
+    try:
+        # Отдельный try: ожидания — дополнительный ряд, их сбой не должен обнулять
+        # ставку и инфляцию. Ошибка одного источника не уничтожает другой.
+        expectations = fetch_expectations()
+    except Exception as e:  # noqa: BLE001
+        expect_error = str(e)[:160]
+        sys.stderr.write(f"[macro] инфляционные ожидания не получены: {expect_error}\n")
     try:
         rates = fetch_key_rate()
         infl = fetch_inflation()
@@ -198,6 +294,10 @@ def main() -> int:
                              if last_infl["target"] is not None else None),
             "monthly": infl,
             "by_year": year_summary,
+            # ожидания живут рядом с остальными рядами по ценам, а не отдельным
+            # разделом: фронт читает их как inflation.expectations
+            "expectations": expectations or prev_expectations(),
+            "expectations_error": expect_error if expectations is None else None,
         },
         "real_key_rate": real_rate,
         "note": ("Ключевая ставка — дневная история Банка России. Инфляция — % год к году из "

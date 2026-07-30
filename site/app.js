@@ -6933,6 +6933,77 @@ function inflMonthlyHTML(m) {
       официальный месячный индекс Росстата.</div>`;
 }
 
+/** Ожидания населения против официального ИПЦ.
+ *  Три ряда сознательно на одном графике: разрыв между тем, что люди ОЩУЩАЮТ, и тем,
+ *  что показывает индекс, — самостоятельный факт. Именно на ожидания ссылается ЦБ,
+ *  объясняя жёсткость ставки, поэтому 6% ИПЦ и 15% ощущаемой инфляции надо видеть рядом. */
+function inflExpectSVG(exp, perc, cpi) {
+  if (!exp || exp.length < 3) return '';
+  const W = 720, H = 340, P = { l: 44, r: 14, t: 16, b: 34 };
+  const months = exp.map((p) => p.month);
+  const byMonth = (arr) => Object.fromEntries((arr || []).map((p) => [p.month, p.value]));
+  const pm = byMonth(perc), cm = byMonth(cpi);
+  const all = exp.map((p) => p.value)
+    .concat(months.map((mo) => pm[mo]).filter(isNum))
+    .concat(months.map((mo) => cm[mo]).filter(isNum));
+  const lo = 0, hi = Math.ceil(Math.max(...all) + 2);
+  const X = (i) => P.l + (i / (months.length - 1)) * (W - P.l - P.r);
+  const Y = (v) => H - P.b - ((v - lo) / ((hi - lo) || 1)) * (H - P.t - P.b);
+  // пропуск в ряду разрывает линию, а не соединяется прямой через дыру
+  const line = (vals, cls) => {
+    let d = '', open = false;
+    vals.forEach((v, i) => {
+      if (!isNum(v)) { open = false; return; }
+      d += `${open ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`; open = true;
+    });
+    return d ? `<path class="${cls}" d="${d}"/>` : '';
+  };
+  const step = Math.max(2, Math.ceil((hi - lo) / 6));
+  let grid = '';
+  for (let v = lo; v <= hi; v += step) {
+    grid += `<line class="ic-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>` +
+      `<text class="ic-ax" x="${P.l - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v, 0)}</text>`;
+  }
+  const every = Math.max(1, Math.round(months.length / 6));
+  const xlab = months.map((mo, i) => (i % every === 0 || i === months.length - 1)
+    ? `<text class="ic-ax" x="${X(i).toFixed(1)}" y="${H - 12}" text-anchor="middle">${esc(mo)}</text>` : '').join('');
+  const hits = months.map((mo, i) => `<circle class="ic-hit" cx="${X(i).toFixed(1)}" cy="${Y(exp[i].value).toFixed(1)}" r="8"><title>${esc(inflMonthLabel(mo))}: ожидают ${ru(exp[i].value, 1)}%${isNum(pm[mo]) ? `, наблюдают ${ru(pm[mo], 1)}%` : ''}${isNum(cm[mo]) ? `, официальный ИПЦ ${ru(cm[mo], 1)}%` : ''} · опрос ФОМ по заказу Банка России</title></circle>`).join('');
+  return `<svg class="ic-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ожидаемая и наблюдаемая населением инфляция против официального ИПЦ, ${months[0]} — ${months[months.length - 1]}">
+    ${grid}
+    ${line(months.map((mo) => cm[mo]), 'ie-cpi')}
+    ${line(months.map((mo) => pm[mo]), 'ie-perc')}
+    ${line(exp.map((p) => p.value), 'ie-exp')}
+    ${hits}${xlab}
+  </svg>`;
+}
+
+function inflExpectHTML(m) {
+  const e = m.inflation && m.inflation.expectations;
+  if (!e || !e.expected || !e.expected.length) {
+    const why = (m.inflation && m.inflation.expectations_error) || 'источник не ответил';
+    return `<div class="infl-empty"><p><b>Ожидания населения временно недоступны.</b></p>
+      <p class="muted">Причина: ${esc(String(why))}. Прошлые данные не затирались; ряд вернётся автоматически.</p></div>`;
+  }
+  const cpi = (m.inflation.monthly || []).map((r) => ({ month: r.month, value: r.inflation_yoy }));
+  const exp = e.expected.slice(Math.max(0, e.expected.length - 72));   // последние 6 лет
+  const gap = isNum(m.inflation.latest_yoy) ? e.latest_expected.value - m.inflation.latest_yoy : null;
+  const kpi = (l, v, n) => `<div class="infl-kpi"><span>${esc(l)}</span><b>${v}</b><em>${esc(n)}</em></div>`;
+  return `
+    <div class="infl-kpis">
+      ${kpi('Ожидают через год', `${ru(e.latest_expected.value, 1)}%`, `медиана опроса, ${inflMonthLabel(e.latest_expected.month, 'nom')}`)}
+      ${kpi('Наблюдают за год', `${ru(e.latest_perceived.value, 1)}%`, 'как люди ощущают рост цен')}
+      ${kpi('Разрыв с ИПЦ', gap == null ? '—' : `${gap > 0 ? '+' : ''}${ru(gap, 1)} п.п.`, 'ожидания минус официальный ИПЦ')}
+    </div>
+    <div class="infl-chart">${inflExpectSVG(exp, e.perceived, cpi)}</div>
+    <div class="mc-legend">
+      <span class="ie-lg ie-lg-exp">ожидаемая</span>
+      <span class="ie-lg ie-lg-perc">наблюдаемая</span>
+      <span class="ie-lg ie-lg-cpi">официальный ИПЦ</span>
+    </div>
+    <p class="infl-summary" role="status">В ${esc(inflMonthLabel(e.latest_expected.month, 'prep'))} население ожидало инфляцию ${ru(e.latest_expected.value, 1)}% на год вперёд и оценивало прошедший год в ${ru(e.latest_perceived.value, 1)}%${gap == null ? '.' : `, тогда как официальный ИПЦ составил ${ru(m.inflation.latest_yoy, 1)}% — разрыв ${ru(Math.abs(gap), 1)} п.п.`}</p>
+    <div class="pfx-note muted">${esc(e.note || '')} Источник — <b>Банк России</b>, ежемесячный опрос (файл ${esc((e.source_file || '').split('/').pop())}). Это не альтернативный замер инфляции: на ожидания Банк России прямо ссылается в решениях по ключевой ставке, поэтому разрыв с ИПЦ объясняет жёсткость политики лучше, чем сам индекс.</div>`;
+}
+
 function inflWeeklyHTML(m) {
   const w = (m.inflation && m.inflation.weekly) || null;
   if (w && w.rows && w.rows.length) {
@@ -6958,7 +7029,7 @@ function renderInflDialog() {
     body.innerHTML = `<div class="pfx-note">${NA}: макроданные Банка России не загружены.</div>`;
     return;
   }
-  const tabs = [['monthly', 'Месячная'], ['weekly', 'Недельная динамика']].map(([id, label]) =>
+  const tabs = [['monthly', 'Месячная'], ['expect', 'Ожидания населения'], ['weekly', 'Недельная динамика']].map(([id, label]) =>
     `<button type="button" class="pfx-rbtn infl-tab${id === INFL_TAB ? ' on' : ''}" data-infl-tab="${id}"
       role="tab" aria-selected="${id === INFL_TAB}">${label}</button>`).join('');
   const inf = m.inflation;
@@ -6973,7 +7044,8 @@ function renderInflDialog() {
       ${kpi('Ключевая ставка', isNum(m.key_rate && m.key_rate.current) ? `${ru(m.key_rate.current, 2)}%` : '—', `на ${esc((m.key_rate || {}).asof || '')}`)}
     </div>
     <div class="pfx-rbtns infl-tabs" role="tablist" aria-label="Периодичность данных">${tabs}</div>
-    <div id="infl-tabbody">${INFL_TAB === 'monthly' ? inflMonthlyHTML(m) : inflWeeklyHTML(m)}</div>
+    <div id="infl-tabbody">${INFL_TAB === 'monthly' ? inflMonthlyHTML(m)
+      : (INFL_TAB === 'expect' ? inflExpectHTML(m) : inflWeeklyHTML(m))}</div>
     <div class="pfx-note muted">Месячный ИПЦ — основной официальный показатель. Недельная оценка используется
       только как оперативный индикатор и может отличаться от итоговых месячных данных. Источник —
       <b>Банк России</b>, таблица «Инфляция и ключевая ставка»; данные на <b>${esc(inf.latest_month || '—')}</b>,
