@@ -3272,3 +3272,49 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .ef-st-neut { color: var(--neut-ink); background: var(--neut-fill); }
 .ef-dup { display: inline-flex; margin-left: 6px; padding: 1px 5px; border-radius: 4px;
   font-size: .7rem; font-weight: 700; color: var(--risk-ink); background: var(--risk-fill); }
+
+/* ── «Динамика инфляции»: кликабельная карточка + модуль ────────────────────── */
+/* Карточка-кнопка наследует вид signal-card, но получает affordance и состояния. */
+.signal-open { width: 100%; text-align: left; font: inherit; cursor: pointer;
+  border: 1px solid transparent; transition: border-color .12s ease, transform .08s ease; }
+.signal-open:hover { border-color: var(--accent); }
+.signal-open:active { transform: translateY(1px); }
+.signal-open:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.signal-more { float: right; font-weight: 600; color: var(--accent-deep); opacity: .85; }
+@media (hover: none) { .signal-open:active { border-color: var(--accent-deep); } }
+
+.infl-dialog { width: min(860px, calc(100vw - 32px)); }
+.infl-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.infl-kpi { padding: 8px 10px; border-radius: 8px; background: var(--surface-soft); }
+.infl-kpi span { display: block; font-size: .74rem; color: var(--ink-soft); }
+.infl-kpi b { display: block; font-size: 1.1rem; margin: 2px 0 1px; }
+.infl-kpi em { font-style: normal; font-size: .72rem; color: var(--ink-soft); }
+.infl-tabs { margin-bottom: 8px; }
+.infl-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 6px; }
+.infl-metric { font-size: .78rem; color: var(--ink-soft); }
+.infl-chart { overflow-x: auto; }
+.ic-svg { width: 100%; min-width: 460px; height: auto; display: block; }
+.ic-grid { stroke: var(--neut-fill); stroke-width: 1; }
+.ic-ax { fill: var(--ink-soft); font-size: 10px; }
+.ic-line { fill: none; stroke: var(--accent-deep); stroke-width: 2.2; stroke-linejoin: round; }
+.ic-last { fill: var(--risk-ink); stroke: var(--surface); stroke-width: 2; }
+/* цель ЦБ — опорная линия, а не данные: пунктир и приглушённый тон */
+.ic-target { stroke: var(--good-ink); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .8; }
+.ic-tglab { fill: var(--good-ink); font-size: 10px; }
+.ic-hit { fill: transparent; }                    /* прозрачная зона наведения для tooltip */
+.infl-summary { margin: 8px 0 4px; padding: 8px 10px; border-radius: 8px;
+  background: var(--surface-soft); font-size: .86rem; line-height: 1.45; }
+.infl-table { margin: 4px 0 8px; font-size: .84rem; }
+.infl-table summary { cursor: pointer; color: var(--ink-soft); }
+.infl-empty { padding: 10px 12px; border-radius: 8px; background: var(--surface-soft); line-height: 1.5; }
+.infl-empty code { font-family: var(--mono); font-size: .82em; }
+@media (max-width: 640px) {
+  .infl-dialog { width: calc(100vw - 12px); max-height: calc(100vh - 12px); }
+  .infl-kpis { grid-template-columns: 1fr 1fr; }
+  .ic-svg { min-width: 420px; }
+  .signal-open { min-height: 44px; }              /* touch target */
+}
+@media (prefers-reduced-motion: reduce) {
+  .signal-open { transition: none; }
+  .signal-open:active { transform: none; }
+}

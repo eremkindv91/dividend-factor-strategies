@@ -5899,6 +5899,15 @@ function setActiveSection(sec) {
 }
 
 function initRouter() {
+  // Escape: нативный <dialog> закрывается сам и сам возвращает фокус на триггер,
+  // но aria-expanded надо снять руками. Слушаем 'cancel' (Escape), а не 'close':
+  // событие close в связке showModal()+close() здесь не доставляется, проверено.
+  const inflDlg = document.getElementById('infl-dialog');
+  if (inflDlg) inflDlg.addEventListener('cancel', () => {
+    const card = document.getElementById('infl-card');
+    if (card) card.setAttribute('aria-expanded', 'false');
+  });
+
   document.querySelectorAll('.section-tab').forEach((t) => {
     t.addEventListener('click', () => { location.hash = t.dataset.section; });
   });
@@ -5909,6 +5918,23 @@ function initRouter() {
   document.addEventListener('click', (e) => {
     const saw = e.target.closest('[data-saw-index]');
     if (saw && typeof setMarketSawIndex === 'function') { setMarketSawIndex(saw.dataset.sawIndex); return; }
+    // «Динамика инфляции»: карточка, закрытие, вкладки, период. Делегированно —
+    // inline-onclick запрещён CSP (tools/xss-guard.js падает при появлении on*=).
+    if (e.target.closest('#infl-card')) { openInflDialog(); return; }
+    if (e.target.closest('#infl-close')) { closeInflDialog(); return; }
+    const itab = e.target.closest('[data-infl-tab]');
+    if (itab) { INFL_TAB = itab.dataset.inflTab; renderInflDialog(); return; }
+    const irange = e.target.closest('[data-infl-range]');
+    if (irange) {
+      INFL_RANGE = irange.dataset.inflRange;
+      // innerHTML пересоздаёт кнопки уже с правильным состоянием по INFL_RANGE.
+      // Ручной toggle тут был багом: он бежал по НОВЫМ кнопкам, сравнивая их со
+      // СТАРЫМ (уже отсоединённым) элементом — совпадений не было, и подсветка
+      // снималась со всех.
+      const b = document.getElementById('infl-tabbody');
+      if (b && MACRO_CBR) b.innerHTML = inflMonthlyHTML(MACRO_CBR);
+      return;
+    }
     const dc = e.target.closest('[data-divcal-tab]');
     if (dc && typeof openDividendCalendarTab === 'function') { openDividendCalendarTab(dc.dataset.divcalTab); return; }
     const g = e.target.closest('[data-goto]');
@@ -6747,11 +6773,19 @@ function renderMacroCbr() {
   const realTone = isNum(m.real_key_rate) ? (m.real_key_rate >= 5 ? 'risk' : (m.real_key_rate >= 2 ? 'warn' : 'good')) : 'neut';
   const card = (label, value, note, tone) => `
     <div class="signal-card signal-${tone || 'neut'}"><span>${esc(label)}</span><b>${value}</b><em>${note}</em></div>`;
+  // Карточка инфляции кликабельна ЦЕЛИКОМ (не только число) и работает с клавиатуры.
+  // Смысл самой карточки не меняется: значение, цель, отклонение, месяц данных остаются.
+  const cardBtn = (label, value, note, tone) => `
+    <button type="button" class="signal-card signal-${tone || 'neut'} signal-open" id="infl-card"
+      aria-haspopup="dialog" aria-expanded="false"
+      aria-label="Инфляция год к году ${value}, ${String(note).replace(/<[^>]+>/g, '')}. Открыть динамику инфляции">
+      <span>${esc(label)}<span class="signal-more" aria-hidden="true">подробнее ›</span></span>
+      <b>${value}</b><em>${note}</em></button>`;
 
   el.innerHTML = `
     <div class="market-signals">
       ${card('Ключевая ставка ЦБ', `${ru(kr.current, 2)}%`, rateNote, kr.change < 0 ? 'good' : (kr.change > 0 ? 'risk' : 'neut'))}
-      ${card('Инфляция, г/г', isNum(inf.latest_yoy) ? `${ru(inf.latest_yoy, 2)}%` : '—', inflNote,
+      ${cardBtn('Инфляция, г/г', isNum(inf.latest_yoy) ? `${ru(inf.latest_yoy, 2)}%` : '—', inflNote,
         isNum(inf.above_target) && inf.above_target > 2 ? 'warn' : 'neut')}
       ${card('Реальная ставка', isNum(m.real_key_rate) ? `${ru(m.real_key_rate, 2)} п.п.` : '—',
         'ключевая ставка − инфляция', realTone)}
@@ -6766,6 +6800,204 @@ function renderMacroCbr() {
       «Инфляция и ключевая ставка». Инфляция публикуется с лагом, поэтому последний месяц —
       <b>${esc(inf.latest_month || '—')}</b>. Столбики по годам: значение на декабрь, для незакрытого года — последний
       доступный месяц. Ничего не интерполируется. Обновляется автоматически вместе с остальными данными сайта.</div>`;
+}
+
+/* ── МОДУЛЬ «Динамика инфляции» ────────────────────────────────────────────────
+   Открывается кликом по карточке «Инфляция, г/г». Данные — те же, что в блоке
+   макро (site/macro_cbr.json), повторной загрузки нет.
+
+   ЧТО ЗДЕСЬ ЕСТЬ И ЧЕГО НЕТ — сознательно:
+   • «Год к году» — официальный ряд ЦБ, 138 месяцев. Основной режим.
+   • «За месяц» НЕ показывается: из ряда г/г месячное изменение невыводимо без
+     уровня индекса, а достраивать его — фабрикация. Пишем это прямо, а не
+     прячем переключатель.
+   • Недельная оценка Росстата — отдельная вкладка со своим статусом источника.
+     Месячный и недельный ряды НЕ смешиваются в одну линию: они отвечают на разные
+     вопросы и считаются по разным корзинам. */
+
+const INFL_RANGES = [
+  { id: '1y', label: '1 год', months: 12 },
+  { id: '3y', label: '3 года', months: 36 },
+  { id: '5y', label: '5 лет', months: 60 },
+  { id: 'all', label: 'весь период', months: null },
+];
+let INFL_RANGE = '5y';
+let INFL_TAB = 'monthly';
+
+// Три падежа: «10 июня» (род.), «в июне» (предл.), «за май» (вин. = им.).
+// Одной формой не обойтись — иначе получается «В июня 2026» и «за мая 2026».
+const MONTHS_RU_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const MONTHS_RU_PREP = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне',
+  'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
+const MONTHS_RU_NOM = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+  'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+
+function inflMonthLabel(period, form) {
+  const [y, m] = String(period || '').split('-');
+  const idx = Number(m) - 1;
+  const table = form === 'prep' ? MONTHS_RU_PREP : (form === 'nom' ? MONTHS_RU_NOM : MONTHS_RU_GEN);
+  return table[idx] ? `${table[idx]} ${y}` : String(period || '');
+}
+
+/** Линия инфляции г/г + пунктир цели. Цель показывается ТОЛЬКО здесь: она
+ *  относится к годовой инфляции и в месячном приросте смысла не имеет. */
+function inflChartSVG(rows, target) {
+  if (!rows || rows.length < 2) return '';
+  const W = 720, H = 340, P = { l: 44, r: 14, t: 16, b: 34 };
+  const vals = rows.map((r) => r.inflation_yoy).filter(isNum);
+  const lo = Math.min(0, Math.floor(Math.min(...vals, target || 4) - 1));
+  const hi = Math.ceil(Math.max(...vals, target || 4) + 1);
+  const X = (i) => P.l + (i / (rows.length - 1)) * (W - P.l - P.r);
+  const Y = (v) => H - P.b - ((v - lo) / ((hi - lo) || 1)) * (H - P.t - P.b);
+
+  const step = Math.max(1, Math.ceil((hi - lo) / 6));
+  const grid = [];
+  for (let v = lo; v <= hi; v += step) {
+    grid.push(`<line class="ic-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>
+      <text class="ic-ax" x="${P.l - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v, 0)}</text>`);
+  }
+  const tickEvery = Math.max(1, Math.round(rows.length / 6));
+  const xlab = rows.map((r, i) => (i % tickEvery === 0 || i === rows.length - 1)
+    ? `<text class="ic-ax" x="${X(i).toFixed(1)}" y="${H - 12}" text-anchor="middle">${esc(r.month.slice(0, 7))}</text>` : '').join('');
+
+  const path = rows.map((r, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(r.inflation_yoy).toFixed(1)}`).join('');
+  const last = rows[rows.length - 1];
+  const pts = rows.map((r, i) =>
+    `<circle class="ic-hit" cx="${X(i).toFixed(1)}" cy="${Y(r.inflation_yoy).toFixed(1)}" r="9" data-i="${i}"
+      ><title>${esc(inflMonthLabel(r.month))}: инфляция ${ru(r.inflation_yoy, 2)}% г/г${
+        isNum(target) ? ` · цель ${ru(target, 1)}% · отклонение ${r.inflation_yoy > target ? '+' : ''}${ru(r.inflation_yoy - target, 2)} п.п.` : ''
+      } · официальные данные, Банк России</title></circle>`).join('');
+
+  return `<svg class="ic-svg" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="График инфляции год к году за ${rows.length} месяцев, с ${inflMonthLabel(rows[0].month)} по ${inflMonthLabel(last.month)}">
+    ${grid.join('')}
+    ${isNum(target) ? `<line class="ic-target" x1="${P.l}" y1="${Y(target).toFixed(1)}" x2="${W - P.r}" y2="${Y(target).toFixed(1)}"/>
+      <text class="ic-tglab" x="${W - P.r - 2}" y="${(Y(target) - 5).toFixed(1)}" text-anchor="end">цель ${ru(target, 1)}%</text>` : ''}
+    <path class="ic-line" d="${path}"/>
+    <circle class="ic-last" cx="${X(rows.length - 1).toFixed(1)}" cy="${Y(last.inflation_yoy).toFixed(1)}" r="5"/>
+    ${pts}${xlab}
+  </svg>`;
+}
+
+/** Текстовая альтернатива графику — не дублирует tooltip, а заменяет его для
+ *  скринридера и для тех, кто не наводит мышь. Обновляется вместе с режимом. */
+function inflSummaryText(rows, target) {
+  if (!rows.length) return 'Данных за выбранный период нет.';
+  const last = rows[rows.length - 1];
+  const prev = rows.length > 1 ? rows[rows.length - 2] : null;
+  const dev = isNum(target) ? last.inflation_yoy - target : null;
+  const dir = prev ? (last.inflation_yoy > prev.inflation_yoy ? 'выше' : (last.inflation_yoy < prev.inflation_yoy ? 'ниже' : 'на уровне')) : null;
+  const parts = [`В ${inflMonthLabel(last.month, 'prep')} инфляция составила ${ru(last.inflation_yoy, 1)}% год к году`];
+  if (isNum(target)) parts.push(`при цели Банка России ${ru(target, 1)}%`);
+  let s = parts.join(' ') + '.';
+  if (dev != null) s += ` Отклонение от цели: ${dev > 0 ? '+' : ''}${ru(dev, 1)} п.п.`;
+  if (prev && dir) s += ` Это ${dir} значения за ${inflMonthLabel(prev.month, 'nom')} (${ru(prev.inflation_yoy, 1)}%).`;
+  const vals = rows.map((r) => r.inflation_yoy).filter(isNum);
+  s += ` За показанный период (${rows.length} мес.) инфляция изменялась от ${ru(Math.min(...vals), 1)}% до ${ru(Math.max(...vals), 1)}%.`;
+  return s;
+}
+
+function inflMonthlyHTML(m) {
+  const inf = m.inflation;
+  const all = (inf.monthly || []).filter((r) => isNum(r.inflation_yoy));
+  const range = INFL_RANGES.find((r) => r.id === INFL_RANGE) || INFL_RANGES[2];
+  const rows = range.months ? all.slice(-range.months) : all;
+  const target = isNum(inf.target) ? inf.target : null;
+
+  const btns = INFL_RANGES.map((r) => {
+    const enough = !r.months || all.length >= Math.min(r.months, 12);
+    return `<button type="button" class="pfx-rbtn infl-range${r.id === INFL_RANGE ? ' on' : ''}"
+      data-infl-range="${r.id}" aria-pressed="${r.id === INFL_RANGE}"${enough ? '' : ' disabled'}>${esc(r.label)}</button>`;
+  }).join('');
+
+  return `
+    <div class="infl-controls">
+      <div class="pfx-rbtns" role="group" aria-label="Период графика">${btns}</div>
+      <span class="infl-metric" title="Месячный прирост из ряда «год к году» математически невыводим без уровня индекса">
+        показатель: <b>год к году</b></span>
+    </div>
+    <div class="infl-chart">${inflChartSVG(rows, target)}</div>
+    <p class="infl-summary" role="status">${esc(inflSummaryText(rows, target))}</p>
+    <details class="infl-table"><summary>Таблица значений (${rows.length} мес.)</summary>
+      <div class="ef-excl-wrap"><table class="pfx-tbl"><thead><tr>
+        <th class="left">Месяц</th><th>Инфляция, % г/г</th><th>Цель, %</th><th>Отклонение, п.п.</th></tr></thead><tbody>
+        ${[...rows].reverse().slice(0, 60).map((r) => `<tr><td class="left">${esc(inflMonthLabel(r.month))}</td>
+          <td class="tnum">${ru(r.inflation_yoy, 2)}</td>
+          <td class="tnum">${isNum(r.target) ? ru(r.target, 1) : mdash}</td>
+          <td class="tnum">${isNum(r.target) ? (r.inflation_yoy > r.target ? '+' : '') + ru(r.inflation_yoy - r.target, 2) : mdash}</td></tr>`).join('')}
+      </tbody></table></div></details>
+    <div class="pfx-note muted"><b>«За месяц» не показывается сознательно.</b> Официальный ряд Банка России
+      содержит инфляцию год к году; месячный прирост из него не выводится без уровня индекса потребительских
+      цен, а достраивать его расчётом — значит показать выдуманное число. Появится, когда в пайплайн придёт
+      официальный месячный индекс Росстата.</div>`;
+}
+
+function inflWeeklyHTML(m) {
+  const w = (m.inflation && m.inflation.weekly) || null;
+  if (w && w.rows && w.rows.length) {
+    return `<div class="pfx-note">Недельный ряд загружен: ${w.rows.length} наблюдений.</div>`;
+  }
+  return `<div class="infl-empty">
+      <p><b>Недельная оценка пока не подключена.</b></p>
+      <p class="muted">Оперативный недельный индекс публикует Росстат, и он не заменяет месячный ИПЦ:
+        считается по сокращённому набору товаров и услуг и может отличаться от итоговых месячных данных.
+        Поэтому недельный ряд ведётся отдельной вкладкой и никогда не продолжает месячную линию.</p>
+      <p class="muted">Почему его пока нет: источник (<code>rosstat.gov.ru</code>, <code>fedstat.ru</code>) не отвечает
+        на запросы из среды сборки — соединение обрывается, а не возвращает ошибку. Писать разбор страницы вслепую,
+        не видя её фактической структуры, нельзя: правдоподобный парсер дал бы правдоподобные, но неверные числа.
+        Ряд появится здесь автоматически, как только источник станет доступен — правки фронта для этого не нужны.</p>
+    </div>`;
+}
+
+function renderInflDialog() {
+  const body = document.getElementById('infl-body');
+  if (!body) return;
+  const m = MACRO_CBR;
+  if (!m || m.failed || !m.inflation) {
+    body.innerHTML = `<div class="pfx-note">${NA}: макроданные Банка России не загружены.</div>`;
+    return;
+  }
+  const tabs = [['monthly', 'Месячная'], ['weekly', 'Недельная динамика']].map(([id, label]) =>
+    `<button type="button" class="pfx-rbtn infl-tab${id === INFL_TAB ? ' on' : ''}" data-infl-tab="${id}"
+      role="tab" aria-selected="${id === INFL_TAB}">${label}</button>`).join('');
+  const inf = m.inflation;
+  const kpi = (label, value, note) =>
+    `<div class="infl-kpi"><span>${esc(label)}</span><b>${value}</b><em>${esc(note)}</em></div>`;
+
+  body.innerHTML = `
+    <div class="infl-kpis">
+      ${kpi('Инфляция, г/г', isNum(inf.latest_yoy) ? `${ru(inf.latest_yoy, 1)}%` : '—', `за ${inflMonthLabel(inf.latest_month, 'nom')}`)}
+      ${kpi('Цель Банка России', isNum(inf.target) ? `${ru(inf.target, 1)}%` : '—', 'годовая инфляция')}
+      ${kpi('Отклонение от цели', isNum(inf.above_target) ? `${inf.above_target > 0 ? '+' : ''}${ru(inf.above_target, 1)} п.п.` : '—', 'факт минус цель')}
+      ${kpi('Ключевая ставка', isNum(m.key_rate && m.key_rate.current) ? `${ru(m.key_rate.current, 2)}%` : '—', `на ${esc((m.key_rate || {}).asof || '')}`)}
+    </div>
+    <div class="pfx-rbtns infl-tabs" role="tablist" aria-label="Периодичность данных">${tabs}</div>
+    <div id="infl-tabbody">${INFL_TAB === 'monthly' ? inflMonthlyHTML(m) : inflWeeklyHTML(m)}</div>
+    <div class="pfx-note muted">Месячный ИПЦ — основной официальный показатель. Недельная оценка используется
+      только как оперативный индикатор и может отличаться от итоговых месячных данных. Источник —
+      <b>Банк России</b>, таблица «Инфляция и ключевая ставка»; данные на <b>${esc(inf.latest_month || '—')}</b>,
+      обновляются автоматически. Ничего не интерполируется. Не ИИР.</div>`;
+}
+
+function closeInflDialog() {
+  const dlg = document.getElementById('infl-dialog');
+  const card = document.getElementById('infl-card');
+  if (card) card.setAttribute('aria-expanded', 'false');
+  if (!dlg) return;
+  if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
+  // фокус возвращает сам нативный dialog; подстраховываемся, если showModal недоступен
+  if (card && document.activeElement === document.body) card.focus();
+}
+
+function openInflDialog() {
+  const dlg = document.getElementById('infl-dialog');
+  const card = document.getElementById('infl-card');
+  if (!dlg) return;
+  renderInflDialog();
+  dlg._returnFocus = document.activeElement;            // фокус вернём на карточку
+  if (card) card.setAttribute('aria-expanded', 'true');
+  if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
 }
 
 // ── P/E рынка по последней годовой прибыли (site/market_pe_current.json, генерит CI) ──

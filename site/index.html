@@ -69,6 +69,7 @@
           <div class="news-loading muted">Загрузка новостного блока…</div>
         </div>
 
+
         <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
           <div class="market-chart-shell">
             <header class="market-chart-head">
@@ -559,6 +560,24 @@
       <button class="section-tab" type="button" data-section="pro">О проекте</button>
     </div>
   </div>
+
+  <!-- Модалки живут в КОНЦЕ body, а не внутри секций: роутер скрывает неактивные
+       секции через display:none, и вложенный <dialog> открывался бы нулевого размера
+       (проверено: showModal() давал :modal, но бокс 0×0). -->
+        <!-- Динамика инфляции: открывается кликом по карточке «Инфляция, г/г».
+       Нативный <dialog> даёт фокус-трап, Escape и backdrop без своего кода. -->
+  <dialog class="market-chart-dialog infl-dialog" id="infl-dialog" aria-labelledby="infl-title">
+    <div class="market-chart-shell">
+      <header class="market-chart-head">
+        <div>
+          <h2 id="infl-title">Динамика инфляции</h2>
+          <p class="muted">Официальный месячный ИПЦ и оперативная недельная оценка</p>
+        </div>
+        <button type="button" class="market-chart-close" id="infl-close" aria-label="Закрыть">✕</button>
+      </header>
+      <div id="infl-body"></div>
+    </div>
+  </dialog>
 
   <script src="app.js" defer></script>
 </body>
