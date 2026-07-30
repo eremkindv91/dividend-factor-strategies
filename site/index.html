@@ -116,7 +116,9 @@
 
         <div class="market-pe" id="market-pe-card" aria-live="polite"></div>
 
-        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+        <!-- open: фаза рынка — то, ради чего инвестор открывает «Обзор». Держать её за
+             кликом бессмысленно: сводка вверху даёт вердикт, а этот блок объясняет ПОЧЕМУ. -->
+        <details class="mapwrap saw-wrap" id="marketsaw" open hidden>
           <summary>Помощник фазы рынка подробно <span class="muted">(волны MCFTR/IMOEX, зигзаг, историческое распределение)</span></summary>
           <div class="saw-body" id="saw-body">
             <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
@@ -138,8 +140,14 @@
           </div>
         </details>
 
-        <details class="mapwrap market-indicators-details">
-          <summary>Индикаторы режима <span class="muted">(ставка, импульс, дивидендный спред, охват данных)</span></summary>
+        <!-- open: макро — то, от чего зависит выбор «акции или вклад». Держать за кликом
+             нельзя. Раньше блок назывался «охват данных» и содержал служебную телеметрию
+             (свежесть цен, доля вердиктов good, счётчик бумаг) — она убрана. -->
+        <details class="mapwrap market-indicators-details" open>
+          <summary>Макро и режим рынка <span class="muted">(ключевая ставка ЦБ, инфляция, импульс, дивидендный спред)</span></summary>
+          <div class="macro-cbr" id="macro-cbr">
+            <div class="pulse-loading muted">Загрузка макроданных ЦБ...</div>
+          </div>
           <div class="kpi-grid" id="market-kpi"></div>
           <div class="market-signals" id="market-signals">
             <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>

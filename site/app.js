@@ -29,6 +29,7 @@ let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, 
 let ML_STRATEGY = null, ML_STRATEGY_LOADING = null, ACTIVE_STRATEGY_MODE = 'quality';
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let MARKET_PE = null;
+let MACRO_CBR = null;      // макро ЦБ: ключевая ставка + инфляция (site/macro_cbr.json)
 const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
@@ -4533,8 +4534,19 @@ function marketStressFromSaw(d) {
   if (score >= 80) { level = 'panic'; label = 'Паническая зона'; tone = 'risk'; }
   else if (score >= 60) { level = 'high'; label = 'Повышенное напряжение'; tone = 'warn'; }
   else if (score >= 30) { level = 'normal'; label = 'Обычная волатильность'; tone = 'neut'; }
+  // Динамика напряжения. Сама 20-дневная реализованная волатильность физически НЕ может
+  // быстро упасть после отскока — окно ещё содержит дни распродажи, поэтому карточка
+  // выглядела «замершей» и противоречила тому, что видит пользователь на рынке.
+  // История vols уже посчитана выше, так что направление доступно без доп. вычислений.
+  const prevIdx = vols.length - 1 - 20;
+  const volPrev = prevIdx >= 0 ? vols[prevIdx] : null;
+  const scorePrev = volPrev != null
+    ? Math.round((vols.filter((v) => v <= volPrev).length / vols.length) * 100) : null;
   return {
     current_vol: current,
+    vol_prev_20d: volPrev,
+    vol_change: volPrev != null ? current - volPrev : null,
+    score_change: scorePrev != null ? score - scorePrev : null,
     percentile,
     score,
     level,
@@ -4788,13 +4800,6 @@ function marketSignalsHTML() {
   const medianSpread = sortedSpreads.length
     ? (sortedSpreads.length % 2 ? sortedSpreads[mid] : (sortedSpreads[mid - 1] + sortedSpreads[mid]) / 2)
     : null;
-  const meta = DATA && DATA.meta ? DATA.meta : {};
-  const fresh = isNum(meta.n_price_fresh) ? meta.n_price_fresh : null;
-  const total = isNum(meta.n_total) ? meta.n_total : null;
-  const stale = Boolean(meta.prices_stale);
-  const freshShare = fresh != null && total ? fresh / total : null;
-  const goodVerdicts = DATA && DATA.tickers ? DATA.tickers.filter((t) => (t.verdict || {}).color === 'good').length : null;
-  const okTickers = DATA && DATA.tickers ? DATA.tickers.filter((t) => t.status === 'ok').length : null;
   const card = (label, value, note, tone) => `
     <div class="signal-card signal-${tone || 'neut'}">
       <span>${esc(label)}</span>
@@ -4823,18 +4828,14 @@ function marketSignalsHTML() {
       medianSpread == null ? 'нужен marlamov.json' : `медиана: ${sawPct(medianSpread)}`,
       positiveSpread > 0 ? 'warn' : 'risk'
     ),
-    card(
-      'Свежесть цен',
-      fresh != null && total != null ? `${fresh}/${total}` : '—',
-      stale ? 'часть цен устарела' : (freshShare != null ? `${fmtPct(freshShare * 100, 0)} бумаг со свежей ценой` : 'MOEX snapshot'),
-      stale ? 'warn' : 'good'
-    ),
-    card(
-      'Сильные карточки',
-      goodVerdicts != null && okTickers != null ? `${goodVerdicts}/${okTickers}` : '—',
-      'вердикт good среди бумаг с данными',
-      goodVerdicts && okTickers && goodVerdicts / okTickers >= 0.2 ? 'good' : 'neut'
-    ),
+    // Убраны три карточки, которые были служебной телеметрией, а не сигналом инвестору:
+    //   «Свежесть цен N/M»    — состояние пайплайна; свежесть уже показывает чип в шапке,
+    //                           причём с датами по каждому блоку. В вечернем прогоне при
+    //                           недоступности ISS она честно показывала 0/238 и пугала,
+    //                           хотя цены за нужную дату лежали в кэше;
+    //   «Сильные карточки»    — доля вердиктов good, метрика покрытия нашей же модели;
+    //   «Акций / облигаций»   — инвентарный счётчик (убран из renderMarketKPI).
+    // Инвестору здесь нужны только те числа, по которым он меняет поведение.
   ].join('');
 }
 
@@ -5728,7 +5729,7 @@ function openDetails(id) {
 }
 
 function onSectionShown(sec) {
-  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderMarketKPI(); renderMarketSignals(); renderEventsToday(); renderDividendCalendar(); }
+  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderMarketKPI(); renderMarketSignals(); loadMacroCbr(() => renderMacroCbr()); renderEventsToday(); renderDividendCalendar(); }
   else if (sec === 'my-portfolio') {
     ensureKpiData();
     if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
@@ -6566,6 +6567,95 @@ function renderMarketPulse() {
   el.innerHTML = marketPulseHTML(SAW_DATA);
 }
 
+/* ── МАКРО ЦБ: ключевая ставка + инфляция (site/macro_cbr.json, генерит CI) ─────────
+   Почему именно эти числа, а не «побольше макро»: ключевая ставка — одновременно
+   ставка дисконтирования и альтернатива в виде вклада (при 14% дивдоходность 8%
+   проигрывает депозиту), инфляция переводит номинальную доходность в реальную, а их
+   разница показывает жёсткость политики. Всё остальное, что отдаёт ЦБ по SOAP
+   (RUONIA, MKR, ликвидность, свопы), частному дивидендному инвестору решений не меняет. */
+
+function loadMacroCbr(cb) {
+  if (MACRO_CBR) { if (cb) cb(); return; }
+  fetch(dataURL('macro_cbr.json'))
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (!j || !j.key_rate || !isNum(j.key_rate.current)) throw new Error('неподдерживаемый контракт macro_cbr');
+      MACRO_CBR = j; if (cb) cb();
+    })
+    .catch((e) => { console.warn('[macro] не загрузился:', e.message); MACRO_CBR = { failed: true }; if (cb) cb(); });
+}
+
+/** Мини-график «ставка vs инфляция» по годам — inline SVG (CSP: внешних библиотек нет). */
+function macroYearsSVG(byYear) {
+  const rows = (byYear || []).filter((r) => isNum(r.inflation_yoy));
+  if (rows.length < 3) return '';
+  const W = 640, H = 150, P = { l: 34, r: 10, t: 10, b: 26 };
+  const vals = rows.flatMap((r) => [r.inflation_yoy, isNum(r.key_rate) ? r.key_rate : r.inflation_yoy]);
+  const hi = Math.ceil(Math.max(...vals) / 5) * 5, lo = 0;
+  const bw = (W - P.l - P.r) / rows.length;
+  const Y = (v) => H - P.b - ((v - lo) / ((hi - lo) || 1)) * (H - P.t - P.b);
+  const bars = rows.map((r, i) => {
+    const x = P.l + i * bw;
+    const infl = `<rect class="mc-bar-infl" x="${(x + bw * 0.18).toFixed(1)}" y="${Y(r.inflation_yoy).toFixed(1)}"
+      width="${(bw * 0.34).toFixed(1)}" height="${(H - P.b - Y(r.inflation_yoy)).toFixed(1)}"><title>${r.year}: инфляция ${ru(r.inflation_yoy, 2)}%${r.partial ? ' (год не закрыт)' : ''}</title></rect>`;
+    const rate = isNum(r.key_rate)
+      ? `<rect class="mc-bar-rate" x="${(x + bw * 0.52).toFixed(1)}" y="${Y(r.key_rate).toFixed(1)}"
+          width="${(bw * 0.34).toFixed(1)}" height="${(H - P.b - Y(r.key_rate)).toFixed(1)}"><title>${r.year}: ключевая ставка ${ru(r.key_rate, 2)}%</title></rect>` : '';
+    return infl + rate
+      + `<text class="mc-ax" x="${(x + bw / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${String(r.year).slice(2)}</text>`;
+  }).join('');
+  const grid = [0, hi / 2, hi].map((v) =>
+    `<line class="mc-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>
+     <text class="mc-ax" x="${P.l - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v, 0)}</text>`).join('');
+  const target = rows[rows.length - 1] && isNum(rows[rows.length - 1].target) ? rows[rows.length - 1].target : 4;
+  return `<svg class="mc-svg" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="Инфляция и ключевая ставка по годам, ${rows[0].year}–${rows[rows.length - 1].year}">
+    ${grid}
+    <line class="mc-target" x1="${P.l}" y1="${Y(target).toFixed(1)}" x2="${W - P.r}" y2="${Y(target).toFixed(1)}"/>
+    ${bars}
+  </svg>`;
+}
+
+function renderMacroCbr() {
+  const el = document.getElementById('macro-cbr');
+  if (!el) return;
+  if (!MACRO_CBR) { el.innerHTML = '<div class="pulse-loading muted">Загрузка макроданных ЦБ...</div>'; return; }
+  if (MACRO_CBR.failed) {
+    el.innerHTML = `<div class="pfx-note muted">${NA}: макроданные Банка России не загрузились. Остальные блоки не затронуты.</div>`;
+    return;
+  }
+  const m = MACRO_CBR, kr = m.key_rate, inf = m.inflation;
+  const dir = isNum(kr.change) ? (kr.change < 0 ? '↓' : (kr.change > 0 ? '↑' : '→')) : '';
+  const rateNote = isNum(kr.change)
+    ? `${dir} ${kr.change > 0 ? '+' : ''}${ru(kr.change, 2)} п.п. решением ${esc(kr.changed_on || '')}`
+    : `на ${esc(kr.asof || '')}`;
+  const inflNote = isNum(inf.above_target)
+    ? `цель ЦБ ${ru(inf.target, 1)}% · выше на ${ru(inf.above_target, 2)} п.п.`
+    : `за ${esc(inf.latest_month || '')}`;
+  const realTone = isNum(m.real_key_rate) ? (m.real_key_rate >= 5 ? 'risk' : (m.real_key_rate >= 2 ? 'warn' : 'good')) : 'neut';
+  const card = (label, value, note, tone) => `
+    <div class="signal-card signal-${tone || 'neut'}"><span>${esc(label)}</span><b>${value}</b><em>${note}</em></div>`;
+
+  el.innerHTML = `
+    <div class="market-signals">
+      ${card('Ключевая ставка ЦБ', `${ru(kr.current, 2)}%`, rateNote, kr.change < 0 ? 'good' : (kr.change > 0 ? 'risk' : 'neut'))}
+      ${card('Инфляция, г/г', isNum(inf.latest_yoy) ? `${ru(inf.latest_yoy, 2)}%` : '—', inflNote,
+        isNum(inf.above_target) && inf.above_target > 2 ? 'warn' : 'neut')}
+      ${card('Реальная ставка', isNum(m.real_key_rate) ? `${ru(m.real_key_rate, 2)} п.п.` : '—',
+        'ключевая ставка − инфляция', realTone)}
+    </div>
+    ${macroYearsSVG(inf.by_year)}
+    <div class="mc-legend">
+      <span class="mc-lg mc-lg-infl">инфляция г/г</span>
+      <span class="mc-lg mc-lg-rate">ключевая ставка</span>
+      <span class="mc-lg mc-lg-tg">цель ЦБ ${isNum(inf.target) ? ru(inf.target, 0) + '%' : '4%'}</span>
+    </div>
+    <div class="pfx-note muted">Источник — <b>Банк России</b>: дневная история ключевой ставки и официальная таблица
+      «Инфляция и ключевая ставка». Инфляция публикуется с лагом, поэтому последний месяц —
+      <b>${esc(inf.latest_month || '—')}</b>. Столбики по годам: значение на декабрь, для незакрытого года — последний
+      доступный месяц. Ничего не интерполируется. Обновляется автоматически вместе с остальными данными сайта.</div>`;
+}
+
 // ── P/E рынка по последней годовой прибыли (site/market_pe_current.json, генерит CI) ──
 function loadMarketPE(cb) {
   if (MARKET_PE) { if (cb) cb(); return; }
@@ -6692,19 +6782,35 @@ function renderMarketKPI() {
   if (!el) return;
   const dash = '<span class="muted">—</span>';
   const ml = MARLAMOV ? MARLAMOV.meta : null;
-  const bn = (BONDS && BONDS.meta) ? BONDS.meta : null;
   const rfr = ml && isNum(ml.rfr) ? (ml.rfr * 100).toFixed(1) + '%' : dash;
-  const regime = ml && ml.regime ? esc(ml.regime) : dash;
-  const nStocks = DATA && DATA.meta ? (DATA.meta.n_ok || DATA.meta.n_total) : null;
-  const nBonds = bn && isNum(bn.n) ? bn.n : null;
+  // Режим считается как IMOEX vs SMA200 в build_forward_yield.py. Когда ISS недоступен
+  // (в проде это случается: вечерний прогон 29.07 дал 91 таймаут подряд), поле приходит
+  // null — и карточка показывала голое тире, будто индикатор просто пустой. Говорим прямо,
+  // что источник не ответил, иначе выглядит как поломка сайта.
+  const regime = ml && ml.regime
+    ? esc(ml.regime)
+    : `${dash}<em class="kpi-why">источник (MOEX ISS) не ответил в последнем прогоне</em>`;
   const stress = SAW_DATA ? marketStressFromSaw(SAW_DATA) : null;
   const volValue = stress ? fmtPct(stress.current_vol * 100, 1) : dash;
-  const volNote = stress ? `${stress.score}/100 · ${esc(stress.label)}` : '';
+  // Показываем ИЗМЕНЕНИЕ за 20 торговых дней: без него 20-дневная волатильность выглядит
+  // замершей (она и не должна дёргаться от одного отскока), и пользователь считал карточку
+  // сломанной. Направление — то, что реально меняет поведение.
+  let volNote = '';
+  if (stress) {
+    const parts = [`${stress.score}/100 · ${esc(stress.label)}`];
+    if (isNum(stress.vol_change)) {
+      const d = stress.vol_change * 100;
+      const arrow = d > 0.2 ? '↑' : (d < -0.2 ? '↓' : '→');
+      parts.push(`${arrow} ${d > 0 ? '+' : ''}${ru(d, 1)} п.п. за 20 дней`);
+    }
+    volNote = parts.join(' · ');
+  }
   el.innerHTML = [
     kpiCard('Волатильность MCFTR 20d', volValue, stress ? `stress-card stress-${stress.tone}` : '', volNote),
     kpiCard('RFR (КБД 1Y)', rfr),
     kpiCard('Режим рынка', regime),
-    kpiCard('Акций / облигаций', `${nStocks != null ? nStocks : '—'} / ${nBonds != null ? nBonds : '—'}`),
+    // «Акций / облигаций» убрана: это инвентарный счётчик покрытия наших данных,
+    // по нему инвестор не принимает ни одного решения.
   ].join('');
 }
 

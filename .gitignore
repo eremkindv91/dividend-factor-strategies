@@ -53,6 +53,8 @@ site/marketsaw.json
 site/marlamov.json
 # RU Quality cross-section генерит CI; last-good source хранится в model_output/quality_rf.json
 site/quality.json
+# макро ЦБ (ключевая ставка + инфляция): генерит CI, build_macro_cbr.py
+site/macro_cbr.json
 # Пила рынка: промежуточные parquet регенерятся research-пайплайном (коммитим winner_model.json + отчёт)
 market_saw/data/*.parquet
 
