@@ -31,6 +31,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import tempfile
+import subprocess
+import ssl
 import sys
 import time
 import urllib.error
@@ -74,6 +77,131 @@ def http(url: str, data: bytes | None = None, headers: dict | None = None,
                 sys.stderr.write(f"[macro] {url[:60]} не ответил ({e}); повтор через {pause}s\n")
                 time.sleep(pause)
     raise RuntimeError(f"{url}: {last}")
+
+
+# ── Росстат: национальный корень доверия ──────────────────────────────────────
+# rosstat.gov.ru выпущен УЦ Минцифры («Russian Trusted Root CA»), которого НЕТ ни в
+# certifi, ни в системном хранилище, поэтому обычный запрос падает с
+# CERTIFICATE_VERIFY_FAILED. Это не обрыв соединения и не блокировка: сайт доступен,
+# просто цепочка не строится. AIA chasing здесь не спасает — недоверен именно КОРЕНЬ.
+#
+# Решение: собираем ОТДЕЛЬНЫЙ бандл (доверенные корни + корень Минцифры + промежуточный)
+# и используем его ТОЛЬКО для запросов к Росстату. Ни системное хранилище, ни запросы к
+# другим хостам не затрагиваются, проверка TLS остаётся включённой — отключать её нельзя.
+# Риск сознательный и узкий: данные публичные, без авторизации, а диапазонные гейты ниже
+# ловят подменённые числа.
+RS_ROOT_URL = "https://gu-st.ru/content/Other/doc/russian_trusted_root_ca.cer"
+RS_SUB_URL = "http://nuc-cdp.voskhod.ru/cdp/subca_ssl_rsa2024.crt"
+RS_PRICE_PAGE = "https://rosstat.gov.ru/statistics/price"
+_RS_CTX = None
+
+
+def _pem(raw: bytes) -> str:
+    for form in ("DER", "PEM"):
+        out = subprocess.run(["openssl", "x509", "-inform", form], input=raw,
+                             capture_output=True, timeout=20, check=False).stdout
+        text = out.decode("utf-8", "replace")
+        if "BEGIN CERTIFICATE" in text:
+            return text
+    return ""
+
+
+def rosstat_ctx():
+    """SSL-контекст с корнем Минцифры. None, если собрать не удалось (тогда Росстат пропускаем)."""
+    global _RS_CTX
+    if _RS_CTX is not None:
+        return _RS_CTX or None
+    try:
+        import certifi
+        root = _pem(subprocess.run(["curl", "-fsS", "--max-time", "30", RS_ROOT_URL],
+                                   capture_output=True, timeout=40, check=False).stdout)
+        sub = _pem(subprocess.run(["curl", "-fsS", "--max-time", "30", RS_SUB_URL],
+                                  capture_output=True, timeout=40, check=False).stdout)
+        if not root:
+            _RS_CTX = False
+            return None
+        fd, path = tempfile.mkstemp(prefix="rosstat-ca-", suffix=".pem")
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(open(certifi.where(), encoding="utf-8").read())
+            fh.write("\n" + root + ("\n" + sub if sub else ""))
+        _RS_CTX = ssl.create_default_context(cafile=path)
+        return _RS_CTX
+    except Exception as e:  # noqa: BLE001
+        sys.stderr.write(f"[macro] бандл для Росстата не собран: {e}\n")
+        _RS_CTX = False
+        return None
+
+
+def rosstat_get(url: str, timeout: int = 60) -> bytes:
+    ctx = rosstat_ctx()
+    if ctx is None:
+        raise RuntimeError("нет доверенного бандла для rosstat.gov.ru")
+    req = urllib.request.Request(url, headers={**UA, "Accept-Language": "ru-RU,ru;q=0.9"})
+    with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+        return r.read()
+
+
+MONTHS_RU_ORDER = ["январь", "февраль", "март", "апрель", "май", "июнь",
+                   "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"]
+MOM_RANGE = (80.0, 130.0)      # индекс к предыдущему месяцу вне коридора — ошибка разбора
+MIN_MOM_POINTS = 60
+
+
+def fetch_monthly_mom() -> dict:
+    """Официальный месячный ИПЦ Росстата «к концу предыдущего месяца» → прирост за месяц, %.
+
+    Почему это отдельный источник: таблица ЦБ даёт инфляцию ТОЛЬКО год к году, а месячный
+    прирост из неё математически не выводится без уровня индекса. Раньше мы честно писали,
+    что «за месяц» показать нельзя; теперь берём официальный ряд Росстата.
+
+    В файле лист «01» — строки-месяцы × колонки-годы, значения ИНДЕКСЫ (106.2 = +6,2%).
+    Преобразование определяется типом поля источника (индекс к предыдущему месяцу), а не
+    эвристикой «если больше 100»: вычитаем 100 ровно один раз.
+    """
+    html = rosstat_get(RS_PRICE_PAGE).decode("utf-8", "replace")
+    m = re.findall(r'href="(/storage/mediabank/ipc_mes_[\d-]+\.xlsx)"', html)
+    if not m:
+        raise RuntimeError("на странице цен нет файла ipc_mes_*.xlsx")
+    href = sorted(m)[-1]
+    raw = rosstat_get("https://rosstat.gov.ru" + href, timeout=90)
+
+    import io
+    import openpyxl
+    wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True, read_only=True)
+    if "01" not in wb.sheetnames:
+        raise RuntimeError(f"лист «01» не найден: {wb.sheetnames[:5]}")
+    ws = wb["01"]
+    rows = list(ws.iter_rows(values_only=True))
+    wb.close()
+
+    years = None
+    for row in rows[:8]:
+        cand = [str(c) for c in row[1:] if isinstance(c, (int, float)) and 1990 <= int(c) <= 2100]
+        if len(cand) > 10:
+            years = row
+            break
+    if years is None:
+        raise RuntimeError("строка с годами не найдена")
+
+    out = []
+    for row in rows:
+        label = str(row[0] or "").strip().lower()
+        if label not in MONTHS_RU_ORDER:
+            continue
+        mm = MONTHS_RU_ORDER.index(label) + 1
+        for y, v in zip(years, row):
+            if not isinstance(y, (int, float)) or not isinstance(v, (int, float)):
+                continue
+            year = int(y)
+            if not (1990 <= year <= 2100) or not (MOM_RANGE[0] <= float(v) <= MOM_RANGE[1]):
+                continue
+            out.append({"month": f"{year}-{mm:02d}", "mom_pct": round(float(v) - 100.0, 4)})
+    out.sort(key=lambda r: r["month"])
+    if len(out) < MIN_MOM_POINTS:
+        raise RuntimeError(f"месячный ИПЦ: {len(out)} точек, нужно ≥{MIN_MOM_POINTS}")
+    return {"rows": out, "source_file": href, "latest": out[-1],
+            "note": ("Официальный месячный ИПЦ Росстата: индекс к концу предыдущего месяца, "
+                     "переведён в прирост (106,2 → +6,2%). Не интерполируется.")}
 
 
 def fetch_key_rate(days: int = 900) -> list[dict]:
@@ -212,18 +340,31 @@ def fetch_expectations() -> dict:
     }
 
 
-def prev_expectations():
-    """Прошлые ожидания из уже опубликованного файла: при сбое источника лучше показать
-    вчерашние данные с честной датой, чем стереть блок."""
+def prev_key(key: str):
+    """Прошлое значение из уже опубликованного файла: при сбое источника лучше показать
+    вчерашние данные с честной датой, чем стереть блок. Ошибка одного ряда не уничтожает
+    другой, поэтому last-known-good ведётся ПОКЛЮЧЕВО."""
     try:
         with open(OUT, encoding="utf-8") as fh:
-            return (json.load(fh).get("inflation") or {}).get("expectations")
+            return (json.load(fh).get("inflation") or {}).get(key)
     except (OSError, ValueError):
         return None
 
 
+def prev_expectations():
+    return prev_key("expectations")
+
+
 def main() -> int:
     generated = datetime.now(MSK).replace(microsecond=0)
+    mom, mom_error = None, None
+    try:
+        # Росстат — отдельный источник и отдельный try: его сбой не должен обнулять
+        # ставку, инфляцию г/г и ожидания от ЦБ.
+        mom = fetch_monthly_mom()
+    except Exception as e:  # noqa: BLE001
+        mom_error = str(e)[:160]
+        sys.stderr.write(f"[macro] месячный ИПЦ Росстата не получен: {mom_error}\n")
     expectations, expect_error = None, None
     try:
         # Отдельный try: ожидания — дополнительный ряд, их сбой не должен обнулять
@@ -298,6 +439,8 @@ def main() -> int:
             # разделом: фронт читает их как inflation.expectations
             "expectations": expectations or prev_expectations(),
             "expectations_error": expect_error if expectations is None else None,
+            "mom": mom or prev_key("mom"),
+            "mom_error": mom_error if mom is None else None,
         },
         "real_key_rate": real_rate,
         "note": ("Ключевая ставка — дневная история Банка России. Инфляция — % год к году из "

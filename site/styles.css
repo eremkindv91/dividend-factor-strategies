@@ -3328,3 +3328,10 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .ie-lg-exp::before { color: var(--accent-deep); }
 .ie-lg-perc::before { content: '– –'; color: var(--risk-ink); letter-spacing: -1px; }
 .ie-lg-cpi::before { content: '··'; color: var(--good-ink); }
+
+/* Прирост за месяц — столбцы с линией нуля; отрицательные месяцы обязаны быть видны. */
+.im-bar { transition: opacity .1s ease; }
+.im-pos { fill: var(--accent); }
+.im-neg { fill: var(--good-bar); }
+.im-zero { stroke: var(--ink-soft); stroke-width: 1.2; }
+@media (prefers-reduced-motion: reduce) { .im-bar { transition: none; } }

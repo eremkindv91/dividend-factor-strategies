@@ -5924,6 +5924,13 @@ function initRouter() {
     if (e.target.closest('#infl-close')) { closeInflDialog(); return; }
     const itab = e.target.closest('[data-infl-tab]');
     if (itab) { INFL_TAB = itab.dataset.inflTab; renderInflDialog(); return; }
+    const imetric = e.target.closest('[data-infl-metric]');
+    if (imetric) {
+      INFL_METRIC = imetric.dataset.inflMetric;
+      const b = document.getElementById('infl-tabbody');
+      if (b && MACRO_CBR) b.innerHTML = inflMonthlyHTML(MACRO_CBR);
+      return;
+    }
     const irange = e.target.closest('[data-infl-range]');
     if (irange) {
       INFL_RANGE = irange.dataset.inflRange;
@@ -6823,6 +6830,7 @@ const INFL_RANGES = [
 ];
 let INFL_RANGE = '5y';
 let INFL_TAB = 'monthly';
+let INFL_METRIC = 'yoy';   // yoy | mom
 
 // Три падежа: «10 июня» (род.), «в июне» (предл.), «за май» (вин. = им.).
 // Одной формой не обойтись — иначе получается «В июня 2026» и «за мая 2026».
@@ -6880,6 +6888,40 @@ function inflChartSVG(rows, target) {
   </svg>`;
 }
 
+/** Прирост за месяц — столбцами, с линией нуля: отрицательные месяцы должны быть видны
+ *  ниже неё. Цель ЦБ здесь НЕ показывается: она относится к годовой инфляции. */
+function inflMomSVG(rows) {
+  if (!rows || rows.length < 2) return '';
+  const W = 720, H = 340, P = { l: 44, r: 14, t: 16, b: 34 };
+  const vals = rows.map((r) => r.mom_pct);
+  const hi = Math.max(...vals, 0) * 1.15 + 0.1, lo = Math.min(...vals, 0) * 1.15 - 0.05;
+  const bw = (W - P.l - P.r) / rows.length;
+  const Y = (v) => H - P.b - ((v - lo) / ((hi - lo) || 1)) * (H - P.t - P.b);
+  const zero = Y(0);
+  const step = (hi - lo) / 5;
+  let grid = '';
+  for (let k = 0; k <= 5; k++) {
+    const v = lo + step * k;
+    grid += `<line class="ic-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>` +
+      `<text class="ic-ax" x="${P.l - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v, 1)}</text>`;
+  }
+  const bars = rows.map((r, i) => {
+    const x = P.l + i * bw + bw * 0.15, w = bw * 0.7;
+    const y = r.mom_pct >= 0 ? Y(r.mom_pct) : zero;
+    const h = Math.max(1, Math.abs(Y(r.mom_pct) - zero));
+    return `<rect class="im-bar ${r.mom_pct < 0 ? 'im-neg' : 'im-pos'}" x="${x.toFixed(1)}" y="${y.toFixed(1)}"
+      width="${w.toFixed(1)}" height="${h.toFixed(1)}"><title>${esc(inflMonthLabel(r.month))}: ${r.mom_pct > 0 ? '+' : ''}${ru(r.mom_pct, 2)}% за месяц · официальные данные, Росстат</title></rect>`;
+  }).join('');
+  const every = Math.max(1, Math.round(rows.length / 6));
+  const xlab = rows.map((r, i) => (i % every === 0 || i === rows.length - 1)
+    ? `<text class="ic-ax" x="${(P.l + i * bw + bw / 2).toFixed(1)}" y="${H - 12}" text-anchor="middle">${esc(r.month)}</text>` : '').join('');
+  return `<svg class="ic-svg" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="Прирост потребительских цен за месяц, ${rows[0].month} — ${rows[rows.length - 1].month}">
+    ${grid}${bars}
+    <line class="im-zero" x1="${P.l}" y1="${zero.toFixed(1)}" x2="${W - P.r}" y2="${zero.toFixed(1)}"/>
+    ${xlab}</svg>`;
+}
+
 /** Текстовая альтернатива графику — не дублирует tooltip, а заменяет его для
  *  скринридера и для тех, кто не наводит мышь. Обновляется вместе с режимом. */
 function inflSummaryText(rows, target) {
@@ -6898,12 +6940,29 @@ function inflSummaryText(rows, target) {
   return s;
 }
 
+function inflMomSummary(rows) {
+  if (!rows.length) return 'Официальный месячный ряд недоступен.';
+  const last = rows[rows.length - 1];
+  const prev = rows.length > 1 ? rows[rows.length - 2] : null;
+  const neg = rows.filter((r) => r.mom_pct < 0).length;
+  // после «В» нужен предложный падеж: «в июне», а не «в июня»
+  let s = `В ${inflMonthLabel(last.month, 'prep')} цены изменились на ${last.mom_pct > 0 ? '+' : ''}${ru(last.mom_pct, 2)}% за месяц.`;
+  if (prev) s += ` Месяцем ранее — ${prev.mom_pct > 0 ? '+' : ''}${ru(prev.mom_pct, 2)}%.`;
+  const vals = rows.map((r) => r.mom_pct);
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  s += ` За показанный период средний прирост ${avg > 0 ? '+' : ''}${ru(avg, 2)}% в месяц`;
+  s += neg ? `, снижение цен было в ${neg} ${plural(neg, 'месяце', 'месяцах', 'месяцах')}.` : ', месяцев со снижением цен не было.';
+  return s;
+}
+
 function inflMonthlyHTML(m) {
   const inf = m.inflation;
   const all = (inf.monthly || []).filter((r) => isNum(r.inflation_yoy));
   const range = INFL_RANGES.find((r) => r.id === INFL_RANGE) || INFL_RANGES[2];
   const rows = range.months ? all.slice(-range.months) : all;
   const target = isNum(inf.target) ? inf.target : null;
+  const momAll = (inf.mom && inf.mom.rows) ? inf.mom.rows.filter((r) => isNum(r.mom_pct)) : [];
+  const momRows = range.months ? momAll.slice(-range.months) : momAll.slice(-120);
 
   const btns = INFL_RANGES.map((r) => {
     const enough = !r.months || all.length >= Math.min(r.months, 12);
@@ -6914,11 +6973,15 @@ function inflMonthlyHTML(m) {
   return `
     <div class="infl-controls">
       <div class="pfx-rbtns" role="group" aria-label="Период графика">${btns}</div>
-      <span class="infl-metric" title="Месячный прирост из ряда «год к году» математически невыводим без уровня индекса">
-        показатель: <b>год к году</b></span>
+      <div class="pfx-rbtns" role="group" aria-label="Показатель">
+        <button type="button" class="pfx-rbtn infl-metric-btn${INFL_METRIC === 'yoy' ? ' on' : ''}"
+          data-infl-metric="yoy" aria-pressed="${INFL_METRIC === 'yoy'}">Год к году</button>
+        <button type="button" class="pfx-rbtn infl-metric-btn${INFL_METRIC === 'mom' ? ' on' : ''}"
+          data-infl-metric="mom" aria-pressed="${INFL_METRIC === 'mom'}"${momRows.length ? '' : ' disabled'}>За месяц</button>
+      </div>
     </div>
-    <div class="infl-chart">${inflChartSVG(rows, target)}</div>
-    <p class="infl-summary" role="status">${esc(inflSummaryText(rows, target))}</p>
+    <div class="infl-chart">${INFL_METRIC === 'mom' ? inflMomSVG(momRows) : inflChartSVG(rows, target)}</div>
+    <p class="infl-summary" role="status">${esc(INFL_METRIC === 'mom' ? inflMomSummary(momRows) : inflSummaryText(rows, target))}</p>
     <details class="infl-table"><summary>Таблица значений (${rows.length} мес.)</summary>
       <div class="ef-excl-wrap"><table class="pfx-tbl"><thead><tr>
         <th class="left">Месяц</th><th>Инфляция, % г/г</th><th>Цель, %</th><th>Отклонение, п.п.</th></tr></thead><tbody>
@@ -6927,10 +6990,11 @@ function inflMonthlyHTML(m) {
           <td class="tnum">${isNum(r.target) ? ru(r.target, 1) : mdash}</td>
           <td class="tnum">${isNum(r.target) ? (r.inflation_yoy > r.target ? '+' : '') + ru(r.inflation_yoy - r.target, 2) : mdash}</td></tr>`).join('')}
       </tbody></table></div></details>
-    <div class="pfx-note muted"><b>«За месяц» не показывается сознательно.</b> Официальный ряд Банка России
-      содержит инфляцию год к году; месячный прирост из него не выводится без уровня индекса потребительских
-      цен, а достраивать его расчётом — значит показать выдуманное число. Появится, когда в пайплайн придёт
-      официальный месячный индекс Росстата.</div>`;
+    <div class="pfx-note muted">Год к году — таблица Банка России «Инфляция и ключевая ставка».
+      За месяц — официальный ряд <b>Росстата</b> (индекс к концу предыдущего месяца, переведён в прирост:
+      106,2 → +6,2%), ${momAll.length} наблюдений с ${esc(momAll.length ? momAll[0].month : '—')}.
+      Цель ЦБ показана только в режиме «год к году»: она относится к годовой инфляции, а не к месячному приросту.
+      ${inf.mom_error ? `<b>Месячный ряд не обновился:</b> ${esc(String(inf.mom_error))} — показаны последние валидные данные.` : ''}</div>`;
 }
 
 /** Ожидания населения против официального ИПЦ.
