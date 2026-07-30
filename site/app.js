@@ -2789,8 +2789,15 @@ function renderMyPortfolio() {
   // пост-enrich предупреждения по качеству
   const anom = c.positions.filter((p) => p._anomaly).map((p) => p.ticker);
   if (anom.length) c._warnings.push({ tone: 'warn', msg: `${anom.join(', ')}: найден split-like разрыв в истории цены (needs_adjustment). Риск-метрики по бумаге исключены до корректировки ряда.` });
-  const noModel = c.positions.filter((p) => p.t && p.t.status === 'no_model_coverage').map((p) => p.ticker);
-  if (noModel.length) c._warnings.push({ tone: 'warn', msg: `${noModel.join(', ')}: цена есть (рынок MOEX), но нет модельного покрытия и чистой истории — бумага исключена из VaR/CVaR и дивидендной модели.` });
+  // «Нет модельного покрытия» и «нет истории» — РАЗНЫЕ факты, и раньше они были склеены
+  // в одно предупреждение. После расширения универсума истории (supplementary_universe.json)
+  // SNGS/SNGSP получили 90 месячных наблюдений и участвуют в риск-метриках, хотя модельных
+  // полей у них по-прежнему нет. Утверждать «исключена из VaR/CVaR» стало неправдой.
+  const noModel = c.positions.filter((p) => p.t && p.t.status === 'no_model_coverage');
+  const noModelWithHist = noModel.filter((p) => p._tr && p._tr.length).map((p) => p.ticker);
+  const noModelNoHist = noModel.filter((p) => !p._tr || !p._tr.length).map((p) => p.ticker);
+  if (noModelWithHist.length) c._warnings.push({ tone: 'warn', msg: `${noModelWithHist.join(', ')}: цена и история доходностей есть (рынок MOEX) — риск-метрики считаются. Нет модельных полей: прогноз дивиденда, риск невыплаты и вердикт недоступны.` });
+  if (noModelNoHist.length) c._warnings.push({ tone: 'warn', msg: `${noModelNoHist.join(', ')}: цена есть (рынок MOEX), истории доходностей нет — бумага исключена из VaR/CVaR и дивидендной модели.` });
   if (c._divSuspect && c._divSuspect.length) c._warnings.push({ tone: 'warn', msg: `${c._divSuspect.join(', ')}: дивиденд в данных выглядит завышенным (возможно, до сплита) — исключён из ожидаемого дивпотока, требует проверки.` });
   const shortHist = c.positions.filter((p) => p._tr && p._tr.length < 24).map((p) => p.ticker);
   if (shortHist.length) c._warnings.push({ tone: 'warn', msg: `Короткая история (<24 мес): ${shortHist.join(', ')} — риск-метрики low confidence` });

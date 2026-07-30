@@ -44,9 +44,18 @@ ISS_BOARD_URL = (
     "&marketdata.columns=SECID,LAST,LCLOSEPRICE,SYSTIME"
 )
 ISS_CANDLES_URL = (
-    "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{tk}/candles.json"
+    "https://iss.moex.com/iss/engines/stock/markets/shares/boards/{board}/securities/{tk}/candles.json"
     "?iss.meta=off&interval={interval}&from={frm}&till={till}&candles.columns=close,begin,value"
 )
+# Доски, с которых собирается история одного и того же SECID.
+# Зачем: MOEX перевёл паи БПИФ с доски ETF (TQTF) на доску акций (TQBR) 22.06.2026.
+# Вся прошлая история паёв осталась на TQTF (EQMX: 48 месячных свечей с 2022-07,
+# DIVD: 66 с 2021-01), а на TQBR лежат только последние 2 месяца. С захардкоженной
+# TQBR фонд получал ~1 месяц истории и навсегда выпадал из риск-метрик и оптимизатора.
+# Разрыва между досками нет (TQTF по 2026-06-19, TQBR с 2026-06-22), инструмент и
+# валюта те же — поэтому склейка честная, это ОДНА бумага, сменившая режим торгов,
+# а не две разные (ср. FIVE→X5, где склеивать нельзя).
+CANDLE_BOARDS = ("TQBR", "TQTF")
 ISS_DIV_URL = (
     "https://iss.moex.com/iss/securities/{tk}/dividends.json"
     "?iss.meta=off&dividends.columns=secid,isin,registryclosedate,value,currencyid"
@@ -175,22 +184,38 @@ def fetch_ohlcv(ticker: str, frm: str, till: str, board: str = "TQBR", interval:
 
 
 def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int = 25,
-                  retries: int = 3) -> List[Tuple[str, float]]:
-    """Свечи (close, дата) за последние ~days календарных дней, борд TQBR. interval: 24=дневные,
-    31=месячные. Возвращает [(YYYY-MM-DD, close)] по возрастанию; держим число строк < лимита
-    пагинации MOEX 500 (месячные за 8 лет ≈96, дневные за 430д ≈280). RuntimeError при сбое."""
+                  retries: int = 3, boards: Tuple[str, ...] = CANDLE_BOARDS) -> List[Tuple[str, float]]:
+    """Свечи (дата, close, оборот) за последние ~days дней. interval: 24=дневные, 31=месячные.
+
+    История собирается по НЕСКОЛЬКИМ доскам одного SECID (см. CANDLE_BOARDS): при смене
+    режима торгов MOEX прошлое остаётся на старой доске. Дубли одной даты не смешиваем —
+    приоритет у доски, объявленной раньше в списке (TQBR как основная сейчас).
+    Возвращает по возрастанию даты; держим число строк < лимита пагинации MOEX 500.
+    RuntimeError только если НИ ОДНА доска не ответила — иначе работаем по тому, что есть.
+    """
     till = date.today().isoformat()
     frm = (date.today() - timedelta(days=days)).isoformat()
-    url = ISS_CANDLES_URL.format(tk=ticker, interval=interval, frm=frm, till=till)
-    payload = _http_get_json(url, timeout=timeout, retries=retries)
-    out = []
-    for r in _rows(payload.get("candles", {"columns": [], "data": []})):
-        c = r.get("close")
-        if c is not None and float(c) > 0:
+    merged: Dict[str, Tuple[str, float, float]] = {}
+    errors = []
+    for board in boards:
+        url = ISS_CANDLES_URL.format(board=board, tk=ticker, interval=interval, frm=frm, till=till)
+        try:
+            payload = _http_get_json(url, timeout=timeout, retries=retries)
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"{board}: {e}")
+            continue
+        for r in _rows(payload.get("candles", {"columns": [], "data": []})):
+            c = r.get("close")
+            if c is None or float(c) <= 0:
+                continue
+            day = str(r.get("begin"))[:10]
+            if day in merged:            # дата уже покрыта доской с более высоким приоритетом
+                continue
             v = r.get("value")
-            out.append((str(r.get("begin"))[:10], float(c), float(v) if v is not None else 0.0))   # (дата, close, оборот ₽)
-    out.sort()
-    return out
+            merged[day] = (day, float(c), float(v) if v is not None else 0.0)
+    if not merged and errors:
+        raise RuntimeError("; ".join(errors))
+    return [merged[d] for d in sorted(merged)]
 
 
 def fetch_dividend_records(ticker: str, timeout: int = 25, retries: int = 3) -> List[dict]:

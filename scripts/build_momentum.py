@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 from moex_iss import fetch_candles, fetch_dividends  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
+SUPPLEMENT = os.path.join(REPO, "data", "supplementary_universe.json")
 OUT_MOM = os.path.join(REPO, "model_output", "momentum.json")
 OUT_RET = os.path.join(REPO, "model_output", "returns.json")
 CB_MAX = 8                 # сетевых ошибок подряд → circuit-breaker
@@ -42,6 +43,42 @@ VOL_WINDOW = 60            # окно для скалярной vol_ann (5 ле�
 def main() -> int:
     art = json.load(open(ARTIFACT, encoding="utf-8"))
     tickers = [r["ticker"] for r in art["tickers"]]
+    # Универсум истории БОЛЬШЕ, чем универсум модели. Раньше он совпадал с ML-артефактом,
+    # поэтому паи БПИФ, SNGS/SNGSP и недавно размещённые бумаги не могли получить ряд
+    # доходностей ни при какой доске и навсегда выпадали из риск-метрик X-Ray и
+    # оптимизатора. Список — data/supplementary_universe.json (явный и небольшой:
+    # тянуть все ~500 бумаг TQBR раздуло бы returns.json без пользы).
+    instrument_types: dict = {}
+    extra: list[str] = []
+    if os.path.exists(SUPPLEMENT):
+        try:
+            supp = json.load(open(SUPPLEMENT, encoding="utf-8"))
+            known = set(tickers)
+            extra = [str(x["secid"]).upper() for x in supp.get("instruments", [])
+                     if x.get("secid") and str(x["secid"]).upper() not in known]
+        except (OSError, ValueError, KeyError) as e:
+            sys.stderr.write(f"[momentum] дополнительный универсум не прочитан ({e}) — только ML-список\n")
+    if extra:
+        # Тип и доску НЕ предполагаем — спрашиваем у ISS; неторгуемое не тянем.
+        try:
+            sys.path.insert(0, os.path.join(REPO, "scripts"))
+            import moex_instruments as mi  # noqa: E402
+            resolved = mi.describe_many(extra)
+            keep = []
+            for tk, info in resolved.items():
+                if not info.get("found"):
+                    sys.stderr.write(f"[momentum] {tk}: {info.get('reason')} — пропуск\n")
+                    continue
+                if not info.get("is_traded"):
+                    sys.stderr.write(f"[momentum] {tk}: торги прекращены — пропуск\n")
+                    continue
+                instrument_types[tk] = info.get("instrument_type")
+                keep.append(tk)
+            extra = keep
+        except Exception as e:  # noqa: BLE001
+            sys.stderr.write(f"[momentum] discovery недоступен ({e}) — берём список как есть\n")
+        tickers = tickers + extra
+        sys.stderr.write(f"[momentum] универсум: {len(tickers)} (ML {len(tickers) - len(extra)} + вне модели {len(extra)})\n")
     prev_mom = {}
     if os.path.exists(OUT_MOM):
         try:
@@ -119,7 +156,10 @@ def main() -> int:
                "data": mom_out}, open(OUT_MOM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"meta": {"asof": asof, "months": axis, "n_tickers": len(ret_data),
                         "note": "месячные ценовые доходности + реальная дивдоходность (блок div)"},
-               "data": ret_data, "div": div_data}, open(OUT_RET, "w", encoding="utf-8"), ensure_ascii=False)
+               "data": ret_data, "div": div_data,
+               # тип инструмента для бумаг вне ML-модели: фронт по нему отличает пай БПИФ
+               # от акции (сектор фонду не присваивается, sector cap к нему не применяется)
+               "instrument_types": instrument_types}, open(OUT_RET, "w", encoding="utf-8"), ensure_ascii=False)
     print(f"[momentum] momentum.json: {len(mom_out)} | returns.json: {len(ret_data)} тикеров × "
           f"{len(axis)} мес ({axis[0] if axis else '—'}…{axis[-1] if axis else '—'}) | "
           f"свежих {n_ok} | ошибок {n_err} | breaker={'ДА' if tripped else 'нет'}")

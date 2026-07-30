@@ -8,9 +8,12 @@
    реестру сплитов MOEX (T 1:10 → ÷10). Если после корректировки доходность всё равно абсурдна
    (dps/price > 35%), поля дивидендов зануляются с `dividend_status = split_unadjusted_dividend`.
 
-2) SNGS / SNGSP (нет в ML-пайплайне) добавляются в data.json c реальной ценой MOEX и честным
-   `status = no_model_coverage` (без модельных полей) — бумага выбираема и имеет цену, но помечена
-   как «нет модельного покрытия / нет чистой истории для риска».
+2) Бумаги вне ML-пайплайна (data/supplementary_universe.json: SNGS/SNGSP, паи БПИФ,
+   недавно размещённые) добавляются в data.json c реальной ценой MOEX, типом инструмента
+   из ISS discovery и честным `status = no_model_coverage` — бумага выбираема и оценивается
+   по рынку, но модельных полей (прогноз дивиденда, риск невыплаты, вердикт) у неё нет.
+   Наличие истории для риск-метрик пишется ФАКТОМ в `risk_history` (напр. "90m" или "none"),
+   а не предполагается: универсум истории шире ML-универсума.
 
 3) Split-like ряды returns.json (напр. TRNFP: дивспайк +1174%, GMKN и др.) помечаются
    `meta.series_status[тикер] = needs_adjustment`, а невозможные дивидендные всплески (>50%/мес)
@@ -32,8 +35,52 @@ UA = {"User-Agent": "dividend-site/clean-portfolio", "Accept": "application/json
 DIV_YIELD_ABSURD = 0.35        # dps/price выше → почти наверняка до-сплитный/битый дивиденд
 DIV_MONTH_ABSURD = 0.50        # месячная дивдоходность выше → невозможна (клип к 0)
 SERIES_JUMP = 2.5              # |месячный total-return| выше → split-like разрыв
-# бумаги вне ML-пайплайна, которые пользователь может держать
-MISSING = [("SNGS", "Сургутнефтегаз", "Нефть и газ"), ("SNGSP", "Сургутнефтегаз ап", "Нефть и газ")]
+# Бумаги вне ML-пайплайна, которые пользователь может держать. Раньше это был
+# захардкоженный список из ДВУХ тикеров (SNGS/SNGSP), поэтому паи БПИФ и недавно
+# размещённые бумаги получали ряд доходностей (универсум истории их уже знает), но
+# НЕ получали строку в data.json — то есть не имели рыночной цены, названия и типа,
+# и позиция оценивалась по цене покупки вместо рынка.
+# Теперь источник один и тот же для истории и для цен — data/supplementary_universe.json.
+SUPPLEMENT = os.path.join(os.path.dirname(SITE), "data", "supplementary_universe.json")
+# Тип инструмента → отраслевая подпись. Фонду НЕЛЬЗЯ присваивать отрасль эмитента:
+# пай — это корзина, а не компания, и сектор был бы выдумкой (сектор-кап к нему тоже
+# не применяется без look-through состава).
+TYPE_SECTOR = {"fund": "Биржевой фонд", "equity_preferred": None, "equity_ordinary": None}
+
+
+def supplementary_instruments() -> list[tuple[str, str, str, str]]:
+    """(secid, название, сектор, тип) для бумаг вне ML-универсума.
+
+    Название и тип берём из ISS discovery (moex_instruments), а не придумываем.
+    Если discovery недоступен — возвращаем то, что знаем из файла, чтобы цена всё
+    равно подтянулась: без названия строка полезнее, чем отсутствие строки.
+    """
+    try:
+        with open(SUPPLEMENT, encoding="utf-8") as fh:
+            secids = [str(x["secid"]).upper() for x in json.load(fh).get("instruments", [])
+                      if x.get("secid")]
+    except (OSError, ValueError, KeyError) as e:
+        log(f"дополнительный универсум не прочитан ({e}) — только ML-список")
+        return []
+    if not secids:
+        return []
+    described = {}
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import moex_instruments as mi  # noqa: E402
+        described = mi.describe_many(secids)
+    except Exception as e:  # noqa: BLE001
+        log(f"discovery недоступен ({e}) — имена и типы будут пустыми")
+    out = []
+    for tk in secids:
+        info = described.get(tk) or {}
+        if info.get("found") and not info.get("is_traded"):
+            log(f"{tk}: торги прекращены — строка в data.json не создаётся")
+            continue
+        itype = info.get("instrument_type") or "other"
+        out.append((tk, info.get("short_name") or info.get("name") or tk,
+                    TYPE_SECTOR.get(itype) or "нет отраслевой привязки", itype))
+    return out
 
 
 def log(m): sys.stderr.write(f"[clean] {m}\n")
@@ -113,18 +160,56 @@ def clean_dividends(tickers: list, splits: dict) -> int:
     return fixed
 
 
+def risk_history_for(tk: str) -> str:
+    """Есть ли у бумаги ряд доходностей — по факту, а не по предположению.
+
+    Раньше здесь жёстко стояло "none": заглушки добавлялись до того, как универсум
+    истории научился выходить за пределы ML-артефакта. После supplementary_universe.json
+    у SNGS/SNGSP появилось 90 месячных наблюдений, и "none" стало прямой неправдой —
+    фронт читает returns.json и считает по ним риск-метрики.
+    """
+    try:
+        with open(os.path.join(SITE, "returns.json"), encoding="utf-8") as fh:
+            row = (json.load(fh).get("data") or {}).get(tk)
+    except (OSError, ValueError):
+        return "unknown"
+    if not row:
+        return "none"
+    n = sum(1 for x in row if isinstance(x, (int, float)))
+    return f"{n}m" if n else "none"
+
+
 def add_missing(data: dict) -> int:
     tickers = data["tickers"]; have = {t["ticker"] for t in tickers}
     added = 0
-    for tk, name, sector in MISSING:
+    for tk, name, sector, itype in supplementary_instruments():
         if tk in have:
+            # бумага уже в файле — обновляем ФАКТ о наличии истории. Без этого поле
+            # навсегда оставалось бы "none" с первого прогона, хотя ряд уже появился.
+            for row in tickers:
+                if row.get("ticker") == tk:
+                    fresh = risk_history_for(tk)
+                    if row.get("risk_history") != fresh:
+                        row["risk_history"] = fresh
+                        log(f"{tk}: risk_history → {fresh}")
+                    # тип инструмента тоже мог появиться позже (discovery добавили после
+                    # первой записи строки) — доносим, иначе фронт не отличит пай от акции
+                    if row.get("instrument_type") != itype:
+                        row["instrument_type"] = itype
+                        row["sector_applicable"] = itype != "fund"
+                        if itype == "fund" and TYPE_SECTOR.get("fund"):
+                            row["sector"] = TYPE_SECTOR["fund"]
+                        log(f"{tk}: instrument_type → {itype}")
+                    break
             continue
         price = fetch_price(tk)
         tickers.append({
             "ticker": tk, "name": name, "sector": sector,
             "price": round(float(price), 2) if isinstance(price, (int, float)) else None,
             "price_field": "LAST" if price else None, "price_fresh": bool(price),
-            "status": "no_model_coverage", "risk_history": "none",
+            "status": "no_model_coverage", "risk_history": risk_history_for(tk),
+            "instrument_type": itype,   # equity_ordinary | equity_preferred | fund | other
+            "sector_applicable": itype != "fund",   # к фонду сектор-кап без look-through не применяем
             "dividend_forecast": None, "dividend_yield_expected": None, "cut_risk": None,
             "quality_barra": None, "stability_score": None, "mom_score": None, "vol_ann": None,
             "payout": None, "nd_ebitda": None, "shap_top5": None, "valuation": None,
