@@ -1,100 +1,207 @@
 {
-  "date": "2026-07-29",
-  "generated_at": "2026-07-29T19:38:25+03:00",
+  "date": "2026-07-30",
+  "generated_at": "2026-07-30T19:44:56+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы снизились, в то время как мировые цены на нефть марки Brent выросли более чем на семь процентов на фоне эскалации конфликта на Ближнем Востоке.",
+  "external_backdrop": "Американские индексы закрылись ростом, золото подорожало, в то время как нефть марки Brent снизилась.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7356.01",
-      "change_pct": "-0.98%",
-      "as_of": "2026-07-29",
+      "value": "7404.08",
+      "change_pct": "+1.20%",
+      "as_of": "2026-07-30",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "24584.59",
-      "change_pct": "-1.18%",
-      "as_of": "2026-07-29",
+      "value": "24995.78",
+      "change_pct": "+2.26%",
+      "as_of": "2026-07-30",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "62364.92",
-      "change_pct": "-3.95%",
-      "as_of": "2026-07-28",
+      "value": "61434.19",
+      "change_pct": "-1.49%",
+      "as_of": "2026-07-29",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25310.85",
-      "change_pct": "+0.41%",
-      "as_of": "2026-07-28",
+      "value": "25807.92",
+      "change_pct": "+1.96%",
+      "as_of": "2026-07-29",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "90.11",
-      "change_pct": "+7.16%",
-      "as_of": "2026-07-29",
+      "value": "89.21",
+      "change_pct": "-1.69%",
+      "as_of": "2026-07-30",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4074.80",
-      "change_pct": "+0.95%",
-      "as_of": "2026-07-29",
+      "value": "4172.70",
+      "change_pct": "+3.42%",
+      "as_of": "2026-07-30",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2237.17",
-      "change_pct": "+2.10%",
-      "as_of": "2026-07-29 19:00:11",
+      "value": "2209.84",
+      "change_pct": "-1.22%",
+      "as_of": "2026-07-30 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "888.08",
-      "change_pct": "+1.25%",
-      "as_of": "2026-07-29 19:00:12",
+      "value": "871.74",
+      "change_pct": "-1.84%",
+      "as_of": "2026-07-30 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "80.33",
-      "change_pct": "+0.19%",
-      "as_of": "2026-07-29 19:38:23",
+      "value": "80.11",
+      "change_pct": "+0.14%",
+      "as_of": "2026-07-30 19:44:53",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.79",
-      "change_pct": "-0.03%",
-      "as_of": "2026-07-29 19:15:00",
+      "value": "11.75",
+      "change_pct": "+0.02%",
+      "as_of": "2026-07-30 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "weekly-inflation-slowdown",
-      "headline": "Недельная инфляция в России замедлилась до четырех сотых процента при ускорении годовой инфляции",
-      "context": "По данным Росстата, с начала года потребительские цены в стране выросли на 4,86%.",
+      "id": "russia-extends-fuel-export-ban",
+      "headline": "Правительство России продлило запрет на экспорт бензина до конца января две тысячи двадцать седьмого года",
+      "context": "Ограничения на вывоз дизельного топлива также продлены на один месяц до тридцать первого августа.",
       "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8848471"
+        }
+      ],
+      "published_at": "2026-07-30T17:07:00+03:00"
+    },
+    {
+      "id": "durov-added-to-rosfinmonitoring-terrorist-list",
+      "headline": "Росфинмониторинг внес основателя мессенджера Telegram Павла Дурова в перечень террористов и экстремистов",
+      "context": "В ведомстве уточнили, что данные ограничения не распространяются на Telegram как юридическое лицо.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Росстат",
-          "url": ""
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1106589"
+        }
+      ],
+      "published_at": "2026-07-30T15:20:00+03:00"
+    },
+    {
+      "id": "cpc-stops-oil-loadings-after-drone-attack",
+      "headline": "Каспийский трубопроводный консорциум остановил отгрузку нефти в Новороссийске после атаки беспилотников на танкеры",
+      "context": "Погрузка была прекращена на выносном причальном устройстве морского терминала консорциума.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1106482"
+        }
+      ],
+      "published_at": "2026-07-30T09:33:00+03:00"
+    },
+    {
+      "id": "efko-management-arrested-for-fraud",
+      "headline": "Суд арестовал председателя совета директоров и генерального директора группы компаний Эфко",
+      "context": "Валерий Кустов и Евгений Ляшенко обвиняются в мошенничестве при реализации программы импортозамещения беспилотников.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8848580"
+        }
+      ],
+      "published_at": "2026-07-30T19:38:00+03:00"
+    },
+    {
+      "id": "wildberries-warehouses-hit-by-drones-in-russia",
+      "headline": "Склады Wildberries в Пензенской области и Удмуртии подверглись атакам беспилотных летательных аппаратов",
+      "context": "Вице-премьер Александр Новак поручил профильным ведомствам проработать меры поддержки для пострадавших предпринимателей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1106553"
+        }
+      ],
+      "published_at": "2026-07-30T13:05:00+03:00"
+    },
+    {
+      "id": "ozon-reports-h1-2026-net-profit",
+      "headline": "Маркетплейс Ozon получил чистую прибыль в размере четырнадцати миллиардов рублей за первое полугодие",
+      "context": "Выручка компании за отчетный период увеличилась на 48% в годовом выражении до 635,1 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295939"
+        }
+      ],
+      "published_at": "2026-07-30T10:26:00+03:00"
+    },
+    {
+      "id": "fed-keeps-interest-rate-unchanged",
+      "headline": "Федеральная резервная система США в пятый раз подряд сохранила процентную ставку без изменений",
+      "context": "Ставка осталась на уровне 3,5–3,75% годовых по итогам июльского заседания регулятора.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847765"
+        }
+      ],
+      "published_at": "2026-07-29T21:06:00+03:00"
+    },
+    {
+      "id": "russia-weekly-inflation-slows-to-0-04-percent",
+      "headline": "Недельная инфляция в России замедлилась до четырех сотых процента при ускорении годовой",
+      "context": "По данным Росстата, с начала года потребительские цены в стране выросли на 4,86%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/07/29/1217434-inflyatsiya-za-nedelyu"
         }
       ],
       "published_at": "2026-07-29T19:00:00+03:00"
-    },
+    }
+  ],
+  "yesterday": [
     {
-      "id": "lukoil-rsbu-profit-growth",
-      "headline": "Чистая прибыль Лукойла по РСБУ за первое полугодие выросла на десять и четыре десятых процента",
-      "context": "Финансовый результат компании достиг 361,959 млрд рублей при росте выручки на 4%.",
+      "id": "lukoil-h1-net-profit-up-ten-percent",
+      "headline": "Чистая прибыль Лукойла по российским стандартам бухгалтерского учета выросла на десять процентов",
+      "context": "За первое полугодие показатель достиг 361,96 млрд рублей при росте выручки на 4%.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -104,264 +211,172 @@
           "url": "https://www.kommersant.ru/doc/8847674"
         }
       ],
-      "published_at": "2026-07-29T18:04:00+03:00"
+      "published_at": "2026-07-29T18:39:00+03:00"
     },
     {
-      "id": "sberbank-msfo-record-profit",
-      "headline": "Чистая прибыль Сбербанка по МСФО за первое полугодие превысила один триллион рублей",
-      "context": "Показатель вырос на 18,6% по сравнению с аналогичным периодом прошлого года.",
+      "id": "sberbank-h1-net-profit-exceeds-one-trillion",
+      "headline": "Чистая прибыль Сбербанка по международным стандартам финансовой отчетности превысила один триллион рублей",
+      "context": "Показатель за первое полугодие вырос на 18,6% по сравнению с аналогичным периодом прошлого года.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847182"
+        }
+      ],
+      "published_at": "2026-07-29T10:54:00+03:00"
+    },
+    {
+      "id": "yandex-management-recommends-h1-dividends",
+      "headline": "Менеджмент Яндекса рекомендовал выплатить дивиденды за первое полугодие в размере ста десяти рублей",
+      "context": "Совет директоров компании рассмотрит данную рекомендацию на заседании тридцать первого июля.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106241"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295552"
         }
       ],
-      "published_at": "2026-07-29T09:53:00+03:00"
+      "published_at": "2026-07-29T09:45:00+03:00"
     },
     {
-      "id": "yandex-msfo-profit-and-dividends",
-      "headline": "Яндекс увеличил чистую прибыль за полугодие до девяноста трех миллиардов рублей и рекомендовал дивиденды",
-      "context": "Менеджмент компании рекомендовал выплатить 110 рублей на акцию по итогам первого полугодия.",
+      "id": "gtlk-reports-record-h1-net-loss",
+      "headline": "Чистый убыток Государственной транспортной лизинговой компании по российским стандартам вырос в восемь раз",
+      "context": "По итогам первого полугодия убыток компании составил рекордные за последние пять лет 14,2 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106230"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847713"
         }
       ],
-      "published_at": "2026-07-29T09:01:00+03:00"
+      "published_at": "2026-07-29T19:43:00+03:00"
     },
     {
-      "id": "fsb-charges-pavel-durov",
-      "headline": "ФСБ России предъявила обвинения основателю Telegram Павлу Дурову в содействии террористической деятельности",
-      "context": "Спецслужба инициировала процедуру объявления предпринимателя в международный розыск.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1106228"
-        }
-      ],
-      "published_at": "2026-07-29T08:49:00+03:00"
-    },
-    {
-      "id": "iran-attacks-us-base-jordan",
-      "headline": "Иран нанес ракетный удар по базе США в Иордании после четырех дней перемирия",
-      "context": "В ответ США и Саудовская Аравия нанесли точечные удары по связанным с КСИР группировкам в Ираке.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1106180"
-        }
-      ],
-      "published_at": "2026-07-29T01:35:00+03:00"
-    },
-    {
-      "id": "cb-rules-crypto-margin-trading",
-      "headline": "Банк России разработал правила маржинальной торговли криптовалютой и цифровыми правами для инвесторов",
-      "context": "Проект указания допускает использование цифровых активов в качестве обеспечения по сделкам.",
+      "id": "central-bank-defines-crypto-margin-trading-rules",
+      "headline": "Банк России разработал правила маржинальной торговли криптовалютой и цифровыми финансовыми активами",
+      "context": "Сделки с кредитным плечом планируется сделать доступными как для квалифицированных, так и для неквалифицированных инвесторов.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/29/1217453-pravila-torgovli"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847696"
         }
       ],
-      "published_at": "2026-07-29T18:06:00+03:00"
+      "published_at": "2026-07-29T19:37:00+03:00"
     },
     {
-      "id": "magnit-market-business-model-change",
-      "headline": "Магнит Маркет откажется от стратегии универсального маркетплейса и приостановит работу основной витрины",
-      "context": "С 6 сентября площадка перейдет на модель расширенной полки и прекратит лобовую конкуренцию с лидерами рынка.",
+      "id": "magnit-market-changes-business-model",
+      "headline": "Магнит Маркет откажется от модели универсального маркетплейса и приостановит работу сайта",
+      "context": "Компания меняет стратегию развития в сторону расширенной полки и уходит от лобовой конкуренции с лидерами рынка.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8847625"
+          "url": "https://www.kommersant.ru/doc/8847644"
         }
       ],
-      "published_at": "2026-07-29T18:01:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "vtb-unlikely-to-pay-50-percent-dividends",
-      "headline": "ВТБ назвал маловероятным выход на выплату дивидендов в размере пятидесяти процентов от чистой прибыли",
-      "context": "Первый зампред банка Дмитрий Пьянов объяснил это ужесточением банковского регулирования со стороны ЦБ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295390"
-        }
-      ],
-      "published_at": "2026-07-28T15:15:00+03:00"
+      "published_at": "2026-07-29T18:25:00+03:00"
     },
     {
-      "id": "vtb-to-cut-staff-by-10-percent",
-      "headline": "ВТБ сократит десять процентов персонала и назвал маловероятной выплату дивидендов в размере пятидесяти процентов",
-      "context": "Оптимизация штата головного офиса направлена на снижение коэффициента соотношения затрат и доходов.",
+      "id": "bitriver-founder-charged-with-large-scale-fraud",
+      "headline": "Основателю российской майнинговой компании BitRiver Игорю Рунцу предъявлено обвинение в крупном мошенничестве",
+      "context": "Суд изменил меру пресечения бизнесмену с домашнего ареста на заключение под стражу.",
       "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295375"
-        }
-      ],
-      "published_at": "2026-07-28T15:01:00+03:00"
-    },
-    {
-      "id": "rusagro-shareholders-approve-dividends",
-      "headline": "Акционеры Русагро утвердили выплату дивидендов за первое полугодие в размере шестнадцати и сорока восьми сотых рубля",
-      "context": "Общая сумма выплат на одну обыкновенную акцию была одобрена на общем собрании акционеров.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8846448"
+          "url": "https://www.kommersant.ru/doc/8847466"
         }
       ],
-      "published_at": "2026-07-28T12:54:00+03:00"
+      "published_at": "2026-07-29T16:22:00+03:00"
     },
     {
-      "id": "gazprom-rsbu-profit-first-half",
-      "headline": "Чистая прибыль Газпрома по РСБУ за первое полугодие составила семьдесят восемь и четыре десятых миллиарда рублей",
-      "context": "Компания вышла в прибыль против убытка в 10,8 млрд рублей за аналогичный период прошлого года.",
-      "category": "corporate",
+      "id": "sberbank-warns-of-liquidity-deficit-and-cash-outflow",
+      "headline": "Сбербанк зафиксировал рекордный уход бизнеса в наличные расчеты и дефицит ликвидности на рынке",
+      "context": "В июле объем наличных денег в обороте вырос почти на 600 млрд рублей, что стало абсолютным рекордом года.",
+      "category": "banks",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8846433"
-        }
-      ],
-      "published_at": "2026-07-28T12:45:00+03:00"
-    },
-    {
-      "id": "tatneft-rsbu-profit-growth",
-      "headline": "Чистая прибыль Татнефти по РСБУ за первое полугодие выросла в два и три десятых раза",
-      "context": "Финансовый результат компании достиг 152,98 млрд рублей на фоне роста цен на нефть.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8846355"
-        }
-      ],
-      "published_at": "2026-07-28T11:56:00+03:00"
-    },
-    {
-      "id": "vtb-msfo-profit-first-half",
-      "headline": "Чистая прибыль группы ВТБ по МСФО за первое полугодие снизилась на девятнадцать и восемь десятых процента",
-      "context": "Банк заработал 225,2 млрд рублей и установил точечный годовой таргет по прибыли на уровне 600 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/294964"
+          "url": "https://frankmedia.ru/295684"
         }
       ],
-      "published_at": "2026-07-28T10:00:00+03:00"
+      "published_at": "2026-07-29T13:14:00+03:00"
     },
     {
-      "id": "infom-saving-model-decline",
-      "headline": "Доля россиян со сберегательной моделью поведения снизилась до минимума с марта две тысячи пятнадцатого года",
-      "context": "По данным опроса ИНФОМ для ЦБ, показатель упал на 6,5 процентного пункта до 47,9%.",
+      "id": "sberbank-increases-stake-in-element",
+      "headline": "Сбербанк увеличил свою долю в капитале производителя микроэлектроники Элемент почти до пятидесяти процентов",
+      "context": "Дополнительные 7,9% акций были приобретены в рамках обязательной оферты за 5,4 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295647"
+        }
+      ],
+      "published_at": "2026-07-29T12:43:00+03:00"
+    },
+    {
+      "id": "fns-reports-budget-revenues-from-vat-increase",
+      "headline": "Федеральная налоговая служба отчиталась о получении дополнительных доходов бюджета за счет повышения НДС",
+      "context": "Доходы за первое полугодие выросли на 426 млрд рублей благодаря увеличению ставки налога до 22%.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/295431"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8847177"
         }
       ],
-      "published_at": "2026-07-28T18:39:00+03:00"
+      "published_at": "2026-07-29T10:44:00+03:00"
     },
     {
-      "id": "surgutneftegas-cash-pile-recovery",
-      "headline": "Ликвидные активы Сургутнефтегаза на конец года могли восстановиться до пяти и восьми десятых триллиона рублей",
-      "context": "Расчеты основаны на данных Интерфакса после временного снижения показателя в середине года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-07-28T18:15:00+03:00"
-    },
-    {
-      "id": "us-senate-agrees-new-sanctions",
-      "headline": "Сенаторы США согласовали законопроект о введении стопроцентных пошлин против покупателей российской нефти и газа",
-      "context": "Документ также предусматривает возможность введения 500% пошлин на импорт российских товаров в США.",
+      "id": "fsb-charges-telegram-founder-pavel-durov",
+      "headline": "ФСБ России предъявила основателю мессенджера Telegram Павлу Дурову обвинения в содействии терроризму",
+      "context": "Спецслужба заявила о намерении объявить предпринимателя в международный розыск.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/07/28/1217104-ssha-sanktsii-nefti"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295519"
         }
       ],
-      "published_at": "2026-07-28T17:23:00+03:00"
+      "published_at": "2026-07-29T08:58:00+03:00"
     },
     {
-      "id": "ozon-insurance-tariffs-increase",
-      "headline": "Ozon повысит тарифы страхования товаров для продавцов в три и три десятых раза из-за атак беспилотников",
-      "context": "Ставка страхования вырастет до 0,0115% в день от стоимости продукции.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-07-28T09:08:00+03:00"
-    },
-    {
-      "id": "cb-investigates-telegram-manipulation",
-      "headline": "Банк России раскрыл детали трехлетнего расследования манипулирования рынком в Telegram-каналах",
-      "context": "Регулятор выявил схемы совершения сделок в анонимном стакане по предварительной договоренности.",
+      "id": "central-bank-proposes-cooling-period-for-osago",
+      "headline": "Банк России предложил ввести двухнедельный период охлаждения для страховщиков при оформлении ОСАГО",
+      "context": "В течение этого времени компании смогут проверять данные клиентов и расторгать договоры во внесудебном порядке.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8846044"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/295502"
         }
       ],
-      "published_at": "2026-07-28T07:00:00+03:00"
+      "published_at": "2026-07-29T09:25:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -369,6 +384,6 @@
     "kind": "evening",
     "title": "Итоги торгового дня",
     "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-07-28"
+    "last_trading_day": "2026-07-29"
   }
 }
