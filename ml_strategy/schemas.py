@@ -16,15 +16,10 @@ SNAPSHOT_FILES = (
     "sector_features/latest_registry.json",
     "sector_features/latest_quality.json",
 )
-SIGNALS = {
-    "NO_ACTION",
-    "WATCH",
-    "REBALANCE",
-    "RISK_OFF",
-    "DATA_STALE",
-    "MODEL_UNCERTAIN",
-    "DEGRADED",
-}
+MODEL_STATUSES = {"production", "research_only", "rejected", "failed"}
+DATA_STATUSES = {"pass", "degraded", "fail", "stale"}
+SIGNAL_STATUSES = {"valid", "rejected", "no_signal", "stale", "solver_failed"}
+ACTION_STATUSES = {"rebalance", "hold", "no_trade", "frozen"}
 
 
 def _finite(value: Any) -> bool:
@@ -33,26 +28,65 @@ def _finite(value: Any) -> bool:
 
 def validate_latest(payload: dict) -> list[str]:
     errors: list[str] = []
-    required = ("schema_version", "generated_at", "data_as_of", "signal", "portfolio", "model", "data_quality")
+    required = (
+        "schema_version", "generated_at", "data_as_of", "run", "model_status", "data_status",
+        "signal_status", "action_status", "signal", "published_portfolio", "candidate_portfolio",
+        "execution", "portfolio", "model", "data_quality", "diagnostics",
+    )
     errors.extend(f"latest: missing {key}" for key in required if key not in payload)
     try:
         datetime.fromisoformat(str(payload.get("generated_at", "")).replace("Z", "+00:00"))
     except ValueError:
         errors.append("latest: generated_at is not ISO-8601")
-    if payload.get("signal", {}).get("action") not in SIGNALS:
-        errors.append("latest: invalid signal action")
-    positions = payload.get("portfolio", {}).get("positions")
-    if not isinstance(positions, list) or not positions:
-        errors.append("latest: portfolio.positions is empty")
-    else:
+    if payload.get("model_status") not in MODEL_STATUSES:
+        errors.append("latest: invalid model_status")
+    if payload.get("data_status") not in DATA_STATUSES:
+        errors.append("latest: invalid data_status")
+    if payload.get("signal_status") not in SIGNAL_STATUSES:
+        errors.append("latest: invalid signal_status")
+    if payload.get("action_status") not in ACTION_STATUSES:
+        errors.append("latest: invalid action_status")
+    run = payload.get("run") or {}
+    for key in (
+        "run_id", "as_of", "calculated_at", "model_version", "artifact_hash", "universe_version",
+        "features_version", "constraints_hash", "cost_model_version",
+    ):
+        if not run.get(key):
+            errors.append(f"latest: run.{key} missing")
+    published = payload.get("published_portfolio")
+    positions = (published or {}).get("positions") if isinstance(published, dict) else []
+    if positions:
         weights = [row.get("target_weight") for row in positions]
         if any(not _finite(weight) or weight < 0 for weight in weights):
             errors.append("latest: invalid target weights")
-        cash = payload.get("portfolio", {}).get("cash_weight")
+        cash = published.get("cash_weight")
         if not _finite(cash) or cash < 0:
             errors.append("latest: invalid cash weight")
         elif abs(sum(weights) + cash - 1.0) > 1e-5:
             errors.append("latest: positions plus cash do not sum to one")
+    candidate = payload.get("candidate_portfolio") or {}
+    if not isinstance(candidate.get("positions"), list):
+        errors.append("latest: candidate positions missing")
+    forbidden = {"shares", "target_rub", "trade_rub", "change_weight", "target_weight"}
+    for row in candidate.get("positions") or []:
+        leaked = forbidden.intersection(row)
+        if leaked:
+            errors.append(f"latest: candidate contains executable fields: {sorted(leaked)}")
+            break
+    action = payload.get("action_status")
+    execution = payload.get("execution") or {}
+    if action in {"no_trade", "frozen", "hold"}:
+        if _finite(execution.get("turnover")) or _finite(execution.get("estimated_cost_rub")):
+            errors.append("latest: non-actionable state contains executable turnover or costs")
+    if action == "rebalance":
+        if not positions:
+            errors.append("latest: rebalance has no published positions")
+        if not _finite(execution.get("turnover")) or not _finite(execution.get("estimated_cost_rub")):
+            errors.append("latest: rebalance execution is incomplete")
+    if payload.get("signal_status") != "valid" and published:
+        current_run = run.get("run_id")
+        if published.get("published_from_run_id") == current_run:
+            errors.append("latest: rejected/non-valid candidate was published")
     return errors
 
 

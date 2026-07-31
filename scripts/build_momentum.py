@@ -23,11 +23,13 @@ import os
 import statistics
 import sys
 import time
-from datetime import datetime, timezone
+from calendar import monthrange
+from datetime import date, datetime, timedelta, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 from moex_iss import fetch_candles, fetch_dividends  # noqa: E402
+import trading_calendar as tc  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
 SUPPLEMENT = os.path.join(REPO, "data", "supplementary_universe.json")
@@ -43,6 +45,30 @@ VOL_WINDOW = 60            # окно для скалярной vol_ann (5 ле�
 LINEAGE = os.path.join(REPO, "data", "corporate_lineage.json")
 LINEAGE_MAX_GAP = 0            # дыра на МЕСЯЧНОЙ сетке
 LINEAGE_MAX_JUNCTION = 0.35    # |доходность стыка| выше → похоже на нераспознанный сплит
+
+
+def _month_shift(month: str, offset: int) -> str:
+    year, number = map(int, month.split("-"))
+    absolute = year * 12 + number - 1 + offset
+    return f"{absolute // 12:04d}-{absolute % 12 + 1:02d}"
+
+
+def _last_trading_day(year: int, month: int) -> date:
+    value = date(year, month, monthrange(year, month)[1])
+    while not tc.is_trading_day(value):
+        value -= timedelta(days=1)
+    return value
+
+
+def momentum_signal_window(now_msk: datetime) -> tuple[str, str, str]:
+    """Return formation, factor-through and denominator months without look-ahead."""
+    current = f"{now_msk.year:04d}-{now_msk.month:02d}"
+    month_close = _last_trading_day(now_msk.year, now_msk.month)
+    formation = current if (
+        now_msk.date() > month_close
+        or (now_msk.date() == month_close and now_msk.time() >= tc.SESSION_CLOSE)
+    ) else _month_shift(current, -1)
+    return formation, _month_shift(formation, -1), _month_shift(formation, -12)
 
 
 def load_lineages() -> dict:
@@ -168,6 +194,8 @@ def main() -> int:
     div_series: dict = {}      # tk → {month: реализованная дивдоходность (дивиденд_месяца / цена_пред_месяца)}
 
     consec_err = n_ok = n_skip = n_err = 0
+    now = datetime.now(timezone.utc)
+    signal_month, factor_month, denominator_month = momentum_signal_window(now.astimezone(tc.MSK))
     tripped = False
     lineages, lineage_log = load_lineages(), {}
     for tk in tickers:
@@ -197,8 +225,15 @@ def main() -> int:
         months = [d[:7] for d, _, _ in candles]
         closes = [c for _, c, _ in candles]
         values = [v for _, _, v in candles]      # месячный оборот, ₽
-        # WML 12-1: последний ПОЛНЫЙ месяц [-2] к 12 мес. назад [-13] (скип текущего [-1])
-        mom = (closes[-2] / closes[-13] - 1) if closes[-13] > 0 else None
+        # WML 12-1: на month-end t используем close(t-1) / close(t-12).
+        # В середине месяца последний опубликованный сигнал остаётся t-1 и не видит close(t-1).
+        close_by_month = dict(zip(months, closes))
+        factor_close = close_by_month.get(factor_month)
+        denominator_close = close_by_month.get(denominator_month)
+        if factor_close is None or denominator_close is None or denominator_close <= 0:
+            n_skip += 1
+            continue
+        mom = factor_close / denominator_close - 1
         # месячные доходности (ключ = месяц закрытия)
         rets = {}
         for i in range(1, len(closes)):
@@ -219,7 +254,6 @@ def main() -> int:
         div_by_month = {}
         for dt, val in divs:
             div_by_month[dt[:7]] = div_by_month.get(dt[:7], 0.0) + val
-        close_by_month = dict(zip(months, closes))
         dy, prev_m = {}, None
         for mth in months:
             if prev_m and div_by_month.get(mth, 0) > 0 and close_by_month.get(prev_m, 0) > 0:
@@ -235,9 +269,13 @@ def main() -> int:
     ret_data = {tk: [round(s[m], 4) if m in s else None for m in axis] for tk, s in series.items()}
     div_data = {tk: [round(s.get(m, 0.0), 5) for m in axis] for tk, s in div_series.items() if any(s.values())}
 
-    asof = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
+    asof = now.astimezone(tc.MSK).strftime("%Y-%m-%d")
     json.dump({"meta": {"asof": asof, "n": len(mom_out), "n_fresh": n_ok, "n_err": n_err,
-                        "tripped": tripped, "source": "MOEX ISS monthly candles (TQBR), WML 12-1 + vol_ann"},
+                        "tripped": tripped, "signal_month": signal_month,
+                        "factor_data_through": factor_month,
+                        "calculated_at": now.isoformat(timespec="seconds"),
+                        "definition": "WML 12-1 at month-end t: close(t-1) / close(t-12) - 1",
+                        "source": "MOEX ISS monthly candles (TQBR), WML 12-1 + vol_ann"},
                "data": mom_out}, open(OUT_MOM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"meta": {"asof": asof, "months": axis, "n_tickers": len(ret_data),
                         # Провенанс склеек: и применённых, и ОТВЕРГНУТЫХ гейтом. Отказ должен

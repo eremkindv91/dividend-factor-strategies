@@ -11,7 +11,8 @@ ISS MOEX + site/data.json + историческая панель/adjusted price
   P_adj  = price − div1*net            (база затрат снижается на первый ЧИСТЫЙ дивиденд)
   Yield2 = div2*net / P_adj            (доходность 2-го года от ОЧИЩЕННОЙ базы)
   Total2 = (div1+div2)*net / price     (сумма чистых дивидендов за 2 выплаты к исходной цене)
-  Spread = Yield2 − RFR  → ACCUMULATE (>+1%) / HOLD / FIX PROFIT (<0)
+  ExpectedNetYield = P(payout) * div1 * net / price
+  EntrySpread = ExpectedNetYield - RFR_after_tax. Entry threshold = +3 p.p.
 
 div1 берём из модельного прогноза (data.json.dividend_forecast), div2 — из авторского
 my_dividend_forecasts.json (модель на 2-й год не прогнозирует). Нет div2 → строка без Yield2.
@@ -43,7 +44,7 @@ MCFTR = os.path.join(REPO, "data", "индекс_мосбиржи_полн_до�
 ISS = "https://iss.moex.com/iss"
 UA = {"User-Agent": "dividend-site/forward-yield (+github.com/eremkindv91)", "Accept": "application/json"}
 NET = 0.87                              # 1 − НДФЛ 13%
-ACC_THRESHOLD = 0.01                   # Spread > +1% → ACCUMULATE
+ENTRY_THRESHOLD = 0.03                 # Expected net spread >= +3 p.p. → model eligibility
 
 
 def http_json(url: str, retries: int = 4, timeout: int = 30) -> dict:
@@ -118,6 +119,7 @@ def load_universe() -> dict:
             "price": t.get("price"), "div1_model": t.get("dividend_forecast"),
             "name": t.get("name"), "sector": t.get("sector"), "status": t.get("status"),
             "mcap": t.get("mcap") or 0, "yield_expected": t.get("dividend_yield_expected"),
+            "yield_if_paid": t.get("dividend_yield_if_paid"),
         }
     # price_asof наследуется в meta.source_as_of: forward-доходность — DERIVED-аналитика,
     # её фактическая дата = дата цен входа (data.json), а не время пересчёта модели.
@@ -134,22 +136,21 @@ def ensure_forecasts(uni: dict) -> dict:
                 key=lambda k: -(uni[k]["mcap"] or 0))[:60]
     for k in ok:
         d1 = uni[k]["div1_model"]
-        # заглушка div_2 = div_1, чтобы таблица сразу отрисовалась; юзер заменит реальным прогнозом
-        tmpl[k] = {"div_1": d1, "div_2": d1, "note": "Div2=Div1 (заглушка) — впиши прогноз"}
+        tmpl[k] = {"div_1": d1, "div_2": None, "forecast_status": "missing", "note": "Независимый прогноз Div2 отсутствует"}
     with open(FORECASTS, "w", encoding="utf-8") as f:
         json.dump(tmpl, f, ensure_ascii=False, indent=2)
     sys.stderr.write(f"[fwd] создан шаблон {FORECASTS} ({len(tmpl)} тикеров; div_2=заглушка, впиши свои)\n")
     return tmpl
 
 
-def signal(spread: float | None) -> str:
-    if spread is None:
-        return "—"
-    if spread > ACC_THRESHOLD:
-        return "ACCUMULATE"
-    if spread < 0:
-        return "FIX PROFIT"
-    return "HOLD"
+def signal(spread: float | None, *, eligible: bool, forecast_valid: bool) -> str:
+    if not forecast_valid:
+        return "Недостаточно данных"
+    if eligible:
+        return "Выше модельного порога"
+    if spread is not None and spread >= 0:
+        return "Наблюдать"
+    return "Ниже модельного порога"
 
 
 def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
@@ -163,12 +164,23 @@ def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
         if div1 in (None, ""):
             div1 = u["div1_model"]
         div1 = float(div1) if div1 not in (None, "") else None
-        div2 = f.get("div_2")
+        placeholder = bool(f.get("forecast_status") == "placeholder" or "заглушк" in str(f.get("note") or "").lower())
+        div2 = None if placeholder else f.get("div_2")
         div2 = float(div2) if div2 not in (None, "") else None
         if not div1 or div1 <= 0:
             continue
         gross_yield1 = div1 / price
         gross_spread = (gross_yield1 - rfr) if rfr is not None else None
+        yield_expected_pct = u.get("yield_expected")
+        yield_if_paid_pct = u.get("yield_if_paid")
+        payout_probability = None
+        if isinstance(yield_expected_pct, (int, float)) and isinstance(yield_if_paid_pct, (int, float)) and yield_if_paid_pct > 0:
+            payout_probability = min(1.0, max(0.0, float(yield_expected_pct) / float(yield_if_paid_pct)))
+        expected_dividend = div1 * payout_probability if payout_probability is not None else None
+        expected_net_yield = expected_dividend * NET / price if expected_dividend is not None else None
+        matched_rfr = rfr * NET if rfr is not None else None
+        expected_net_spread = expected_net_yield - matched_rfr if expected_net_yield is not None and matched_rfr is not None else None
+        eligible = bool(expected_net_spread is not None and expected_net_spread >= ENTRY_THRESHOLD)
         yield1 = gross_yield1 * NET
         p_adj = price - div1 * NET
         # sanity: net-доходность >30% или очищенная база <50% цены = модельный артефакт
@@ -187,8 +199,16 @@ def build_rows(uni: dict, fc: dict, rfr: float | None) -> list:
             "yield2": (round(yield2, 4) if yield2 is not None else None),
             "total2": (round(total2, 4) if total2 is not None else None),
             "spread": (round(spread, 4) if spread is not None else None),
-            "signal": signal(spread),
-            "note": f.get("note") or "",
+            "payout_probability": (round(payout_probability, 4) if payout_probability is not None else None),
+            "expected_dividend": (round(expected_dividend, 4) if expected_dividend is not None else None),
+            "expected_net_yield": (round(expected_net_yield, 4) if expected_net_yield is not None else None),
+            "matched_rfr": (round(matched_rfr, 4) if matched_rfr is not None else None),
+            "expected_net_spread": (round(expected_net_spread, 4) if expected_net_spread is not None else None),
+            "entry_threshold": ENTRY_THRESHOLD,
+            "eligible": eligible,
+            "forecast_status": "insufficient_forecast" if placeholder or div2 is None else "independent_forecast",
+            "signal": signal(expected_net_spread, eligible=eligible, forecast_valid=not placeholder and div2 is not None),
+            "note": "Независимый прогноз Div2 отсутствует" if placeholder else (f.get("note") or ""),
             "div2_missing": div2 is None,
         })
     # сортировка: сначала со spread (по убыванию), потом без div2
@@ -244,10 +264,11 @@ def main() -> int:
             "rfr": round(rfr, 4), "net_tax": NET,
             "regime": macro["regime"], "imoex": macro["imoex"], "sma200": macro["sma200"],
             "n": len(rws), "n_with_div2": n_div2,
-            "note": "Форвардная дивдоходность (модель Марламова): Yield2 от ОЧИЩЕННОЙ базы "
-                    "P_adj=P−Div1·0.87. div1 — прогноз модели, div2 — авторский (my_dividend_forecasts.json). "
-                    "Сигнал по Spread=Yield2−RFR. Конструктор использует gross Div1/Price−RFR и не зависит "
-                    "от placeholder Div2. Не ИИР.",
+            "entry_threshold": ENTRY_THRESHOLD,
+            "eligible_count": sum(1 for row in rws if row["eligible"]),
+            "note": "Eligibility использует ожидаемую чистую дивдоходность: P(выплата)×Div1×(1−НДФЛ)/Price "
+                    "минус сопоставимая RFR после налога. Независимый Div2 показан только как сценарий и не "
+                    "создаёт торговый статус. Не ИИР.",
         },
         "rows": rws,
         "backtest": backtest,

@@ -25,12 +25,14 @@ import json
 import os
 import shutil
 import sys
-from datetime import datetime, timezone
+from calendar import monthrange
+from datetime import date, datetime, timedelta, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 
 from moex_iss import get_prices  # noqa: E402
+import trading_calendar as tc  # noqa: E402
 
 ARTIFACT = os.path.join(REPO, "model_output", "forecast_rf.json")
 MOMENTUM = os.path.join(REPO, "model_output", "momentum.json")
@@ -54,6 +56,59 @@ DISCLAIMER = (
     "факторы вероятности выплаты — вклад усреднён по моделям ансамбля (top-3). Цены — MOEX ISS "
     "(борд TQBR), с задержкой/на закрытие. Реальная доходность ограничена ликвидностью и издержками."
 )
+
+
+def _last_trading_day(year: int, month: int) -> date:
+    value = date(year, month, monthrange(year, month)[1])
+    while not tc.is_trading_day(value):
+        value -= timedelta(days=1)
+    return value
+
+
+def momentum_schedule(meta: dict, today: date | None = None) -> dict:
+    """Execution calendar for a WML 12-1 signal built from the last complete month."""
+    today = today or datetime.now(tc.MSK).date()
+    signal_month = str(meta.get("signal_month") or "")
+    try:
+        signal_year, signal_month_number = map(int, signal_month.split("-"))
+    except (TypeError, ValueError):
+        return {"status": "unavailable", "reason": "signal_month отсутствует"}
+    signal_close = _last_trading_day(signal_year, signal_month_number)
+    execution = tc.next_trading_day(signal_close)
+    factor_month = str(meta.get("factor_data_through") or "")
+    try:
+        factor_year, factor_month_number = map(int, factor_month.split("-"))
+        factor_close = _last_trading_day(factor_year, factor_month_number)
+    except (TypeError, ValueError):
+        factor_close = None
+    next_month_number = signal_month_number + 1
+    next_year = signal_year
+    if next_month_number == 13:
+        next_month_number, next_year = 1, signal_year + 1
+    next_calculation = _last_trading_day(next_year, next_month_number)
+    next_execution = tc.next_trading_day(next_calculation)
+    pending_execution = today < execution
+    sessions = 0
+    cursor = today
+    while cursor < next_calculation and sessions < 80:
+        cursor = tc.next_trading_day(cursor)
+        if cursor <= next_calculation:
+            sessions += 1
+    calendar_days = max(0, (next_calculation - today).days)
+    return {
+        "status": "pending_execution" if pending_execution else ("current" if today <= next_calculation else "overdue"),
+        "signal_month": signal_month,
+        "data_through": factor_close.isoformat() if factor_close else None,
+        "last_signal_at": signal_close.isoformat(),
+        "last_execution_at": None if pending_execution else execution.isoformat(),
+        "planned_execution_at": execution.isoformat() if pending_execution else next_execution.isoformat(),
+        "next_calculation_at": next_calculation.isoformat(),
+        "next_execution_at": next_execution.isoformat(),
+        "trading_days_remaining": sessions,
+        "calendar_days_remaining": calendar_days,
+        "timezone": "Europe/Moscow",
+        "execution_convention": "signal after official month-end close; execution next MOEX session",
+    }
 
 
 def load_announced_dividends() -> dict:
@@ -235,9 +290,12 @@ def main() -> int:
     print(f"[build_data] артефакт: {len(tickers)} тикеров, forecast_asof={meta_a.get('forecast_asof')}")
 
     momentum = {}                                    # WML 12-1 + vol_ann (месячный pipeline, опц.)
+    momentum_meta = {}
     if os.path.exists(MOMENTUM):
         try:
-            momentum = json.load(open(MOMENTUM, encoding="utf-8")).get("data", {})
+            momentum_payload = json.load(open(MOMENTUM, encoding="utf-8"))
+            momentum = momentum_payload.get("data", {})
+            momentum_meta = momentum_payload.get("meta", {})
             print(f"[build_data] momentum: {len(momentum)} тикеров")
         except Exception as e:  # noqa: BLE001
             sys.stderr.write(f"[build_data] momentum.json битый ({e}) — без momentum\n")
@@ -460,6 +518,11 @@ def main() -> int:
             "quality_as_of": quality_meta.get("as_of_date"),
             "quality_n_scored": quality_meta.get("n_scored"),
             "quality_n_eligible": quality_meta.get("n_eligible"),
+            "momentum_asof": momentum_meta.get("asof"),
+            "momentum_source": momentum_meta.get("source"),
+            "momentum_n": momentum_meta.get("n"),
+            "momentum_n_fresh": momentum_meta.get("n_fresh"),
+            "momentum_schedule": momentum_schedule(momentum_meta),
             "disclaimer": DISCLAIMER,
         },
         "tickers": out_rows,

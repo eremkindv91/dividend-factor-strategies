@@ -25,6 +25,16 @@ class PortfolioResult:
     fallback_reason: str | None
 
 
+def portfolio_turnover(target: pd.Series, previous: pd.Series) -> float:
+    """One-way turnover, including cash: 0.5 * sum(abs(delta weights))."""
+    names = target.index.union(previous.index)
+    target = target.reindex(names).fillna(0.0).astype(float)
+    previous = previous.reindex(names).fillna(0.0).astype(float)
+    target_cash = max(0.0, 1.0 - float(target.sum()))
+    previous_cash = max(0.0, 1.0 - float(previous.sum()))
+    return 0.5 * (float((target - previous).abs().sum()) + abs(target_cash - previous_cash))
+
+
 def _cluster_variance(covariance: pd.DataFrame, members: list[str]) -> float:
     block = covariance.loc[members, members]
     diagonal = np.diag(block.to_numpy())
@@ -147,12 +157,15 @@ def minimum_variance(
 
 
 def _turnover_limit(target: pd.Series, previous: pd.Series, cap: float) -> tuple[pd.Series, float]:
-    previous = previous.reindex(target.index).fillna(0)
-    gross = float((target - previous).abs().sum())
-    if gross <= cap or gross == 0:
-        return target, gross
-    blended = previous + (target - previous) * (cap / gross)
-    return blended.clip(lower=0), cap
+    names = target.index.union(previous.index)
+    target = target.reindex(names).fillna(0.0)
+    previous = previous.reindex(names).fillna(0.0)
+    turnover = portfolio_turnover(target, previous)
+    if turnover <= cap or turnover == 0:
+        return target, turnover
+    blended = previous + (target - previous) * (cap / turnover)
+    blended = blended.clip(lower=0)
+    return blended, portfolio_turnover(blended, previous)
 
 
 def build_portfolio(
@@ -231,9 +244,7 @@ def build_portfolio(
     executable_value = shares * prices
     executable_weights = executable_value / config.capital_rub
     cash_weight = max(0.0, 1.0 - float(executable_weights.sum()))
-    executed_turnover = float(
-        (executable_weights - previous_weights.reindex(executable_weights.index).fillna(0)).abs().sum()
-    )
+    executed_turnover = portfolio_turnover(executable_weights, previous_weights)
     estimated_cost = executed_turnover * config.capital_rub * config.one_way_cost_bps / 10_000
     portfolio_variance = float(
         executable_weights.reindex(covariance.index).fillna(0).to_numpy()

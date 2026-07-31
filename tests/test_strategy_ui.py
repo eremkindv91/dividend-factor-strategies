@@ -16,12 +16,12 @@ def test_existing_strategy_constructor_exposes_marlamov_backtest_without_replaci
     assert 'id="pf-out"' in html
 
     assert "marlamovPortfolioCandidates" in app
-    assert "gross_yield1" in app
-    assert "gross_spread" in app
+    assert "expected_net_yield" in app
+    assert "expected_net_spread" in app
     assert "MARLAMOV.backtest" in app
     assert "marlamovBacktestHTML" in app
     assert "marlamovEntryGateHTML" in app
-    assert "сравнительный рейтинг, а не сигнал ADD" in app
+    assert "модельный состав по ожидаемой чистой дивдоходности" in app
     assert "не point-in-time" in app
     assert ".pf-backtest-grid" in styles
     assert ".pf-entry-gate" in styles

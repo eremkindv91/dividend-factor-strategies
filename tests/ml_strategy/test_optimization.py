@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from ml_strategy.config import StrategyConfig
-from ml_strategy.optimization import build_portfolio, constrained_max_sharpe, hrp_weights, minimum_variance
+from ml_strategy.optimization import (
+    build_portfolio,
+    constrained_max_sharpe,
+    hrp_weights,
+    minimum_variance,
+    portfolio_turnover,
+)
 
 
 def _inputs():
@@ -54,3 +61,14 @@ def test_executable_portfolio_obeys_weight_sector_lot_and_turnover_caps():
     assert result.executable_weights.sum() + result.cash_weight <= 1 + 1e-9
     sector_weights = result.executable_weights.groupby(metadata["sector"]).sum()
     assert (sector_weights <= config.sector_cap + 0.01).all()
+    traded_notional = result.turnover * config.capital_rub
+    assert result.estimated_cost_rub == pytest.approx(traded_notional * config.one_way_cost_bps / 10_000)
+
+
+def test_turnover_includes_cash_new_and_removed_positions():
+    previous = pd.Series({"AAA": 0.50, "REMOVED": 0.20})
+    target = pd.Series({"AAA": 0.20, "NEW": 0.50})
+    # Securities: .30 + .20 + .50 = 1.00; cash: .30 -> .30 = 0.
+    assert portfolio_turnover(target, previous) == pytest.approx(0.50)
+    # Initial investment of 35% moves 35% from cash and 35% into securities.
+    assert portfolio_turnover(pd.Series({"AAA": 0.35}), pd.Series(dtype=float)) == pytest.approx(0.35)

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from datetime import date
 
 from ml_strategy.config import StrategyConfig
 from ml_strategy.pipeline import run_pipeline
-from ml_strategy.schemas import validate_bundle
+from ml_strategy.schemas import validate_bundle, validate_latest
 
 
 def test_pipeline_writes_atomic_valid_snapshots(market_repo):
@@ -16,8 +17,23 @@ def test_pipeline_writes_atomic_valid_snapshots(market_repo):
         min_cross_section=10,
     )
     bundle = run_pipeline(market_repo, config=config, today=date(2024, 12, 1))
-    assert bundle["latest.json"]["portfolio"]["positions"]
-    assert bundle["latest.json"]["benchmark"] == "MCFTR"
+    latest_payload = bundle["latest.json"]
+    assert latest_payload["schema_version"] == 2
+    assert latest_payload["candidate_portfolio"]["positions"]
+    assert latest_payload["published_portfolio"] is None
+    assert latest_payload["portfolio"]["positions"] == []
+    assert latest_payload["action_status"] == "no_trade"
+    assert latest_payload["execution"]["turnover"] is None
+    assert latest_payload["benchmark"] == "MCFTR"
+    assert all("target_weight" not in row for row in latest_payload["candidate_portfolio"]["positions"])
+    assert all("shares" not in row for row in latest_payload["candidate_portfolio"]["positions"])
+    incompatible = deepcopy(latest_payload)
+    incompatible["published_portfolio"] = {
+        "published_from_run_id": latest_payload["run"]["run_id"],
+        "positions": [{"ticker": "T00", "target_weight": 1.0}],
+        "cash_weight": 0.0,
+    }
+    assert "latest: rejected/non-valid candidate was published" in validate_latest(incompatible)
     assert bundle["data_quality.json"]["production_data"] == "real_sources_only"
     assert not validate_bundle(market_repo / "site" / "ml_strategy")
     latest = json.loads((market_repo / "data" / "ml_strategy" / "latest.json").read_text())

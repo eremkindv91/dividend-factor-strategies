@@ -444,6 +444,34 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-sector-summary strong.approved { color: var(--good-ink); }
 .mls-sector-summary strong.research_only { color: #8A5B22; }
 .mls-sector-summary strong.blocked { color: var(--risk-ink); }
+.momentum-panel { margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
+.momentum-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.momentum-head h2 { margin: 3px 0 0; font-size: 1.35rem; }
+.strategy-research-badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid #E4C98E; border-radius: 5px; background: #FFF7E5; color: #80591D; font-size: .66rem; font-weight: 800; text-transform: uppercase; }
+.strategy-execution-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 20px; border-left: 4px solid var(--accent); background: #F8FAFC; }
+.strategy-execution-head > div:first-child { display: grid; gap: 3px; }
+.strategy-execution-head span, .strategy-execution-head small { color: var(--ink-faint); font-size: .72rem; }
+.strategy-execution-head b { color: var(--ink); font-size: 1.05rem; }
+.strategy-execution-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.strategy-execution-meta span { padding: 6px 8px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+.strategy-schedule-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.strategy-schedule-grid > div { display: grid; gap: 3px; min-width: 0; padding: 13px 14px; border-right: 1px solid var(--line); }
+.strategy-schedule-grid > div:last-child { border-right: 0; }
+.strategy-schedule-grid span, .strategy-schedule-grid small { color: var(--ink-faint); font-size: .68rem; }
+.strategy-schedule-grid b { color: var(--ink); font-size: .88rem; }
+.strategy-workspace-head { display: flex; justify-content: space-between; gap: 16px; padding: 18px 20px 10px; }
+.strategy-workspace-head h3 { margin: 0 0 4px; font-size: 1rem; }
+.strategy-workspace-head p { margin: 0; color: var(--ink-faint); font-size: .74rem; }
+.strategy-empty { display: grid; align-content: center; gap: 7px; min-height: 150px; padding: 24px; border: 1px dashed #CBD5E1; border-radius: 7px; background: #F8FAFC; }
+.strategy-empty b { color: var(--ink); font-size: 1rem; }
+.strategy-empty span, .strategy-empty small { color: var(--ink-faint); font-size: .76rem; line-height: 1.45; }
+.mls-candidate { margin: 12px 0; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.mls-candidate > summary { min-height: 44px; padding: 12px 14px; color: var(--accent-deep); font-weight: 750; cursor: pointer; }
+.candidate-warning { padding: 10px 14px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #FFF9EC; color: #75541F; font-size: .72rem; }
+.mls-checks li span { display: grid; gap: 2px; }
+.mls-checks li small { color: var(--ink-faint); font-size: .6rem; }
+.mls-diagnostics { display: grid; gap: 8px; }
+.momentum-table { margin: 0 20px 18px; width: calc(100% - 40px); }
 .mls-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 12px; align-items: start; }
 .mls-main, .mls-side, .mls-backtest { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
 .mls-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 11px 13px; border-bottom: 1px solid var(--line); }
@@ -510,6 +538,12 @@ tbody tr.data-row:hover { background: #FAFBFD; }
   .mls-layout { grid-template-columns: 1fr; }
   .mls-sector-summary { grid-template-columns: 1fr; }
   .mls-sector-summary ul { grid-template-columns: 1fr; }
+  .momentum-head, .strategy-execution-head { align-items: stretch; flex-direction: column; }
+  .strategy-execution-meta { justify-content: flex-start; }
+  .strategy-schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .strategy-schedule-grid > div:nth-child(2) { border-right: 0; }
+  .strategy-schedule-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .momentum-table { margin-inline: 12px; width: calc(100% - 24px); }
   .mls-side { order: -1; }
   .mls-metrics { grid-template-columns: repeat(2, 1fr); }
   .mls-metrics span:nth-child(2n) { border-right: 0; }

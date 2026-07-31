@@ -1055,7 +1055,7 @@ const PF_MIN_ADV = 10e6;             // ₽/день: ADV-фильтр — от�
 const FACTOR_BACKTEST = {            // статы из ВКР-бэктеста (results/), как пруф доверия
   quality: { label: 'RU Quality · полный point-in-time backtest пока не рассчитан; ниже показаны характеристики текущего набора бумаг, а не историческая доходность стратегии' },
   momentum: { label: 'Momentum (WML 12-1, ТОЛЬКО ЛОНГ top-N) · бэктест ВКР 2012–2025: +2,2%/год избыточной доходности над рынком (t≈0,3 — статистически незначима); единственный фактор, исторически работавший на РФ, но слабо. Ребаланс месячный.' },
-  marlamov: { label: 'Дивидендная переоценка · текущий рейтинг по gross форвардной доходности к RFR; исторические метрики ниже рассчитаны отдельно на лагированном Top-10 baseline' },
+  marlamov: { label: 'Дивидендная переоценка · модельный состав по ожидаемой чистой дивдоходности к сопоставимой RFR; Div2 показан только как независимый сценарий' },
   optmv: { label: 'Робастная оптимизация: минимум дисперсии портфеля по ковариации ВСЕХ бумаг (усадка ковариации к диагонали + box-ограничения) — портфельная теория, не факторный бэктест' },
   optrp: { label: 'Risk-parity: равный риск-вклад каждой бумаги (ковариация всех бумаг с усадкой) — не факторный бэктест' },
   optiv: { label: 'Inverse-volatility: вес ∝ 1/волатильность — простая робастная диверсификация' },
@@ -1101,9 +1101,11 @@ function syncStrategyPanels() {
   ACTIVE_STRATEGY_MODE = method;
   const pf = document.getElementById('pf');
   const marlamov = document.getElementById('marlamov');
+  const momentum = document.getElementById('momentum-panel');
   const mlPanel = document.getElementById('ml-strategy-panel');
-  if (pf) pf.hidden = false;
-  if (marlamov) marlamov.hidden = false;
+  if (pf) pf.hidden = method === 'momentum';
+  if (marlamov) marlamov.hidden = method !== 'marlamov';
+  if (momentum) momentum.hidden = method !== 'momentum';
   if (mlPanel) mlPanel.hidden = true;
   const qualityPanel = document.getElementById('quality-panel');
   if (qualityPanel) qualityPanel.hidden = method !== 'quality';
@@ -1114,6 +1116,7 @@ function syncStrategyPanels() {
     button.setAttribute('aria-selected', active ? 'true' : 'false');
   });
   if (method === 'quality' && !QUALITY) loadQuality();
+  if (method === 'momentum') renderMomentumStrategy();
 }
 
 function qualityStatusLabel(status) {
@@ -1486,6 +1489,15 @@ function wireQuality() {
     method.value = requested;
     method.dispatchEvent(new Event('change'));
   }));
+  const strategyTabs = [...document.querySelectorAll('.strategy-mode')];
+  strategyTabs.forEach((button, index) => button.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? strategyTabs.length - 1
+      : (index + (event.key === 'ArrowRight' ? 1 : -1) + strategyTabs.length) % strategyTabs.length;
+    strategyTabs[next].focus();
+    strategyTabs[next].click();
+  }));
   ['quality-model', 'quality-sector', 'quality-status', 'quality-sort'].forEach((id) => {
     const control = document.getElementById(id); if (control) control.addEventListener('change', renderQualityTable);
   });
@@ -1515,10 +1527,12 @@ function activateMlStrategy() {
   const pf = document.getElementById('pf');
   const marlamov = document.getElementById('marlamov');
   const quality = document.getElementById('quality-panel');
+  const momentum = document.getElementById('momentum-panel');
   const panel = document.getElementById('ml-strategy-panel');
   if (pf) pf.hidden = true;
   if (marlamov) marlamov.hidden = true;
   if (quality) quality.hidden = true;
+  if (momentum) momentum.hidden = true;
   if (panel) panel.hidden = false;
   document.querySelectorAll('.strategy-mode').forEach((button) => {
     const active = button.dataset.strategy === 'ml';
@@ -1526,6 +1540,36 @@ function activateMlStrategy() {
     button.setAttribute('aria-selected', active ? 'true' : 'false');
   });
   renderMlStrategy();
+}
+
+function renderMomentumStrategy() {
+  const target = document.getElementById('momentum-content');
+  if (!target || !DATA || ACTIVE_STRATEGY_MODE !== 'momentum') return;
+  const meta = DATA.meta || {};
+  const schedule = meta.momentum_schedule || {};
+  const candidates = DATA.tickers.filter(eligibleForPortfolio)
+    .filter((ticker) => isNum(ticker.mom_score) && isNum(ticker.adv) && ticker.adv >= PF_MIN_ADV)
+    .sort((a, b) => b.mom_score - a.mom_score)
+    .slice(0, 12);
+  const status = schedule.status === 'current' ? 'Актуально' : schedule.status === 'pending_execution' ? 'К исполнению' : schedule.status === 'overdue' ? 'Просрочено' : 'Календарь недоступен';
+  const rows = candidates.map((ticker, index) => `<tr>
+    <td>${index + 1}</td><td>${instrumentIdentityHTML(ticker.ticker, ticker.name, instrumentTypeHint(ticker), 'sm')}</td>
+    <td><b>${isNum(ticker.mom_score) ? `${ticker.mom_score >= 0 ? '+' : ''}${ru(ticker.mom_score * 100, 1)}%` : '—'}</b></td>
+    <td>${isNum(ticker.adv) ? fmtRub(Math.round(ticker.adv)) : '—'}</td>
+    <td>${isNum(ticker.vol_ann) ? ru(ticker.vol_ann * 100, 1) + '%' : '—'}</td></tr>`).join('');
+  target.innerHTML = `<div class="strategy-execution-head">
+      <div><span>Статус сигнала</span><b>${esc(status)}</b><small>WML 12–1; статистическая премия в текущем исследовании не подтверждена.</small></div>
+      <div class="strategy-execution-meta"><span>Данные по <b>${esc(schedule.data_through || meta.momentum_asof || '—')}</b></span><span>Последний сигнал <b>${esc(schedule.last_signal_at || '—')}</b></span><span>Последнее исполнение <b>${esc(schedule.last_execution_at || '—')}</b></span></div>
+    </div>
+    <div class="strategy-schedule-grid">
+      <div><span>Следующий расчёт</span><b>${esc(schedule.next_calculation_at || '—')}</b><small>после официального close</small></div>
+      <div><span>Плановое исполнение</span><b>${esc(schedule.planned_execution_at || schedule.next_execution_at || '—')}</b><small>следующая сессия MOEX после signal close</small></div>
+      <div><span>До пересмотра</span><b>${isNum(schedule.trading_days_remaining) ? schedule.trading_days_remaining + ' торг. дн.' : '—'}</b><small>${isNum(schedule.calendar_days_remaining) ? schedule.calendar_days_remaining + ' календарных дней' : ''}</small></div>
+      <div><span>Действие</span><b>Наблюдать</b><small>исследовательский рейтинг, не исполнимая рекомендация</small></div>
+    </div>
+    <div class="strategy-workspace-head"><div><h3>Текущий рейтинг Momentum</h3><p>Доходность от close 12 месяцев назад до последнего полного месяца; самый свежий месяц исключён. Это ranking, не опубликованный портфель.</p></div><b>${candidates.length} бумаг</b></div>
+    ${candidates.length ? `<div class="mls-table-wrap"><table class="mls-table momentum-table"><thead><tr><th>#</th><th>Бумага</th><th>WML 12–1</th><th>ADV</th><th>Волатильность</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="strategy-empty"><b>Сигнал не сформирован</b><span>Недостаточно ликвидных бумаг с полной 12-месячной историей.</span></div>'}
+    <details class="mls-method"><summary>Методология и ограничения</summary><div>Сигнал формируется после закрытия последней торговой сессии месяца и моделирует исполнение на следующей сессии MOEX. Текущий список не выдаётся за point-in-time backtest; история делистингов пока неполна. Turnover и издержки будут показаны только после появления предыдущего подтверждённого snapshot.</div></details>`;
 }
 
 function loadMlStrategy() {
@@ -1559,10 +1603,15 @@ function mlsPct(value, digits = 1) {
 
 function mlsActionLabel(action) {
   return ({
-    NO_ACTION: 'Без действий', WATCH: 'Наблюдать', REBALANCE: 'Ребалансировать',
-    RISK_OFF: 'Снизить риск', DATA_STALE: 'Данные устарели',
-    MODEL_UNCERTAIN: 'Модель не уверена', DEGRADED: 'Ограниченный режим',
+    hold: 'Изменений не требуется', rebalance: 'Сформирован новый состав',
+    no_trade: 'Новых операций нет', frozen: 'Расчёт заморожен',
+    NO_ACTION: 'Изменений не требуется', WATCH: 'Наблюдать', REBALANCE: 'Сформирован новый состав',
+    DATA_STALE: 'Расчёт заморожен', MODEL_UNCERTAIN: 'Новый сигнал отклонён', DEGRADED: 'Расчёт заморожен',
   })[action] || action || '—';
+}
+
+function mlsModelStatusLabel(status) {
+  return ({ production: 'Production', research_only: 'Только исследование', rejected: 'Отклонена', failed: 'Ошибка расчёта', APPROVED: 'Production', RESEARCH_ONLY: 'Только исследование' })[status] || status || '—';
 }
 
 function mlsCheckLabel(name) {
@@ -1613,16 +1662,19 @@ function renderMlStrategy() {
     return;
   }
   const { latest, backtest, modelCard, dataQuality, sectorQuality, sectorRegistry } = ML_STRATEGY;
-  const action = (latest.signal || {}).action;
+  const action = latest.action_status || (latest.signal || {}).action;
   const model = latest.model || {};
-  const portfolio = latest.portfolio || {};
+  const published = latest.published_portfolio || null;
+  const candidate = latest.candidate_portfolio || null;
+  const execution = latest.execution || {};
+  const portfolio = published || {};
   const metrics = backtest.portfolio_metrics || {};
   const positions = portfolio.positions || [];
   if (state) {
     state.textContent = mlsActionLabel(action);
-    state.className = 'mls-state ' + (action === 'REBALANCE' ? 'good' : (action === 'DATA_STALE' ? 'blocked' : 'watch'));
+    state.className = 'mls-state ' + (action === 'rebalance' || action === 'REBALANCE' ? 'good' : (action === 'frozen' || action === 'DATA_STALE' ? 'blocked' : 'watch'));
   }
-  const rows = positions.map((row) => {
+  const publishedRows = positions.map((row) => {
     const drivers = (row.sector_drivers || []).slice(0, 3);
     const driverHtml = drivers.length
       ? `<div class="mls-drivers">${drivers.map((driver) =>
@@ -1632,52 +1684,58 @@ function renderMlStrategy() {
     return `<tr>
     <td>${instrumentIdentityHTML(row.ticker, row.name, row.instrument_type, 'sm')}</td>
     <td>${esc(row.sector || '—')}${driverHtml}</td>
-    <td>${mlsPct(row.current_weight)}</td>
-    <td><b>${mlsPct(row.target_weight)}</b><small>${row.shares || 0} шт.</small></td>
-    <td class="${row.change_weight > 0 ? 'up' : (row.change_weight < 0 ? 'down' : '')}">${row.change_weight > 0 ? '+' : ''}${mlsPct(row.change_weight)}</td>
+    <td><b>${mlsPct(row.target_weight)}</b></td>
     <td>${mlsPct(row.expected_excess_return_20d, 2)}</td>
   </tr>`;
   }).join('');
+  const candidateRows = ((candidate || {}).positions || []).map((row) => `<tr>
+    <td>${instrumentIdentityHTML(row.ticker, row.name, row.instrument_type, 'sm')}</td><td>${esc(row.sector || '—')}</td>
+    <td><b>${mlsPct(row.calculated_weight)}</b></td><td>${mlsPct(row.expected_excess_return_20d, 2)}</td></tr>`).join('');
   const dqChecks = (dataQuality.checks || []).map((check) =>
-    `<li><span>${esc(mlsCheckLabel(check.name))}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
+    `<li><span>${esc(mlsCheckLabel(check.name))}${check.value != null ? `<small>${esc(String(check.value))}${check.minimum != null ? ` / min ${esc(String(check.minimum))}` : ''}</small>` : ''}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
   ).join('');
   const limitations = (modelCard.limitations || []).map((text) => `<li>${esc(text)}</li>`).join('');
   const sectorPacks = (sectorQuality.packs || []).map((pack) => {
     const ablation = (pack.status || '').toLowerCase();
+    const evaluation = pack.evaluation || {};
     const blocked = (pack.blocked_sources || []).length
       ? ` · недоступны: ${(pack.blocked_sources || []).join(', ')}`
       : '';
-    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(pack.reason || '')}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${esc(pack.status || '—')}</strong></li>`;
+    const rankIc = isNum(evaluation.rank_ic_improvement)
+      ? `Δ Rank IC ${evaluation.rank_ic_improvement >= 0 ? '+' : ''}${ru(evaluation.rank_ic_improvement, 4)} / gate +${ru(evaluation.rank_ic_minimum || 0, 4)}`
+      : 'OOS-метрика недоступна';
+    const sourceState = (pack.blocked_sources || []).length ? 'источники неполные' : 'официальные источники готовы';
+    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(sourceState)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${pack.used_in_production ? 'В production' : 'Не прошёл gate'}</strong></li>`;
   }).join('');
   const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
+  const evaluatedPackCount = sectorQuality.evaluated_pack_count || (sectorQuality.packs || []).filter((pack) => pack.ablation_status).length;
   const approvedSources = (sectorRegistry.sources || []).filter((source) => source.status === 'APPROVED').length;
+  const diagnostics = latest.diagnostics || {};
+  const predictive = diagnostics.predictive_gate || {};
+  const portfolioGate = diagnostics.portfolio_gate || {};
+  const predictiveActual = predictive.actual || {};
+  const portfolioActual = portfolioGate.actual || {};
+  const publishedTitle = published ? 'Последний подтверждённый модельный состав' : 'Целевой состав не сформирован';
+  const publishedBody = published ? `<div class="mls-layout"><div class="mls-main">
+      <div class="mls-section-head"><div><h3>${publishedTitle}</h3><p>Опубликован ${esc(published.as_of || latest.data_as_of || '—')} · run ${esc(published.published_from_run_id || published.run_id || '—')}.</p></div><b>${mlsPct(published.cash_weight)} cash</b></div>
+      <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Подтверждённый вес</th><th>Excess 20д</th></tr></thead><tbody>${publishedRows}</tbody></table></div>
+    </div><aside class="mls-side"><h3>Контроль качества</h3><ul class="mls-checks">${dqChecks}</ul></aside></div>`
+    : `<div class="mls-layout"><div class="strategy-empty"><b>${publishedTitle}</b><span>${esc((latest.signal || {}).reason || 'Новый кандидат не прошёл обязательные gates.')}</span><small>Расчётные веса не являются операциями и скрыты ниже.</small></div><aside class="mls-side"><h3>Контроль качества</h3><ul class="mls-checks">${dqChecks}</ul></aside></div>`;
   target.innerHTML = `
     <div class="mls-action">
-      <div><span>Текущее действие</span><b>${esc(mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
-      <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Горизонт <b>${latest.horizon_sessions || 20} сессий</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span></div>
+      <div><span>Статус стратегии</span><b>${esc((latest.signal || {}).title || mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
+      <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Run <b>${esc(((latest.run || {}).run_id) || '—')}</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span></div>
     </div>
     <div class="mls-kpis">
-      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(model.status || '—')}</small></div>
-      <div><span>Портфель</span><b>${positions.length} бумаг</b><small>${esc(portfolio.method || '—')}</small></div>
-      <div><span>Оборот</span><b>${mlsPct(portfolio.turnover)}</b><small>лимит и lot-rounding</small></div>
-      <div><span>Издержки</span><b>${isNum(portfolio.estimated_cost_rub) ? ru(portfolio.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(portfolio.one_way_cost_bps) ? ru(portfolio.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
-      <div><span>Волатильность</span><b>${mlsPct(portfolio.annualized_volatility)}</b><small>годовая оценка</small></div>
-      <div><span>Качество данных</span><b>${esc(dataQuality.status || '—')}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
+      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(mlsModelStatusLabel(latest.model_status || model.status))}</small></div>
+      <div><span>Подтверждённый состав</span><b>${positions.length ? positions.length + ' бумаг' : 'Нет'}</b><small>${published ? esc(published.method || '—') : 'кандидат не опубликован'}</small></div>
+      <div><span>Действие</span><b>${esc(mlsActionLabel(action))}</b><small>${action === 'rebalance' ? 'принятый rebalance' : 'исполняемых изменений нет'}</small></div>
+      <div><span>Оборот</span><b>${isNum(execution.turnover) ? mlsPct(execution.turnover) : '—'}</b><small>лимит ${isNum(execution.turnover_cap) ? mlsPct(execution.turnover_cap) : '—'}</small></div>
+      <div><span>Издержки</span><b>${isNum(execution.estimated_cost_rub) ? ru(execution.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(execution.one_way_cost_bps) ? ru(execution.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
+      <div><span>Входы модели</span><b>${esc(latest.data_status || String(dataQuality.status || '—').toLowerCase())}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
     </div>
-    <div class="mls-sector-summary">
-      <div><span>Отраслевые признаки</span><b>${approvedPackCount} из 4 в production</b><small>${approvedSources} официальных ряда · остальные не подменяются суррогатами</small></div>
-      <ul>${sectorPacks}</ul>
-    </div>
-    <div class="mls-layout">
-      <div class="mls-main">
-        <div class="mls-section-head"><div><h3>Модельный портфель</h3><p>Теоретический прогноз превращён в исполнимые веса с учётом ликвидности, лотов и cash.</p></div><b>${mlsPct(portfolio.cash_weight)} cash</b></div>
-        <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Было</th><th>Цель</th><th>Изменение</th><th>Excess 20д</th></tr></thead><tbody>${rows}</tbody></table></div>
-      </div>
-      <aside class="mls-side">
-        <h3>Контроль качества</h3>
-        <ul class="mls-checks">${dqChecks}</ul>
-      </aside>
-    </div>
+    ${publishedBody}
+    ${candidateRows ? `<details class="mls-candidate"><summary>Исследовательский кандидат — не используется для операций</summary><div class="candidate-warning">Расчётные веса нового run. Нет количества акций, рублёвых сумм и команд увеличить/снизить.</div><div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Расчётный вес</th><th>Excess 20д</th></tr></thead><tbody>${candidateRows}</tbody></table></div></details>` : ''}
     <div class="mls-backtest">
       <div class="mls-section-head"><div><h3>Out-of-sample против MCFTR</h3><p>Purged walk-forward, следующий торговый день, после заданных издержек.</p></div></div>
       ${mlsCurveSvg(backtest.curve)}
@@ -1690,8 +1748,8 @@ function renderMlStrategy() {
       </div>
     </div>
     <details class="mls-method">
-      <summary>Методология и ограничения</summary>
-      <div><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><p><b>Отраслевые признаки:</b> Base, sector ID и каждый pack сравниваются на одинаковых датах, universe, модели, оптимизаторе и издержках. Issuer exposures заблокированы до появления versioned disclosures.</p><ul>${limitations}</ul></div>
+      <summary>Почему такой статус?</summary>
+      <div class="mls-diagnostics"><p><b>Прогнозный gate:</b> ${esc(predictive.status || '—')} · Rank IC ${isNum(predictiveActual.spearman_ic) ? ru(predictiveActual.spearman_ic, 3) : '—'} · hit rate ${mlsPct(predictiveActual.hit_rate)}.</p><p><b>After-cost gate:</b> ${esc(portfolioGate.status || '—')} · excess ${mlsPct(portfolioActual.excess_cumulative_return)} · Sharpe ${isNum(portfolioActual.sharpe_after_costs) ? ru(portfolioActual.sharpe_after_costs, 2) : '—'}.</p><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><div class="mls-sector-summary"><div><span>Отраслевые признаки</span><b>${evaluatedPackCount} из 4 оценены · ${approvedPackCount} в production</b><small>${approvedSources} официальных ряда. Веса production-модели используют только packs, прошедшие все фиксированные OOS gates.</small></div><ul>${sectorPacks}</ul></div><ul>${limitations}</ul></div>
     </details>`;
 }
 
@@ -1710,17 +1768,11 @@ function marlamovPortfolioCandidates() {
   return MARLAMOV.rows.map((row) => {
     const ticker = universe.get(row.ticker);
     if (!ticker || !eligibleForPortfolio(ticker)) return null;
-    const grossYield = isNum(row.gross_yield1)
-      ? row.gross_yield1
-      : (isNum(row.div1) && isNum(row.price) && row.price > 0 ? row.div1 / row.price : null);
-    const grossSpread = isNum(row.gross_spread)
-      ? row.gross_spread
-      : (grossYield != null && rfr != null ? grossYield - rfr : null);
-    if (grossSpread == null) return null;
+    if (!row.eligible || !isNum(row.expected_net_spread)) return null;
     return {
       t: ticker,
-      score: grossSpread,
-      strategy: { ...row, gross_yield1: grossYield, gross_spread: grossSpread },
+      score: row.expected_net_spread,
+      strategy: { ...row },
     };
   }).filter(Boolean);
 }
@@ -1767,9 +1819,14 @@ function buildPortfolio(method, opts) {
   const scored = method === 'marlamov'
     ? marlamovPortfolioCandidates()
     : uni.map((t) => ({ t, score: scoreFn(t) })).filter((x) => x.score != null);
-  if (scored.length < 3) return null;
+  if (method !== 'marlamov' && scored.length < 3) return null;
+  if (method === 'marlamov' && scored.length === 0) return [];
   scored.sort((a, b) => b.score - a.score);
   const top = scored.slice(0, opts.n);
+  if (method === 'marlamov') {
+    return top.map((x) => ({ ticker: x.t.ticker, name: x.t.name, sector: x.t.sector || ND, t: x.t,
+      score: x.score, strategy: x.strategy || null, w: 1 / opts.n }));
+  }
   const vols = top.map((x) => x.t.vol_ann).filter(isNum).sort((a, b) => a - b);   // для дозаполнения inverse-vol
   const medVol = vols.length ? vols[Math.floor(vols.length / 2)] : 0.3;
   const ss = top.map((x) => x.score), smin = Math.min(...ss), srange = (Math.max(...ss) - smin) || 1;  // диапазон для score-weight
@@ -2417,7 +2474,7 @@ function buildOptimized(method, opts) {
   return items;
 }
 
-function portfolioMetrics(items, capital) {
+function portfolioMetrics(items, capital, preserveCash = false) {
   let gy = 0, stab = 0, wsum = 0;
   const sec = {};
   items.forEach((it) => {
@@ -2427,11 +2484,12 @@ function portfolioMetrics(items, capital) {
     if (isNum(it.t.stability_score)) stab += it.w * it.t.stability_score;
     sec[it.sector] = (sec[it.sector] || 0) + it.w;
   });
-  const grossY = wsum ? gy / wsum : null;            // на покрытый вес
+  const grossY = wsum ? (preserveCash ? gy : gy / wsum) : null;
   const netY = grossY != null ? grossY * NET_OF_TAX : null;
   return {
     grossY, netY, stability: stab,
     incomeNet: (netY != null && capital) ? capital * netY / 100 : null,
+    cashWeight: preserveCash ? Math.max(0, 1 - items.reduce((sum, item) => sum + item.w, 0)) : 0,
     sectors: Object.entries(sec).sort((a, b) => b[1] - a[1]),
   };
 }
@@ -2560,15 +2618,14 @@ function marlamovBacktestHTML(backtest) {
 }
 
 function marlamovEntryGateHTML(items, backtest) {
-  const parameters = backtest && backtest.parameters ? backtest.parameters : {};
-  const thresholdPct = isNum(parameters.entry_spread_pct) ? parameters.entry_spread_pct : 3;
+  const thresholdPct = MARLAMOV && MARLAMOV.meta && isNum(MARLAMOV.meta.entry_threshold) ? MARLAMOV.meta.entry_threshold * 100 : 3;
   const threshold = thresholdPct / 100;
-  const passed = items.filter((item) => item.strategy && isNum(item.strategy.gross_spread) && item.strategy.gross_spread >= threshold).length;
+  const passed = items.filter((item) => item.strategy && isNum(item.strategy.expected_net_spread) && item.strategy.expected_net_spread >= threshold).length;
   const tone = passed > 0 ? 'good' : 'risk';
   const conclusion = passed > 0
-    ? `${passed} из ${items.length} проходят порог; состав ниже остаётся сравнительным рейтингом.`
-    : `0 из ${items.length} проходят порог; состав ниже — сравнительный рейтинг, а не сигнал ADD.`;
-  return `<div class="pf-entry-gate ${tone}"><b>Текущий фильтр входа</b><span>Spread ≥ +${ru(thresholdPct, 1)} п.п. · ${esc(conclusion)}</span></div>`;
+    ? `${passed} бумаг проходят порог; каждый занял один из ${+document.getElementById('pf-n').value || 10} слотов, остальные остаются cash/RFR.`
+    : 'Подходящих бумаг нет; модельный состав не сформирован.';
+  return `<div class="pf-entry-gate ${tone}"><b>Фильтр модельного состава</b><span>Expected net yield − RFR net ≥ +${ru(thresholdPct, 1)} п.п. · ${esc(conclusion)}</span></div>`;
 }
 
 function renderPortfolio() {
@@ -2601,14 +2658,16 @@ function renderPortfolio() {
   };
   const capital = +document.getElementById('pf-capital').value || 0;
   const items = buildPortfolio(method, opts);
-  if (!items) {
+  if (!items || !items.length) {
     if (method === 'quality') {
       const analysis = QUALITY_LAST_ANALYSIS || qualityCandidateAnalysis(qualityPortfolioConfig(opts));
       out.innerHTML = qualityEmptyStateHTML(analysis.config || qualityPortfolioConfig(opts), analysis);
       wireQualityEmptyActions(out);
       return;
     }
-    let msg = 'Недостаточно подходящих бумаг для корзины.';
+    let msg = method === 'marlamov'
+      ? 'По ожидаемой чистой дивдоходности ни одна бумага не прошла порог. Модельный состав пуст: 100% капитала остаётся в cash/RFR; кандидаты остаются в таблице наблюдения ниже.'
+      : 'Недостаточно подходящих бумаг для корзины.';
     if (method.startsWith('opt')) {
       if (!PF_RETURNS) msg = 'Загрузка истории…';
       else if (PF_RETURNS.failed) msg = 'Не удалось загрузить историю (returns.json) — обнови страницу (Cmd+Shift+R).';
@@ -2618,7 +2677,7 @@ function renderPortfolio() {
     return;
   }
   PF_LAST = { items, capital };
-  const m = portfolioMetrics(items, capital);
+  const m = portfolioMetrics(items, capital, method === 'marlamov');
   const risk = portfolioRisk(items, m.grossY);
   const bt = FACTOR_BACKTEST[method];
   const strategyBacktest = method === 'marlamov' && MARLAMOV ? MARLAMOV.backtest : null;
@@ -2638,8 +2697,8 @@ function renderPortfolio() {
     const y = isNum(it.t.dividend_yield_expected) ? it.t.dividend_yield_expected : it.t.dividend_yield_if_paid;
     const inc = (alloc && isNum(y)) ? alloc * y / 100 * NET_OF_TAX : null;
     const strategyCells = method === 'marlamov'
-      ? `<td class="tnum">${it.strategy && isNum(it.strategy.gross_yield1) ? ru(it.strategy.gross_yield1 * 100, 1) + '%' : mdash}</td>
-        <td class="tnum ${it.strategy && isNum(it.strategy.gross_spread) ? (it.strategy.gross_spread >= 0 ? 'pf-spread-up' : 'pf-spread-down') : ''}">${it.strategy && isNum(it.strategy.gross_spread) ? `${it.strategy.gross_spread >= 0 ? '+' : ''}${ru(it.strategy.gross_spread * 100, 1)} п.п.` : mdash}</td>`
+      ? `<td class="tnum">${it.strategy && isNum(it.strategy.expected_net_yield) ? ru(it.strategy.expected_net_yield * 100, 1) + '%' : mdash}</td>
+        <td class="tnum ${it.strategy && isNum(it.strategy.expected_net_spread) ? (it.strategy.expected_net_spread >= 0 ? 'pf-spread-up' : 'pf-spread-down') : ''}">${it.strategy && isNum(it.strategy.expected_net_spread) ? `${it.strategy.expected_net_spread >= 0 ? '+' : ''}${ru(it.strategy.expected_net_spread * 100, 1)} п.п.` : mdash}</td>`
       : method === 'quality'
         ? `<td class="tnum quality-score">${it.q && isNum(it.q.sector_rank_pct) ? ru(it.q.sector_rank_pct, 0) : mdash}</td>`
         : `<td class="left">${verdictChip(it.t.verdict, false)}</td>`;
@@ -2653,7 +2712,7 @@ function renderPortfolio() {
   const secBars = m.sectors.map(([s, w]) =>
     `<div class="pf-secrow"><span>${esc(s)}</span><span class="pf-secbar"><i style="width:${(w * 100).toFixed(0)}%"></i></span><span class="tnum">${ru(w * 100, 0)}%</span></div>`).join('');
   out.innerHTML = `<div class="pf-summary">
-      <div class="pf-card"><span class="lbl">Доходность (на руки)</span><b class="tnum">${m.netY != null ? ru(m.netY, 1) + '%' : mdash}</b><span class="muted">до НДФЛ ${m.grossY != null ? ru(m.grossY, 1) + '%' : '—'}</span></div>
+      <div class="pf-card"><span class="lbl">${method === 'marlamov' ? 'Ожидаемая доходность состава' : 'Доходность (на руки)'}</span><b class="tnum">${m.netY != null ? ru(m.netY, 1) + '%' : mdash}</b><span class="muted">${method === 'marlamov' ? `после НДФЛ · cash ${ru(m.cashWeight * 100, 0)}%` : `до НДФЛ ${m.grossY != null ? ru(m.grossY, 1) + '%' : '—'}`}</span></div>
       <div class="pf-card"><span class="lbl">Устойчивость портфеля</span><b class="tnum">${ru(m.stability * 100, 0)}%</b></div>
       <div class="pf-card"><span class="lbl">Доход в год (на руки)</span><b class="tnum">${m.incomeNet != null ? fmtRub(Math.round(m.incomeNet)) : mdash}</b><span class="muted">на ${capital ? fmtRub(capital) : '—'}</span></div>
       <div class="pf-card"><span class="lbl">Бумаг</span><b class="tnum">${items.length}</b></div>
@@ -2665,7 +2724,7 @@ function renderPortfolio() {
     ${method === 'marlamov' ? marlamovBacktestHTML(strategyBacktest) : ''}
     ${REBALANCE[method] ? `<div class="pf-reb muted">🔁 Рекомендуемый ребаланс: <b>${esc(REBALANCE[method])}</b></div>` : ''}
     ${riskPanelHTML(risk)}
-    <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>${method === 'quality' ? 'Факт ₽' : 'Сумма'}</th><th>Доход/год</th>${method === 'quality' ? '<th>Лотов</th><th>Штук</th><th>Quality сектор</th>' : (method === 'marlamov' ? '<th>Fwd yield gross</th><th>Спред к RFR</th>' : '<th class="left">Вердикт</th>')}</tr></thead><tbody>${rows}</tbody></table>
+      <div class="pf-grid"><div class="pf-holdings"><table class="pf-tbl"><thead><tr><th class="left">#</th><th class="left">Бумага</th><th>Вес</th><th>${method === 'quality' ? 'Факт ₽' : 'Сумма'}</th><th>Доход/год</th>${method === 'quality' ? '<th>Лотов</th><th>Штук</th><th>Quality сектор</th>' : (method === 'marlamov' ? '<th>Ожид. net yield</th><th>Спред к RFR net</th>' : '<th class="left">Вердикт</th>')}</tr></thead><tbody>${rows}</tbody></table>
       <button class="btn" id="pf-csv" style="margin-top:10px">Экспорт корзины CSV</button></div>
       <div class="pf-sectors"><h4>Секторная концентрация</h4>${secBars}</div></div>`;
   document.getElementById('pf-csv').addEventListener('click', exportPortfolioCSV);
@@ -5616,7 +5675,7 @@ function bondsCalc() {
 // (генерит scripts/build_forward_yield.py). Yield2 — от ОЧИЩЕННОЙ базы P_adj=P−Div1·0.87.
 // ══════════════════════════════════════════════════════════════════════════
 MARLAMOV = null;
-const ML_SIG = { 'ACCUMULATE': 'good', 'HOLD': 'neut', 'FIX PROFIT': 'risk', '—': 'neut' };
+const ML_SIG = { 'Выше модельного порога': 'good', 'Наблюдать': 'neut', 'Ниже модельного порога': 'risk', 'Недостаточно данных': 'neut' };
 
 function wireMarlamov() {
   const el = document.getElementById('marlamov');
@@ -5652,7 +5711,7 @@ function mlUIHTML(d) {
   const m = d.meta;
   const regimeCls = m.regime === 'Risk-On' ? 'good' : m.regime === 'Risk-Off' ? 'risk' : 'neut';
   const upd = (m.updated || '').replace('T', ' ').slice(0, 16);
-  const placeholders = d.rows.filter((r) => /заглушк/i.test(r.note || '')).length;
+  const placeholders = d.rows.filter((r) => r.forecast_status === 'insufficient_forecast').length;
   const TT = 'Доходность 2-го года считается от ОЧИЩЕННОЙ базы: P_adj = Цена − Div1·0.87 (после получения первого чистого дивиденда ваша база затрат снижается).';
   return `
     <div class="ml-macro">
@@ -5661,11 +5720,11 @@ function mlUIHTML(d) {
       <span class="ml-chip neut">RFR (КБД 1Y) <b>${(m.rfr * 100).toFixed(1)}%</b></span>
       <span class="ml-chip neut">Налог <b>${Math.round((1 - m.net_tax) * 100)}%</b></span>
     </div>
-    <p class="ml-sub">Чистая (после НДФЛ) дивдоходность на 2 года вперёд по авторским прогнозам. Доходность 2-го года — от <span class="ml-help" data-tooltip="${esc(TT)}">очищенной базы ⓘ</span>. Сигнал — спред <b>Yield2 − RFR</b>: ACCUMULATE (&gt;+1пп) / HOLD / FIX PROFIT (&lt;0).</p>
-    ${placeholders ? `<div class="ml-banner">⚠️ Прогнозы Div2 сейчас — <b>заглушки (=Div1, без роста)</b> для ${placeholders} бумаг, поэтому при RFR ${(m.rfr * 100).toFixed(1)}% почти всё = FIX PROFIT. Впиши свои прогнозы роста дивидендов на 2-й год в <code>my_dividend_forecasts.json</code> — недооценённые по форвард-доходности станут ACCUMULATE.</div>` : ''}
+    <p class="ml-sub">Кандидаты ранжируются по ожидаемой чистой дивдоходности: вероятность выплаты × условный дивиденд после НДФЛ / цена. Для модельного состава спред к сопоставимой RFR net должен быть не ниже <b>${ru((m.entry_threshold || 0.03) * 100, 1)} п.п.</b></p>
+    ${placeholders ? `<div class="ml-banner">Для ${placeholders} бумаг нет независимого прогноза Div2. Двухлетний сценарий по ним отключён и не создаёт статус или модельный вес.</div>` : ''}
     ${mlTableHTML(d.rows)}
     <div class="ml-fresh muted">Обновлено: ${esc(upd)} · бумаг: ${m.n} (с прогнозом Div2: ${m.n_with_div2}) · источник: MOEX ISS + модель</div>
-    <div class="ml-disc">Не индивидуальная инвестиционная рекомендация. Div1 — прогноз модели, Div2 — авторский ввод; форвардная доходность зависит от точности прогнозов. Сигнал сравнивает 2-летнюю чистую дивдоходность с безрисковой ставкой ОФЗ.</div>
+    <div class="ml-disc">Не индивидуальная инвестиционная рекомендация. Таблица — watchlist. Div2 используется только как сценарий при наличии независимого прогноза; live eligibility основана на ожидаемой чистой доходности первого года.</div>
   `;
 }
 
@@ -5677,21 +5736,20 @@ function mlTableHTML(rows) {
     <td class="tnum">${isNum(r.price) ? ru(r.price, 2) : ND}</td>
     <td class="tnum">${isNum(r.div1) ? ru(r.div1, 2) : ND}</td>
     <td class="tnum">${isNum(r.div2) ? ru(r.div2, 2) : ND}</td>
-    <td class="tnum">${pct(r.yield1)}</td>
+    <td class="tnum">${pct(r.payout_probability)}</td>
+    <td class="tnum">${pct(r.expected_net_yield)}</td>
+    <td class="tnum ${isNum(r.expected_net_spread) ? (r.expected_net_spread >= 0 ? 'ml-up' : 'ml-down') : ''}">${pp(r.expected_net_spread)}</td>
     <td class="tnum ml-y2">${pct(r.yield2)}</td>
-    <td class="tnum">${pct(r.total2)}</td>
-    <td class="tnum ${isNum(r.spread) ? (r.spread >= 0 ? 'ml-up' : 'ml-down') : ''}">${pp(r.spread)}</td>
     <td><span class="ml-sig s-${ML_SIG[r.signal] || 'neut'}">${esc(r.signal)}</span></td>
     <td class="ml-note muted">${esc(r.note || '')}</td>
   </tr>`).join('');
   return `<div class="ml-table-wrap"><table class="ml-table">
     <thead><tr>
-      <th>Бумага</th><th>Цена</th><th>Div 1</th><th>Div 2</th>
-      <th data-tooltip="Чистая дивдоходность 1-го года: Div1·0.87 / Цена">Дох. 1 год</th>
-      <th class="ml-y2" data-tooltip="Чистая дивдоходность 2-го года от ОЧИЩЕННОЙ базы: Div2·0.87 / (Цена − Div1·0.87)">Дох. 2 год</th>
-      <th data-tooltip="Сумма чистых дивидендов за 2 выплаты к исходной цене">За 2 выпл.</th>
-      <th data-tooltip="Spread = Доходность 2 года − RFR (безриск ОФЗ)">Спред</th>
-      <th>Сигнал</th><th>Примечание</th>
+      <th>Бумага</th><th>Цена</th><th>Div 1</th><th>Div 2</th><th>P(выплаты)</th>
+      <th data-tooltip="P(выплаты) × Div1 × (1−НДФЛ) / Цена">Ожид. net yield</th>
+      <th data-tooltip="Expected net yield − RFR после налога">Спред net</th>
+      <th class="ml-y2" data-tooltip="Только сценарий при независимом Div2">Сценарий 2 год</th>
+      <th>Статус</th><th>Примечание</th>
     </tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
@@ -6053,8 +6111,9 @@ function updateDataStatus() {
   const news = (SITE_STATUS && st.news && st.news.asof) ? d10(st.news.asof) : null;
   // overall health chip — человеческий текст (учитывает торговый календарь: выходной ≠ «устаревает»)
   const overall = SITE_STATUS && !SITE_STATUS.failed ? SITE_STATUS.overall : null;
-  const oLabel = { fresh: 'данные актуальны', stale: 'часть данных устарела', fallback: 'резервные данные', broken: 'часть данных недоступна' };
-  const oText = (SITE_STATUS && SITE_STATUS.overall_message) ? SITE_STATUS.overall_message : (oLabel[overall] || overall);
+  const oLabel = { fresh: 'рыночные данные актуальны', stale: 'часть данных устарела', fallback: 'резервные данные', broken: 'часть данных недоступна' };
+  const oText = overall === 'fresh' ? oLabel.fresh
+    : ((SITE_STATUS && SITE_STATUS.overall_message) ? SITE_STATUS.overall_message : (oLabel[overall] || overall));
   const chip = overall
     ? `<span class="ds-health ${cls[overall] || ''}" title="Свежесть данных по торговому календарю MOEX">● ${esc(oText)}</span>`
     : '';

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -12,6 +13,12 @@ from .data import MarketData, data_age_days, load_market_data
 from .features import FEATURE_COLUMNS, build_feature_panel, eligible_cross_section
 from .models import ModelEvaluation, walk_forward
 from .optimization import build_portfolio
+from .execution import (
+    decide_strategy_state,
+    extract_published_portfolio,
+    public_candidate,
+    strip_execution,
+)
 from .schemas import publish_bundle
 from .sector_features import build_sector_features, evaluate_sector_ablation
 from .sector_features.registry import load_config
@@ -23,18 +30,28 @@ def _round(value, digits: int = 6):
     return round(float(value), digits)
 
 
-def _previous_weights(latest_path: Path) -> pd.Series:
+def _previous_snapshot(latest_path: Path) -> dict:
     if not latest_path.exists():
-        return pd.Series(dtype=float)
+        return {}
     try:
         payload = json.loads(latest_path.read_text(encoding="utf-8"))
-        positions = payload.get("portfolio", {}).get("positions", [])
-        return pd.Series(
-            {row["ticker"]: float(row.get("target_weight", 0)) for row in positions if row.get("ticker")},
-            dtype=float,
-        )
+        return payload if isinstance(payload, dict) else {}
     except (OSError, ValueError, TypeError):
-        return pd.Series(dtype=float)
+        return {}
+
+
+def _published_weights(snapshot: dict) -> pd.Series:
+    published = extract_published_portfolio(snapshot)
+    positions = (published or {}).get("positions") or []
+    return pd.Series(
+        {row["ticker"]: float(row.get("target_weight", 0)) for row in positions if row.get("ticker")},
+        dtype=float,
+    )
+
+
+def _stable_hash(value: object) -> str:
+    encoded = json.dumps(value, sort_keys=True, ensure_ascii=True, default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()[:16]
 
 
 def _data_quality(data: MarketData, panel: pd.DataFrame, config: StrategyConfig, today: date) -> dict:
@@ -248,6 +265,35 @@ def build_bundle(
             >= (base_portfolio_metrics.get("sharpe_after_costs") or -1.0)
         )
         row["after_costs_gate"] = "PASS" if after_costs_pass else "FAIL"
+        row["promotion_gates"] = {
+            "identical_test_rows": {
+                "status": "PASS" if row["base_n"] == row["candidate_n"] and row["same_folds"] else "FAIL",
+                "base_n": row["base_n"],
+                "candidate_n": row["candidate_n"],
+            },
+            "rank_ic_improvement": {
+                "status": "PASS" if row["spearman_ic_improvement"] >= float(feature_flags["promotion"]["minimum_spearman_ic_improvement"]) else "FAIL",
+                "actual": row["spearman_ic_improvement"],
+                "minimum": float(feature_flags["promotion"]["minimum_spearman_ic_improvement"]),
+            },
+            "hit_rate_change": {
+                "status": "PASS" if row["hit_rate_change"] >= float(feature_flags["promotion"]["minimum_hit_rate_change"]) else "FAIL",
+                "actual": row["hit_rate_change"],
+                "minimum": float(feature_flags["promotion"]["minimum_hit_rate_change"]),
+            },
+            "positive_top_bottom_spread": {
+                "status": "PASS" if (row["candidate_top_bottom_spread"] or 0) > 0 else "FAIL",
+                "actual": row["candidate_top_bottom_spread"],
+                "required": bool(feature_flags["promotion"].get("require_positive_top_bottom_spread", True)),
+            },
+            "relative_after_cost_portfolio": {
+                "status": "PASS" if after_costs_pass else "FAIL",
+                "base_excess": base_portfolio_metrics.get("excess_cumulative_return"),
+                "candidate_excess": candidate_metrics.get("excess_cumulative_return"),
+                "base_sharpe": base_portfolio_metrics.get("sharpe_after_costs"),
+                "candidate_sharpe": candidate_metrics.get("sharpe_after_costs"),
+            },
+        }
         if row["status"] == "APPROVED" and not after_costs_pass:
             row["status"] = "RESEARCH_ONLY"
             row["reason"] = "Forecast gate passed, but the fixed after-cost portfolio gate failed."
@@ -256,15 +302,38 @@ def build_bundle(
             approved_columns = [
                 column for column in approved_columns if column not in {sector_column, *pack_columns}
             ]
+        row["failed_gates"] = [
+            name for name, gate in row["promotion_gates"].items() if gate["status"] == "FAIL"
+        ]
+        row["used_in_production"] = row["status"] == "APPROVED"
+        if row["failed_gates"]:
+            row["reason"] = "Не пройдены фиксированные gates: " + ", ".join(row["failed_gates"]) + "."
     ablation_by_pack = {row["pack_id"]: row for row in ablation_rows}
     for row in sector_result.pack_rows:
         result = ablation_by_pack[row["pack_id"]]
         row["ablation_status"] = result["status"]
         row["status"] = result["status"]
         row["ablation_reason"] = result["reason"]
+        row["used_in_production"] = result["used_in_production"]
+        row["evaluation"] = {
+            "base_n": result["base_n"],
+            "candidate_n": result["candidate_n"],
+            "rank_ic_improvement": result["spearman_ic_improvement"],
+            "rank_ic_minimum": result["promotion_gates"]["rank_ic_improvement"]["minimum"],
+            "hit_rate_change": result["hit_rate_change"],
+            "top_bottom_spread": result["candidate_top_bottom_spread"],
+            "after_costs_gate": result["after_costs_gate"],
+            "candidate_excess_after_costs": result["candidate_after_costs"].get("excess_cumulative_return"),
+            "candidate_sharpe_after_costs": result["candidate_after_costs"].get("sharpe_after_costs"),
+            "failed_gates": result["failed_gates"],
+        }
     sector_result.quality_payload["packs"] = sector_result.pack_rows
     sector_result.quality_payload["approved_feature_columns"] = approved_columns
     sector_result.quality_payload["ablation"] = ablation_rows
+    sector_result.quality_payload["evaluated_pack_count"] = len(ablation_rows)
+    sector_result.quality_payload["production_pack_count"] = sum(
+        row["status"] == "APPROVED" for row in ablation_rows
+    )
     feature_columns = FEATURE_COLUMNS + approved_columns
     evaluation = walk_forward(
         sector_result.panel,
@@ -279,7 +348,9 @@ def build_bundle(
     latest["lot_size"] = [
         int(data.master.get(ticker, {}).get("lot_size") or 1) for ticker in latest.index
     ]
-    previous = _previous_weights(repo / "data" / "ml_strategy" / "latest.json")
+    previous_snapshot = _previous_snapshot(repo / "data" / "ml_strategy" / "latest.json")
+    previous_published = extract_published_portfolio(previous_snapshot)
+    previous = _published_weights(previous_snapshot)
     price_returns = data.close.reindex(data.benchmark.index.intersection(data.close.index)).pct_change(
         fill_method=None
     )
@@ -350,45 +421,104 @@ def build_bundle(
         positions.append(position)
     positions.sort(key=lambda row: row["target_weight"], reverse=True)
     curve, portfolio_metrics = _portfolio_backtest(evaluation, config)
-    production_status = evaluation.champion_status
-    if production_status == "APPROVED" and (
-        (portfolio_metrics.get("excess_cumulative_return") or 0) <= 0
-        or (portfolio_metrics.get("sharpe_after_costs") or 0) <= 0
-    ):
-        production_status = "RESEARCH_ONLY"
-    if data_age_days(as_of, today) > config.stale_calendar_days:
-        action, reason = "DATA_STALE", "Последние официальные рыночные данные старше допустимого порога."
-    elif production_status != "APPROVED":
-        action, reason = "MODEL_UNCERTAIN", "Модель не прошла одновременно прогнозный и портфельный gate после издержек."
-    elif previous.empty:
-        action, reason = "WATCH", "Первый live snapshot: сначала накопить наблюдения, затем оценивать ребалансировку."
-    elif portfolio.turnover >= 0.08:
-        action, reason = "REBALANCE", "Исполнимые целевые веса заметно отличаются от предыдущего model snapshot."
-    else:
-        action, reason = "NO_ACTION", "Изменение остаётся внутри no-trade zone."
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    prediction_gate_passed = evaluation.champion_status == "APPROVED"
+    portfolio_gate_passed = (
+        (portfolio_metrics.get("excess_cumulative_return") or 0) > 0
+        and (portfolio_metrics.get("sharpe_after_costs") or 0) > 0
+    )
+    data_status = "stale" if data_age_days(as_of, today) > config.stale_calendar_days else quality["status"].lower()
+    model_status = "production" if prediction_gate_passed and portfolio_gate_passed else "research_only"
+    decision = decide_strategy_state(
+        model_status=model_status,
+        data_status=data_status,
+        predictive_gate_passed=prediction_gate_passed,
+        portfolio_gate_passed=portfolio_gate_passed,
+        solver_succeeded=True,
+        has_published_portfolio=bool(previous_published),
+        material_change=portfolio.turnover >= 0.08,
+    )
+    artifact_hash = _stable_hash({"model": evaluation.champion, "features": feature_columns, "metrics": evaluation.metrics})
+    constraints_hash = _stable_hash(config.to_dict())
+    run_id = f"{as_of.date().isoformat()}-{artifact_hash[:8]}-{constraints_hash[:8]}"
+    common_metadata = {
+        "run_id": run_id,
+        "as_of": as_of.date().isoformat(),
+        "calculated_at": generated_at,
+        "model_version": f"{evaluation.champion}:{artifact_hash}",
+        "artifact_hash": artifact_hash,
+        "universe_version": _stable_hash(sorted(latest.index.astype(str))),
+        "features_version": _stable_hash(feature_columns),
+        "constraints_hash": constraints_hash,
+        "cost_model_version": f"one_way_{config.one_way_cost_bps:g}bps_v1",
+        "signal_valid_until": None,
+        "next_review_at": None,
+        "next_execution_at": None,
+    }
+    candidate_portfolio = {
+        **common_metadata,
+        "status": (
+            "accepted" if decision.publish_candidate
+            else "accepted_no_change" if decision.signal_status == "valid"
+            else "rejected"
+        ),
+        "method": portfolio.method,
+        "positions": [public_candidate(row) for row in positions],
+        "cash_weight": _round(portfolio.cash_weight),
+        "diagnostic_turnover": _round(portfolio.turnover),
+        "diagnostic_cost_rub": _round(portfolio.estimated_cost_rub, 2),
+        "affects_current_portfolio": False,
+    }
+    executable_portfolio = {
+        **common_metadata,
+        "published_from_run_id": run_id,
+        "method": portfolio.method,
+        "capital_rub": config.capital_rub,
+        "positions": positions,
+        "cash_weight": _round(portfolio.cash_weight),
+        "turnover": _round(portfolio.turnover),
+        "estimated_cost_rub": _round(portfolio.estimated_cost_rub, 2),
+        "one_way_cost_bps": config.one_way_cost_bps,
+        "annualized_volatility": _round(portfolio.annualized_volatility),
+        "beta": _round(portfolio.beta),
+        "fallback_reason": portfolio.fallback_reason,
+    }
+    if decision.publish_candidate:
+        published_portfolio = executable_portfolio
+    elif previous_published:
+        published_portfolio = previous_published
+    else:
+        published_portfolio = None
+    public_portfolio = published_portfolio or strip_execution(executable_portfolio)
+    execution = {
+        "status": decision.action_status,
+        "turnover": executable_portfolio["turnover"] if decision.publish_candidate else None,
+        "estimated_cost_rub": executable_portfolio["estimated_cost_rub"] if decision.publish_candidate else None,
+        "one_way_cost_bps": config.one_way_cost_bps,
+        "turnover_cap": config.turnover_cap,
+        "turnover_formula": "0.5 * sum(abs(target_weight - current_weight)), including cash",
+        "next_review_at": common_metadata["next_review_at"],
+        "next_execution_at": common_metadata["next_execution_at"],
+    }
     latest_payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_at": generated_at,
         "data_as_of": as_of.date().isoformat(),
         "benchmark": "MCFTR",
         "horizon_sessions": config.horizon,
-        "signal": {"action": action, "reason": reason, "mode": "monthly_threshold"},
-        "portfolio": {
-            "method": portfolio.method,
-            "capital_rub": config.capital_rub,
-            "positions": positions,
-            "cash_weight": _round(portfolio.cash_weight),
-            "turnover": _round(portfolio.turnover),
-            "estimated_cost_rub": _round(portfolio.estimated_cost_rub, 2),
-            "one_way_cost_bps": config.one_way_cost_bps,
-            "annualized_volatility": _round(portfolio.annualized_volatility),
-            "beta": _round(portfolio.beta),
-            "fallback_reason": portfolio.fallback_reason,
-        },
+        "run": common_metadata,
+        "model_status": decision.model_status,
+        "data_status": decision.data_status,
+        "signal_status": decision.signal_status,
+        "action_status": decision.action_status,
+        "signal": {"action": decision.action_status, "status": decision.signal_status, "title": decision.title, "reason": decision.reason, "mode": "monthly_threshold"},
+        "published_portfolio": published_portfolio,
+        "candidate_portfolio": candidate_portfolio,
+        "execution": execution,
+        "portfolio": public_portfolio,
         "model": {
             "champion": evaluation.champion,
-            "status": production_status,
+            "status": decision.model_status,
             "prediction_gate_status": evaluation.champion_status,
             "forecast_shrinkage": config.forecast_shrinkage,
         },
@@ -407,6 +537,27 @@ def build_bundle(
             ],
             "blocked_issuer_exposures": True,
             "last_checked_at": sector_result.quality_payload["generated_at"],
+        },
+        "diagnostics": {
+            "predictive_gate": {
+                "status": "pass" if prediction_gate_passed else "fail",
+                "actual": evaluation.metrics.get(evaluation.champion, {}),
+                "thresholds": {"spearman_ic_above_best_baseline_by": 0.01, "hit_rate_minimum": 0.50},
+            },
+            "portfolio_gate": {
+                "status": "pass" if portfolio_gate_passed else "fail",
+                "actual": {
+                    "excess_cumulative_return": portfolio_metrics.get("excess_cumulative_return"),
+                    "sharpe_after_costs": portfolio_metrics.get("sharpe_after_costs"),
+                },
+                "thresholds": {"excess_cumulative_return": "> 0", "sharpe_after_costs": "> 0"},
+            },
+            "constraints": {
+                "turnover_actual": _round(portfolio.turnover),
+                "turnover_cap": config.turnover_cap,
+                "one_way_cost_bps": config.one_way_cost_bps,
+                "solver_method": portfolio.method,
+            },
         },
         "limitations": [
             "Исследовательский модельный портфель, не индивидуальная инвестиционная рекомендация.",
@@ -432,7 +583,7 @@ def build_bundle(
         "generated_at": generated_at,
         "champion": {
             "name": evaluation.champion,
-            "status": production_status,
+            "status": decision.model_status,
             "prediction_gate_status": evaluation.champion_status,
             "portfolio_gate": "after_cost_excess_positive_and_sharpe_positive",
         },

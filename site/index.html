@@ -275,7 +275,7 @@
             <div class="pf-controls">
               <label>Стратегия<select id="pf-method">
                 <option value="quality">RU Quality · секторные модели</option>
-                <option value="momentum" disabled>Momentum (скоро)</option>
+                <option value="momentum">Momentum (WML 12–1)</option>
                 <option value="marlamov">Дивидендная переоценка (Марламов)</option>
                 <option value="optmv">Оптимум: мин. риск</option>
                 <option value="optms">Оптимум: макс-Шарп (quality-тилт)</option>
@@ -342,6 +342,14 @@
             <b>Исторический backtest</b>
             <span>Полный point-in-time backtest пока не рассчитан: нет полной истории дат публикации и всех секторных факторов на каждую дату ребаланса.</span>
           </div>
+        </section>
+
+        <section class="momentum-panel" id="momentum-panel" hidden aria-labelledby="momentum-title">
+          <div class="momentum-head">
+            <div><span class="mls-kicker">Исследовательский фактор · MOEX ISS · WML 12–1</span><h2 id="momentum-title">Momentum</h2></div>
+            <span class="strategy-research-badge">Исследовательский сигнал</span>
+          </div>
+          <div id="momentum-content" aria-live="polite"><div class="mls-loading">Расчёт календаря и состава…</div></div>
         </section>
 
         <dialog class="quality-drawer" id="quality-drawer">

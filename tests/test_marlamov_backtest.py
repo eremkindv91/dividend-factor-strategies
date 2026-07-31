@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from scripts.build_forward_yield import build_rows
 from src.strategies.forward_repricing import (
@@ -92,6 +93,33 @@ def test_current_repricing_score_is_gross_and_does_not_depend_on_div2_placeholde
     assert first["gross_spread"] == 0.02
     assert first["gross_spread"] == second["gross_spread"]
     assert first["yield2"] != second["yield2"]
+
+
+def test_div2_placeholder_never_creates_two_year_signal():
+    universe = {
+        "AAA": {
+            "price": 100.0,
+            "div1_model": 20.0,
+            "name": "AAA",
+            "sector": "Test",
+            "status": "ok",
+            "mcap": 100_000,
+            "yield_expected": 20.0,
+            "yield_if_paid": 20.0,
+        }
+    }
+    row = build_rows(
+        universe,
+        {"AAA": {"div_1": 20.0, "div_2": 20.0, "forecast_status": "placeholder", "note": "заглушка"}},
+        0.10,
+    )[0]
+    assert row["div2"] is None
+    assert row["yield2"] is None
+    assert row["forecast_status"] == "insufficient_forecast"
+    assert row["signal"] == "Недостаточно данных"
+    assert row["note"] == "Независимый прогноз Div2 отсутствует"
+    assert row["expected_net_yield"] == pytest.approx(0.174)
+    assert row["matched_rfr"] == pytest.approx(0.087)
 
 
 def test_repository_data_builds_a_nonempty_reproducible_backtest():
