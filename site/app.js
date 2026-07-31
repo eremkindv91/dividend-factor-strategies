@@ -7421,10 +7421,30 @@ function mpeDecompHTML(dec) {
   </div>`;
 }
 
+/** Кнопки выбора знаменателя. Вынесены отдельно, потому что рисуются даже когда у
+ *  выбранного режима не хватает данных — иначе блок исчезает целиком вместе с
+ *  переключателем, и вернуться к рабочему режиму пользователю нечем. */
+function mpeModeButtons(d, activeId) {
+  return MPE_METRICS.map((m) => {
+    const on = m.id === activeId;
+    const has = mpeUsable(d, m.id).length >= 12;
+    return `<button type="button" class="pfx-rbtn mpe-mode${on ? ' on' : ''}"
+      data-mpe-metric="${m.id}" aria-pressed="${on}"${has ? '' : ' disabled'}>${esc(m.label)}</button>`;
+  }).join('');
+}
+
 function mpeHistoryHTML(d) {
   const rows = mpeWindowRows(d);
   const st = mpeStats(rows);
-  if (!st) return '';
+  if (!st) {
+    if (!mpeUsable(d, 'reported').length) return '';      // истории нет вовсе — блока не будет
+    return `<div class="mpe-hist">
+      <div class="mpe-hist-head"><span class="mpe-sub-h">Оценка рынка в динамике</span></div>
+      <div class="mpe-modes" role="group" aria-label="Знаменатель оценки">${mpeModeButtons(d, MPE_METRIC)}</div>
+      <div class="mpe-verdict mid"><b>нет ряда для этого знаменателя</b>
+        <span>данных в фундамент-слое не хватает — выберите другой</span></div>
+    </div>`;
+  }
   const cur = d.current || {};
   const v = mpeVerdict(st.percentile);
   const active = mpeActiveRange(d);
@@ -7458,12 +7478,7 @@ function mpeHistoryHTML(d) {
     : '';
 
   const mt = mpeMetric();
-  const modes = MPE_METRICS.map((m) => {
-    const on = m.id === mt.id;
-    const has = mpeUsable(d, m.id).length >= 12;   // режим без данных не предлагаем
-    return `<button type="button" class="pfx-rbtn mpe-mode${on ? ' on' : ''}"
-      data-mpe-metric="${m.id}" aria-pressed="${on}"${has ? '' : ' disabled'}>${esc(m.label)}</button>`;
-  }).join('');
+  const modes = mpeModeButtons(d, mt.id);
 
   return `<div class="mpe-hist">
     <div class="mpe-hist-head">
