@@ -30,7 +30,8 @@ python3 scripts/check_predeploy_contract.py
 python3 scripts/build_site_status.py
 python3 scripts/validate_site_data.py
 
-cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
+cp site/index.html site/styles.css site/instrument_identity.js site/app.js site/data.json "$TMP/"
+[ -d site/assets ] && cp -r site/assets "$TMP/"
 [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"
 [ -f site/returns.json ] && cp site/returns.json "$TMP/"
 [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"
@@ -63,6 +64,7 @@ import sys
 path = Path(sys.argv[1])
 version = sys.argv[2]
 html = path.read_text(encoding="utf-8")
+html = html.replace('"instrument_identity.js"', f'"instrument_identity.js?v={version}"')
 html = html.replace('"app.js"', f'"app.js?v={version}"')
 html = html.replace('"styles.css"', f'"styles.css?v={version}"')
 path.write_text(html, encoding="utf-8")

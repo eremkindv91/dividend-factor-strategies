@@ -8,6 +8,19 @@ const fmtPct = (x, d = 1) => isNum(x) ? ru(x, d) + '%' : ND;
 const fmtRub = (x) => isNum(x) ? ru(x, 2) + ' ₽' : ND;
 const fmtScore = (x) => isNum(x) ? ru(x * 100, 1) + '%' : ND;   // 0..1 → %
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const instrumentTypeHint = (row) => {
+  if (!row) return '';
+  if (row.share_class === 'preferred' || row.instrument_type === 'equity_preferred') return 'preferred_equity';
+  return row.instrument_type || row.type || '';
+};
+const instrumentAvatarHTML = (secid, name, type, size = 'sm', options = {}) => {
+  if (!window.InstrumentIdentity) return `<span class="instrument-avatar-plain">${esc(String(secid || '?').slice(0, 2))}</span>`;
+  return window.InstrumentIdentity.avatarHTML({ secid, name, type, size, ...options });
+};
+const instrumentIdentityHTML = (secid, name, type, size = 'sm', options = {}) => {
+  if (!window.InstrumentIdentity) return `<span class="instrument-identity-plain"><b>${esc(name || secid || ND)}</b><span>${esc(secid || '')}</span></span>`;
+  return window.InstrumentIdentity.identityHTML({ secid, name, type, size, ...options });
+};
 const mdash = '<span class="muted" title="нет данных">—</span>';
 // склонение существительного при числе: 1 позиция / 2 позиции / 5 позиций
 const plural = (n, one, few, many) => {
@@ -472,7 +485,7 @@ function renderTable() {
       : mdash;
     const statusChip = statusChipHTML(t);
     return `<tr class="data-row" data-i="${i}">
-      <td class="left"><span class="rank">${i + 1}</span><span class="tk">${esc(t.ticker)}</span><br><span class="nm">${esc(t.name)}</span></td>
+      <td class="left"><div class="instrument-ranked"><span class="rank">${i + 1}</span>${instrumentIdentityHTML(t.ticker, t.name, instrumentTypeHint(t), 'sm')}</div></td>
       <td class="left">${verdictChip(t.verdict, false)}</td>
       <td>${stabilityCell(t.stability_score)}</td>
       <td>${riskBadge(t.cut_risk)}</td>
@@ -873,10 +886,10 @@ function statusChipHTML(t) {
 function stockDetailSummaryHTML(t) {
   return `<div class="issuer-summary">
     <div class="issuer-title">
-      <span class="issuer-ticker">${esc(t.ticker)}</span>
+      ${instrumentAvatarHTML(t.ticker, t.name, instrumentTypeHint(t), 'lg')}
       <div>
         <b>${esc(t.name)}</b>
-        <span>${esc(t.sector || ND)}</span>
+        <span>${esc(t.ticker)} · ${esc(t.sector || ND)}</span>
       </div>
     </div>
     <div class="issuer-badges">
@@ -932,8 +945,8 @@ function renderCards() {
   el.innerHTML = SHOWN.length ? SHOWN.map((t, i) => {
     const statusChip = statusChipHTML(t);
     return `<div class="card">
-      <div class="top"><span class="tk"><span class="rank">${i + 1}</span>${esc(t.ticker)}</span>${riskBadge(t.cut_risk)}</div>
-      <div class="nm">${esc(t.name)} · ${esc(t.sector)}</div>
+      <div class="top"><div class="instrument-ranked"><span class="rank">${i + 1}</span>${instrumentIdentityHTML(t.ticker, t.name, instrumentTypeHint(t), 'md')}</div>${riskBadge(t.cut_risk)}</div>
+      <div class="nm card-sector">${esc(t.sector)}</div>
       <div class="card-verdict">${verdictChip(t.verdict, true)}</div>
       <div class="grid">
         <div><span class="lbl">Устойчивость</span>${stabilityCell(t.stability_score)}</div>
@@ -1617,7 +1630,7 @@ function renderMlStrategy() {
       ).join('')}</div>`
       : '';
     return `<tr>
-    <td><b>${esc(row.ticker)}</b><span>${esc(row.name || '')}</span></td>
+    <td>${instrumentIdentityHTML(row.ticker, row.name, row.instrument_type, 'sm')}</td>
     <td>${esc(row.sector || '—')}${driverHtml}</td>
     <td>${mlsPct(row.current_weight)}</td>
     <td><b>${mlsPct(row.target_weight)}</b><small>${row.shares || 0} шт.</small></td>
@@ -2630,7 +2643,7 @@ function renderPortfolio() {
       : method === 'quality'
         ? `<td class="tnum quality-score">${it.q && isNum(it.q.sector_rank_pct) ? ru(it.q.sector_rank_pct, 0) : mdash}</td>`
         : `<td class="left">${verdictChip(it.t.verdict, false)}</td>`;
-    return `<tr><td class="left">${i + 1}</td><td class="left"><b>${esc(it.ticker)}</b> <span class="muted">${esc(it.sector)}</span></td>
+    return `<tr><td class="left">${i + 1}</td><td class="left">${instrumentIdentityHTML(it.ticker, it.t && it.t.name, instrumentTypeHint(it.t), 'sm')}<span class="instrument-sector">${esc(it.sector)}</span></td>
       <td class="tnum">${ru(it.w * 100, 1)}%</td>
       <td class="tnum">${alloc != null ? fmtRub(Math.round(alloc)) : mdash}</td>
       <td class="tnum">${inc != null ? fmtRub(Math.round(inc)) : mdash}</td>
@@ -4177,7 +4190,7 @@ function pfxRebalScenarioHTML(c, mode) {
     <tr><td class="left">Turnover</td><td class="tnum">—</td><td class="tnum">${PN(r.turnover, 0)}</td></tr>
   </tbody></table>` : `<div class="pfx-note">${NA} сравнение метрик сценария.</div>`;
   const chg = r.changes.filter((x) => Math.abs(x.delta) > 0.005).slice(0, 12).map((x) =>
-    `<tr><td class="left"><b>${esc(x.ticker)}</b></td><td class="tnum">${PN(x.cur, 1)}</td><td class="tnum">${PN(x.sug, 1)}</td>
+    `<tr><td class="left">${instrumentIdentityHTML(x.ticker, (c.positions.find((p) => p.ticker === x.ticker) || {}).name, '', 'sm', { variant: 'compact', showTypeText: false })}</td><td class="tnum">${PN(x.cur, 1)}</td><td class="tnum">${PN(x.sug, 1)}</td>
      <td class="tnum ${x.delta >= 0 ? 'saw-up' : 'saw-down'}">${PP(x.delta, 1)}</td><td class="left muted">${esc(x.reason)}</td></tr>`).join('');
   return `<div class="pfx-2col">${comp}
     <table class="pfx-tbl"><thead><tr><th class="left">Бумага</th><th>Тек.</th><th>Сцен.</th><th>Δ</th><th class="left">Причина</th></tr></thead><tbody>${chg}</tbody></table></div>`;
@@ -4212,7 +4225,7 @@ function pfxPosHTML(c) {
     const flag = pfxPosFlag(p, c);
     const pnl = p.pnl_pct == null ? mdash : `<span class="${p.pnl_pct >= 0 ? 'saw-up' : 'saw-down'}">${PP(p.pnl_pct)}</span>`;
     return `<tr>
-      <td class="left"><b>${esc(p.ticker)}</b><span class="muted"> ${esc(p.sector)}</span></td>
+      <td class="left">${instrumentIdentityHTML(p.ticker, p.name || (p.t && p.t.name), instrumentTypeHint(p.t), 'sm')}<span class="instrument-sector">${esc(p.sector)}</span></td>
       <td class="tnum">${PN(p.weight, 1)}</td>
       <td class="tnum">${rub0(p.value)}</td>
       <td class="tnum">${pnl}</td>
@@ -4504,7 +4517,8 @@ function pfxWireAutocomplete() {
   const render = () => {
     if (!matches.length) { close(); return; }
     box.innerHTML = matches.map((t, i) => `<div class="mp-sug-item${i === active ? ' active' : ''}" data-i="${i}">
-      <b>${esc(t.ticker)}</b><span>${esc(t.name || '')}${isNum(t.price) ? ' · ' + ru(t.price, 2) + '₽' : (t._extra ? ' · нет истории' : '')}</span></div>`).join('');
+      ${instrumentAvatarHTML(t.ticker, t.name, instrumentTypeHint(t), 'md')}
+      <span class="mp-sug-copy"><b>${esc(t.ticker)}</b><span>${esc(t.name || '')}${isNum(t.price) ? ' · ' + ru(t.price, 2) + '₽' : (t._extra ? ' · нет истории' : '')}</span></span></div>`).join('');
     box.classList.add('open');
     box.querySelectorAll('.mp-sug-item').forEach((el) => el.addEventListener('mousedown', (e) => { e.preventDefault(); pick(matches[+el.dataset.i]); }));
   };
@@ -5477,7 +5491,7 @@ function bondsTableHTML(bonds) {
   const rows = bonds.slice().sort((a, b) => b.deviation - a.deviation).map((x) => {
     const dev = isNum(x.deviation) ? (x.deviation >= 0 ? '+' : '') + x.deviation.toFixed(1) + '%' : ND;
     return `<tr>
-      <td class="b-name">${esc(x.name)}</td>
+      <td class="b-name">${instrumentIdentityHTML(x.secid || x.isin, x.name, 'bond', 'sm', { showTypeBadge: false })}</td>
       <td>${officialRatingHTML(x, 'b-rating')}</td>
       <td class="tnum">${isNum(x.price_market) ? x.price_market.toFixed(2) : ND}</td>
       <td class="tnum">${isNum(x.ytm_market) ? x.ytm_market.toFixed(2) + '%' : ND}</td>
@@ -5575,7 +5589,7 @@ function bondsCalc() {
   });
   const cash = capital - totalSpent;
   const rows = lines.map(({ b, costPerLot, lots, spent }) => `<tr>
-    <td class="b-name">${esc(b.name)}</td>
+    <td class="b-name">${instrumentIdentityHTML(b.secid || b.isin, b.name, 'bond', 'sm', { showTypeBadge: false })}</td>
     <td>${officialRatingHTML(b, 'b-rating')}</td>
     <td class="tnum">${(b.weight * 100).toFixed(1)}%</td>
     <td class="tnum b-strong">${lots}</td>
@@ -5659,7 +5673,7 @@ function mlTableHTML(rows) {
   const pct = (x, d = 1) => isNum(x) ? (x * 100).toFixed(d) + '%' : ND;
   const pp = (x) => isNum(x) ? (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + 'пп' : ND;
   const body = rows.map((r) => `<tr>
-    <td class="ml-name"><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name || '')}</span></td>
+    <td class="ml-name">${instrumentIdentityHTML(r.ticker, r.name, r.instrument_type, 'sm')}</td>
     <td class="tnum">${isNum(r.price) ? ru(r.price, 2) : ND}</td>
     <td class="tnum">${isNum(r.div1) ? ru(r.div1, 2) : ND}</td>
     <td class="tnum">${isNum(r.div2) ? ru(r.div2, 2) : ND}</td>
@@ -6123,7 +6137,9 @@ function evRowHTML(e, pf, todayIso) {
   const impLbl = imp >= 85 ? 'высокая' : imp >= 60 ? 'средняя' : 'низкая';
   const inPf = e.ticker && pf.set.has(e.ticker);
   const wpct = inPf && isNum(pf.weights[e.ticker]) ? ` · ${ru(pf.weights[e.ticker] * 100, 0)}%` : '';
-  const who = e.ticker ? `<b>${esc(e.ticker)}</b> ${esc(e.company)}` : `<b>${esc(e.company)}</b>`;
+  const who = e.ticker
+    ? instrumentIdentityHTML(e.ticker, e.company, e.instrument_type, 'sm', { variant: 'compact', showTypeText: false })
+    : `<b>${esc(e.company)}</b>`;
   const isAnnounced = e.data_status === 'announced';
   const srcLbl = EV_SRC_LABEL[e.source] || esc(e.source || 'источник н/д');
   const src = e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${srcLbl}</a>` : srcLbl;
@@ -6179,7 +6195,7 @@ function eventsPortfolioVerdictHTML(pf, todayIso) {
   const grossTxt = gross > 0 ? ` · ожидается ≈ <b>${ru(gross, 0)} ₽</b> валовыми` : '';
   return `<div class="events-verdict" title="Валовая сумма до налога, если позиция удержана до отсечки; фактическое зачисление может быть позже">
     <span class="ev-chip ev-chip-pf">Мой портфель</span>
-    <span class="events-verdict-text">Ближайшее — <b>${esc(nearest.secid)}</b>: ${nearLbl}${grossTxt} · ${mine.length} ${dividendEventWord(mine.length)} / 90 дней</span>
+    <span class="events-verdict-text">Ближайшее — ${instrumentIdentityHTML(nearest.secid, nearest.name, nearest.instrument_type, 'xs', { variant: 'compact', showTypeText: false })}: ${nearLbl}${grossTxt} · ${mine.length} ${dividendEventWord(mine.length)} / 90 дней</span>
     ${btn('portfolio', 'Календарь портфеля ↓')}</div>`;
 }
 
@@ -6559,7 +6575,7 @@ function dividendRowsHTML(rows, portfolio, tab) {
   const desktop = rows.map((event) => {
     const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
     return `<tr class="${closedCls(event).trim()}">
-      <td class="left"><div class="dc-company"><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div><div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div></td>
+      <td class="left"><div class="dc-company">${instrumentIdentityHTML(event.secid, event.name, event.instrument_type, 'sm')}</div><div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div></td>
       <td class="left">${dividendDecisionBadge(event)}</td>
       <td class="tnum"><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></td>
       <td class="tnum">${isNum(event.yield_pct) ? `<b>${ru(event.yield_pct, 1)}%</b><small>цена ${dividendDateLabel(event.price_asof)}</small>` : '<span class="muted">нет сопоставимой цены</span>'}</td>
@@ -6573,7 +6589,7 @@ function dividendRowsHTML(rows, portfolio, tab) {
   const mobile = rows.map((event) => {
     const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
     return `<article class="dc-mobile-card${closedCls(event)}">
-      <header><div><b>${esc(event.secid)}</b><span>${esc(event.name || '')}</span></div>${dividendDecisionBadge(event)}</header>
+      <header><div>${instrumentIdentityHTML(event.secid, event.name, event.instrument_type, 'sm')}</div>${dividendDecisionBadge(event)}</header>
       <div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div>
       <div class="dc-mobile-primary"><div><span>Дивиденд</span><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></div><div><span>Доходность к цене</span><b>${isNum(event.yield_pct) ? ru(event.yield_pct, 1) + '%' : '—'}</b></div></div>
       <dl><dt>Купить до</dt><dd>${dividendDateLabel(event.last_buy_date, true)}</dd><dt>Реестр</dt><dd>${dividendDateLabel(event.record_date, true)}</dd><dt>Выплата / до</dt><dd>${esc(dividendPaymentLabel(event))}</dd>${gross != null ? `<dt>Мой портфель</dt><dd><b>${ru(gross, 0)} ₽ валовыми</b></dd>` : ''}</dl>
@@ -7607,7 +7623,7 @@ function marketInstrumentCardHTML(item) {
   const s = item.summary || {};
   const tone = (s.change_pct || 0) > 0 ? 'up' : (s.change_pct || 0) < 0 ? 'down' : 'flat';
   return `<button type="button" class="market-instrument-card" data-market-id="${esc(item.id)}" aria-label="Открыть график ${esc(item.name)}">
-    <span class="mic-name">${esc(item.name)}</span>
+    <span class="mic-identity">${instrumentAvatarHTML(item.id, item.description || item.name, item.type, 'md')}<span class="mic-name">${esc(item.name)}</span></span>
     <span class="mic-value">${marketNumber(s.last, item.decimals)}</span>
     <span class="mic-change ${tone}">${marketChange(s.change_pct)}</span>
     <span class="mic-meta">RSI ${isNum(s.rsi14) ? ru(s.rsi14, 1) : '—'} · vol ${isNum(s.volatility20_annualized_pct) ? ru(s.volatility20_annualized_pct, 1) + '%' : '—'}</span>
@@ -7751,10 +7767,10 @@ function renderMarketChartDialog() {
   const item = marketInstrument(MARKET_CHART_STATE.id);
   if (!item) return;
   const s = item.summary || {};
-  document.getElementById('market-chart-title').textContent = `${item.name} · ${marketNumber(s.last, item.decimals)}`;
+  document.getElementById('market-chart-title').innerHTML = `${instrumentAvatarHTML(item.id, item.description || item.name, item.type, 'md')}<span>${esc(item.name)} · ${marketNumber(s.last, item.decimals)}</span>`;
   document.getElementById('market-chart-sub').innerHTML = `<span class="${(s.change_pct || 0) >= 0 ? 'up' : 'down'}">${marketChange(s.change_pct)}</span> · ${esc(item.description)} · ${esc(sawDate(item.data_last))}`;
   document.getElementById('market-chart-tabs').innerHTML = MARKET_HISTORY.instruments.map((row) =>
-    `<button type="button" data-market-tab="${esc(row.id)}" class="${row.id === item.id ? 'active' : ''}">${esc(row.name)}</button>`
+    `<button type="button" data-market-tab="${esc(row.id)}" class="${row.id === item.id ? 'active' : ''}">${instrumentAvatarHTML(row.id, row.description || row.name, row.type, 'xs')}${esc(row.name)}</button>`
   ).join('');
   const seriesMode = document.getElementById('market-chart-mode');
   if (seriesMode) seriesMode.textContent = marketUsesCloseLine(item) ? 'Линия закрытия' : 'Свечи OHLC';
@@ -7817,7 +7833,7 @@ function stockChartFromDate(days) {
 function stockPriceChartHTML(t) {
   return `<div class="detail-card stock-chart" data-sc-ticker="${esc(t.ticker)}">
     <div class="sc-top">
-      <h4>Цена и объём торгов</h4>
+      <h4>${instrumentAvatarHTML(t.ticker, t.name, instrumentTypeHint(t), 'sm')}<span>Цена и объём торгов · ${esc(t.ticker)}</span></h4>
       <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
     </div>
     <div class="sc-ohlc tnum" aria-live="polite"></div>
@@ -8073,7 +8089,7 @@ function cbrBankDeckHTML() {
     const roe = isNum(b.roe) ? b.roe.toFixed(1) + '%' : ND;
     const tone = isNum(b.p_bv) && b.p_bv < 1 ? 'cheap' : 'rich';
     return `<button class="cbr-bank-card ${i === 0 ? 'on' : ''}" type="button" data-reg="${esc(b.regnum)}" style="--bank-color:${esc(b.color || '#5B6B83')}">
-      <span class="cbr-bank-card-top"><b>${esc(b.ticker)}</b><span>${cbrRub(b.mcap_rub)}</span></span>
+      <span class="cbr-bank-card-top"><span class="cbr-bank-identity">${instrumentAvatarHTML(b.ticker, b.name, 'equity', 'sm')}<b>${esc(b.ticker)}</b></span><span>${cbrRub(b.mcap_rub)}</span></span>
       <span class="cbr-bank-card-name">${esc(b.name)}</span>
       <span class="cbr-bank-card-metrics"><span class="${tone}">P/капитал ЦБ ${pbv}</span><span>ROE ${roe}</span></span>
     </button>`;
@@ -8145,7 +8161,7 @@ function cbrBankSummaryHTML(bank, val, series) {
   const warns = bankWarns.length ? `<div class="cbr-bank-warnings">${bankWarns.slice(0, 2).map((w) => `<span>⚠ ${esc(w)}</span>`).join('')}</div>` : '';
   return `<div class="cbr-bank-summary-main" style="--bank-color:${esc((val && val.color) || '#5B6B83')}">
     <div class="cbr-bank-title">
-      <span class="cbr-bank-dot"></span>
+      ${instrumentAvatarHTML(ticker || name, name, 'equity', 'lg')}
       <div><b>${esc(name)}</b><span>${ticker ? esc(ticker) + ' · ' : ''}${bank.is_systemically_important ? 'системно значимый' : 'активный банк'}</span></div>
     </div>
     <div class="cbr-bank-kpis">
@@ -8887,7 +8903,7 @@ function bvalCapacityDraw() {
     const vt = cap == null ? 'neut' : cap >= 75 ? 'good' : cap >= 55 ? 'neut' : cap >= 40 ? 'warn' : 'risk';
     const buf = b.capital_buffer;
     return `<tr class="bval-caprow" data-tk="${esc(b.ticker)}">
-      <td class="left"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span><b>${esc(b.name)}</b> <span class="bval-tk">${esc(b.ticker)}</span></td>
+      <td class="left">${instrumentIdentityHTML(b.ticker, b.name, 'equity', 'sm')}</td>
       <td class="tnum">${isNum(b.n10) ? ru(b.n10, 1) + '%' : mdash}</td>
       <td class="tnum col-sec">${isNum(b.n11) ? ru(b.n11, 1) + '%' : mdash}</td>
       <td class="tnum col-sec">${isNum(b.n12) ? ru(b.n12, 1) + '%' : mdash}</td>
@@ -8961,7 +8977,7 @@ function bvalTable() {
     const dq = b.data_quality_score;
     const sel = b.ticker === BVAL_SEL ? ' bval-selected' : '';
     const main = `<tr class="bval-row${sel}" data-i="${i}" data-tk="${tk}">
-      <td class="al-l bval-bname"><span class="bval-dot" style="background:${esc(b.color || '#888')}"></span>${esc(b.name)}<span class="bval-tk">${tk}</span>${warn ? ` <span class="bval-warn-badge" title="${esc(bankWarns.join(' · '))}">⚠${warn}</span>` : ''}</td>
+      <td class="al-l bval-bname">${instrumentIdentityHTML(b.ticker, b.name, 'equity', 'sm')}${warn ? ` <span class="bval-warn-badge" title="${esc(bankWarns.join(' · '))}">⚠${warn}</span>` : ''}</td>
       <td class="al-r tnum bval-strong">${num(b.p_bv)}</td>
       <td class="al-r tnum bval-fair-cell" data-tk="${tk}">${bvalFairFmt(disc)}</td>
       <td class="al-r tnum">${pctl('roe')}</td>
@@ -9248,9 +9264,11 @@ function newsCardHTML(it, i, kind) {
   }).join(' · ');
   const ctx = it.context ? `<div class="news-ctx" id="nctx-${kind}-${i}" hidden>${esc(it.context)}</div>` : '';
   const expandable = it.context ? ' news-expandable' : '';
+  const ticker = it.ticker || (Array.isArray(it.tickers) ? it.tickers[0] : '');
+  const issuer = ticker ? instrumentAvatarHTML(ticker, it.company || '', it.instrument_type, 'xs') : '';
   return `<article class="news-card${expandable}" data-kind="${kind}" data-i="${i}">
     <div class="news-head">
-      ${cat}${star}${inv}
+      ${issuer}${cat}${star}${inv}
       <span class="news-hl">${esc(it.headline || '')}</span>
     </div>
     <div class="news-meta">${rel}${srcs ? `<span class="news-src">${srcs}</span>` : ''}${it.context ? '<span class="news-more">контекст ▾</span>' : ''}</div>
@@ -9271,7 +9289,7 @@ function newsAgendaHTML(items) {
   return list.map((a) => {
     const tp = a.type ? `<span class="news-cat cat-${esc(a.type)}">${esc(NEWS_AGENDA_TYPE[a.type] || a.type)}</span>` : '';
     const star = (a.importance >= 4) ? '<span class="news-star">★</span>' : '';
-    const tk = a.ticker ? `<span class="news-agenda-tk">${esc(a.ticker)}</span>` : '';
+    const tk = a.ticker ? `<span class="news-agenda-tk">${instrumentIdentityHTML(a.ticker, a.company, a.instrument_type, 'xs', { variant: 'compact', showTypeText: false })}</span>` : '';
     return `<div class="news-agenda-row"><span class="news-agenda-time">${esc(a.time || '—')}</span>${tp}<span class="news-agenda-ev">${esc(a.event || '')}</span>${tk}${star}</div>`;
   }).join('');
 }
@@ -9403,6 +9421,8 @@ const PFX_ALIASES = {
 const PFX_EXTRA_TICKERS = [
   { ticker: 'SNGS', name: 'Сургутнефтегаз', _extra: true },
   { ticker: 'SNGSP', name: 'Сургутнефтегаз ап', _extra: true },
+  { ticker: 'EQMX', name: 'БПИФ на индекс МосБиржи', instrument_type: 'fund', _extra: true },
+  { ticker: 'DIVD', name: 'БПИФ дивидендных акций РФ', instrument_type: 'fund', _extra: true },
 ];
 function pfxCanonTicker(raw) {
   const up = String(raw || '').toUpperCase().replace(/\s+/g, ' ').trim();
