@@ -55,6 +55,10 @@ site/marlamov.json
 site/quality.json
 # макро ЦБ (ключевая ставка + инфляция): генерит CI, build_macro_cbr.py
 site/macro_cbr.json
+# P/E рынка в динамике: генерит CI, build_market_pe_history.py
+site/market_pe_history.json
+# кэш истории P/E (составы индекса + капитализации): артефакт сборки, едет через gh-pages
+data/market_pe_history_cache.json
 # Пила рынка: промежуточные parquet регенерятся research-пайплайном (коммитим winner_model.json + отчёт)
 market_saw/data/*.parquet
 

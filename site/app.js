@@ -29,6 +29,7 @@ let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, 
 let ML_STRATEGY = null, ML_STRATEGY_LOADING = null, ACTIVE_STRATEGY_MODE = 'quality';
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let MARKET_PE = null;
+let MARKET_PE_HIST = null, MPE_RANGE = '5y';   // история P/E рынка (site/market_pe_history.json)
 let MACRO_CBR = null;      // макро ЦБ: ключевая ставка + инфляция (site/macro_cbr.json)
 const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
@@ -5942,6 +5943,12 @@ function initRouter() {
       if (b && MACRO_CBR) b.innerHTML = inflMonthlyHTML(MACRO_CBR);
       return;
     }
+    const mrange = e.target.closest('[data-mpe-range]');
+    if (mrange) {
+      MPE_RANGE = mrange.dataset.mpeRange;
+      renderMarketPE();          // перерисовка целиком: кнопки пересоздаются уже с нужным состоянием
+      return;
+    }
     const dc = e.target.closest('[data-divcal-tab]');
     if (dc && typeof openDividendCalendarTab === 'function') { openDividendCalendarTab(dc.dataset.divcalTab); return; }
     const g = e.target.closest('[data-goto]');
@@ -6693,6 +6700,7 @@ function ensureKpiData() {
   // после загрузки календаря перерисовать и ленту: вердикт-строка портфеля берёт из него сумму
   if (!DIVIDEND_CALENDAR && typeof loadDividendCalendar === 'function') loadDividendCalendar(() => { renderDividendCalendar(); renderEventsToday(); });
   if (!MARKET_PE && typeof loadMarketPE === 'function') loadMarketPE(() => renderMarketPE());
+  if (!MARKET_PE_HIST && typeof loadMarketPeHistory === 'function') loadMarketPeHistory(() => renderMarketPE());
   if (!SAW_DATA && typeof loadMarketSaw === 'function') loadMarketSaw(() => { renderMarketPulse(); renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!MARLAMOV && typeof loadMarlamov === 'function') loadMarlamov(() => { renderMarketKPI(); renderMarketSignals(); updateDataStatus(); });
   if (!BONDS && typeof loadBonds === 'function') loadBonds(() => { renderMarketKPI(); updateDataStatus(); });
@@ -7193,7 +7201,7 @@ function marketPeHTML(d) {
 
   const noteText = (ok && d.earnings_verified === false)
     ? (d.note || 'Мягкий режим: значение по подмножеству корзины на несверённой прибыли SmartLab; оценочный ориентир, не точный P/E.')
-    : 'Не официальный P/E Индекса МосБиржи: расчёт по полной капитализации эмитентов (цена×число акций), тогда как IMOEX учитывает free-float. Прибыль — последняя годовая по МСФО, относящаяся к акционерам материнской компании, включая убытки.';
+    : 'Не официальный P/E Индекса МосБиржи: расчёт по полной капитализации эмитентов (данные реестра MOEX по всем классам акций), тогда как IMOEX учитывает free-float. Прибыль — последняя годовая по МСФО, относящаяся к акционерам материнской компании, включая убытки.';
 
   return `
     <div class="mpe-head">
@@ -7222,6 +7230,213 @@ function marketPeHTML(d) {
     </details>`;
 }
 
+// ── История P/E: дорого ли сейчас ОТНОСИТЕЛЬНО СВОЕЙ нормы ──────────────────
+// Одно число «P/E 4,4» не отвечает на вопрос, ради которого его смотрят. Ответ даёт
+// положение внутри собственного исторического распределения рынка.
+const MPE_RANGES = [
+  { id: '3y', label: '3 года', months: 36 },
+  { id: '5y', label: '5 лет', months: 60 },
+  { id: '10y', label: '10 лет', months: 120 },
+  { id: 'all', label: 'Всё', months: null },
+];
+
+function loadMarketPeHistory(cb) {
+  if (MARKET_PE_HIST) { if (cb) cb(); return; }
+  fetch(dataURL('market_pe_history.json'))
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => {
+      if (!j || !Array.isArray(j.history)) throw new Error('неподдерживаемый контракт market_pe_history');
+      MARKET_PE_HIST = j; if (cb) cb();
+    })
+    .catch((e) => { console.error('[market-pe-hist] не загрузился:', e); MARKET_PE_HIST = { failed: true }; if (cb) cb(); });
+}
+
+/** Точки, пригодные для сравнения: без дефектных знаменателей и без месяцев,
+ *  где корзина покрыта прибылью слишком слабо, чтобы число что-то значило. */
+function mpeUsable(d) {
+  return (d.history || []).filter((p) => isNum(p.pe) && p.quality_status !== 'insufficient_coverage');
+}
+
+/** Период доступен, если история покрывает хотя бы 60% его длины: показывать «10 лет»
+ *  на двух годах данных — врать подписью. «Всё» доступно всегда. */
+function mpeRangeEnabled(d, conf) {
+  return !conf.months || mpeUsable(d).length >= conf.months * 0.6;
+}
+
+/** Выбранный период может оказаться недоступным на короткой истории — тогда откатываемся
+ *  к самому длинному доступному. Иначе активная кнопка выходила бы disabled. */
+function mpeActiveRange(d) {
+  const chosen = MPE_RANGES.find((r) => r.id === MPE_RANGE);
+  if (chosen && mpeRangeEnabled(d, chosen)) return chosen;
+  const ok = MPE_RANGES.filter((r) => r.months && mpeRangeEnabled(d, r));
+  return ok.length ? ok[ok.length - 1] : MPE_RANGES[MPE_RANGES.length - 1];
+}
+
+function mpeWindowRows(d) {
+  const rows = mpeUsable(d);
+  const conf = mpeActiveRange(d);
+  if (!conf.months || rows.length <= conf.months) return rows;
+  return rows.slice(-conf.months);
+}
+
+/** Вердикт по положению в собственном распределении. Формулировки намеренно
+ *  сравнительные («дороже, чем в N% месяцев»), а не оценочные («переоценён»): у нас
+ *  нет оснований утверждать справедливую стоимость рынка, есть только его история. */
+function mpeVerdict(pct) {
+  if (!isNum(pct)) return null;
+  if (pct >= 80) return { cls: 'hi', text: 'дороже обычного' };
+  if (pct >= 60) return { cls: 'mid-hi', text: 'выше нормы' };
+  if (pct > 40) return { cls: 'mid', text: 'около нормы' };
+  if (pct > 20) return { cls: 'mid-lo', text: 'ниже нормы' };
+  return { cls: 'lo', text: 'дешевле обычного' };
+}
+
+function mpeStats(rows) {
+  if (rows.length < 3) return null;
+  const v = rows.map((r) => r.pe).sort((a, b) => a - b);
+  const q = (p) => {
+    const pos = (v.length - 1) * p, lo = Math.floor(pos), hi = Math.min(lo + 1, v.length - 1);
+    return v[lo] + (v[hi] - v[lo]) * (pos - lo);
+  };
+  const cur = rows[rows.length - 1].pe;
+  return {
+    n: v.length, median: q(0.5), p25: q(0.25), p75: q(0.75), min: v[0], max: v[v.length - 1],
+    percentile: (100 * v.filter((x) => x <= cur).length) / v.length,
+    enough: rows.length >= 36,
+  };
+}
+
+function mpeMonthLabel(m) {
+  const MM = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  const i = parseInt(String(m).slice(5, 7), 10) - 1;
+  return `${MM[i] || '?'} ${String(m).slice(0, 4)}`;
+}
+
+function mpeHistSVG(rows, st) {
+  if (rows.length < 2 || !st) return '';
+  const W = 720, H = 300, P = { l: 42, r: 14, t: 14, b: 30 };
+  const pad = (st.max - st.min) * 0.12 || 0.5;
+  const lo = Math.max(0, st.min - pad), hi = st.max + pad;
+  const X = (i) => P.l + (i / (rows.length - 1)) * (W - P.l - P.r);
+  const Y = (v) => H - P.b - ((v - lo) / ((hi - lo) || 1)) * (H - P.t - P.b);
+
+  let grid = '';
+  for (let k = 0; k <= 4; k++) {
+    const v = lo + ((hi - lo) / 4) * k;
+    grid += `<line class="ic-grid" x1="${P.l}" y1="${Y(v).toFixed(1)}" x2="${W - P.r}" y2="${Y(v).toFixed(1)}"/>` +
+      `<text class="ic-ax" x="${P.l - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${ru(v, 1)}</text>`;
+  }
+  // Полоса «обычных» значений (25–75 перцентиль) — это и есть визуальная норма рынка
+  const band = `<rect class="mpe-band" x="${P.l}" y="${Y(st.p75).toFixed(1)}" width="${(W - P.l - P.r).toFixed(1)}"
+    height="${Math.max(1, Y(st.p25) - Y(st.p75)).toFixed(1)}"/>`;
+  // Подпись медианы — СЛЕВА: справа всегда стоит маркер текущего значения, и они наложились бы.
+  const med = `<line class="mpe-med" x1="${P.l}" y1="${Y(st.median).toFixed(1)}" x2="${W - P.r}" y2="${Y(st.median).toFixed(1)}"/>
+    <text class="mpe-medlab" x="${P.l + 4}" y="${(Y(st.median) - 5).toFixed(1)}">медиана ${ru(st.median, 1)}×</text>`;
+
+  const path = rows.map((r, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(r.pe).toFixed(1)}`).join('');
+  const last = rows[rows.length - 1];
+  // Подписи оси: регулярная сетка + обязательно последний месяц. Ближайший к нему регулярный
+  // тик убираем, иначе две подписи налезают друг на друга. Крайние якорим внутрь — по центру
+  // они вылезают за viewBox и обрезаются.
+  const every = Math.max(1, Math.round(rows.length / 6));
+  const lastIdx = rows.length - 1;
+  const ticks = new Set([lastIdx]);
+  for (let i = 0; i <= lastIdx; i += every) if (lastIdx - i >= every * 0.6) ticks.add(i);
+  const xlab = [...ticks].sort((a, b) => a - b).map((i) => {
+    const anchor = i === lastIdx ? 'end' : (i === 0 ? 'start' : 'middle');
+    return `<text class="ic-ax" x="${X(i).toFixed(1)}" y="${H - 10}" text-anchor="${anchor}">${esc(mpeMonthLabel(rows[i].month))}</text>`;
+  }).join('');
+  const hits = rows.map((r, i) =>
+    `<circle class="ic-hit" cx="${X(i).toFixed(1)}" cy="${Y(r.pe).toFixed(1)}" r="8"><title>${esc(mpeMonthLabel(r.month))}: P/E ${ru(r.pe, 2)}× · прибыль за ${r.last_fiscal_year || '—'} г. · покрытие ${ru(r.coverage_pct, 0)}%</title></circle>`).join('');
+
+  return `<svg class="ic-svg" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="P/E рынка помесячно с ${mpeMonthLabel(rows[0].month)} по ${mpeMonthLabel(last.month)}, медиана ${ru(st.median, 1)}">
+    ${band}${grid}${med}
+    <path class="mpe-line" d="${path}"/>
+    <circle class="mpe-last" cx="${X(rows.length - 1).toFixed(1)}" cy="${Y(last.pe).toFixed(1)}" r="5"/>
+    ${hits}${xlab}</svg>`;
+}
+
+function mpeDecompHTML(dec) {
+  if (!dec || !isNum(dec.pe_change_pct)) return '';
+  const sg = (v) => (v > 0 ? '+' : '') + ru(v, 1) + '%';
+  const dir = dec.pe_change_pct > 0 ? 'вырос' : 'снизился';
+  // P/E = Капитализация ÷ Прибыль, поэтому его движение раскладывается ровно на две причины.
+  const why = Math.abs(dec.cap_change_pct) >= Math.abs(dec.earnings_change_pct)
+    ? 'в основном из-за движения цен'
+    : 'в основном из-за изменения прибыли';
+  return `<div class="mpe-decomp">
+    <span class="mpe-sub-h">За год P/E ${dir} на ${sg(dec.pe_change_pct)} — ${why}</span>
+    <div class="mpe-decomp-row">
+      <div><span>Капитализация</span><b class="${dec.cap_change_pct >= 0 ? 'pos' : 'neg'}">${sg(dec.cap_change_pct)}</b></div>
+      <div><span>Прибыль</span><b class="${dec.earnings_change_pct >= 0 ? 'pos' : 'neg'}">${sg(dec.earnings_change_pct)}</b></div>
+      <div><span>Период</span><b>${esc(mpeMonthLabel(dec.from))} → ${esc(mpeMonthLabel(dec.to))}</b></div>
+    </div>
+    ${dec.comparable_basket ? '' : '<p class="mpe-foot muted">Состав корзины за год менялся — сравнение приблизительное.</p>'}
+  </div>`;
+}
+
+function mpeHistoryHTML(d) {
+  const rows = mpeWindowRows(d);
+  const st = mpeStats(rows);
+  if (!st) return '';
+  const cur = d.current || {};
+  const v = mpeVerdict(st.percentile);
+  const active = mpeActiveRange(d);
+  const btns = MPE_RANGES.map((r) => {
+    const on = r.id === active.id;
+    return `<button type="button" class="pfx-rbtn mpe-range${on ? ' on' : ''}"
+      data-mpe-range="${r.id}" aria-pressed="${on}"${mpeRangeEnabled(d, r) ? '' : ' disabled'}>${esc(r.label)}</button>`;
+  }).join('');
+
+  const vsMed = 100 * (rows[rows.length - 1].pe / st.median - 1);
+  // Перцентиль на коротком ряду — шум: показываем его только когда точек хватает.
+  // Формулировка разворачивается по направлению: «дешевле, чем в 12% месяцев» звучало бы
+  // как редкая дороговизна, хотя означает ровно противоположное.
+  const rel = st.percentile >= 50
+    ? `дороже, чем в ${ru(st.percentile, 0)}% месяцев выборки`
+    : `дешевле, чем в ${ru(100 - st.percentile, 0)}% месяцев выборки`;
+  const verdictLine = st.enough && v
+    ? `<div class="mpe-verdict ${v.cls}"><b>${esc(v.text)}</b>
+         <span>${rel}; ${vsMed >= 0 ? 'выше' : 'ниже'} медианы на ${ru(Math.abs(vsMed), 0)}%</span></div>`
+    : `<div class="mpe-verdict mid"><b>сравнивать рано</b>
+         <span>в выборке ${ru(st.n, 0)} мес. — для вывода о «дорого/дёшево» нужно хотя бы 36</span></div>`;
+
+  const spread = isNum(cur.earnings_yield_spread_pp)
+    ? `<div><span>Премия к безриск. ставке</span><b class="${cur.earnings_yield_spread_pp >= 0 ? 'pos' : 'neg'}">${cur.earnings_yield_spread_pp > 0 ? '+' : ''}${ru(cur.earnings_yield_spread_pp, 1)} п.п.</b><small>доходность по прибыли ${ru(cur.earnings_yield_pct, 1)}% против ${ru(cur.risk_free_pct, 1)}%</small></div>`
+    : '';
+
+  return `<div class="mpe-hist">
+    <div class="mpe-hist-head">
+      <span class="mpe-sub-h">P/E рынка в динамике</span>
+      <div class="pfx-ranges" role="group" aria-label="Период истории">${btns}</div>
+    </div>
+    ${verdictLine}
+    <div class="mpe-chart-wrap">${mpeHistSVG(rows, st)}</div>
+    <div class="mpe-grid mpe-hist-grid">
+      <div><span>Сейчас</span><b>${ru(rows[rows.length - 1].pe, 1)}×</b><small>${esc(mpeMonthLabel(cur.month || rows[rows.length - 1].month))}</small></div>
+      <div><span>Медиана периода</span><b>${ru(st.median, 1)}×</b><small>${ru(st.n, 0)} мес.</small></div>
+      <div><span>Обычный коридор</span><b>${ru(st.p25, 1)}–${ru(st.p75, 1)}×</b><small>25–75 перцентиль</small></div>
+      <div><span>Диапазон</span><b>${ru(st.min, 1)}–${ru(st.max, 1)}×</b><small>мин.–макс.</small></div>
+      ${spread}
+    </div>
+    ${mpeDecompHTML(d.decomposition)}
+    <details class="mpe-details mpe-hist-details">
+      <summary>Как это посчитано и чего этому ряду не хватает</summary>
+      <div class="mpe-grid">
+        <div><span>Состав корзины</span><b>исторический</b><small>на каждую дату свой</small></div>
+        <div><span>Капитализация</span><b>MOEX, point-in-time</b><small>с учётом допэмиссий и сплитов</small></div>
+        <div><span>Покрытие прибылью</span><b>${ru(cur.coverage_pct, 0)}%</b><small>сверено ${ru(cur.verified_coverage_pct, 0)}%</small></div>
+        ${isNum(cur.priced_pct) ? `<div><span>Есть капитализация</span><b>${ru(cur.priced_pct, 0)}%</b><small>${cur.constituents_priced || '—'} из ${cur.constituents_total || '—'} бумаг</small></div>` : ''}
+        <div><span>Прибыль</span><b>за ${cur.last_fiscal_year || '—'} г.</b><small>годовая, не TTM · ${cur.constituents_used || '—'} эмитентов</small></div>
+      </div>
+      <p class="mpe-foot muted"><b>Допущение о дате раскрытия.</b> ${esc((d.disclosure_assumption || {}).rule || '')} —
+        ${esc((d.disclosure_assumption || {}).why || '')}. Это допущение, а не фактическая дата публикации отчётов.</p>
+      <ul class="mpe-limits">${(d.limitations || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    </details>
+  </div>`;
+}
+
 function renderMarketPE() {
   const el = document.getElementById('market-pe-card');
   if (!el) return;
@@ -7230,7 +7445,9 @@ function renderMarketPE() {
     el.innerHTML = '<div class="mpe-fallback"><b>P/E рынка временно недоступен.</b> Остальные индикаторы работают.</div>';
     return;
   }
-  el.innerHTML = marketPeHTML(MARKET_PE);
+  // История — отдельный файл: её отсутствие не должно ломать основную карточку
+  const hist = (MARKET_PE_HIST && !MARKET_PE_HIST.failed) ? mpeHistoryHTML(MARKET_PE_HIST) : '';
+  el.innerHTML = marketPeHTML(MARKET_PE) + hist;
 }
 
 function renderMarketSignals() {

@@ -44,6 +44,8 @@ cp site/index.html site/styles.css site/app.js site/data.json "$TMP/"
 # Ниже — файлы, которых ручной скрипт лишился при расхождении с update.yml.
 # Расхождение теперь стережёт tests/test_publish_lists.py.
 [ -f site/market_pe_current.json ] && cp site/market_pe_current.json "$TMP/"
+[ -f site/market_pe_history.json ] && cp site/market_pe_history.json "$TMP/"
+[ -f data/market_pe_history_cache.json ] && cp data/market_pe_history_cache.json "$TMP/"
 [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"
 [ -d site/cbr ] && cp -r site/cbr "$TMP/"
 [ -f site/alfa-index.json ] && cp site/alfa-index.json "$TMP/"

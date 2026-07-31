@@ -3,8 +3,13 @@
 """Агрегированный P/E компаний текущей корзины IMOEX — с валидируемым контрактом прибыли.
 
 Показатель НЕ является официальным P/E Индекса МосБиржи: расчёт использует ПОЛНУЮ
-капитализацию эмитентов (цена×ISSUESIZE по всем классам), тогда как IMOEX учитывает
-free-float и ограничивающие коэффициенты.
+капитализацию эмитентов (DAILYCAPITALIZATION реестра MOEX по всем классам акций), тогда
+как IMOEX учитывает free-float и ограничивающие коэффициенты.
+
+Капитализация берётся из того же источника, что и ряд истории
+(scripts/build_market_pe_history.py), а решение о годности прибыли — из общей функции
+earnings_defects(). Иначе заголовок карточки и график под ним показывают за один и тот же
+месяц разные числа: так и было (6,32 против 5,75), пока правила жили в двух местах.
 
     P/E = Σ MarketCap(эмитент) / Σ NetIncome(эмитент)
 
@@ -19,9 +24,13 @@ DATA CONTRACT для NetIncome (иначе запись НЕ валидна и �
 
 ВАЛИДАЦИЯ (двумерная, причины сохраняются в reconciliation):
   A. earnings-quality (считается из истории слоя):
-     • YoY изменение > 3x или смена знака прибыли  → review;
+     • значение выбивается из собственной истории эмитента на два порядка → review
+       (ошибка единиц измерения: тысячи рублей, принятые за рубли);
      • needs_manual_review / conflict_flag в слое   → review;
      • период не годовой                            → review.
+     Прежнее правило «YoY > 3x или смена знака = аномалия» СНЯТО: оно отбраковывало не
+     ошибки, а реальность (Сургутнефтегаз, Яндекс, Озон — 13,5 % веса индекса), и давало
+     значение, расходящееся с рядом истории. Обе карточки считают по одному правилу.
   B. provenance (требует полей контракта в фундамент-слое):
      • accounting_standard / statement_scope / period_end / published_at ОТСУТСТВУЮТ в
        текущем слое → provenance_unverified (запись не подтверждена как IFRS-attributable).
@@ -39,6 +48,7 @@ from __future__ import annotations
 
 import json
 import os
+import statistics
 import sys
 import time
 import urllib.request
@@ -53,9 +63,10 @@ DATA_JSON = os.path.join(ROOT, "site", "data.json")
 IFRS_SEED = os.path.join(ROOT, "data", "market_pe_ifrs_seed.json")   # ручная сверка FY IFRS-прибыли (провенанс)
 
 WEIGHT_GATE_PCT = 2.0        # эмитенты с весом > 2 % — материальные (в excluded_material, если не включены)
-YOY_MAX_RATIO = 3.0          # YoY изменение прибыли крупнее — в review (исключается из расчёта)
+UNIT_ERROR_RATIO = 100.0     # отклонение записи от собственной медианы эмитента → ошибка единиц
 MIN_PUBLISH_COVERAGE = 0.50  # мягкий гейт: публикуем P/E, если включённое подмножество ≥ 50 % капитализации корзины
-METHODOLOGY_VERSION = "2.1.0"  # 2.1: мягкий гейт по покрытию + earnings_verified/coverage-пометка
+METHODOLOGY_VERSION = "3.0.0"  # 3.0: отбор эмитентов сведён с рядом истории (build_market_pe_history.py):
+# эвристика «YoY>3x / смена знака» заменена проверкой ошибки единиц по собственной истории.
 UNAVAILABLE_MSG = "Расчёт временно недоступен: проводится проверка качества финансовых данных"
 UA = {"User-Agent": "dividend-site/market-pe", "Cache-Control": "no-cache"}
 
@@ -74,6 +85,8 @@ NET_INCOME_CONTRACT = {
 }
 
 ISS_INDEX = "https://iss.moex.com/iss/statistics/engines/stock/markets/index/analytics/IMOEX.json?limit=100&iss.meta=off"
+ISS_CAP_TODAY = ("https://iss.moex.com/iss/history/engines/stock/totals/boards/MRKT/securities.json"
+                 "?iss.meta=off&iss.only=securities&securities.columns=SECID,DAILYCAPITALIZATION")
 ISS_BOARD = ("https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
              "?iss.meta=off&securities.columns=SECID,PREVLEGALCLOSEPRICE,PREVPRICE,PREVDATE,ISSUESIZE")
 
@@ -179,6 +192,55 @@ def apply_ifrs_seed(hist: dict) -> None:
             recs.append({"fy": int(fy), "period": str(fy), "currency": "RUB", **prov})
 
 
+def unit_error(rec: dict, rows: list[dict]) -> bool:
+    """Запись выбивается из СОБСТВЕННОЙ истории эмитента на два порядка — ошибка единиц.
+
+    В ранних данных слоя тысячи рублей местами приняты за рубли: NLMK за 2011 значится как
+    42,4 трлн ₽ при обычных для него 87 млрд, АФК «Система» за 2012 — 50,7 трлн при 50 млрд.
+    Сверять не с чем, но сама компания — хороший эталон себе: настоящая прибыль так не скачет.
+
+    Заменяет прежнюю проверку «YoY > 3x или смена знака = аномалия». Та отбраковывала не
+    ошибки, а реальность: Сургутнефтегаз (321→1322 млрд — переоценка валютной подушки),
+    Яндекс (11→141 млрд — реструктуризация), Озон (−59→−1 млрд — сокращение убытка). Три
+    эмитента суммарным весом 13,5% индекса выпадали из расчёта, хотя их цифры — факт.
+
+    Порог проверен по данным слоя: все записи с отклонением выше 100× — это 2011–2012 годы,
+    тогда как максимум среди 2013+ равен 53× (и он настоящий).
+    """
+    others = [abs(float(r["value"])) for r in rows if r is not rec and r.get("value") is not None]
+    if len(others) < 3:
+        return False                     # медиана из двух точек ничего не доказывает
+    med = statistics.median(others)
+    return med > 0 and abs(float(rec["value"])) / med > UNIT_ERROR_RATIO
+
+
+def earnings_defects(rec: dict, rows: list[dict]) -> list[str]:
+    """Дефекты записи прибыли, из-за которых она не годится в агрегат. Пусто — годится.
+
+    ЕДИНСТВЕННОЕ место, где принимается это решение: сюда ходят и текущая карточка
+    (build_market_pe.py), и ряд истории (build_market_pe_history.py). Раньше правила жили
+    в двух местах и разошлись — карточка показывала 6,32, а ряд за тот же месяц 5,75.
+
+    Проверяются только настоящие признаки брака: явные флаги слоя и ошибка единиц.
+    Величина изменения прибыли признаком брака НЕ является — см. unit_error().
+    """
+    if rec.get("verified"):
+        return []                        # сверено вручную с первоисточником — доверяем
+    out = []
+    if rec.get("needs_manual_review"):
+        out.append("needs_manual_review в фундамент-слое")
+    if rec.get("conflict_flag"):
+        out.append("conflict_flag в фундамент-слое")
+    if rec.get("period") is not None and not str(rec["period"]).strip().isdigit():
+        out.append(f"период не годовой: {rec['period']}")
+    if unit_error(rec, rows):
+        others = [abs(float(r["value"])) for r in rows if r is not rec and r.get("value") is not None]
+        med = statistics.median(others)
+        out.append(f"значение выбивается из истории эмитента на два порядка: "
+                   f"{rec['value']/1e9:.0f} млрд ₽ против обычных {med/1e9:.0f} млрд ₽")
+    return out
+
+
 def validate_issuer(records: list[dict]):
     """Возвращает (validation_status, latest_record, reasons[])."""
     if not records:
@@ -186,29 +248,14 @@ def validate_issuer(records: list[dict]):
     latest = records[-1]
     reasons: list[str] = []
 
-    # Проверенная вручную запись (IFRS-seed с провенансом и источником) — доверяем значению,
-    # sanity-проверки (YoY/смена знака) не применяем: большие реальные движения 2025 (ROSN −73%,
-    # LUKOIL убыток от разового обесценения) подтверждены первоисточником, а не ошибка слоя.
+    # Проверенная вручную запись (IFRS-seed с провенансом и источником) — доверяем значению:
+    # большие реальные движения 2025 (ROSN −73 %, LUKOIL убыток от разового обесценения)
+    # подтверждены первоисточником, а не являются ошибкой слоя.
     if latest.get("verified"):
         return "validated", latest, []
 
-    # ── A. earnings-quality ──
-    if latest.get("needs_manual_review"):
-        reasons.append("needs_manual_review в фундамент-слое")
-    if latest.get("conflict_flag"):
-        reasons.append("conflict_flag в фундамент-слое")
-    if latest.get("period") is not None and not str(latest["period"]).strip().isdigit():
-        reasons.append(f"период не годовой: {latest['period']}")
-    prior = records[-2] if len(records) >= 2 else None
-    if prior and prior["value"]:
-        sign_flip = (latest["value"] < 0) != (prior["value"] < 0)
-        ratio = abs(latest["value"]) / abs(prior["value"]) if prior["value"] else None
-        if sign_flip:
-            reasons.append(f"смена знака прибыли vs {prior['fy']}: "
-                           f"{prior['value']/1e9:.0f}→{latest['value']/1e9:.0f} млрд ₽")
-        elif ratio is not None and (ratio > YOY_MAX_RATIO or ratio < 1.0 / YOY_MAX_RATIO):
-            reasons.append(f"YoY изменение >{YOY_MAX_RATIO:.0f}x vs {prior['fy']}: "
-                           f"{prior['value']/1e9:.0f}→{latest['value']/1e9:.0f} млрд ₽")
+    # ── A. earnings-quality (общее правило с рядом истории) ──
+    reasons.extend(earnings_defects(latest, records))
 
     # ── B. provenance (поля контракта отсутствуют в текущем слое) ──
     missing_prov = [f for f in ("accounting_standard", "statement_scope", "period_end", "published_at")
@@ -271,6 +318,59 @@ def board_prices():
     return out
 
 
+def collapse_to_issuers(weights: dict[str, float], base_of: dict[str, str]) -> dict[str, float]:
+    """Тикеры корзины → эмитенты, веса складываются.
+
+    Корзина IMOEX содержит обыкновенные и привилегированные акции одного эмитента отдельными
+    строками (SBER+SBERP, SNGS+SNGSP, TATN+TATNP). Без схлопывания прибыль такой компании
+    попадала бы в знаменатель дважды — слой хранит одно и то же значение под каждым классом
+    акций, — а капитализация преф-класса считалась бы и внутри строки обыкновенной акции,
+    и отдельной строкой. Агрегированный P/E при этом занижается.
+    """
+    out: dict[str, float] = {}
+    for tk, w in weights.items():
+        issuer = base_of.get(tk, tk)
+        out[issuer] = out.get(issuer, 0.0) + w
+    return out
+
+
+def issuer_income(base: str, share_secids: list[str], hist: dict) -> list[dict]:
+    """Прибыль эмитента: слой хранит её под тикером КЛАССА акций, а не под base_ticker.
+
+    У Транснефти обыкновенные акции на бирже не обращаются, base_ticker = TRNF, и вся
+    история прибыли лежит под TRNFP. Без этого отката эмитент молча выпадал бы из расчёта.
+    """
+    if hist.get(base):
+        return hist[base]
+    for secid in share_secids:
+        if hist.get(secid):
+            return hist[secid]
+    return []
+
+
+def exchange_capitalization() -> dict[str, float]:
+    """{SECID: полная капитализация} на последний торговый день — из реестра MOEX.
+
+    Тот же источник, что у ряда истории (build_market_pe_history.py), чтобы заголовок
+    карточки и график под ним не расходились. Сбой источника не критичен: вызывающий код
+    откатывается на реконструкцию «цена × ISSUESIZE».
+    """
+    try:
+        payload = fetch_json(ISS_CAP_TODAY, retries=3)
+    except RuntimeError as exc:
+        log(f"капитализация MOEX недоступна ({exc}) — расчёт по цена×ISSUESIZE")
+        return {}
+    block = payload.get("securities", {})
+    cols = {c: i for i, c in enumerate(block.get("columns", []))}
+    out: dict[str, float] = {}
+    if "DAILYCAPITALIZATION" in cols and "SECID" in cols:
+        for row in block.get("data", []):
+            cap = row[cols["DAILYCAPITALIZATION"]]
+            if isinstance(cap, (int, float)) and cap > 0:
+                out[str(row[cols["SECID"]])] = float(cap)
+    return out
+
+
 def compute():
     classes, base_of = build_masters()
     hist, fin_meta = income_history()
@@ -287,8 +387,19 @@ def compute():
         composition_date = None
         log(f"fallback-universe: {len(weights)} эмитентов (веса недоступны)")
 
+    # Корзина IMOEX содержит обыкновенные и привилегированные акции ОДНОГО эмитента
+    # отдельными строками (SBER+SBERP, SNGS+SNGSP, TATN+TATNP). Без схлопывания в эмитента
+    # прибыль такой компании попадала бы в знаменатель дважды — слой хранит одно и то же
+    # значение под каждым классом акций, — а капитализация преф-класса считалась бы и внутри
+    # строки обыкновенной акции, и отдельной строкой. Агрегированный P/E при этом занижается.
+    collapsed = collapse_to_issuers(weights, base_of)
+    if len(collapsed) != len(weights):
+        log(f"схлопнуто в эмитентов: {len(weights)} тикеров → {len(collapsed)}")
+    weights = collapsed
+
     prices = board_prices()
     price_dates = []
+    exchange_caps = exchange_capitalization()
 
     recon = []                 # reconciliation по каждому эмитенту
     sum_weight = sum(weights.values()) or 0.0
@@ -304,14 +415,17 @@ def compute():
             price, issuesize, prevdate = prices.get(secid, (None, None, None))
             if price is None or issuesize is None:
                 continue
-            company_cap += price * issuesize
+            # Капитализацию берём готовую у биржи, а реконструкцию «цена × ISSUESIZE» держим
+            # запасным вариантом. Один источник с рядом истории — иначе заголовок карточки и
+            # график под ним показывают разные числа за один и тот же месяц.
+            company_cap += exchange_caps.get(secid) or (price * issuesize)
             if prevdate:
                 price_dates.append(str(prevdate))
             if secid == base:
                 ord_priced = True
         has_cap = company_cap > 0 and ord_priced
 
-        v_status, latest, reasons = validate_issuer(hist.get(base, []))
+        v_status, latest, reasons = validate_issuer(issuer_income(base, share_secids, hist))
         earn_ok = v_status == "validated"
         # «Мягкий» режим (по решению владельца, с явной пометкой покрытия): в расчёт идут и записи,
         # где ЕДИНСТВЕННАЯ проблема — отсутствие полей провенанса (значение есть, YoY-аномалии/смены

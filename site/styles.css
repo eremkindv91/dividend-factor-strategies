@@ -2580,6 +2580,37 @@ tbody tr:hover td,
 .mpe-contribs li { font-size: .78rem; color: var(--ink-soft); line-height: 1.4; }
 .mpe-contribs li b { color: var(--ink); }
 .mpe-foot { margin: 10px 0 0; font-size: .72rem; line-height: 1.5; }
+
+/* ── P/E в динамике: положение относительно собственной истории рынка ── */
+.mpe-hist { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.mpe-hist-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 10px; }
+.mpe-hist .pfx-ranges { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.mpe-verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 9px 12px; border-radius: 9px; margin-bottom: 12px; background: var(--neut-fill); }
+.mpe-verdict b { font-size: .95rem; font-weight: 750; color: var(--neut-ink); }
+.mpe-verdict span { font-size: .78rem; color: var(--ink-soft); line-height: 1.45; }
+.mpe-verdict.hi { background: var(--risk-fill); } .mpe-verdict.hi b { color: var(--risk-ink); }
+.mpe-verdict.mid-hi { background: var(--warn-fill); } .mpe-verdict.mid-hi b { color: var(--warn-ink); }
+.mpe-verdict.mid-lo, .mpe-verdict.lo { background: var(--good-fill); }
+.mpe-verdict.mid-lo b, .mpe-verdict.lo b { color: var(--good-ink); }
+.mpe-chart-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.mpe-hist .ic-svg { min-width: 0; }              /* на десктопе вписывается в карточку без скролла */
+.mpe-band { fill: var(--neut-fill); }             /* «обычный» коридор 25–75 перцентиль */
+.mpe-med { stroke: var(--ink-faint); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.mpe-medlab { fill: var(--ink-faint); font-size: 10px; font-weight: 600; }
+.mpe-line { fill: none; stroke: var(--accent-deep); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.mpe-last { fill: var(--accent-deep); stroke: var(--surface); stroke-width: 2; }
+.mpe-hist-grid { margin-top: 10px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.mpe-hist-grid small { margin-top: 1px; font-size: .66rem; color: var(--ink-faint); line-height: 1.3; }
+.mpe-hist-grid b.pos { color: var(--good-ink); } .mpe-hist-grid b.neg { color: var(--risk-ink); }
+.mpe-decomp { margin-top: 14px; padding: 10px 12px; background: var(--bg); border-radius: 9px; }
+.mpe-decomp-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; margin-top: 7px; }
+.mpe-decomp-row > div { display: flex; flex-direction: column; min-width: 0; }
+.mpe-decomp-row span { font-size: .7rem; color: var(--ink-faint); }
+.mpe-decomp-row b { margin-top: 2px; font-size: .95rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mpe-decomp-row b.pos { color: var(--good-ink); } .mpe-decomp-row b.neg { color: var(--risk-ink); }
+.mpe-limits { list-style: disc; margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+.mpe-limits li { font-size: .72rem; color: var(--ink-faint); line-height: 1.45; }
+
 @media (max-width: 760px) {
   .market-pe { padding: 14px; }
   .mpe-values { gap: 14px; }
@@ -2587,6 +2618,11 @@ tbody tr:hover td,
   .mpe-num { font-size: 2.2rem; }
   .mpe-grid { grid-template-columns: 1fr 1fr; }
   .mpe-contribs ul { grid-template-columns: 1fr; }
+  .mpe-hist-grid { grid-template-columns: 1fr 1fr; }
+  .mpe-decomp-row { grid-template-columns: 1fr; }
+  /* На узком экране график ужимается до ~310px, и подписи осей становятся нечитаемы.
+     Держим минимальную ширину и скроллим внутри карточки — как в модуле инфляции. */
+  .mpe-hist .ic-svg { min-width: 460px; }
 }
 
 /* ═══════════ «Сегодня важные события» (вкладка Рынок) ═══════════ */
