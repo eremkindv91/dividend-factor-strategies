@@ -29,7 +29,7 @@ let PF_RETURNS = null, SAW_DATA = null, MARKET_HISTORY = null, MARLAMOV = null, 
 let ML_STRATEGY = null, ML_STRATEGY_LOADING = null, ACTIVE_STRATEGY_MODE = 'quality';
 let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, IMOEX_LIVE_AT = 0;
 let MARKET_PE = null;
-let MARKET_PE_HIST = null, MPE_RANGE = '5y';   // история P/E рынка (site/market_pe_history.json)
+let MARKET_PE_HIST = null, MPE_RANGE = '5y', MPE_METRIC = 'reported';   // история оценки рынка (site/market_pe_history.json)
 let MACRO_CBR = null;      // макро ЦБ: ключевая ставка + инфляция (site/macro_cbr.json)
 const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
@@ -5943,6 +5943,12 @@ function initRouter() {
       if (b && MACRO_CBR) b.innerHTML = inflMonthlyHTML(MACRO_CBR);
       return;
     }
+    const mmetric = e.target.closest('[data-mpe-metric]');
+    if (mmetric) {
+      MPE_METRIC = mmetric.dataset.mpeMetric;
+      renderMarketPE();        // перерисовываем весь ряд, а не только последнюю точку
+      return;
+    }
     const mrange = e.target.closest('[data-mpe-range]');
     if (mrange) {
       MPE_RANGE = mrange.dataset.mpeRange;
@@ -7251,10 +7257,49 @@ function loadMarketPeHistory(cb) {
     .catch((e) => { console.error('[market-pe-hist] не загрузился:', e); MARKET_PE_HIST = { failed: true }; if (cb) cb(); });
 }
 
+// Три знаменателя оценки. Пользователь не выбирает «правильный» — каждый отвечает на свой
+// вопрос: что заработали, сколько зарабатывают в среднем по циклу, сколько пришло деньгами.
+const MPE_METRICS = [
+  {
+    id: 'reported', label: 'Прибыль', unit: '×', ratio: 'P/E',
+    what: 'Опубликованная годовая прибыль без корректировок — вместе с разовыми событиями: '
+      + 'переоценкой валюты, списаниями, продажей активов.',
+  },
+  {
+    id: 'normalized', label: 'Прибыль за цикл', unit: '×', ratio: 'P/E нормализованный',
+    what: 'Средняя за цикл рентабельность, применённая к текущей выручке. Один удачный или '
+      + 'провальный год перестаёт перекашивать оценку: в апреле 2021 обычный P/E доходил до 16 '
+      + 'только потому, что в знаменателе стояла ковидная прибыль 2020 года.',
+  },
+  {
+    id: 'ocf', label: 'Денежный поток', unit: '×', ratio: 'P/OCF',
+    what: 'Операционный денежный поток вместо прибыли: в нём нет бумажных переоценок и списаний, '
+      + 'только реально пришедшие деньги.',
+  },
+];
+
+function mpeMetric() {
+  return MPE_METRICS.find((m) => m.id === MPE_METRIC) || MPE_METRICS[0];
+}
+
+/** Точка выбранной метрики в едином виде. Старый контракт (верхнеуровневый pe) поддержан:
+ *  если на сайте лежит файл предыдущей версии, режим «Прибыль» продолжает работать. */
+function mpePoint(p, id) {
+  const m = (p.metrics || {})[id];
+  if (m) return { month: p.month, value: m.value, status: m.quality_status,
+                  coverage_pct: m.coverage_pct, verified_coverage_pct: m.verified_coverage_pct,
+                  constituents_used: m.constituents_used, last_fiscal_year: p.last_fiscal_year };
+  if (id !== 'reported') return { month: p.month, value: null, status: 'unavailable' };
+  return { month: p.month, value: p.pe, status: p.quality_status, coverage_pct: p.coverage_pct,
+           verified_coverage_pct: p.verified_coverage_pct, constituents_used: p.constituents_used,
+           last_fiscal_year: p.last_fiscal_year };
+}
+
 /** Точки, пригодные для сравнения: без дефектных знаменателей и без месяцев,
- *  где корзина покрыта прибылью слишком слабо, чтобы число что-то значило. */
-function mpeUsable(d) {
-  return (d.history || []).filter((p) => isNum(p.pe) && p.quality_status !== 'insufficient_coverage');
+ *  где корзина покрыта слишком слабо, чтобы число что-то значило. */
+function mpeUsable(d, id) {
+  return (d.history || []).map((p) => mpePoint(p, id || MPE_METRIC))
+    .filter((p) => isNum(p.value) && p.status !== 'insufficient_coverage' && p.status !== 'unavailable');
 }
 
 /** Период доступен, если история покрывает хотя бы 60% его длины: показывать «10 лет»
@@ -7293,12 +7338,12 @@ function mpeVerdict(pct) {
 
 function mpeStats(rows) {
   if (rows.length < 3) return null;
-  const v = rows.map((r) => r.pe).sort((a, b) => a - b);
+  const v = rows.map((r) => r.value).sort((a, b) => a - b);
   const q = (p) => {
     const pos = (v.length - 1) * p, lo = Math.floor(pos), hi = Math.min(lo + 1, v.length - 1);
     return v[lo] + (v[hi] - v[lo]) * (pos - lo);
   };
-  const cur = rows[rows.length - 1].pe;
+  const cur = rows[rows.length - 1].value;
   return {
     n: v.length, median: q(0.5), p25: q(0.25), p75: q(0.75), min: v[0], max: v[v.length - 1],
     percentile: (100 * v.filter((x) => x <= cur).length) / v.length,
@@ -7333,7 +7378,7 @@ function mpeHistSVG(rows, st) {
   const med = `<line class="mpe-med" x1="${P.l}" y1="${Y(st.median).toFixed(1)}" x2="${W - P.r}" y2="${Y(st.median).toFixed(1)}"/>
     <text class="mpe-medlab" x="${P.l + 4}" y="${(Y(st.median) - 5).toFixed(1)}">медиана ${ru(st.median, 1)}×</text>`;
 
-  const path = rows.map((r, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(r.pe).toFixed(1)}`).join('');
+  const path = rows.map((r, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(r.value).toFixed(1)}`).join('');
   const last = rows[rows.length - 1];
   // Подписи оси: регулярная сетка + обязательно последний месяц. Ближайший к нему регулярный
   // тик убираем, иначе две подписи налезают друг на друга. Крайние якорим внутрь — по центру
@@ -7347,13 +7392,13 @@ function mpeHistSVG(rows, st) {
     return `<text class="ic-ax" x="${X(i).toFixed(1)}" y="${H - 10}" text-anchor="${anchor}">${esc(mpeMonthLabel(rows[i].month))}</text>`;
   }).join('');
   const hits = rows.map((r, i) =>
-    `<circle class="ic-hit" cx="${X(i).toFixed(1)}" cy="${Y(r.pe).toFixed(1)}" r="8"><title>${esc(mpeMonthLabel(r.month))}: P/E ${ru(r.pe, 2)}× · прибыль за ${r.last_fiscal_year || '—'} г. · покрытие ${ru(r.coverage_pct, 0)}%</title></circle>`).join('');
+    `<circle class="ic-hit" cx="${X(i).toFixed(1)}" cy="${Y(r.value).toFixed(1)}" r="8"><title>${esc(mpeMonthLabel(r.month))}: ${esc(mpeMetric().ratio)} ${ru(r.value, 2)}× · ${r.constituents_used || '—'} эмитентов · покрытие ${ru(r.coverage_pct, 0)}%</title></circle>`).join('');
 
   return `<svg class="ic-svg" viewBox="0 0 ${W} ${H}" role="img"
       aria-label="P/E рынка помесячно с ${mpeMonthLabel(rows[0].month)} по ${mpeMonthLabel(last.month)}, медиана ${ru(st.median, 1)}">
     ${band}${grid}${med}
     <path class="mpe-line" d="${path}"/>
-    <circle class="mpe-last" cx="${X(rows.length - 1).toFixed(1)}" cy="${Y(last.pe).toFixed(1)}" r="5"/>
+    <circle class="mpe-last" cx="${X(rows.length - 1).toFixed(1)}" cy="${Y(last.value).toFixed(1)}" r="5"/>
     ${hits}${xlab}</svg>`;
 }
 
@@ -7389,7 +7434,7 @@ function mpeHistoryHTML(d) {
       data-mpe-range="${r.id}" aria-pressed="${on}"${mpeRangeEnabled(d, r) ? '' : ' disabled'}>${esc(r.label)}</button>`;
   }).join('');
 
-  const vsMed = 100 * (rows[rows.length - 1].pe / st.median - 1);
+  const vsMed = 100 * (rows[rows.length - 1].value / st.median - 1);
   // Перцентиль на коротком ряду — шум: показываем его только когда точек хватает.
   // Формулировка разворачивается по направлению: «дешевле, чем в 12% месяцев» звучало бы
   // как редкая дороговизна, хотя означает ровно противоположное.
@@ -7402,33 +7447,52 @@ function mpeHistoryHTML(d) {
     : `<div class="mpe-verdict mid"><b>сравнивать рано</b>
          <span>в выборке ${ru(st.n, 0)} мес. — для вывода о «дорого/дёшево» нужно хотя бы 36</span></div>`;
 
-  const spread = isNum(cur.earnings_yield_spread_pp)
-    ? `<div><span>Премия к безриск. ставке</span><b class="${cur.earnings_yield_spread_pp >= 0 ? 'pos' : 'neg'}">${cur.earnings_yield_spread_pp > 0 ? '+' : ''}${ru(cur.earnings_yield_spread_pp, 1)} п.п.</b><small>доходность по прибыли ${ru(cur.earnings_yield_pct, 1)}% против ${ru(cur.risk_free_pct, 1)}%</small></div>`
+  // Премию считаем от ВЫБРАННОЙ метрики, а не от прибыли всегда: иначе в режиме денежного
+  // потока под графиком стояла бы доходность из другого расчёта.
+  const now = rows[rows.length - 1];
+  const nowValue = now.value;
+  const yieldPct = 100 / nowValue;
+  const sp = isNum(cur.risk_free_pct) ? yieldPct - cur.risk_free_pct : null;
+  const spread = isNum(sp)
+    ? `<div><span>Премия к безриск. ставке</span><b class="${sp >= 0 ? 'pos' : 'neg'}">${sp > 0 ? '+' : ''}${ru(sp, 1)} п.п.</b><small>доходность ${ru(yieldPct, 1)}% против ${ru(cur.risk_free_pct, 1)}%</small></div>`
     : '';
+
+  const mt = mpeMetric();
+  const modes = MPE_METRICS.map((m) => {
+    const on = m.id === mt.id;
+    const has = mpeUsable(d, m.id).length >= 12;   // режим без данных не предлагаем
+    return `<button type="button" class="pfx-rbtn mpe-mode${on ? ' on' : ''}"
+      data-mpe-metric="${m.id}" aria-pressed="${on}"${has ? '' : ' disabled'}>${esc(m.label)}</button>`;
+  }).join('');
 
   return `<div class="mpe-hist">
     <div class="mpe-hist-head">
-      <span class="mpe-sub-h">P/E рынка в динамике</span>
+      <span class="mpe-sub-h">Оценка рынка в динамике</span>
       <div class="pfx-ranges" role="group" aria-label="Период истории">${btns}</div>
     </div>
+    <div class="mpe-modes" role="group" aria-label="Знаменатель оценки">${modes}</div>
+    <p class="mpe-mode-note"><b>${esc(mt.ratio)}.</b> ${esc(mt.what)}</p>
     ${verdictLine}
     <div class="mpe-chart-wrap">${mpeHistSVG(rows, st)}</div>
     <div class="mpe-grid mpe-hist-grid">
-      <div><span>Сейчас</span><b>${ru(rows[rows.length - 1].pe, 1)}×</b><small>${esc(mpeMonthLabel(cur.month || rows[rows.length - 1].month))}</small></div>
+      <div><span>Сейчас</span><b>${ru(now.value, 1)}×</b><small>${esc(mpeMonthLabel(now.month))}</small></div>
       <div><span>Медиана периода</span><b>${ru(st.median, 1)}×</b><small>${ru(st.n, 0)} мес.</small></div>
       <div><span>Обычный коридор</span><b>${ru(st.p25, 1)}–${ru(st.p75, 1)}×</b><small>25–75 перцентиль</small></div>
       <div><span>Диапазон</span><b>${ru(st.min, 1)}–${ru(st.max, 1)}×</b><small>мин.–макс.</small></div>
       ${spread}
     </div>
-    ${mpeDecompHTML(d.decomposition)}
+    ${mt.id === 'reported' ? mpeDecompHTML(d.decomposition) : ''}
     <details class="mpe-details mpe-hist-details">
       <summary>Как это посчитано и чего этому ряду не хватает</summary>
       <div class="mpe-grid">
         <div><span>Состав корзины</span><b>исторический</b><small>на каждую дату свой</small></div>
         <div><span>Капитализация</span><b>MOEX, point-in-time</b><small>с учётом допэмиссий и сплитов</small></div>
-        <div><span>Покрытие прибылью</span><b>${ru(cur.coverage_pct, 0)}%</b><small>сверено ${ru(cur.verified_coverage_pct, 0)}%</small></div>
+        <div><span>Покрытие знаменателем</span><b>${ru(now.coverage_pct, 0)}%</b><small>${now.constituents_used || '—'} эмитентов · ${
+          now.verified_coverage_pct > 0
+            ? `сверено ${ru(now.verified_coverage_pct, 0)}%`
+            : 'сверки нет: вручную сверялась только прибыль'}</small></div>
         ${isNum(cur.priced_pct) ? `<div><span>Есть капитализация</span><b>${ru(cur.priced_pct, 0)}%</b><small>${cur.constituents_priced || '—'} из ${cur.constituents_total || '—'} бумаг</small></div>` : ''}
-        <div><span>Прибыль</span><b>за ${cur.last_fiscal_year || '—'} г.</b><small>годовая, не TTM · ${cur.constituents_used || '—'} эмитентов</small></div>
+        <div><span>Отчётность</span><b>за ${now.last_fiscal_year || cur.last_fiscal_year || '—'} г.</b><small>годовая, не TTM</small></div>
       </div>
       <p class="mpe-foot muted"><b>Допущение о дате раскрытия.</b> ${esc((d.disclosure_assumption || {}).rule || '')} —
         ${esc((d.disclosure_assumption || {}).why || '')}. Это допущение, а не фактическая дата публикации отчётов.</p>

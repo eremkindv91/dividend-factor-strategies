@@ -130,6 +130,10 @@ def build_masters():
     return classes, base_of
 
 
+def _num(x):
+    return float(x) if isinstance(x, (int, float)) else None
+
+
 def income_history():
     """ticker → отсортированный по году список записей прибыли с метаданными слоя."""
     fin = load_local(FINANCIALS)
@@ -141,6 +145,9 @@ def income_history():
             continue
         hist.setdefault(tk, []).append({
             "fy": int(fy), "value": float(ni),
+            # для альтернативных знаменателей оценки (нормализованная прибыль, ден. поток)
+            "revenue": _num(row.get("revenue")),
+            "operating_cash_flow": _num(row.get("operating_cash_flow")),
             "period": row.get("period"), "currency": row.get("currency"),
             "source": row.get("source"), "source_status": row.get("source_status"),
             "verification_status": row.get("verification_status"),

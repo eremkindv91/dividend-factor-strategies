@@ -76,6 +76,10 @@ COVERAGE_MIN = 60.0               # ниже — месяц не участву�
 COVERAGE_HIGH = 85.0              # verified: доля сверенной прибыли
 COVERAGE_OK = 70.0
 PE_SANE = (0.5, 60.0)             # вне коридора — почти наверняка дефект данных, а не рынок
+METRICS = ("reported", "normalized", "ocf")   # прибыль · прибыль по средней марже · ден. поток
+NORM_MIN_YEARS = 4                # меньше — средняя рентабельность ничего не описывает
+NORM_WINDOW = 10                  # окно усреднения маржи: примерно экономический цикл
+OCF_MAX_LAG_YEARS = 1             # насколько ден. поток может отставать от свежей отчётности
 SCHEMA_VERSION = 2                # 2: кэш капитализации перекладкой на срезы по датам (было по тикерам)
 
 
@@ -153,6 +157,65 @@ def caps_on(asof: str, cache: dict) -> dict[str, float]:
     return out
 
 
+def normalized_earnings(series: list[dict], when: date):
+    """Прибыль по средней за цикл рентабельности: median(прибыль/выручка) × текущая выручка.
+
+    Зачем это нужно: один удачный или провальный год перекашивает оценку всего рынка. В
+    апреле 2021 P/E корзины доходил до 16 не потому, что рынок стал дорогим, а потому что в
+    знаменателе стояла ковидная прибыль 2020 года. Усреднение по рентабельности убирает этот
+    эффект — и остаётся в текущих рублях: поправка на инфляцию не нужна, поскольку и маржа,
+    и выручка берутся в номинале своего года.
+
+    Почему не CAPE Шиллера: он усредняет прибыль за 10 лет в ПОСТОЯННЫХ ценах, а ряд ИПЦ у
+    Банка России начинается с 2015 года. Дефлятора нужной глубины нет, а усреднять
+    номинальные рубли при российской инфляции — значит занижать прошлые годы.
+    """
+    rows = [r for r in series if date(int(r["fy"]) + 1, DISCLOSURE_MONTH, 1) <= when]
+    margins = [r["value"] / r["revenue"] for r in rows
+               if r.get("revenue") and r["revenue"] > 0 and r.get("value") is not None]
+    if len(margins) < NORM_MIN_YEARS or not rows:
+        return None
+    base_revenue = rows[-1].get("revenue")
+    if not base_revenue or base_revenue <= 0:
+        return None
+    return statistics.median(margins[-NORM_WINDOW:]) * base_revenue
+
+
+def cash_flow(series: list[dict], when: date, latest_fy: int):
+    """Операционный денежный поток — заработок без бумажных переоценок и списаний.
+
+    Строка денежного потока за последний отчётный год заполнена в слое не у всех (на июль
+    2026 — у 11 эмитентов из 39 против 39 по прибыли), поэтому допускаем отставание, но
+    НЕ БОЛЬШЕ ОДНОГО ГОДА от последней раскрытой отчётности самого эмитента. Без этого
+    ограничения в одно число попадали бы потоки за 2021 и за 2025 год (проверено: шесть
+    эмитентов тянули данные пятилетней давности), а такая смесь винтажей ничего не измеряет.
+    """
+    for rec in reversed(series):
+        fy = int(rec["fy"])
+        if date(fy + 1, DISCLOSURE_MONTH, 1) > when:
+            continue                                 # ещё не раскрыт — look-ahead
+        if fy < latest_fy - OCF_MAX_LAG_YEARS:
+            break                                    # дальше только глубже — смысла нет
+        v = rec.get("operating_cash_flow")
+        if isinstance(v, (int, float)):
+            return float(v), fy
+    return None, None
+
+
+def _metric_status(pe, priced, coverage, verified_coverage):
+    """Статус метрики. Ступени verified/mixed_sources доступны только там, где сверка
+    вообще проводилась — у прибыли; для остальных знаменателей потолок «estimated»."""
+    if pe is None:
+        return "invalid_denominator"
+    if priced < COVERAGE_MIN or coverage < COVERAGE_MIN:
+        return "insufficient_coverage"
+    if verified_coverage >= COVERAGE_HIGH:
+        return "verified"
+    if verified_coverage >= COVERAGE_OK:
+        return "mixed_sources"
+    return "estimated"
+
+
 def aggregate_month(month: str, tickers: list[str], caps_at: dict[str, float],
                     hist: dict, base_of: dict, no_earnings: dict | None = None,
                     rejected: list | None = None) -> dict | None:
@@ -175,8 +238,11 @@ def aggregate_month(month: str, tickers: list[str], caps_at: dict[str, float],
         node["cap"] += cap
         node["secids"].append(tk)
 
-    cap_total = cap_covered = cap_verified = earn_sum = 0.0
-    n_incl, last_fy = 0, None
+    cap_total, last_fy = 0.0, None
+    # Три знаменателя оценки считаются за один проход по эмитентам: капитализация у них
+    # общая, а покрытие — своё, потому что выручка и денежный поток есть не у всех.
+    acc = {m: {"cap": 0.0, "verified": 0.0, "sum": 0.0, "n": 0} for m in METRICS}
+    ocf_years: list[int] = []
     for issuer, node in issuers.items():
         cap = node["cap"]
         cap_total += cap
@@ -206,37 +272,61 @@ def aggregate_month(month: str, tickers: list[str], caps_at: dict[str, float],
                 rejected.append({"month": month, "ticker": issuer, "fy": int(rec["fy"]),
                                  "value": float(rec["value"]), "reason": "; ".join(defects)})
             continue
-        cap_covered += cap
-        if rec.get("verification_status") == "verified" or rec.get("source") == "verified_ifrs_seed":
-            cap_verified += cap
-        earn_sum += float(rec["value"])             # убыток входит со своим знаком
-        n_incl += 1
+        verified = (rec.get("verification_status") == "verified"
+                    or rec.get("source") == "verified_ifrs_seed")
+        ocf_value, ocf_fy = cash_flow(series, when, int(rec["fy"]))
+        values = {"reported": float(rec["value"]),          # убыток входит со своим знаком
+                  "normalized": normalized_earnings(series, when),
+                  "ocf": ocf_value}
+        if ocf_fy is not None:
+            ocf_years.append(ocf_fy)
+        for metric, value in values.items():
+            if value is None:                                # у метрики нет данных по эмитенту
+                continue
+            node_acc = acc[metric]
+            node_acc["cap"] += cap
+            node_acc["sum"] += value
+            node_acc["n"] += 1
+            # Ручная сверка (IFRS-seed) касается ТОЛЬКО чистой прибыли. Переносить её на
+            # нормализацию и денежный поток нельзя: выручку и поток никто не сверял, и
+            # подпись «сверено 73 %» под ними была бы неправдой.
+            if verified and metric == "reported":
+                node_acc["verified"] += cap
         last_fy = max(last_fy or 0, int(rec["fy"]))
 
-    if cap_total <= 0 or n_incl == 0:
+    if cap_total <= 0 or acc["reported"]["n"] == 0:
         return None
-    coverage = 100.0 * cap_covered / cap_total
-    verified_coverage = 100.0 * cap_verified / cap_total          # от ВСЕЙ корзины, не от покрытой
     # Бумаги без капитализации не попадают и в cap_total, поэтому coverage их не видит: месяц,
     # где у реестра нашлись данные лишь по трём бумагам из 46, показывал «покрытие 100 %».
     # Меряем это отдельно — доля корзины, для которой капитализация вообще известна.
     priced = 100.0 * len(caps_at) / len(tickers) if tickers else 0.0
-    pe = None
-    if earn_sum > 0:
-        candidate = cap_covered / earn_sum
-        if PE_SANE[0] <= candidate <= PE_SANE[1]:
-            pe = round(candidate, 3)
-    if pe is None:
-        status = "invalid_denominator"
-    elif priced < COVERAGE_MIN or coverage < COVERAGE_MIN:
-        status = "insufficient_coverage"
-    elif verified_coverage >= COVERAGE_HIGH:
-        status = "verified"
-    elif verified_coverage >= COVERAGE_OK:
-        status = "mixed_sources"
-    else:
-        status = "estimated"
+
+    metrics = {}
+    for metric, a in acc.items():
+        cov = 100.0 * a["cap"] / cap_total
+        ver = 100.0 * a["verified"] / cap_total       # от ВСЕЙ корзины, не от покрытой
+        value = None
+        if a["sum"] > 0 and a["n"]:
+            candidate = a["cap"] / a["sum"]
+            if PE_SANE[0] <= candidate <= PE_SANE[1]:
+                value = round(candidate, 3)
+        metrics[metric] = {
+            "value": value,
+            "yield_pct": round(100.0 / value, 3) if value else None,
+            "market_cap": round(a["cap"]), "denominator": round(a["sum"]),
+            "coverage_pct": round(cov, 1), "verified_coverage_pct": round(ver, 1),
+            "constituents_used": a["n"],
+            "quality_status": _metric_status(value, priced, cov, ver),
+        }
+    if ocf_years:      # у денежного потока винтаж отчётности разный — показываем диапазон
+        metrics["ocf"]["fiscal_years"] = [min(ocf_years), max(ocf_years)]
+
+    base = metrics["reported"]           # верхний уровень — «Прибыль»: контракт для старого фронта
+    pe, coverage = base["value"], base["coverage_pct"]
+    verified_coverage, status = base["verified_coverage_pct"], base["quality_status"]
+    cap_covered, earn_sum, n_incl = base["market_cap"], base["denominator"], base["constituents_used"]
     return {
+        "metrics": metrics,
         "month": month, "as_of": None, "pe": pe,
         "earnings_yield_pct": round(100.0 / pe, 3) if pe else None,
         "market_cap": round(cap_covered), "earnings": round(earn_sum),
@@ -362,6 +452,9 @@ def main() -> int:
             "last_fiscal_year": current["last_fiscal_year"],
             "quality_status": current["quality_status"],
         },
+        # окна описывают метрику «Прибыль»: карточка считает статистику выбранного знаменателя
+        # на клиенте, здесь — метаданные для внешних потребителей
+        "windows_metric": "reported",
         "windows": {"3y": window(36), "5y": window(60), "10y": window(120), "all": window(None)},
         "decomposition": decompose(valid),
         "history": points,

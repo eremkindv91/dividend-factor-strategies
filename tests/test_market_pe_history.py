@@ -15,7 +15,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from build_market_pe import collapse_to_issuers, issuer_income          # noqa: E402
 from build_market_pe_history import (                                    # noqa: E402
-    COVERAGE_MIN, aggregate_month, earnings_available_at, month_last_day, quantile, shift,
+    COVERAGE_MIN, aggregate_month, cash_flow, earnings_available_at, month_last_day,
+    normalized_earnings, quantile, shift,
 )
 
 
@@ -252,3 +253,59 @@ class DateHelpers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class NormalizedEarnings(unittest.TestCase):
+    """Прибыль по средней за цикл рентабельности: median(прибыль/выручка) × текущая выручка."""
+
+    @staticmethod
+    def series(pairs):
+        return [{"fy": fy, "value": ni, "revenue": rev} for fy, ni, rev in pairs]
+
+    def test_smooths_out_a_freak_year(self):
+        """Провальный год не должен решать, дорог ли рынок."""
+        rows = self.series([(2019, 100, 1000), (2020, 10, 1000),      # ковидный провал
+                            (2021, 100, 1000), (2022, 100, 1000), (2023, 100, 1200)])
+        got = normalized_earnings(rows, date(2024, 6, 30))
+        self.assertAlmostEqual(got, 120.0, msg="10% медианной маржи от выручки 1200")
+
+    def test_uses_latest_disclosed_revenue_as_base(self):
+        rows = self.series([(2019, 50, 500), (2020, 50, 500), (2021, 50, 500), (2022, 200, 2000)])
+        self.assertAlmostEqual(normalized_earnings(rows, date(2023, 6, 30)), 200.0)
+
+    def test_respects_disclosure_lag(self):
+        """База берётся из последнего РАСКРЫТОГО года, а не из самого свежего в файле."""
+        rows = self.series([(2019, 50, 500), (2020, 50, 500), (2021, 50, 500),
+                            (2022, 100, 1000), (2025, 999, 9999)])
+        self.assertAlmostEqual(normalized_earnings(rows, date(2023, 6, 30)), 100.0)
+
+    def test_too_short_history_gives_nothing(self):
+        rows = self.series([(2022, 10, 100), (2023, 10, 100)])
+        self.assertIsNone(normalized_earnings(rows, date(2025, 6, 30)))
+
+    def test_missing_revenue_gives_nothing(self):
+        rows = [{"fy": y, "value": 10, "revenue": None} for y in range(2018, 2024)]
+        self.assertIsNone(normalized_earnings(rows, date(2025, 6, 30)))
+
+
+class CashFlowMetric(unittest.TestCase):
+    """Операционный поток: допускаем отставание, но не смесь винтажей."""
+
+    def test_takes_latest_disclosed_with_data(self):
+        rows = [{"fy": 2023, "value": 1, "operating_cash_flow": 300},
+                {"fy": 2024, "value": 1, "operating_cash_flow": 400},
+                {"fy": 2025, "value": 1, "operating_cash_flow": None}]
+        self.assertEqual(cash_flow(rows, date(2026, 6, 30), 2025), (400.0, 2024))
+
+    def test_rejects_data_older_than_one_year(self):
+        """Поток пятилетней давности рядом со свежей прибылью ничего не измеряет."""
+        rows = [{"fy": 2021, "value": 1, "operating_cash_flow": 300},
+                {"fy": 2024, "value": 1, "operating_cash_flow": None},
+                {"fy": 2025, "value": 1, "operating_cash_flow": None}]
+        self.assertEqual(cash_flow(rows, date(2026, 6, 30), 2025), (None, None))
+
+    def test_respects_disclosure_lag(self):
+        rows = [{"fy": 2024, "value": 1, "operating_cash_flow": 400},
+                {"fy": 2025, "value": 1, "operating_cash_flow": 500}]
+        self.assertEqual(cash_flow(rows, date(2026, 3, 31), 2024), (400.0, 2024),
+                         msg="FY2025 на 31 марта ещё не раскрыт")

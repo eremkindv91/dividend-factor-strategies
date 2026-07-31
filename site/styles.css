@@ -2585,6 +2585,9 @@ tbody tr:hover td,
 .mpe-hist { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .mpe-hist-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 10px; }
 .mpe-hist .pfx-ranges { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.mpe-modes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.mpe-mode-note { margin: 0 0 12px; font-size: .76rem; line-height: 1.5; color: var(--ink-soft); }
+.mpe-mode-note b { color: var(--ink); }
 .mpe-verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 9px 12px; border-radius: 9px; margin-bottom: 12px; background: var(--neut-fill); }
 .mpe-verdict b { font-size: .95rem; font-weight: 750; color: var(--neut-ink); }
 .mpe-verdict span { font-size: .78rem; color: var(--ink-soft); line-height: 1.45; }
