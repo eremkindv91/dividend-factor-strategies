@@ -1,85 +1,208 @@
 {
-  "date": "2026-07-31",
-  "generated_at": "2026-07-31T19:54:42+03:00",
+  "date": "2026-08-01",
+  "generated_at": "2026-08-01T12:28:04+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, в то время как цены на нефть Brent выросли.",
+  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, нефть марки Brent подорожала, золото снизилось.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7472.26",
-      "change_pct": "+0.47%",
-      "as_of": "2026-07-31",
+      "value": "7489.72",
+      "change_pct": "+0.70%",
+      "as_of": "закрытие 31.07",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25274.23",
-      "change_pct": "+0.61%",
-      "as_of": "2026-07-31",
+      "value": "25373.85",
+      "change_pct": "+1.00%",
+      "as_of": "закрытие 31.07",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "61867.43",
-      "change_pct": "+0.71%",
-      "as_of": "2026-07-30",
+      "value": "64362.02",
+      "change_pct": "+4.03%",
+      "as_of": "закрытие 31.07",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25858.88",
-      "change_pct": "+0.20%",
-      "as_of": "2026-07-30",
+      "value": "25884.43",
+      "change_pct": "+0.10%",
+      "as_of": "закрытие 31.07",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "89.92",
-      "change_pct": "+1.00%",
-      "as_of": "2026-07-31",
+      "value": "90.12",
+      "change_pct": "+1.22%",
+      "as_of": "закрытие 31.07",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4098.70",
-      "change_pct": "-0.03%",
-      "as_of": "2026-07-31",
+      "value": "4049.10",
+      "change_pct": "-1.24%",
+      "as_of": "закрытие 31.07",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
       "value": "2226.36",
       "change_pct": "+0.75%",
-      "as_of": "2026-07-31 19:00:11",
+      "as_of": "закрытие 31.07",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
       "value": "882.61",
       "change_pct": "+1.25%",
-      "as_of": "2026-07-31 19:00:12",
+      "as_of": "закрытие 31.07",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "79.46",
-      "change_pct": "-0.15%",
-      "as_of": "2026-07-31 19:54:40",
+      "change_pct": "-0.81%",
+      "as_of": "закрытие 31.07",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "11.73",
-      "change_pct": "+0.02%",
-      "as_of": "2026-07-31 19:15:01",
+      "change_pct": "-0.15%",
+      "as_of": "закрытие 31.07",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "nornickel-h1-2026-msfo",
-      "headline": "Чистая прибыль Норникеля по МСФО в первом полугодии выросла до двух миллиардов долларов",
-      "context": "Руководство компании заявило, что на базе полученных результатов Норникель может вернуться к выплате промежуточных дивидендов.",
+      "id": "mining-ban-moscow",
+      "headline": "Правительство России ввело запрет на майнинг в Московском регионе до конца 2032 года",
+      "context": "Ограничения вступают в силу с 15 августа 2026 года и затронут также часть Курской области.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/technology/news/2026/07/31/1218073-maining-moskve-podmoskove-kurskoi"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860264"
+        }
+      ],
+      "published_at": "2026-07-31T21:23:00+03:00"
+    },
+    {
+      "id": "jpmorgan-rosneft",
+      "headline": "Инвестбанк JPMorgan полностью ликвидировал базовые акции по депозитарным распискам Роснефти",
+      "context": "Ранее банк также вышел из расписок Сбербанка, Магнита, МТС и НМТП с дисконтом.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335449.php"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296482"
+        }
+      ],
+      "published_at": "2026-07-31T20:13:00+03:00"
+    },
+    {
+      "id": "eurotrans-default",
+      "headline": "Евротранс допустил технический дефолт по выплате купона по биржевым облигациям",
+      "context": "Речь идет о невыплате купонного дохода по выпуску серии БО-001Р-08.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335446.php"
+        }
+      ],
+      "published_at": "2026-07-31T20:00:00+03:00"
+    },
+    {
+      "id": "cpc-pipeline-suspension",
+      "headline": "Каспийский трубопроводный консорциум временно приостановил работу нефтепровода при продолжении приема сырья",
+      "context": "В Минэнерго Казахстана заверили, что сценарий полной остановки работы КТК в настоящее время не рассматривается.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106899"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860590"
+        }
+      ],
+      "published_at": "2026-08-01T09:44:00+03:00"
+    },
+    {
+      "id": "us-israel-iran-strikes",
+      "headline": "США и Израиль планируют нанести удары по объектам энергетической инфраструктуры Ирана",
+      "context": "Иран подготовил всеобъемлющий план реагирования на случай атак на свои энергетические объекты.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860528"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1106875"
+        }
+      ],
+      "published_at": "2026-08-01T00:01:00+03:00"
+    },
+    {
+      "id": "rostelecom-h1-loss",
+      "headline": "Ростелеком получил чистый убыток по РСБУ в размере 9,58 миллиарда рублей за полугодие",
+      "context": "Выручка компании за первые шесть месяцев 2026 года выросла на 6,8% до 238,71 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335461.php"
+        }
+      ],
+      "published_at": "2026-07-31T21:02:00+03:00"
+    },
+    {
+      "id": "en-plus-h1-profit",
+      "headline": "Чистая прибыль холдинга Эн+ по РСБУ за первое полугодие снизилась на 11,3 процента",
+      "context": "Выручка компании за шесть месяцев сократилась на 16,9% до 14 миллиардов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335428.php"
+        }
+      ],
+      "published_at": "2026-07-31T19:02:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "nornickel-h1-msfo",
+      "headline": "Чистая прибыль Норникеля по МСФО в первом полугодии выросла в два раза до двух миллиардов долларов",
+      "context": "Выручка увеличилась на 28,4% до 8,3 миллиарда долларов, компания может вернуться к промежуточным дивидендам.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -87,42 +210,54 @@
         {
           "name": "SmartLab",
           "url": "https://smart-lab.ru/blog/1335372.php"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106828"
         }
       ],
       "published_at": "2026-07-31T17:12:00+03:00"
     },
     {
-      "id": "bts-most-yugk-offer",
-      "headline": "Компания БТС-Мост Холдинг направила в Банк России обязательное предложение о выкупе акций ЮГК",
-      "context": "На фоне этой новости акции Южуралзолота на торгах Московской биржи выросли на 6 процентов.",
+      "id": "alrosa-h1-loss",
+      "headline": "Алроса получила чистый убыток по РСБУ в размере 10,67 миллиарда рублей за первое полугодие",
+      "context": "Годом ранее за аналогичный период компания зафиксировала чистую прибыль в размере 39 миллиардов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335327.php"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106815"
+        }
+      ],
+      "published_at": "2026-07-31T16:34:00+03:00"
+    },
+    {
+      "id": "akron-dividend-approval",
+      "headline": "Акционеры Акрона утвердили выплату дивидендов из нераспределенной прибыли прошлых лет в размере 235 рублей",
+      "context": "Дата закрытия реестра для получения дивидендов установлена на 10 августа 2026 года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217974-po-aktsiyam-yugk"
-        }
-      ],
-      "published_at": "2026-07-31T15:25:00+03:00"
-    },
-    {
-      "id": "nspc-stake-interest",
-      "headline": "Крупные российские технологические компании заинтересовались покупкой доли в Национальной системе платежных карт",
-      "context": "Интерес к приобретению акций оператора карт Мир проявляют группы RWB, Ozon, МТС и Яндекс.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217884-aktsioneri-akrona"
+        },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8859891"
+          "url": "https://www.kommersant.ru/doc/8848993"
         }
       ],
-      "published_at": "2026-07-31T13:14:00+03:00"
+      "published_at": "2026-07-31T12:00:00+03:00"
     },
     {
-      "id": "rwb-suspends-investment-program",
+      "id": "wildberries-freeze-investments",
       "headline": "Объединенная компания Wildberries и Russ приостановила инвестиционную программу и сделки слияний и поглощений",
       "context": "Решение принято на фоне продолжающихся атак беспилотных летательных аппаратов на логистическую инфраструктуру маркетплейса.",
       "category": "corporate",
@@ -130,275 +265,192 @@
       "importance": 5,
       "sources": [
         {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/07/31/1217847-rwb-zamorozila-investprogrammu"
+        },
+        {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/296188"
         }
       ],
-      "published_at": "2026-07-31T08:08:00+03:00"
+      "published_at": "2026-07-31T09:11:00+03:00"
     },
     {
-      "id": "boj-rate-hike",
-      "headline": "Банк Японии повысил ключевую процентную ставку до одного процента годовых",
-      "context": "Регулятор также предупредил, что базовая инфляция в стране может превысить целевой показатель в два процента с сентября.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/379469"
-        }
-      ],
-      "published_at": "2026-07-31T07:01:00+03:00"
-    },
-    {
-      "id": "alrosa-h1-2026-ras",
-      "headline": "Алроса получила 10,7 миллиарда рублей чистого убытка по РСБУ в первом полугодии",
-      "context": "Годом ранее за аналогичный период компания зафиксировала чистую прибыль в размере 39 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860166"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "samolet-h1-2026-ras",
-      "headline": "Чистая прибыль группы Самолет по РСБУ в первом полугодии сократилась в восемь раз",
-      "context": "Показатель снизился до 148,5 миллиона рублей, при этом выручка выросла на 31,2 процента до 8,56 миллиарда рублей.",
+      "id": "samolet-h1-profit",
+      "headline": "Чистая прибыль девелопера Самолет по РСБУ за первое полугодие сократилась в восемь раз",
+      "context": "Выручка компании за отчетный период выросла на 31,2% до 8,56 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335410.php"
+        },
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1218048-pribil-samoleta"
         }
       ],
-      "published_at": "2026-07-31T18:58:00+03:00"
+      "published_at": "2026-07-31T18:21:00+03:00"
     },
     {
-      "id": "spb-exchange-h1-2026-ras",
-      "headline": "Чистый убыток СПБ Биржи по РСБУ в первом полугодии превысил полмиллиарда рублей",
-      "context": "Показатель составил 577,9 миллиона рублей, увеличившись в два раза по сравнению с аналогичным периодом прошлого года.",
+      "id": "transneft-h1-profit",
+      "headline": "Чистая прибыль Транснефти по РСБУ за первое полугодие выросла на 3,2 процента",
+      "context": "Показатель составил 78,7 миллиарда рублей, также компания закрыла представительство в Словакии.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1218045-ubitok-spb-birzhi"
-        }
-      ],
-      "published_at": "2026-07-31T18:43:00+03:00"
-    },
-    {
-      "id": "transneft-h1-2026-ras",
-      "headline": "Чистая прибыль Транснефти по РСБУ в первом полугодии выросла на 3,2 процента",
-      "context": "Показатель составил 78,7 миллиарда рублей, а выручка увеличилась на 2,7 процента до 654,7 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106812"
+        },
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217999-transneft-pribil-rsbu"
         }
       ],
-      "published_at": "2026-07-31T16:43:00+03:00"
+      "published_at": "2026-07-31T16:29:00+03:00"
     },
     {
-      "id": "gazprom-neft-h1-2026-ras",
-      "headline": "Чистая прибыль Газпром нефти по РСБУ в первом полугодии выросла на 12 процентов",
-      "context": "Показатель увеличился до 255,79 миллиарда рублей по сравнению с 228 миллиардами рублей за аналогичный период прошлого года.",
+      "id": "rosseti-h1-profit",
+      "headline": "Чистая прибыль компании Россети по РСБУ за первое полугодие снизилась на 18 процентов",
+      "context": "Показатель составил 64,73 миллиарда рублей против почти 79 миллиардов рублей годом ранее.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848554"
-        }
-      ],
-      "published_at": "2026-07-30T19:14:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "fuel-export-ban-extended",
-      "headline": "Правительство России продлило временный запрет на экспорт бензина до конца января 2027 года",
-      "context": "Ограничения вступают в силу с 1 августа 2026 года, при этом с 1 сентября разрешается экспорт дизельного топлива производителями.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335326.php"
+        },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848471"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106814"
         }
       ],
-      "published_at": "2026-07-30T17:07:00+03:00"
+      "published_at": "2026-07-31T16:09:00+03:00"
     },
     {
-      "id": "nlmk-h1-2026-profit",
-      "headline": "Чистая прибыль группы НЛМК по МСФО в первом полугодии сократилась в два раза",
-      "context": "Показатель снизился до 20,5 миллиарда рублей по сравнению с 44,8 миллиарда рублей годом ранее.",
+      "id": "mvideo-warehouse-protection",
+      "headline": "Маркетплейс М.Видео запускает программу защиты товаров на складах от непредвиденных обстоятельств",
+      "context": "Стоимость услуги составит 2,5% от залоговой цены товаров в месяц, мера покроет в том числе риски ударов беспилотников.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/30/1217697-pribil-nlmk"
-        }
-      ],
-      "published_at": "2026-07-30T15:44:00+03:00"
-    },
-    {
-      "id": "durov-terrorist-list",
-      "headline": "Росфинмониторинг внес основателя мессенджера Telegram Павла Дурова в реестр террористов и экстремистов",
-      "context": "Ведомство пояснило, что данные ограничения накладывают арест на личные счета Дурова и не распространяются на Telegram как юридическое лицо.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848305"
-        }
-      ],
-      "published_at": "2026-07-30T15:06:00+03:00"
-    },
-    {
-      "id": "ozon-q2-2026-profit",
-      "headline": "Чистая прибыль маркетплейса Ozon во втором квартале 2026 года выросла в два раза",
-      "context": "Показатель составил 10,1 миллиарда рублей против 4,5 миллиарда рублей в первом квартале.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/295939"
+          "url": "https://frankmedia.ru/296446"
         }
       ],
-      "published_at": "2026-07-30T09:38:00+03:00"
+      "published_at": "2026-07-31T15:31:00+03:00"
     },
     {
-      "id": "sberbank-h1-2026-profit",
-      "headline": "Чистая прибыль Сбербанка за первое полугодие 2026 года выросла на 18,6 процента",
-      "context": "Показатель достиг 1,02 триллиона рублей, при этом во втором квартале прибыль составила 511 миллиардов рублей.",
+      "id": "aeroflot-h1-revenue",
+      "headline": "Выручка Аэрофлота по РСБУ за первое полугодие увеличилась на 4,4 процента до 365,6 миллиарда рублей",
+      "context": "Скорректированная чистая прибыль авиакомпании за второй квартал составила 6,4 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23341"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106792"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860056"
         }
       ],
-      "published_at": "2026-07-30T08:53:00+03:00"
+      "published_at": "2026-07-31T14:30:00+03:00"
     },
     {
-      "id": "segezha-shares-surge",
-      "headline": "Акции лесопромышленного холдинга Сегежа выросли более чем на 30 процентов за день",
-      "context": "Рост котировок произошел на торгах Московской биржи 30 июля без публикации существенных корпоративных новостей.",
+      "id": "ozon-warehouse-rebound",
+      "headline": "Акции Ozon отыграли падение после подтверждения безопасности логистического комплекса в Татарстане",
+      "context": "Ранее котировки снижались на 8,4% на фоне сообщений об атаке беспилотников на склад в Зеленодольске.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/30/1217747-aktsii-segezhi"
-        }
-      ],
-      "published_at": "2026-07-30T17:55:00+03:00"
-    },
-    {
-      "id": "nknh-h1-2026-ras",
-      "headline": "Чистая прибыль Нижнекамскнефтехима по РСБУ в первом полугодии сократилась почти в 15 раз",
-      "context": "Показатель снизился до 1,48 миллиарда рублей по сравнению с аналогичным периодом прошлого года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848468"
+          "url": "https://www.kommersant.ru/doc/8848970"
         }
       ],
-      "published_at": "2026-07-30T17:23:00+03:00"
+      "published_at": "2026-07-31T11:43:00+03:00"
     },
     {
-      "id": "rushydro-h1-2026-ras",
-      "headline": "Чистая прибыль РусГидро по РСБУ в первом полугодии выросла на 63 процента",
-      "context": "Показатель составил 48,4 миллиарда рублей, а выручка без учета надбавки к цене на мощность достигла 150 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848290"
-        }
-      ],
-      "published_at": "2026-07-30T14:56:00+03:00"
-    },
-    {
-      "id": "inter-rao-h1-2026-ras",
-      "headline": "Чистая прибыль Интер РАО по РСБУ в первом полугодии выросла почти на 30 процентов",
-      "context": "Показатель достиг 17,8 миллиарда рублей, а выручка увеличилась на 31,5 процента до 31,5 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848255"
-        }
-      ],
-      "published_at": "2026-07-30T14:11:00+03:00"
-    },
-    {
-      "id": "severstal-h1-2026-ras",
-      "headline": "Северсталь получила 4,66 миллиарда рублей чистого убытка по РСБУ в первом полугодии",
-      "context": "Финансовые результаты компании за отчетный период опубликованы на сайте раскрытия информации.",
+      "id": "sollers-h1-loss",
+      "headline": "Автопроизводитель Соллерс зафиксировал чистый убыток по РСБУ в первом полугодии",
+      "context": "Убыток составил 106,9 миллиона рублей против чистой прибыли в 3,9 миллиарда рублей годом ранее.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/30/1217587-severstal-poluchila-ubitka"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1218022-sollers-poluchil-ubitok"
         }
       ],
-      "published_at": "2026-07-30T11:07:00+03:00"
+      "published_at": "2026-07-31T11:13:00+03:00"
     },
     {
-      "id": "dom-rf-h1-2026-msfo",
-      "headline": "Чистая прибыль ДОМ РФ по МСФО за первое полугодие выросла на 46 процентов",
-      "context": "Показатель составил 57,2 миллиарда рублей против 39,1 миллиарда рублей за аналогичный период прошлого года.",
+      "id": "nspk-bigtech-interest",
+      "headline": "Российские технологические гиганты заинтересовались покупкой доли в Национальной системе платежных карт",
+      "context": "Переговоры о покупке ведут Wildberries, Ozon, Яндекс и МТС, имеющие собственные дочерние банки.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296326"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8859891"
+        }
+      ],
+      "published_at": "2026-07-31T11:04:00+03:00"
+    },
+    {
+      "id": "seligdar-h1-loss",
+      "headline": "Селигдар получил чистый убыток по РСБУ в размере 4,3 миллиарда рублей за полугодие",
+      "context": "Годом ранее за аналогичный период золотодобывающая компания зафиксировала чистую прибыль.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/30/1217575-pribil-domrf"
+          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217880-seligdar-pervom-polugodii"
         }
       ],
-      "published_at": "2026-07-30T10:29:00+03:00"
+      "published_at": "2026-07-31T10:42:00+03:00"
+    },
+    {
+      "id": "rspp-business-climate",
+      "headline": "Индекс бизнес-климата РСПП в июле опустился до минимального значения за последний год",
+      "context": "Сводный индекс деловой среды снизился до 42,4 пункта на фоне ухудшения настроений представителей компаний.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8848662"
+        }
+      ],
+      "published_at": "2026-07-31T07:01:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-07-30"
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-07-31"
   }
 }
