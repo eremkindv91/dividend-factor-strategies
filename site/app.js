@@ -5428,6 +5428,7 @@ function sawChart(d) {
 // Это не ИИР; справедливая цена опирается на ПЛОСКИЙ спред рейтинга (модельное допущение).
 // ══════════════════════════════════════════════════════════════════════════
 let BONDS = null;
+let BONDS_SORT = { key: 'ytm_net', dir: -1 };
 const CHARTJS_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
 const RATING_GROUP = (r) => { r = String(r || ''); return r.startsWith('AAA') ? 'aaa' : r.startsWith('AA') ? 'aa' : r.startsWith('A') ? 'a' : 'bbb'; };
 const RATING_COLOR = { aaa: '#1E6F4C', aa: '#7FB069', a: '#D9A521', bbb: '#D77A33' };
@@ -5457,6 +5458,81 @@ function officialRatingHTML(row, badgeClass) {
     ? `<a class="rating-source-link" href="${esc(row.rating_source_url)}" target="_blank" rel="noopener" aria-label="Открыть официальный рейтинг выпуска">${badge}</a>`
     : badge;
   return `<span class="rating-official">${linked}<small>${esc(row.rating_agency || '')}${row.rating_date ? ' · ' + esc(shortIsoDate(row.rating_date)) : ''}</small></span>`;
+}
+
+const BOND_RATING_SCALE = new Map([
+  ['BBB-', 1], ['BBB', 2], ['BBB+', 3],
+  ['A-', 4], ['A', 5], ['A+', 6],
+  ['AA-', 7], ['AA', 8], ['AA+', 9], ['AAA', 10],
+]);
+
+const BOND_SORT_FIELDS = {
+  price_market: ['price_market', 'clean_price_pct'],
+  ytm_market: ['ytm_market', 'ytm_gross_pct'],
+  ytm_fair: ['ytm_fair', 'g_curve_yield_pct'],
+  deviation: ['deviation', 'excess_spread_pp'],
+  ytm_net: ['ytm_net', 'ytm_net_est_pct'],
+  duration_years: ['duration_years', 'duration_value'],
+  coupon_pct: ['coupon_pct'],
+  liquidity: ['valtoday', 'median_volume_20d_rub', 'value_today_rub'],
+  g_spread: ['g_spread_pp'],
+  dirty_price: ['dirty_price_per_lot_rub'],
+};
+
+function bondSortSecid(row) {
+  return String((row || {}).secid || (row || {}).isin || '').toUpperCase();
+}
+
+function bondSortValue(row, key) {
+  if (key === 'name') {
+    const value = String((row || {}).name || bondSortSecid(row)).trim();
+    return value || null;
+  }
+  if (key === 'rating') {
+    const value = String((row || {}).rating || '').replace(/\s+/g, '').toUpperCase();
+    return BOND_RATING_SCALE.has(value) ? BOND_RATING_SCALE.get(value) : null;
+  }
+  if (key === 'maturity') {
+    const value = Date.parse((row || {}).maturity || (row || {}).maturity_date);
+    return Number.isFinite(value) ? value : null;
+  }
+  const fields = BOND_SORT_FIELDS[key] || [];
+  const field = fields.find((candidate) => (row || {})[candidate] != null);
+  const raw = field ? (row || {})[field] : null;
+  if (raw == null || raw === '') return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
+}
+
+function compareBonds(a, b, sort = BONDS_SORT) {
+  const av = bondSortValue(a, sort.key);
+  const bv = bondSortValue(b, sort.key);
+  const aMissing = av == null;
+  const bMissing = bv == null;
+  if (aMissing || bMissing) {
+    if (aMissing !== bMissing) return aMissing ? 1 : -1;
+    return bondSortSecid(a).localeCompare(bondSortSecid(b), 'ru');
+  }
+  const compared = typeof av === 'string' ? av.localeCompare(bv, 'ru') : av - bv;
+  return compared === 0
+    ? bondSortSecid(a).localeCompare(bondSortSecid(b), 'ru')
+    : compared * sort.dir;
+}
+
+function sortedBonds(bonds, sort = BONDS_SORT) {
+  return bonds.slice().sort((a, b) => compareBonds(a, b, sort));
+}
+
+function bondSortHeaderHTML(key, label, tooltip = '') {
+  const active = BONDS_SORT.key === key;
+  const ariaSort = active ? (BONDS_SORT.dir === 1 ? 'ascending' : 'descending') : 'none';
+  const arrow = active
+    ? '<span class="bonds-sort-arrow" aria-hidden="true">' + (BONDS_SORT.dir === 1 ? '↑' : '↓') + '</span>'
+    : '';
+  return '<th data-bonds-sort="' + key + '" aria-sort="' + ariaSort + '"'
+    + (active ? ' class="bonds-sort-active"' : '')
+    + (tooltip ? ' data-tooltip="' + esc(tooltip) + '"' : '')
+    + '><button type="button" class="bonds-sort-button">' + label + arrow + '</button></th>';
 }
 
 function wireBonds() {
@@ -5679,13 +5755,24 @@ function bondPortfolioLabHTML(lab) {
 function bondUniverseScreenerHTML(universe) {
   if (!universe || !Array.isArray(universe.bonds)) return bondsErrorHTML();
   const query = BOND_SCREEN_QUERY.toLowerCase();
-  const rows = universe.bonds.filter((row) => {
+  const filtered = universe.bonds.filter((row) => {
     const matchQuery = !query || `${row.secid} ${row.name} ${row.issuer_name}`.toLowerCase().includes(query);
     const matchRating = BOND_SCREEN_RATING === 'all' || (BOND_SCREEN_RATING === 'ofz' ? row.instrument_type === 'ofz' : row.rating_group === BOND_SCREEN_RATING);
     return matchQuery && matchRating;
-  }).sort((a, b) => Number(b.ytm_net_est_pct || -999) - Number(a.ytm_net_est_pct || -999));
+  });
+  const rows = sortedBonds(filtered);
+  const headers = [
+    bondSortHeaderHTML('name', 'Выпуск'),
+    bondSortHeaderHTML('rating', 'Рейтинг'),
+    '<th>Сектор</th>',
+    bondSortHeaderHTML('ytm_net', 'YTM net'),
+    bondSortHeaderHTML('g_spread', 'G-spread'),
+    bondSortHeaderHTML('duration_years', 'Дюрация'),
+    bondSortHeaderHTML('dirty_price', 'Dirty/лот'),
+    bondSortHeaderHTML('maturity', 'Погашение'),
+  ].join('');
   const body = rows.slice(0, 100).map((row) => `<tr><td class="b-name">${instrumentIdentityHTML(row.secid, row.name, 'bond', 'sm', { showTypeBadge: false })}<small>${esc(row.issuer_name || '')}</small></td><td>${row.instrument_type === 'ofz' ? 'ОФЗ' : esc(row.rating || ND)}</td><td>${esc(row.sector || ND)}</td><td class="tnum">${bondPct(row.ytm_net_est_pct, 2)}</td><td class="tnum">${bondPct(row.g_spread_pp, 2)}</td><td class="tnum">${Number(row.duration_value).toFixed(2)}</td><td class="tnum">${rub0(row.dirty_price_per_lot_rub)}</td><td>${esc(shortIsoDate(row.maturity_date))}</td></tr>`).join('');
-  return `<div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label><div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div><span class="muted">Найдено: ${rows.length}</span></div><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Выпуск</th><th>Рейтинг</th><th>Сектор</th><th>YTM net</th><th>G-spread</th><th>Дюрация</th><th>Dirty/лот</th><th>Погашение</th></tr></thead><tbody>${body}</tbody></table></div><p class="bonds-disc">Показаны до 100 строк. Только выпуски с реальными MOEX price/ACI/lot semantics; неизвестные поля не достраиваются суррогатами.</p>`;
+  return `<div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label><div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div><span class="muted">Найдено: ${rows.length}</span></div><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table></div><p class="bonds-disc">Показаны до 100 строк после фильтрации и сортировки. Только выпуски с реальными MOEX price/ACI/lot semantics; неизвестные поля не достраиваются суррогатами.</p>`;
 }
 
 function bondRelativeValueHTML(universe) {
@@ -5705,6 +5792,13 @@ function wireBondLabControls() {
   document.querySelectorAll('[data-bond-rating]').forEach((button) => button.addEventListener('click', () => { BOND_SCREEN_RATING = button.dataset.bondRating; drawBondLab(); }));
   const search = document.getElementById('bondlab-search');
   if (search) search.addEventListener('input', debounce(() => { BOND_SCREEN_QUERY = search.value; drawBondLab(); }, 180));
+  document.querySelectorAll('[data-bonds-sort]').forEach((header) => header.addEventListener('click', () => {
+    const key = header.dataset.bondsSort;
+    BONDS_SORT = BONDS_SORT.key === key
+      ? { key, dir: BONDS_SORT.dir * -1 }
+      : { key, dir: 1 };
+    drawBondLab();
+  }));
   const recalculate = document.getElementById('bondlab-recalculate');
   const budget = document.getElementById('bondlab-budget');
   if (recalculate && budget) recalculate.addEventListener('click', () => {
@@ -5802,7 +5896,7 @@ function bondsUIHTML(d) {
     </div>
     <div id="bonds-calc-out"></div>
 
-    <div class="bonds-section-title">Скринер (${d.bonds.length} бумаг, сортировка по апсайду)</div>
+    <div class="bonds-section-title">Скринер (${d.bonds.length} бумаг, сортировка по заголовкам)</div>
     ${bondsTableHTML(d.bonds)}
 
     <details class="bonds-limits">
@@ -5826,7 +5920,7 @@ function bondsUIHTML(d) {
 }
 
 function bondsTableHTML(bonds) {
-  const rows = bonds.slice().sort((a, b) => b.deviation - a.deviation).map((x) => {
+  const rows = sortedBonds(bonds).map((x) => {
     const dev = isNum(x.deviation) ? (x.deviation >= 0 ? '+' : '') + x.deviation.toFixed(1) + '%' : ND;
     return `<tr>
       <td class="b-name">${instrumentIdentityHTML(x.secid || x.isin, x.name, 'bond', 'sm', { showTypeBadge: false })}</td>
@@ -5841,17 +5935,17 @@ function bondsTableHTML(bonds) {
       <td class="tnum b-muted">${esc(x.maturity || ND)}</td>
     </tr>`;
   }).join('');
-  return `<div class="bonds-table-wrap"><table class="bonds-table">
+  return `<div class="bonds-table-wrap" data-bonds-screen-table><table class="bonds-table">
     <thead><tr>
-      <th>Бумага</th><th>Рейтинг</th>
-      <th data-tooltip="Чистая цена MOEX (% номинала), без НКД. НКД/грязная цена в данных не размечены — см. «Ограничения данных».">Цена<span class="b-mark">чистая</span></th>
-      <th data-tooltip="Доходность к погашению по рыночной цене (WAPRICE), считается из реальных потоков. К погашению: оферты и амортизация в данных не размечены — см. «Ограничения данных».">YTM</th>
-      <th data-tooltip="Справедливая YTM по G-кривой MOEX + плоский спред рейтинга">Fair YTM</th>
-      <th data-tooltip="Апсайд справедливой цены к рыночной. Плоский спред занижает кредит-премию A-/BBB → большой «+» = модельное допущение">Апсайд</th>
-      <th data-tooltip="Чистая YTM после НДФЛ 13% (купоны и ценовой доход)">YTM−налог</th>
-      <th>Дюрация</th>
-      <th data-tooltip="Купон принят фиксированным. Флоатеры (плавающая база + спред) в данных не классифицированы — для них YTM к погашению условна. См. «Ограничения данных».">Купон</th>
-      <th>Погашение</th>
+      ${bondSortHeaderHTML('name', 'Бумага')}${bondSortHeaderHTML('rating', 'Рейтинг')}
+      ${bondSortHeaderHTML('price_market', 'Цена<span class="b-mark">чистая</span>', 'Чистая цена MOEX (% номинала), без НКД. НКД/грязная цена в данных не размечены — см. «Ограничения данных».')}
+      ${bondSortHeaderHTML('ytm_market', 'YTM', 'Доходность к погашению по рыночной цене (WAPRICE), считается из реальных потоков. К погашению: оферты и амортизация в данных не размечены — см. «Ограничения данных».')}
+      ${bondSortHeaderHTML('ytm_fair', 'Fair YTM', 'Справедливая YTM по G-кривой MOEX + плоский спред рейтинга')}
+      ${bondSortHeaderHTML('deviation', 'Апсайд', 'Апсайд справедливой цены к рыночной. Плоский спред занижает кредит-премию A-/BBB → большой «+» = модельное допущение')}
+      ${bondSortHeaderHTML('ytm_net', 'YTM−налог', 'Чистая YTM после НДФЛ 13% (купоны и ценовой доход)')}
+      ${bondSortHeaderHTML('duration_years', 'Дюрация')}
+      ${bondSortHeaderHTML('coupon_pct', 'Купон', 'Купон принят фиксированным. Флоатеры (плавающая база + спред) в данных не классифицированы — для них YTM к погашению условна. См. «Ограничения данных».')}
+      ${bondSortHeaderHTML('maturity', 'Погашение')}
     </tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -5898,6 +5992,20 @@ function bondsChart(d) {
 }
 
 function wireBondsCalc() {
+  const body = document.getElementById('bonds-body');
+  if (body && !body.dataset.sortWired) {
+    body.dataset.sortWired = '1';
+    body.addEventListener('click', (event) => {
+      const header = event.target.closest('[data-bonds-sort]');
+      if (!header || !body.contains(header) || !BONDS) return;
+      const key = header.dataset.bondsSort;
+      BONDS_SORT = BONDS_SORT.key === key
+        ? { key, dir: BONDS_SORT.dir * -1 }
+        : { key, dir: 1 };
+      const table = body.querySelector('[data-bonds-screen-table]');
+      if (table) table.outerHTML = bondsTableHTML(BONDS.bonds);
+    });
+  }
   ['bonds-horizon', 'bonds-capital'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', bondsCalc);

@@ -1020,7 +1020,16 @@ td.empty { text-align: center; }
 .bonds-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
 .bonds-table th, .bonds-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
 .bonds-table th { background: var(--bg); color: var(--ink-soft); font-weight: 600; font-size: .76rem;
-  position: sticky; top: 0; cursor: help; }
+  position: sticky; top: 0; cursor: default; }
+.bonds-table th[data-tooltip]:not([data-bonds-sort]) { cursor: help; }
+.bonds-table th[data-bonds-sort] { cursor: pointer; user-select: none; }
+.bonds-sort-button { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; width: 100%;
+  margin: -7px -10px; padding: 7px 10px; border: 0; background: transparent; color: inherit; font: inherit;
+  font-weight: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; white-space: nowrap; }
+.bonds-table th:first-child .bonds-sort-button { justify-content: flex-start; }
+.bonds-table th.bonds-sort-active { color: var(--accent-deep); background: #EEF3FB; }
+.bonds-sort-arrow { font-size: .86rem; line-height: 1; }
+.bonds-sort-button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; border-radius: 5px; }
 .bonds-table th:first-child, .bonds-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
 .bonds-table th:first-child { background: var(--bg); }
 .bonds-table tbody tr:hover td { background: #F3F5FA; }
