@@ -392,11 +392,9 @@
 
         <div class="bondlab-workspace" id="bondlab-workspace">
           <div class="bondlab-tabs" role="tablist" aria-label="Разделы облигаций">
-            <button type="button" class="bondlab-tab active" data-bondlab-tab="portfolios" role="tab" aria-controls="bondlab-panel" aria-selected="true">Портфели</button>
-            <button type="button" class="bondlab-tab" data-bondlab-tab="screener" role="tab" aria-controls="bondlab-panel" aria-selected="false">Скринер</button>
-            <button type="button" class="bondlab-tab" data-bondlab-tab="relative" role="tab" aria-controls="bondlab-panel" aria-selected="false">Relative Value</button>
-            <button type="button" class="bondlab-tab" data-bondlab-tab="curve" role="tab" aria-controls="bondlab-panel" aria-selected="false">G-кривая</button>
-            <button type="button" class="bondlab-tab" data-bondlab-tab="finder" role="tab" aria-controls="bondlab-panel" aria-selected="false">Finder</button>
+            <button type="button" class="bondlab-tab active" data-bondlab-tab="portfolios" role="tab" aria-controls="bondlab-panel" aria-selected="true">Собрать портфель</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="screener" role="tab" aria-controls="bondlab-panel" aria-selected="false">Найти и сравнить</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="analytics" role="tab" aria-controls="bondlab-panel" aria-selected="false">Продвинутая аналитика</button>
           </div>
           <div class="bondlab-panel" id="bondlab-panel" role="tabpanel" aria-live="polite">
             <div class="bonds-loading muted">Загрузка Bond Portfolio Lab…</div>
@@ -595,9 +593,16 @@
     </div>
   </dialog>
 
+  <dialog class="bond-detail-dialog" id="bond-detail-dialog" aria-labelledby="bond-detail-title">
+    <div class="bond-detail-shell">
+      <div id="bond-detail-body"></div>
+    </div>
+  </dialog>
+
   <script src="instrument_logos.js" defer></script>
   <script src="instrument_identity.js" defer></script>
   <script src="bond_allocator.js" defer></script>
+  <script src="bond_retail.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
