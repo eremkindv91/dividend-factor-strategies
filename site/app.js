@@ -5445,6 +5445,10 @@ const RATING_COLOR = { aaa: '#1E6F4C', aa: '#7FB069', a: '#D9A521', bbb: '#D77A3
 const RATING_SOURCE_RU = { acra: 'АКРА', expert_ra: 'Эксперт РА', nkr: 'НКР' };
 const HORIZON_RU = { short: 'Короткий (0–1 год)', mid: 'Средний (1–3 года)', long: 'Длинный (>3 лет)' };
 const rub0 = (x) => isNum(x) ? Math.round(x).toLocaleString('ru-RU') + ' ₽' : ND;
+// Копейки нужны там, где суммы мелкие и округление до рубля искажает: НКД, купон на бумагу,
+// итог покупки одного лота. Для портфельных сумм по-прежнему rub0.
+const rub2 = (x) => isNum(x)
+  ? Number(x).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽' : ND;
 
 function shortIsoDate(value) {
   const p = String(value || '').slice(0, 10).split('-');
@@ -5839,27 +5843,122 @@ function bondUserPortfolioHTML(allocation, universe, allocations) {
   </section>`;
 }
 
+/** Скринер. По умолчанию показывает ТОЛЬКО прошедшие safe-фильтр выпуски.
+ *
+ *  Причина жёсткая: при сортировке по доходности наверх всплывали бумаги без рейтинга с
+ *  YTM 325–373 % — расчёт по ним недостоверен (нераспознанная оферта, амортизация, битая
+ *  цена), и показывать их лидерами скринера значит выдавать дефект данных за возможность.
+ *  Такие выпуски не исчезают: они доступны в отдельном режиме с перечнем конкретных причин.
+ */
+function bondScreenerRows(universe) {
+  const query = BOND_SCREEN_QUERY.toLowerCase();
+  const f = BOND_SCREEN_FILTERS;
+  const minRank = window.BondRetail ? window.BondRetail.ratingRank(f.minRating) : null;
+  return (universe.bonds || []).filter((row) => {
+    const safety = row.bond_safety;
+    if (BOND_SCREEN_MODE === 'safe' && !(safety && safety.investable)) return false;
+    if (BOND_SCREEN_MODE === 'risk' && safety && safety.investable) return false;
+    if (query && !`${row.secid} ${row.name} ${row.issuer_name}`.toLowerCase().includes(query)) return false;
+    if (BOND_SCREEN_RATING !== 'all') {
+      if (BOND_SCREEN_RATING === 'ofz' ? row.instrument_type !== 'ofz' : row.rating_group !== BOND_SCREEN_RATING) return false;
+    }
+    // Фильтр минимального рейтинга не применяется:
+    //  • к ОФЗ — у госбумаг рейтинг выпуска не выставляется;
+    //  • в режиме высокого риска — иначе он прятал бы именно безрейтинговые выпуски,
+    //    ради показа которых этот режим и существует.
+    if (minRank && row.instrument_type !== 'ofz' && BOND_SCREEN_MODE !== 'risk') {
+      const rank = window.BondRetail.ratingRank(row.rating);
+      if (!rank || rank < minRank) return false;
+    }
+    if (f.maxDuration !== '' && isNum(Number(f.maxDuration)) && Number(row.duration_value) > Number(f.maxDuration)) return false;
+    if (f.minYtm !== '' && Number(row.ytm_net_est_pct) < Number(f.minYtm)) return false;
+    if (f.maxYtm !== '' && Number(row.ytm_net_est_pct) > Number(f.maxYtm)) return false;
+    if (f.sector !== 'all' && row.sector !== f.sector) return false;
+    if (f.couponType !== 'all' && row.coupon_type !== f.couponType) return false;
+    if (f.retailOnly && row.qualified_only) return false;
+    if (f.simpleOnly && (row.amortizing || row.has_put_offer || row.has_call)) return false;
+    if (Number(f.minLiquidity) > 0 && window.BondRetail) {
+      const score = window.BondRetail.liquidity(row).score;
+      if (score == null || score < Number(f.minLiquidity)) return false;
+    }
+    return true;
+  });
+}
+
 function bondUniverseScreenerHTML(universe) {
   if (!universe || !Array.isArray(universe.bonds)) return bondsErrorHTML();
-  const query = BOND_SCREEN_QUERY.toLowerCase();
-  const filtered = universe.bonds.filter((row) => {
-    const matchQuery = !query || `${row.secid} ${row.name} ${row.issuer_name}`.toLowerCase().includes(query);
-    const matchRating = BOND_SCREEN_RATING === 'all' || (BOND_SCREEN_RATING === 'ofz' ? row.instrument_type === 'ofz' : row.rating_group === BOND_SCREEN_RATING);
-    return matchQuery && matchRating;
-  });
-  const rows = sortedBonds(filtered);
+  const all = universe.bonds;
+  const safeCount = all.filter((row) => row.bond_safety && row.bond_safety.investable).length;
+  const rows = sortedBonds(bondScreenerRows(universe));
+  const f = BOND_SCREEN_FILTERS;
+  const риск = BOND_SCREEN_MODE === 'risk';
+
+  const modes = `<div class="bond-mode-switch" role="group" aria-label="Режим отбора">
+    <button type="button" class="bond-mode${!риск ? ' on' : ''}" data-bond-screen-mode="safe" aria-pressed="${!риск}">Безопасные и доступные <b>${safeCount}</b></button>
+    <button type="button" class="bond-mode${риск ? ' on risky' : ''}" data-bond-screen-mode="risk" aria-pressed="${риск}">Высокий риск · требуется проверка <b>${all.length - safeCount}</b></button>
+  </div>`;
+  const warning = риск ? `<div class="bond-mode-warning"><b>Это режим непроверенных выпусков.</b>
+    <span>Здесь могут быть бумаги без подтверждённого рейтинга, с низкой ликвидностью, сложными условиями
+    или аномальной расчётной доходностью. Перед покупкой проверьте условия выпуска и официальные документы.</span></div>` : '';
+
+  const sectors = [...new Set(all.map((row) => row.sector).filter(Boolean))].sort();
+  const ratingOptions = ['BBB-', 'BBB', 'BBB+', 'A-', 'A', 'A+', 'AA-', 'AA', 'AA+', 'AAA'];
+  const filters = `<div class="bond-filters">
+    <label>Мин. рейтинг<select data-bond-filter="minRating"${риск ? ' disabled' : ''}>
+      <option value=""${f.minRating === '' ? ' selected' : ''}>любой</option>
+      ${ratingOptions.map((r) => `<option value="${r}"${f.minRating === r ? ' selected' : ''}>${r}</option>`).join('')}
+    </select>${риск ? '<small class="bond-filter-off">не применяется в этом режиме</small>' : ''}</label>
+    <label>YTM net от<input type="number" step="0.5" data-bond-filter="minYtm" value="${esc(f.minYtm)}" placeholder="%"></label>
+    <label>до<input type="number" step="0.5" data-bond-filter="maxYtm" value="${esc(f.maxYtm)}" placeholder="%"></label>
+    <label>Дюрация до<input type="number" step="0.5" data-bond-filter="maxDuration" value="${esc(f.maxDuration)}" placeholder="лет"></label>
+    <label>Ликвидность от<input type="number" step="5" min="0" max="100" data-bond-filter="minLiquidity" value="${esc(f.minLiquidity)}"></label>
+    <label>Сектор<select data-bond-filter="sector">
+      <option value="all"${f.sector === 'all' ? ' selected' : ''}>все</option>
+      ${sectors.map((s) => `<option value="${esc(s)}"${f.sector === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}
+    </select></label>
+    <label>Купон<select data-bond-filter="couponType">
+      ${[['all', 'любой'], ['fixed', 'фиксированный'], ['floating', 'плавающий'], ['zero', 'бескупонный']]
+        .map(([id, label]) => `<option value="${id}"${f.couponType === id ? ' selected' : ''}>${label}</option>`).join('')}
+    </select></label>
+    <label class="bond-filter-check"><input type="checkbox" data-bond-filter="retailOnly"${f.retailOnly ? ' checked' : ''}>Без статуса квалифицированного</label>
+    <label class="bond-filter-check"><input type="checkbox" data-bond-filter="simpleOnly"${f.simpleOnly ? ' checked' : ''}>Без оферты и амортизации</label>
+    <button type="button" class="btn" id="bond-filters-reset">Сбросить фильтры</button>
+  </div>`;
+
   const headers = [
     bondSortHeaderHTML('name', 'Выпуск'),
+    '<th>Статус</th>',
     bondSortHeaderHTML('rating', 'Рейтинг'),
     '<th>Сектор</th>',
     bondSortHeaderHTML('ytm_net', 'YTM net'),
-    bondSortHeaderHTML('g_spread', 'G-spread'),
+    bondSortHeaderHTML('liquidity', 'Ликвидн.'),
     bondSortHeaderHTML('duration_years', 'Дюрация'),
     bondSortHeaderHTML('dirty_price', 'Dirty/лот'),
     bondSortHeaderHTML('maturity', 'Погашение'),
   ].join('');
-  const body = rows.slice(0, 100).map((row) => `<tr><td class="b-name">${instrumentIdentityHTML(row.secid, row.name, 'bond', 'sm', { showTypeBadge: false })}<small>${esc(row.issuer_name || '')}</small></td><td>${row.instrument_type === 'ofz' ? 'ОФЗ' : esc(row.rating || ND)}</td><td>${esc(row.sector || ND)}</td><td class="tnum">${bondPct(row.ytm_net_est_pct, 2)}</td><td class="tnum">${bondPct(row.g_spread_pp, 2)}</td><td class="tnum">${Number(row.duration_value).toFixed(2)}</td><td class="tnum">${rub0(row.dirty_price_per_lot_rub)}</td><td>${esc(shortIsoDate(row.maturity_date))}</td></tr>`).join('');
-  return `<div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label><div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div><span class="muted">Найдено: ${rows.length}</span></div><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table></div><p class="bonds-disc">Показаны до 100 строк после фильтрации и сортировки. Только выпуски с реальными MOEX price/ACI/lot semantics; неизвестные поля не достраиваются суррогатами.</p>`;
+  const body = rows.slice(0, 100).map((row) => {
+    const liq = window.BondRetail ? window.BondRetail.liquidity(row) : {};
+    return `<tr>
+      <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small>${риск ? bondReasonListHTML(row, true) : ''}</td>
+      <td>${bondSafetyBadgeHTML(row)}</td>
+      <td>${row.instrument_type === 'ofz' ? 'ОФЗ' : (row.rating ? esc(row.rating) : '<span class="muted">не найден</span>')}</td>
+      <td>${esc(row.sector || ND)}</td>
+      <td class="tnum">${bondConfirmedYtmHTML(row)}</td>
+      <td class="tnum">${liq.score == null ? ND : liq.score}</td>
+      <td class="tnum">${isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND}</td>
+      <td class="tnum">${rub0(row.dirty_price_per_lot_rub)}</td>
+      <td>${esc(shortIsoDate(row.maturity_date))}</td>
+    </tr>`;
+  }).join('');
+  const empty = `<tr><td colspan="9" class="bond-empty-row">Под фильтры не попал ни один выпуск. Ослабьте условия или нажмите «Сбросить фильтры».</td></tr>`;
+
+  return `${modes}${warning}
+    <div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label>
+      <div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div>
+      <span class="muted">Найдено: ${rows.length} из ${all.length}</span></div>
+    ${filters}
+    <div class="bonds-table-wrap"><table class="bonds-table"><thead><tr>${headers}</tr></thead><tbody>${body || empty}</tbody></table></div>
+    <p class="bonds-disc">Показаны до 100 строк. Нажмите на название, чтобы открыть карточку выпуска. Доходность, не прошедшая проверку, не показывается числом — вместо неё стоит «Расчёт требует проверки».</p>`;
 }
 
 function bondRelativeValueHTML(universe) {
@@ -5873,7 +5972,243 @@ function bondCurveLabHTML(d) {
   return `<div class="bondlab-explain"><h3>G-кривая MOEX и корпоративные выпуски</h3><p>Линия — опубликованная рублёвая zero-coupon curve. Точки — YTM корпоратов; сравнение корректно только при сопоставимой дюрации и структуре денежных потоков.</p></div><div id="bonds-chart-wrap" class="bonds-chart-wrap"><canvas id="bonds-chart"></canvas></div><div class="bonds-chart-legend muted">Цвет точки обозначает рейтинговую группу. Наведи на выпуск для деталей.</div>`;
 }
 
+// Три прежние вкладки (Relative Value, G-кривая, Finder) сведены сюда под-переключателем.
+// Сами представления НЕ переписаны: вызываются те же функции, что и раньше, — объединён
+// только пользовательский путь, чтобы верхних вкладок стало три вместо пяти.
+const BOND_ANALYTICS_VIEWS = [
+  { id: 'relative', label: 'Relative Value' },
+  { id: 'curve', label: 'G-кривая' },
+  { id: 'finder', label: 'Finder' },
+];
+
+function bondAnalyticsHTML(d) {
+  const universe = (d && d.lab && d.lab.universe) || null;
+  const tabs = BOND_ANALYTICS_VIEWS.map((view) => {
+    const on = view.id === BOND_ANALYTICS_VIEW;
+    return `<button type="button" class="bondlab-subtab${on ? ' on' : ''}" data-bond-analytics="${view.id}"
+      role="tab" aria-selected="${on}">${esc(view.label)}</button>`;
+  }).join('');
+  let body;
+  if (BOND_ANALYTICS_VIEW === 'curve') body = bondCurveLabHTML(d);
+  else if (BOND_ANALYTICS_VIEW === 'finder') {
+    // Finder монтируется в свой контейнер и наполняется renderFinder() после вставки в DOM
+    body = '<div class="finder-body" id="finder-body"><div class="finder-loading muted">Загрузка Bond Finder…</div></div>';
+  } else body = bondRelativeValueHTML(universe);
+  return `<div class="bondlab-subtabs" role="tablist" aria-label="Разделы аналитики">${tabs}</div>
+    <div class="bondlab-analytics-body">${body}</div>`;
+}
+
+// ── Карточка выпуска ───────────────────────────────────────────────────────
+function bondFindRow(secid) {
+  const pools = [
+    (BONDS && BONDS.lab && BONDS.lab.universe && BONDS.lab.universe.bonds) || [],
+    (BONDS && BONDS.bonds) || [],
+  ];
+  for (const pool of pools) {
+    const hit = pool.find((row) => row && row.secid === secid);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/** Строка провенанса. Источник и дата обязательны: без них показываем «не подтверждён»,
+ *  а не пустое место — пользователь должен видеть разницу между «нет данных» и «свежо». */
+function bondSourceRow(label, date, url, note) {
+  const when = date ? shortIsoDate(String(date).slice(0, 10)) : null;
+  const value = url
+    ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(note || 'официальный источник')}</a>`
+    : esc(note || (when ? 'MOEX ISS' : 'источник не подтверждён'));
+  return `<tr><td>${esc(label)}</td><td>${value}</td><td class="tnum">${when ? esc(when) : ND}</td></tr>`;
+}
+
+function bondRisksHTML(row, safety) {
+  const risks = [];
+  const rating = row.rating;
+  risks.push(rating
+    ? `<li><b>Кредитный риск.</b> Рейтинг ${esc(rating)}${row.rating_agency ? ` (${esc(row.rating_agency)})` : ''}. Чем ниже рейтинг, тем выше вероятность проблем с выплатами.</li>`
+    : '<li><b>Кредитный риск.</b> Официальный рейтинг выпуска не найден — оценить надёжность эмитента по данным сайта нельзя.</li>');
+  if (isNum(row.duration_value)) {
+    risks.push(`<li><b>Процентный риск.</b> Дюрация ${Number(row.duration_value).toFixed(2)}: при росте ставок на 1 п.п. цена упадёт примерно на ${Number(row.duration_value).toFixed(1)}%.</li>`);
+  }
+  const liq = (window.BondRetail && window.BondRetail.liquidity(row)) || null;
+  if (liq) {
+    risks.push(liq.score == null
+      ? '<li><b>Риск ликвидности.</b> Данных о торгах недостаточно — продать выпуск быстро может не получиться.</li>'
+      : `<li><b>Риск ликвидности.</b> Оценка ${liq.score} из 100 (${esc(liq.label)}). Низкая ликвидность означает широкий спред и потери при срочной продаже.</li>`);
+  }
+  if (row.has_put_offer) risks.push('<li><b>Риск оферты.</b> У выпуска есть оферта: эмитент может изменить купон, и доходность до погашения перестанет быть актуальной.</li>');
+  if (row.has_call) risks.push('<li><b>Риск досрочного выкупа.</b> Эмитент вправе погасить выпуск раньше срока — обычно когда это выгодно ему, а не держателю.</li>');
+  if (row.amortizing) risks.push('<li><b>Амортизация.</b> Номинал возвращается частями: полученные деньги придётся вкладывать заново по неизвестной сегодня ставке.</li>');
+  if (row.coupon_type === 'floating') risks.push('<li><b>Плавающий купон.</b> Размер будущих выплат зависит от базовой ставки и заранее неизвестен.</li>');
+  if (row.coupon_type === 'zero') risks.push('<li><b>Бескупонный выпуск.</b> Промежуточных выплат нет, весь доход — в разнице цены и номинала.</li>');
+  if (row.qualified_only) risks.push('<li><b>Только для квалифицированных инвесторов.</b> Купить выпуск без этого статуса нельзя.</li>');
+  if (!row.ultimate_parent_id) risks.push('<li><b>Концентрация по группе.</b> Материнская структура эмитента не подтверждена — учесть связанные выпуски в лимите группы нельзя.</li>');
+  if (safety && !safety.ytmConfirmed) risks.push('<li><b>Доходность не подтверждена.</b> Расчёт YTM не прошёл проверку — не опирайтесь на это число без сверки с условиями выпуска.</li>');
+  return `<ul class="bond-risks">${risks.join('')}</ul>`;
+}
+
+function bondDetailHTML(row) {
+  const safety = row.bond_safety || (window.BondRetail && window.BondRetail.classifyBond(row)) || null;
+  const liq = (window.BondRetail && window.BondRetail.liquidity(row)) || {};
+  const src = row.source_dates || {};
+  const face = Number(row.face_value_per_bond_rub || 0);
+  // Текущая доходность = годовой купон в рублях ÷ грязная цена. Для бескупонных не определена.
+  const annualCoupon = isNum(row.coupon_pct) ? face * Number(row.coupon_pct) / 100 : null;
+  const dirty = Number(row.dirty_price_per_bond_rub || 0);
+  const currentYield = (annualCoupon && dirty > 0 && row.coupon_type !== 'zero') ? annualCoupon / dirty * 100 : null;
+  const buy = (window.BondRetail && window.BondRetail.purchaseBreakdown(row, 1)) || null;
+
+  const kpi = (label, value, note) =>
+    `<div><span>${esc(label)}</span><b>${value}</b>${note ? `<small>${esc(note)}</small>` : ''}</div>`;
+
+  const flows = (row.cashflows_12m || []).map((flow) => {
+    const type = flow.flow_type === 'principal' ? 'Возврат номинала' : 'Купон';
+    const gross = Number(flow.amount_per_bond_rub || 0);
+    const tax = flow.flow_type === 'principal' ? 0 : gross * 0.13;
+    return `<tr><td>${esc(shortIsoDate(flow.date))}</td><td>${type}</td><td class="tnum">${rub2(gross)}</td><td class="tnum">${rub2(tax)}</td><td class="tnum b-strong">${rub2(gross - tax)}</td></tr>`;
+  }).join('');
+  const maturityNote = row.amortizing
+    ? '<p class="muted">У выпуска амортизация: график возврата номинала в данных MOEX за 12 месяцев не детализирован, поэтому показаны только купоны.</p>'
+    : `<p class="muted">Погашение номинала ${rub2(face)} на бумагу — ${esc(shortIsoDate(row.maturity_date))}. Возврат номинала не является доходом.</p>`;
+
+  const features = [
+    row.amortizing ? 'амортизация' : null,
+    row.has_put_offer ? 'оферта' : null,
+    row.has_call ? 'call-опцион' : null,
+    row.qualified_only ? 'только для квалифицированных' : null,
+    row.new_placement ? 'новое размещение' : null,
+  ].filter(Boolean);
+
+  const couponTypeLabel = { fixed: 'фиксированный', floating: 'плавающий', zero: 'бескупонный' }[row.coupon_type] || row.coupon_type || ND;
+
+  return `<div class="bond-detail">
+    <header class="bond-detail-head">
+      <div>
+        <span class="bond-detail-eyebrow">${esc(row.issuer_name || 'Эмитент не указан')}</span>
+        <h2 id="bond-detail-title">${esc(row.name || row.secid)}</h2>
+        <p class="bond-detail-ids">${esc(row.secid)}${row.isin && row.isin !== row.secid ? ` · ISIN ${esc(row.isin)}` : ''} · ${esc(row.sector || 'сектор не определён')} · ${esc(row.board || '')}</p>
+      </div>
+      <div class="bond-detail-head-right">
+        ${bondSafetyBadgeHTML(row)}
+        <button type="button" class="bond-detail-close" id="bond-detail-close" aria-label="Закрыть карточку">✕</button>
+      </div>
+    </header>
+    ${safety && !safety.investable ? `<div class="bond-detail-warn"><b>Не проходит безопасный фильтр.</b>${bondReasonListHTML(row)}</div>` : ''}
+    <div class="bond-detail-kpis">
+      ${kpi('Цена', bondPct(row.clean_price_pct, 2), src.price ? `на ${shortIsoDate(src.price)}` : 'дата цены не указана')}
+      ${kpi('YTM gross', bondPct(row.ytm_gross_pct, 2))}
+      ${kpi('YTM net', safety && !safety.ytmConfirmed ? '<span class="bond-unconfirmed-yield">не подтверждена</span>' : bondPct(row.ytm_net_est_pct, 2), 'оценка налога, не персональный расчёт')}
+      ${kpi('Текущая доходность', currentYield == null ? ND : bondPct(currentYield, 2))}
+      ${kpi('Дюрация', isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND, row.duration_type === 'modified_duration_effective_annual' ? 'модифицированная' : '')}
+      ${kpi('До погашения', isNum(row.years_to_maturity) ? Number(row.years_to_maturity).toFixed(2) + ' г.' : ND, shortIsoDate(row.maturity_date))}
+      ${kpi('Рейтинг', row.rating ? esc(row.rating) : '<span class="muted">не найден</span>', row.rating_agency || '')}
+      ${kpi('Ликвидность', liq.score == null ? ND : `${liq.score}/100`, liq.label || 'данных недостаточно')}
+    </div>
+
+    <section><h3>Купон и условия выпуска</h3>
+      <dl class="bond-detail-dl">
+        <div><dt>Тип купона</dt><dd>${esc(couponTypeLabel)}</dd></div>
+        <div><dt>Ставка</dt><dd>${bondPct(row.coupon_pct, 2)}</dd></div>
+        <div><dt>Выплат в год</dt><dd>${row.coupon_frequency ?? ND}</dd></div>
+        <div><dt>Номинал</dt><dd>${rub2(face)}</dd></div>
+        <div><dt>НКД на бумагу</dt><dd>${rub2(row.aci_per_bond_rub)}</dd></div>
+        <div><dt>Лот</dt><dd>${row.lot_size ?? ND} бум.</dd></div>
+        <div><dt>Объём выпуска</dt><dd>${isNum(row.issue_size_rub) ? rub0(row.issue_size_rub) : ND}</dd></div>
+        <div><dt>Особенности</dt><dd>${features.length ? esc(features.join(', ')) : 'нет'}</dd></div>
+      </dl>
+      ${features.length ? '<p class="bond-detail-note">Сложные условия меняют фактическую доходность: расчёт YTM их полностью не учитывает.</p>' : ''}
+    </section>
+
+    ${buy ? `<section><h3>Сколько стоит купить один лот</h3>
+      <table class="bonds-table bond-buy-table"><tbody>
+        <tr><td>Чистая стоимость</td><td class="tnum">${rub2(buy.clean_cost_rub)}</td></tr>
+        <tr><td>+ НКД</td><td class="tnum">${rub2(buy.accrued_interest_rub)}</td></tr>
+        <tr><td>+ комиссия и проскальзывание</td><td class="tnum">${rub2(buy.commission_and_slippage_rub)}</td></tr>
+        <tr class="bond-buy-total"><td><b>Итого за лот (${buy.bonds} бум.)</b></td><td class="tnum"><b>${rub2(buy.total_rub)}</b></td></tr>
+      </tbody></table>
+      <p class="muted">Комиссия и проскальзывание — оценка по умолчанию, а не тариф вашего брокера.</p></section>` : ''}
+
+    <section><h3>Денежные потоки · 12 месяцев</h3>
+      ${flows ? `<div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Дата</th><th>Тип</th><th>На бумагу</th><th>Налог, оценка</th><th>После налога</th></tr></thead><tbody>${flows}</tbody></table></div>`
+        : '<p class="muted">Выплат в ближайшие 12 месяцев в данных MOEX не найдено.</p>'}
+      ${maturityNote}
+    </section>
+
+    <section><h3>Рейтинг</h3>
+      ${row.rating ? `<dl class="bond-detail-dl">
+        <div><dt>Рейтинг</dt><dd>${esc(row.rating)}</dd></div>
+        <div><dt>Агентство</dt><dd>${esc(row.rating_agency || ND)}</dd></div>
+        <div><dt>Объект</dt><dd>${row.rating_scope === 'issue' ? 'выпуск' : row.rating_scope === 'issuer' ? 'эмитент' : esc(row.rating_scope || ND)}</dd></div>
+        <div><dt>Дата присвоения</dt><dd>${row.rating_date ? esc(shortIsoDate(row.rating_date)) : ND}</dd></div>
+      </dl>${row.rating_source_url ? `<p><a href="${esc(row.rating_source_url)}" target="_blank" rel="noopener noreferrer">Карточка рейтинга у агентства</a></p>` : ''}
+      <p class="muted">Показан рейтинг агентства, а не внутренняя оценка сайта. Шкалы разных агентств не смешиваются.</p>`
+        : '<p><b>Рейтинг не найден или не подтверждён.</b> Выпуск не проходит безопасный фильтр по этой причине.</p>'}
+    </section>
+
+    <section><h3>Основные риски</h3>${bondRisksHTML(row, safety)}</section>
+
+    <section><h3>Источники и актуальность</h3>
+      <div class="bonds-table-wrap"><table class="bonds-table bond-sources-table"><thead><tr><th>Поле</th><th>Источник</th><th>Обновлено</th></tr></thead><tbody>
+        ${bondSourceRow('Цена и НКД', src.price, null, 'MOEX ISS')}
+        ${bondSourceRow('Условия выпуска и купоны', src.price, null, 'MOEX ISS bondization')}
+        ${bondSourceRow('История торгов', src.history, null, 'MOEX ISS')}
+        ${bondSourceRow('Рейтинг', row.rating_date || src.rating, row.rating_source_url, row.rating_agency ? `${row.rating_agency}, карточка выпуска` : null)}
+        ${bondSourceRow('Группа компаний', null, null, row.ultimate_parent_id ? 'подтверждена' : 'источник не подтверждён')}
+      </tbody></table></div>
+      <p class="muted">Не индивидуальная инвестиционная рекомендация. Перед покупкой проверьте условия выпуска в официальных документах эмитента.</p>
+    </section>
+  </div>`;
+}
+
+function openBondDetail(secid) {
+  const dlg = document.getElementById('bond-detail-dialog');
+  const body = document.getElementById('bond-detail-body');
+  if (!dlg || !body) return;
+  const row = bondFindRow(secid);
+  body.innerHTML = row
+    ? bondDetailHTML(row)
+    : `<div class="bond-detail"><header class="bond-detail-head"><div><h2 id="bond-detail-title">Выпуск не найден</h2><p class="bond-detail-ids">${esc(secid)}</p></div><div class="bond-detail-head-right"><button type="button" class="bond-detail-close" id="bond-detail-close" aria-label="Закрыть">✕</button></div></header><p class="muted">Бумага отсутствует в текущем универсуме — возможно, данные обновились.</p></div>`;
+  if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', '');
+}
+
+function closeBondDetail() {
+  const dlg = document.getElementById('bond-detail-dialog');
+  if (!dlg) return;
+  if (typeof dlg.close === 'function' && dlg.open) dlg.close(); else dlg.removeAttribute('open');
+}
+
+const BOND_FILTERS_DEFAULT = Object.freeze({
+  minRating: 'A-', minYtm: '', maxYtm: '', maxDuration: '',
+  minLiquidity: 45, sector: 'all', couponType: 'all', retailOnly: true, simpleOnly: true,
+});
+
 function wireBondLabControls() {
+  document.querySelectorAll('[data-bond-analytics]').forEach((button) => button.addEventListener('click', () => {
+    BOND_ANALYTICS_VIEW = button.dataset.bondAnalytics;
+    drawBondLab();
+  }));
+  document.querySelectorAll('[data-bond-screen-mode]').forEach((button) => button.addEventListener('click', () => {
+    BOND_SCREEN_MODE = button.dataset.bondScreenMode;
+    drawBondLab();
+  }));
+  document.querySelectorAll('[data-bond-filter]').forEach((control) => {
+    const key = control.dataset.bondFilter;
+    const apply = () => {
+      BOND_SCREEN_FILTERS[key] = control.type === 'checkbox' ? control.checked : control.value;
+      drawBondLab();
+    };
+    // Ввод числа дебаунсим, чтобы таблица не перерисовывалась на каждой цифре
+    control.addEventListener(control.tagName === 'SELECT' || control.type === 'checkbox' ? 'change' : 'input',
+      control.tagName === 'SELECT' || control.type === 'checkbox' ? apply : debounce(apply, 300));
+  });
+  const resetFilters = document.getElementById('bond-filters-reset');
+  if (resetFilters) resetFilters.addEventListener('click', () => {
+    BOND_SCREEN_FILTERS = { ...BOND_FILTERS_DEFAULT };
+    BOND_SCREEN_MODE = 'safe';           // сброс всегда возвращает в безопасный режим
+    BOND_SCREEN_RATING = 'all';
+    BOND_SCREEN_QUERY = '';
+    drawBondLab();
+  });
   document.querySelectorAll('[data-bond-profile]').forEach((button) => button.addEventListener('click', () => { BOND_LAB_PROFILE = button.dataset.bondProfile; drawBondLab(); }));
   document.querySelectorAll('[data-bond-horizon]').forEach((button) => button.addEventListener('click', () => { BOND_LAB_HORIZON = button.dataset.bondHorizon; drawBondLab(); }));
   document.querySelectorAll('[data-bond-rating]').forEach((button) => button.addEventListener('click', () => { BOND_SCREEN_RATING = button.dataset.bondRating; drawBondLab(); }));
@@ -6465,6 +6800,11 @@ function initRouter() {
   document.addEventListener('click', (e) => {
     const saw = e.target.closest('[data-saw-index]');
     if (saw && typeof setMarketSawIndex === 'function') { setMarketSawIndex(saw.dataset.sawIndex); return; }
+    // Карточка выпуска облигации. Делегированно: таблицы скринера и портфеля
+    // перерисовываются целиком, прямые слушатели на кнопках терялись бы.
+    if (e.target.closest('#bond-detail-close')) { closeBondDetail(); return; }
+    const bondOpen = e.target.closest('[data-bond-open]');
+    if (bondOpen) { openBondDetail(bondOpen.dataset.bondOpen); return; }
     // «Динамика инфляции»: карточка, закрытие, вкладки, период. Делегированно —
     // inline-onclick запрещён CSP (tools/xss-guard.js падает при появлении on*=).
     if (e.target.closest('#infl-card')) { openInflDialog(); return; }

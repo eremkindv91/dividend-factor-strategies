@@ -114,7 +114,12 @@ def test_sort_headers_expose_accessibility_and_click_state():
     assert 'aria-sort="' in app
     assert "data-bonds-sort" in app
     assert "bonds-sort-active" in app
-    assert "BONDS_SORT.dir * -1" in app
+    # Сортировка трёхсостоянийная: по возрастанию → по убыванию → без сортировки.
+    # Прежний двухсостоянийный toggle (BONDS_SORT.dir * -1) снят намеренно — пользователь
+    # должен иметь возможность вернуться к нейтральному порядку, не перезагружая страницу.
+    assert "BONDS_SORT.dir === 1 ? { key, dir: -1 }" in app
+    assert "{ key: null, dir: 0 }" in app
+    assert "if (!sort || !sort.key || !sort.dir) return bonds.slice()" in app
     assert "sortedBonds(bonds)" in app
     assert "bonds.slice().sort((a, b) => b.deviation - a.deviation)" not in app
     assert ".bonds-table th[data-bonds-sort] { cursor: pointer;" in css

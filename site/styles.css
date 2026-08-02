@@ -3391,7 +3391,11 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bondlab-shock p { margin: 0; color: var(--ink-faint); font-size: .7rem; line-height: 1.4; }
 .bondlab-coupon-block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .bondlab-coupons { display: flex; align-items: flex-end; gap: 7px; min-height: 150px; padding: 12px 8px 0; overflow-x: auto; }
-.bondlab-coupons > div { display: grid; grid-template-rows: auto 90px auto; gap: 5px; align-items: end; min-width: 76px; text-align: center; }
+/* Столбцы календаря стали кнопками (клик раскрывает выплаты месяца) — правило должно
+   покрывать оба варианта, иначе вёрстка календаря рассыпается. */
+.bondlab-coupons > div, .bondlab-coupons > button { display: grid; grid-template-rows: auto 90px auto; gap: 5px; align-items: end; min-width: 76px; text-align: center; }
+.bondlab-coupons > button { border: 0; background: transparent; padding: 0; cursor: pointer; font: inherit; }
+.bondlab-coupons > button:hover i { filter: brightness(1.15); }
 .bondlab-coupons span, .bondlab-coupons b { font-size: .66rem; color: var(--ink-faint); white-space: nowrap; }
 .bondlab-coupons i { width: 28px; height: var(--h); max-height: 90px; justify-self: center; border-radius: 4px 4px 1px 1px; background: #2E7D5B; }
 .bondlab-portfolio-table .b-name small, .bondlab-panel .b-name > small { display: block; margin: 2px 0 0 34px; color: var(--ink-faint); font-size: .65rem; font-weight: 500; }
@@ -3418,6 +3422,155 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bondlab-tools input { display: block; width: 100%; min-height: 38px; margin-top: 5px; padding: 7px 10px;
   border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font: inherit; }
 .bondlab-explain { margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #6E84B3; }
+
+/* ═══════════ Облигации: retail-слой (безопасность, портфель, карточка выпуска) ═══════════ */
+
+/* Под-переключатель внутри «Продвинутой аналитики»: Relative Value / G-кривая / Finder */
+.bondlab-subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.bondlab-subtab { min-height: 34px; padding: 6px 13px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--ink-soft); font-size: .78rem; font-weight: 600; cursor: pointer; }
+.bondlab-subtab.on { border-color: var(--accent-deep); background: var(--neut-fill); color: var(--ink); }
+
+/* Статус безопасности: цвет НЕ единственный носитель смысла — рядом всегда текст */
+.bond-safe-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: .68rem; font-weight: 750; white-space: nowrap; }
+.bond-safe-badge.checked { background: var(--good-fill); color: var(--good-ink); }
+.bond-safe-badge.attention { background: var(--warn-fill); color: var(--warn-ink); }
+.bond-safe-badge.high { background: var(--risk-fill); color: var(--risk-ink); }
+.bond-safe-badge.unknown { background: var(--neut-fill); color: var(--neut-ink); }
+.bond-unconfirmed-yield { color: var(--warn-ink); font-size: .74rem; font-weight: 650; }
+.bond-reasons { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.bond-reasons span { padding: 2px 7px; border-radius: 5px; background: var(--bg); color: var(--ink-soft); font-size: .66rem; line-height: 1.35; }
+
+.bond-open-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none;
+  color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.bond-open-button:hover { color: var(--accent-deep); text-decoration: underline; }
+.bond-help { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px;
+  border-radius: 50%; background: var(--neut-fill); color: var(--ink-faint); font-size: .62rem; font-weight: 800; cursor: help; }
+
+/* Режим отбора: безопасные против непроверенных */
+.bond-mode-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.bond-mode { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 15px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink-soft);
+  font-size: .82rem; font-weight: 650; cursor: pointer; }
+.bond-mode b { padding: 1px 7px; border-radius: 999px; background: var(--neut-fill); color: var(--ink-soft); font-size: .72rem; }
+.bond-mode.on { border-color: var(--good-ink); background: var(--good-fill); color: var(--good-ink); }
+.bond-mode.on b { background: rgba(255, 255, 255, .6); color: var(--good-ink); }
+.bond-mode.on.risky { border-color: var(--risk-ink); background: var(--risk-fill); color: var(--risk-ink); }
+.bond-mode.on.risky b { color: var(--risk-ink); }
+.bond-mode-warning { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; padding: 11px 14px;
+  border-radius: 10px; background: var(--warn-fill); }
+.bond-mode-warning b { color: var(--warn-ink); font-size: .84rem; }
+.bond-mode-warning span { color: var(--ink-soft); font-size: .76rem; line-height: 1.5; }
+
+/* Фильтры скринера */
+.bond-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 9px 12px; margin-bottom: 12px; padding: 11px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); }
+.bond-filters label { display: flex; flex-direction: column; gap: 4px; margin: 0; color: var(--ink-faint); font-size: .68rem; }
+.bond-filters select, .bond-filters input[type="number"] { min-height: 34px; min-width: 92px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; }
+.bond-filter-check { flex-direction: row !important; align-items: center; gap: 6px !important; color: var(--ink-soft) !important; font-size: .74rem !important; }
+.bond-filter-check input { width: 15px; height: 15px; }
+.bond-filter-off { color: var(--warn-ink); font-size: .62rem; line-height: 1.3; }
+.bond-filters select:disabled { opacity: .55; cursor: not-allowed; }
+.bond-empty-row { padding: 22px 12px; text-align: center; color: var(--ink-soft); font-size: .8rem; }
+
+/* Денежный календарь */
+.bond-cash-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 16px; margin-bottom: 6px; }
+.bond-cash-kpis > div { display: flex; flex-direction: column; min-width: 0; }
+.bond-cash-kpis span { color: var(--ink-faint); font-size: .68rem; }
+.bond-cash-kpis b { margin-top: 2px; color: var(--ink); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.bond-cash-details { margin-top: 10px; }
+.bond-cash-details > summary { cursor: pointer; color: var(--accent-deep); font-size: .78rem; font-weight: 650; padding: 7px 0; }
+.bond-cash-details p { margin: 8px 0 0; color: var(--ink-faint); font-size: .7rem; line-height: 1.45; }
+
+/* Мой текущий портфель: импорт, сделки, предупреждения */
+.bond-user-portfolio { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.bond-import-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; margin: 12px 0; }
+.bond-import-grid label { display: block; color: var(--ink-soft); font-size: .74rem; }
+.bond-import-grid textarea { display: block; width: 100%; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; resize: vertical; }
+.bond-import-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; align-items: center; }
+.bond-file-button { position: relative; overflow: hidden; cursor: pointer; }
+.bond-file-button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.bond-import-help { padding: 11px 13px; border-radius: 9px; background: var(--bg); }
+.bond-import-help b { color: var(--ink); font-size: .76rem; }
+.bond-import-help p { margin: 6px 0 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.45; }
+.bond-import-errors, .bond-unrecognized { margin-top: 8px; padding: 8px 11px; border-radius: 8px;
+  background: var(--warn-fill); color: var(--warn-ink); font-size: .73rem; line-height: 1.45; }
+.bond-portfolio-empty { padding: 18px; border: 1px dashed var(--line); border-radius: 10px; text-align: center; }
+.bond-portfolio-empty b { display: block; color: var(--ink); font-size: .88rem; }
+.bond-portfolio-empty p { margin: 6px 0 0; color: var(--ink-soft); font-size: .77rem; line-height: 1.5; }
+.bond-rebalance-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 16px; margin: 16px 0 8px; }
+.bond-rebalance-head select { min-height: 36px; margin-top: 5px; padding: 6px 10px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; }
+.bond-trade-summary { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 8px; }
+.bond-trade-summary span { color: var(--ink-faint); font-size: .72rem; }
+.bond-trade-summary b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.bond-action { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: .68rem; font-weight: 700; }
+.bond-action.buy { background: var(--good-fill); color: var(--good-ink); }
+.bond-action.sell { background: var(--risk-fill); color: var(--risk-ink); }
+.bond-action.hold { background: var(--neut-fill); color: var(--neut-ink); }
+.bond-alert-center { margin-top: 16px; }
+.bond-alert-center h3 { margin: 0 0 8px; color: var(--ink); font-size: .92rem; }
+.bond-alert-center button { display: grid; grid-template-columns: auto auto 1fr; align-items: baseline; gap: 4px 10px;
+  width: 100%; margin-bottom: 6px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--surface); text-align: left; cursor: pointer; }
+.bond-alert-center button:hover { border-color: var(--accent-deep); }
+.bond-alert-center span { color: var(--warn-ink); font-size: .66rem; font-weight: 800; white-space: nowrap; }
+.bond-alert-center b { color: var(--ink); font-size: .8rem; }
+.bond-alert-center small { color: var(--ink-soft); font-size: .72rem; line-height: 1.4; }
+.bond-current-calendar { margin-top: 18px; }
+
+/* Карточка выпуска */
+.bond-detail-dialog { width: min(920px, 96vw); max-height: 92vh; padding: 0; border: 1px solid var(--line);
+  border-radius: 14px; background: var(--surface); color: var(--ink); overflow: hidden; }
+.bond-detail-dialog::backdrop { background: rgba(20, 24, 32, .5); }
+.bond-detail-shell { max-height: 92vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.bond-detail { padding: 20px 22px 26px; }
+.bond-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 18px; }
+.bond-detail-eyebrow { font-size: .68rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
+.bond-detail-head h2 { margin: 3px 0 0; font-size: 1.24rem; font-weight: 750; letter-spacing: -.01em; color: var(--ink); }
+.bond-detail-ids { margin: 5px 0 0; color: var(--ink-soft); font-size: .74rem; line-height: 1.45; overflow-wrap: anywhere; }
+.bond-detail-head-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.bond-detail-close { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--surface); color: var(--ink-soft); font-size: .9rem; cursor: pointer; }
+.bond-detail-close:hover { border-color: var(--accent-deep); color: var(--ink); }
+.bond-detail-warn { margin-top: 14px; padding: 11px 13px; border-radius: 10px; background: var(--warn-fill); }
+.bond-detail-warn b { color: var(--warn-ink); font-size: .84rem; }
+.bond-detail-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 18px; margin: 16px 0 4px;
+  padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.bond-detail-kpis > div { display: flex; flex-direction: column; min-width: 0; }
+.bond-detail-kpis span { color: var(--ink-faint); font-size: .69rem; }
+.bond-detail-kpis b { margin-top: 3px; color: var(--ink); font-size: 1rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bond-detail-kpis small { margin-top: 2px; color: var(--ink-faint); font-size: .65rem; line-height: 1.35; }
+.bond-detail section { margin-top: 20px; }
+.bond-detail section h3 { margin: 0 0 9px; color: var(--ink); font-size: .95rem; }
+.bond-detail-dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--line); }
+.bond-detail-dl div { min-width: 0; padding: 9px 10px; background: var(--surface); }
+.bond-detail-dl dt { color: var(--ink-faint); font-size: .67rem; }
+.bond-detail-dl dd { margin: 3px 0 0; color: var(--ink); font-size: .8rem; font-weight: 650; overflow-wrap: anywhere; }
+.bond-detail-note { margin: 9px 0 0; padding: 8px 11px; border-radius: 8px; background: var(--warn-fill);
+  color: var(--warn-ink); font-size: .73rem; line-height: 1.45; }
+.bond-detail section > p { margin: 8px 0 0; font-size: .76rem; line-height: 1.5; color: var(--ink-soft); }
+.bond-buy-table td { padding: 8px 10px; font-size: .8rem; }
+.bond-buy-table .bond-buy-total td { border-top: 2px solid var(--line-strong); font-size: .88rem; }
+.bond-sources-table td { font-size: .74rem; vertical-align: top; }
+.bond-risks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.bond-risks li { padding: 9px 12px; border-radius: 9px; background: var(--bg); color: var(--ink-soft); font-size: .77rem; line-height: 1.5; }
+.bond-risks b { color: var(--ink); }
+
+@media (max-width: 760px) {
+  .bond-import-grid { grid-template-columns: 1fr; }
+  .bond-cash-kpis { grid-template-columns: 1fr 1fr; }
+  .bond-detail-kpis { grid-template-columns: 1fr 1fr; }
+  .bond-detail-dl { grid-template-columns: 1fr 1fr; }
+  .bond-alert-center button { grid-template-columns: 1fr; }
+  /* Карточка выпуска на телефоне — на весь экран, как требует спека */
+  .bond-detail-dialog { width: 100vw; max-width: 100vw; max-height: 100vh; height: 100dvh; border: 0; border-radius: 0; }
+  .bond-detail-shell { max-height: 100dvh; }
+  .bond-detail { padding: 16px 14px 28px; }
+  .bond-detail-head h2 { font-size: 1.1rem; }
+}
 
 @media (max-width: 1100px) {
   .bondlab-builder { grid-template-columns: 1fr 1fr; }

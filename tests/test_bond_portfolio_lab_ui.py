@@ -11,15 +11,46 @@ def _json(name: str) -> dict:
     return json.loads((SITE / "bonds" / name).read_text(encoding="utf-8"))
 
 
-def test_bond_lab_has_one_workspace_and_five_internal_tabs():
+def test_bond_lab_has_one_workspace_and_three_user_scenarios():
+    """Верхних вкладок три — по числу пользовательских сценариев, а не по числу инструментов.
+
+    Прежние пять (Портфели/Скринер/Relative Value/G-кривая/Finder) дублировали друг друга.
+    Три аналитических представления никуда не делись: они живут под-переключателем внутри
+    вкладки «Продвинутая аналитика» (см. тест ниже) — функциональность не удалена.
+    """
     html = (SITE / "index.html").read_text(encoding="utf-8")
 
     assert html.count('id="bondlab-workspace"') == 1
-    assert html.count('data-bondlab-tab=') == 5
-    for tab in ("portfolios", "screener", "relative", "curve", "finder"):
+    assert html.count('data-bondlab-tab=') == 3
+    for tab in ("portfolios", "screener", "analytics"):
         assert f'data-bondlab-tab="{tab}"' in html
     assert 'role="tablist"' in html
     assert 'aria-live="polite"' in html
+
+
+def test_analytics_tab_still_reaches_relative_curve_and_finder():
+    """Сведение вкладок не должно осиротить прежние представления."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "function bondAnalyticsHTML" in app, "вкладка аналитики вызывает эту функцию"
+    for view in ("relative", "curve", "finder"):
+        assert f"data-bond-analytics=\"{view}\"" in app or f"id: '{view}'" in app
+    # прежние рендеры вызываются, а не переписаны заново
+    assert "bondRelativeValueHTML(" in app
+    assert "bondCurveLabHTML(" in app
+    assert "renderFinder()" in app
+
+
+def test_bond_detail_card_is_wired():
+    """Карточка выпуска: кнопки, обработчик и диалог должны существовать вместе."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+
+    assert 'id="bond-detail-dialog"' in html
+    assert "function bondDetailHTML" in app
+    assert "function openBondDetail" in app
+    assert "data-bond-open" in app
+    assert "closeBondDetail()" in app
 
 
 def test_bond_lab_frontend_uses_all_v3_artifacts_and_preserves_finder():
