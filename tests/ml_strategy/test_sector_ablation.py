@@ -2,8 +2,45 @@ from __future__ import annotations
 
 from datetime import date
 
+import pandas as pd
+
 from ml_strategy.config import StrategyConfig
+from ml_strategy.models import ModelEvaluation
 from ml_strategy.pipeline import build_bundle
+from ml_strategy.sector_features.store import _sector_comparison, _sector_timing_comparison
+
+
+def _evaluation(forecasts: list[float], actual: list[float] | None = None) -> ModelEvaluation:
+    predictions = pd.DataFrame(
+        {
+            "date": ["2024-01-01"] * 4,
+            "ticker": ["BANK1", "BANK2", "OIL1", "OIL2"],
+            "model": ["ridge"] * 4,
+            "forecast": forecasts,
+            "actual": actual or [0.04, -0.03, 0.02, -0.01],
+        }
+    )
+    return ModelEvaluation("ridge", "RESEARCH_ONLY", pd.Series(dtype=float), [], predictions, {}, [])
+
+
+def test_sector_comparison_ignores_predictions_from_other_industries():
+    baseline = _evaluation([0.01, 0.00, -100.0, 100.0])
+    candidate = _evaluation([0.05, -0.04, 100.0, -100.0])
+    result = _sector_comparison(baseline, candidate, ["BANK1", "BANK2"])
+    assert result["same_rows"]
+    assert result["tickers"] == 2
+    assert result["candidate"]["n"] == 2
+    assert result["candidate"]["hit_rate"] == 1.0
+
+
+def test_sector_timing_uses_sector_forecast_relative_to_the_market():
+    actual = [0.04, -0.03, -0.02, -0.01]
+    baseline = _evaluation([0.00, 0.00, 0.00, 0.00], actual)
+    candidate = _evaluation([0.05, 0.05, -0.05, -0.05], actual)
+    result = _sector_timing_comparison(baseline, candidate, ["BANK1", "BANK2"])
+    assert result["same_rows"]
+    assert result["dates"] == 1
+    assert result["candidate"]["hit_rate"] == 1.0
 
 
 def test_ablation_uses_identical_folds_and_keeps_unapproved_features_out(market_repo):
@@ -19,6 +56,15 @@ def test_ablation_uses_identical_folds_and_keeps_unapproved_features_out(market_
     assert all(row["same_folds"] for row in rows)
     assert all(row["candidate_n"] > 0 for row in rows)
     assert all("promotion_gates" in row for row in rows)
+    assert all(row["evaluation_scope"] == "sector_timing" for row in rows)
+    assert all(row["feature_role"] == "sector_timing" for row in rows)
+    assert all(row["timing_dates"] >= 0 for row in rows)
+    assert all(
+        row["promotion_gates"]["rank_ic_improvement"]["scope"] == "sector_timing"
+        for row in rows
+    )
+    assert all(row["reference_model"] == "core_plus_sector_id" for row in rows)
+    assert all("sector_oos_rows" in row for row in rows)
     assert all(isinstance(row["failed_gates"], list) for row in rows)
     assert all(isinstance(row["used_in_production"], bool) for row in rows)
     approved = set(bundle["model_card.json"]["sector_features"]["approved_feature_columns"])

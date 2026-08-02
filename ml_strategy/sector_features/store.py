@@ -10,7 +10,7 @@ import pandas as pd
 from ..config import StrategyConfig
 from ..data import MarketData
 from ..features import FEATURE_COLUMNS
-from ..models import ModelEvaluation, walk_forward
+from ..models import ModelEvaluation, prediction_metrics, walk_forward
 from .mapping import load_sector_mapping, pack_for_security
 from .packs import PACKS
 from .publication_calendar import market_series_observations, point_in_time_values
@@ -131,6 +131,7 @@ def build_sector_features(
             {
                 "pack_id": pack_id,
                 "label": pack["label"],
+                "feature_role": pack.get("feature_role", "issuer_ranking"),
                 "enabled": enabled,
                 "status": "RESEARCH_ONLY" if enabled else "BLOCKED",
                 "ablation_status": "PENDING",
@@ -181,6 +182,143 @@ def _metric(evaluation: ModelEvaluation) -> dict:
     return evaluation.metrics.get("ridge", {})
 
 
+def _ridge_predictions(evaluation: ModelEvaluation) -> pd.DataFrame:
+    return evaluation.predictions[evaluation.predictions["model"] == "ridge"].copy()
+
+
+def _cross_sectional_metrics(rows: pd.DataFrame, forecast_column: str) -> dict:
+    if rows.empty:
+        return prediction_metrics(np.array([]), np.array([]))
+    aggregate = prediction_metrics(rows["actual_baseline"].to_numpy(), rows[forecast_column].to_numpy())
+    dated: list[dict] = []
+    for _, cross_section in rows.groupby("date", sort=True):
+        metric = prediction_metrics(
+            cross_section["actual_baseline"].to_numpy(),
+            cross_section[forecast_column].to_numpy(),
+        )
+        if metric.get("spearman_ic") is not None:
+            dated.append(metric)
+    if not dated:
+        aggregate.update(
+            {
+                "spearman_ic": None,
+                "pearson_ic": None,
+                "top_bottom_spread": None,
+                "ic_dates": 0,
+                "rank_ic_std": None,
+                "rank_ic_positive_rate": None,
+            }
+        )
+        return aggregate
+    rank_ics = np.asarray([row["spearman_ic"] for row in dated], dtype=float)
+    pearson_ics = [row["pearson_ic"] for row in dated if row.get("pearson_ic") is not None]
+    spreads = [row["top_bottom_spread"] for row in dated if row.get("top_bottom_spread") is not None]
+    aggregate.update(
+        {
+            "spearman_ic": float(rank_ics.mean()),
+            "pearson_ic": float(np.mean(pearson_ics)) if pearson_ics else None,
+            "top_bottom_spread": float(np.mean(spreads)) if spreads else None,
+            "ic_dates": len(dated),
+            "rank_ic_std": float(rank_ics.std(ddof=1)) if len(rank_ics) > 1 else 0.0,
+            "rank_ic_positive_rate": float(np.mean(rank_ics > 0)),
+        }
+    )
+    return aggregate
+
+
+def _sector_comparison(
+    baseline: ModelEvaluation,
+    candidate: ModelEvaluation,
+    sector_tickers: list[str],
+) -> dict:
+    keys = ["date", "ticker"]
+    baseline_rows = _ridge_predictions(baseline)
+    candidate_rows = _ridge_predictions(candidate)
+    baseline_rows = baseline_rows[baseline_rows["ticker"].isin(sector_tickers)]
+    candidate_rows = candidate_rows[candidate_rows["ticker"].isin(sector_tickers)]
+    aligned = baseline_rows.merge(
+        candidate_rows,
+        on=keys,
+        how="inner",
+        suffixes=("_baseline", "_candidate"),
+        validate="one_to_one",
+    )
+    same_rows = (
+        len(aligned) == len(baseline_rows) == len(candidate_rows)
+        and set(map(tuple, baseline_rows[keys].to_numpy()))
+        == set(map(tuple, candidate_rows[keys].to_numpy()))
+    )
+    if aligned.empty:
+        baseline_metrics = _cross_sectional_metrics(aligned, "forecast_baseline")
+        candidate_metrics = _cross_sectional_metrics(aligned, "forecast_candidate")
+    else:
+        if not np.allclose(
+            aligned["actual_baseline"].to_numpy(),
+            aligned["actual_candidate"].to_numpy(),
+            equal_nan=True,
+        ):
+            raise ValueError("sector ablation actual returns differ on the common OOS rows")
+        baseline_metrics = _cross_sectional_metrics(aligned, "forecast_baseline")
+        candidate_metrics = _cross_sectional_metrics(aligned, "forecast_candidate")
+    return {
+        "same_rows": same_rows,
+        "tickers": int(aligned["ticker"].nunique()) if not aligned.empty else 0,
+        "dates": int(candidate_metrics.get("ic_dates", 0)),
+        "baseline": baseline_metrics,
+        "candidate": candidate_metrics,
+    }
+
+
+def _sector_timing_comparison(
+    baseline: ModelEvaluation,
+    candidate: ModelEvaluation,
+    sector_tickers: list[str],
+) -> dict:
+    keys = ["date", "ticker"]
+    baseline_rows = _ridge_predictions(baseline)
+    candidate_rows = _ridge_predictions(candidate)
+    aligned = baseline_rows.merge(
+        candidate_rows,
+        on=keys,
+        how="inner",
+        suffixes=("_baseline", "_candidate"),
+        validate="one_to_one",
+    )
+    same_rows = (
+        len(aligned) == len(baseline_rows) == len(candidate_rows)
+        and set(map(tuple, baseline_rows[keys].to_numpy()))
+        == set(map(tuple, candidate_rows[keys].to_numpy()))
+    )
+    dated: list[dict] = []
+    for prediction_date, cross_section in aligned.groupby("date", sort=True):
+        sector = cross_section[cross_section["ticker"].isin(sector_tickers)]
+        if sector.empty:
+            continue
+        dated.append(
+            {
+                "date": prediction_date,
+                "actual": float(sector["actual_baseline"].mean() - cross_section["actual_baseline"].mean()),
+                "forecast_baseline": float(
+                    sector["forecast_baseline"].mean() - cross_section["forecast_baseline"].mean()
+                ),
+                "forecast_candidate": float(
+                    sector["forecast_candidate"].mean() - cross_section["forecast_candidate"].mean()
+                ),
+            }
+        )
+    frame = pd.DataFrame(dated)
+    if frame.empty:
+        empty = prediction_metrics(np.array([]), np.array([]))
+        return {"same_rows": same_rows, "dates": 0, "baseline": empty, "candidate": empty}
+    actual = frame["actual"].to_numpy()
+    return {
+        "same_rows": same_rows,
+        "dates": len(frame),
+        "baseline": prediction_metrics(actual, frame["forecast_baseline"].to_numpy()),
+        "candidate": prediction_metrics(actual, frame["forecast_candidate"].to_numpy()),
+    }
+
+
 def evaluate_sector_ablation(
     result: SectorFeatureResult,
     config: StrategyConfig,
@@ -191,12 +329,12 @@ def evaluate_sector_ablation(
             result.panel, config, feature_columns=FEATURE_COLUMNS, linear_model="ridge"
         )
     }
-    base = _metric(evaluations["BASE"])
     rows: list[dict] = []
     approved_columns: list[str] = []
     minimum_ic = float(promotion["minimum_spearman_ic_improvement"])
     minimum_hit = float(promotion["minimum_hit_rate_change"])
     for pack_id, columns in result.pack_columns.items():
+        pack_role = PACKS[pack_id].get("feature_role", "issuer_ranking")
         sector_column = f"sector_id__{pack_id.lower()}"
         id_name = f"{pack_id}:SECTOR_ID"
         pack_name = f"{pack_id}:SECTOR_FEATURES"
@@ -212,13 +350,60 @@ def evaluate_sector_ablation(
             feature_columns=FEATURE_COLUMNS + [sector_column] + columns,
             linear_model="ridge",
         )
+        reference = _metric(evaluations[id_name])
         candidate = _metric(evaluations[pack_name])
-        same_n = int(candidate.get("n", 0)) == int(base.get("n", 0))
-        ic_gain = (candidate.get("spearman_ic") or -1.0) - (base.get("spearman_ic") or -1.0)
-        hit_gain = (candidate.get("hit_rate") or 0.0) - (base.get("hit_rate") or 0.0)
-        positive_spread = (candidate.get("top_bottom_spread") or 0.0) > 0
-        approved = (
+        same_n = int(candidate.get("n", 0)) == int(reference.get("n", 0))
+        indicator = result.panel[sector_column]
+        sector_tickers = sorted(
+            indicator[indicator > 0.5].index.get_level_values("ticker").unique().astype(str)
+        )
+        sector = _sector_comparison(
+            evaluations[id_name], evaluations[pack_name], sector_tickers
+        )
+        timing = _sector_timing_comparison(
+            evaluations[id_name], evaluations[pack_name], sector_tickers
+        )
+        sector_base = sector["baseline"]
+        sector_candidate = sector["candidate"]
+        ic_gain = (sector_candidate.get("spearman_ic") or -1.0) - (
+            sector_base.get("spearman_ic") or -1.0
+        )
+        hit_gain = (sector_candidate.get("hit_rate") or 0.0) - (
+            sector_base.get("hit_rate") or 0.0
+        )
+        positive_spread = (sector_candidate.get("top_bottom_spread") or 0.0) > 0
+        common_evidence = (
+            sector_candidate.get("n", 0) >= int(promotion.get("minimum_sector_oos_rows", 60))
+            and sector["tickers"] >= int(promotion.get("minimum_sector_tickers", 3))
+        )
+        timing_base = timing["baseline"]
+        timing_candidate = timing["candidate"]
+        timing_ic_gain = (timing_candidate.get("spearman_ic") or -1.0) - (
+            timing_base.get("spearman_ic") or -1.0
+        )
+        timing_hit_gain = (timing_candidate.get("hit_rate") or 0.0) - (
+            timing_base.get("hit_rate") or 0.0
+        )
+        timing_approved = (
             same_n
+            and timing["same_rows"]
+            and common_evidence
+            and timing["dates"] >= int(promotion.get("minimum_timing_dates", 12))
+            and (timing_candidate.get("spearman_ic") or -1.0) >= float(
+                promotion.get("minimum_timing_ic", 0.0)
+            )
+            and timing_ic_gain >= float(promotion.get("minimum_timing_ic_improvement", 0.05))
+            and timing_hit_gain >= minimum_hit
+            and (
+                (timing_candidate.get("top_bottom_spread") or 0.0) > 0
+                or not bool(promotion.get("require_positive_top_bottom_spread", True))
+            )
+        )
+        issuer_ranking_approved = (
+            same_n
+            and sector["same_rows"]
+            and common_evidence
+            and sector["dates"] >= int(promotion.get("minimum_sector_dates", 3))
             and ic_gain >= minimum_ic
             and hit_gain >= minimum_hit
             and (
@@ -226,28 +411,56 @@ def evaluate_sector_ablation(
                 or not bool(promotion.get("require_positive_top_bottom_spread", True))
             )
         )
+        approved = timing_approved if pack_role == "sector_timing" else issuer_ranking_approved
         if approved:
             approved_columns.extend([sector_column] + columns)
         rows.append(
             {
                 "pack_id": pack_id,
                 "status": "APPROVED" if approved else "RESEARCH_ONLY",
-                "base_n": int(base.get("n", 0)),
+                "feature_role": pack_role,
+                "evaluation_scope": "sector_timing" if pack_role == "sector_timing" else "sector_only",
+                "reference_model": "core_plus_sector_id",
+                "base_n": int(reference.get("n", 0)),
                 "candidate_n": int(candidate.get("n", 0)),
-                "base_spearman_ic": base.get("spearman_ic"),
-                "candidate_spearman_ic": candidate.get("spearman_ic"),
+                "base_spearman_ic": sector_base.get("spearman_ic"),
+                "candidate_spearman_ic": sector_candidate.get("spearman_ic"),
                 "spearman_ic_improvement": ic_gain,
                 "hit_rate_change": hit_gain,
-                "candidate_top_bottom_spread": candidate.get("top_bottom_spread"),
+                "candidate_top_bottom_spread": sector_candidate.get("top_bottom_spread"),
+                "sector_oos_rows": int(sector_candidate.get("n", 0)),
+                "sector_oos_tickers": sector["tickers"],
+                "sector_oos_dates": sector["dates"],
+                "sector_same_rows": sector["same_rows"],
+                "minimum_sector_oos_rows": int(promotion.get("minimum_sector_oos_rows", 60)),
+                "minimum_sector_tickers": int(promotion.get("minimum_sector_tickers", 3)),
+                "minimum_sector_dates": int(promotion.get("minimum_sector_dates", 3)),
+                "global_base_spearman_ic": reference.get("spearman_ic"),
+                "global_candidate_spearman_ic": candidate.get("spearman_ic"),
+                "global_spearman_ic_change": (
+                    (candidate.get("spearman_ic") or -1.0)
+                    - (reference.get("spearman_ic") or -1.0)
+                ),
+                "timing_dates": timing["dates"],
+                "timing_base_spearman_ic": timing_base.get("spearman_ic"),
+                "timing_candidate_spearman_ic": timing_candidate.get("spearman_ic"),
+                "timing_spearman_ic_improvement": timing_ic_gain,
+                "timing_hit_rate_change": timing_hit_gain,
+                "timing_candidate_top_bottom_spread": timing_candidate.get("top_bottom_spread"),
+                "minimum_timing_dates": int(promotion.get("minimum_timing_dates", 12)),
+                "minimum_timing_ic": float(promotion.get("minimum_timing_ic", 0.0)),
+                "minimum_timing_ic_improvement": float(
+                    promotion.get("minimum_timing_ic_improvement", 0.05)
+                ),
                 "same_folds": [
-                    row["prediction_date"] for row in evaluations["BASE"].folds
+                    row["prediction_date"] for row in evaluations[id_name].folds
                 ]
                 == [row["prediction_date"] for row in evaluations[pack_name].folds],
                 "issuer_exposure_variant": "BLOCKED",
                 "reason": (
-                    "Passed fixed pre-declared promotion gates."
+                    "Passed fixed role-aware out-of-sample promotion gates."
                     if approved
-                    else "Did not pass fixed pre-declared out-of-sample promotion gates."
+                    else "Did not pass fixed role-aware out-of-sample promotion gates."
                 ),
             }
         )

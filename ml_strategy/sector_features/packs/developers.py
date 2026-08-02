@@ -1,6 +1,7 @@
 PACK = {
     "pack_id": "REAL_ESTATE_DEVELOPERS",
     "label": "Девелоперы",
+    "feature_role": "sector_timing",
     "features": [
         "developer_key_rate_level",
         "developer_key_rate_change_60d",

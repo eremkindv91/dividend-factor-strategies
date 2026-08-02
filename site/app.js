@@ -1698,14 +1698,27 @@ function renderMlStrategy() {
   const sectorPacks = (sectorQuality.packs || []).map((pack) => {
     const ablation = (pack.status || '').toLowerCase();
     const evaluation = pack.evaluation || {};
+    const gateLabels = {
+      identical_test_rows: 'общая OOS-выборка', sector_oos_evidence: 'объём отраслевой выборки',
+      rank_ic_improvement: 'прирост Rank IC', hit_rate_change: 'hit rate',
+      positive_top_bottom_spread: 'top-bottom spread', relative_after_cost_portfolio: 'результат после издержек',
+    };
     const blocked = (pack.blocked_sources || []).length
       ? ` · недоступны: ${(pack.blocked_sources || []).join(', ')}`
       : '';
-    const rankIc = isNum(evaluation.rank_ic_improvement)
-      ? `Δ Rank IC ${evaluation.rank_ic_improvement >= 0 ? '+' : ''}${ru(evaluation.rank_ic_improvement, 4)} / gate +${ru(evaluation.rank_ic_minimum || 0, 4)}`
+    const timing = evaluation.feature_role === 'sector_timing';
+    const baseIc = timing ? evaluation.timing_base_rank_ic : evaluation.base_rank_ic;
+    const candidateIc = timing ? evaluation.timing_candidate_rank_ic : evaluation.candidate_rank_ic;
+    const deltaIc = timing ? evaluation.timing_rank_ic_improvement : evaluation.rank_ic_improvement;
+    const rankIc = isNum(deltaIc)
+      ? `${timing ? 'timing' : 'issuer'} Rank IC ${ru(baseIc, 3)} → ${ru(candidateIc, 3)}; Δ ${deltaIc >= 0 ? '+' : ''}${ru(deltaIc, 4)} / gate +${ru(evaluation.rank_ic_minimum || 0, 4)}`
       : 'OOS-метрика недоступна';
+    const evidence = isNum(evaluation.sector_oos_rows)
+      ? `${evaluation.sector_oos_rows} OOS-строк · ${evaluation.sector_oos_tickers || 0} бумаг · ${timing ? evaluation.timing_dates : evaluation.sector_oos_dates || 0} дат`
+      : 'отраслевая выборка недоступна';
+    const failed = (evaluation.failed_gates || []).map((name) => gateLabels[name] || name).join(', ');
     const sourceState = (pack.blocked_sources || []).length ? 'источники неполные' : 'официальные источники готовы';
-    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(sourceState)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${pack.used_in_production ? 'В production' : 'Не прошёл gate'}</strong></li>`;
+    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${timing ? 'Timing сектора' : 'Отбор внутри сектора'} · ${esc(sourceState)} · ${esc(evidence)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${failed ? ` · не пройдено: ${esc(failed)}` : ''}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${pack.used_in_production ? 'В production' : 'Не прошёл gate'}</strong></li>`;
   }).join('');
   const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
   const evaluatedPackCount = sectorQuality.evaluated_pack_count || (sectorQuality.packs || []).filter((pack) => pack.ablation_status).length;

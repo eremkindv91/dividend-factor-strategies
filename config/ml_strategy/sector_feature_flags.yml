@@ -9,6 +9,12 @@
   "promotion": {
     "minimum_spearman_ic_improvement": 0.01,
     "minimum_hit_rate_change": 0.0,
+    "minimum_sector_oos_rows": 60,
+    "minimum_sector_tickers": 3,
+    "minimum_sector_dates": 3,
+    "minimum_timing_dates": 12,
+    "minimum_timing_ic": 0.0,
+    "minimum_timing_ic_improvement": 0.05,
     "require_positive_top_bottom_spread": true,
     "require_identical_test_rows": true
   }

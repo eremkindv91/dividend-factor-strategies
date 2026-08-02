@@ -1,6 +1,7 @@
 PACK = {
     "pack_id": "BANKS_AND_FINANCIALS",
     "label": "Банки",
+    "feature_role": "sector_timing",
     "features": [
         "bank_key_rate_level",
         "bank_key_rate_change_60d",

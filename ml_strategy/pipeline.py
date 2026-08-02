@@ -252,9 +252,10 @@ def build_bundle(
         config,
         feature_flags["promotion"],
     )
-    base_portfolio_metrics = _portfolio_backtest(ablation_evaluations["BASE"], config)[1]
     for row in ablation_rows:
+        reference = ablation_evaluations[f"{row['pack_id']}:SECTOR_ID"]
         candidate = ablation_evaluations[f"{row['pack_id']}:SECTOR_FEATURES"]
+        base_portfolio_metrics = _portfolio_backtest(reference, config)[1]
         candidate_metrics = _portfolio_backtest(candidate, config)[1]
         row["base_after_costs"] = base_portfolio_metrics
         row["candidate_after_costs"] = candidate_metrics
@@ -265,25 +266,68 @@ def build_bundle(
             >= (base_portfolio_metrics.get("sharpe_after_costs") or -1.0)
         )
         row["after_costs_gate"] = "PASS" if after_costs_pass else "FAIL"
+        is_timing = row["feature_role"] == "sector_timing"
+        signal_ic = row["timing_candidate_spearman_ic"] if is_timing else row["candidate_spearman_ic"]
+        signal_ic_gain = (
+            row["timing_spearman_ic_improvement"]
+            if is_timing else row["spearman_ic_improvement"]
+        )
+        signal_ic_minimum = (
+            row["minimum_timing_ic_improvement"]
+            if is_timing else float(feature_flags["promotion"]["minimum_spearman_ic_improvement"])
+        )
+        signal_hit_gain = row["timing_hit_rate_change"] if is_timing else row["hit_rate_change"]
+        signal_spread = (
+            row["timing_candidate_top_bottom_spread"]
+            if is_timing else row["candidate_top_bottom_spread"]
+        )
         row["promotion_gates"] = {
             "identical_test_rows": {
-                "status": "PASS" if row["base_n"] == row["candidate_n"] and row["same_folds"] else "FAIL",
+                "status": "PASS" if (
+                    row["base_n"] == row["candidate_n"]
+                    and row["same_folds"]
+                    and row["sector_same_rows"]
+                ) else "FAIL",
                 "base_n": row["base_n"],
                 "candidate_n": row["candidate_n"],
             },
+            "sector_oos_evidence": {
+                "status": "PASS" if (
+                    row["sector_oos_rows"] >= row["minimum_sector_oos_rows"]
+                    and row["sector_oos_tickers"] >= row["minimum_sector_tickers"]
+                    and (
+                        row["timing_dates"] >= row["minimum_timing_dates"]
+                        if is_timing else row["sector_oos_dates"] >= row["minimum_sector_dates"]
+                    )
+                ) else "FAIL",
+                "rows": row["sector_oos_rows"],
+                "tickers": row["sector_oos_tickers"],
+                "dates": row["sector_oos_dates"],
+                "minimum_rows": row["minimum_sector_oos_rows"],
+                "minimum_tickers": row["minimum_sector_tickers"],
+                "minimum_dates": row["minimum_sector_dates"],
+                "timing_dates": row["timing_dates"],
+                "minimum_timing_dates": row["minimum_timing_dates"],
+            },
             "rank_ic_improvement": {
-                "status": "PASS" if row["spearman_ic_improvement"] >= float(feature_flags["promotion"]["minimum_spearman_ic_improvement"]) else "FAIL",
-                "actual": row["spearman_ic_improvement"],
-                "minimum": float(feature_flags["promotion"]["minimum_spearman_ic_improvement"]),
+                "status": "PASS" if (
+                    signal_ic is not None
+                    and signal_ic >= (row["minimum_timing_ic"] if is_timing else -1.0)
+                    and signal_ic_gain >= signal_ic_minimum
+                ) else "FAIL",
+                "scope": row["evaluation_scope"],
+                "actual": signal_ic_gain,
+                "candidate_ic": signal_ic,
+                "minimum": signal_ic_minimum,
             },
             "hit_rate_change": {
-                "status": "PASS" if row["hit_rate_change"] >= float(feature_flags["promotion"]["minimum_hit_rate_change"]) else "FAIL",
-                "actual": row["hit_rate_change"],
+                "status": "PASS" if signal_hit_gain >= float(feature_flags["promotion"]["minimum_hit_rate_change"]) else "FAIL",
+                "actual": signal_hit_gain,
                 "minimum": float(feature_flags["promotion"]["minimum_hit_rate_change"]),
             },
             "positive_top_bottom_spread": {
-                "status": "PASS" if (row["candidate_top_bottom_spread"] or 0) > 0 else "FAIL",
-                "actual": row["candidate_top_bottom_spread"],
+                "status": "PASS" if (signal_spread or 0) > 0 else "FAIL",
+                "actual": signal_spread,
                 "required": bool(feature_flags["promotion"].get("require_positive_top_bottom_spread", True)),
             },
             "relative_after_cost_portfolio": {
@@ -316,12 +360,27 @@ def build_bundle(
         row["ablation_reason"] = result["reason"]
         row["used_in_production"] = result["used_in_production"]
         row["evaluation"] = {
+            "scope": result["evaluation_scope"],
+            "feature_role": result["feature_role"],
+            "reference_model": result["reference_model"],
             "base_n": result["base_n"],
             "candidate_n": result["candidate_n"],
+            "sector_oos_rows": result["sector_oos_rows"],
+            "sector_oos_tickers": result["sector_oos_tickers"],
+            "sector_oos_dates": result["sector_oos_dates"],
+            "base_rank_ic": result["base_spearman_ic"],
+            "candidate_rank_ic": result["candidate_spearman_ic"],
             "rank_ic_improvement": result["spearman_ic_improvement"],
             "rank_ic_minimum": result["promotion_gates"]["rank_ic_improvement"]["minimum"],
             "hit_rate_change": result["hit_rate_change"],
             "top_bottom_spread": result["candidate_top_bottom_spread"],
+            "global_rank_ic_change": result["global_spearman_ic_change"],
+            "timing_dates": result["timing_dates"],
+            "timing_base_rank_ic": result["timing_base_spearman_ic"],
+            "timing_candidate_rank_ic": result["timing_candidate_spearman_ic"],
+            "timing_rank_ic_improvement": result["timing_spearman_ic_improvement"],
+            "timing_hit_rate_change": result["timing_hit_rate_change"],
+            "timing_top_bottom_spread": result["timing_candidate_top_bottom_spread"],
             "after_costs_gate": result["after_costs_gate"],
             "candidate_excess_after_costs": result["candidate_after_costs"].get("excess_cumulative_return"),
             "candidate_sharpe_after_costs": result["candidate_after_costs"].get("sharpe_after_costs"),
