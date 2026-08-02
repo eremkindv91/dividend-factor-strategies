@@ -24,6 +24,7 @@ import requests
 
 
 API_ROOT = "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService"
+SDK_TARGET = "invest-public-api.tbank.ru"
 BRAND_CDN = "https://invest-brands.cdn-tinkoff.ru"
 REQUEST_TIMEOUT = (5, 30)
 MAX_IMAGE_BYTES = 300_000
@@ -51,6 +52,35 @@ def _post(session: requests.Session, token: str, method: str) -> list[dict[str, 
     if not isinstance(rows, list):
         raise LogoBuildError(f"{method}: invalid response contract")
     return [row for row in rows if isinstance(row, dict)]
+
+
+def _sdk_row(item: Any, catalog_type: str) -> dict[str, Any]:
+    brand = getattr(item, "brand", None)
+    return {
+        "ticker": str(getattr(item, "ticker", "") or ""),
+        "name": str(getattr(item, "name", "") or ""),
+        "class_code": str(getattr(item, "class_code", "") or ""),
+        "currency": str(getattr(item, "currency", "") or ""),
+        "country_of_risk": str(getattr(item, "country_of_risk", "") or ""),
+        "brand": {"logo_name": str(getattr(brand, "logo_name", "") or "")},
+        "_catalog_type": catalog_type,
+    }
+
+
+def _sdk_catalogue(token: str) -> list[dict[str, Any]]:
+    """Use the same official gRPC transport as the working dividend collector."""
+    os.environ.setdefault("SSL_TBANK_VERIFY", "True")
+    try:
+        from t_tech.invest import Client, InstrumentStatus
+    except ModuleNotFoundError as exc:
+        raise LogoBuildError("t_tech_invest_sdk_missing") from exc
+
+    status = InstrumentStatus.INSTRUMENT_STATUS_ALL
+    with Client(token, target=SDK_TARGET, app_name="dividend-factor-strategies") as client:
+        shares = client.instruments.shares(instrument_status=status).instruments
+        funds = client.instruments.etfs(instrument_status=status).instruments
+    return ([_sdk_row(row, "equity") for row in shares]
+            + [_sdk_row(row, "fund") for row in funds])
 
 
 def _universe(path: Path) -> dict[str, str]:
@@ -109,7 +139,7 @@ def _png_dimensions(content: bytes) -> tuple[int, int]:
     return width, height
 
 
-def _download_png(session: requests.Session, logo_name: str) -> tuple[bytes, str]:
+def _download_png(logo_name: str) -> tuple[bytes, str]:
     stem = logo_name[:-4]
     source = f"{BRAND_CDN}/{quote(stem + 'x160.png', safe='')}"
     last_error: Exception | None = None
@@ -180,10 +210,12 @@ def build(
     if not token:
         return {"status": "disabled", "universe": 0, "catalogue_matches": 0, "downloaded": 0, "failed": 0}
     universe = _universe(universe_path)
-    api = session or requests.Session()
-    shares = [{**row, "_catalog_type": "equity"} for row in _post(api, token, "Shares")]
-    funds = [{**row, "_catalog_type": "fund"} for row in _post(api, token, "Etfs")]
-    rows = shares + funds
+    if session is None:
+        rows = _sdk_catalogue(token)
+    else:
+        shares = [{**row, "_catalog_type": "equity"} for row in _post(session, token, "Shares")]
+        funds = [{**row, "_catalog_type": "fund"} for row in _post(session, token, "Etfs")]
+        rows = shares + funds
     selected = select_catalogue_rows(rows, universe)
     registry = _previous_registry(previous_registry, universe)
     fresh_downloads = 0
@@ -191,7 +223,7 @@ def build(
     image_dir = output_dir / "assets" / "instruments" / "companies"
     for ticker, row in sorted(selected.items()):
         try:
-            content, source = _download_png(api, _logo_name(row))
+            content, source = _download_png(_logo_name(row))
             filename = f"{ticker.lower()}.png"
             _atomic_bytes(image_dir / filename, content)
             registry[ticker] = {

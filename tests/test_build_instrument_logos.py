@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import struct
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -126,3 +127,16 @@ def test_previous_valid_registry_survives_partial_refresh(tmp_path, monkeypatch)
     assert summary["downloaded"] == 0
     assert summary["registry_count"] == 1
     assert "SBER" in (output / "instrument_logos.js").read_text(encoding="utf-8")
+
+
+def test_sdk_objects_are_normalized_without_serializing_internal_fields():
+    item = SimpleNamespace(
+        ticker="SBER", name="Сбербанк", class_code="TQBR", currency="rub",
+        country_of_risk="RU", brand=SimpleNamespace(logo_name="sber.png"),
+        uid="must-not-be-published", figi="must-not-be-published",
+    )
+    assert logos._sdk_row(item, "equity") == {
+        "ticker": "SBER", "name": "Сбербанк", "class_code": "TQBR",
+        "currency": "rub", "country_of_risk": "RU",
+        "brand": {"logo_name": "sber.png"}, "_catalog_type": "equity",
+    }
