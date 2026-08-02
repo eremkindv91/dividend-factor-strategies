@@ -21,6 +21,15 @@ const doc = {
   querySelectorAll: () => [],
 };
 global.document = doc;
+global.InstrumentLogoRegistry = Object.freeze({
+  SBER: {
+    secid: 'SBER', type: 'equity', name: 'Сбербанк',
+    logo_path: 'assets/instruments/companies/sber.png',
+    logo_source: 'https://invest-brands.cdn-tinkoff.ru/sberx160.png',
+    updated_at: '2026-08-02',
+  },
+  EVIL: { secid: 'EVIL', logo_path: 'https://tracker.invalid/logo.png' },
+});
 const api = require('./site/instrument_identity.js');
 const original = Object.freeze({ secid: 'SBERP', name: 'Сбербанк-п', type: 'preferred_equity' });
 const before = JSON.stringify(original);
@@ -81,6 +90,9 @@ def test_canonical_assets_types_and_explicit_lineage():
     assert snap["t"]["logo_path"] == "assets/instruments/t.svg"
     assert snap["t"]["lineage"]["kind"] == "rename"
     assert snap["sberp"]["asset_secid"] == "SBER"
+    assert snap["sber"]["logo_path"] == "assets/instruments/companies/sber.png"
+    assert snap["sberp"]["logo_path"] == "assets/instruments/companies/sber.png"
+    assert snap["sber"]["logo_status"] == "broker_catalog"
     assert snap["sberp"]["type"] == "preferred_equity"
     assert snap["banep"]["type"] == "preferred_equity"
     assert snap["banep"]["asset_secid"] == "BANE"
@@ -156,6 +168,7 @@ def test_single_component_is_used_across_investor_workflows():
     deploy = (ROOT / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
 
+    assert html.index('src="instrument_logos.js"') < html.index('src="instrument_identity.js"')
     assert html.index('src="instrument_identity.js"') < html.index('src="app.js"')
     assert "window.InstrumentIdentity.identityHTML" in app
     assert "window.InstrumentIdentity.avatarHTML" in app
@@ -171,6 +184,8 @@ def test_single_component_is_used_across_investor_workflows():
     assert ".instrument-avatar--lg" in css
     assert "forced-colors: active" in css
     assert "site/instrument_identity.js" in deploy
+    assert "site/instrument_logos.js" in deploy
     assert "site/assets" in deploy
     assert "site/instrument_identity.js" in workflow
+    assert "site/instrument_logos.js" in workflow
     assert "site/assets" in workflow

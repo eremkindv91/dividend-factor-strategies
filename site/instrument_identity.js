@@ -1,8 +1,8 @@
 (function instrumentIdentityModule(root, factory) {
-  const api = factory();
+  const api = factory(root && root.InstrumentLogoRegistry);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.InstrumentIdentity = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createInstrumentIdentity() {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function createInstrumentIdentity(runtimeRegistry) {
   'use strict';
 
   const SIZE_PX = Object.freeze({ xs: 20, sm: 24, md: 32, lg: 40 });
@@ -37,7 +37,7 @@
   const FUNDS = new Set(['EQMX', 'DIVD']);
   const INDICES = new Set(['IMOEX', 'MCFTR', 'RTSI', 'RTS', 'RGBI', 'RVI', 'MOEXBC']);
 
-  const REGISTRY = Object.freeze({
+  const CORE_REGISTRY = Object.freeze({
     T: {
       secid: 'T', type: 'equity', name: 'Т-Технологии', logo_path: 'assets/instruments/t.svg',
       logo_source: 'https://www.tbank.ru/about/brand/', logo_status: 'official', updated_at: '2026-07-31',
@@ -65,6 +65,36 @@
       logo_status: 'generated', updated_at: '2026-07-31',
     };
   }
+
+  function safeLogoPath(value) {
+    const path = String(value || '').trim();
+    if (!/^assets\/instruments\/(?:[a-z0-9._-]+\/)*[a-z0-9._-]+\.(?:svg|png|webp)$/i.test(path)) return '';
+    return path.split('/').some((part) => part === '.' || part === '..') ? '' : path;
+  }
+
+  function sanitizeRuntimeRegistry(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    const clean = {};
+    Object.entries(value).forEach(([key, row]) => {
+      const secid = cleanSecid(key);
+      const path = safeLogoPath(row && row.logo_path);
+      if (!secid || !path || !path.startsWith('assets/instruments/companies/')) return;
+      clean[secid] = Object.freeze({
+        secid,
+        type: normalizeType(row.type, secid),
+        name: String(row.name || '').trim(),
+        logo_path: path,
+        logo_source: String(row.logo_source || 'T-Invest instrument catalogue').trim(),
+        logo_status: 'broker_catalog',
+        updated_at: /^\d{4}-\d{2}-\d{2}$/.test(String(row.updated_at || '')) ? row.updated_at : '',
+      });
+    });
+    return clean;
+  }
+
+  // Generated broker-catalog assets extend the checked-in core set, but never
+  // override hand-curated project assets (T, indices and generic type glyphs).
+  const REGISTRY = Object.freeze({ ...sanitizeRuntimeRegistry(runtimeRegistry), ...CORE_REGISTRY });
 
   function cleanSecid(value) {
     return String(value || '').toUpperCase().replace(/\s+/g, '').replace(/[^A-Z0-9._/-]/g, '');
@@ -113,11 +143,6 @@
   function fallbackColors(secid) {
     const pair = PALETTE[hashSecid(cleanSecid(secid)) % PALETTE.length];
     return { background: pair[0], color: pair[1] };
-  }
-
-  function safeLogoPath(value) {
-    const path = String(value || '').trim();
-    return /^assets\/instruments\/[a-z0-9._-]+\.svg$/i.test(path) ? path : '';
   }
 
   function resolve(input) {

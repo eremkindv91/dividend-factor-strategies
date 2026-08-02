@@ -11,6 +11,8 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 REMOTE="https://github.com/eremkindv91/dividend-factor-strategies.git"
 TMP="$(mktemp -d)"
+LOGO_BUILD="$(mktemp -d)"
+LOGO_LAST_GOOD="$(mktemp -d)"
 
 cd "$REPO"
 python3 -m src.pipeline.run_all --skip-ocr --allow-network
@@ -30,8 +32,34 @@ python3 scripts/check_predeploy_contract.py
 python3 scripts/build_site_status.py
 python3 scripts/validate_site_data.py
 
-cp site/index.html site/styles.css site/instrument_identity.js site/app.js site/data.json "$TMP/"
+# Логотипы — build-time слой. Без токена или при сбое API ручной deploy сохраняет
+# уже опубликованный набор; токен никогда не копируется в каталог Pages.
+if ! git clone --quiet --depth 1 --branch gh-pages "$REMOTE" "$LOGO_LAST_GOOD" 2>/dev/null; then
+  rm -rf "$LOGO_LAST_GOOD"
+  LOGO_LAST_GOOD=""
+fi
+PREVIOUS=""
+if [ -n "$LOGO_LAST_GOOD" ] && [ -f "$LOGO_LAST_GOOD/instrument_logos.js" ]; then
+  PREVIOUS="--previous-registry $LOGO_LAST_GOOD/instrument_logos.js"
+fi
+python3 scripts/build_instrument_logos.py --universe site/data.json --output-dir "$LOGO_BUILD" $PREVIOUS \
+  || echo "[instrument-logos] API недоступен — сохраняем last-good"
+
+cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/app.js site/data.json "$TMP/"
 [ -d site/assets ] && cp -r site/assets "$TMP/"
+if [ -n "$LOGO_LAST_GOOD" ]; then
+  [ -f "$LOGO_LAST_GOOD/instrument_logos.js" ] && cp "$LOGO_LAST_GOOD/instrument_logos.js" "$TMP/"
+  if [ -d "$LOGO_LAST_GOOD/assets/instruments/companies" ]; then
+    mkdir -p "$TMP/assets/instruments"
+    cp -R "$LOGO_LAST_GOOD/assets/instruments/companies" "$TMP/assets/instruments/"
+  fi
+fi
+if [ -f "$LOGO_BUILD/instrument_logos.js" ]; then
+  cp "$LOGO_BUILD/instrument_logos.js" "$TMP/"
+  mkdir -p "$TMP/assets/instruments"
+  cp -R "$LOGO_BUILD/assets/instruments/companies" "$TMP/assets/instruments/"
+  cp "$LOGO_BUILD/assets/instruments/company_manifest.json" "$TMP/assets/instruments/"
+fi
 [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"
 [ -f site/returns.json ] && cp site/returns.json "$TMP/"
 [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"
@@ -64,6 +92,7 @@ import sys
 path = Path(sys.argv[1])
 version = sys.argv[2]
 html = path.read_text(encoding="utf-8")
+html = html.replace('"instrument_logos.js"', f'"instrument_logos.js?v={version}"')
 html = html.replace('"instrument_identity.js"', f'"instrument_identity.js?v={version}"')
 html = html.replace('"app.js"', f'"app.js?v={version}"')
 html = html.replace('"styles.css"', f'"styles.css?v={version}"')
@@ -78,4 +107,6 @@ git -C "$TMP" -c user.name="Dmitry Eremkin" -c user.email="eremkindv1991@gmail.c
 echo "[deploy] публикация в gh-pages…"
 git -C "$TMP" push -f "$REMOTE" gh-pages
 rm -rf "$TMP"
+[ -n "$LOGO_LAST_GOOD" ] && rm -rf "$LOGO_LAST_GOOD"
+rm -rf "$LOGO_BUILD"
 echo "[deploy] готово → https://eremkindv91.github.io/dividend-factor-strategies/"
