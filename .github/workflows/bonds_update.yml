@@ -1,6 +1,6 @@
 name: bonds update (скринер облигаций РФ, квантовый расчёт)
 
-# Считает скринер облигаций по реальному ISS MOEX (G-кривая + дисконт потоков + linprog-портфели)
+# Считает скринер облигаций по реальному ISS MOEX (G-кривая + cash-flow YTM/duration + MILP-портфели)
 # и кладёт результат в site/bonds/*.json. Коммитит их в ветку И additive-публикует ТОЛЬКО bonds/
 # в gh-pages (не трогая остальной сайт) — чтобы свежие облигации были на сайте сразу, не дожидаясь
 # дневного update.yml. update.yml тоже включает bonds в orphan-push (двойная гарантия, согласованно,
@@ -21,6 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +30,7 @@ jobs:
           python-version: "3.11"
 
       - name: Установка зависимостей
-        run: python -m pip install --quiet requests pandas numpy scipy openpyxl
+        run: python -m pip install --quiet requests pandas numpy scipy openpyxl pypdf pytest
 
       - uses: actions/cache@v4
         with:
@@ -50,11 +51,14 @@ jobs:
         # критическая ошибка → exit 1 → коммита и публикации НЕ будет (не публикуем битое)
         run: python scripts/validate_site_data.py bonds
 
+      - name: Тесты Bond Portfolio Lab
+        run: pytest -q tests/bonds/test_bond_portfolio_lab_v3.py tests/test_bond_portfolio_lab_ui.py
+
       - name: Коммит site/bonds/*.json в ветку
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -- site/bonds/*.json
+          git add -- site/bonds/*.json bonds/issuer_master.json
           # official_ratings_cache.json намеренно ignored: в commit идут только
           # tracked или новые неигнорируемые state-файлы Bond Finder.
           git ls-files -co --exclude-standard -- 'data/bond_finder/*.json' \

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eremkindv91.github.io/dividend-factor-strategies/bonds/universe_schema.json",
+  "title": "Bond Portfolio Lab universe",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "as_of", "source_status", "bonds"],
+  "properties": {
+    "schema_version": {"const": "3.0"},
+    "generated_at": {"type": "string"},
+    "build_sha": {"type": "string"},
+    "as_of": {"type": "object"},
+    "source_status": {"type": "object"},
+    "bonds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["secid", "instrument_type", "issuer_id", "sector", "face_value_per_bond_rub", "lot_size", "clean_price_pct", "aci_per_bond_rub", "dirty_price_per_bond_rub", "dirty_price_per_lot_rub", "duration_value", "duration_type", "duration_source", "maturity_date", "median_volume_20d_rub", "data_quality_flags"],
+        "properties": {
+          "secid": {"type": "string", "minLength": 1},
+          "instrument_type": {"enum": ["corp", "ofz"]},
+          "issuer_id": {"type": "string", "minLength": 1},
+          "face_value_per_bond_rub": {"type": "number", "exclusiveMinimum": 0},
+          "lot_size": {"type": "integer", "minimum": 1},
+          "clean_price_pct": {"type": "number", "exclusiveMinimum": 0},
+          "aci_per_bond_rub": {"type": "number", "minimum": 0},
+          "dirty_price_per_bond_rub": {"type": "number", "exclusiveMinimum": 0},
+          "dirty_price_per_lot_rub": {"type": "number", "exclusiveMinimum": 0},
+          "duration_value": {"type": "number", "minimum": 0},
+          "duration_type": {"type": "string", "minLength": 1},
+          "duration_source": {"type": "string", "minLength": 1},
+          "data_quality_flags": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

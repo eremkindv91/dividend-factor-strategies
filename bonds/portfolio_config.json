@@ -1,0 +1,130 @@
+{
+  "schema_version": "3.0",
+  "default_budget_rub": 1000000,
+  "tax_model": {
+    "version": "ru_individual_estimate_2026_01",
+    "tax_rate": 0.13,
+    "note": "Simplified ranking estimate, not an individual tax calculation."
+  },
+  "costs": {
+    "commission_bps": 5,
+    "slippage_bps": 10
+  },
+  "horizons": {
+    "1y": {"label": "1 год", "target": 0.75, "min": 0.35, "max": 1.1},
+    "3y": {"label": "3 года", "target": 1.6, "min": 1.0, "max": 2.2},
+    "5y": {"label": "5 лет", "target": 2.5, "min": 1.7, "max": 3.3},
+    "7y": {"label": "7 лет", "target": 3.1, "min": 2.1, "max": 4.1},
+    "10y": {"label": "10 лет", "target": 3.8, "min": 2.6, "max": 5.0}
+  },
+  "profiles": {
+    "defensive": {
+      "label": "Защитный",
+      "minimum_corporate_rating": "AA-",
+      "minimum_ofz": 0.3,
+      "max_issue": 0.1,
+      "max_issuer": 0.1,
+      "max_sector": 0.25,
+      "max_unknown_sector": 0.1,
+      "max_bbb": 0.0,
+      "minimum_issuers": 9,
+      "minimum_issues": 9,
+      "minimum_position": 0.02,
+      "maximum_new_issues": 0.1,
+      "minimum_median_volume_20d_rub": 5000000,
+      "maximum_participation_rate": 0.05,
+      "minimum_trading_sessions": 15,
+      "maximum_maturity_year_bucket": 0.3,
+      "cash_min": 0.0,
+      "cash_max": 0.05
+    },
+    "balanced": {
+      "label": "Сбалансированный",
+      "minimum_corporate_rating": "A-",
+      "minimum_ofz": 0.15,
+      "max_issue": 0.125,
+      "max_issuer": 0.15,
+      "max_sector": 0.25,
+      "max_unknown_sector": 0.15,
+      "max_bbb": 0.0,
+      "minimum_issuers": 8,
+      "minimum_issues": 8,
+      "minimum_position": 0.02,
+      "maximum_new_issues": 0.2,
+      "minimum_median_volume_20d_rub": 2000000,
+      "maximum_participation_rate": 0.05,
+      "minimum_trading_sessions": 12,
+      "maximum_maturity_year_bucket": 0.35,
+      "cash_min": 0.0,
+      "cash_max": 0.05
+    },
+    "income": {
+      "label": "Доходный",
+      "minimum_corporate_rating": "BBB-",
+      "minimum_ofz": 0.05,
+      "max_issue": 0.125,
+      "max_issuer": 0.15,
+      "max_sector": 0.3,
+      "max_unknown_sector": 0.15,
+      "max_bbb": 0.3,
+      "minimum_issuers": 8,
+      "minimum_issues": 8,
+      "minimum_position": 0.02,
+      "maximum_new_issues": 0.25,
+      "minimum_median_volume_20d_rub": 1000000,
+      "maximum_participation_rate": 0.05,
+      "minimum_trading_sessions": 10,
+      "maximum_maturity_year_bucket": 0.4,
+      "cash_min": 0.0,
+      "cash_max": 0.05
+    }
+  },
+  "allowed_instruments": {
+    "fixed_coupon": true,
+    "floaters": false,
+    "amortizing": false,
+    "put_offer": false,
+    "callable": false,
+    "qualified_only": false,
+    "ofz_pk": false
+  },
+  "penalties": {
+    "duration_deviation_pp": 0.8,
+    "cash_pp": 0.5,
+    "credit_per_notch_pp": 0.08,
+    "liquidity_pp": 0.2,
+    "new_issue_pp": 0.15,
+    "data_quality_pp": 0.3,
+    "complexity_pp": 0.5
+  },
+  "peer_benchmark": {
+    "duration_edges_years": [0, 1, 2, 3, 5, 7, 10, 30],
+    "minimum_observations": 5,
+    "winsor_lower": 0.05,
+    "winsor_upper": 0.95,
+    "fixed_fallback_pp": {"AAA": 1.5, "AA": 2.2, "A": 3.5, "BBB": 5.0}
+  },
+  "quality_gate": {
+    "max_price_age_days": 4,
+    "max_curve_age_days": 4,
+    "max_rating_check_age_days": 14,
+    "minimum_rating_coverage": 0.55,
+    "minimum_sector_coverage": 0.6,
+    "minimum_modified_duration_coverage": 0.8,
+    "minimum_liquidity_history_coverage": 0.7,
+    "minimum_live_rating_sources": 1
+  },
+  "solver": {
+    "time_limit_seconds": 25,
+    "mip_relative_gap": 0.0001,
+    "numerical_tolerance": 1e-8
+  },
+  "universe": {
+    "maximum_corporate_enrichment": 180,
+    "minimum_value_today_rub": 100000,
+    "history_sessions": 20,
+    "workers": 5,
+    "sector_enrichment_limit": 12,
+    "sector_enrichment_interval_seconds": 4.0
+  }
+}

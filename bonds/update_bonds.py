@@ -468,6 +468,28 @@ def main() -> int:
                            ("portfolios.json", {"meta": meta, "portfolios": portfolios})):
         with open(os.path.join(OUT_DIR, fname), "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    # Bond Portfolio Lab v3 is additive during migration. Its quality gate owns
+    # publication of the normalized universe and preset matrix; a failed v3 run
+    # never deletes the previous valid composition and does not corrupt the
+    # backwards-compatible screener/Finder artifacts above.
+    try:
+        if REPO not in sys.path:
+            sys.path.insert(0, REPO)
+        from bonds.pipeline_v3 import build_and_publish
+
+        v3_validation = build_and_publish(
+            load_board=load_board,
+            http_json=http_json,
+            iss=ISS,
+            ratings=ratings,
+            ratings_meta=ratings_meta,
+            gcurve_rate=lambda years: gcurve_rate(years, gt, gy),
+        )
+        sys.stderr.write(f"[bonds-v3] status={v3_validation.get('status')}\n")
+    except Exception as exc:  # noqa: BLE001
+        # Preserve the last valid v3 artifacts. The legacy update remains useful,
+        # while the workflow log records the v3 execution failure explicitly.
+        sys.stderr.write(f"[bonds-v3] EXECUTION_FAILED, previous valid artifacts kept: {exc}\n")
     sys.stderr.write(f"[bonds] OK → {OUT_DIR} (screener={len(screener)})\n")
     return 0
 

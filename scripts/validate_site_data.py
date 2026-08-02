@@ -416,6 +416,82 @@ def check_bonds() -> None:
                     if host not in OFFICIAL_RATING_HOSTS:
                         err(f"finder.json: {pid}/{x.get('secid')} — нет официальной ссылки рейтинга")
         print(f"  finder.json: профили {[ (k, len((v or {}).get('picks', []))) for k, v in profs.items() ]}")
+
+    # Bond Portfolio Lab v3 is an atomic four-file contract. Once any artifact
+    # is published, validate the complete set so the UI cannot mix generations.
+    v3_names = (
+        "bonds/universe.json",
+        "bonds/portfolio_presets.json",
+        "bonds/portfolio_validation.json",
+        "bonds/portfolio_last_valid.json",
+    )
+    v3 = {name: load(name) for name in v3_names}
+    if any(value is not None for value in v3.values()):
+        missing = [name for name, value in v3.items() if value is None]
+        if missing:
+            err(f"Bond Portfolio Lab v3: неполная публикация, отсутствуют {missing}")
+        else:
+            universe = v3["bonds/universe.json"]
+            presets = v3["bonds/portfolio_presets.json"]
+            validation = v3["bonds/portfolio_validation.json"]
+            last_valid = v3["bonds/portfolio_last_valid.json"]
+            for name, payload in v3.items():
+                if payload.get("schema_version") != "3.0":
+                    err(f"{name}: ожидается schema_version=3.0")
+                serialized = json.dumps(payload, ensure_ascii=False).lower()
+                forbidden = ("/users/", "/private/tmp/", "github_token", "api_key", "bearer ")
+                if any(marker in serialized for marker in forbidden):
+                    err(f"{name}: найден локальный путь или секретоподобное значение")
+
+            universe_rows = universe.get("bonds") or []
+            universe_secids = [row.get("secid") for row in universe_rows]
+            if not universe_rows or len(universe_secids) != len(set(universe_secids)):
+                err("bonds/universe.json: universe пуст или содержит дубли SECID")
+            for row in universe_rows:
+                face = row.get("face_value_per_bond_rub")
+                clean = row.get("clean_price_pct")
+                aci = row.get("aci_per_bond_rub")
+                lot = row.get("lot_size")
+                dirty_lot = row.get("dirty_price_per_lot_rub")
+                if all(isinstance(value, (int, float)) for value in (face, clean, aci, lot, dirty_lot)):
+                    expected = (face * clean / 100 + aci) * lot
+                    if abs(expected - dirty_lot) > max(0.02, expected * 1e-6):
+                        err(f"bonds/universe.json: {row.get('secid')} — dirty price contract нарушен")
+
+            profile_ids = set((presets.get("profiles") or {}).keys())
+            horizon_ids = set((presets.get("horizons") or {}).keys())
+            expected_keys = {f"{profile}:{horizon}" for profile in profile_ids for horizon in horizon_ids}
+            preset_map = presets.get("presets") or {}
+            allocations = presets.get("allocations") or {}
+            if profile_ids != {"defensive", "balanced", "income"}:
+                err(f"bonds/portfolio_presets.json: неожиданные профили {sorted(profile_ids)}")
+            if horizon_ids != {"1y", "3y", "5y", "7y", "10y"}:
+                err(f"bonds/portfolio_presets.json: неожиданные горизонты {sorted(horizon_ids)}")
+            if set(preset_map) != expected_keys:
+                err("bonds/portfolio_presets.json: должны присутствовать все 15 preset-результатов")
+            for key, allocation in allocations.items():
+                if key not in expected_keys or allocation.get("status") != "VALIDATED":
+                    err(f"bonds/portfolio_presets.json: allocation {key} не VALIDATED")
+                    continue
+                budget = float(allocation.get("budget_rub") or 0)
+                invested = float(allocation.get("invested_with_costs_rub") or 0)
+                cash = float(allocation.get("cash_rub") or 0)
+                positions = allocation.get("positions") or []
+                if not positions or abs(invested + cash - budget) > 0.05 or invested > budget + 0.01:
+                    err(f"bonds/portfolio_presets.json: allocation {key} не сходится с бюджетом")
+                if any(int(row.get("lots") or 0) < 1 or row.get("secid") not in set(universe_secids) for row in positions):
+                    err(f"bonds/portfolio_presets.json: allocation {key} содержит невалидные лоты/SECID")
+
+            if validation.get("status") != "PASS" or (validation.get("quality_gate") or {}).get("status") != "PASS":
+                err("bonds/portfolio_validation.json: quality gate не PASS")
+            if validation.get("available_presets") != len(allocations):
+                err("bonds/portfolio_validation.json: available_presets не совпадает с allocations")
+            if set((last_valid.get("allocations") or {}).keys()) != set(allocations):
+                err("bonds/portfolio_last_valid.json: набор allocations не совпадает с текущим валидным snapshot")
+            print(
+                f"  Bond Portfolio Lab v3: universe={len(universe_rows)}, "
+                f"presets={len(preset_map)}, allocations={len(allocations)}, gate=PASS"
+            )
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 
 

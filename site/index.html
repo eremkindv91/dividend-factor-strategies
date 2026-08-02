@@ -379,21 +379,29 @@
 
       <!-- ─────────── ОБЛИГАЦИИ ─────────── -->
       <section class="app-section" data-section="bonds" hidden>
-        <p class="section-intro">Облигации: скринер рублёвых корпоративных выпусков MOEX. Fair-value считается от G-кривой и модельного спреда; у рейтингов и ликвидности есть ограничения.</p>
-
-        <details class="mapwrap finder-wrap" id="finder" open>
-          <summary>Bond Finder <span class="muted">(месячный шорт-лист кандидатов для ручной проверки — не сигналы)</span></summary>
-          <div class="finder-body" id="finder-body">
-            <div class="finder-loading muted">Загрузка шорт-листа Bond Finder…</div>
+        <div class="section-hero bonds-hero">
+          <div>
+            <span class="section-kicker">Bond Portfolio Lab</span>
+            <h2>Облигации без скрытых допущений</h2>
+            <p>Рублёвые ОФЗ и корпоративные выпуски MOEX: dirty price, лоты, cash-flow duration, официальные рейтинги и ограничения ликвидности.</p>
           </div>
-        </details>
-
-        <details class="mapwrap bonds-wrap" id="bonds" hidden>
-          <summary>Скринер облигаций <span class="muted">(вся выборка · кривая КБД · калькулятор портфеля)</span></summary>
-          <div class="bonds-body" id="bonds-body">
-            <div class="bonds-loading muted">Загрузим квантовый скринер облигаций…</div>
+          <div class="section-tags" aria-label="Принципы расчёта">
+            <span>Реальные данные</span><span>После издержек</span><span>Не ИИР</span>
           </div>
-        </details>
+        </div>
+
+        <div class="bondlab-workspace" id="bondlab-workspace">
+          <div class="bondlab-tabs" role="tablist" aria-label="Разделы облигаций">
+            <button type="button" class="bondlab-tab active" data-bondlab-tab="portfolios" role="tab" aria-controls="bondlab-panel" aria-selected="true">Портфели</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="screener" role="tab" aria-controls="bondlab-panel" aria-selected="false">Скринер</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="relative" role="tab" aria-controls="bondlab-panel" aria-selected="false">Relative Value</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="curve" role="tab" aria-controls="bondlab-panel" aria-selected="false">G-кривая</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="finder" role="tab" aria-controls="bondlab-panel" aria-selected="false">Finder</button>
+          </div>
+          <div class="bondlab-panel" id="bondlab-panel" role="tabpanel" aria-live="polite">
+            <div class="bonds-loading muted">Загрузка Bond Portfolio Lab…</div>
+          </div>
+        </div>
       </section>
 
       <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
@@ -589,6 +597,7 @@
 
   <script src="instrument_logos.js" defer></script>
   <script src="instrument_identity.js" defer></script>
+  <script src="bond_allocator.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
