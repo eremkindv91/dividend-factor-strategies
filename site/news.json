@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-01",
-  "generated_at": "2026-08-01T12:28:04+03:00",
+  "date": "2026-08-02",
+  "generated_at": "2026-08-02T18:37:29+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, нефть марки Brent подорожала, золото снизилось.",
+  "external_backdrop": "Мировые фондовые индексы и цены на нефть Brent закрылись ростом в пятницу.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -41,8 +41,8 @@
     },
     {
       "name": "Золото",
-      "value": "4049.10",
-      "change_pct": "-1.24%",
+      "value": "4107.00",
+      "change_pct": "+0.17%",
       "as_of": "закрытие 31.07",
       "group": "commodity"
     },
@@ -77,380 +77,253 @@
   ],
   "overnight": [
     {
-      "id": "mining-ban-moscow",
-      "headline": "Правительство России ввело запрет на майнинг в Московском регионе до конца 2032 года",
-      "context": "Ограничения вступают в силу с 15 августа 2026 года и затронут также часть Курской области.",
-      "category": "macro",
+      "id": "opec-increase-production",
+      "headline": "Страны ОПЕК+ договорились увеличить добычу нефти на сто восемьдесят восемь тысяч баррелей",
+      "context": "Россия увеличит свою квоту на добычу нефти в сентябре на 62 тысячи баррелей в сутки.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/technology/news/2026/07/31/1218073-maining-moskve-podmoskove-kurskoi"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860264"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1107034"
         }
       ],
-      "published_at": "2026-07-31T21:23:00+03:00"
+      "published_at": "2026-08-02T14:49:00+03:00"
     },
     {
-      "id": "jpmorgan-rosneft",
-      "headline": "Инвестбанк JPMorgan полностью ликвидировал базовые акции по депозитарным распискам Роснефти",
-      "context": "Ранее банк также вышел из расписок Сбербанка, Магнита, МТС и НМТП с дисконтом.",
+      "id": "fesco-ship-sunk",
+      "headline": "Теплоход «Янина» группы FESCO затонул в Черном море после атаки беспилотников",
+      "context": "Все 17 членов экипажа спасены, транспортная группа продолжает работу в штатном режиме.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335449.php"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296482"
-        }
-      ],
-      "published_at": "2026-07-31T20:13:00+03:00"
-    },
-    {
-      "id": "eurotrans-default",
-      "headline": "Евротранс допустил технический дефолт по выплате купона по биржевым облигациям",
-      "context": "Речь идет о невыплате купонного дохода по выпуску серии БО-001Р-08.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335446.php"
-        }
-      ],
-      "published_at": "2026-07-31T20:00:00+03:00"
-    },
-    {
-      "id": "cpc-pipeline-suspension",
-      "headline": "Каспийский трубопроводный консорциум временно приостановил работу нефтепровода при продолжении приема сырья",
-      "context": "В Минэнерго Казахстана заверили, что сценарий полной остановки работы КТК в настоящее время не рассматривается.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106899"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860590"
+          "url": "https://www.interfax.ru/russia/1106921"
         }
       ],
-      "published_at": "2026-08-01T09:44:00+03:00"
+      "published_at": "2026-08-01T12:39:00+03:00"
     },
     {
-      "id": "us-israel-iran-strikes",
-      "headline": "США и Израиль планируют нанести удары по объектам энергетической инфраструктуры Ирана",
-      "context": "Иран подготовил всеобъемлющий план реагирования на случай атак на свои энергетические объекты.",
+      "id": "trump-cancels-iran-strikes",
+      "headline": "Дональд Трамп отменил запланированные удары по Ирану ради заключения мирного соглашения",
+      "context": "Ранее сообщалось о подготовке массированных ударов по энергетической инфраструктуре страны.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1106986"
+        }
+      ],
+      "published_at": "2026-08-02T07:19:00+03:00"
+    },
+    {
+      "id": "moscow-restaurant-explosion",
+      "headline": "В ресторане на Кудринской площади в Москве произошел взрыв самодельного устройства",
+      "context": "По данным Национального антитеррористического комитета, погибли три человека, пострадал 21 человек.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860528"
-        },
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/moscow/1106973"
+        }
+      ],
+      "published_at": "2026-08-01T23:24:00+03:00"
+    },
+    {
+      "id": "wildberries-warehouse-fire",
+      "headline": "На складе Wildberries в Самарской области произошел пожар после атаки беспилотников",
+      "context": "Погибших и пострадавших в результате инцидента на логистическом объекте нет.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1106875"
+          "url": "https://www.interfax.ru/russia/1106989"
         }
       ],
-      "published_at": "2026-08-01T00:01:00+03:00"
+      "published_at": "2026-08-02T08:29:00+03:00"
     },
     {
-      "id": "rostelecom-h1-loss",
-      "headline": "Ростелеком получил чистый убыток по РСБУ в размере 9,58 миллиарда рублей за полугодие",
-      "context": "Выручка компании за первые шесть месяцев 2026 года выросла на 6,8% до 238,71 миллиарда рублей.",
+      "id": "freedom-holding-turkishbank",
+      "headline": "Дочерняя компания Freedom Holding завершила сделку по покупке турецкого банка TurkishBank",
+      "context": "Холдинг официально закрыл приобретение финансовой организации в Турции.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335461.php"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106922"
         }
       ],
-      "published_at": "2026-07-31T21:02:00+03:00"
-    },
-    {
-      "id": "en-plus-h1-profit",
-      "headline": "Чистая прибыль холдинга Эн+ по РСБУ за первое полугодие снизилась на 11,3 процента",
-      "context": "Выручка компании за шесть месяцев сократилась на 16,9% до 14 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335428.php"
-        }
-      ],
-      "published_at": "2026-07-31T19:02:00+03:00"
+      "published_at": "2026-08-01T12:54:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "nornickel-h1-msfo",
-      "headline": "Чистая прибыль Норникеля по МСФО в первом полугодии выросла в два раза до двух миллиардов долларов",
-      "context": "Выручка увеличилась на 28,4% до 8,3 миллиарда долларов, компания может вернуться к промежуточным дивидендам.",
+      "id": "rwb-ma-halt",
+      "headline": "Объединенная компания RWB приостановила инвестиционную программу и сделки слияния и поглощения",
+      "context": "Решение принято на фоне атак беспилотников на логистическую инфраструктуру компании.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335372.php"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106828"
-        }
-      ],
-      "published_at": "2026-07-31T17:12:00+03:00"
-    },
-    {
-      "id": "alrosa-h1-loss",
-      "headline": "Алроса получила чистый убыток по РСБУ в размере 10,67 миллиарда рублей за первое полугодие",
-      "context": "Годом ранее за аналогичный период компания зафиксировала чистую прибыль в размере 39 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335327.php"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106815"
-        }
-      ],
-      "published_at": "2026-07-31T16:34:00+03:00"
-    },
-    {
-      "id": "akron-dividend-approval",
-      "headline": "Акционеры Акрона утвердили выплату дивидендов из нераспределенной прибыли прошлых лет в размере 235 рублей",
-      "context": "Дата закрытия реестра для получения дивидендов установлена на 10 августа 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217884-aktsioneri-akrona"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848993"
-        }
-      ],
-      "published_at": "2026-07-31T12:00:00+03:00"
-    },
-    {
-      "id": "wildberries-freeze-investments",
-      "headline": "Объединенная компания Wildberries и Russ приостановила инвестиционную программу и сделки слияний и поглощений",
-      "context": "Решение принято на фоне продолжающихся атак беспилотных летательных аппаратов на логистическую инфраструктуру маркетплейса.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/07/31/1217847-rwb-zamorozila-investprogrammu"
-        },
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296188"
+          "url": "https://t.me/frank_media/23376"
         }
       ],
-      "published_at": "2026-07-31T09:11:00+03:00"
+      "published_at": "2026-07-31T18:00:00+03:00"
     },
     {
-      "id": "samolet-h1-profit",
-      "headline": "Чистая прибыль девелопера Самолет по РСБУ за первое полугодие сократилась в восемь раз",
-      "context": "Выручка компании за отчетный период выросла на 31,2% до 8,56 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335410.php"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1218048-pribil-samoleta"
-        }
-      ],
-      "published_at": "2026-07-31T18:21:00+03:00"
-    },
-    {
-      "id": "transneft-h1-profit",
-      "headline": "Чистая прибыль Транснефти по РСБУ за первое полугодие выросла на 3,2 процента",
-      "context": "Показатель составил 78,7 миллиарда рублей, также компания закрыла представительство в Словакии.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106812"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217999-transneft-pribil-rsbu"
-        }
-      ],
-      "published_at": "2026-07-31T16:29:00+03:00"
-    },
-    {
-      "id": "rosseti-h1-profit",
-      "headline": "Чистая прибыль компании Россети по РСБУ за первое полугодие снизилась на 18 процентов",
-      "context": "Показатель составил 64,73 миллиарда рублей против почти 79 миллиардов рублей годом ранее.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335326.php"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106814"
-        }
-      ],
-      "published_at": "2026-07-31T16:09:00+03:00"
-    },
-    {
-      "id": "mvideo-warehouse-protection",
-      "headline": "Маркетплейс М.Видео запускает программу защиты товаров на складах от непредвиденных обстоятельств",
-      "context": "Стоимость услуги составит 2,5% от залоговой цены товаров в месяц, мера покроет в том числе риски ударов беспилотников.",
+      "id": "jpmorgan-rosneft-sale",
+      "headline": "Американский банк JPMorgan полностью продал свою долю в акциях компании «Роснефть»",
+      "context": "Сделка прошла в рамках сокращения присутствия банка в российских активах.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296446"
+          "url": "https://t.me/frank_media/23376"
         }
       ],
-      "published_at": "2026-07-31T15:31:00+03:00"
+      "published_at": "2026-07-31T18:00:00+03:00"
     },
     {
-      "id": "aeroflot-h1-revenue",
-      "headline": "Выручка Аэрофлота по РСБУ за первое полугодие увеличилась на 4,4 процента до 365,6 миллиарда рублей",
-      "context": "Скорректированная чистая прибыль авиакомпании за второй квартал составила 6,4 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106792"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860056"
-        }
-      ],
-      "published_at": "2026-07-31T14:30:00+03:00"
-    },
-    {
-      "id": "ozon-warehouse-rebound",
-      "headline": "Акции Ozon отыграли падение после подтверждения безопасности логистического комплекса в Татарстане",
-      "context": "Ранее котировки снижались на 8,4% на фоне сообщений об атаке беспилотников на склад в Зеленодольске.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848970"
-        }
-      ],
-      "published_at": "2026-07-31T11:43:00+03:00"
-    },
-    {
-      "id": "sollers-h1-loss",
-      "headline": "Автопроизводитель Соллерс зафиксировал чистый убыток по РСБУ в первом полугодии",
-      "context": "Убыток составил 106,9 миллиона рублей против чистой прибыли в 3,9 миллиарда рублей годом ранее.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1218022-sollers-poluchil-ubitok"
-        }
-      ],
-      "published_at": "2026-07-31T11:13:00+03:00"
-    },
-    {
-      "id": "nspk-bigtech-interest",
-      "headline": "Российские технологические гиганты заинтересовались покупкой доли в Национальной системе платежных карт",
-      "context": "Переговоры о покупке ведут Wildberries, Ozon, Яндекс и МТС, имеющие собственные дочерние банки.",
+      "id": "bigtechs-mir-interest",
+      "headline": "Четыре крупнейших российских бигтеха заинтересовались покупкой акций оператора карт «Мир»",
+      "context": "Инвесторы рассматривают приобретение доли в Национальной системе платежных карт.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296326"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8859891"
+          "url": "https://t.me/frank_media/23376"
         }
       ],
-      "published_at": "2026-07-31T11:04:00+03:00"
+      "published_at": "2026-07-31T18:00:00+03:00"
     },
     {
-      "id": "seligdar-h1-loss",
-      "headline": "Селигдар получил чистый убыток по РСБУ в размере 4,3 миллиарда рублей за полугодие",
-      "context": "Годом ранее за аналогичный период золотодобывающая компания зафиксировала чистую прибыль.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/07/31/1217880-seligdar-pervom-polugodii"
-        }
-      ],
-      "published_at": "2026-07-31T10:42:00+03:00"
-    },
-    {
-      "id": "rspp-business-climate",
-      "headline": "Индекс бизнес-климата РСПП в июле опустился до минимального значения за последний год",
-      "context": "Сводный индекс деловой среды снизился до 42,4 пункта на фоне ухудшения настроений представителей компаний.",
+      "id": "ktk-pipeline-suspension",
+      "headline": "Каспийский трубопроводный консорциум временно приостановил работу нефтепровода для проведения работ",
+      "context": "При этом прием нефти от грузоотправителей в резервуары продолжается в штатном режиме.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8848662"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1106899"
         }
       ],
-      "published_at": "2026-07-31T07:01:00+03:00"
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "sber-cfo-ofz",
+      "headline": "Финансовый директор Сбербанка Тарас Скворцов заявил о нецелесообразности покупки ОФЗ",
+      "context": "По его словам, банк предпочитает сохранять уверенность в свободной ликвидности.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335562.php"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "rbi-russia-profits",
+      "headline": "Райффайзенбанк Интернациональ получил около трехсот миллионов евро прибыли в России",
+      "context": "Российский бизнес продолжает генерировать значительную часть прибыли группы за второй квартал.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23376"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "minfin-tax-control",
+      "headline": "Минфин России разработал меры по усилению контроля за налоговыми льготами резидентов",
+      "context": "Ведомство планирует ужесточить требования к получателям преференций в особых зонах.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23376"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "cb-anti-fraud",
+      "headline": "Банк России предложил расширить круг участников информационного обмена для борьбы с мошенничеством",
+      "context": "Регулятор хочет привлечь новые организации к противодействию сомнительным переводам.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23376"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "mvideo-warehouse-protection",
+      "headline": "Ритейлер «М.Видео» запускает специальную программу по защите товаров на своих складах",
+      "context": "Компания усиливает меры безопасности логистических объектов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23376"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
+    },
+    {
+      "id": "ingosstrakh-turkey",
+      "headline": "Страховая компания «Ингосстрах» готовится к закрытию своего представительства в Турции",
+      "context": "Решение связано с оптимизацией зарубежной сети присутствия группы.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23376"
+        }
+      ],
+      "published_at": "2026-07-31T18:00:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "week_ahead",
+    "title": "К новой неделе",
+    "context": "в воскресенье, накануне открытия недели",
     "last_trading_day": "2026-07-31"
   }
 }
