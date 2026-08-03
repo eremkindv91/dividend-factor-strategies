@@ -1,117 +1,165 @@
 {
   "date": "2026-08-03",
-  "generated_at": "2026-08-03T08:59:24+03:00",
+  "generated_at": "2026-08-03T11:04:50+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, золото дорожает, японский индекс Nikkei снижается.",
+  "external_backdrop": "Американские индексы закрылись ростом в пятницу, азиатские рынки торгуются разнонаправленно, в то время как нефть марки Brent резко снижается.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7489.72",
       "change_pct": "+0.70%",
-      "as_of": "закрытие 31.07",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25373.85",
       "change_pct": "+1.00%",
-      "as_of": "закрытие 31.07",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63615.39",
-      "change_pct": "-1.16%",
-      "as_of": "03.08",
+      "value": "63754.90",
+      "change_pct": "-0.94%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25886.06",
-      "change_pct": "+0.01%",
-      "as_of": "03.08",
+      "value": "25973.23",
+      "change_pct": "+0.34%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "90.12",
-      "change_pct": "+1.22%",
-      "as_of": "31.07",
+      "value": "83.35",
+      "change_pct": "-7.51%",
+      "as_of": "2026-08-03",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4115.20",
-      "change_pct": "+1.63%",
-      "as_of": "03.08",
+      "value": "4118.20",
+      "change_pct": "+1.71%",
+      "as_of": "2026-08-03",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2163.20",
-      "change_pct": "-0.35%",
-      "as_of": "03.08 00:19:25",
+      "value": "2257.49",
+      "change_pct": "+1.40%",
+      "as_of": "2026-08-03 11:04:46",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "882.61",
-      "change_pct": "+1.25%",
-      "as_of": "31.07 19:00:12",
+      "value": "894.94",
+      "change_pct": "+1.40%",
+      "as_of": "2026-08-03 11:04:47",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "79.90",
+      "change_pct": "+0.02%",
+      "as_of": "2026-08-03 11:04:49",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "11.81",
+      "change_pct": "-0.01%",
+      "as_of": "2026-08-03 11:04:49",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-iran-negotiations-trump",
-      "headline": "Дональд Трамп анонсировал начало прямых переговоров США и Ирана по Ормузскому проливу",
-      "context": "Президент США отменил планировавшиеся удары по Ирану ради достижения сделки, что привело к снижению цен на нефть Brent.",
-      "category": "geopolitics",
+      "id": "wildberries-warehouse-attacks",
+      "headline": "Склады Wildberries в Самарской и Владимирской областях загорелись в результате атак беспилотников",
+      "context": "По оценкам экспертов, маркетплейс потерял от 17% до 22% своей складской инфраструктуры в июле.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/02/08/2026/6a6f15599a79475f1120a2b0"
+          "name": "Forbes",
+          "url": "https://t.me/if_market_news/84174"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1107119"
         }
       ],
-      "published_at": "2026-08-03T00:54:00+03:00"
+      "published_at": "2026-08-03T10:16:00+03:00"
     },
     {
-      "id": "opec-increase-production-september",
-      "headline": "Страны ОПЕК+ договорились увеличить добычу нефти в сентябре на 188 тысяч баррелей в сутки",
-      "context": "Россия увеличит свою квоту на 62 тысячи баррелей в сутки до 9,949 млн баррелей в сутки, завершая цикл постепенного отказа от добровольных сокращений.",
-      "category": "markets",
+      "id": "t-technologies-dividend-approval",
+      "headline": "Акционеры Т-Технологий одобрили выплату дивидендов за первый квартал в размере 4,6 рубля на акцию",
+      "context": "Реестр акционеров для получения выплат закроется 10 августа 2026 года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860901"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296529"
         }
       ],
-      "published_at": "2026-08-02T15:01:00+03:00"
+      "published_at": "2026-08-03T10:00:00+03:00"
     },
     {
-      "id": "wildberries-warehouses-drone-attacks",
-      "headline": "Склады маркетплейса Wildberries в Самарской и Владимирской областях подверглись атакам беспилотников",
-      "context": "На логистических объектах произошли возгорания, компания перестроила цепочки поставок для минимизации потерь.",
+      "id": "opec-production-increase",
+      "headline": "Страны ОПЕК+ договорились об увеличении добычи нефти на 188 тысяч баррелей в сутки с сентября",
+      "context": "Россия увеличит свою квоту на добычу нефти на 62 тысячи баррелей в сутки.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1107022"
+        }
+      ],
+      "published_at": "2026-08-02T14:49:00+03:00"
+    },
+    {
+      "id": "lenta-q2-results",
+      "headline": "Выручка ритейлера Лента во втором квартале выросла на 28,8 процента при снижении чистой прибыли",
+      "context": "Чистая прибыль компании за отчетный период сократилась на 18,8% в годовом выражении до 7,99 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861129"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1335873.php"
         }
       ],
-      "published_at": "2026-08-03T08:09:00+03:00"
+      "published_at": "2026-08-03T10:26:00+03:00"
     },
     {
-      "id": "vtb-securitization-consumer-loans",
-      "headline": "ВТБ планирует рекордный десятитраншевый выпуск облигаций под обеспечение потребительскими кредитами",
-      "context": "Многотраншевая структура позволит банку гибко подстроиться под интересы различных групп инвесторов в условиях высоких ставок.",
+      "id": "md-medical-q2-results",
+      "headline": "Выручка группы МД Медикал во втором квартале выросла на 25,9 процента до 13 миллиардов рублей",
+      "context": "За первое полугодие показатель увеличился на 28,8% в годовом выражении, достигнув 24,8 млрд рублей.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал Мозговик",
+          "url": "https://t.me/mozgovikresearch/3772"
+        }
+      ],
+      "published_at": "2026-08-03T09:12:00+03:00"
+    },
+    {
+      "id": "vtb-securitization-bonds",
+      "headline": "ВТБ планирует выпустить рекордные десять траншей облигаций под портфель потребительских кредитов",
+      "context": "Разделение выпуска на десять траншей позволит банку привлечь более широкий круг инвесторов.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
@@ -120,75 +168,45 @@
           "url": "https://www.kommersant.ru/doc/8861072"
         }
       ],
-      "published_at": "2026-08-03T02:47:00+03:00"
-    },
-    {
-      "id": "cb-digital-depositary-requirements",
-      "headline": "Банк России завершил сбор предложений к проекту требований для цифровых депозитариев",
-      "context": "Регулятор планирует установить минимальный капитал для таких организаций в размере от 50 млн до 250 млн рублей.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861071"
-        }
-      ],
-      "published_at": "2026-08-03T02:41:00+03:00"
+      "published_at": "2026-08-03T09:02:00+03:00"
     },
     {
       "id": "us-japan-fx-intervention",
-      "headline": "США и Япония провели совместную валютную интервенцию для поддержки курса иены",
-      "context": "Министерство финансов Японии объявило о первой за 15 лет совместной интервенции, направленной на укрепление национальной валюты.",
-      "category": "markets",
-      "investment_relevant": true,
+      "headline": "США и Япония подтвердили проведение совместных валютных интервенций для поддержки курса иены",
+      "context": "Президент США Дональд Трамп заявил о готовности Вашингтона оказывать помощь Токио на валютном рынке.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1107091"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/08/03/1218310-ssha-i-yaponiya-podtverdili"
         }
       ],
-      "published_at": "2026-08-03T02:34:00+03:00"
+      "published_at": "2026-08-03T08:51:00+03:00"
     },
     {
-      "id": "astrazeneca-bristol-myers-squibb-merger",
-      "headline": "AstraZeneca изучает возможность приобретения американского фармгиганта Bristol Myers Squibb",
-      "context": "Объем потенциальной сделки по слиянию может превысить 400 млрд долларов, создав одного из крупнейших производителей в мире.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861064"
-        }
-      ],
-      "published_at": "2026-08-03T01:57:00+03:00"
-    },
-    {
-      "id": "mkb-merger-dalnevostochny-bank",
+      "id": "mkb-dalnevostochny-bank-merger",
       "headline": "Московский кредитный банк завершил процедуру присоединения Дальневосточного банка",
-      "context": "В результате реорганизации объединенная сеть банка теперь насчитывает более ста офисов по всей России.",
+      "context": "В результате реорганизации клиентская база и ИТ-инфраструктура банков объединены в единую сеть.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861070"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296487"
         }
       ],
-      "published_at": "2026-08-03T02:53:00+03:00"
+      "published_at": "2026-08-03T07:49:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "premarket",
-    "title": "Сводка до открытия",
-    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-07-31"
   }
 }
