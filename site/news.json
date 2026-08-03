@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-02",
-  "generated_at": "2026-08-02T18:37:29+03:00",
+  "date": "2026-08-03",
+  "generated_at": "2026-08-03T08:59:24+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и цены на нефть Brent закрылись ростом в пятницу.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, золото дорожает, японский индекс Nikkei снижается.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,310 +20,175 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "64362.02",
-      "change_pct": "+4.03%",
-      "as_of": "закрытие 31.07",
+      "value": "63615.39",
+      "change_pct": "-1.16%",
+      "as_of": "03.08",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25884.43",
-      "change_pct": "+0.10%",
-      "as_of": "закрытие 31.07",
+      "value": "25886.06",
+      "change_pct": "+0.01%",
+      "as_of": "03.08",
       "group": "global_equity"
     },
     {
       "name": "Brent",
       "value": "90.12",
       "change_pct": "+1.22%",
-      "as_of": "закрытие 31.07",
+      "as_of": "31.07",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4107.00",
-      "change_pct": "+0.17%",
-      "as_of": "закрытие 31.07",
+      "value": "4115.20",
+      "change_pct": "+1.63%",
+      "as_of": "03.08",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2226.36",
-      "change_pct": "+0.75%",
-      "as_of": "закрытие 31.07",
+      "value": "2163.20",
+      "change_pct": "-0.35%",
+      "as_of": "03.08 00:19:25",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
       "value": "882.61",
       "change_pct": "+1.25%",
-      "as_of": "закрытие 31.07",
+      "as_of": "31.07 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "79.46",
-      "change_pct": "-0.81%",
-      "as_of": "закрытие 31.07",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "11.73",
-      "change_pct": "-0.15%",
-      "as_of": "закрытие 31.07",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "opec-increase-production",
-      "headline": "Страны ОПЕК+ договорились увеличить добычу нефти на сто восемьдесят восемь тысяч баррелей",
-      "context": "Россия увеличит свою квоту на добычу нефти в сентябре на 62 тысячи баррелей в сутки.",
+      "id": "us-iran-negotiations-trump",
+      "headline": "Дональд Трамп анонсировал начало прямых переговоров США и Ирана по Ормузскому проливу",
+      "context": "Президент США отменил планировавшиеся удары по Ирану ради достижения сделки, что привело к снижению цен на нефть Brent.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/02/08/2026/6a6f15599a79475f1120a2b0"
+        }
+      ],
+      "published_at": "2026-08-03T00:54:00+03:00"
+    },
+    {
+      "id": "opec-increase-production-september",
+      "headline": "Страны ОПЕК+ договорились увеличить добычу нефти в сентябре на 188 тысяч баррелей в сутки",
+      "context": "Россия увеличит свою квоту на 62 тысячи баррелей в сутки до 9,949 млн баррелей в сутки, завершая цикл постепенного отказа от добровольных сокращений.",
       "category": "markets",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1107034"
-        }
-      ],
-      "published_at": "2026-08-02T14:49:00+03:00"
-    },
-    {
-      "id": "fesco-ship-sunk",
-      "headline": "Теплоход «Янина» группы FESCO затонул в Черном море после атаки беспилотников",
-      "context": "Все 17 членов экипажа спасены, транспортная группа продолжает работу в штатном режиме.",
-      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1106921"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860901"
         }
       ],
-      "published_at": "2026-08-01T12:39:00+03:00"
+      "published_at": "2026-08-02T15:01:00+03:00"
     },
     {
-      "id": "trump-cancels-iran-strikes",
-      "headline": "Дональд Трамп отменил запланированные удары по Ирану ради заключения мирного соглашения",
-      "context": "Ранее сообщалось о подготовке массированных ударов по энергетической инфраструктуре страны.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1106986"
-        }
-      ],
-      "published_at": "2026-08-02T07:19:00+03:00"
-    },
-    {
-      "id": "moscow-restaurant-explosion",
-      "headline": "В ресторане на Кудринской площади в Москве произошел взрыв самодельного устройства",
-      "context": "По данным Национального антитеррористического комитета, погибли три человека, пострадал 21 человек.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/moscow/1106973"
-        }
-      ],
-      "published_at": "2026-08-01T23:24:00+03:00"
-    },
-    {
-      "id": "wildberries-warehouse-fire",
-      "headline": "На складе Wildberries в Самарской области произошел пожар после атаки беспилотников",
-      "context": "Погибших и пострадавших в результате инцидента на логистическом объекте нет.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1106989"
-        }
-      ],
-      "published_at": "2026-08-02T08:29:00+03:00"
-    },
-    {
-      "id": "freedom-holding-turkishbank",
-      "headline": "Дочерняя компания Freedom Holding завершила сделку по покупке турецкого банка TurkishBank",
-      "context": "Холдинг официально закрыл приобретение финансовой организации в Турции.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106922"
-        }
-      ],
-      "published_at": "2026-08-01T12:54:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "rwb-ma-halt",
-      "headline": "Объединенная компания RWB приостановила инвестиционную программу и сделки слияния и поглощения",
-      "context": "Решение принято на фоне атак беспилотников на логистическую инфраструктуру компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "jpmorgan-rosneft-sale",
-      "headline": "Американский банк JPMorgan полностью продал свою долю в акциях компании «Роснефть»",
-      "context": "Сделка прошла в рамках сокращения присутствия банка в российских активах.",
+      "id": "wildberries-warehouses-drone-attacks",
+      "headline": "Склады маркетплейса Wildberries в Самарской и Владимирской областях подверглись атакам беспилотников",
+      "context": "На логистических объектах произошли возгорания, компания перестроила цепочки поставок для минимизации потерь.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861129"
         }
       ],
-      "published_at": "2026-07-31T18:00:00+03:00"
+      "published_at": "2026-08-03T08:09:00+03:00"
     },
     {
-      "id": "bigtechs-mir-interest",
-      "headline": "Четыре крупнейших российских бигтеха заинтересовались покупкой акций оператора карт «Мир»",
-      "context": "Инвесторы рассматривают приобретение доли в Национальной системе платежных карт.",
+      "id": "vtb-securitization-consumer-loans",
+      "headline": "ВТБ планирует рекордный десятитраншевый выпуск облигаций под обеспечение потребительскими кредитами",
+      "context": "Многотраншевая структура позволит банку гибко подстроиться под интересы различных групп инвесторов в условиях высоких ставок.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861072"
         }
       ],
-      "published_at": "2026-07-31T18:00:00+03:00"
+      "published_at": "2026-08-03T02:47:00+03:00"
     },
     {
-      "id": "ktk-pipeline-suspension",
-      "headline": "Каспийский трубопроводный консорциум временно приостановил работу нефтепровода для проведения работ",
-      "context": "При этом прием нефти от грузоотправителей в резервуары продолжается в штатном режиме.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1106899"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "sber-cfo-ofz",
-      "headline": "Финансовый директор Сбербанка Тарас Скворцов заявил о нецелесообразности покупки ОФЗ",
-      "context": "По его словам, банк предпочитает сохранять уверенность в свободной ликвидности.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335562.php"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "rbi-russia-profits",
-      "headline": "Райффайзенбанк Интернациональ получил около трехсот миллионов евро прибыли в России",
-      "context": "Российский бизнес продолжает генерировать значительную часть прибыли группы за второй квартал.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "minfin-tax-control",
-      "headline": "Минфин России разработал меры по усилению контроля за налоговыми льготами резидентов",
-      "context": "Ведомство планирует ужесточить требования к получателям преференций в особых зонах.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "cb-anti-fraud",
-      "headline": "Банк России предложил расширить круг участников информационного обмена для борьбы с мошенничеством",
-      "context": "Регулятор хочет привлечь новые организации к противодействию сомнительным переводам.",
+      "id": "cb-digital-depositary-requirements",
+      "headline": "Банк России завершил сбор предложений к проекту требований для цифровых депозитариев",
+      "context": "Регулятор планирует установить минимальный капитал для таких организаций в размере от 50 млн до 250 млн рублей.",
       "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 3,
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861071"
         }
       ],
-      "published_at": "2026-07-31T18:00:00+03:00"
+      "published_at": "2026-08-03T02:41:00+03:00"
     },
     {
-      "id": "mvideo-warehouse-protection",
-      "headline": "Ритейлер «М.Видео» запускает специальную программу по защите товаров на своих складах",
-      "context": "Компания усиливает меры безопасности логистических объектов.",
+      "id": "us-japan-fx-intervention",
+      "headline": "США и Япония провели совместную валютную интервенцию для поддержки курса иены",
+      "context": "Министерство финансов Японии объявило о первой за 15 лет совместной интервенции, направленной на укрепление национальной валюты.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1107091"
+        }
+      ],
+      "published_at": "2026-08-03T02:34:00+03:00"
+    },
+    {
+      "id": "astrazeneca-bristol-myers-squibb-merger",
+      "headline": "AstraZeneca изучает возможность приобретения американского фармгиганта Bristol Myers Squibb",
+      "context": "Объем потенциальной сделки по слиянию может превысить 400 млрд долларов, создав одного из крупнейших производителей в мире.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861064"
+        }
+      ],
+      "published_at": "2026-08-03T01:57:00+03:00"
+    },
+    {
+      "id": "mkb-merger-dalnevostochny-bank",
+      "headline": "Московский кредитный банк завершил процедуру присоединения Дальневосточного банка",
+      "context": "В результате реорганизации объединенная сеть банка теперь насчитывает более ста офисов по всей России.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861070"
         }
       ],
-      "published_at": "2026-07-31T18:00:00+03:00"
-    },
-    {
-      "id": "ingosstrakh-turkey",
-      "headline": "Страховая компания «Ингосстрах» готовится к закрытию своего представительства в Турции",
-      "context": "Решение связано с оптимизацией зарубежной сети присутствия группы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23376"
-        }
-      ],
-      "published_at": "2026-07-31T18:00:00+03:00"
+      "published_at": "2026-08-03T02:53:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
     "last_trading_day": "2026-07-31"
   }
 }
