@@ -1,104 +1,100 @@
 {
   "date": "2026-08-03",
-  "generated_at": "2026-08-03T11:04:50+03:00",
+  "generated_at": "2026-08-03T20:18:28+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом в пятницу, азиатские рынки торгуются разнонаправленно, в то время как нефть марки Brent резко снижается.",
+  "external_backdrop": "Американские фондовые индексы и золото выросли, котировки нефти Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7489.72",
-      "change_pct": "+0.70%",
-      "as_of": "2026-07-31",
+      "value": "7590.77",
+      "change_pct": "+1.35%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25373.85",
-      "change_pct": "+1.00%",
-      "as_of": "2026-07-31",
+      "value": "25904.20",
+      "change_pct": "+2.09%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63754.90",
-      "change_pct": "-0.94%",
-      "as_of": "2026-08-03",
+      "value": "64362.02",
+      "change_pct": "+4.03%",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25973.23",
-      "change_pct": "+0.34%",
-      "as_of": "2026-08-03",
+      "value": "25884.43",
+      "change_pct": "+0.10%",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "83.35",
-      "change_pct": "-7.51%",
+      "value": "83.82",
+      "change_pct": "-6.99%",
       "as_of": "2026-08-03",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4118.20",
-      "change_pct": "+1.71%",
+      "value": "4089.90",
+      "change_pct": "+1.01%",
       "as_of": "2026-08-03",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2257.49",
-      "change_pct": "+1.40%",
-      "as_of": "2026-08-03 11:04:46",
+      "value": "2262.75",
+      "change_pct": "+1.63%",
+      "as_of": "2026-08-03 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "894.94",
-      "change_pct": "+1.40%",
-      "as_of": "2026-08-03 11:04:47",
+      "value": "890.25",
+      "change_pct": "+0.87%",
+      "as_of": "2026-08-03 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "79.90",
-      "change_pct": "+0.02%",
-      "as_of": "2026-08-03 11:04:49",
+      "value": "80.98",
+      "change_pct": "+0.16%",
+      "as_of": "2026-08-03 20:18:26",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.81",
-      "change_pct": "-0.01%",
-      "as_of": "2026-08-03 11:04:49",
+      "value": "11.94",
+      "change_pct": "+0.08%",
+      "as_of": "2026-08-03 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "wildberries-warehouse-attacks",
-      "headline": "Склады Wildberries в Самарской и Владимирской областях загорелись в результате атак беспилотников",
-      "context": "По оценкам экспертов, маркетплейс потерял от 17% до 22% своей складской инфраструктуры в июле.",
-      "category": "corporate",
+      "id": "cb-macroprudential-add-ons",
+      "headline": "Банк России вводит макропруденциальные надбавки по вложениям банков в облигации под потребительские кредиты",
+      "context": "Новые требования вступят в силу 4 сентября 2026 года и не затронут облигации, обеспеченные ипотекой.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Forbes",
-          "url": "https://t.me/if_market_news/84174"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1107119"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296636"
         }
       ],
-      "published_at": "2026-08-03T10:16:00+03:00"
+      "published_at": "2026-08-03T14:42:00+03:00"
     },
     {
       "id": "t-technologies-dividend-approval",
-      "headline": "Акционеры Т-Технологий одобрили выплату дивидендов за первый квартал в размере 4,6 рубля на акцию",
-      "context": "Реестр акционеров для получения выплат закроется 10 августа 2026 года.",
+      "headline": "Акционеры компании Т-Технологии одобрили выплату дивидендов за первый квартал 2026 года",
+      "context": "Размер выплаты составит 4,6 рубля на акцию, а закрытие реестра акционеров запланировано на 10 августа 2026 года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -112,69 +108,69 @@
     },
     {
       "id": "opec-production-increase",
-      "headline": "Страны ОПЕК+ договорились об увеличении добычи нефти на 188 тысяч баррелей в сутки с сентября",
-      "context": "Россия увеличит свою квоту на добычу нефти на 62 тысячи баррелей в сутки.",
+      "headline": "Страны ОПЕК+ приняли решение увеличить квоты на добычу нефти в сентябре",
+      "context": "Семь государств-участников соглашения повысят добычу на 188 тысяч баррелей в сутки, из которых доля России составит 62 тысячи баррелей.",
       "category": "macro",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1107022"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8860901"
         }
       ],
-      "published_at": "2026-08-02T14:49:00+03:00"
+      "published_at": "2026-08-02T14:45:00+03:00"
     },
     {
-      "id": "lenta-q2-results",
-      "headline": "Выручка ритейлера Лента во втором квартале выросла на 28,8 процента при снижении чистой прибыли",
-      "context": "Чистая прибыль компании за отчетный период сократилась на 18,8% в годовом выражении до 7,99 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1335873.php"
-        }
-      ],
-      "published_at": "2026-08-03T10:26:00+03:00"
-    },
-    {
-      "id": "md-medical-q2-results",
-      "headline": "Выручка группы МД Медикал во втором квартале выросла на 25,9 процента до 13 миллиардов рублей",
-      "context": "За первое полугодие показатель увеличился на 28,8% в годовом выражении, достигнув 24,8 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал Мозговик",
-          "url": "https://t.me/mozgovikresearch/3772"
-        }
-      ],
-      "published_at": "2026-08-03T09:12:00+03:00"
-    },
-    {
-      "id": "vtb-securitization-bonds",
-      "headline": "ВТБ планирует выпустить рекордные десять траншей облигаций под портфель потребительских кредитов",
-      "context": "Разделение выпуска на десять траншей позволит банку привлечь более широкий круг инвесторов.",
-      "category": "banks",
+      "id": "moex-july-trading-volume",
+      "headline": "Объем торгов на рынках Московской биржи в июле вырос на сорок один процент",
+      "context": "Совокупный показатель достиг 210,5 триллиона рублей по сравнению со 150,3 триллиона рублей в июле прошлого года.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861072"
+          "url": "https://www.kommersant.ru/doc/8861690"
         }
       ],
-      "published_at": "2026-08-03T09:02:00+03:00"
+      "published_at": "2026-08-03T17:54:00+03:00"
     },
     {
-      "id": "us-japan-fx-intervention",
-      "headline": "США и Япония подтвердили проведение совместных валютных интервенций для поддержки курса иены",
-      "context": "Президент США Дональд Трамп заявил о готовности Вашингтона оказывать помощь Токио на валютном рынке.",
-      "category": "macro",
+      "id": "segezha-chinese-partners-project",
+      "headline": "Сегежа привлечет китайских партнеров к строительству нового биохимического комплекса в Сибири",
+      "context": "На фоне согласования проекта и рыночных спекуляций акции лесопромышленного холдинга выросли более чем на 20 процентов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/08/03/1218372-segezha-privlechet"
+        }
+      ],
+      "published_at": "2026-08-03T11:47:00+03:00"
+    },
+    {
+      "id": "lenta-q2-financial-results",
+      "headline": "Выручка группы Лента во втором квартале выросла на двадцать восемь процентов",
+      "context": "Чистая прибыль ритейлера за отчетный период сократилась на 18,8 процента в годовом выражении до 8 миллиардов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861270"
+        }
+      ],
+      "published_at": "2026-08-03T11:35:00+03:00"
+    },
+    {
+      "id": "us-japan-currency-intervention",
+      "headline": "США и Япония подтвердили проведение совместной интервенции для поддержки курса иены",
+      "context": "Министерство финансов Японии объявило о первой за 15 лет совместной операции на валютном рынке для укрепления национальной валюты.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
@@ -186,27 +182,27 @@
       "published_at": "2026-08-03T08:51:00+03:00"
     },
     {
-      "id": "mkb-dalnevostochny-bank-merger",
-      "headline": "Московский кредитный банк завершил процедуру присоединения Дальневосточного банка",
-      "context": "В результате реорганизации клиентская база и ИТ-инфраструктура банков объединены в единую сеть.",
-      "category": "banks",
-      "investment_relevant": true,
+      "id": "wildberries-warehouse-attack",
+      "headline": "Складской комплекс Wildberries во Владимирской области загорелся в результате атаки беспилотников",
+      "context": "Пожар локализован на площади 100 тысяч квадратных метров, компания перестроила логистические цепочки для доставки заказов.",
+      "category": "corporate",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296487"
+          "url": "https://frankmedia.ru/296496"
         }
       ],
-      "published_at": "2026-08-03T07:49:00+03:00"
+      "published_at": "2026-08-03T08:14:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-07-31"
   }
 }
