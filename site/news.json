@@ -1,49 +1,49 @@
 {
-  "date": "2026-08-03",
-  "generated_at": "2026-08-03T20:18:28+03:00",
+  "date": "2026-08-04",
+  "generated_at": "2026-08-04T08:33:44+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы и золото выросли, котировки нефти Brent снизились.",
+  "external_backdrop": "Азиатские индексы снижаются, нефть марки Brent упала более чем на 5%, золото дорожает.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7590.77",
-      "change_pct": "+1.35%",
-      "as_of": "2026-08-03",
+      "value": "7489.72",
+      "change_pct": "+0.70%",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25904.20",
-      "change_pct": "+2.09%",
-      "as_of": "2026-08-03",
+      "value": "25373.85",
+      "change_pct": "+1.00%",
+      "as_of": "2026-07-31",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64362.02",
-      "change_pct": "+4.03%",
-      "as_of": "2026-07-31",
+      "value": "63446.61",
+      "change_pct": "-1.42%",
+      "as_of": "2026-08-04",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25884.43",
-      "change_pct": "+0.10%",
-      "as_of": "2026-07-31",
+      "value": "25819.27",
+      "change_pct": "-0.25%",
+      "as_of": "2026-08-04",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "83.82",
-      "change_pct": "-6.99%",
-      "as_of": "2026-08-03",
+      "value": "85.09",
+      "change_pct": "-5.58%",
+      "as_of": "2026-08-04",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4089.90",
-      "change_pct": "+1.01%",
-      "as_of": "2026-08-03",
+      "value": "4117.20",
+      "change_pct": "+1.68%",
+      "as_of": "2026-08-04",
       "group": "commodity"
     },
     {
@@ -59,27 +59,105 @@
       "change_pct": "+0.87%",
       "as_of": "2026-08-03 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "80.98",
-      "change_pct": "+0.16%",
-      "as_of": "2026-08-03 20:18:26",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "11.94",
-      "change_pct": "+0.08%",
-      "as_of": "2026-08-03 19:15:00",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-macroprudential-add-ons",
-      "headline": "Банк России вводит макропруденциальные надбавки по вложениям банков в облигации под потребительские кредиты",
-      "context": "Новые требования вступят в силу 4 сентября 2026 года и не затронут облигации, обеспеченные ипотекой.",
+      "id": "usa-sanctions-ru-military",
+      "headline": "США ввели новые санкции против Сухопутных войск и структур Министерства обороны РФ",
+      "context": "Ограничения введены на основании американского закона о нераспространении оружия массового уничтожения.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/08/04/1218608-ssha-vveli-sanktsii"
+        }
+      ],
+      "published_at": "2026-08-04T06:56:00+03:00"
+    },
+    {
+      "id": "ru-banks-ssl-certificates",
+      "headline": "Сайты крупнейших российских банков перестали открываться в иностранных браузерах из-за отзыва SSL-сертификатов",
+      "context": "Проблема затронула Сбербанк, ВТБ, Альфа-банк, Россельхозбанк и банк Уралсиб.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296736"
+        }
+      ],
+      "published_at": "2026-08-04T07:32:00+03:00"
+    },
+    {
+      "id": "moex-demotes-lenta-fesh",
+      "headline": "Московская биржа с 12 августа понизит уровень листинга акций Ленты и ДВМП до третьего",
+      "context": "Решение принято из-за несоблюдения эмитентами требований к корпоративному управлению.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861804"
+        }
+      ],
+      "published_at": "2026-08-03T20:49:00+03:00"
+    },
+    {
+      "id": "fsb-sorm-crypto-gaming",
+      "headline": "ФСБ планирует обязать криптовалютные биржи и игровые платформы устанавливать системы СОРМ",
+      "context": "Система позволит спецслужбам получать удаленный доступ к пользовательским данным и интернет-трафику.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296731"
+        }
+      ],
+      "published_at": "2026-08-03T20:55:00+03:00"
+    },
+    {
+      "id": "bpla-attacks-ru-regions",
+      "headline": "Силы ПВО отразили массовые атаки беспилотников в Московской, Ленинградской и Ростовской областях",
+      "context": "В Подмосковье погибли пять человек, в Ленобласти повреждена складская зона Красный Бор.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a6d70ab9a794767e96b8c15"
+        }
+      ],
+      "published_at": "2026-08-04T08:02:00+03:00"
+    },
+    {
+      "id": "rosnano-h1-net-profit-drops",
+      "headline": "Чистая прибыль Роснано по РСБУ в первом полугодии сократилась почти в 12 раз",
+      "context": "Показатель составил 71,7 млн рублей против аналогичного периода прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861833"
+        }
+      ],
+      "published_at": "2026-08-03T21:49:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "cb-macro-additions-securitization",
+      "headline": "Банк России с 4 сентября распространит макропруденциальные надбавки на вложения банков в облигации под потребкредиты",
+      "context": "Новые требования призваны закрыть лазейку по обходу надбавок через секьюритизацию портфелей.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -92,9 +170,24 @@
       "published_at": "2026-08-03T14:42:00+03:00"
     },
     {
-      "id": "t-technologies-dividend-approval",
-      "headline": "Акционеры компании Т-Технологии одобрили выплату дивидендов за первый квартал 2026 года",
-      "context": "Размер выплаты составит 4,6 рубля на акцию, а закрытие реестра акционеров запланировано на 10 августа 2026 года.",
+      "id": "fas-case-against-apple",
+      "headline": "Федеральная антимонопольная служба возбудила дело против Apple за отказ предустанавливать российские приложения",
+      "context": "Речь идет о непредустановке отечественного магазина приложений RuStore и мессенджера Макс.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861672"
+        }
+      ],
+      "published_at": "2026-08-03T17:29:00+03:00"
+    },
+    {
+      "id": "t-technologies-q1-dividends-approved",
+      "headline": "Акционеры Т-Технологий одобрили выплату дивидендов за первый квартал в размере 4,6 рубля на акцию",
+      "context": "Общая сумма выплат составит 12,3 млрд рублей с закрытием реестра 10 августа.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -107,102 +200,146 @@
       "published_at": "2026-08-03T10:00:00+03:00"
     },
     {
-      "id": "opec-production-increase",
-      "headline": "Страны ОПЕК+ приняли решение увеличить квоты на добычу нефти в сентябре",
-      "context": "Семь государств-участников соглашения повысят добычу на 188 тысяч баррелей в сутки, из которых доля России составит 62 тысячи баррелей.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8860901"
-        }
-      ],
-      "published_at": "2026-08-02T14:45:00+03:00"
-    },
-    {
       "id": "moex-july-trading-volume",
-      "headline": "Объем торгов на рынках Московской биржи в июле вырос на сорок один процент",
-      "context": "Совокупный показатель достиг 210,5 триллиона рублей по сравнению со 150,3 триллиона рублей в июле прошлого года.",
+      "headline": "Совокупный объем торгов на рынках Московской биржи в июле вырос на 40% до 210,5 трлн рублей",
+      "context": "Площадка зафиксировала рекордный показатель по сравнению с аналогичным периодом прошлого года.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861690"
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/359521"
         }
       ],
-      "published_at": "2026-08-03T17:54:00+03:00"
+      "published_at": "2026-08-03T19:09:00+03:00"
     },
     {
-      "id": "segezha-chinese-partners-project",
-      "headline": "Сегежа привлечет китайских партнеров к строительству нового биохимического комплекса в Сибири",
-      "context": "На фоне согласования проекта и рыночных спекуляций акции лесопромышленного холдинга выросли более чем на 20 процентов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/08/03/1218372-segezha-privlechet"
-        }
-      ],
-      "published_at": "2026-08-03T11:47:00+03:00"
-    },
-    {
-      "id": "lenta-q2-financial-results",
-      "headline": "Выручка группы Лента во втором квартале выросла на двадцать восемь процентов",
-      "context": "Чистая прибыль ритейлера за отчетный период сократилась на 18,8 процента в годовом выражении до 8 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861270"
-        }
-      ],
-      "published_at": "2026-08-03T11:35:00+03:00"
-    },
-    {
-      "id": "us-japan-currency-intervention",
-      "headline": "США и Япония подтвердили проведение совместной интервенции для поддержки курса иены",
-      "context": "Министерство финансов Японии объявило о первой за 15 лет совместной операции на валютном рынке для укрепления национальной валюты.",
-      "category": "cb_policy",
+      "id": "ru-cash-demand-july-peak",
+      "headline": "Объем наличных денег в обращении в России в июле увеличился на рекордные 643,4 млрд рублей",
+      "context": "Показатель вырос на 43,1% по сравнению с июнем, достигнув максимума с начала года.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/08/03/1218310-ssha-i-yaponiya-podtverdili"
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/359458"
         }
       ],
-      "published_at": "2026-08-03T08:51:00+03:00"
+      "published_at": "2026-08-03T14:19:00+03:00"
     },
     {
-      "id": "wildberries-warehouse-attack",
-      "headline": "Складской комплекс Wildberries во Владимирской области загорелся в результате атаки беспилотников",
-      "context": "Пожар локализован на площади 100 тысяч квадратных метров, компания перестроила логистические цепочки для доставки заказов.",
+      "id": "ru-large-business-tax-fines",
+      "headline": "Крупные российские компании столкнулись со штрафами и доначислениями по налогам сопоставимыми с их выручкой",
+      "context": "ФНС за первый квартал доначислила крупному бизнесу 9,4 млрд рублей, что в восемь раз больше прошлого года.",
       "category": "corporate",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296496"
+          "url": "https://frankmedia.ru/296517"
         }
       ],
-      "published_at": "2026-08-03T08:14:00+03:00"
+      "published_at": "2026-08-03T10:08:00+03:00"
+    },
+    {
+      "id": "cb-dissatisfied-bank-reserves",
+      "headline": "Банк России выявил случаи занижения рисков крупными банками и требует досоздания резервов по кредитам",
+      "context": "Регулятор проводит работу с кредитными организациями и готовит изменения в правила резервирования.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296712"
+        }
+      ],
+      "published_at": "2026-08-03T18:32:00+03:00"
+    },
+    {
+      "id": "lenta-h1-earnings-report",
+      "headline": "Выручка группы Лента за первое полугодие выросла на 26,2% при снижении чистой прибыли на 17,8%",
+      "context": "Давление на рентабельность ритейлера оказали интеграция новых активов и замедление потребительского спроса.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/03/1218333-viruchka-lenti"
+        }
+      ],
+      "published_at": "2026-08-03T10:24:00+03:00"
+    },
+    {
+      "id": "ms21-first-flight-domestic-systems",
+      "headline": "Первый серийный полностью импортозамещенный пассажирский самолет МС-21-310 совершил первый полет в Иркутске",
+      "context": "На этом фоне акции Объединенной авиастроительной корпорации на Мосбирже выросли на 9%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861273"
+        }
+      ],
+      "published_at": "2026-08-03T11:07:00+03:00"
+    },
+    {
+      "id": "eurotrans-technical-default",
+      "headline": "Компания ЕвроТранс допустила очередной технический дефолт не сумев выплатить купон по облигациям",
+      "context": "Эмитент не смог своевременно перечислить средства держателям еще одного выпуска долговых бумаг.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/if_market_news/84173"
+        }
+      ],
+      "published_at": "2026-08-03T09:42:00+03:00"
+    },
+    {
+      "id": "element-h1-net-profit-halved",
+      "headline": "Выручка крупнейшего российского микроэлектронного холдинга Элемент по РСБУ за полугодие упала на 46%",
+      "context": "Показатель составил 788,8 млн рублей против 1,4 млрд рублей за аналогичный период прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861722"
+        }
+      ],
+      "published_at": "2026-08-03T18:23:00+03:00"
+    },
+    {
+      "id": "kvant-tv-manufacturer-bankrupt",
+      "headline": "Арбитражный суд Москвы признал банкротом производителя российских телевизоров группу компаний Квант",
+      "context": "Иск о несостоятельности юрлица был подан структурой ритейлера DNS.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861813"
+        }
+      ],
+      "published_at": "2026-08-03T20:58:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-07-31"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-08-03"
   }
 }
