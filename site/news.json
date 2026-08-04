@@ -1,182 +1,197 @@
 {
   "date": "2026-08-04",
-  "generated_at": "2026-08-04T10:27:00+03:00",
+  "generated_at": "2026-08-04T20:01:22+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом, азиатские рынки снижаются, нефть Brent торгуется в минусе, золото дорожает.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7489.72",
-      "change_pct": "+0.70%",
-      "as_of": "2026-07-31",
+      "value": "7731.34",
+      "change_pct": "+1.72%",
+      "as_of": "2026-08-04",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25373.85",
-      "change_pct": "+1.00%",
-      "as_of": "2026-07-31",
+      "value": "26514.55",
+      "change_pct": "+2.32%",
+      "as_of": "2026-08-04",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63957.53",
-      "change_pct": "-0.63%",
-      "as_of": "2026-08-04",
+      "value": "63754.90",
+      "change_pct": "-0.94%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25880.51",
-      "change_pct": "-0.02%",
-      "as_of": "2026-08-04",
+      "value": "26009.40",
+      "change_pct": "+0.48%",
+      "as_of": "2026-08-03",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "84.63",
-      "change_pct": "-6.09%",
+      "value": "79.87",
+      "change_pct": "-4.66%",
       "as_of": "2026-08-04",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4118.10",
-      "change_pct": "+1.70%",
+      "value": "4149.80",
+      "change_pct": "+2.88%",
       "as_of": "2026-08-04",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2249.31",
-      "change_pct": "-0.59%",
-      "as_of": "2026-08-04 10:26:57",
+      "value": "2269.23",
+      "change_pct": "+0.29%",
+      "as_of": "2026-08-04 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "884.97",
-      "change_pct": "-0.59%",
-      "as_of": "2026-08-04 10:26:58",
+      "value": "881.14",
+      "change_pct": "-1.02%",
+      "as_of": "2026-08-04 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "80.95",
-      "change_pct": "+0.19%",
-      "as_of": "2026-08-04 10:26:58",
+      "value": "81.03",
+      "change_pct": "+0.06%",
+      "as_of": "2026-08-04 20:01:21",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.91",
-      "change_pct": "-0.24%",
-      "as_of": "2026-08-04 10:26:59",
+      "value": "11.95",
+      "change_pct": "+0.08%",
+      "as_of": "2026-08-04 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "fns-transfer-pricing-audits",
-      "headline": "Федеральная налоговая служба усилила проверки трансфертного ценообразования по сделкам крупного бизнеса",
-      "context": "Налоговая служба стала чаще анализировать внутригрупповые и внешнеторговые сделки с независимыми лицами из офшорного списка Минфина.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
+      "id": "putin-foreign-investors-buyback-ban",
+      "headline": "Владимир Путин разрешил российским компаниям через суд отказывать иностранным инвесторам в выкупе акций",
+      "context": "Новые нормы распространяются на сделки с инвесторами из недружественных государств, заключенные после 22 февраля 2022 года.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/296751"
+          "url": "https://frankmedia.ru/297098"
         }
       ],
-      "published_at": "2026-08-04T08:34:00+03:00"
+      "published_at": "2026-08-04T19:41:00+03:00"
     },
     {
-      "id": "wildberries-drone-attacks",
-      "headline": "Склады Wildberries в Ленинградской и Тверской областях получили повреждения при атаках беспилотников",
-      "context": "В Красном Бору Ленобласти возникло возгорание, а в Тверской области обломком дрона частично повреждена стена склада.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296752"
-        }
-      ],
-      "published_at": "2026-08-04T07:57:00+03:00"
-    },
-    {
-      "id": "us-sanctions-mod",
-      "headline": "США ввели санкции против Сухопутных войск и подразделений Министерства обороны России",
-      "context": "Ограничения введены в связи с предполагаемым нарушением американского закона о нераспространении ядерного оружия.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
+      "id": "putin-crypto-regulation-law",
+      "headline": "Президент России Владимир Путин подписал закон о комплексном регулировании рынка криптовалют",
+      "context": "Документ разрешает операции с криптовалютой через лицензированных посредников и ее использование во внешнеэкономических расчетах.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1107277"
+          "url": "https://www.interfax.ru/russia/1107420"
         }
       ],
-      "published_at": "2026-08-04T03:54:00+03:00"
+      "published_at": "2026-08-04T16:34:00+03:00"
     },
     {
-      "id": "ozon-moving-goods",
-      "headline": "Ozon начал перемещать дорогостоящие товары со складов в пункты выдачи заказов",
-      "context": "Решение может быть связано с требованиями страховщиков для компенсации рисков возможной утраты товаров.",
+      "id": "putin-minority-shareholder-offers-cancel",
+      "headline": "Владимир Путин отменил обязательные оферты миноритариям при передаче акций государству по суду",
+      "context": "Закон освобождает государство от обязанности направлять предложение о выкупе при получении крупных пакетов акций по решению суда.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/04/1218753-putin-otmenil-oferti"
+        }
+      ],
+      "published_at": "2026-08-04T15:07:00+03:00"
+    },
+    {
+      "id": "rusagro-dividends-rejected",
+      "headline": "Акционеры Русагро не приняли решение по распределению прибыли и дивидендам за 2025 год",
+      "context": "Соответствующее решение было зафиксировано по итогам повторного годового собрания акционеров компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8862268"
+        }
+      ],
+      "published_at": "2026-08-04T13:52:00+03:00"
+    },
+    {
+      "id": "fesco-black-sea-suspension",
+      "headline": "Транспортная группа FESCO приостановила прием заявок на отправки через акваторию Черного моря",
+      "context": "Решение принято после инцидента с судном Янина для выработки мер с учетом факторов риска.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861869"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1107431"
         }
       ],
-      "published_at": "2026-08-04T02:09:00+03:00"
+      "published_at": "2026-08-04T17:49:00+03:00"
     },
     {
-      "id": "moex-listing-downgrade",
-      "headline": "Московская биржа с 12 августа понизит уровень листинга акций Ленты и ДВМП",
-      "context": "Решение принято из-за несоблюдения эмитентами требований к корпоративному управлению.",
+      "id": "brent-oil-price-drop",
+      "headline": "Мировые цены на нефть марки Brent снизились на фоне ожиданий соглашения по Ормузскому проливу",
+      "context": "Министр финансов США Скотт Бессент заявил о возможном достижении договоренности с Ираном в ближайшие дни.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8862399"
+        }
+      ],
+      "published_at": "2026-08-04T16:19:00+03:00"
+    },
+    {
+      "id": "alrosa-cost-reduction",
+      "headline": "Компания АЛРОСА сократила эксплуатационные затраты на 25 процентов из-за кризиса в отрасли",
+      "context": "Общая сумма оптимизации расходов составила 65 миллиардов рублей, сообщил гендиректор Павел Маринычев.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1107400"
+        }
+      ],
+      "published_at": "2026-08-04T14:54:00+03:00"
+    },
+    {
+      "id": "moex-lenta-fesh-listing-downgrade",
+      "headline": "Московская биржа понизит уровень листинга акций Ленты и Дальневосточного морского пароходства",
+      "context": "Решение о переводе бумаг в третий уровень листинга принято из-за несоблюдения требований к корпоративному управлению.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1336198.php"
-        }
-      ],
-      "published_at": "2026-08-03T20:05:00+03:00"
-    },
-    {
-      "id": "basiz-ifrs-h1",
-      "headline": "Группа Базис увеличила выручку по МСФО в первом полугодии на 30 процентов",
-      "context": "Показатель OIBDA вырос на 26 процентов до 1,17 миллиарда рублей, компания подтвердила прогноз на 2026 год.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/04/1218615"
-        }
-      ],
-      "published_at": "2026-08-04T09:03:00+03:00"
-    },
-    {
-      "id": "cash-in-circulation-july",
-      "headline": "Объем наличных денег в обращении в России в июле вырос на 643 миллиарда рублей",
-      "context": "Июльский прирост стал максимальным с начала года, увеличив спрос на ликвидность в банковском секторе.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1107178"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861804"
         }
       ],
       "published_at": "2026-08-03T20:49:00+03:00"
@@ -184,24 +199,24 @@
   ],
   "yesterday": [
     {
-      "id": "cbr-securitization-addons",
-      "headline": "Банк России с 4 сентября введет макронадбавки по вложениям в секьюритизированные облигации",
-      "context": "Новые требования распространятся на вложения банков в облигации, обеспеченные потребительскими кредитами.",
+      "id": "cb-macroprudential-additions",
+      "headline": "Банк России введет макропруденциальные надбавки по вложениям банков в секьюритизированные облигации",
+      "context": "Новые требования вступят в силу с 4 сентября 2026 года и не затронут ипотечные ценные бумаги.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/08/03/1218451"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296636"
         }
       ],
-      "published_at": "2026-08-03T14:49:00+03:00"
+      "published_at": "2026-08-03T14:42:00+03:00"
     },
     {
       "id": "t-technologies-dividends",
-      "headline": "Акционеры Т-Технологий одобрили выплату дивидендов за первый квартал 2026 года",
-      "context": "Размер выплаты составит 4,6 рубля на акцию, дата закрытия реестра установлена на 10 августа.",
+      "headline": "Акционеры Т-Технологий утвердили выплату дивидендов за первый квартал в размере 4,6 рубля",
+      "context": "Всего на выплаты акционерам будет направлено 12,3 миллиарда рублей с закрытием реестра 10 августа.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -214,147 +229,132 @@
       "published_at": "2026-08-03T10:00:00+03:00"
     },
     {
-      "id": "moex-july-volumes",
-      "headline": "Объем торгов на рынках Московской биржи в июле вырос на 40 процентов",
-      "context": "Показатель достиг рекордных 210,5 триллиона рублей по сравнению со 150,3 триллиона рублей годом ранее.",
+      "id": "cb-bank-reserves",
+      "headline": "Банк России выявил случаи занижения рисков крупными банками для минимизации резервов",
+      "context": "Регулятор проводит работу по досозданию резервов и готовит изменения в положение 590-П.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296712"
+        }
+      ],
+      "published_at": "2026-08-03T18:32:00+03:00"
+    },
+    {
+      "id": "moex-trading-volume-july",
+      "headline": "Объем торгов на рынках Московской биржи в июле вырос на 41,3 процента",
+      "context": "Показатель достиг 210,5 триллиона рублей по сравнению с аналогичным периодом прошлого года.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1336135.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8861690"
         }
       ],
-      "published_at": "2026-08-03T17:31:00+03:00"
+      "published_at": "2026-08-03T17:54:00+03:00"
     },
     {
-      "id": "fas-apple-case",
-      "headline": "Федеральная антимонопольная служба возбудила дело против Apple за непредустановку российских приложений",
-      "context": "Американская корпорация не исполнила предупреждение ФАС о предустановке мессенджера Макс и магазина RuStore.",
-      "category": "tech",
+      "id": "cash-demand-july",
+      "headline": "Спрос на наличные деньги в России в июле вырос на 43 процента",
+      "context": "Объем наличных в обращении увеличился на 643,4 миллиарда рублей, обновив максимум с начала года.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/technology/news/2026/08/03/1218509"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296634"
         }
       ],
-      "published_at": "2026-08-03T17:00:00+03:00"
+      "published_at": "2026-08-03T15:14:00+03:00"
     },
     {
-      "id": "lenta-earnings-q2",
-      "headline": "Чистая прибыль группы Лента во втором квартале снизилась на 18,8 процента",
-      "context": "Выручка ритейлера за этот же период увеличилась на 28,8 процента на фоне интеграции новых активов.",
+      "id": "lenta-h1-earnings",
+      "headline": "Чистая прибыль группы Лента за первое полугодие снизилась на 17,8 процента",
+      "context": "Выручка ритейлера выросла до 648,5 миллиарда рублей на фоне консолидации новых активов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861270"
+          "url": "https://www.kommersant.ru/doc/8862115"
         }
       ],
       "published_at": "2026-08-03T11:35:00+03:00"
     },
     {
-      "id": "segezha-chinese-project",
-      "headline": "Сегежа согласовала совместный проект с китайскими партнерами по строительству биохимического комплекса",
-      "context": "На фоне этой новости акции компании на Московской бирже выросли более чем на 20 процентов.",
-      "category": "corporate",
+      "id": "large-business-tax-claims",
+      "headline": "Крупный бизнес в России столкнулся с доначислениями налогов из-за совмещения льготных режимов",
+      "context": "По словам главы РСПП Александра Шохина, штрафы у некоторых компаний оказались сопоставимы с годовой выручкой.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/379688"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296517"
         }
       ],
-      "published_at": "2026-08-03T11:25:00+03:00"
-    },
-    {
-      "id": "inarctica-earnings-h1",
-      "headline": "Чистая прибыль Инарктики за первое полугодие выросла на 43,2 процента",
-      "context": "Финансовые результаты компании улучшились на фоне роста операционных показателей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/03/1218349"
-        }
-      ],
-      "published_at": "2026-08-03T11:08:00+03:00"
-    },
-    {
-      "id": "md-medical-group-operational",
-      "headline": "Выручка компании МД Медикал в первом полугодии выросла на 28,8 процента",
-      "context": "Показатель достиг 24,8 миллиарда рублей, при этом во втором квартале темпы роста ускорились.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3772"
-        }
-      ],
-      "published_at": "2026-08-03T09:12:00+03:00"
-    },
-    {
-      "id": "rusal-egm-dividends",
-      "headline": "Русал назначил внеочередное собрание акционеров по дивидендам на 4 сентября",
-      "context": "На повестке дня стоит вопрос о выплате дивидендов по итогам первого полугодия 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/379639"
-        }
-      ],
-      "published_at": "2026-08-03T07:03:00+03:00"
+      "published_at": "2026-08-03T10:08:00+03:00"
     },
     {
       "id": "eurotrans-technical-default",
-      "headline": "Компания ЕвроТранс допустила технический дефолт по выплате купона очередного выпуска облигаций",
-      "context": "Эмитент не смог своевременно перечислить купонный доход держателям ценных бумаг.",
-      "category": "markets",
+      "headline": "Компания ЕвроТранс допустила технический дефолт по еще одному выпуску облигаций",
+      "context": "Эмитент не смог выплатить купонный доход в установленный срок.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84173"
+          "name": "Интерфакс",
+          "url": ""
         }
       ],
       "published_at": "2026-08-03T09:42:00+03:00"
     },
     {
-      "id": "vtb-securitization-issue",
-      "headline": "ВТБ готовит крупнейший по числу траншей выпуск облигаций под потребительские кредиты",
-      "context": "Банк планирует разместить выпуск бумаг, разделенный на десять траншей, что станет рекордом для рынка.",
-      "category": "banks",
+      "id": "vtb-securitization-bonds",
+      "headline": "ВТБ планирует разместить рекордный десятитраншевый выпуск облигаций под потребительские кредиты",
+      "context": "Сделка может стать крупнейшей по числу траншей за всю историю российской секьюритизации.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8861072"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296505"
         }
       ],
-      "published_at": "2026-08-03T02:47:00+03:00"
+      "published_at": "2026-08-03T08:57:00+03:00"
     },
     {
-      "id": "cbr-digital-depositories",
-      "headline": "Банк России завершил сбор предложений к проекту требований для цифровых депозитариев",
-      "context": "Документ определяет порядок расчета цен для цифровых валют и условия прекращения операций клиентов.",
+      "id": "mkb-dvb-merger",
+      "headline": "Московский кредитный банк завершил процедуру присоединения Дальневосточного банка",
+      "context": "Объединение ИТ-инфраструктуры и клиентской базы кредитных организаций завершилось в единую сеть.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/296487"
+        }
+      ],
+      "published_at": "2026-08-03T07:45:00+03:00"
+    },
+    {
+      "id": "cb-digital-depositories",
+      "headline": "Банк России определил требования к цифровым депозитариям и расчету цен цифровых активов",
+      "context": "Регулятор завершил сбор предложений к проекту указания о порядке торгов криптовалютой и ЦФА.",
       "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 3,
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -366,9 +366,9 @@
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-08-03"
   }
 }
