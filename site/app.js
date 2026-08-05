@@ -5966,9 +5966,34 @@ function bondUniverseScreenerHTML(universe) {
       <td>${esc(shortIsoDate(row.maturity_date))}</td>
     </tr>`;
   }).join('');
-  const empty = `<tr><td colspan="9" class="bond-empty-row">Под фильтры не попал ни один выпуск. Ослабьте условия или нажмите «Сбросить фильтры».</td></tr>`;
+  // Пустая выдача бывает по двум разным причинам, и валить их в одну подсказку нельзя.
+  // Если безопасных нет ВООБЩЕ и почти у всех выпусков помечена устаревшая цена — виноват
+  // не пользователь, а несвежий снапшот данных: совет «ослабьте фильтры» тут вводит в
+  // заблуждение, ослабление не поможет.
+  const staleAll = all.length && all.filter((row) => (row.bond_safety
+    && (row.bond_safety.reasonCodes || []).includes('STALE_PRICE'))).length / all.length > 0.9;
+  const freshest = all.map((row) => (row.source_dates || {}).price).filter(Boolean).sort().pop();
+  const empty = (safeCount === 0 && staleAll)
+    ? `<tr><td colspan="9" class="bond-empty-row bond-empty-stale"><b>Данные о ценах устарели.</b>
+        Свежайшая цена в загруженном наборе — ${esc(shortIsoDate(freshest))}, а безопасный режим
+        требует цену не старше ${window.BondRetail ? window.BondRetail.BOND_SAFETY_CONFIG.maxPriceAgeDays : 4} дней.
+        Ослаблять фильтры смысла нет: пока данные не обновятся, доходность по ним считать нельзя.
+        Выпуски доступны в режиме «Высокий риск» с пометкой причины.</td></tr>`
+    : `<tr><td colspan="9" class="bond-empty-row">Под фильтры не попал ни один выпуск. Ослабьте условия или нажмите «Сбросить фильтры».</td></tr>`;
 
-  return `${modes}${warning}
+  // Покрытие классификаций — честно и на виду: пользователь должен понимать, какая доля
+  // универсума вообще поддаётся отбору, а не считать «нет данных» нормальным значением.
+  const cov = window.BondRetail ? window.BondRetail.coverage(all) : null;
+  const coverageStrip = cov ? `<div class="bond-coverage" role="note">
+    <span>Качество классификации по ${all.length} выпускам:</span>
+    <b>сектор ${ru(cov.sectors_pct, 0)}%</b>
+    <b>рейтинг ${ru(cov.ratings_pct, 0)}%</b>
+    <b>ликвидность ${ru(cov.liquidity_pct, 0)}%</b>
+    <b class="${cov.groups_pct > 0 ? '' : 'bond-coverage-zero'}">группа компаний ${ru(cov.groups_pct, 0)}%</b>
+    ${cov.groups_pct === 0 ? '<small>Связи «материнская — дочерняя» в данных MOEX нет, поэтому лимит на группу компаний посчитать не из чего.</small>' : ''}
+  </div>` : '';
+
+  return `${modes}${warning}${coverageStrip}
     <div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label>
       <div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div>
       <span class="muted">Найдено: ${rows.length} из ${all.length}</span></div>
@@ -6061,6 +6086,47 @@ function bondRisksHTML(row, safety) {
   if (!row.ultimate_parent_id) risks.push('<li><b>Концентрация по группе.</b> Материнская структура эмитента не подтверждена — учесть связанные выпуски в лимите группы нельзя.</li>');
   if (safety && !safety.ytmConfirmed) risks.push('<li><b>Доходность не подтверждена.</b> Расчёт YTM не прошёл проверку — не опирайтесь на это число без сверки с условиями выпуска.</li>');
   return `<ul class="bond-risks">${risks.join('')}</ul>`;
+}
+
+/** Аналоги выпуска: 3–5 бумаг из БЕЗОПАСНОГО набора со схожим профилем.
+ *
+ *  Сортировка идёт по близости профиля (рейтинг, дюрация, сектор, тип купона, ликвидность),
+ *  а НЕ по максимальной доходности: список «где больше процент» увёл бы пользователя ровно
+ *  в те выпуски, от которых защищает safe-фильтр. По каждому аналогу показано и что
+ *  улучшается, и что ухудшается — иначе это реклама, а не сравнение.
+ */
+function bondAlternativesHTML(row) {
+  if (!window.BondRetail) return '';
+  const universe = (BONDS && BONDS.lab && BONDS.lab.universe && BONDS.lab.universe.bonds) || [];
+  const list = window.BondRetail.findAlternatives(row, universe, { limit: 5 });
+  if (!list.length) return '';
+  const delta = (value, unit, betterHigher) => {
+    if (!isNum(value) || Math.abs(value) < 0.005) return '<span class="muted">без изменений</span>';
+    const good = betterHigher ? value > 0 : value < 0;
+    return `<span class="${good ? 'b-up' : 'b-down'}">${value > 0 ? '+' : ''}${ru(value, 2)}${unit}</span>`;
+  };
+  const srcLiq = window.BondRetail.liquidity(row).score;
+  const rows = list.map((alt) => {
+    const dDur = isNum(alt.duration_value) && isNum(row.duration_value) ? alt.duration_value - row.duration_value : null;
+    const dRank = (window.BondRetail.ratingRank(alt.rating) || 0) - (window.BondRetail.ratingRank(row.rating) || 0);
+    const altLiq = window.BondRetail.liquidity(alt).score;
+    const dLiq = isNum(altLiq) && isNum(srcLiq) ? altLiq - srcLiq : null;
+    return `<tr>
+      <td class="b-name">${bondOpenIdentityHTML(alt)}<small>${esc(alt.issuer_name || '')}</small></td>
+      <td>${esc(alt.rating || ND)}${dRank ? ` <span class="${dRank > 0 ? 'b-up' : 'b-down'}">${dRank > 0 ? '↑' : '↓'}${Math.abs(dRank)}</span>` : ''}</td>
+      <td class="tnum">${delta(alt.ytm_net_delta_pp, ' п.п.', true)}</td>
+      <td class="tnum">${delta(dDur, '', false)}</td>
+      <td class="tnum">${dLiq == null ? ND : delta(dLiq, '', true)}</td>
+      <td>${alt.sector === row.sector ? '<span class="muted">тот же сектор</span>' : esc(alt.sector || ND)}</td>
+    </tr>`;
+  }).join('');
+  return `<section><h3>Заменить аналогом</h3>
+    <div class="bonds-table-wrap"><table class="bonds-table"><thead><tr>
+      <th>Выпуск</th><th>Рейтинг</th><th>YTM net</th><th>Дюрация</th><th>Ликвидн.</th><th>Сектор</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="muted">Подбор по близости профиля, а не по максимальной доходности. Все аналоги прошли
+    безопасный фильтр. Смена сектора уменьшает концентрацию, но меняет кредитный риск —
+    сравнивайте вместе с карточкой каждого выпуска.</p></section>`;
 }
 
 function bondDetailHTML(row) {
@@ -6160,6 +6226,8 @@ function bondDetailHTML(row) {
       <p class="muted">Показан рейтинг агентства, а не внутренняя оценка сайта. Шкалы разных агентств не смешиваются.</p>`
         : '<p><b>Рейтинг не найден или не подтверждён.</b> Выпуск не проходит безопасный фильтр по этой причине.</p>'}
     </section>
+
+    ${bondAlternativesHTML(row)}
 
     <section><h3>Основные риски</h3>${bondRisksHTML(row, safety)}</section>
 

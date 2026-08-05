@@ -3460,6 +3460,13 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bond-mode-warning { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; padding: 11px 14px;
   border-radius: 10px; background: var(--warn-fill); }
 .bond-mode-warning b { color: var(--warn-ink); font-size: .84rem; }
+/* Покрытие классификаций: честная строка о том, какая часть универсума поддаётся отбору */
+.bond-coverage { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 14px; margin-bottom: 12px;
+  padding: 9px 13px; border-radius: 9px; background: var(--bg); }
+.bond-coverage span { color: var(--ink-faint); font-size: .72rem; }
+.bond-coverage b { color: var(--ink); font-size: .74rem; font-variant-numeric: tabular-nums; }
+.bond-coverage b.bond-coverage-zero { color: var(--warn-ink); }
+.bond-coverage small { flex-basis: 100%; color: var(--ink-soft); font-size: .69rem; line-height: 1.45; }
 .bond-mode-warning span { color: var(--ink-soft); font-size: .76rem; line-height: 1.5; }
 
 /* Фильтры скринера */
@@ -3473,6 +3480,8 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bond-filter-off { color: var(--warn-ink); font-size: .62rem; line-height: 1.3; }
 .bond-filters select:disabled { opacity: .55; cursor: not-allowed; }
 .bond-empty-row { padding: 22px 12px; text-align: center; color: var(--ink-soft); font-size: .8rem; }
+.bond-empty-stale { text-align: left; line-height: 1.6; background: var(--warn-fill); }
+.bond-empty-stale b { display: block; margin-bottom: 3px; color: var(--warn-ink); font-size: .86rem; }
 
 /* Денежный календарь */
 .bond-cash-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 16px; margin-bottom: 6px; }

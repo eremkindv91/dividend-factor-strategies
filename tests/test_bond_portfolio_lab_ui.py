@@ -230,3 +230,66 @@ def test_new_money_mode_never_sells():
 
     assert not any(t["action"] == "SELL" for t in trades), "новые деньги не продают позиции"
     assert all(float(t["lots"]).is_integer() for t in trades), "лоты только целые"
+
+
+def test_alternatives_rank_by_profile_not_by_yield():
+    """Аналоги подбираются по близости профиля.
+
+    Список «где больше процент» увёл бы пользователя ровно в те выпуски, от которых
+    защищает safe-фильтр, поэтому сортировка идёт по рейтингу, дюрации, сектору и
+    ликвидности, а сам исходный выпуск в список не попадает.
+    """
+    script = """
+    const B = require('./site/bond_retail.js');
+    const uni = require('./site/bonds/universe.json').bonds;
+    const asOf = '2026-08-01';
+    const safe = B.classifyUniverse(uni, { asOf }).filter(r => r.bond_safety.investable);
+    const src = safe[0];
+    const alts = B.findAlternatives(src, uni, { asOf, limit: 5 });
+    console.log(JSON.stringify({
+      source: src.secid,
+      count: alts.length,
+      allSafe: alts.every(a => a.bond_safety.investable),
+      selfExcluded: !alts.some(a => a.secid === src.secid),
+      sortedByYield: alts.every((a, i) => i === 0 || a.ytm_net_delta_pp <= alts[i - 1].ytm_net_delta_pp),
+    }));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    out = json.loads(result.stdout)
+
+    assert out["count"] > 0
+    assert out["allSafe"], "аналог обязан сам проходить безопасный фильтр"
+    assert out["selfExcluded"], "исходный выпуск не может быть себе аналогом"
+    assert not out["sortedByYield"], "порядок не должен совпадать с сортировкой по доходности"
+
+
+def test_coverage_reports_missing_group_data_honestly():
+    """Покрытие классификаций показывается как есть, а unknown не считается нормой."""
+    script = """
+    const B = require('./site/bond_retail.js');
+    const uni = require('./site/bonds/universe.json').bonds;
+    console.log(JSON.stringify(B.coverage(uni)));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    cov = json.loads(result.stdout)
+
+    # ultimate_parent_id не заполнен ни у одного выпуска — это должно быть видно, а не скрыто
+    assert cov["groups_pct"] == 0.0
+    assert 0 < cov["ratings_pct"] < 100, "рейтинг известен не у всех — покрытие честное"
+    assert cov["sectors_pct"] < 100
+
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    assert "BondRetail.coverage(all)" in app, "покрытие должно показываться в интерфейсе"
+
+
+def test_stale_snapshot_does_not_blame_user_filters():
+    """Если пусто из-за устаревших цен, совет «ослабьте фильтры» вводит в заблуждение."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "bond-empty-stale" in app
+    assert "Данные о ценах устарели" in app
+    assert "Ослаблять фильтры смысла нет" in app
