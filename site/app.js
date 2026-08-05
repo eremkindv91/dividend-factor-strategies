@@ -5439,6 +5439,17 @@ let BOND_USER_PORTFOLIO = [];
 let BOND_USER_IMPORT_ERRORS = [];
 let BOND_REBALANCE_MODE = 'full';
 let BOND_COMPARE_SECIDS = [];
+// Пользовательские настройки расчёта. Поднимаются из localStorage при загрузке раздела и
+// РЕАЛЬНО участвуют в расчётах: налог идёт в денежный календарь, комиссия и проскальзывание —
+// в стоимость покупки и ребаланс, порог сделки и no-trade band — в подбор сделок.
+// Значения ниже — лишь заглушка до загрузки bond_retail.js; настоящие умолчания живут
+// в расчётном слое (loadSettings) и поднимаются при инициализации раздела. Своя копия
+// умолчаний разошлась бы с ним: кнопка «вернуть по умолчанию» давала бы не то, что даёт
+// первый запуск (так и случилось со slippageBps: 5 против 10).
+let BOND_SETTINGS = {
+  taxRate: 0.13, commissionBps: 5, slippageBps: 10,
+  minTradeRub: 3000, noTradeBandPct: 0.5, reinvestRatePct: 0,
+};
 const CHARTJS_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
 const RATING_GROUP = (r) => { r = String(r || ''); return r.startsWith('AAA') ? 'aaa' : r.startsWith('AA') ? 'aa' : r.startsWith('A') ? 'a' : 'bbb'; };
 const RATING_COLOR = { aaa: '#1E6F4C', aa: '#7FB069', a: '#D9A521', bbb: '#D77A33' };
@@ -5576,6 +5587,11 @@ function loadBonds(cb) {
       BOND_USER_PORTFOLIO = window.BondRetail.loadPortfolio(window.localStorage).positions || [];
       const savedSettings = window.BondRetail.loadSettings(window.localStorage);
       BOND_SCREEN_FILTERS.minRating = savedSettings.minRating || BOND_SCREEN_FILTERS.minRating;
+      BOND_SETTINGS = {
+        taxRate: Number(savedSettings.taxRate), commissionBps: Number(savedSettings.commissionBps),
+        slippageBps: Number(savedSettings.slippageBps), minTradeRub: Number(savedSettings.minTradeRub),
+        noTradeBandPct: Number(savedSettings.noTradeBandPct), reinvestRatePct: Number(savedSettings.reinvestRatePct),
+      };
     }
     BONDS = {
       meta: screener.meta || {}, bonds: screener.bonds, chart,
@@ -5675,7 +5691,7 @@ function bondDistribution(rows, key, labelFn) {
 
 function bondCouponCalendar(rows, universe) {
   if (!window.BondRetail) return '<p class="muted">Модуль денежных потоков не загрузился.</p>';
-  const schedule = window.BondRetail.cashflowSchedule(rows, (universe || {}).bonds || [], { taxRate: 0.13 });
+  const schedule = window.BondRetail.cashflowSchedule(rows, (universe || {}).bonds || [], { taxRate: BOND_SETTINGS.taxRate });
   const entries = Object.entries(schedule.months || {}).sort();
   if (!entries.length) return '<p class="muted">В ближайшие 12 месяцев подтверждённые выплаты не найдены.</p>';
   const max = Math.max(...entries.map(([, item]) => Number(item.net_rub || 0)), 1);
@@ -5797,6 +5813,35 @@ function bondPortfolioLabHTML(lab) {
     <details class="bonds-limits"><summary>Как сформирован портфель</summary><div class="bonds-limits-body"><p>MILP максимизирует скорректированный carry при жёстких лимитах выпуска, эмитента, сектора, рейтинга, ОФЗ, дюрации, ликвидности и лестницы погашений. Затем отдельная integer-модель подбирает лоты и повторно проверяет ограничения.</p><p>Estimated net YTM — упрощённая модель налога, не персональный налоговый расчёт. Состав является исследовательским модельным списком для самостоятельной проверки, не индивидуальной рекомендацией.</p>${['7y','10y'].includes(BOND_LAB_HORIZON) ? '<p>Модель использует лестницу погашений и предполагает реинвестирование. Это не означает удержание одного неизменного набора облигаций весь горизонт.</p>' : ''}</div></details>`;
 }
 
+/** Параметры расчёта. Спрятаны в раскрываемый блок: на первом экране инвестору нужны
+ *  сумма, риск и горизонт, а не базисные пункты комиссии.
+ *
+ *  Каждое поле здесь ДЕЙСТВИТЕЛЬНО меняет цифры: налог идёт в денежный календарь,
+ *  комиссия и проскальзывание — в стоимость покупки и в ребаланс, порог сделки и
+ *  no-trade band — в отбор сделок. Панель, которая только хранит значения, вводила бы
+ *  в заблуждение сильнее, чем её отсутствие.
+ */
+function bondSettingsHTML() {
+  const s = BOND_SETTINGS;
+  const field = (key, label, value, step, hint) =>
+    `<label>${esc(label)}<input type="number" step="${step}" min="0" data-bond-setting="${key}" value="${esc(value)}">${hint ? `<small>${esc(hint)}</small>` : ''}</label>`;
+  return `<details class="bond-settings">
+    <summary>Параметры расчёта: налог, комиссия, пороги сделок</summary>
+    <div class="bond-settings-grid">
+      ${field('taxRate', 'Ставка налога', ru(s.taxRate * 100, 0), '1', '% с купона')}
+      ${field('commissionBps', 'Комиссия брокера', s.commissionBps, '1', 'б.п. от суммы')}
+      ${field('slippageBps', 'Проскальзывание', s.slippageBps, '1', 'б.п.')}
+      ${field('minTradeRub', 'Минимальная сделка', s.minTradeRub, '500', '₽, меньше — пропуск')}
+      ${field('noTradeBandPct', 'No-trade band', s.noTradeBandPct, '0.1', '% бюджета')}
+      ${field('reinvestRatePct', 'Ставка реинвестирования', s.reinvestRatePct, '0.5', '% годовых, 0 — без него')}
+      <button type="button" class="btn" id="bond-settings-reset">Вернуть значения по умолчанию</button>
+    </div>
+    <p class="muted">Налоговый расчёт оценочный: учитывается налог с купона, но не с разницы цен
+    и не льготы вашего счёта. Комиссия — общая оценка, а не тариф конкретного брокера.
+    Настройки хранятся в этом браузере.</p>
+  </details>`;
+}
+
 /** Импорт портфеля пользователя.
  *
  *  Разбор делегирован BondRetail.parsePortfolioText: он определяет разделитель, узнаёт
@@ -5824,10 +5869,14 @@ function bondUserPortfolioHTML(allocation, universe, allocations) {
     target = allocations[`income:${BOND_LAB_HORIZON}`]; targetLabel = 'Доходный профиль';
   }
   const reconcileMode = BOND_REBALANCE_MODE === 'new_money' ? 'new_money' : 'full';
-  const minTradeRub = BOND_REBALANCE_MODE === 'min_trades' ? 10000 : 3000;
-  const noTradeBandPct = BOND_REBALANCE_MODE === 'min_trades' ? 1.5 : 0.5;
+  // Режим «минимум сделок» ужесточает пороги ОТНОСИТЕЛЬНО пользовательских, а не подменяет их
+  // фиксированными числами: иначе настройки не влияли бы ни на что.
+  const tighten = BOND_REBALANCE_MODE === 'min_trades' ? 3 : 1;
+  const minTradeRub = Math.max(0, Number(BOND_SETTINGS.minTradeRub) || 0) * tighten;
+  const noTradeBandPct = Math.max(0, Number(BOND_SETTINGS.noTradeBandPct) || 0) * tighten;
   const reconciliation = window.BondRetail.reconcile(resolved.recognized, target, universe.bonds, {
-    mode: reconcileMode, minTradeRub, noTradeBandPct, commissionBps: target.commission_bps, slippageBps: target.slippage_bps,
+    mode: reconcileMode, minTradeRub, noTradeBandPct,
+    commissionBps: BOND_SETTINGS.commissionBps, slippageBps: BOND_SETTINGS.slippageBps,
   });
   const currentRows = resolved.recognized.map((position) => {
     const row = position.bond;
@@ -5846,6 +5895,7 @@ function bondUserPortfolioHTML(allocation, universe, allocations) {
   const unknown = resolved.unrecognized.length
     ? `<div class="bond-unrecognized"><b>Не распознаны:</b> ${resolved.unrecognized.map((row) => esc(row.identifier)).join(', ')}. Они сохранены и не удалены.</div>` : '';
   return `<section class="bond-user-portfolio">
+    ${bondSettingsHTML()}
     <div class="bondlab-block-head"><div><h3>Мой текущий портфель облигаций</h3><p>Данные хранятся только в этом браузере и не отправляются на сервер.</p></div><div class="bondlab-actions"><button type="button" class="btn" id="bond-portfolio-backup" ${BOND_USER_PORTFOLIO.length ? '' : 'disabled'}>Резервная копия</button><button type="button" class="btn" id="bond-portfolio-clear" ${BOND_USER_PORTFOLIO.length ? '' : 'disabled'}>Удалить</button></div></div>
     <div class="bond-import-grid"><div><label for="bond-portfolio-paste">Вставь таблицу: тикер/ISIN, количество бумаг, средняя цена</label><textarea id="bond-portfolio-paste" rows="4" placeholder="SECID;Количество;Средняя цена\nRU000A107RZ0;100;101,20"></textarea><div class="bond-import-actions"><button type="button" class="btn" id="bond-portfolio-import">Импортировать</button><label class="btn bond-file-button">CSV<input type="file" id="bond-portfolio-file" accept=".csv,text/csv,text/plain"></label></div>${importErrors}${unknown}</div>
       <div class="bond-import-help"><b>Что произойдёт</b><p>Позиции сопоставятся со свежим universe. Нераспознанные строки останутся в резервной копии. Для расчёта используются текущие dirty price и целые лоты.</p><p>XLSX пока не читается в браузере: экспортируй файл брокера в CSV.</p></div></div>
@@ -6138,7 +6188,8 @@ function bondDetailHTML(row) {
   const annualCoupon = isNum(row.coupon_pct) ? face * Number(row.coupon_pct) / 100 : null;
   const dirty = Number(row.dirty_price_per_bond_rub || 0);
   const currentYield = (annualCoupon && dirty > 0 && row.coupon_type !== 'zero') ? annualCoupon / dirty * 100 : null;
-  const buy = (window.BondRetail && window.BondRetail.purchaseBreakdown(row, 1)) || null;
+  const buy = (window.BondRetail && window.BondRetail.purchaseBreakdown(row, 1,
+    { commissionBps: BOND_SETTINGS.commissionBps, slippageBps: BOND_SETTINGS.slippageBps })) || null;
 
   const kpi = (label, value, note) =>
     `<div><span>${esc(label)}</span><b>${value}</b>${note ? `<small>${esc(note)}</small>` : ''}</div>`;
@@ -6285,6 +6336,33 @@ function wireBondLabControls() {
     control.addEventListener(control.tagName === 'SELECT' || control.type === 'checkbox' ? 'change' : 'input',
       control.tagName === 'SELECT' || control.type === 'checkbox' ? apply : debounce(apply, 300));
   });
+  // ── Параметры расчёта ──
+  document.querySelectorAll('[data-bond-setting]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const key = input.dataset.bondSetting;
+      const raw = Number(input.value);
+      if (!Number.isFinite(raw) || raw < 0) { drawBondLab(); return; }   // мусор — молча откатываем
+      // ставка налога вводится в процентах, а хранится долей: 13 → 0.13
+      BOND_SETTINGS[key] = key === 'taxRate' ? raw / 100 : raw;
+      if (window.BondRetail) {
+        window.BondRetail.saveSettings(window.localStorage, { ...BOND_SETTINGS, minRating: BOND_SCREEN_FILTERS.minRating });
+      }
+      drawBondLab();
+    });
+  });
+  const settingsReset = document.getElementById('bond-settings-reset');
+  if (settingsReset) settingsReset.addEventListener('click', () => {
+    if (!window.BondRetail) return;
+    // умолчания берём у расчётного слоя, а не из своей копии
+    const d = window.BondRetail.loadSettings(null);
+    BOND_SETTINGS = {
+      taxRate: d.taxRate, commissionBps: d.commissionBps, slippageBps: d.slippageBps,
+      minTradeRub: d.minTradeRub, noTradeBandPct: d.noTradeBandPct, reinvestRatePct: d.reinvestRatePct,
+    };
+    window.BondRetail.saveSettings(window.localStorage, BOND_SETTINGS);
+    drawBondLab();
+  });
+
   // ── Мой портфель: импорт, файл, режим ребаланса, копия, удаление ──
   const importButton = document.getElementById('bond-portfolio-import');
   if (importButton) importButton.addEventListener('click', () => {

@@ -293,3 +293,34 @@ def test_stale_snapshot_does_not_blame_user_filters():
     assert "bond-empty-stale" in app
     assert "Данные о ценах устарели" in app
     assert "Ослаблять фильтры смысла нет" in app
+
+
+def test_settings_are_wired_into_calculations_not_just_stored():
+    """Панель настроек обязана менять цифры, иначе она вводит в заблуждение."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "data-bond-setting" in app
+    assert "BondRetail.saveSettings(window.localStorage" in app
+    # налог, комиссия и пороги сделок берутся из настроек, а не зашиты
+    assert "taxRate: BOND_SETTINGS.taxRate" in app
+    assert "commissionBps: BOND_SETTINGS.commissionBps" in app
+    assert "Number(BOND_SETTINGS.minTradeRub)" in app
+    assert "{ taxRate: 0.13 }" not in app, "налог не должен быть зашит в вызов календаря"
+    # умолчания берутся у расчётного слоя, а не дублируются во фронте
+    assert "window.BondRetail.loadSettings(null)" in app
+
+
+def test_settings_defaults_match_calculation_layer():
+    """Кнопка «вернуть по умолчанию» должна давать то же, что первый запуск."""
+    script = """
+    const B = require('./site/bond_retail.js');
+    console.log(JSON.stringify(B.loadSettings(null)));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    defaults = json.loads(result.stdout)
+
+    for key in ("taxRate", "commissionBps", "slippageBps", "minTradeRub", "noTradeBandPct", "reinvestRatePct"):
+        assert key in defaults, f"умолчание {key} должно жить в расчётном слое"
+    assert 0 < defaults["taxRate"] < 1, "ставка налога хранится долей, а не процентами"
