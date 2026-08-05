@@ -5622,6 +5622,10 @@ function renderBondLab() {
 function drawBondLab() {
   const panel = document.getElementById('bondlab-panel');
   if (!panel || !BONDS) return;
+  // Ключевая ставка нужна блоку «Сравнение с альтернативами». Файл макро грузит вкладка
+  // «Рынок», и без этого на облигациях мы писали бы «данные не загружены» там, где данные
+  // в одном запросе. Подтягиваем один раз и перерисовываем.
+  if (!MACRO_CBR && typeof loadMacroCbr === 'function') loadMacroCbr(() => drawBondLab());
   document.querySelectorAll('[data-bondlab-tab]').forEach((button) => {
     const active = button.dataset.bondlabTab === BOND_LAB_TAB;
     button.classList.toggle('active', active);
@@ -5689,20 +5693,139 @@ function bondDistribution(rows, key, labelFn) {
     `<div class="bondlab-bar"><span>${esc(label)}</span><b>${bondPct(weight * 100)}</b><i style="--w:${Math.min(100, weight * 100).toFixed(2)}%"></i></div>`).join('');
 }
 
+/** Сценарий понижения рейтинга.
+ *
+ *  Ценовой эффект НЕ считается: для этого нужна матрица спредов по рейтинговым ступеням,
+ *  которой в данных нет, а придуманный процент потерь выглядел бы точнее, чем он есть.
+ *  Показываем то, что можно проверить: сколько бумаг и какая доля портфеля перестанут
+ *  проходить ваш минимальный рейтинг после понижения на одну и две ступени.
+ */
+function bondDowngradeHTML(rows) {
+  if (!window.BondRetail) return '';
+  const minRank = window.BondRetail.ratingRank(BOND_SCREEN_FILTERS.minRating);
+  const corp = rows.filter((row) => row.instrument_type !== 'ofz');
+  if (!minRank || !corp.length) return '';
+  const step = (notches) => {
+    const hit = corp.filter((row) => {
+      const rank = window.BondRetail.ratingRank(row.rating);
+      return rank != null && rank - notches < minRank;
+    });
+    const weight = hit.reduce((sum, row) => sum + Number(row.actual_weight || 0), 0) * 100;
+    return { count: hit.length, weight };
+  };
+  const one = step(1);
+  const two = step(2);
+  const noRating = corp.filter((row) => window.BondRetail.ratingRank(row.rating) == null);
+  return `<section class="bondlab-shock"><h3>Если рейтинг понизят</h3>
+    <dl>
+      <div><dt>На одну ступень</dt><dd>${one.count} из ${corp.length} · ${bondPct(one.weight, 1)}</dd></div>
+      <div><dt>На две ступени</dt><dd>${two.count} из ${corp.length} · ${bondPct(two.weight, 1)}</dd></div>
+      ${noRating.length ? `<div><dt>Рейтинг отозван / не найден</dt><dd>${noRating.length} выпусков</dd></div>` : ''}
+    </dl>
+    <p>Показано, сколько бумаг перестанут проходить ваш минимум «${esc(BOND_SCREEN_FILTERS.minRating)}» —
+    то есть потребуют замены. Потеря стоимости в рублях не оценивается: матрицы спредов по
+    рейтинговым ступеням в данных нет, а выдуманный процент был бы точнее, чем позволяют факты.</p>
+  </section>`;
+}
+
+/** Сравнение с альтернативами (этап 10 спеки).
+ *
+ *  Сравниваем только с тем, для чего есть свои данные: ОФЗ внутри того же универсума и
+ *  ключевая ставка ЦБ из макро-модуля. Ставки вкладов не подставляем — надёжного
+ *  актуального источника в проекте нет, а выдуманное число здесь опаснее пропуска.
+ */
+function bondAlternativesCompareHTML(allocation, rows) {
+  const ofz = rows.filter((row) => row.instrument_type === 'ofz');
+  const weighted = (list, key) => {
+    const total = list.reduce((sum, row) => sum + Number(row.actual_weight || 0), 0);
+    if (!total) return null;
+    return list.reduce((sum, row) => sum + Number(row[key] || 0) * Number(row.actual_weight || 0), 0) / total;
+  };
+  const portfolioYtm = weighted(rows, 'ytm_net_est_pct');
+  const ofzYtm = ofz.length ? weighted(ofz, 'ytm_net_est_pct') : null;
+  // MACRO_CBR грузится вкладкой «Рынок»; на вкладке облигаций он может быть ещё не загружен —
+  // тогда честно пишем «данные не загружены», а не подставляем прошлогоднюю ставку
+  const keyRate = (MACRO_CBR && MACRO_CBR.key_rate && isNum(MACRO_CBR.key_rate.current))
+    ? MACRO_CBR.key_rate.current : null;
+  if (!isNum(portfolioYtm)) return '';
+  const line = (label, value, note) => `<div><dt>${esc(label)}</dt><dd>${value}${note ? `<small>${esc(note)}</small>` : ''}</dd></div>`;
+  return `<section class="bondlab-shock bond-alt-compare"><h3>Сравнение с альтернативами</h3>
+    <dl>
+      ${line('Портфель, YTM net', bondPct(portfolioYtm, 2), 'после оценочного налога')}
+      ${ofzYtm != null ? line('ОФЗ в портфеле', bondPct(ofzYtm, 2), `${ofz.length} выпусков, кредитный риск ниже`)
+        : line('ОФЗ', '<span class="muted">нет в портфеле</span>', 'сравнить не с чем')}
+      ${keyRate != null ? line('Ключевая ставка ЦБ', bondPct(keyRate, 2), 'ориентир денежного рынка')
+        : line('Ключевая ставка', '<span class="muted">данные не загружены</span>')}
+      ${line('Ставки вкладов', '<span class="muted">актуальных данных нет</span>', 'источник не подключён')}
+    </dl>
+    <p>Доходность облигаций не гарантирована и зависит от цены продажи, если держать до погашения
+    не получится. Вклад застрахован АСВ в пределах лимита, облигации — нет. Ставки вкладов не
+    показываем: надёжного актуального источника в проекте нет, а выдуманное число ввело бы в заблуждение.</p>
+  </section>`;
+}
+
+/** Реинвестирование купонов: сравнение «получил и отложил» с «получил и вложил».
+ *
+ *  Ставка задаётся ПОЛЬЗОВАТЕЛЕМ и по умолчанию равна нулю (режим выключен). Подставлять
+ *  сюда YTM самой облигации нельзя: это молча предположило бы, что через полгода на рынке
+ *  будут те же условия, и завысило бы результат тем сильнее, чем выше текущая доходность.
+ */
+function bondReinvestHTML(schedule) {
+  const rate = Number(BOND_SETTINGS.reinvestRatePct) || 0;
+  const coupons = (schedule.flows || []).filter((flow) => flow.type === 'coupon');
+  if (!coupons.length) return '';
+  const plain = coupons.reduce((sum, flow) => sum + Number(flow.net_rub || 0), 0);
+  if (rate <= 0) {
+    return `<p class="bond-reinvest-off muted">Реинвестирование выключено: накопленные купоны за 12 месяцев —
+      ${rub0(plain)}. Чтобы увидеть эффект сложного процента, задайте ставку в параметрах расчёта.</p>`;
+  }
+  // каждый купон работает от своей даты до конца горизонта — простое годовое начисление
+  const horizon = new Date(); horizon.setUTCFullYear(horizon.getUTCFullYear() + 1);
+  const compounded = coupons.reduce((sum, flow) => {
+    const when = Date.parse(String(flow.date) + 'T00:00:00Z');
+    const years = Number.isFinite(when) ? Math.max(0, (horizon.getTime() - when) / 31557600000) : 0;
+    return sum + Number(flow.net_rub || 0) * Math.pow(1 + rate / 100, years);
+  }, 0);
+  const gain = compounded - plain;
+  return `<div class="bond-reinvest">
+    <div><span>Без реинвестирования</span><b>${rub0(plain)}</b></div>
+    <div><span>С реинвестированием</span><b>${rub0(compounded)}</b></div>
+    <div><span>Вклад допущения</span><b class="${gain > 0 ? 'pos' : ''}">${gain > 0 ? '+' : ''}${rub0(gain)}</b><small>по ставке ${ru(rate, 1)}% годовых</small></div>
+    <p>Ставка задана вами, а не выведена из доходности выпусков. Реальный результат зависит от того,
+    подо что удастся разместить купон в момент выплаты — заранее это неизвестно.</p>
+  </div>`;
+}
+
 function bondCouponCalendar(rows, universe) {
   if (!window.BondRetail) return '<p class="muted">Модуль денежных потоков не загрузился.</p>';
   const schedule = window.BondRetail.cashflowSchedule(rows, (universe || {}).bonds || [], { taxRate: BOND_SETTINGS.taxRate });
-  const entries = Object.entries(schedule.months || {}).sort();
-  if (!entries.length) return '<p class="muted">В ближайшие 12 месяцев подтверждённые выплаты не найдены.</p>';
+  const paid = schedule.months || {};
+  if (!Object.keys(paid).length) return '<p class="muted">В ближайшие 12 месяцев подтверждённые выплаты не найдены.</p>';
+  // Показываем ВСЕ 12 месяцев подряд, включая пустые: месяц без выплат — это факт о
+  // денежном потоке, а не отсутствие данных, и скрывать его значит рисовать ровный доход
+  // там, где его нет.
+  const start = new Date();
+  const entries = [];
+  for (let i = 0; i < 12; i += 1) {
+    const d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + i, 1));
+    const key = d.toISOString().slice(0, 7);
+    entries.push([key, paid[key] || { coupon_gross_rub: 0, principal_rub: 0, net_rub: 0 }]);
+  }
+  const emptyMonths = entries.filter(([, item]) => !Number(item.net_rub)).length;
   const max = Math.max(...entries.map(([, item]) => Number(item.net_rub || 0)), 1);
-  const bars = entries.map(([month, item]) => `<button type="button" data-bond-cash-month="${esc(month)}" title="Купоны gross ${rub0(item.coupon_gross_rub)}; возврат номинала ${rub0(item.principal_rub)}">
-    <span>${esc(month)}</span><i style="--h:${Math.max(6, Number(item.net_rub || 0) / max * 100).toFixed(1)}%"></i><b>${rub0(item.net_rub)}</b>
-  </button>`).join('');
+  const bars = entries.map(([month, item]) => {
+    const empty = !Number(item.net_rub);
+    return `<button type="button" class="${empty ? 'bond-month-empty' : ''}" data-bond-cash-month="${esc(month)}"
+      title="${empty ? 'Выплат нет' : `Купоны gross ${rub0(item.coupon_gross_rub)}; возврат номинала ${rub0(item.principal_rub)}`}">
+      <span>${esc(month)}</span><i style="--h:${empty ? '2' : Math.max(6, Number(item.net_rub || 0) / max * 100).toFixed(1)}%"></i>
+      <b>${empty ? '—' : rub0(item.net_rub)}</b></button>`;
+  }).join('');
   const flows = schedule.flows.map((flow) => `<tr data-cashflow-month="${esc(String(flow.date || '').slice(0, 7))}"><td>${esc(shortIsoDate(flow.date))}</td><td>${esc(flow.secid)}</td><td>${flow.type === 'coupon' ? 'Купон' : 'Возврат номинала'}</td><td class="tnum">${rub0(flow.gross_rub)}</td><td class="tnum">${rub0(flow.tax_rub)}</td><td class="tnum b-strong">${rub0(flow.net_rub)}</td></tr>`).join('');
-  const monthlyAverage = entries.length ? schedule.coupon_net_rub / 12 : 0;
-  return `<div class="bond-cash-kpis"><div><span>Купоны gross</span><b>${rub0(schedule.coupon_gross_rub)}</b></div><div><span>Купоны net</span><b>${rub0(schedule.coupon_net_rub)}</b></div><div><span>Возврат номинала</span><b>${rub0(schedule.principal_rub)}</b></div><div><span>Средний купон / месяц</span><b>${rub0(monthlyAverage)}</b></div></div>
+  const monthlyAverage = schedule.coupon_net_rub / 12;
+  return `<div class="bond-cash-kpis"><div><span>Купоны gross</span><b>${rub0(schedule.coupon_gross_rub)}</b></div><div><span>Купоны net</span><b>${rub0(schedule.coupon_net_rub)}</b></div><div><span>Возврат номинала</span><b>${rub0(schedule.principal_rub)}</b></div><div><span>Средний купон / месяц</span><b>${rub0(monthlyAverage)}</b>${emptyMonths ? `<small>${plural(emptyMonths, 'месяц', 'месяца', 'месяцев')} без выплат</small>` : ''}</div></div>
     <div class="bondlab-coupons">${bars}</div>
-    <details class="bond-cash-details"><summary>Выплаты по точным датам</summary><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Дата</th><th>Выпуск</th><th>Тип</th><th>Gross</th><th>Налог, оценка</th><th>Net</th></tr></thead><tbody>${flows}</tbody></table></div><p>Возврат номинала показан отдельно и не считается инвестиционным доходом. Налог рассчитан оценочно по ставке 13% только для купонов.</p></details>`;
+    ${bondReinvestHTML(schedule)}
+    <details class="bond-cash-details"><summary>Выплаты по точным датам</summary><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Дата</th><th>Выпуск</th><th>Тип</th><th>Gross</th><th>Налог, оценка</th><th>Net</th></tr></thead><tbody>${flows}</tbody></table></div><p>Возврат номинала показан отдельно и не считается инвестиционным доходом. Налог оценочный: ${ru(BOND_SETTINGS.taxRate * 100, 0)}% удерживается только с купонов, налог с разницы цен и льготы счёта не учитываются.</p></details>`;
 }
 
 function bondPortfolioLabHTML(lab) {
@@ -5805,7 +5928,7 @@ function bondPortfolioLabHTML(lab) {
         <div class="bonds-table-wrap bondlab-desktop-table"><table class="bonds-table bondlab-portfolio-table"><thead><tr><th>Выпуск</th><th>Класс</th><th>Цель</th><th>Факт</th><th>Лоты</th><th>Dirty/лот</th><th>Сумма</th><th>YTM net</th><th>Дюр.</th><th>Погашение</th></tr></thead><tbody>${table}</tbody></table></div>
         <div class="bondlab-mobile-cards">${cards}</div>
       </section>
-      <aside class="bondlab-side"><section><h3>Рейтинг</h3>${bondDistribution(rows, 'rating', (r) => r.instrument_type === 'ofz' ? 'ОФЗ' : (r.rating_group || 'Без рейтинга'))}</section><section><h3>Секторы</h3>${bondDistribution(rows, 'sector')}</section><section class="bondlab-shock"><h3>Стресс портфеля</h3><dl><div><dt>Ставка +100 б.п.</dt><dd>${rub0(rateShock100.combined_impact_rub)}</dd></div><div><dt>Ставка +200 б.п.</dt><dd>${rub0(rateShock200.combined_impact_rub)}</dd></div><div><dt>Кредитный spread +100 б.п.</dt><dd>${rub0(spreadShock100.combined_impact_rub)}</dd></div></dl><p>Линейная duration-оценка без convexity. Процентный и кредитный шоки рассчитаны отдельно.</p></section><section><h3>Группы компаний</h3><b>${bondPct(groupCoverage.unknown_group_weight_pct, 1)} не подтверждено</b><p>Неизвестная группа не считается диверсификацией. Лимит группы станет расчётным после появления проверенного ultimate parent.</p></section></aside>
+      <aside class="bondlab-side"><section><h3>Рейтинг</h3>${bondDistribution(rows, 'rating', (r) => r.instrument_type === 'ofz' ? 'ОФЗ' : (r.rating_group || 'Без рейтинга'))}</section><section><h3>Секторы</h3>${bondDistribution(rows, 'sector')}</section><section class="bondlab-shock"><h3>Стресс портфеля</h3><dl><div><dt>Ставка +100 б.п.</dt><dd>${rub0(rateShock100.combined_impact_rub)}</dd></div><div><dt>Ставка +200 б.п.</dt><dd>${rub0(rateShock200.combined_impact_rub)}</dd></div><div><dt>Кредитный spread +100 б.п.</dt><dd>${rub0(spreadShock100.combined_impact_rub)}</dd></div></dl><p>Линейная duration-оценка без convexity. Процентный и кредитный шоки рассчитаны отдельно.</p></section>${bondDowngradeHTML(rows)}${bondAlternativesCompareHTML(allocation, rows)}<section><h3>Группы компаний</h3><b>${bondPct(groupCoverage.unknown_group_weight_pct, 1)} не подтверждено</b><p>Неизвестная группа не считается диверсификацией. Лимит группы станет расчётным после появления проверенного ultimate parent.</p></section></aside>
     </div>
     <section class="bondlab-coupon-block"><div class="bondlab-block-head"><div><h3>Денежный календарь · 12 месяцев</h3><p>Купоны, оценка налога и возврат номинала для фактического количества облигаций.</p></div></div>${bondCouponCalendar(rows, universe)}</section>
     ${bondUserPortfolioHTML(allocation, universe, activeAllocations)}

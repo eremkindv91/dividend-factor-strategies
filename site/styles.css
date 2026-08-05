@@ -3538,6 +3538,19 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bond-alert-center b { color: var(--ink); font-size: .8rem; }
 .bond-alert-center small { color: var(--ink-soft); font-size: .72rem; line-height: 1.4; }
 .bond-current-calendar { margin-top: 18px; }
+/* Месяц без выплат — факт о потоке, а не пропуск данных: столбец виден, но приглушён */
+.bondlab-coupons > button.bond-month-empty { opacity: .55; }
+.bondlab-coupons > button.bond-month-empty i { background: var(--line-strong); }
+.bond-reinvest { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 12px; padding: 11px 13px;
+  border-radius: 9px; background: var(--bg); }
+.bond-reinvest > div { display: flex; flex-direction: column; min-width: 0; }
+.bond-reinvest span { color: var(--ink-faint); font-size: .68rem; }
+.bond-reinvest b { margin-top: 2px; color: var(--ink); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.bond-reinvest b.pos { color: var(--good-ink); }
+.bond-reinvest small { color: var(--ink-faint); font-size: .64rem; }
+.bond-reinvest p { flex-basis: 100%; margin: 0; color: var(--ink-soft); font-size: .71rem; line-height: 1.5; }
+.bond-reinvest-off { margin-top: 12px; font-size: .74rem; line-height: 1.5; }
+.bond-alt-compare dd small { display: block; color: var(--ink-faint); font-size: .64rem; font-weight: 400; }
 
 /* Карточка выпуска */
 .bond-detail-dialog { width: min(920px, 96vw); max-height: 92vh; padding: 0; border: 1px solid var(--line);

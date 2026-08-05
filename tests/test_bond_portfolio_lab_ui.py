@@ -324,3 +324,46 @@ def test_settings_defaults_match_calculation_layer():
     for key in ("taxRate", "commissionBps", "slippageBps", "minTradeRub", "noTradeBandPct", "reinvestRatePct"):
         assert key in defaults, f"умолчание {key} должно жить в расчётном слое"
     assert 0 < defaults["taxRate"] < 1, "ставка налога хранится долей, а не процентами"
+
+
+def test_calendar_shows_empty_months_and_configurable_tax():
+    """Месяц без выплат — факт о потоке, а не пропуск данных."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "bond-month-empty" in app, "пустые месяцы должны быть видны на графике"
+    assert "for (let i = 0; i < 12; i += 1)" in app, "календарь строится на все 12 месяцев"
+    # ставка налога в подписи берётся из настроек, а не зашита
+    assert "ru(BOND_SETTINGS.taxRate * 100, 0)" in app
+    assert "по ставке 13% только для купонов" not in app
+
+
+def test_reinvestment_uses_user_rate_and_is_off_by_default():
+    """Ставку реинвестирования задаёт пользователь.
+
+    Подстановка YTM самой облигации молча предположила бы неизменные условия рынка
+    и завысила бы результат тем сильнее, чем выше текущая доходность.
+    """
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "function bondReinvestHTML" in app
+    assert "BOND_SETTINGS.reinvestRatePct" in app
+    assert "bond-reinvest-off" in app, "выключенный режим должен объясняться, а не молчать"
+    assert "Ставка задана вами, а не выведена из доходности выпусков" in app
+
+
+def test_downgrade_scenario_does_not_invent_price_loss():
+    """Без матрицы спредов по ступеням рублёвую потерю считать не из чего."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "function bondDowngradeHTML" in app
+    assert "перестанут проходить ваш минимум" in app
+    assert "Потеря стоимости в рублях не оценивается" in app
+
+
+def test_alternatives_comparison_hides_missing_deposit_rates():
+    """Ставки вкладов не выдумываются: надёжного источника в проекте нет."""
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "function bondAlternativesCompareHTML" in app
+    assert "актуальных данных нет" in app
+    assert "MACRO_CBR.key_rate.current" in app, "ключевая ставка берётся из макро-модуля"
