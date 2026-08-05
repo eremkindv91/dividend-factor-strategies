@@ -482,10 +482,22 @@ def check_bonds() -> None:
                 if any(int(row.get("lots") or 0) < 1 or row.get("secid") not in set(universe_secids) for row in positions):
                     err(f"bonds/portfolio_presets.json: allocation {key} содержит невалидные лоты/SECID")
 
+            # При критических ошибках pipeline_v3 пишет validation со статусом FAIL и выходит
+            # ДО записи portfolio_presets.json — на диске остаётся рассогласованная пара, и
+            # раньше в лог попадали только жалобы на несовпадение, а настоящая причина
+            # оставалась внутри JSON. Печатаем её: без этого падение cron неотличимо от
+            # обычного рассинхрона и не диагностируется по логам.
             if validation.get("status") != "PASS" or (validation.get("quality_gate") or {}).get("status") != "PASS":
-                err("bonds/portfolio_validation.json: quality gate не PASS")
+                for reason in (validation.get("critical_errors") or [])[:10]:
+                    print(f"    причина сборки: {reason}")
+                for reason in ((validation.get("quality_gate") or {}).get("failures") or [])[:10]:
+                    print(f"    quality gate: {reason}")
+                err(f"bonds/portfolio_validation.json: сборка не прошла "
+                    f"(status={validation.get('status')}, gate={(validation.get('quality_gate') or {}).get('status')})")
             if validation.get("available_presets") != len(allocations):
-                err("bonds/portfolio_validation.json: available_presets не совпадает с allocations")
+                err(f"bonds/portfolio_validation.json: available_presets="
+                    f"{validation.get('available_presets')} против allocations={len(allocations)} "
+                    f"— файлы записаны разными прогонами")
             if set((last_valid.get("allocations") or {}).keys()) != set(allocations):
                 err("bonds/portfolio_last_valid.json: набор allocations не совпадает с текущим валидным snapshot")
             print(
