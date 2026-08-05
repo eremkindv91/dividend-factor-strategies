@@ -261,6 +261,16 @@ jobs:
             # ML strategy is produced by dedicated daily/weekly/monthly jobs. Preserve the
             # newest validated additive snapshot during this unrelated orphan republish.
             [ -d "$LAST_GOOD/ml_strategy" ] && mkdir -p "$TMP/ml_strategy" && cp -R "$LAST_GOOD/ml_strategy/." "$TMP/ml_strategy/"
+            # Скринер облигаций генерит bonds_update.yml (свой cron + additive-push в gh-pages).
+            # Этот job его НЕ считает и копирует выше закоммиченную в репозиторий копию, которая
+            # отстаёт: бот коммитит не при каждом успешном прогоне. Из-за этого orphan-republish
+            # откатывал облигации на gh-pages к более старым ценам, и safe-фильтр честно отсеивал
+            # весь универсум как устаревший. Оставляем то, что новее по дате цены.
+            if [ -f "$LAST_GOOD/bonds/universe.json" ] \
+               && python scripts/pick_fresher_bonds.py "$LAST_GOOD/bonds/universe.json" "$TMP/bonds/universe.json"; then
+              echo "[bonds] на gh-pages данные свежее чекаута — сохраняем опубликованные"
+              mkdir -p "$TMP/bonds" && cp "$LAST_GOOD"/bonds/*.json "$TMP/bonds/"
+            fi
             # Двухконтурная «Пила»: marketsaw_imoex/manifest/mcftr генерит market-saw-update.yml
             # (отдельный additive-publish). marketsaw.json (MCFTR) этот job строит сам (выше);
             # для остальных — перенос из LAST_GOOD, иначе orphan-republish их сотрёт.
