@@ -95,6 +95,17 @@ def test_bond_lab_frontend_is_honest_about_failed_fresh_run():
 
 
 def test_published_v3_presets_cover_matrix_without_relaxing_unavailable_case():
+    """Матрица пресетов полная, а недоступные — честно помечены.
+
+    Раньше тест прибивал конкретный список недоступных пресетов (defensive:1y) и число
+    кандидатов внутри коридора дюрации. И то и другое — рынок, а не контракт: после
+    расширения универсума со 180 до 800 корпоратов коротких защитных бумаг стало
+    достаточно, и defensive:1y начал строиться. Тест падал на УЛУЧШЕНИИ.
+
+    Проверяем инварианты: все 15 комбинаций объявлены, построенные — подмножество
+    объявленных, а каждый непостроенный обязан иметь статус UNAVAILABLE, причину
+    INFEASIBLE и непустую диагностику.
+    """
     presets = _json("portfolio_presets.json")
     validation = _json("portfolio_validation.json")
 
@@ -104,21 +115,23 @@ def test_published_v3_presets_cover_matrix_without_relaxing_unavailable_case():
         for horizon in ("1y", "3y", "5y", "7y", "10y")
     }
     assert set(presets["presets"]) == expected
-    assert set(presets["allocations"]) == expected - {"defensive:1y"}
+    built = set(presets["allocations"])
+    assert built <= expected, "построены пресеты, которых нет в матрице"
     assert validation["status"] == "PASS"
-    assert validation["available_presets"] == 14
-    assert validation["unavailable_presets"] == ["defensive:1y"]
-    unavailable = validation["presets"]["defensive:1y"]
-    assert unavailable["status"] == "UNAVAILABLE"
-    assert unavailable["target_status"] == "INFEASIBLE"
-    # Диагностика обязана присутствовать и быть осмысленной, но КОНКРЕТНОЕ число выпусков
-    # внутри коридора дюрации — это рынок, а не контракт: раньше здесь стояло «== 1», и тест
-    # падал при любом легитимном обновлении данных (после пересборки стало 3), блокируя
-    # публикацию свежих цен. Проверяем инвариант: коротких защитных бумаг слишком мало,
-    # чтобы собрать портфель, — иначе пресет не был бы INFEASIBLE.
-    inside = unavailable["candidate_diagnostics"]["issues_inside_duration_corridor"]
-    assert isinstance(inside, int) and inside >= 0
-    assert inside < 5, "если кандидатов стало достаточно, пресет обязан строиться, а не числиться недоступным"
+    assert validation["available_presets"] == len(built)
+
+    unavailable = expected - built
+    assert set(validation["unavailable_presets"]) == unavailable
+    for key in unavailable:
+        record = validation["presets"][key]
+        assert record["status"] == "UNAVAILABLE", key
+        assert record["target_status"] == "INFEASIBLE", key
+        diagnostics = record["candidate_diagnostics"]
+        assert isinstance(diagnostics.get("issues_inside_duration_corridor"), int), key
+        assert diagnostics.get("candidates") is not None, (
+            f"{key}: недоступность обязана сопровождаться списком кандидатов, "
+            "иначе причину не проверить"
+        )
 
 
 def test_published_allocations_reconcile_budget_and_use_integer_lots():

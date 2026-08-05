@@ -518,7 +518,11 @@ def build_live_universe(
         if inn in (issuer_master.get("issuers") or {}):
             mapped_selected += 1
     estimated_sector_coverage = mapped_selected / eligible_selected if eligible_selected else 0.0
-    sector_gate = float(config["quality_gate"]["minimum_sector_coverage"])
+    # Порог ПРОПУСКА дорогого обогащения секторов через ФНС, а не публикационный гейт.
+    # Раньше брался из quality_gate.minimum_sector_coverage; после перевода гейта на
+    # абсолютные пороги ключа там нет, и смешивать две разные задачи в одном числе
+    # неправильно: одна решает «публиковать ли», другая — «ходить ли в ФНС».
+    sector_gate = float(universe_cfg.get("sector_enrichment_skip_coverage", 0.6))
     if estimated_sector_coverage + 1e-12 >= sector_gate:
         sector_enrichment_status = {
             "status": "skipped",

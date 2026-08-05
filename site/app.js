@@ -5433,7 +5433,8 @@ let BOND_SCREEN_MODE = 'safe';
 let BOND_ANALYTICS_VIEW = 'relative';
 let BOND_SCREEN_FILTERS = {
   minRating: 'A-', minYtm: '', maxYtm: '', maxDuration: '',
-  minLiquidity: 45, sector: 'all', couponType: 'all', retailOnly: true, simpleOnly: true,
+  minLiquidity: 45, sector: 'all', couponType: 'all', couponFreq: 'all',
+  retailOnly: true, simpleOnly: true,
 };
 let BOND_USER_PORTFOLIO = [];
 let BOND_USER_IMPORT_ERRORS = [];
@@ -6064,6 +6065,9 @@ function bondScreenerRows(universe) {
     if (f.maxYtm !== '' && Number(row.ytm_net_est_pct) > Number(f.maxYtm)) return false;
     if (f.sector !== 'all' && row.sector !== f.sector) return false;
     if (f.couponType !== 'all' && row.coupon_type !== f.couponType) return false;
+    // Частота выплат — предпочтение инвестора (кому-то нужен ежемесячный поток,
+    // кому-то безразлично), а не признак качества: фильтруем, но не гейтим.
+    if (f.couponFreq !== 'all' && Number(row.coupon_frequency) !== Number(f.couponFreq)) return false;
     if (f.retailOnly && row.qualified_only) return false;
     if (f.simpleOnly && (row.amortizing || row.has_put_offer || row.has_call)) return false;
     if (Number(f.minLiquidity) > 0 && window.BondRetail) {
@@ -6104,6 +6108,10 @@ function bondUniverseScreenerHTML(universe) {
     <label>Сектор<select data-bond-filter="sector">
       <option value="all"${f.sector === 'all' ? ' selected' : ''}>все</option>
       ${sectors.map((s) => `<option value="${esc(s)}"${f.sector === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}
+    </select></label>
+    <label>Выплаты<select data-bond-filter="couponFreq">
+      ${[['all', 'любая частота'], ['12', 'ежемесячно'], ['4', 'ежеквартально'], ['2', 'раз в полгода'], ['1', 'раз в год']]
+        .map(([id, label]) => `<option value="${id}"${String(f.couponFreq) === id ? ' selected' : ''}>${esc(label)}</option>`).join('')}
     </select></label>
     <label>Купон<select data-bond-filter="couponType">
       ${[['all', 'любой'], ['fixed', 'фиксированный'], ['floating', 'плавающий'], ['zero', 'бескупонный']]
@@ -6437,7 +6445,8 @@ function closeBondDetail() {
 
 const BOND_FILTERS_DEFAULT = Object.freeze({
   minRating: 'A-', minYtm: '', maxYtm: '', maxDuration: '',
-  minLiquidity: 45, sector: 'all', couponType: 'all', retailOnly: true, simpleOnly: true,
+  minLiquidity: 45, sector: 'all', couponType: 'all', couponFreq: 'all',
+  retailOnly: true, simpleOnly: true,
 });
 
 function wireBondLabControls() {

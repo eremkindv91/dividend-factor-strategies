@@ -286,7 +286,10 @@ def build_screener(gt: np.ndarray, gy: np.ndarray, ratings: dict[str, dict]) -> 
     for s in raw:
         rating_record = ratings.get(str(s.get("ISIN") or s["SECID"]).upper())
         rating = rating_record.get("rating") if rating_record else None
-        ok, rating, _ = cheap_pass(s, monthly_only=True, official_rating=rating)
+        # Частота купона больше НЕ фильтр: раньше стояло monthly_only=True, и скринер
+        # показывал только ежемесячные выпуски — 67 бумаг из тысячи. Частота выплат это
+        # предпочтение инвестора, а не признак качества, и выбирается фильтром в интерфейсе.
+        ok, rating, _ = cheap_pass(s, monthly_only=False, official_rating=rating)
         if ok:
             s["_rating"] = rating
             s["_rating_record"] = rating_record

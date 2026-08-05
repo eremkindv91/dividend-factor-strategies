@@ -11,11 +11,36 @@
     "slippage_bps": 10
   },
   "horizons": {
-    "1y": {"label": "1 год", "target": 0.75, "min": 0.35, "max": 1.1},
-    "3y": {"label": "3 года", "target": 1.6, "min": 1.0, "max": 2.2},
-    "5y": {"label": "5 лет", "target": 2.5, "min": 1.7, "max": 3.3},
-    "7y": {"label": "7 лет", "target": 3.1, "min": 2.1, "max": 4.1},
-    "10y": {"label": "10 лет", "target": 3.8, "min": 2.6, "max": 5.0}
+    "1y": {
+      "label": "1 год",
+      "target": 0.75,
+      "min": 0.35,
+      "max": 1.1
+    },
+    "3y": {
+      "label": "3 года",
+      "target": 1.6,
+      "min": 1.0,
+      "max": 2.2
+    },
+    "5y": {
+      "label": "5 лет",
+      "target": 2.5,
+      "min": 1.7,
+      "max": 3.3
+    },
+    "7y": {
+      "label": "7 лет",
+      "target": 3.1,
+      "min": 2.1,
+      "max": 4.1
+    },
+    "10y": {
+      "label": "10 лет",
+      "target": 3.8,
+      "min": 2.6,
+      "max": 5.0
+    }
   },
   "profiles": {
     "defensive": {
@@ -98,33 +123,48 @@
     "complexity_pp": 0.5
   },
   "peer_benchmark": {
-    "duration_edges_years": [0, 1, 2, 3, 5, 7, 10, 30],
+    "duration_edges_years": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      7,
+      10,
+      30
+    ],
     "minimum_observations": 5,
     "winsor_lower": 0.05,
     "winsor_upper": 0.95,
-    "fixed_fallback_pp": {"AAA": 1.5, "AA": 2.2, "A": 3.5, "BBB": 5.0}
+    "fixed_fallback_pp": {
+      "AAA": 1.5,
+      "AA": 2.2,
+      "A": 3.5,
+      "BBB": 5.0
+    }
   },
   "quality_gate": {
     "max_price_age_days": 4,
     "max_curve_age_days": 4,
     "max_rating_check_age_days": 14,
-    "minimum_rating_coverage": 0.55,
-    "minimum_sector_coverage": 0.6,
     "minimum_modified_duration_coverage": 0.8,
     "minimum_liquidity_history_coverage": 0.7,
-    "minimum_live_rating_sources": 1
+    "minimum_live_rating_sources": 1,
+    "minimum_rated_corporate_issues": 100,
+    "minimum_rated_corporate_issuers": 35
   },
   "solver": {
     "time_limit_seconds": 25,
     "mip_relative_gap": 0.0001,
-    "numerical_tolerance": 1e-8
+    "numerical_tolerance": 1e-08
   },
   "universe": {
-    "maximum_corporate_enrichment": 180,
+    "maximum_corporate_enrichment": 800,
     "minimum_value_today_rub": 100000,
     "history_sessions": 20,
     "workers": 5,
     "sector_enrichment_limit": 12,
-    "sector_enrichment_interval_seconds": 4.0
+    "sector_enrichment_interval_seconds": 4.0,
+    "sector_enrichment_skip_coverage": 0.6
   }
 }

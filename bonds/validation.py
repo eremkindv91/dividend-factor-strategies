@@ -74,9 +74,13 @@ def quality_gate(universe: dict, config_path: str | Path = DEFAULT_CONFIG, today
     def coverage(rows, predicate) -> float:
         return sum(1 for row in rows if predicate(row)) / len(rows) if rows else 0.0
 
+    rated = [row for row in corporate if row.get("rating_rank") is not None]
     metrics = {
+        # Доли остаются В ОТЧЁТЕ, но БОЛЬШЕ НЕ БЛОКИРУЮТ публикацию — см. комментарий ниже.
         "rating_coverage": coverage(corporate, lambda row: row.get("rating_rank") is not None),
         "sector_coverage": coverage(corporate, lambda row: row.get("sector") not in {None, "", "unknown"}),
+        "rated_corporate_issues": len(rated),
+        "rated_corporate_issuers": len({row.get("issuer_id") for row in rated if row.get("issuer_id")}),
         "modified_duration_coverage": coverage(bonds, lambda row: row.get("duration_type") == "modified_duration_effective_annual"),
         "liquidity_history_coverage": coverage(bonds, lambda row: int(row.get("history_sessions") or 0) >= 10),
     }
@@ -98,13 +102,31 @@ def quality_gate(universe: dict, config_path: str | Path = DEFAULT_CONFIG, today
     ):
         if ages[name] is None or ages[name] > int(maximum):
             failures.append(f"{name}_stale_or_missing")
+    # Полнота данных проверяется ДОЛЕЙ там, где она характеризует пригодность каждой бумаги
+    # (дюрация и история торгов нужны КАЖДОМУ выпуску, иначе его нельзя оценить), и
+    # АБСОЛЮТНЫМ ЧИСЛОМ там, где речь о наличии материала для портфеля.
+    #
+    # Почему рейтинг и сектор больше не гейтятся долей: она меряет широту каталога, а не
+    # качество рекомендаций. Безрейтинговая бумага в портфель не попадает никогда —
+    # это отсекает _eligible (rating_below_floor_or_missing), а в скринере она честно
+    # помечена. При расширении универсума со 180 до 800 выпусков доля бумаг с рейтингом
+    # упала с 58,9 % до 45,9 %, тогда как их ЧИСЛО выросло со 106 до 367, а число эмитентов
+    # с рейтингом — до 93. Доля-гейт блокировала ровно то улучшение, ради которого
+    # расширение и делалось. Неизвестный сектор отдельно ограничен в оптимизаторе
+    # лимитом max_unknown_sector (10–15 % портфеля), поэтому дублировать его гейтом незачем.
     for metric, threshold in (
-        ("rating_coverage", thresholds["minimum_rating_coverage"]),
-        ("sector_coverage", thresholds["minimum_sector_coverage"]),
         ("modified_duration_coverage", thresholds["minimum_modified_duration_coverage"]),
         ("liquidity_history_coverage", thresholds["minimum_liquidity_history_coverage"]),
     ):
         if metrics[metric] + 1e-12 < float(threshold):
+            failures.append(f"{metric}_below_gate")
+    # Абсолютные пороги ловят реальную аварию — отказ источников рейтингов: при нём число
+    # оценённых выпусков падает почти до нуля независимо от размера каталога.
+    for metric, threshold in (
+        ("rated_corporate_issues", thresholds["minimum_rated_corporate_issues"]),
+        ("rated_corporate_issuers", thresholds["minimum_rated_corporate_issuers"]),
+    ):
+        if int(metrics[metric]) < int(threshold):
             failures.append(f"{metric}_below_gate")
     if live_rating_sources < int(thresholds["minimum_live_rating_sources"]):
         failures.append("live_rating_sources_below_gate")

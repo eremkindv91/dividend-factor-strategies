@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from datetime import date, timedelta
 
@@ -143,14 +144,51 @@ def test_peer_benchmark_uses_observation_count_and_neutral_fallback():
     assert all(row["peer_fallback_level"] in {"rating_notch_duration", "rating_group_duration", "rating_group", "fixed_rating_fallback"} for row in corporate)
 
 
-def test_quality_gate_checks_sources_and_coverages():
-    universe = universe_fixture()
-    gate = quality_gate(universe, today=date(2026, 8, 2))
-    assert gate["status"] == "PASS"
+def _config_with(tmp_path, **overrides):
+    """Копия production-конфига с изменённым quality_gate — для проверки механизма гейта
+    на маленькой фикстуре, где абсолютные пороги production-размера неприменимы."""
+    config = load_json("bonds/portfolio_config.json")
+    config["quality_gate"].update(overrides)
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
+    return path
 
+
+def test_quality_gate_checks_sources_and_coverages(tmp_path):
+    """Гейт проверяет свежесть источников и НАЛИЧИЕ материала для портфеля.
+
+    Пороги рейтинга и сектора переведены с долей на абсолютные числа: доля мерила широту
+    каталога, а не качество рекомендаций, и блокировала расширение универсума
+    (см. docs/bond-universe-selection-audit.md). Фикстура здесь маленькая, поэтому
+    production-пороги в ней заменяются соразмерными — проверяется механизм, а не значения.
+    """
+    universe = universe_fixture()
+    rated = [row for row in universe["bonds"]
+             if row.get("instrument_type") == "corp" and row.get("rating_rank") is not None]
+    assert rated, "фикстура обязана содержать корпораты с рейтингом"
+
+    fitted = _config_with(tmp_path,
+                          minimum_rated_corporate_issues=1,
+                          minimum_rated_corporate_issuers=1)
+    gate = quality_gate(universe, config_path=fitted, today=date(2026, 8, 2))
+    assert gate["status"] == "PASS", gate["failures"]
+    assert gate["metrics"]["rated_corporate_issues"] == len(rated)
+
+    # устаревшие цены ловятся независимо от порогов покрытия
     broken = deepcopy(universe)
     broken["as_of"]["prices"] = "2026-01-01"
-    assert "prices_stale_or_missing" in quality_gate(broken, today=date(2026, 8, 2))["failures"]
+    assert "prices_stale_or_missing" in quality_gate(
+        broken, config_path=fitted, today=date(2026, 8, 2))["failures"]
+
+    # абсолютный порог обязан срабатывать: это и есть защита от отказа источников рейтингов
+    strict = _config_with(tmp_path, minimum_rated_corporate_issues=len(rated) + 1,
+                          minimum_rated_corporate_issuers=1)
+    assert "rated_corporate_issues_below_gate" in quality_gate(
+        universe, config_path=strict, today=date(2026, 8, 2))["failures"]
+
+    # доли рейтинга и сектора остаются В ОТЧЁТЕ, но больше не блокируют публикацию
+    assert "rating_coverage" in gate["metrics"] and "sector_coverage" in gate["metrics"]
+    assert not any(f.startswith(("rating_coverage", "sector_coverage")) for f in gate["failures"])
 
 
 def test_all_fifteen_presets_satisfy_target_constraints_and_are_deterministic():
