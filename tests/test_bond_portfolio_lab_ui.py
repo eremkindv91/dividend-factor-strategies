@@ -158,3 +158,75 @@ console.log(JSON.stringify({
     assert parity["budgetDelta"] <= 0.01
     assert parity["sameComposition"] is True
     assert parity["maximumLotDifference"] <= 1
+
+
+def test_portfolio_controls_are_wired_not_just_rendered():
+    """Разметка без обработчика — мёртвая кнопка.
+
+    Все пять контролов «Моего портфеля» были отрисованы, но ни один не имел слушателя:
+    импорт, выбор файла, режим ребаланса, резервная копия и удаление ничего не делали.
+    """
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    for control in (
+        "bond-portfolio-import",
+        "bond-portfolio-file",
+        "bond-portfolio-clear",
+        "bond-portfolio-backup",
+        "bond-rebalance-mode",
+    ):
+        assert f"getElementById('{control}')" in app, f"нет обработчика для {control}"
+
+    # разбор таблицы делегирован расчётному слою, а не продублирован во фронте
+    assert "window.BondRetail.parsePortfolioText(text)" in app
+    assert "savePortfolio(window.localStorage" in app
+    assert "clearPortfolio(window.localStorage)" in app
+
+
+def test_portfolio_text_parser_handles_broker_exports():
+    """Разбор вставки: заголовок, русская запятая, битые строки не теряются молча."""
+    script = """
+    const B = require('./site/bond_retail.js');
+    const out = B.parsePortfolioText([
+      'SECID;Количество;Средняя цена',
+      'RU000A0ZYLG5;100;101,20',
+      'RU000A107RZ0;50;99,80',
+      'BROKEN;;',
+    ].join('\\n'));
+    console.log(JSON.stringify(out));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    parsed = json.loads(result.stdout)
+
+    assert len(parsed["positions"]) == 2, "заголовок не должен попадать в позиции"
+    assert parsed["positions"][0]["identifier"] == "RU000A0ZYLG5"
+    assert parsed["positions"][0]["quantity_bonds"] == 100
+    assert parsed["positions"][0]["average_price"] == 101.20, "русская запятая как разделитель"
+    assert len(parsed["errors"]) == 1, "битая строка должна вернуться ошибкой, а не исчезнуть"
+    assert parsed["errors"][0]["code"] == "INVALID_ROW"
+
+
+def test_new_money_mode_never_sells():
+    """Режим «только новые деньги» не должен продавать существующие позиции."""
+    script = """
+    const B = require('./site/bond_retail.js');
+    const universe = [
+      { secid: 'A', lot_size: 1, face_value_per_bond_rub: 1000, clean_price_pct: 100,
+        aci_per_bond_rub: 0, dirty_price_per_bond_rub: 1000, dirty_price_per_lot_rub: 1000 },
+      { secid: 'B', lot_size: 1, face_value_per_bond_rub: 1000, clean_price_pct: 100,
+        aci_per_bond_rub: 0, dirty_price_per_bond_rub: 1000, dirty_price_per_lot_rub: 1000 },
+    ];
+    const current = [{ secid: 'A', quantity_bonds: 100, bond: universe[0] }];
+    const target = { positions: [{ secid: 'B', lots: 50, actual_weight: 1 }], budget_rub: 50000 };
+    const out = B.reconcile(current, target, universe, { mode: 'new_money', minTradeRub: 0, noTradeBandPct: 0 });
+    console.log(JSON.stringify(out.trades.map(t => ({ secid: t.secid, action: t.action, lots: t.trade_lots }))));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    trades = json.loads(result.stdout)
+
+    assert not any(t["action"] == "SELL" for t in trades), "новые деньги не продают позиции"
+    assert all(float(t["lots"]).is_integer() for t in trades), "лоты только целые"

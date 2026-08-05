@@ -5797,6 +5797,22 @@ function bondPortfolioLabHTML(lab) {
     <details class="bonds-limits"><summary>Как сформирован портфель</summary><div class="bonds-limits-body"><p>MILP максимизирует скорректированный carry при жёстких лимитах выпуска, эмитента, сектора, рейтинга, ОФЗ, дюрации, ликвидности и лестницы погашений. Затем отдельная integer-модель подбирает лоты и повторно проверяет ограничения.</p><p>Estimated net YTM — упрощённая модель налога, не персональный налоговый расчёт. Состав является исследовательским модельным списком для самостоятельной проверки, не индивидуальной рекомендацией.</p>${['7y','10y'].includes(BOND_LAB_HORIZON) ? '<p>Модель использует лестницу погашений и предполагает реинвестирование. Это не означает удержание одного неизменного набора облигаций весь горизонт.</p>' : ''}</div></details>`;
 }
 
+/** Импорт портфеля пользователя.
+ *
+ *  Разбор делегирован BondRetail.parsePortfolioText: он определяет разделитель, узнаёт
+ *  заголовок по псевдонимам колонок и сопоставляет столбцы по имени, а не по позиции —
+ *  своя копия этой логики во фронте только разошлась бы с расчётным слоем.
+ */
+function bondApplyImport(text) {
+  if (!window.BondRetail) return;
+  const parsed = window.BondRetail.parsePortfolioText(text);
+  if (!parsed.positions.length && !parsed.errors.length) return;
+  BOND_USER_PORTFOLIO = parsed.positions;
+  BOND_USER_IMPORT_ERRORS = parsed.errors;
+  if (window.BondRetail) window.BondRetail.savePortfolio(window.localStorage, BOND_USER_PORTFOLIO);
+  drawBondLab();
+}
+
 function bondUserPortfolioHTML(allocation, universe, allocations) {
   if (!window.BondRetail) return '';
   const resolved = window.BondRetail.resolvePortfolio(BOND_USER_PORTFOLIO, universe.bonds || []);
@@ -6201,6 +6217,49 @@ function wireBondLabControls() {
     control.addEventListener(control.tagName === 'SELECT' || control.type === 'checkbox' ? 'change' : 'input',
       control.tagName === 'SELECT' || control.type === 'checkbox' ? apply : debounce(apply, 300));
   });
+  // ── Мой портфель: импорт, файл, режим ребаланса, копия, удаление ──
+  const importButton = document.getElementById('bond-portfolio-import');
+  if (importButton) importButton.addEventListener('click', () => {
+    const area = document.getElementById('bond-portfolio-paste');
+    if (area) bondApplyImport(area.value);
+  });
+  const fileInput = document.getElementById('bond-portfolio-file');
+  if (fileInput) fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => bondApplyImport(String(reader.result || ''));
+    reader.onerror = () => {
+      BOND_USER_IMPORT_ERRORS = [{ line: 0, raw: file.name, code: 'FILE_READ_FAILED' }];
+      drawBondLab();
+    };
+    reader.readAsText(file, 'utf-8');
+  });
+  const rebalanceMode = document.getElementById('bond-rebalance-mode');
+  if (rebalanceMode) rebalanceMode.addEventListener('change', () => {
+    BOND_REBALANCE_MODE = rebalanceMode.value;
+    drawBondLab();
+  });
+  const backup = document.getElementById('bond-portfolio-backup');
+  if (backup) backup.addEventListener('click', () => {
+    // Резервная копия включает и нераспознанные строки: пользователь не должен терять
+    // позиции только потому, что тикер не нашёлся в текущем универсуме.
+    const payload = JSON.stringify({ schema_version: 1, saved_at: new Date().toISOString(), positions: BOND_USER_PORTFOLIO }, null, 2);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
+    link.download = `bond-portfolio-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  });
+  const clear = document.getElementById('bond-portfolio-clear');
+  if (clear) clear.addEventListener('click', () => {
+    if (!window.confirm('Удалить сохранённый портфель из этого браузера? Действие необратимо.')) return;
+    BOND_USER_PORTFOLIO = [];
+    BOND_USER_IMPORT_ERRORS = [];
+    if (window.BondRetail) window.BondRetail.clearPortfolio(window.localStorage);
+    drawBondLab();
+  });
+
   const resetFilters = document.getElementById('bond-filters-reset');
   if (resetFilters) resetFilters.addEventListener('click', () => {
     BOND_SCREEN_FILTERS = { ...BOND_FILTERS_DEFAULT };
