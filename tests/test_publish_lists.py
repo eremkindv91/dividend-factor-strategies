@@ -89,3 +89,26 @@ def test_data_files_used_by_frontend_are_published_somewhere():
     missing = sorted(f for f in requested if f not in side_channel and not covered(f))
     assert not missing, (
         "фронт грузит, но НИ ОДИН воркфлоу не публикует: " + ", ".join(missing))
+
+
+def test_every_local_asset_referenced_by_index_is_published():
+    """Файл, подключённый в index.html, обязан попадать в публикацию.
+
+    Сравнение двух списков публикации между собой этого не ловит: если файл забыт в
+    ОБОИХ, тест проходит, а на проде получается 404. Так уже случилось дважды —
+    macro_cbr.json и bond_retail.js (весь retail-слой облигаций молча не работал).
+    """
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "site" / "index.html").read_text(encoding="utf-8")
+    workflow = (root / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
+    manual = (root / "scripts" / "deploy_ghpages.sh").read_text(encoding="utf-8")
+
+    # локальные скрипты и стили (внешние CDN-ссылки не публикуем)
+    assets = set(re.findall(r'(?:src|href)="([\w./-]+\.(?:js|css))"', html))
+    local = {a for a in assets if not a.startswith(("http", "//"))}
+    assert local, "в index.html должны быть локальные ассеты — иначе тест бессмысленен"
+
+    for asset in sorted(local):
+        name = asset.split("/")[-1]
+        assert name in workflow, f"{name} подключён в index.html, но не публикуется в update.yml"
+        assert name in manual, f"{name} подключён в index.html, но не публикуется в deploy_ghpages.sh"

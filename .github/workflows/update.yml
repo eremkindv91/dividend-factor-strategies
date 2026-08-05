@@ -221,7 +221,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TMP="$(mktemp -d)"
-          cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/app.js site/data.json "$TMP/"
+          cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/app.js site/data.json "$TMP/"
           [ -d site/assets ] && cp -r site/assets "$TMP/"
           [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"   # методология (4 раздела, в репо)
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
@@ -279,7 +279,7 @@ jobs:
           # cache-bust: версионируем JS/CSS по SHA коммита → браузер тянет согласованный frontend
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
-          sed -i "s|\"instrument_logos\.js\"|\"instrument_logos.js?v=${V}\"|g; s|\"instrument_identity\.js\"|\"instrument_identity.js?v=${V}\"|g; s|\"bond_allocator\.js\"|\"bond_allocator.js?v=${V}\"|g; s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
+          sed -i "s|\"instrument_logos\.js\"|\"instrument_logos.js?v=${V}\"|g; s|\"instrument_identity\.js\"|\"instrument_identity.js?v=${V}\"|g; s|\"bond_allocator\.js\"|\"bond_allocator.js?v=${V}\"|g; s|\"bond_retail\.js\"|\"bond_retail.js?v=${V}\"|g; s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
           printf '{"version":"%s","generated":"%s"}\n' "$V" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TMP/build.json"   # §6.1: манифест кэша данных (dataURL ?v=)
           touch "$TMP/.nojekyll"
           git -C "$TMP" init -q
