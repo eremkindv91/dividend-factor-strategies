@@ -191,6 +191,16 @@ jobs:
         # с ненулевым кодом, прошлый валидный файл остаётся (last-good).
         run: python scripts/build_macro_cbr.py || echo "[macro] пропуск — сохранён предыдущий валидный файл (last-good)"
 
+      - name: Сборка valuation_v2.json (оценка банков через остаточный доход)
+        # Стоит ИМЕННО здесь, а не в update-cbr-banks.yml: модели нужны site_financials.json,
+        # returns.json и marketsaw.json, а они в git не хранятся — их генерирует этот же
+        # workflow выше. В банковском workflow их в checkout просто нет.
+        # Сбой НЕ роняет деплой: остаётся закоммиченный last-good, как и у остальных блоков.
+        run: python scripts/cbr_banks/build_banks_valuation_v2.py || echo "[banks-v2] пропуск — сохранён предыдущий валидный файл (last-good)"
+
+      - name: Тесты модели остаточного дохода
+        run: python -m pytest -q tests/test_bank_residual_income.py
+
       - name: P0 — жёсткий pre-deploy контракт + last-good fallback
         # пустой/битый обязательный блок (data.json/marketsaw) НЕ должен попасть на сайт.
         # если битьё — подставляем last-good и помечаем fallback; если и это не спасло — exit≠0 → нет публикации.

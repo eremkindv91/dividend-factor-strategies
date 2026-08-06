@@ -3797,3 +3797,65 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .im-neg { fill: var(--good-bar); }
 .im-zero { stroke: var(--ink-soft); stroke-width: 1.2; }
 @media (prefers-reduced-motion: reduce) { .im-bar { transition: none; } }
+
+/* ── Второй контур: фундаментальная оценка банков (Residual Income) ──────────
+   Визуально отделён от регуляторного контура: у них разный периметр, и общий
+   вид подталкивал бы сравнивать несравнимое. */
+.riv-head { display: grid; gap: 14px; margin-bottom: 14px; }
+.riv-lede { font-size: .92rem; line-height: 1.5; color: var(--ink); }
+.riv-lede b { color: var(--ink); }
+.riv-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.riv-facts > div { padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-card, 12px);
+  background: var(--surface-soft); display: grid; gap: 2px; }
+.riv-facts span { font-size: .72rem; color: var(--ink-soft); }
+.riv-facts b { font-size: 1.05rem; }
+.riv-facts small { font-size: .68rem; color: var(--ink-faint); }
+
+/* Ограничение публикации — не мелкая сноска: оно объясняет отсутствие целевой цены */
+.riv-limit { padding: 12px 14px; border-radius: var(--r-card, 12px); background: var(--warn-fill);
+  color: var(--warn-ink); font-size: .84rem; line-height: 1.5; margin-bottom: 14px; }
+
+.riv-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-card, 12px); }
+.riv-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.riv-table th, .riv-table td { padding: 9px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.riv-table th { text-align: left; font-size: .72rem; color: var(--ink-soft); font-weight: 600; }
+.riv-table td.tnum, .riv-table th.tnum { text-align: right; }
+.riv-row { cursor: pointer; }
+.riv-row:hover { background: var(--surface-soft); }
+.riv-row.open { background: var(--accent-tint); }
+.riv-name b { display: block; }
+.riv-name small { color: var(--ink-faint); font-size: .7rem; }
+.riv-na { opacity: .75; cursor: default; }
+.riv-reason { color: var(--ink-soft); font-size: .8rem; white-space: normal; }
+
+.riv-verdict { font-size: .78rem; white-space: normal; }
+.riv-verdict small { display: block; color: var(--ink-faint); font-size: .68rem; }
+.riv-verdict.up { color: var(--good-ink); }
+.riv-verdict.down { color: var(--risk-ink); }
+.riv-verdict.flat { color: var(--ink-soft); }
+.riv-verdict.na { color: var(--ink-faint); }
+
+.riv-detail-body { padding: 14px 4px; display: grid; gap: 14px; white-space: normal; }
+.riv-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.riv-cols h4 { margin: 0 0 8px; font-size: .82rem; }
+.riv-kv { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0;
+  border-bottom: 1px dashed var(--line); font-size: .82rem; }
+.riv-kv-total { border-bottom: 0; border-top: 1px solid var(--line-strong, var(--line)); padding-top: 7px; margin-top: 3px; }
+.riv-small { font-size: .72rem; margin-top: 6px; }
+.riv-assump { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 12px;
+  background: var(--surface-soft); border-radius: 10px; font-size: .78rem; color: var(--ink-soft); }
+.riv-assump b { color: var(--ink); }
+.riv-warns { padding: 11px 13px; border-radius: 10px; border: 1px dashed var(--line); font-size: .8rem; }
+.riv-warns b { font-size: .82rem; }
+.riv-warns ul { margin: 6px 0 0; padding-left: 18px; }
+.riv-warns li { margin: 3px 0; line-height: 1.45; }
+
+.riv-disc { margin-top: 12px; font-size: .74rem; line-height: 1.5; }
+.riv-fallback { background: var(--neut-fill); color: var(--neut-ink); border-radius: 10px;
+  padding: 12px 14px; font-size: .88rem; }
+
+@media (max-width: 640px) {
+  .riv-table th, .riv-table td { padding: 7px 8px; font-size: .78rem; }
+  .riv-facts { grid-template-columns: repeat(2, 1fr); }
+}
+.riv-caveat { display: inline-block; margin-top: 6px; font-size: .82rem; color: var(--ink-soft); }

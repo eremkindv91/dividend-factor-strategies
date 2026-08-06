@@ -7124,6 +7124,7 @@ function onSectionShown(sec) {
     openDetails('cbr-timeseries');
     renderCbr();
     renderBanksValuation();
+    renderRiv();
     const ts = document.getElementById('cbr-timeseries');
     if (ts && !ts.dataset.wired) {
       ts.dataset.wired = '1';
@@ -10034,6 +10035,209 @@ function bvalSectorTakeaways() {
   el.innerHTML = `<div class="bval-tw-head">Что видно по банковскому сектору</div>
     <ol class="bval-tw-list">${t.slice(0, 6).map((x) => `<li>${x}</li>`).join('')}</ol>
     <div class="muted bval-tw-note">Тезисы — модельные, при COE ${BVAL_COE}% (ползунок на карте сектора). Не ИИР.</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ВТОРОЙ КОНТУР: фундаментальная оценка группы через остаточный доход.
+// Сознательно отделён от регуляторного контура выше: там знаменатель — капитал
+// формы 123 отдельного банка, здесь — бухгалтерский капитал публичной группы.
+// Смешать их в одной таблице значило бы предложить сравнивать несравнимое.
+// Источник: site/cbr/valuation_v2.json (scripts/cbr_banks/build_banks_valuation_v2.py).
+// ══════════════════════════════════════════════════════════════════════════
+let RIV = null;
+
+function loadRiv(cb) {
+  if (RIV) { cb(); return; }
+  fetch(dataURL('cbr/valuation_v2.json'))
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.banks) throw new Error('в файле нет банков'); RIV = j; return null; })
+    .catch((e) => { console.error('[riv] загрузка', e); return e; })
+    .then((err) => { cb(err); });
+}
+
+// Суммы у банков — триллионы рублей. Печатать их полностью значит сделать
+// разложение стоимости нечитаемым ровно там, где его и надо читать.
+function rivMoney(x) {
+  if (!isNum(x)) return ND;
+  const a = Math.abs(x), s = x < 0 ? '−' : '';
+  if (a >= 1e12) return `${s}${ru(a / 1e12, 2)} трлн ₽`;
+  if (a >= 1e9) return `${s}${ru(a / 1e9, 1)} млрд ₽`;
+  if (a >= 1e6) return `${s}${ru(a / 1e6, 1)} млн ₽`;
+  return `${s}${ru(a, 0)} ₽`;
+}
+
+// Формулировки намеренно НЕ «создаёт/разрушает стоимость». Это стандартный термин
+// модели остаточного дохода, но читателю он говорит «банк теряет деньги», а это ложь:
+// банк с ROE 6,5% прибыльный, он просто зарабатывает меньше, чем требует риск вложения.
+// Пишем то, что произошло на самом деле, а не жаргон.
+function rivVerdict(bank) {
+  const v = bank.valuation;
+  if (!v) return { label: 'оценка недоступна', tone: 'na' };
+  const fair = v.fair_pbv;
+  if (fair > 1.05) return { label: 'зарабатывает больше, чем требует риск', tone: 'up' };
+  if (fair < 0.95) return { label: 'зарабатывает меньше, чем требует риск', tone: 'down' };
+  return { label: 'зарабатывает примерно столько, сколько требует риск', tone: 'flat' };
+}
+
+const RIV_REASONS = {
+  no_book_value: 'нет бухгалтерского капитала',
+  book_value_not_positive: 'капитал не положителен',
+  roe_history_too_short: 'истории ROE не хватает для нормализации',
+  beta_unavailable: 'недостаточно наблюдений для беты',
+  implausible_valuation_assumptions: 'предпосылки дают непригодный результат',
+  terminal_growth_ge_cost_of_equity: 'устойчивый рост не ниже требуемой доходности',
+  terminal_spread_degenerate: 'терминал вырожден: результат определялся бы третьим знаком предпосылки',
+};
+
+function rivRowsHTML(d) {
+  return d.banks.map((b) => {
+    const v = b.valuation;
+    const vd = rivVerdict(b);
+    if (!v) {
+      return `<tr class="riv-row riv-na"><td class="riv-name"><b>${esc(b.name || b.ticker)}</b>
+        <small>${esc(b.ticker)}</small></td>
+        <td colspan="5" class="riv-reason">Оценка недоступна — ${esc(RIV_REASONS[b.reason] || b.reason || 'причина не указана')}</td>
+        <td class="tnum">${b.quality ? b.quality.score : ND}</td></tr>`;
+    }
+    const m = b.market || {};
+    const fair = v.fair_pbv;
+    const act = m.actual_pbv;
+    const gap = (isNum(act) && act > 0) ? (fair / act - 1) : null;
+    return `<tr class="riv-row" data-riv-tk="${esc(b.ticker)}">
+      <td class="riv-name"><b>${esc(b.name || b.ticker)}</b><small>${esc(b.ticker)}</small></td>
+      <td class="tnum">${bondPct(b.roe.normalized * 100, 1)}</td>
+      <td class="tnum">${bondPct(b.cost_of_equity.cost_of_equity * 100, 1)}</td>
+      <td class="tnum">${isNum(act) ? act.toFixed(2) : ND}</td>
+      <td class="tnum"><b>${fair.toFixed(2)}</b></td>
+      <td class="riv-verdict ${vd.tone}">${esc(vd.label)}${gap !== null
+        // Два РАЗНЫХ вопроса, и их нельзя схлопывать: вердикт — про создание стоимости
+        // (P/BV модели против единицы), вторая строка — про расхождение с рынком
+        // (модель против котировки). Банк может разрушать стоимость и при этом стоить
+        // дешевле, чем следует даже из этого. Без разных формулировок это читается
+        // как противоречие.
+        ? `<small>модель ${gap >= 0 ? 'выше' : 'ниже'} рынка на ${Math.abs(gap * 100).toFixed(0)}%</small>` : ''}</td>
+      <td class="tnum">${b.quality.score}</td></tr>`;
+  }).join('');
+}
+
+function rivDetailHTML(b) {
+  const v = b.valuation;
+  if (!v) return '';
+  const c = b.cost_of_equity.components;
+  const dec = v.decomposition;
+  const pp = (x) => `${(x * 100).toFixed(1)} п.п.`;
+  const ke = [
+    ['Безрисковая ставка (КБД ОФЗ)', pp(c.risk_free)],
+    [`Бета ${c.beta_adjusted.toFixed(2)} × премия рынка`, pp(c.beta_adjusted * c.equity_risk_premium)],
+    ['Премия за ликвидность', pp(c.liquidity_premium)],
+    ['Премия за риск эмитента', pp(c.issuer_premium)],
+  ].map(([k, val]) => `<div class="riv-kv"><span>${esc(k)}</span><b>${esc(val)}</b></div>`).join('');
+
+  const money = rivMoney;
+  const bridge = [
+    ['Балансовый капитал', money(dec.book_value)],
+    ['+ сверхдоход прогнозных лет', money(dec.pv_explicit_ri)],
+    ['+ сверхдоход после прогноза', money(dec.pv_terminal_ri)],
+    ['= стоимость капитала по модели', money(v.equity_value)],
+  ].map(([k, val], i) => `<div class="riv-kv${i === 3 ? ' riv-kv-total' : ''}"><span>${esc(k)}</span><b>${val}</b></div>`).join('');
+
+  const warns = (b.warnings || []).map((w) => `<li>${esc(w)}</li>`).join('');
+  return `<div class="riv-detail-body">
+    <div class="riv-cols">
+      <div><h4>Из чего требуемая доходность ${(b.cost_of_equity.cost_of_equity * 100).toFixed(1)}%</h4>${ke}
+        <div class="muted riv-small">Бета: ${c.beta_source === 'own' ? 'собственная' : 'секторная'},
+          к индексу полной доходности MCFTR.</div></div>
+      <div><h4>Из чего складывается стоимость</h4>${bridge}
+        <div class="muted riv-small">Вклад периода после прогноза — ${(dec.terminal_pv_over_book * 100).toFixed(0)}%
+          балансового капитала.</div></div>
+    </div>
+    <div class="riv-assump">
+      <span>ROE: последний <b>${(b.roe.last * 100).toFixed(1)}%</b></span>
+      <span>нормализованный <b>${(b.roe.normalized * 100).toFixed(1)}%</b></span>
+      <span>терминальный <b>${(b.roe.terminal * 100).toFixed(1)}%</b></span>
+      <span>payout <b>${(b.payout.value * 100).toFixed(0)}%</b></span>
+      <span>рост <b>${(b.growth_terminal * 100).toFixed(1)}%</b></span>
+    </div>
+    ${warns ? `<div class="riv-warns"><b>Что нужно знать об этой оценке</b><ul>${warns}</ul></div>` : ''}
+  </div>`;
+}
+
+function rivShellHTML(d) {
+  const m = d.meta;
+  const rf = m.risk_free || {};
+  const rows = d.banks.map((b) => `${rivRowsHTML({ banks: [b] })}
+    <tr class="riv-detail" data-riv-detail="${esc(b.ticker)}" hidden><td colspan="7">${rivDetailHTML(b)}</td></tr>`).join('');
+  return `
+    <div class="riv-head">
+      <div class="riv-lede">
+        <b>Стоит ли банк дороже своего капитала.</b> Вложение в акции банка несёт риск, и за этот риск
+        инвестор вправе требовать доходность — здесь она называется «требуемой». Банк стоит своего
+        балансового капитала плюс то, что он зарабатывает <i>сверх</i> неё. Зарабатывает ровно
+        столько — справедливый P/BV равен единице; меньше — ниже единицы.
+        <br><span class="riv-caveat">«Зарабатывает меньше, чем требует риск» не значит «убыточен»:
+        прибыль есть, но она не окупает риск вложения.</span>
+      </div>
+      <div class="riv-facts">
+        <div><span>Безрисковая ставка</span><b>${isNum(rf.value_pct) ? rf.value_pct.toFixed(2) + '%' : ND}</b>
+          <small>КБД ОФЗ, ${rf.tenor_years || 5} лет</small></div>
+        <div><span>Премия рынка акций</span><b>${(d.assumptions.cost_of_equity.equity_risk_premium * 100).toFixed(1)}%</b>
+          <small>предпосылка</small></div>
+        <div><span>Прогнозный период</span><b>${d.assumptions.forecast.years} лет</b>
+          <small>затем устойчивый режим</small></div>
+        <div><span>Оценено банков</span><b>${m.banks_valued} из ${m.banks_count}</b>
+          <small>статус: ограниченный</small></div>
+      </div>
+    </div>
+
+    <div class="riv-limit">
+      <b>Почему справедливая цена акции здесь не показана.</b> База капитала взята из фундамент-слоя
+      сайта, а не из первичной отчётности МСФО. Ошибка в базе вошла бы в цену акции напрямую, поэтому
+      публикуется только справедливый P/BV — отношение, в котором масштабная ошибка базы сокращается.
+      Данные ЦБ (формы 102/123/135) в этой модели <b>не используются</b>: у них другой периметр.
+    </div>
+
+    <div class="riv-table-wrap"><table class="riv-table">
+      <thead><tr>
+        <th>Банк</th>
+        <th title="Медиана исторического ROE — прогноз не строится на одном последнем годе">ROE норм.</th>
+        <th title="Требуемая доходность: безрисковая ставка + бета × премия рынка + премии">Треб. дох.</th>
+        <th title="Капитализация к бухгалтерскому капиталу группы">P/BV рынка</th>
+        <th title="Результат модели остаточного дохода">P/BV модели</th>
+        <th>Вердикт</th>
+        <th title="0–100, разложение в карточке банка">Качество</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+
+    <div class="riv-disc muted">${esc(m.disclaimer)}</div>`;
+}
+
+function renderRiv() {
+  const body = document.getElementById('riv-body');
+  if (!body) return;
+  if (body.dataset.shown === '1' && RIV) return;
+  body.innerHTML = '<div class="riv-loading muted">Загрузка фундаментальной оценки…</div>';
+  loadRiv((err) => {
+    if (err || !RIV) {
+      body.innerHTML = `<div class="riv-fallback"><b>Фундаментальная оценка не загрузилась</b> — ${
+        esc(err && err.message ? err.message : 'причина неизвестна')}. Регуляторный контур выше работает независимо.</div>`;
+      return;
+    }
+    try {
+      body.innerHTML = rivShellHTML(RIV);
+      body.dataset.shown = '1';
+      body.querySelectorAll('tr.riv-row[data-riv-tk]').forEach((tr) => {
+        tr.addEventListener('click', () => {
+          const d = body.querySelector(`tr[data-riv-detail="${tr.dataset.rivTk}"]`);
+          if (d) { d.hidden = !d.hidden; tr.classList.toggle('open', !d.hidden); }
+        });
+      });
+    } catch (e) {
+      console.error('[riv] отрисовка', e);
+      body.innerHTML = `<div class="riv-fallback"><b>Не удалось показать оценку</b> — ошибка отрисовки: ${
+        esc(e && e.message)}.</div>`;
+    }
+  });
 }
 
 function renderBanksValuation() {
