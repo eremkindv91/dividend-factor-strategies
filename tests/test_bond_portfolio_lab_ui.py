@@ -387,3 +387,66 @@ def test_alternatives_comparison_hides_missing_deposit_rates():
     assert "function bondAlternativesCompareHTML" in app
     assert "актуальных данных нет" in app
     assert "MACRO_CBR.key_rate.current" in app, "ключевая ставка берётся из макро-модуля"
+
+
+def test_screener_note_matches_the_filter_it_describes():
+    """Примечание не должно обещать «ежемес. фикс-купон», когда фильтр открыт для всех частот.
+
+    Раньше расходились: monthly_only сняли, а текст остался — пользователю сообщали
+    заведомо неверный состав выборки.
+    """
+    builder = (ROOT / "bonds" / "update_bonds.py").read_text(encoding="utf-8")
+
+    assert "monthly_only=False" in builder, "скринер снова ограничен одной частотой"
+    note_start = builder.index('"note": "Скринер')
+    note = builder[note_start:note_start + 400]
+    assert "ежемес. фикс-купон" not in note, "примечание описывает снятый фильтр"
+    assert "ЛЮБОЙ частоты" in note
+
+
+def test_screener_actually_contains_more_than_monthly_coupons():
+    """Факт, а не декларация: в опубликованном скринере есть не только freq=12."""
+    bonds = _json("screener.json")["bonds"]
+    freqs = {row.get("freq") for row in bonds if row.get("freq")}
+
+    assert freqs, "у выпусков скринера пропала частота купона"
+    assert freqs - {12}, (
+        f"в скринере снова только ежемесячные выпуски: {sorted(freqs)} — "
+        "проверьте monthly_only в bonds/update_bonds.py"
+    )
+
+
+def test_coupon_frequency_is_both_filterable_and_visible():
+    """Фильтровать по частоте, не показывая её, нельзя: пользователь не проверит результат.
+
+    Поля называются по-разному в двух источниках (freq в скринере, coupon_frequency
+    в универсуме) — обе ветки обязаны читаться.
+    """
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "couponFreq: 'all'" in app, "фильтр частоты пропал из состояния"
+    assert "COUPON_FREQ_OPTIONS" in app and "COUPON_FREQ_NAMES" in app
+    assert "function couponFreqCell" in app, "колонка частоты должна рендериться"
+    assert "'Выплат/год'" in app, "колонку убрали из заголовков"
+    assert "freq: ['freq', 'coupon_frequency']" in app, "сортировка не покрывает оба имени поля"
+    # в живом скринере (universe.json) поле называется coupon_frequency
+    assert "couponFreqCell(row.coupon_frequency" in app
+
+
+def test_finder_failure_reports_the_real_cause():
+    """«Недоступен» не должно быть ответом на ошибку ОТРИСОВКИ.
+
+    cb вызывался внутри .then(), поэтому исключение рендера попадало в .catch()
+    и вызывало cb(e) второй раз — настоящая причина терялась.
+    """
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    loader = app[app.index("function loadFinder"):app.index("function renderFinder")]
+    assert ".then((err) => { cb(err); });" in loader, (
+        "cb снова вызывается внутри цепочки — ошибки рендера будут маскироваться"
+    )
+
+    render = app[app.index("function renderFinder"):app.index("function finderShellHTML")]
+    assert "ошибка отрисовки" in render, "ошибка рендера обязана называться своим именем"
+    assert "fnd-retry" in render, "нужна кнопка повтора: сбой источника бывает временным"
+    assert "Bond Finder недоступен" not in app, "вернулась формулировка, скрывающая причину"

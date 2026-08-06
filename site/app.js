@@ -5500,10 +5500,31 @@ const BOND_SORT_FIELDS = {
   ytm_net: ['ytm_net', 'ytm_net_est_pct'],
   duration_years: ['duration_years', 'duration_value'],
   coupon_pct: ['coupon_pct'],
+  // freq — в скринере, coupon_frequency — в универсуме: одна и та же величина под разными именами.
+  freq: ['freq', 'coupon_frequency'],
   liquidity: ['liquidity_score', 'valtoday', 'median_volume_20d_rub', 'value_today_rub'],
   g_spread: ['g_spread_pp'],
   dirty_price: ['dirty_price_per_lot_rub'],
 };
+
+// Частота купона: ОДИН справочник на фильтр и на колонку таблицы, иначе подписи разъезжаются.
+// Влияет не на доходность, а на регулярность денежного потока — это выбор инвестора.
+const COUPON_FREQ_NAMES = new Map([[12, 'ежемесячно'], [6, 'раз в 2 месяца'], [4, 'ежеквартально'],
+  [3, 'раз в 4 месяца'], [2, 'раз в полгода'], [1, 'раз в год']]);
+const COUPON_FREQ_OPTIONS = [['all', 'любая частота'], ['12', 'ежемесячно'], ['4', 'ежеквартально'],
+  ['2', 'раз в полгода'], ['1', 'раз в год']];
+
+function couponFreqName(value) {
+  const n = Number(value);
+  if (!isNum(n) || n <= 0) return '';
+  return COUPON_FREQ_NAMES.get(n) || `${n} раз(а) в год`;
+}
+
+function couponFreqCell(value) {
+  const n = Number(value);
+  if (!isNum(n) || n <= 0) return `<td class="tnum b-muted">${ND}</td>`;
+  return `<td class="tnum b-muted" title="${esc(couponFreqName(n))}">${n}</td>`;
+}
 
 function bondSortSecid(row) {
   return String((row || {}).secid || (row || {}).isin || '').toUpperCase();
@@ -6110,7 +6131,7 @@ function bondUniverseScreenerHTML(universe) {
       ${sectors.map((s) => `<option value="${esc(s)}"${f.sector === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}
     </select></label>
     <label>Выплаты<select data-bond-filter="couponFreq">
-      ${[['all', 'любая частота'], ['12', 'ежемесячно'], ['4', 'ежеквартально'], ['2', 'раз в полгода'], ['1', 'раз в год']]
+      ${COUPON_FREQ_OPTIONS
         .map(([id, label]) => `<option value="${id}"${String(f.couponFreq) === id ? ' selected' : ''}>${esc(label)}</option>`).join('')}
     </select></label>
     <label>Купон<select data-bond-filter="couponType">
@@ -6131,6 +6152,7 @@ function bondUniverseScreenerHTML(universe) {
     bondSortHeaderHTML('liquidity', 'Ликвидн.'),
     bondSortHeaderHTML('duration_years', 'Дюрация'),
     bondSortHeaderHTML('dirty_price', 'Dirty/лот'),
+    bondSortHeaderHTML('freq', 'Выплат/год', 'Сколько раз в год платится купон: 12 — ежемесячно, 4 — ежеквартально, 2 — раз в полгода, 1 — раз в год. На доходность не влияет, влияет на регулярность денежного потока.'),
     bondSortHeaderHTML('maturity', 'Погашение'),
   ].join('');
   const body = rows.slice(0, 100).map((row) => {
@@ -6144,6 +6166,7 @@ function bondUniverseScreenerHTML(universe) {
       <td class="tnum">${liq.score == null ? ND : liq.score}</td>
       <td class="tnum">${isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND}</td>
       <td class="tnum">${rub0(row.dirty_price_per_lot_rub)}</td>
+      ${couponFreqCell(row.coupon_frequency != null ? row.coupon_frequency : row.freq)}
       <td>${esc(shortIsoDate(row.maturity_date))}</td>
     </tr>`;
   }).join('');
@@ -6691,6 +6714,7 @@ function bondsTableHTML(bonds) {
       <td class="tnum">${isNum(x.ytm_net) ? x.ytm_net.toFixed(2) + '%' : ND}</td>
       <td class="tnum">${isNum(x.duration_years) ? x.duration_years.toFixed(2) : ND}</td>
       <td class="tnum b-muted">${isNum(x.coupon_pct) ? x.coupon_pct.toFixed(1) + '%' : ND}</td>
+      ${couponFreqCell(x.freq != null ? x.freq : x.coupon_frequency)}
       <td class="tnum b-muted">${esc(x.maturity || ND)}</td>
     </tr>`;
   }).join('');
@@ -6704,6 +6728,7 @@ function bondsTableHTML(bonds) {
       ${bondSortHeaderHTML('ytm_net', 'YTM−налог', 'Чистая YTM после НДФЛ 13% (купоны и ценовой доход)')}
       ${bondSortHeaderHTML('duration_years', 'Дюрация')}
       ${bondSortHeaderHTML('coupon_pct', 'Купон', 'Купон принят фиксированным. Флоатеры (плавающая база + спред) в данных не классифицированы — для них YTM к погашению условна. См. «Ограничения данных».')}
+      ${bondSortHeaderHTML('freq', 'Выплат/год', 'Сколько раз в год платится купон: 12 — ежемесячно, 4 — ежеквартально, 2 — раз в полгода, 1 — раз в год. На доходность не влияет, влияет на регулярность денежного потока.')}
       ${bondSortHeaderHTML('maturity', 'Погашение')}
     </tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -9563,12 +9588,26 @@ function cbrExcel() {
 let FINDER = null;
 let FINDER_SORT = { key: 'score', dir: -1 };
 
+// cb вызывается ВНЕ цепочки промисов: иначе исключение из отрисовки попадало бы в
+// .catch() и вызывало cb(e) второй раз — ошибка рендера маскировалась под «файла нет».
 function loadFinder(cb) {
   if (FINDER) { cb(); return; }
   fetch(dataURL('bonds/finder.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then((j) => { if (!j || !j.profiles) throw new Error('пустой finder.json'); FINDER = j; cb(); })
-    .catch((e) => { console.error('[finder]', e); cb(e); });
+    .then((j) => {
+      if (!j || !j.profiles) throw new Error('в finder.json нет профилей');
+      FINDER = j;
+      return null;
+    })
+    .catch((e) => { console.error('[finder] загрузка', e); return e; })
+    .then((err) => { cb(err); });
+}
+
+function finderFallbackHTML(err) {
+  const reason = err && err.message ? String(err.message) : 'причина неизвестна';
+  return `<div class="finder-fallback"><b>Bond Finder не загрузился</b> — ${esc(reason)}. `
+    + 'Скринер ниже работает независимо. '
+    + '<button type="button" class="btn btn-secondary finder-retry" id="fnd-retry">Повторить</button></div>';
 }
 
 function renderFinder() {
@@ -9576,18 +9615,30 @@ function renderFinder() {
   if (!body) return;
   if (body.dataset.shown === '1' && FINDER) { finderDraw(); return; }
   body.innerHTML = '<div class="finder-loading muted">Загрузка шорт-листа Bond Finder…</div>';
-  loadFinder((err) => {
-    if (err || !FINDER) {
-      body.innerHTML = '<div class="finder-fallback"><b>Bond Finder недоступен</b> — файл ещё не сгенерирован или источник упал. Скринер ниже работает независимо.</div>';
+  loadFinder((loadErr) => {
+    if (loadErr || !FINDER) {
+      body.innerHTML = finderFallbackHTML(loadErr);
+      const again = document.getElementById('fnd-retry');
+      if (again) again.addEventListener('click', () => { FINDER = null; renderFinder(); });
       return;
     }
-    body.innerHTML = finderShellHTML(FINDER);
-    body.dataset.shown = '1';
-    const ps = document.getElementById('fnd-profile');
-    const bd = document.getElementById('fnd-budget');
-    if (ps) ps.addEventListener('change', finderDraw);
-    if (bd) bd.addEventListener('input', debounce(finderDraw, 250));
-    finderDraw();
+    try {
+      body.innerHTML = finderShellHTML(FINDER);
+      body.dataset.shown = '1';
+      const ps = document.getElementById('fnd-profile');
+      const bd = document.getElementById('fnd-budget');
+      if (ps) ps.addEventListener('change', finderDraw);
+      if (bd) bd.addEventListener('input', debounce(finderDraw, 250));
+      finderDraw();
+    } catch (e) {
+      // Данные пришли, но отрисовать их не вышло — это ДРУГАЯ поломка, и она должна
+      // называться своим именем, а не «файл не сгенерирован».
+      console.error('[finder] отрисовка', e);
+      body.dataset.shown = '';
+      body.innerHTML = finderFallbackHTML(new Error('ошибка отрисовки: ' + (e && e.message)));
+      const again = document.getElementById('fnd-retry');
+      if (again) again.addEventListener('click', () => { renderFinder(); });
+    }
   });
 }
 

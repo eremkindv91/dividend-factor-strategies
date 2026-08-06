@@ -1610,6 +1610,7 @@ td.empty { text-align: center; }
 .finder-body { padding: 6px 0 12px; }
 .finder-loading { padding: 12px 2px; font-size: .9rem; }
 .finder-fallback { background: var(--neut-fill); color: var(--neut-ink); border-radius: 10px; padding: 12px 14px; font-size: .88rem; }
+.finder-retry { margin-left: 8px; padding: 4px 12px; font-size: .82rem; vertical-align: baseline; }
 .fnd-warns { background: var(--warn-fill); color: var(--warn-ink); border: 1px solid #E6D2B0;
   border-radius: 10px; padding: 8px 11px; font-size: .8rem; margin-bottom: 10px; line-height: 1.45; }
 .fnd-warns summary { cursor: pointer; font-weight: 700; color: var(--warn-ink); }
