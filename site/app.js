@@ -5689,6 +5689,27 @@ function bondReasonListHTML(row, compact = false) {
   return `<div class="bond-reasons">${labels.map((label) => `<span>${esc(label)}</span>`).join('')}${compact && safety.reasonLabels.length > 2 ? `<span>+${safety.reasonLabels.length - 2}</span>` : ''}</div>`;
 }
 
+// Предупреждения — не причины отказа: бумага проходит гейт, но чего-то мы про неё не знаем
+// (отрасль, группа компаний). Без вывода «проверено» означало бы «проверено полностью», а это ложь.
+//
+// Связей «материнская — дочерняя» в данных MOEX нет вообще, поэтому GROUP_DATA_UNAVAILABLE висит
+// на КАЖДОЙ бумаге и в компактной строке вытесняет информативные предупреждения. Оно раскрыто
+// один раз в шапке покрытия — в строке уводим его в конец.
+const BOND_WARN_UNIVERSAL = 'GROUP_DATA_UNAVAILABLE';
+
+function bondWarningListHTML(row, compact = false) {
+  const safety = row.bond_safety || (window.BondRetail && window.BondRetail.classifyBond(row));
+  const codes = (safety && safety.warningCodes) || [];
+  if (!codes.length) return '';
+  const labels = window.BondRetail ? window.BondRetail.REASON_LABELS : {};
+  const ordered = [...codes].sort((a, b) =>
+    (a === BOND_WARN_UNIVERSAL ? 1 : 0) - (b === BOND_WARN_UNIVERSAL ? 1 : 0));
+  const shown = compact ? ordered.slice(0, 1) : ordered;
+  const more = compact && ordered.length > 1 ? `<span>+${ordered.length - 1}</span>` : '';
+  return '<div class="bond-warnings" title="Бумага прошла проверку, но эти данные не подтверждены">'
+    + `${shown.map((code) => `<span>${esc(labels[code] || code)}</span>`).join('')}${more}</div>`;
+}
+
 function bondConfirmedYtmHTML(row) {
   const safety = row.bond_safety;
   if (safety && !safety.ytmConfirmed) return '<span class="bond-unconfirmed-yield">Расчёт требует проверки</span>';
@@ -6158,10 +6179,10 @@ function bondUniverseScreenerHTML(universe) {
   const body = rows.slice(0, 100).map((row) => {
     const liq = window.BondRetail ? window.BondRetail.liquidity(row) : {};
     return `<tr>
-      <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small>${риск ? bondReasonListHTML(row, true) : ''}</td>
+      <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small>${риск ? bondReasonListHTML(row, true) : bondWarningListHTML(row, true)}</td>
       <td>${bondSafetyBadgeHTML(row)}</td>
       <td>${row.instrument_type === 'ofz' ? 'ОФЗ' : (row.rating ? esc(row.rating) : '<span class="muted">не найден</span>')}</td>
-      <td>${esc(row.sector || ND)}</td>
+      <td>${row.sector && row.sector !== 'unknown' ? esc(row.sector) : ND}</td>
       <td class="tnum">${bondConfirmedYtmHTML(row)}</td>
       <td class="tnum">${liq.score == null ? ND : liq.score}</td>
       <td class="tnum">${isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND}</td>
@@ -6381,6 +6402,8 @@ function bondDetailHTML(row) {
       </div>
     </header>
     ${safety && !safety.investable ? `<div class="bond-detail-warn"><b>Не проходит безопасный фильтр.</b>${bondReasonListHTML(row)}</div>` : ''}
+    ${safety && safety.investable && (safety.warningLabels || []).length
+      ? `<div class="bond-detail-note"><b>Прошла фильтр, но не всё подтверждено.</b>${bondWarningListHTML(row)}</div>` : ''}
     <div class="bond-detail-kpis">
       ${kpi('Цена', bondPct(row.clean_price_pct, 2), src.price ? `на ${shortIsoDate(src.price)}` : 'дата цены не указана')}
       ${kpi('YTM gross', bondPct(row.ytm_gross_pct, 2))}

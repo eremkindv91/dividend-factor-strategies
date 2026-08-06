@@ -3441,6 +3441,11 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bond-unconfirmed-yield { color: var(--warn-ink); font-size: .74rem; font-weight: 650; }
 .bond-reasons { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .bond-reasons span { padding: 2px 7px; border-radius: 5px; background: var(--bg); color: var(--ink-soft); font-size: .66rem; line-height: 1.35; }
+/* Предупреждение ≠ причина отказа: бумага прошла, но часть данных не подтверждена.
+   Пунктир, а не заливка — чтобы визуально не читалось как блокировка. */
+.bond-warnings { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.bond-warnings span { padding: 2px 7px; border-radius: 5px; border: 1px dashed var(--line);
+  color: var(--ink-soft); font-size: .66rem; line-height: 1.35; }
 
 .bond-open-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none;
   color: inherit; font: inherit; text-align: left; cursor: pointer; }
@@ -3569,6 +3574,8 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .bond-detail-close:hover { border-color: var(--accent-deep); color: var(--ink); }
 .bond-detail-warn { margin-top: 14px; padding: 11px 13px; border-radius: 10px; background: var(--warn-fill); }
 .bond-detail-warn b { color: var(--warn-ink); font-size: .84rem; }
+.bond-detail-note { margin-top: 12px; padding: 10px 13px; border-radius: 10px; border: 1px dashed var(--line); }
+.bond-detail-note b { color: var(--ink); font-size: .82rem; }
 .bond-detail-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 18px; margin: 16px 0 4px;
   padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .bond-detail-kpis > div { display: flex; flex-direction: column; min-width: 0; }

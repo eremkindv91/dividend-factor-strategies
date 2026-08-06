@@ -477,3 +477,37 @@ def test_liquidity_is_not_measured_by_an_unformed_session():
     assert '"turnover_basis": dict(TURNOVER_BASIS)' in builder, (
         "за какой день мерили оборот — обязано попадать в meta, а не подразумеваться"
     )
+
+
+def test_unknown_sector_warns_instead_of_blocking():
+    """Отрасль эмитента — пробел НАШИХ данных (покрытие ~40%), а не свойство выпуска.
+
+    Блокировать ею нельзя: портфельный движок трактует её так же — не исключает бумагу,
+    а ограничивает совокупную долю неизвестного сектора (max_unknown_sector).
+    """
+    retail = (SITE / "bond_retail.js").read_text(encoding="utf-8")
+    config = json.loads((ROOT / "bonds" / "portfolio_config.json").read_text(encoding="utf-8"))
+
+    assert "requireKnownSector: false" in retail, "отсутствие отрасли снова блокирует выпуск"
+    assert "else warn('UNKNOWN_SECTOR')" in retail, "предупреждение обязано остаться, а не исчезнуть"
+
+    for name, profile in config["profiles"].items():
+        cap = float(profile["max_unknown_sector"])
+        assert 0 < cap < 1, f"{name}: доля неизвестного сектора должна быть ограничена, а не запрещена"
+
+
+def test_warnings_are_visible_and_the_useless_one_does_not_crowd_them_out():
+    """Пропустить бумагу и промолчать о неподтверждённых данных — та же ложь, что и «проверено».
+
+    Связей «материнская — дочерняя» в данных MOEX нет вообще, поэтому это предупреждение висит
+    на КАЖДОЙ бумаге; в компактной строке оно обязано уступать место информативным.
+    """
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+
+    assert "function bondWarningListHTML" in app
+    assert "bondWarningListHTML(row, true)" in app, "предупреждения не выводятся в строке скринера"
+    assert "bond-detail-note" in app, "в карточке выпуска предупреждения тоже обязаны быть видны"
+    assert "BOND_WARN_UNIVERSAL = 'GROUP_DATA_UNAVAILABLE'" in app
+    warn = app[app.index("function bondWarningListHTML"):]
+    warn = warn[:warn.index("\nfunction ")]
+    assert "sort(" in warn, "универсальное предупреждение должно уводиться в конец"

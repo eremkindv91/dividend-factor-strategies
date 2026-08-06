@@ -28,7 +28,10 @@
     excludedBondTypes: Object.freeze(['structured', 'perpetual', 'subordinated']),
     requireRetailAccess: true,
     requireValidCashflows: true,
-    requireKnownSector: true,
+    // Отрасль эмитента — пробел НАШИХ данных (покрытие ~40%), а не свойство выпуска.
+    // Блокировать ею нельзя: портфельный движок трактует её так же — не исключает бумагу,
+    // а ограничивает совокупную долю неизвестного сектора (max_unknown_sector 10–15%).
+    requireKnownSector: false,
     allowAmortizing: false,
     allowPutOffer: false,
     allowCall: false,
@@ -150,7 +153,11 @@
     if (row && row.has_put_offer && !config.allowPutOffer) add('PUT_OFFER');
     if (row && row.has_call && !config.allowCall) add('CALL_OPTION');
     if (row && row.amortizing && !config.allowAmortizing) add('AMORTIZING');
-    if (config.requireKnownSector && (!row || !row.sector || row.sector === 'unknown')) add('UNKNOWN_SECTOR');
+    if (!row || !row.sector || row.sector === 'unknown') {
+      // Не молчим: бумага проходит, но пользователь обязан видеть, что отрасль не подтверждена —
+      // проверить отраслевую концентрацию портфеля по ней нельзя.
+      if (config.requireKnownSector) add('UNKNOWN_SECTOR'); else warn('UNKNOWN_SECTOR');
+    }
 
     const flags = Array.isArray(row && row.data_quality_flags) ? row.data_quality_flags : [];
     if (flags.some((flag) => /conflict|invalid|missing_(face|price|maturity)|calculation_failed/i.test(flag))) add('DATA_CONFLICT');
