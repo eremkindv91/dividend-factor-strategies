@@ -24,7 +24,7 @@ import json
 import os
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import numpy as np
 import requests
@@ -106,6 +106,68 @@ def spread_for(rating: str) -> float:
 
 
 # ── Загрузка борда (securities + marketdata, постранично) ─────────────────────
+MIN_FORMED_SESSION = 50          # сколько ликвидных выпусков считать признаком набранной сессии
+TURNOVER_BASIS: dict = {}        # борд → чем мерили оборот; уходит в meta, а не подразумевается
+
+
+def last_session_turnover(board: str, back_days: int = 10) -> tuple[dict[str, float], str | None]:
+    """Оборот за последний ЗАВЕРШЁННЫЙ торговый день борда: {SECID: ₽}.
+
+    VALTODAY — оборот ТЕКУЩЕГО дня. До открытия и в первые часы сессии он нулевой почти у
+    всех выпусков, поэтому фильтр ликвидности отбраковывает весь борд: запуск в 08:15 МСК
+    дал 3 бумаги из 3016 и пустой скринер. История возвращает ту же величину, но
+    детерминированно — состав выборки перестаёт зависеть от времени запуска.
+    """
+    for back in range(1, back_days + 1):
+        day = TODAY - timedelta(days=back)
+        rows: dict[str, float] = {}
+        start = 0
+        while True:
+            d = http_json(f"{ISS}/history/engines/stock/markets/bonds/boards/{board}/securities.json"
+                          f"?date={day.isoformat()}&iss.meta=off&iss.only=history"
+                          f"&history.columns=SECID,VALUE&start={start}")
+            page = block_rows(d, "history")
+            if not page:
+                break
+            for r in page:
+                value = r.get("VALUE")
+                if value not in (None, ""):
+                    rows[str(r["SECID"])] = float(value)
+            start += len(page)
+            if len(page) < PAGE:
+                break
+        if rows:                                   # выходной/праздник отдаёт пустую историю
+            return rows, day.isoformat()
+    return {}, None
+
+
+def _normalize_turnover(board: str, rows: list[dict]) -> None:
+    """Подменить недобранный внутридневной оборот оборотом последнего торгового дня.
+
+    Делается в load_board, а не у конкретного потребителя: скринер и универсум обязаны
+    мерить ликвидность одинаково, иначе они разойдутся составом на одном и том же прогоне.
+    """
+    formed = sum(1 for s in rows if float(s["_md"].get("VALTODAY") or 0) > MIN_VALTODAY)
+    basis = {"source": "VALTODAY", "date": TODAY.isoformat(), "liquid_issues": formed}
+    if formed < MIN_FORMED_SESSION:
+        history, day = last_session_turnover(board)
+        if history:
+            for s in rows:
+                # Оба поля: скринер читает VALTODAY, билдер универсума предпочитает
+                # VALTODAY_RUR. Заменить одно — значит развести их составом на одном прогоне.
+                value = history.get(s["SECID"], 0.0)
+                s["_md"]["VALTODAY"] = value
+                if "VALTODAY_RUR" in s["_md"]:
+                    s["_md"]["VALTODAY_RUR"] = value
+            formed = sum(1 for s in rows if float(s["_md"].get("VALTODAY") or 0) > MIN_VALTODAY)
+            basis = {"source": "history", "date": day, "liquid_issues": formed}
+            sys.stderr.write(f"[bonds] {board}: сессия не набрана — оборот за {day}, "
+                             f"ликвидных выпусков {formed}\n")
+        else:
+            sys.stderr.write(f"[bonds] {board}: сессия не набрана, история пуста — по VALTODAY\n")
+    TURNOVER_BASIS[board] = basis
+
+
 def load_board(board: str) -> list[dict]:
     # ВАЖНО: securities.json борда облигаций отдаёт ВЕСЬ список разом и игнорирует start
     # (проверено: start=0 и start=100 → одни и те же бумаги). Поэтому выходим, как только
@@ -130,7 +192,9 @@ def load_board(board: str) -> list[dict]:
         if new == 0 or len(secs) < PAGE:
             break
         start += PAGE
-    return list(out.values())
+    rows = list(out.values())
+    _normalize_turnover(board, rows)
+    return rows
 
 
 def coupon_freq(coupon_period_days) -> int:
@@ -280,7 +344,7 @@ TOP_N = 300                              # кап по ликвидности (�
 
 
 def build_screener(gt: np.ndarray, gy: np.ndarray, ratings: dict[str, dict]) -> list[dict]:
-    raw = load_board(CORP_BOARD)
+    raw = load_board(CORP_BOARD)             # оборот уже нормализован (см. _normalize_turnover)
     sys.stderr.write(f"[bonds] {CORP_BOARD}: загружено {len(raw)} бумаг\n")
     survivors = []
     for s in raw:
@@ -453,6 +517,9 @@ def main() -> int:
     meta = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "data_date": str(TODAY), "n": len(screener),
             "spread": SPREAD,
+            # За какой день мерили оборот на каждом борде. Если сборку запустили до набора
+            # сессии, это НЕ сегодня — умолчать значило бы выдать вчерашнюю ликвидность за текущую.
+            "turnover_basis": dict(TURNOVER_BASIS),
             "ratings": ratings_meta,
             "rating_coverage": {
                 "official_issue_ratings": len(screener),

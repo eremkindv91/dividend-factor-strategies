@@ -450,3 +450,30 @@ def test_finder_failure_reports_the_real_cause():
     assert "ошибка отрисовки" in render, "ошибка рендера обязана называться своим именем"
     assert "fnd-retry" in render, "нужна кнопка повтора: сбой источника бывает временным"
     assert "Bond Finder недоступен" not in app, "вернулась формулировка, скрывающая причину"
+
+
+def test_liquidity_is_not_measured_by_an_unformed_session():
+    """Состав выборки не должен зависеть от времени запуска сборки.
+
+    VALTODAY — оборот ТЕКУЩЕГО дня. Запуск в 08:15 МСК дал 3 бумаги из 3016 и пустой
+    скринер: сборка честно остановилась, но и не собралась. Нормализация подставляет
+    оборот последнего завершённого торгового дня, когда сессия ещё не набрана.
+    """
+    builder = (ROOT / "bonds" / "update_bonds.py").read_text(encoding="utf-8")
+
+    assert "def last_session_turnover" in builder
+    assert "def _normalize_turnover" in builder
+    assert "_normalize_turnover(board, rows)" in builder, (
+        "нормализация должна жить в load_board — иначе скринер и универсум разойдутся составом"
+    )
+    # оба поля оборота: скринер читает VALTODAY, билдер универсума — VALTODAY_RUR
+    normalize = builder[builder.index("def _normalize_turnover"):builder.index("def load_board")]
+    assert '"VALTODAY"' in normalize and '"VALTODAY_RUR"' in normalize
+
+    # ночной прогон (сессия набрана) обязан остаться нетронутым
+    assert "if formed < MIN_FORMED_SESSION:" in normalize, (
+        "подмена должна быть условной, иначе она перепишет и полноценную вечернюю сессию"
+    )
+    assert '"turnover_basis": dict(TURNOVER_BASIS)' in builder, (
+        "за какой день мерили оборот — обязано попадать в meta, а не подразумеваться"
+    )
