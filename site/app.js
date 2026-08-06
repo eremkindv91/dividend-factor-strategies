@@ -4675,6 +4675,11 @@ SAW_DATA = null;
 MARKET_HISTORY = null;
 let MARKET_CHART = null;
 let MARKET_CHART_STATE = { id: 'IMOEX', period: 252 };
+// lightweight-charts 4.2.1, лицензия Apache-2.0.
+// Логотип на графике выключается ШТАТНОЙ опцией layout.attributionLogo (по умолчанию true) —
+// она есть в публичном API именно для этого. Прятать элемент через CSS или MutationObserver
+// нельзя: сломается при первом обновлении библиотеки. Apache-2.0 требует сохранять
+// уведомления о лицензии в исходниках, а не логотип в интерфейсе, поэтому запрета нет.
 const LWC_SRC = 'https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js';
 
 const sawPct = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
@@ -5156,7 +5161,7 @@ function sawImoexChart(d) {
   const LC = window.LightweightCharts;
   const chart = LC.createChart(el, {
     autoSize: true,
-    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
     grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
     rightPriceScale: { borderColor: '#E6E9F0' },
     timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 6 },
@@ -5357,7 +5362,7 @@ function sawChart(d) {
   const LC = window.LightweightCharts;
   const chart = LC.createChart(el, {
     autoSize: true,
-    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
     grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
     rightPriceScale: { borderColor: '#E6E9F0' },
     timeScale: { borderColor: '#E6E9F0', timeVisible: false, rightOffset: 6 },
@@ -8966,7 +8971,7 @@ function drawMarketChart(item) {
   const closeOnly = marketUsesCloseLine(item, rows);
   MARKET_CHART = LC.createChart(element, {
     autoSize: true,
-    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
     localization: { locale: 'ru-RU', priceFormatter: (value) => marketNumber(value, item.decimals) },
     grid: { vertLines: { color: '#E9EDF3' }, horzLines: { color: '#E9EDF3' } },
     rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.08 } },
@@ -9096,15 +9101,23 @@ function stockPriceChartHTML(t) {
       <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
     </div>
     <div class="sc-ohlc tnum" aria-live="polite"></div>
-    <div class="sc-canvas"><div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div></div>
-    <div class="sc-foot muted">Дневные OHLC и объём — MOEX ISS, доска TQBR. Не индивидуальная инвестиционная рекомендация.</div>
+    <div class="sc-plot">
+      <div class="sc-canvas"><div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div></div>
+      <div class="sc-volscale tnum" aria-hidden="true"></div>
+    </div>
+    <div class="sc-foot muted">Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.
+      Столбцы внизу — оборот в рублях (поле VALUE), а не количество бумаг.
+      Не является индивидуальной инвестиционной рекомендацией.</div>
   </div>`;
 }
 
 // Пагинированная выборка дневной истории ISS (start=0,100,…). Отдаёт [date,o,h,l,c,vol].
 function fetchStockOHLC(ticker, fromDate, cb) {
   const rows = [];
-  const cols = 'TRADEDATE,OPEN,HIGH,LOW,CLOSE,VOLUME';
+  // VALUE — официальный ДЕНЕЖНЫЙ оборот в рублях. Считать его как close×volume нельзя:
+  // сделки за день проходят по разным ценам, и произведение даёт систематическую ошибку.
+  // NUMTRADES нужен, чтобы отличать крупный оборот из немногих сделок от массового.
+  const cols = 'TRADEDATE,OPEN,HIGH,LOW,CLOSE,VOLUME,VALUE,NUMTRADES';
   const base = `https://iss.moex.com/iss/history/engines/stock/markets/shares/boards/TQBR/securities/${encodeURIComponent(ticker)}.json`
     + `?iss.only=history&iss.meta=off&history.columns=${cols}&from=${fromDate}`;
   const step = (start) => {
@@ -9124,15 +9137,39 @@ function fetchStockOHLC(ticker, fromDate, cb) {
   step(0);
 }
 
+// Денежные суммы: тыс/млн/млрд ₽. Отдельная функция, потому что одна и та же шкала
+// используется и в подписях оси объёма, и в tooltip, и в профиле — расхождение форматов
+// между ними читалось бы как расхождение данных.
+function scMoney(v, forceUnit) {
+  if (!isNum(v)) return '—';
+  const a = Math.abs(v), s = v < 0 ? '−' : '';
+  const unit = forceUnit || (a >= 1e9 ? 'млрд' : a >= 1e6 ? 'млн' : a >= 1e3 ? 'тыс' : '');
+  if (unit === 'млрд') return `${s}${ru(a / 1e9, a / 1e9 >= 10 ? 1 : 2)} млрд ₽`;
+  if (unit === 'млн') return `${s}${ru(a / 1e6, a / 1e6 >= 100 ? 0 : 1)} млн ₽`;
+  if (unit === 'тыс') return `${s}${ru(a / 1e3, 0)} тыс ₽`;
+  return `${s}${ru(a, 0)} ₽`;
+}
+
+function scShares(v) {
+  if (!isNum(v)) return '—';
+  return `${ru(v, 0)} шт`;
+}
+
 function stockOhlcReadout(ticker, r) {
   if (!r) return '';
   const n = (v) => (isNum(v) ? ru(v, 2) : '—');
   const up = isNum(r[4]) && isNum(r[1]) && r[4] >= r[1];
-  const volM = isNum(r[5]) ? (r[5] >= 1e6 ? ru(r[5] / 1e6, 1) + ' млн' : ru(r[5] / 1e3, 0) + ' тыс') : '—';
+  // Оборот и количество бумаг — РАЗНЫЕ величины, и подписаны они по-разному.
+  // Раньше объём в штуках показывался под литерой V без единиц, что позволяло
+  // прочитать его как деньги.
+  const turnover = isNum(r[6]) ? scMoney(r[6]) : null;
+  const trades = isNum(r[7]) ? ru(r[7], 0) : null;
   return `<span class="sc-date">${esc(sawDate(r[0]))}</span>
     <span>O ${n(r[1])}</span><span>H ${n(r[2])}</span><span>L ${n(r[3])}</span>
     <span class="${up ? 'sc-up' : 'sc-down'}">C ${n(r[4])}</span>
-    <span class="sc-vol">V ${volM} шт</span>`;
+    ${turnover ? `<span class="sc-turn">Оборот ${turnover}</span>` : ''}
+    <span class="sc-vol">Объём ${scShares(r[5])}</span>
+    ${trades ? `<span class="sc-trades">Сделок ${trades}</span>` : ''}`;
 }
 
 function renderStockChartData(container, ticker, rows) {
@@ -9140,12 +9177,15 @@ function renderStockChartData(container, ticker, rows) {
   const ohlc = container.querySelector('.sc-ohlc');
   if (!canvas) return;
   if (!window.LightweightCharts) { canvas.innerHTML = '<div class="sc-loading muted">График недоступен.</div>'; return; }
+  // Освобождаем и график, и наблюдатель размера: иначе при смене акции подписки
+  // копятся на удалённых узлах — классическая утечка на SPA-переключениях.
   if (container._scChart) { try { container._scChart.remove(); } catch (_e) { /* noop */ } container._scChart = null; }
+  if (container._scResize) { try { container._scResize.disconnect(); } catch (_e) { /* noop */ } container._scResize = null; }
   canvas.innerHTML = '';
   const LC = window.LightweightCharts;
   const chart = LC.createChart(canvas, {
     autoSize: true,
-    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11 },
+    layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
     localization: { locale: 'ru-RU', priceFormatter: (v) => ru(v, 2) },
     grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
     rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.28 } },
@@ -9160,20 +9200,217 @@ function renderStockChartData(container, ticker, rows) {
     borderUpColor: '#116B4F', borderDownColor: '#963923', wickUpColor: '#116B4F', wickDownColor: '#963923',
   });
   candles.setData(rows.map((r) => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
-  const vol = chart.addHistogramSeries({ priceScaleId: 'vol', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
-  vol.setData(rows.map((r) => ({ time: r[0], value: isNum(r[5]) ? r[5] : 0, color: (isNum(r[4]) && isNum(r[1]) && r[4] >= r[1]) ? 'rgba(22,128,94,.45)' : 'rgba(179,74,50,.45)' })));
-  chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+
+  // Столбцы — ДЕНЕЖНЫЙ оборот (VALUE), а не количество бумаг. Если VALUE у дня нет,
+  // столбец не рисуется вовсе: подставить close×volume значило бы выдать оценку за факт.
+  const hasValue = rows.some((r) => isNum(r[6]));
+  const vol = chart.addHistogramSeries({
+    priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false,
+    priceFormat: { type: 'custom', formatter: (v) => scMoney(v) },
+  });
+  vol.setData(rows.map((r) => ({
+    time: r[0],
+    value: isNum(r[6]) ? r[6] : (hasValue ? 0 : (isNum(r[5]) ? r[5] : 0)),
+    color: (isNum(r[4]) && isNum(r[1]) && r[4] >= r[1]) ? 'rgba(22,128,94,.45)' : 'rgba(179,74,50,.45)',
+  })));
+  chart.priceScale('vol').applyOptions({ scaleMargins: { top: SC_VOL_TOP, bottom: 0 } });
   chart.timeScale().fitContent();
+
+  // Оверлейную шкалу lightweight-charts 4.x не умеет показывать сама (панели появились
+  // только в v5), поэтому подписи рисуются своим слоем — из тех же данных, что задают
+  // высоту столбцов, и по известным scaleMargins. Это не «правдоподобные» подписи,
+  // а пересчёт той же величины.
+  const scale = container.querySelector('.sc-volscale');
+  const redrawScale = () => scVolScaleDraw(scale, chart, vol, rows, hasValue);
+  redrawScale();
+  chart.timeScale().subscribeVisibleLogicalRangeChange(debounce(redrawScale, 60));
+  const ro = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(debounce(redrawScale, 80)) : null;
+  if (ro) { ro.observe(canvas); container._scResize = ro; }
+
   if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
+  const byTime = new Map(rows.map((r) => [r[0], r]));
   chart.subscribeCrosshairMove((param) => {
     if (!ohlc || !param || !param.time || !param.seriesData) return;
     const bar = param.seriesData.get(candles);
-    const v = param.seriesData.get(vol);
     if (!bar) return;
     const time = typeof param.time === 'string' ? param.time
       : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
-    ohlc.innerHTML = stockOhlcReadout(ticker, [time, bar.open, bar.high, bar.low, bar.close, v ? v.value : null]);
+    // Берём ИСХОДНУЮ строку, а не значение серии: в серии лежит только оборот,
+    // а показать надо и количество бумаг, и число сделок.
+    ohlc.innerHTML = stockOhlcReadout(ticker, byTime.get(time) || [time, bar.open, bar.high, bar.low, bar.close]);
   });
+}
+
+// Доля высоты графика под объёмом — та же константа, что уходит в scaleMargins,
+// иначе подписи разъедутся со столбцами.
+const SC_VOL_TOP = 0.8;
+
+// ══════════════════════════════════════════════════════════════════════════
+// ПРОФИЛЬ ОБЪЁМА (Visible Range Volume Profile)
+//
+// Строится по ДЕНЕЖНОМУ обороту внутридневных свечей MOEX ISS. Дневная свеча не
+// содержит распределения сделок внутри диапазона low–high, поэтому профиль по ней
+// был бы выдумкой; внутридневные свечи есть с 2011 года, и сумма их `value` совпадает
+// с дневным VALUE до копейки — это и делает профиль настоящим, а не оценочным.
+//
+// Оборот свечи распределяется ПРОПОРЦИОНАЛЬНО пересечению её диапазона с ценовыми
+// корзинами, а не сваливается в типичную цену: часовая свеча на волатильном дне
+// перекрывает несколько корзин, и точечное отнесение исказило бы форму профиля.
+// Когда high == low (неподвижная свеча), весь оборот идёт в одну корзину.
+// ══════════════════════════════════════════════════════════════════════════
+
+const SC_VALUE_AREA = 0.70;        // доля оборота в зоне стоимости — отраслевой стандарт
+
+function scProfileCompute(candles, binCount) {
+  const rows = (candles || []).filter((c) => isNum(c.low) && isNum(c.high)
+    && isNum(c.value) && c.value > 0 && c.high >= c.low);
+  if (!rows.length || !(binCount > 0)) return null;
+
+  let lo = Infinity, hi = -Infinity;
+  for (const c of rows) { if (c.low < lo) lo = c.low; if (c.high > hi) hi = c.high; }
+  if (!(hi > lo)) {                       // весь период по одной цене — один уровень
+    const total = rows.reduce((s, c) => s + c.value, 0);
+    return { lo, hi, binSize: 0, bins: [{ price: lo, value: total }],
+             poc: lo, vah: lo, val: lo, total, valueAreaShare: 1 };
+  }
+
+  const binSize = (hi - lo) / binCount;
+  const bins = new Array(binCount).fill(0);
+  for (const c of rows) {
+    const span = c.high - c.low;
+    if (span <= 0) {                      // неподвижная свеча
+      const i = Math.min(binCount - 1, Math.max(0, Math.floor((c.low - lo) / binSize)));
+      bins[i] += c.value;
+      continue;
+    }
+    const first = Math.min(binCount - 1, Math.max(0, Math.floor((c.low - lo) / binSize)));
+    const last = Math.min(binCount - 1, Math.max(0, Math.floor((c.high - lo) / binSize)));
+    for (let i = first; i <= last; i += 1) {
+      const bLo = lo + i * binSize;
+      const bHi = bLo + binSize;
+      const overlap = Math.min(c.high, bHi) - Math.max(c.low, bLo);
+      if (overlap > 0) bins[i] += c.value * (overlap / span);
+    }
+  }
+
+  const total = bins.reduce((s, v) => s + v, 0);
+  if (!(total > 0)) return null;
+
+  let pocIdx = 0;
+  for (let i = 1; i < bins.length; i += 1) if (bins[i] > bins[pocIdx]) pocIdx = i;
+
+  // Зона стоимости: от POC расширяемся в сторону большего соседа, пока не наберём 70%.
+  let lowIdx = pocIdx, highIdx = pocIdx, acc = bins[pocIdx];
+  while (acc < total * SC_VALUE_AREA && (lowIdx > 0 || highIdx < bins.length - 1)) {
+    const below = lowIdx > 0 ? bins[lowIdx - 1] : -1;
+    const above = highIdx < bins.length - 1 ? bins[highIdx + 1] : -1;
+    if (above >= below) { highIdx += 1; acc += bins[highIdx]; }
+    else { lowIdx -= 1; acc += bins[lowIdx]; }
+  }
+
+  const mid = (i) => lo + (i + 0.5) * binSize;
+  return {
+    lo, hi, binSize, total,
+    bins: bins.map((v, i) => ({ price: mid(i), value: v, lo: lo + i * binSize, hi: lo + (i + 1) * binSize })),
+    poc: mid(pocIdx),
+    val: lo + lowIdx * binSize,
+    vah: lo + (highIdx + 1) * binSize,
+    valueAreaShare: acc / total,
+  };
+}
+
+// Корзин тем меньше, чем короче диапазон и уже экран: на 20 свечах 50 корзин дают
+// гребёнку из пустот, которая выглядит как данные, но ничего не описывает.
+function scProfileBinCount(candleCount, isMobile) {
+  const base = isMobile ? 28 : 48;
+  if (candleCount < 40) return Math.max(8, Math.floor(candleCount / 2));
+  if (candleCount < 120) return Math.min(base, 24);
+  return base;
+}
+
+// Интервал свечей под длину диапазона. Минутные не берём никогда: на трёх годах это
+// сотни тысяч точек, а профиль от них не станет точнее ширины ценовой корзины.
+function scIntradayInterval(days) {
+  if (days <= 120) return 10;                // 10 минут
+  return 60;                                 // час
+}
+
+const SC_INTRADAY_CAP = 9000;                // потолок свечей за один профиль
+const SC_INTRADAY_CACHE = {};
+
+// Пагинация ISS по свечам: start=0,500,… Прерываемся по AbortController, чтобы
+// ответ по прошлой акции не дорисовался поверх новой.
+function scFetchIntraday(ticker, from, till, interval, signal, cb) {
+  const key = `${ticker}|${from}|${till}|${interval}`;
+  if (SC_INTRADAY_CACHE[key]) { cb(null, SC_INTRADAY_CACHE[key]); return; }
+  const out = [];
+  const base = `https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/`
+    + `${encodeURIComponent(ticker)}/candles.json?iss.meta=off&interval=${interval}`
+    + `&from=${from}&till=${till}`;
+  const step = (start) => {
+    fetch(`${base}&start=${start}`, { signal, cache: 'no-store' })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((j) => {
+        const block = j.candles || {};
+        const cols = block.columns || [];
+        const iLow = cols.indexOf('low'), iHigh = cols.indexOf('high'), iVal = cols.indexOf('value');
+        (block.data || []).forEach((d) => out.push({ low: d[iLow], high: d[iHigh], value: d[iVal] }));
+        if ((block.data || []).length >= 500 && out.length < SC_INTRADAY_CAP) step(start + block.data.length);
+        else { SC_INTRADAY_CACHE[key] = out; cb(null, out); }
+      })
+      .catch((e) => cb(e, out));
+  };
+  step(0);
+}
+
+// Круглые деления шкалы: 1/2/2.5/5 × 10^n. Произвольные значения вроде «0,37 млрд»
+// читаются как точность, которой у оценки максимума по видимому диапазону нет.
+function scNiceTicks(max, count) {
+  if (!isNum(max) || max <= 0) return [];
+  const raw = max / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  let step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) || mag * 10;
+  // Шаг мог перескочить максимум — тогда на шкале не осталось бы ни одного деления,
+  // кроме нуля, и она перестала бы что-либо сообщать. Деление пополам сохраняет
+  // «круглость» ряда: 1 → 0,5 → 0,25.
+  while (step > max && step > 0) step /= 2;
+  const out = [];
+  for (let v = step; v <= max * 1.0001; v += step) out.push(v);
+  return out;
+}
+
+// Координаты берём у САМОЙ серии через priceToCoordinate, а не пересчитываем
+// scaleMargins вручную: библиотека — единственный источник истины о том, где она
+// нарисовала столбец. Ручной пересчёт разъехался бы с графиком при любом изменении
+// отступов или автоскейла, и подписи стали бы правдоподобными, но неверными.
+function scVolScaleDraw(scale, chart, volSeries, rows, hasValue) {
+  if (!scale || !volSeries) return;
+  const range = chart.timeScale().getVisibleLogicalRange();
+  if (!range) { scale.innerHTML = ''; return; }
+  const from = Math.max(0, Math.floor(range.from));
+  const to = Math.min(rows.length - 1, Math.ceil(range.to));
+  let max = 0;
+  for (let i = from; i <= to; i += 1) {
+    const v = hasValue ? rows[i] && rows[i][6] : rows[i] && rows[i][5];
+    if (isNum(v) && v > max) max = v;
+  }
+  if (!max) { scale.innerHTML = ''; return; }
+
+  // Число делений — от РЕАЛЬНОЙ высоты зоны объёма, а не константой: на невысоком
+  // графике три подписи налезают друг на друга и перестают читаться.
+  const zeroY = volSeries.priceToCoordinate(0);
+  const maxY = volSeries.priceToCoordinate(max);
+  const zonePx = (isNum(zeroY) && isNum(maxY)) ? Math.abs(zeroY - maxY) : 0;
+  const count = zonePx >= 90 ? 3 : (zonePx >= 45 ? 2 : 1);
+
+  const fmt = (v) => (hasValue ? scMoney(v) : `${ru(v / 1e6, 1)} млн шт`);
+  const html = [];
+  for (const v of [0, ...scNiceTicks(max, count)]) {
+    const y = volSeries.priceToCoordinate(v);
+    if (!isNum(y)) continue;                  // значение вне видимой области шкалы
+    html.push(`<span class="sc-vs-tick" style="top:${y.toFixed(1)}px">${v === 0 ? '0' : esc(fmt(v))}</span>`);
+  }
+  scale.innerHTML = html.join('');
 }
 
 function wireStockChart(root, ticker) {

@@ -3859,3 +3859,21 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
   .riv-facts { grid-template-columns: repeat(2, 1fr); }
 }
 .riv-caveat { display: inline-block; margin-top: 6px; font-size: .82rem; color: var(--ink-soft); }
+
+/* ── График акции: денежная шкала оборота справа ────────────────────────────
+   lightweight-charts 4.x не показывает оверлейные шкалы (панели появились в v5),
+   поэтому подписи рисуются своим слоем — из тех же данных и по тем же scaleMargins,
+   что задают высоту столбцов. */
+.sc-plot { position: relative; }
+.sc-volscale { position: absolute; right: 0; top: 0; bottom: 0; width: 78px;
+  pointer-events: none; z-index: 2; }
+.sc-vs-tick { position: absolute; right: 4px; transform: translateY(-50%);
+  font-size: .65rem; line-height: 1; color: var(--ink-faint);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  padding: 1px 3px; border-radius: 3px; white-space: nowrap; }
+.sc-turn { font-weight: 600; }
+.sc-trades { color: var(--ink-soft); }
+@media (max-width: 640px) {
+  .sc-volscale { width: 62px; }
+  .sc-vs-tick { font-size: .6rem; }
+}
