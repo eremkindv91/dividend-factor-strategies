@@ -455,3 +455,27 @@ def test_valuation_v2_is_kept_in_git_as_last_good():
     tracked = subprocess.run(["git", "ls-files", "site/cbr/valuation_v2.json"],
                              cwd=ROOT, capture_output=True, text=True).stdout.strip()
     assert tracked, "valuation_v2.json не в git — при сбое генерации файл исчезнет с сайта"
+
+
+def test_workflow_installs_every_tool_it_invokes():
+    """Шаг CI, который зовёт pytest, обязан его ставить.
+
+    Проверено на живом деплое: шаг падал за 30 мс — pytest не успевал стартовать,
+    потому что его не было в окружении. Модель была ни при чём, но публикация
+    сорвалась. Дешёвая проверка вместо повторения той же ошибки.
+    """
+    wf = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
+    if "python -m pytest" not in wf:
+        pytest.skip("update.yml больше не зовёт pytest")
+    install = wf[:wf.index("python -m pytest")]
+    assert "pip install" in install and "pytest" in install.split("pip install")[1][:200], (
+        "update.yml вызывает pytest, но не устанавливает его")
+
+
+def test_failing_model_tests_do_not_publish_a_broken_artifact():
+    """Провал тестов обязан возвращать last-good, а не публиковать что вышло."""
+    wf = (ROOT / ".github" / "workflows" / "update.yml").read_text(encoding="utf-8")
+    step = wf[wf.index("Тесты модели остаточного дохода"):]
+    step = step[:step.index("- name:", 10)]
+    assert "git checkout -- site/cbr/valuation_v2.json" in step, (
+        "при провале тестов артефакт обязан откатываться к закоммиченному last-good")

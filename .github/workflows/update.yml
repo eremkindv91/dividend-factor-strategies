@@ -32,7 +32,7 @@ jobs:
 
       - name: Установка зависимостей financial data layer
         run: |
-          python -m pip install --quiet pandas pyarrow pyyaml requests ta openpyxl
+          python -m pip install --quiet pandas pyarrow pyyaml requests ta openpyxl pytest
           python -m pip install --quiet t-tech-investments==1.49.2 \
             --index-url https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple
 
@@ -199,7 +199,14 @@ jobs:
         run: python scripts/cbr_banks/build_banks_valuation_v2.py || echo "[banks-v2] пропуск — сохранён предыдущий валидный файл (last-good)"
 
       - name: Тесты модели остаточного дохода
-        run: python -m pytest -q tests/test_bank_residual_income.py
+        # Провал тестов не должен ронять деплой всего сайта из-за одного блока, но и
+        # опубликовать модель с нарушенными инвариантами нельзя. Поэтому: откатываем
+        # артефакт к закоммиченному last-good и продолжаем — как и с остальными блоками.
+        run: |
+          if ! python -m pytest -q tests/test_bank_residual_income.py; then
+            echo "[banks-v2] ТЕСТЫ НЕ ПРОШЛИ — возвращаем предыдущий валидный valuation_v2.json"
+            git checkout -- site/cbr/valuation_v2.json || true
+          fi
 
       - name: P0 — жёсткий pre-deploy контракт + last-good fallback
         # пустой/битый обязательный блок (data.json/marketsaw) НЕ должен попасть на сайт.
