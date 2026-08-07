@@ -172,3 +172,69 @@ def test_reserves_and_coverage_are_never_emitted(monkeypatch):
 def test_month_starts_walks_back_across_the_year_boundary():
     dates = credit.month_starts(4, datetime(2026, 2, 15, tzinfo=timezone.utc))
     assert dates == ["2026-02-01", "2026-01-01", "2025-12-01", "2025-11-01"]
+
+
+# ─────────────────────────── слияние в общий селектор ───────────────────────────
+
+
+def _prepare_site(tmp_path, monkeypatch):
+    cbr = tmp_path / "site" / "cbr"
+    cbr.mkdir(parents=True)
+    (cbr / "bank_timeseries.json").write_text(json.dumps({
+        "1481": {"net_profit": [{"date": "2026-07-01", "value": 1.0}]}}), encoding="utf-8")
+    (cbr / "metric_mapping.json").write_text(json.dumps({
+        "metrics": [{"metric_id": "net_profit", "group": "Финансовый результат (Ф.102, квартальная)"}]}),
+        encoding="utf-8")
+    monkeypatch.setattr(credit, "ROOT", tmp_path)
+    return cbr
+
+
+def test_credit_metrics_join_the_shared_selector_without_erasing_others(tmp_path, monkeypatch):
+    """Портфель должен появиться в том же списке, что формы 102/123/135, а не рядом.
+
+    Дозапись, а не перегенерация: bank_timeseries.json собирает другой скрипт, и полная
+    перезапись стёрла бы прибыль, капитал и нормативы.
+    """
+    cbr = _prepare_site(tmp_path, monkeypatch)
+    payload = {"banks": [{"ticker": "SBER", "regnum": 1481, "status": "ok",
+                          "rows": [{"d": "2026-06-01", "gross": 48000.0, "retail": 19000.0},
+                                   {"d": "2026-07-01", "gross": 49074.857, "retail": 19298.694}]}]}
+
+    metrics, rows = credit.merge_into_timeseries(payload)
+
+    ts = json.loads((cbr / "bank_timeseries.json").read_text(encoding="utf-8"))
+    mapping = json.loads((cbr / "metric_mapping.json").read_text(encoding="utf-8"))
+    assert metrics == 5 and rows == 4
+    assert "net_profit" in ts["1481"], "существующие ряды обязаны уцелеть"
+    assert ts["1481"]["credit_gross"][-1]["value"] == pytest.approx(49_074_857_000.0), (
+        "в общий ряд значения идут в тыс. ₽, как у остальных метрик")
+    assert ts["1481"]["credit_gross"][-1]["form"] == "101"
+    groups = {m["group"] for m in mapping["metrics"]}
+    assert "Кредитный портфель (Ф.101, месячная)" in groups
+    assert any(m["group"].startswith("Финансовый результат") for m in mapping["metrics"])
+
+
+def test_merge_is_idempotent(tmp_path, monkeypatch):
+    """Повторный прогон не должен плодить дубликаты пунктов в селекторе."""
+    cbr = _prepare_site(tmp_path, monkeypatch)
+    payload = {"banks": [{"ticker": "SBER", "regnum": 1481, "status": "ok",
+                          "rows": [{"d": "2026-07-01", "gross": 49074.857}]}]}
+
+    credit.merge_into_timeseries(payload)
+    second, _rows = credit.merge_into_timeseries(payload)
+
+    mapping = json.loads((cbr / "metric_mapping.json").read_text(encoding="utf-8"))
+    ids = [m["metric_id"] for m in mapping["metrics"]]
+    assert second == 0
+    assert len(ids) == len(set(ids)), "дубликаты метрик в справочнике"
+
+
+def test_aggregate_codes_carry_the_caveat_into_the_selector(tmp_path, monkeypatch):
+    """Оговорка про 45.0/45.2 обязана дойти до справочника метрик, а не остаться в коде."""
+    cbr = _prepare_site(tmp_path, monkeypatch)
+    credit.merge_into_timeseries({"banks": [{"ticker": "SBER", "regnum": 1481, "status": "ok",
+                                             "rows": [{"d": "2026-07-01", "retail": 19298.694}]}]})
+
+    mapping = json.loads((cbr / "metric_mapping.json").read_text(encoding="utf-8"))
+    retail = next(m for m in mapping["metrics"] if m["metric_id"] == "credit_retail")
+    assert "справочник" in retail["notes"].lower() and "сходимостью" in retail["notes"]

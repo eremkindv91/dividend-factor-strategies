@@ -189,6 +189,81 @@ def build(today: datetime | None = None) -> dict:
     }
 
 
+# Метрики для общего селектора раздела «Банки РФ»: тот же справочник и тот же ряд, что
+# у форм 102/123/135, — иначе кредитный портфель пришлось бы смотреть в отдельном месте,
+# а сравнить его с прибылью и капиталом в одном интерфейсе было бы нельзя.
+TS_METRICS = [
+    ("gross", "credit_gross", "Кредитный портфель, всего", "45.0+45.2+451+453+454+458"),
+    ("corporate", "credit_corporate", "Кредиты юридическим лицам", "45.0"),
+    ("retail", "credit_retail", "Кредиты физическим лицам", "45.2"),
+    ("sole_proprietors", "credit_sole_proprietors", "Кредиты индивидуальным предпринимателям", "454"),
+    ("overdue", "credit_overdue", "Просроченная задолженность по кредитам", "458"),
+]
+TS_GROUP = "Кредитный портфель (Ф.101, месячная)"
+AGGREGATE_CODES = {"45.0", "45.2"}
+
+
+def merge_into_timeseries(payload: dict) -> tuple[int, int]:
+    """Дописать ряды портфеля в общие bank_timeseries.json и metric_mapping.json.
+
+    Файлы уже созданы build_cbr_banks.py — здесь именно дозапись, а не перегенерация:
+    порядок шагов в workflow это гарантирует, а перезапись затёрла бы формы 102/123/135.
+    """
+    site_cbr = ROOT / "site" / "cbr"
+    ts_path, map_path = site_cbr / "bank_timeseries.json", site_cbr / "metric_mapping.json"
+    if not ts_path.exists() or not map_path.exists():
+        sys.stderr.write("[credit] bank_timeseries.json/metric_mapping.json нет — слияние пропущено\n")
+        return 0, 0
+
+    ts = json.loads(ts_path.read_text(encoding="utf-8"))
+    mapping = json.loads(map_path.read_text(encoding="utf-8"))
+
+    added_rows = 0
+    for bank in payload["banks"]:
+        if bank.get("status") != "ok":
+            continue
+        reg = str(bank["regnum"])
+        ts.setdefault(reg, {})
+        for key, metric_id, _label, symbol in TS_METRICS:
+            points = []
+            for row in bank["rows"]:
+                value = row.get(key)
+                if not isinstance(value, (int, float)):
+                    continue                       # пропуск месяца остаётся пропуском
+                points.append({
+                    "date": row["d"],
+                    # млрд ₽ → тыс. ₽: единица общего ряда, иначе график смешает масштабы
+                    "value": round(value * 1e6, 3),
+                    "symbol": symbol, "form": "101", "unit": "тыс. руб.",
+                    "quality_status": "official_direct",
+                    "source": "CBR CreditOrgInfo.asmx (Data101FullV2), активная сторона счетов",
+                })
+            if points:
+                ts[reg][metric_id] = points
+                added_rows += len(points)
+
+    known = {m.get("metric_id") for m in mapping.get("metrics", [])}
+    added_metrics = 0
+    for _key, metric_id, label, symbol in TS_METRICS:
+        if metric_id in known:
+            continue
+        note = f"Коды формы 101: {symbol}. Исходящий остаток, только активная сторона счетов."
+        if AGGREGATE_CODES & set(symbol.split("+")):
+            note += (" Коды 45.0/45.2 — агрегаты публикуемой формы, в справочнике ЦБ их нет;"
+                     " отнесение к юрлицам и физлицам подтверждено сходимостью с отчётностью банков.")
+        mapping.setdefault("metrics", []).append({
+            "metric_id": metric_id, "display_name_ru": label, "group": TS_GROUP,
+            "form": "101", "symbol": symbol, "unit": "тыс. руб.", "scale": 1,
+            "cumulative": False, "calculation_method": "official_direct",
+            "reliability_level": "official_direct", "notes": note,
+        })
+        added_metrics += 1
+
+    ts_path.write_text(json.dumps(ts, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    map_path.write_text(json.dumps(mapping, ensure_ascii=False, indent=1), encoding="utf-8")
+    return added_metrics, added_rows
+
+
 def main() -> int:
     payload = build()
     if not payload["meta"]["banks_ok"]:
@@ -196,9 +271,11 @@ def main() -> int:
         return 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    metrics, rows = merge_into_timeseries(payload)
     meta = payload["meta"]
     print(f"[credit] {meta['banks_ok']} из {meta['banks_total']} банков, "
           f"последняя дата {meta['as_of']} → {OUT}")
+    print(f"[credit] в общий ряд добавлено метрик: {metrics}, точек: {rows}")
     return 0
 
 
