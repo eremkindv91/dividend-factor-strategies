@@ -7793,14 +7793,14 @@ function dividendChangeBadges(event, inPortfolio) {
 function dividendSourceDetails(event) {
   if (event.verification_status === 'broker_structured_discovery') {
     const source = dividendSafeUrl((event.source_evidence || [])[0]?.source_url);
-    return `<details class="dc-source-details"><summary>Источник и ограничения</summary><div class="dc-source-panel">
+    return `<details class="dc-source-details"><summary>Подробнее об источнике</summary><div class="dc-source-panel">
       <p><b>Структурированный календарь брокера:</b> ${source ? `<a href="${esc(source)}" target="_blank" rel="noopener noreferrer">T-Инвестиции</a>` : 'T-Инвестиции'}.</p>
       <p class="dc-discovery-warning">Будущая дата найдена в API брокера, но ещё не подтверждена MOEX или документом эмитента. В официальный счётчик не входит.</p>
     </div></details>`;
   }
   if (event.decision_status === 'discovery_announced') {
     const source = dividendSafeUrl((event.source_evidence || [])[0]?.source_url);
-    return `<details class="dc-source-details"><summary>Источник и ограничения</summary><div class="dc-source-panel">
+    return `<details class="dc-source-details"><summary>Подробнее об источнике</summary><div class="dc-source-panel">
       <p><b>Discovery-источник:</b> ${source ? `<a href="${esc(source)}" target="_blank" rel="noopener noreferrer">SmartLab</a>` : 'SmartLab'}.</p>
       <p>${esc(event.discovery_description || '')}</p>
       <p class="dc-discovery-warning">Дата, сумма и доходность не подтверждены MOEX или документом эмитента. Расчётный последний день покупки требует ручной сверки.</p>
@@ -7831,6 +7831,99 @@ function dividendPaymentLabel(event) {
   if (event.payment_deadline_nominee) return `до ${dividendDateLabel(event.payment_deadline_nominee)} · номинальному держателю`;
   return '—';
 }
+
+// Подпись даты выплаты зависит от того, что реально пришло: объявленная дата и
+// предельный срок — разные факты. Общее «Выплата / до» скрывало эту разницу и заставляло
+// читателя гадать, обещана ли ему конкретная дата.
+function dividendPaymentPair(event) {
+  if (event.payment_date) {
+    return { label: 'Дата выплаты', value: dividendDateLabel(event.payment_date, true) };
+  }
+  if (event.payment_deadline_nominee) {
+    return { label: 'Ожидаемая выплата до',
+             value: dividendDateLabel(event.payment_deadline_nominee, true) };
+  }
+  return { label: 'Дата выплаты', value: '—' };
+}
+
+// Компактный источник вместо большого блока в каждой карточке: название эмитента должно
+// выигрывать у названия брокера, а не соперничать с ним.
+function dividendSourceShort(event) {
+  if (event.verification_status === 'broker_structured_discovery') return 'Т-Инвестиции';
+  if (event.decision_status === 'discovery_announced') return 'SmartLab';
+  const first = (event.source_evidence || [])[0] || {};
+  return ({ moex_iss: 'MOEX ISS', e_disclosure: 'e-disclosure', official_issuer: 'сайт эмитента',
+            tinvest: 'Т-Инвестиции' })[first.source] || 'источник не указан';
+}
+
+// «Что изменилось» строится ТОЛЬКО из тех полей, которые источник пометил изменёнными.
+// Прежних значений в данных нет, поэтому «было → стало» показать нельзя — и выдумывать
+// стрелку с прошлой датой мы не будем.
+const DIVIDEND_FIELD_LABELS = {
+  dividend_value: 'дивиденд на акцию', record_date: 'дата закрытия реестра',
+  last_buy_date: 'последний день покупки', payment_date: 'дата выплаты',
+  payment_deadline_nominee: 'срок выплаты номинальному держателю',
+  price: 'цена для расчёта доходности', price_asof: 'дата цены', yield_pct: 'доходность',
+  decision_status: 'статус решения', ex_dividend_date: 'дата закрытия без дивиденда',
+};
+
+function dividendChangedList(event) {
+  const fields = (event.changed_fields || []).map((f) => DIVIDEND_FIELD_LABELS[f] || f.replaceAll('_', ' '));
+  if (!fields.length) return '';
+  return `<details class="dc-changed"><summary>Что изменилось</summary>
+    <ul>${fields.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+    <p class="muted">Прежние значения источник не передаёт, поэтому показан только состав изменений.</p>
+  </details>`;
+}
+
+// Мобильная карточка: сверху — кто это (название и тикер), потом деньги, потом даты.
+// Раньше она начиналась с суммы, и в ленте из десятка событий бумагу приходилось
+// опознавать по логотипу.
+function dividendMobileCardHTML(event, portfolio, closedCls) {
+  const gross = dividendPortfolioGross(event, portfolio);
+  const inPortfolio = Boolean(portfolio[event.secid]);
+  const pay = dividendPaymentPair(event);
+  const yieldCell = isNum(event.yield_pct)
+    ? `<b title="Доходность рассчитана по цене ${isNum(event.price) ? ru(event.price, 2) : '—'} ₽ на ${esc(dividendDateLabel(event.price_asof, true))}">${ru(event.yield_pct, 1)}%</b>`
+    : '<b class="muted">н/д</b>';
+  return `<article class="dc-mcard${closedCls}">
+    <header class="dc-mcard-top">
+      <span class="dc-mcard-id">${instrumentAvatarHTML(event.secid, event.name, event.instrument_type, 'sm')}
+        <span class="dc-mcard-names"><b>${esc(event.name)}</b><span class="dc-mcard-tk">${esc(event.secid)}</span></span></span>
+      <span class="dc-mcard-flags">${dividendChangeBadges(event, inPortfolio)}</span>
+    </header>
+    <div class="dc-mcard-key">
+      <div><b>${ru(event.dividend_value, 2)} ${esc(dividendCurrencySign(event.currency))}</b><span>дивиденд</span></div>
+      <div>${yieldCell}<span>доходность</span></div>
+      ${gross != null ? `<div><b>${ru(gross, 0)} ₽</b><span>мой портфель</span></div>` : ''}
+    </div>
+    <dl class="dc-mcard-dates">
+      <dt>Купить до</dt><dd>${dividendDateLabel(event.last_buy_date, true)}</dd>
+      <dt>Реестр</dt><dd>${dividendDateLabel(event.record_date, true)}</dd>
+      <dt>${esc(pay.label)}</dt><dd>${esc(pay.value)}</dd>
+    </dl>
+    ${dividendChangedList(event)}
+    <footer class="dc-mcard-foot">
+      <span class="dc-mcard-src">Источник: ${esc(dividendSourceShort(event))}</span>
+      ${dividendMobileStatusBadge(event)}
+    </footer>
+    ${dividendSourceDetails(event)}
+  </article>`;
+}
+
+// Бейдж статуса в мобильной карточке не должен повторять строку источника: у событий из
+// брокерского календаря он говорил ровно то же самое («календарь Т-Инвестиций» рядом с
+// «Источник: Т-Инвестиции») и съедал половину нижней строки.
+function dividendMobileStatusBadge(event) {
+  if (event.verification_status === 'broker_structured_discovery') return '';
+  return dividendDecisionBadge(event);
+}
+
+// В данных валюта приходит кодом ISO. «235,00 RUB» — это не то, как читают сумму
+// в рублях, а знак экономит ещё и место в узкой колонке.
+function dividendCurrencySign(code) {
+  return ({ RUB: '₽', USD: '$', EUR: '€' })[String(code || '').toUpperCase()] || (code || '');
+}
 function dividendRowsHTML(rows, portfolio, tab) {
   if (!rows.length) {
     const labels = {
@@ -7859,16 +7952,7 @@ function dividendRowsHTML(rows, portfolio, tab) {
       <td class="left">${dividendSourceDetails(event)}</td>
     </tr>`;
   }).join('');
-  const mobile = rows.map((event) => {
-    const gross = dividendPortfolioGross(event, portfolio), inPortfolio = Boolean(portfolio[event.secid]);
-    return `<article class="dc-mobile-card${closedCls(event)}">
-      <header><div>${instrumentIdentityHTML(event.secid, event.name, event.instrument_type, 'sm')}</div>${dividendDecisionBadge(event)}</header>
-      <div class="dc-tags">${dividendChangeBadges(event, inPortfolio)}</div>
-      <div class="dc-mobile-primary"><div><span>Дивиденд</span><b>${ru(event.dividend_value, 2)} ${esc(event.currency || '')}</b></div><div><span>Доходность к цене</span><b>${isNum(event.yield_pct) ? ru(event.yield_pct, 1) + '%' : '—'}</b></div></div>
-      <dl><dt>Купить до</dt><dd>${dividendDateLabel(event.last_buy_date, true)}</dd><dt>Реестр</dt><dd>${dividendDateLabel(event.record_date, true)}</dd><dt>Выплата / до</dt><dd>${esc(dividendPaymentLabel(event))}</dd>${gross != null ? `<dt>Мой портфель</dt><dd><b>${ru(gross, 0)} ₽ валовыми</b></dd>` : ''}</dl>
-      ${dividendSourceDetails(event)}
-    </article>`;
-  }).join('');
+  const mobile = rows.map((event) => dividendMobileCardHTML(event, portfolio, closedCls(event))).join('');
   return `<div class="dc-table-wrap"><table class="dc-table"><thead><tr><th scope="col" class="left">Компания</th><th scope="col" class="left">Статус</th><th scope="col">На акцию</th><th scope="col">Доходность</th><th scope="col">Купить до</th><th scope="col">Реестр</th><th scope="col">Выплата / срок</th><th scope="col">Мой портфель</th><th scope="col" class="left">Качество</th></tr></thead><tbody>${desktop}</tbody></table></div><div class="dc-mobile-list">${mobile}</div>`;
 }
 function dividendCashflowStrip(events, portfolio, todayIso, rangeDays) {

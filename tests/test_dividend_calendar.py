@@ -262,7 +262,11 @@ def test_frontend_and_deploy_contracts_are_wired():
     assert "dividendDiscoveryEvents" in js and "Мой портфель ·" in js and "Можно купить ·" in js
     assert "Все будущие ·" in js and "broker_structured_discovery" in js and "discovery_announced" in js
     assert "navigator.sendBeacon" not in js
-    assert ".dc-mobile-card" in css and "@media (max-width: 640px)" in css
+    assert ".dc-mcard" in css and "@media (max-width: 640px)" in css
+    # карточка обязана начинаться с идентификации бумаги: логотипа мало, в ленте
+    # событий её опознают по названию и тикеру
+    assert ".dc-mcard-names" in css and ".dc-mcard-tk" in css
+    assert "dividendMobileCardHTML" in js
     assert 'cron: "0 5 * * *"' in workflow and "group: gh-pages-publish" in workflow
     assert "t-tech-investments==1.49.2" in workflow and 'SSL_TBANK_VERIFY: "True"' in workflow
     assert "t-tech-investments==1.49.2" in update and 'SSL_TBANK_VERIFY: "True"' in update

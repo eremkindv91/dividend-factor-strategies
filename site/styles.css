@@ -2883,6 +2883,12 @@ tbody tr:hover td,
 .dc-status-broker { background: #EEF3FA; color: var(--accent-deep); border: 1px solid #C8D5E7; }
 .dc-status-cancelled { background: var(--risk-fill); color: var(--risk-ink); }
 .dc-status-unknown { background: var(--neut-fill); color: var(--neut-ink); }
+/* «Что изменилось» — раскрытие, а не постоянный блок: список изменённых полей нужен
+   немногим, но тем, кому нужен, — сразу. */
+.dc-changed > summary { cursor: pointer; color: var(--accent-deep); font-size: .68rem; font-weight: 650; margin-top: 6px; }
+.dc-changed ul { margin: 4px 0 0; padding-left: 18px; font-size: .7rem; color: var(--ink-soft); }
+.dc-changed p { margin: 4px 0 0; font-size: .66rem; }
+
 .dc-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .dc-tag { display: inline-block; padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-faint); font-size: .6rem; }
 .dc-tag-portfolio { border-color: #9CC7B2; color: var(--good-ink); background: #F2F8F5; }
@@ -2923,18 +2929,30 @@ tbody tr:hover td,
   .dc-count { margin-left: 0; width: 100%; }
   .dc-table-wrap { display: none; }
   .dc-mobile-list { display: grid; gap: 8px; }
-  .dc-mobile-card { padding: 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
-  .dc-mobile-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-  .dc-mobile-card header > div { display: flex; flex-direction: column; min-width: 0; }
-  .dc-mobile-card header b { font-family: var(--mono); font-size: .88rem; }
-  .dc-mobile-card header .instrument-identity { max-width: calc(100% - 92px); }
-  .dc-mobile-card header .instrument-identity__text > span { color: var(--ink-soft); font-size: .7rem; overflow-wrap: anywhere; }
-  .dc-mobile-primary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; padding: 9px 0;
+  /* Карточка события: сначала «кто это», потом деньги, потом даты. Отступы ужаты
+     примерно на четверть против прежней вёрстки — на экране телефона теперь помещается
+     две с половиной карточки вместо полутора, и лента листается, а не изучается. */
+  .dc-mcard { padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .dc-mcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .dc-mcard-id { display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .dc-mcard-names { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .dc-mcard-names b { font-size: .92rem; font-weight: 700; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dc-mcard-tk { font-family: var(--mono); font-size: .7rem; color: var(--ink-soft); letter-spacing: .02em; }
+  .dc-mcard-flags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px; flex: 0 0 auto; }
+  .dc-mcard-key { display: flex; gap: 14px; margin: 8px 0 7px; padding: 7px 0;
     border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .dc-mobile-primary div { display: flex; flex-direction: column; }.dc-mobile-primary span { color: var(--ink-faint); font-size: .64rem; }
-  .dc-mobile-primary b { font-size: .92rem; font-variant-numeric: tabular-nums; }
-  .dc-mobile-card > dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0 0 8px; font-size: .72rem; }
-  .dc-mobile-card > dl dt { color: var(--ink-faint); }.dc-mobile-card > dl dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .dc-mcard-key div { display: flex; flex-direction: column; min-width: 0; }
+  .dc-mcard-key b { font-size: .95rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .dc-mcard-key span { color: var(--ink-faint); font-size: .63rem; }
+  .dc-mcard-dates { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; margin: 0; font-size: .72rem; }
+  .dc-mcard-dates dt { color: var(--ink-faint); }
+  .dc-mcard-dates dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .dc-mcard-foot { display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-top: 7px; }
+  .dc-mcard-src { font-size: .66rem; color: var(--ink-faint); }
+  .dc-mcard .dc-status { font-size: .62rem; padding: 1px 6px; }
+  .dc-mcard .dc-source-details > summary { font-size: .66rem; }
   .dc-source-panel { min-width: 0; }
   .dc-cashflow-head { align-items: flex-start; flex-direction: column; gap: 2px; }
   .dc-cashflow-head span { text-align: left; }
