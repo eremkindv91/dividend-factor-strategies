@@ -1699,11 +1699,6 @@ td.empty { text-align: center; }
 .bval-dl { margin: 6px 0 0; }
 .bval-dl dt { font-weight: 700; font-size: .82rem; color: var(--ink); margin-top: 8px; }
 .bval-dl dd { margin: 2px 0 0; font-size: .82rem; color: var(--ink-soft); line-height: 1.5; }
-.bval-scatter-box { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface); }
-.bval-scatter-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-.bval-coe { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--ink-faint); font-weight: 600; }
-.bval-coe input[type="range"] { accent-color: var(--accent-deep); width: 140px; }
-.bval-scatter-wrap { position: relative; height: 340px; }
 .bval-caption { font-size: .8rem; line-height: 1.5; margin-top: 8px; }
 .bval-caption b { color: var(--accent-deep); }
 .bval-disc { font-size: .8rem; color: var(--risk-ink); font-weight: 600; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }
@@ -1727,7 +1722,7 @@ td.empty { text-align: center; }
 .bval-hist-wrap { position: relative; height: 340px; }
 .bval-hist-cap { font-size: .78rem; line-height: 1.5; margin-top: 8px; }
 .bval-hist-cap .bh-warn { color: var(--risk-ink); font-weight: 600; margin-top: 4px; }
-@media (max-width: 760px) { .bval-scatter-wrap, .bval-hist-wrap { height: 300px; } .bval-coe input[type="range"] { width: 100px; } }
+@media (max-width: 760px) { .bval-hist-wrap { height: 300px; } }
 
 /* ══ Product polish pass: compact investor dashboard ══ */
 :root {
@@ -2080,13 +2075,11 @@ tbody tr:hover td,
   font-weight: 500;
   line-height: 1.45;
 }
-.bval-scatter-box,
 .bval-hist-box,
 .saw-card,
 .pf-risk {
   background: var(--surface-soft);
 }
-.bval-scatter-head b,
 .bval-hist-head b,
 .bonds-section-title,
 .saw-col-title {
@@ -2097,7 +2090,6 @@ tbody tr:hover td,
   color: var(--warn-ink);
 }
 .cbr-chart-wrap,
-.bval-scatter-wrap,
 .bval-hist-wrap,
 .bonds-chart-wrap {
   border-radius: 10px;
