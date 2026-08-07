@@ -7132,6 +7132,13 @@ function onSectionShown(sec) {
     renderCbr();
     renderBanksValuation();
     renderRiv();
+    // Портфель — тяжёлый ряд на 38 месяцев по семи банкам, поэтому грузится по раскрытию,
+    // а не вместе с разделом.
+    const bcr = document.getElementById('banks-credit');
+    if (bcr && !bcr.dataset.wired) {
+      bcr.dataset.wired = '1';
+      bcr.addEventListener('toggle', function () { if (this.open) renderBankCredit(); });
+    }
     const ts = document.getElementById('cbr-timeseries');
     if (ts && !ts.dataset.wired) {
       ts.dataset.wired = '1';
@@ -10838,6 +10845,154 @@ function renderRiv() {
       body.innerHTML = `<div class="riv-fallback"><b>Не удалось показать оценку</b> — ошибка отрисовки: ${
         esc(e && e.message)}.</div>`;
     }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Кредитный портфель банков: форма 101 ЦБ, помесячно (site/cbr/credit_portfolio.json,
+// сборщик scripts/cbr_banks/build_banks_credit.py). РСБУ отдельного банка, не МСФО группы.
+// ══════════════════════════════════════════════════════════════════════════
+let BCR = null;
+
+const BCR_PARTS = [
+  ['corporate', 'Юрлица'],
+  ['retail', 'Физлица'],
+  ['sole_proprietors', 'ИП'],
+  ['financial_orgs', 'Фин. организации'],
+  ['state_orgs', 'Госсобственность'],
+  ['non_profit', 'Некоммерческие'],
+  ['overdue', 'Просрочка'],
+];
+
+function loadBankCredit(cb) {
+  if (BCR) { cb(null); return; }
+  fetch(dataURL('cbr/credit_portfolio.json'))
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.banks) throw new Error('в файле нет банков'); BCR = j; cb(null); })
+    .catch((e) => cb(e));
+}
+
+// Суммы портфелей — триллионы рублей. Держим одну функцию на весь блок, чтобы столбец
+// таблицы и подпись под ней не разошлись в единицах.
+function bcrMoney(bn) {
+  if (!isNum(bn)) return mdash;
+  if (Math.abs(bn) >= 1000) return `${ru(bn / 1000, 2)} трлн`;
+  return `${ru(bn, 1)} млрд`;
+}
+
+// Рост за 12 месяцев считается по ФАКТИЧЕСКИ найденной точке год назад, а не по «12-й
+// строке с конца»: в ряду бывают пропуски месяцев, и слепой отсчёт сравнил бы портфель
+// с другим периодом, не сказав об этом.
+function bcrYoY(rows, key) {
+  if (!rows || rows.length < 2) return null;
+  const last = rows[rows.length - 1];
+  const cur = last[key];
+  if (!isNum(cur)) return null;
+  const target = `${String(Number(last.d.slice(0, 4)) - 1)}${last.d.slice(4)}`;
+  const past = rows.find((r) => r.d === target);
+  if (!past || !isNum(past[key]) || past[key] === 0) return null;
+  return { pct: (cur / past[key] - 1) * 100, from: past.d };
+}
+
+function bcrRowsHTML(d) {
+  return d.banks.map((b) => {
+    if (b.status !== 'ok') {
+      return `<tr class="bcr-row bcr-na"><td class="al-l"><b>${esc(b.name)}</b></td>
+        <td colspan="6" class="bcr-reason">Форма 101 по банку не публикуется${b.reason ? ` — ${esc(b.reason)}` : ''}</td></tr>`;
+    }
+    const l = b.latest || {};
+    const yoy = bcrYoY(b.rows, 'gross');
+    const retailShare = (isNum(l.retail) && isNum(l.gross) && l.gross > 0) ? l.retail / l.gross : null;
+    // Доля просрочки — к валовому портфелю, в который она же и входит. Считать её к
+    // «портфелю без просрочки» было бы другой метрикой с другим знаменателем.
+    const npl = (isNum(l.overdue) && isNum(l.gross) && l.gross > 0) ? l.overdue / l.gross : null;
+    return `<tr class="bcr-row" data-bcr-tk="${esc(b.ticker)}">
+      <td class="al-l">${instrumentIdentityHTML(b.ticker, b.name, 'equity', 'sm')}</td>
+      <td class="al-r tnum bcr-strong">${bcrMoney(l.gross)}</td>
+      <td class="al-r tnum">${bcrMoney(l.corporate)}</td>
+      <td class="al-r tnum">${bcrMoney(l.retail)}</td>
+      <td class="al-r tnum">${retailShare === null ? mdash : ru(retailShare * 100, 0) + '%'}</td>
+      <td class="al-r tnum">${npl === null ? mdash : ru(npl * 100, 1) + '%'}</td>
+      <td class="al-r tnum ${yoy && yoy.pct >= 0 ? 'saw-up' : yoy ? 'saw-down' : ''}">${
+        yoy ? `${yoy.pct >= 0 ? '+' : ''}${ru(yoy.pct, 1)}%` : mdash}</td>
+    </tr>`;
+  }).join('');
+}
+
+function bcrStructureHTML(bank) {
+  if (!bank || bank.status !== 'ok') return '';
+  const l = bank.latest || {};
+  const total = BCR_PARTS.reduce((s, [k]) => s + (isNum(l[k]) ? l[k] : 0), 0);
+  if (!(total > 0)) return '';
+  const bars = BCR_PARTS.filter(([k]) => isNum(l[k]) && l[k] > 0).map(([k, label]) => {
+    const share = l[k] / total;
+    return `<div class="bcr-part">
+      <span class="bcr-part-lbl">${esc(label)}</span>
+      <span class="bcr-part-bar"><i class="bcr-p-${esc(k)}" style="width:${(share * 100).toFixed(1)}%"></i></span>
+      <span class="bcr-part-val tnum">${bcrMoney(l[k])} · ${ru(share * 100, 1)}%</span>
+    </div>`;
+  }).join('');
+  return `<div class="bcr-structure">
+    <div class="bcr-structure-head"><b>Структура портфеля: ${esc(bank.name)}</b>
+      <span class="muted"> — на ${esc(sawDate(bank.as_of))}, ${esc(bank.rows.length)} мес. истории</span></div>
+    ${bars}</div>`;
+}
+
+function bcrShellHTML(d) {
+  const m = d.meta;
+  return `
+    <div class="bcr-limit">
+      <b>Это РСБУ отдельного банка, а не МСФО группы.</b> Цифры взяты из оборотной ведомости
+      по счетам бухучёта (форма 101 ЦБ) и относятся к юридическому лицу самого банка —
+      без дочерних банков, лизинга и прочих компаний группы. Сравнивать их с портфелем
+      из отчётности группы напрямую нельзя: у Сбербанка расхождение объясняется именно этим.
+      <br><b>Резервы, покрытие, Stage 3 и cost of risk здесь не показаны.</b> Первых нет
+      в справочнике ЦБ в виде, который можно подтвердить; остальных в форме 101 не существует
+      в принципе, и вывести их из оборотной ведомости нельзя.
+    </div>
+    <div class="bcr-table-wrap"><table class="bcr-table">
+      <thead><tr>
+        <th class="al-l">Банк</th>
+        <th class="al-r" title="Сумма кредитов юрлицам, физлицам, ИП, финансовым и некоммерческим организациям плюс просроченная задолженность. Просроченные проценты не входят — это не тело кредита">Валовый портфель</th>
+        <th class="al-r" title="Код 45.0 публикуемой формы, активная сторона">Юрлица</th>
+        <th class="al-r" title="Код 45.2 публикуемой формы, активная сторона">Физлица</th>
+        <th class="al-r" title="Доля розницы в валовом портфеле">Доля розницы</th>
+        <th class="al-r" title="Просроченная задолженность (счёт 458) к валовому портфелю. Это НЕ Stage 3 и не NPL по МСФО: критерии признания в РСБУ другие">Просрочка</th>
+        <th class="al-r" title="Изменение валового портфеля за 12 месяцев по фактической точке год назад">За год</th>
+      </tr></thead>
+      <tbody>${bcrRowsHTML(d)}</tbody>
+    </table></div>
+    <div class="bcr-detail" id="bcr-detail">${bcrStructureHTML(d.banks.find((b) => b.status === 'ok'))}</div>
+    <div class="bcr-note muted">
+      Коды <b>45.0</b> и <b>45.2</b> — агрегаты публикуемой формы: в официальном справочнике
+      ЦБ их нет, а отдельные счета 452 и 455 в публикации не раскрываются. Отнесение 45.0
+      к юрлицам, а 45.2 к физлицам подтверждается не справочником, а сходимостью величин
+      с публичной отчётностью банков. Берётся исходящий остаток на отчётную дату и только
+      активная сторона счетов — кредит это актив.
+      Источник: ${esc(m.source)}. Данные на ${esc(sawDate(m.as_of))}. Не ИИР.
+    </div>`;
+}
+
+function renderBankCredit() {
+  const body = document.getElementById('bcr-body');
+  if (!body || (body.dataset.shown === '1' && BCR)) return;
+  body.innerHTML = '<div class="bcr-loading muted">Загрузка кредитных портфелей…</div>';
+  loadBankCredit((err) => {
+    if (err || !BCR) {
+      body.innerHTML = `<div class="bcr-fallback"><b>Кредитные портфели недоступны</b> — ${
+        esc(err && err.message ? err.message : 'файл ещё не сгенерирован')}.</div>`;
+      return;
+    }
+    body.innerHTML = bcrShellHTML(BCR);
+    body.dataset.shown = '1';
+    body.querySelectorAll('tr.bcr-row[data-bcr-tk]').forEach((tr) => {
+      tr.addEventListener('click', () => {
+        const bank = BCR.banks.find((b) => b.ticker === tr.dataset.bcrTk);
+        const box = document.getElementById('bcr-detail');
+        if (box && bank) box.innerHTML = bcrStructureHTML(bank);
+        body.querySelectorAll('tr.bcr-row').forEach((r) => r.classList.toggle('on', r === tr));
+      });
+    });
   });
 }
 

@@ -3921,3 +3921,36 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 @media (max-width: 640px) {
   .sc-pf-tag { font-size: .58rem; }
 }
+
+/* ── Кредитный портфель банков (форма 101 ЦБ) ───────────────────────────────
+   Ограничение источника стоит первым и выглядит как предупреждение: без него
+   портфель по РСБУ соло читается как портфель группы по МСФО, а это разные числа. */
+.bcr-limit { margin: 10px 0 14px; padding: 12px 14px; border-radius: var(--r-card, 12px);
+  background: var(--warn-fill); color: var(--warn-ink); font-size: .84rem; line-height: 1.55; }
+.bcr-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-card, 12px); }
+.bcr-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.bcr-table th, .bcr-table td { padding: 9px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.bcr-table th { text-align: left; font-size: .72rem; color: var(--ink-soft); font-weight: 600; }
+.bcr-table th.al-r, .bcr-table td.al-r { text-align: right; }
+.bcr-table tbody tr { cursor: pointer; }
+.bcr-table tbody tr:hover { background: var(--surface-soft); }
+.bcr-table tbody tr.on { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.bcr-strong { font-weight: 700; color: var(--ink); }
+.bcr-na td { color: var(--ink-faint); }
+.bcr-reason { font-size: .78rem; }
+.bcr-structure { margin-top: 14px; }
+.bcr-structure-head { font-size: .84rem; margin-bottom: 8px; }
+.bcr-part { display: grid; grid-template-columns: 132px 1fr 150px; align-items: center;
+  gap: 10px; margin-bottom: 5px; font-size: .78rem; }
+.bcr-part-lbl { color: var(--ink-soft); }
+.bcr-part-bar { height: 12px; background: var(--surface-soft); border-radius: 3px; overflow: hidden; }
+.bcr-part-bar i { display: block; height: 100%; background: var(--accent); }
+.bcr-part-bar i.bcr-p-retail { background: var(--mint, #A8D5C2); }
+.bcr-part-bar i.bcr-p-overdue { background: var(--risk-bar, #E2A48C); }
+.bcr-part-val { text-align: right; color: var(--ink-soft); }
+.bcr-note { margin-top: 12px; font-size: .74rem; line-height: 1.5; }
+.bcr-fallback { padding: 12px 14px; font-size: .84rem; }
+@media (max-width: 640px) {
+  .bcr-part { grid-template-columns: 96px 1fr; }
+  .bcr-part-val { grid-column: 2; text-align: left; }
+}
