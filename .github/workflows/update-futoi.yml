@@ -1,0 +1,74 @@
+name: update futoi (позиции физлиц во фьючерсах, MOEX ISS)
+
+# Собирает нетто-позиции физических лиц во фьючерсах на акции РФ и обновляет site/futoi.json.
+# Без токена MOEX источник отдаёт данные с задержкой 14 дней — это не ошибка: дата последнего
+# дня уходит в meta и показывается в интерфейсе. Если в Secrets появится MOEX_TOKEN, отсечка
+# снимется сама, менять пайплайн не нужно.
+# Пайплайн — чистый stdlib, pip install не требуется.
+on:
+  schedule:
+    - cron: "30 4 * * 1-5"   # 04:30 UTC ≈ 07:30 МСК, по будням: к утру доступен новый день
+  workflow_dispatch:
+
+permissions:
+  contents: write            # коммит site/futoi.json и additive-push в gh-pages
+
+concurrency:
+  # общая группа с update.yml / bonds_update.yml / update-cbr-banks.yml:
+  # сериализует записи в gh-pages, чтобы публикации не гонялись друг с другом
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # build_futoi.py — только stdlib (urllib + json)
+
+      - name: Тесты сборщика (сеть не трогается)
+        run: python -m pytest tests/test_build_futoi.py -q
+        # pytest есть в образе runner-а; отдельная установка не нужна
+
+      - name: Сбор позиций физлиц (MOEX ISS futoi)
+        env:
+          MOEX_TOKEN: ${{ secrets.MOEX_TOKEN }}
+        # exit!=0 (источник недоступен или ни одного ряда) → коммита нет,
+        # прошлая версия futoi.json на сайте остаётся
+        run: python scripts/build_futoi.py
+
+      - name: Коммит site/futoi.json (только если изменилось)
+        run: |
+          if [ -z "$(git status --porcelain site/futoi.json)" ]; then
+            echo "новых данных по позициям физлиц нет — коммита нет"; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/futoi.json
+          git commit -m "data(futoi): автообновление позиций физлиц во фьючерсах"
+          git push
+
+      - name: Публикация futoi.json → gh-pages (additive, не трогая остальной сайт)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[futoi] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
+          fi
+          cp site/futoi.json "$TMP/futoi.json"
+          git -C "$TMP" add futoi.json
+          if git -C "$TMP" diff --cached --quiet; then
+            echo "[futoi] на gh-pages без изменений"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "publish(futoi): additive обновление позиций физлиц"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

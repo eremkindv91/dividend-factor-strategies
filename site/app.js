@@ -9103,6 +9103,7 @@ function stockPriceChartHTML(t) {
       <div class="sc-tools">
         <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
         <button type="button" class="sc-pf-toggle" aria-pressed="${SC_PROFILE_ON}">Профиль объёма</button>
+        <button type="button" class="sc-fi-toggle" aria-pressed="${SC_FUTOI_ON}">Позиции физлиц</button>
       </div>
     </div>
     <div class="sc-ohlc tnum" aria-live="polite"></div>
@@ -9112,6 +9113,7 @@ function stockPriceChartHTML(t) {
       <div class="sc-profile tnum" aria-hidden="true" hidden></div>
     </div>
     <div class="sc-pf-note muted" aria-live="polite"></div>
+    <div class="sc-fi-note muted" aria-live="polite"></div>
     <div class="sc-foot muted">Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.
       Столбцы внизу — оборот в рублях (поле VALUE), а не количество бумаг.
       Не является индивидуальной инвестиционной рекомендацией.</div>
@@ -9193,7 +9195,10 @@ function renderStockChartData(container, ticker, rows) {
   if (container._scPfAbort) { try { container._scPfAbort.abort(); } catch (_e) { /* noop */ } container._scPfAbort = null; }
   container._scProfile = null;
   container._scProfileKey = null;
+  container._scFutoiSeries = null;      // серия жила на старом графике, который сейчас удалён
   scProfileSay(container, '');
+  const fiNote = container.querySelector('.sc-fi-note');
+  if (fiNote) fiNote.innerHTML = '';
   canvas.innerHTML = '';
   const LC = window.LightweightCharts;
   const chart = LC.createChart(canvas, {
@@ -9255,6 +9260,9 @@ function renderStockChartData(container, ticker, rows) {
   };
   if (SC_PROFILE_ON) container._scProfileApply();
 
+  container._scFutoiApply = () => scFutoiDraw(container, chart, ticker);
+  if (SC_FUTOI_ON) container._scFutoiApply();
+
   if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
   const byTime = new Map(rows.map((r) => [r[0], r]));
   chart.subscribeCrosshairMove((param) => {
@@ -9286,6 +9294,20 @@ const SC_VOL_TOP = 0.8;
 // перекрывает несколько корзин, и точечное отнесение исказило бы форму профиля.
 // Когда high == low (неподвижная свеча), весь оборот идёт в одну корзину.
 // ══════════════════════════════════════════════════════════════════════════
+
+// ── Нетто-позиции физлиц во фьючерсах (site/futoi.json, сборщик scripts/build_futoi.py) ──
+let SC_FUTOI = null;               // весь файл; грузится лениво, только по нажатию кнопки
+let SC_FUTOI_ON = false;           // предпочтение пользователя, общее для всех карточек
+let SC_FUTOI_ERR = null;           // причина, по которой файл не загрузился
+
+function loadFutoi(cb) {
+  if (SC_FUTOI) { cb(null); return; }
+  if (SC_FUTOI_ERR) { cb(SC_FUTOI_ERR); return; }
+  fetch(dataURL('futoi.json'))
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => { if (!j || !j.tickers) throw new Error('в файле нет рядов'); SC_FUTOI = j; cb(null); })
+    .catch((e) => { SC_FUTOI_ERR = e; cb(e); });
+}
 
 const SC_VALUE_AREA = 0.70;        // доля оборота в зоне стоимости — отраслевой стандарт
 const SC_PROFILE_ZONE = 0.32;      // доля ширины области построения под полосами
@@ -9657,6 +9679,84 @@ function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
   });
 }
 
+// Подпись под графиком: без неё линия читается как «позиция сегодня», хотя без токена
+// источник отдаёт данные с задержкой 14 дней и линия обрывается за две недели до правого
+// края. Это не сбой отрисовки, и сказать об этом обязаны мы, а не пользователь себе сам.
+function scFutoiNoteHTML(meta, row) {
+  const s = row.summary || {};
+  const dir = s.pos > 0 ? 'в лонге' : s.pos < 0 ? 'в шорте' : 'в нуле';
+  const lag = meta.delayed
+    ? `Данные с задержкой ${esc(ru(meta.delay_days, 0))} дн. (бесплатный доступ MOEX), поэтому линия
+       заканчивается ${esc(sawDate(s.as_of))}, а не сегодняшним днём.`
+    : 'Данные без задержки.';
+  const z = isNum(s.z)
+    ? ` Отклонение от собственной истории — ${esc(ru(s.z, 2))}σ за год.`
+    : '';
+  const net = Math.abs(s.pos);
+  return `<b>Нетто-позиция физлиц во фьючерсе на ${esc(row._ticker || '')}.</b>
+    На ${esc(sawDate(s.as_of))} физлица ${dir}: ${esc(ru(net, 0))} ${plural(net, 'контракт', 'контракта', 'контрактов')} нетто
+    (${esc(ru(s.long, 0))} длинных против ${esc(ru(Math.abs(s.short), 0))} коротких,
+    ${esc(ru((s.long_share || 0) * 100, 0))}% позиций — длинные).${z}
+    ${lag}
+    Показаны контракты, а не доля открытого интереса: знаменатель для доли в источнике
+    не подтверждён. Состав — ${esc(meta.contracts_scope || 'квартальные фьючерсы')}.`;
+}
+
+// Линия рисуется своей ценовой шкалой: контракты и рубли — разные величины, и общая
+// шкала либо расплющила бы цену, либо увела линию за экран. Шкала невидимая: числа
+// контрактов на оси спорили бы с ценой за внимание, а нужен здесь профиль поведения.
+function scFutoiDraw(container, chart, ticker) {
+  const note = container.querySelector('.sc-fi-note');
+  const say = (html) => { if (note) note.innerHTML = html; };
+  if (container._scFutoiSeries) {
+    try { chart.removeSeries(container._scFutoiSeries); } catch (_e) { /* noop */ }
+    container._scFutoiSeries = null;
+  }
+  if (!SC_FUTOI_ON) { say(''); return; }
+  say('Загружаем позиции физлиц…');
+  loadFutoi((err) => {
+    if (!SC_FUTOI_ON || container._scChart !== chart) return;      // успели выключить/сменить
+    if (err) {
+      say(`<b>Позиции физлиц не показаны.</b> Файл с позициями не загрузился (${esc(String(err.message || err))}).`);
+      return;
+    }
+    const row = (SC_FUTOI.tickers || {})[ticker];
+    if (!row) {
+      say(`<b>Позиции физлиц не показаны.</b> У ${esc(ticker)} нет фьючерса на MOEX — показывать нечего.`);
+      return;
+    }
+    // «Фьючерс есть, но источник по нему молчит» — не то же самое, что «фьючерса нет»:
+    // во втором случае бумага вне срочного рынка, в первом данные просто не публикуются.
+    if (row.status !== 'ok') {
+      // Текст выбирается по коду причины, а не печатается из данных: иначе интерфейс
+      // либо повторяет одну и ту же мысль дважды, либо расходится с ней по смыслу.
+      const why = {
+        not_in_futoi: `Фьючерс ${esc(row.futoi_code || '')} торгуется, но MOEX не публикует
+          по нему позиции клиентских групп — этого кода нет в срезе.`,
+        short_series: `По фьючерсу ${esc(row.futoi_code || '')} слишком короткий ряд, чтобы
+          из него что-то читать${row.reason ? ` (${esc(row.reason)})` : ''}.`,
+        source_error: `Источник не отдал ряд по фьючерсу ${esc(row.futoi_code || '')}${
+          row.reason ? ` (${esc(row.reason)})` : ''}.`,
+      }[row.reason_code] || 'Ряд по этому фьючерсу недоступен.';
+      say(`<b>Позиции физлиц не показаны.</b> ${why}`);
+      return;
+    }
+    const dates = row.dates || [], pos = row.pos || [];
+    const data = [];
+    for (let i = 0; i < dates.length; i += 1) if (isNum(pos[i])) data.push({ time: dates[i], value: pos[i] });
+    if (!data.length) { say('<b>Позиции физлиц не показаны.</b> Ряд пуст.'); return; }
+    const series = chart.addLineSeries({
+      priceScaleId: 'futoi', color: '#7A5AA8', lineWidth: 2, lastValueVisible: false,
+      priceLineVisible: false, crosshairMarkerVisible: false,
+      priceFormat: { type: 'custom', formatter: (v) => `${ru(v, 0)} к.` },
+    });
+    series.setData(data);
+    chart.priceScale('futoi').applyOptions({ scaleMargins: { top: 0.06, bottom: 0.34 }, visible: false });
+    container._scFutoiSeries = series;
+    say(scFutoiNoteHTML(SC_FUTOI.meta || {}, { ...row, _ticker: ticker }));
+  });
+}
+
 function wireStockChart(root, ticker) {
   const container = root.querySelector('.stock-chart');
   if (!container || container.dataset.wired) return;
@@ -9692,6 +9792,12 @@ function wireStockChart(root, ticker) {
     // График мог ещё не отрисоваться — тогда предпочтение просто запомнено и
     // применится в renderStockChartData, когда придут дневные котировки.
     if (container._scProfileApply) container._scProfileApply();
+  });
+  const fiToggle = container.querySelector('.sc-fi-toggle');
+  if (fiToggle) fiToggle.addEventListener('click', () => {
+    SC_FUTOI_ON = !SC_FUTOI_ON;
+    fiToggle.setAttribute('aria-pressed', String(SC_FUTOI_ON));
+    if (container._scFutoiApply) container._scFutoiApply();
   });
   load('252');
 }

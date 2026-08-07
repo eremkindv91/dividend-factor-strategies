@@ -70,6 +70,10 @@ BLOCKS = [
     ("dividend_calendar", "Дивидендный календарь", "dividend_calendar.json", ["meta.generated_at"], "market", 0),
     ("market_pe", "P/E рынка", "market_pe_current.json", ["market_date", "calculated_at"], "market", 1),
     ("financials", "Фундамент", "site_financials.json", ["meta.generated_at"], "periodic", 60),
+    # Порог 20 дней, а не «сегодня»: бесплатный доступ к FUTOI закрывает последние 14 дней,
+    # поэтому свежие данные ВСЕГДА выглядят двухнедельной давности. Устареванием считается
+    # только выход за эту нормальную задержку с запасом на выходные и сбой прогона.
+    ("futoi", "Позиции физлиц (фьючерсы)", "futoi.json", ["meta.as_of", "meta.generated_at"], "periodic", 20),
 ]
 
 # грубый статус для CSS/обратной совместимости и для smoke-теста overall ∈ {fresh,stale,fallback}

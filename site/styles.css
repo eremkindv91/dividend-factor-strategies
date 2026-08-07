@@ -3909,6 +3909,15 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .sc-pf-tag.poc { color: #8A6224; }
 .sc-pf-note { margin-top: 6px; font-size: .72rem; line-height: 1.45; min-height: 1em; }
 .sc-pf-note b { color: var(--ink); font-weight: 650; }
+/* Позиции физлиц: тот же вес подписи, что у профиля, и своя кнопка в общей группе */
+.sc-fi-toggle { min-height: 30px; padding: 4px 11px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--bg); color: var(--ink-soft);
+  font: inherit; font-size: .76rem; font-weight: 650; cursor: pointer; }
+.sc-fi-toggle:hover { color: var(--ink); }
+.sc-fi-toggle[aria-pressed="true"] { background: #7A5AA8; border-color: #7A5AA8; color: #fff; }
+.sc-fi-toggle:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.sc-fi-note { margin-top: 6px; font-size: .72rem; line-height: 1.45; }
+.sc-fi-note b { color: var(--ink); font-weight: 650; }
 @media (max-width: 640px) {
   .sc-pf-tag { font-size: .58rem; }
 }
