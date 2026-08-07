@@ -1,382 +1,382 @@
 {
-  "date": "2026-08-05",
-  "generated_at": "2026-08-05T19:50:12+03:00",
+  "date": "2026-08-07",
+  "generated_at": "2026-08-07T19:14:33+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы резко выросли до рекордных максимумов на фоне снижения цен на нефть.",
+  "external_backdrop": "Американские фондовые индексы и сырьевые товары закрылись ростом, в то время как азиатские рынки снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7737.78",
-      "change_pct": "+0.02%",
-      "as_of": "2026-08-05",
+      "value": "7755.36",
+      "change_pct": "+0.59%",
+      "as_of": "2026-08-07",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26487.72",
-      "change_pct": "-0.37%",
-      "as_of": "2026-08-05",
+      "value": "26672.75",
+      "change_pct": "+1.23%",
+      "as_of": "2026-08-07",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63957.53",
-      "change_pct": "+0.32%",
-      "as_of": "2026-08-04",
+      "value": "65683.26",
+      "change_pct": "-0.93%",
+      "as_of": "2026-08-06",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25852.92",
-      "change_pct": "-0.60%",
-      "as_of": "2026-08-04",
+      "value": "25530.28",
+      "change_pct": "-1.49%",
+      "as_of": "2026-08-06",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "79.55",
-      "change_pct": "+0.24%",
-      "as_of": "2026-08-05",
+      "value": "83.73",
+      "change_pct": "+1.50%",
+      "as_of": "2026-08-07",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4304.50",
-      "change_pct": "+5.11%",
-      "as_of": "2026-08-05",
+      "value": "4399.50",
+      "change_pct": "+3.71%",
+      "as_of": "2026-08-07",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2301.65",
-      "change_pct": "+1.43%",
-      "as_of": "2026-08-05 19:00:11",
+      "value": "2281.31",
+      "change_pct": "-0.20%",
+      "as_of": "2026-08-07 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "895.93",
-      "change_pct": "+1.68%",
-      "as_of": "2026-08-05 19:00:12",
+      "value": "874.64",
+      "change_pct": "-1.12%",
+      "as_of": "2026-08-07 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "81.06",
-      "change_pct": "-0.05%",
-      "as_of": "2026-08-05 19:50:10",
+      "value": "82.67",
+      "change_pct": "+0.13%",
+      "as_of": "2026-08-07 19:14:32",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "11.99",
-      "change_pct": "+0.04%",
-      "as_of": "2026-08-05 19:15:00",
+      "value": "12.24",
+      "change_pct": "+0.01%",
+      "as_of": "2026-08-07 19:14:32",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "rosstat-deflation-recorded",
-      "headline": "Росстат зафиксировал недельное снижение потребительских цен в России на 0,02%",
-      "context": "Снижение цен произошло в период с 28 июля по 3 августа на фоне удешевления автомобильного бензина.",
+      "id": "ormuz-strait-agreement",
+      "headline": "Иран и Оман согласовали общие рамки соглашения по обеспечению судоходства в Ормузском проливе",
+      "context": "Документ находится на рассмотрении в парламенте Исламской Республики Иран.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1108095"
+        }
+      ],
+      "published_at": "2026-08-07T16:14:00+03:00"
+    },
+    {
+      "id": "us-nonfarm-payrolls",
+      "headline": "Число рабочих мест в США в июле неожиданно сократилось на двадцать три тысячи",
+      "context": "Уровень безработицы в стране составил четыре целых одну десятую процента.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8863424"
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/380369"
         }
       ],
-      "published_at": "2026-08-05T19:20:00+03:00"
+      "published_at": "2026-08-07T15:30:00+03:00"
     },
     {
-      "id": "sberbank-eurotrans-bankruptcy",
-      "headline": "Сбербанк намерен инициировать банкротство оператора сети автозаправочных станций «ЕвроТранс»",
-      "context": "Соответствующее заявление кредитной организации было опубликовано на ресурсе Федреестр.",
-      "category": "markets",
+      "id": "vnukovo-domodedovo-deal",
+      "headline": "Аэропорт Внуково приобрел двадцать пять процентов в контролирующей Домодедово компании",
+      "context": "Сделка отражена в данных Единого государственного реестра юридических лиц.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8863302"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108047"
         }
       ],
-      "published_at": "2026-08-05T17:02:00+03:00"
+      "published_at": "2026-08-07T13:04:00+03:00"
     },
     {
-      "id": "cbr-inflation-forecast-raised",
-      "headline": "Банк России повысил прогноз по инфляции на 2026 год до 6–7%",
-      "context": "Регулятор также отметил, что пространство для дополнительного снижения ключевой ставки до конца года сузилось.",
+      "id": "fx-purchases-increase",
+      "headline": "Минфин и Банк России увеличивают ежедневные покупки иностранной валюты и золота",
+      "context": "Дневной объем операций Минфина вырастет до шести с половиной миллиардов рублей.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8863243"
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/380310"
         }
       ],
-      "published_at": "2026-08-05T16:08:00+03:00"
+      "published_at": "2026-08-07T09:06:00+03:00"
     },
     {
-      "id": "minfin-fx-purchases-increase",
-      "headline": "Министерство финансов России увеличит ежедневные покупки валюты и золота до 6,5 млрд рублей",
-      "context": "Операции в рамках бюджетного правила будут проводиться в период с 7 августа по 4 сентября 2026 года.",
-      "category": "cb_policy",
+      "id": "wildberries-ekaterinburg-uav",
+      "headline": "Логистический центр компании Wildberries в Екатеринбурге подвергся атаке беспилотных летательных аппаратов",
+      "context": "Из здания эвакуировали восемьсот человек, большую часть товаров удалось сохранить.",
+      "category": "corporate",
       "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/297255"
-        }
-      ],
-      "published_at": "2026-08-05T12:00:00+03:00"
-    },
-    {
-      "id": "iran-oman-hormuz-route",
-      "headline": "Иран и Оман согласовали координаты нового маршрута судоходства через Ормузский пролив",
-      "context": "При этом в МИД Ирана подчеркнули, что соглашение само по себе не гарантирует полную безопасность из-за действий США.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8863389"
-        }
-      ],
-      "published_at": "2026-08-05T18:29:00+03:00"
-    },
-    {
-      "id": "t-technologies-dividend-meeting",
-      "headline": "Совет директоров «Т-Технологий» рассмотрит вопрос о дивидендах за первое полугодие 10 августа",
-      "context": "Повестка заседания совета директоров компании была опубликована на информационных ресурсах.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1337068.php"
-        }
-      ],
-      "published_at": "2026-08-05T18:02:00+03:00"
-    },
-    {
-      "id": "saratov-npz-shutdown",
-      "headline": "Саратовский нефтеперерабатывающий завод «Роснефти» остановил переработку сырья после атаки беспилотника",
-      "context": "Остановка технологических процессов на предприятии произошла со 2 августа.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1337046.php"
-        }
-      ],
-      "published_at": "2026-08-05T17:20:00+03:00"
-    },
-    {
-      "id": "lenta-q2-net-profit-drop",
-      "headline": "Чистая прибыль ритейлера «Лента» по МСФО во втором квартале снизилась на 18,8%",
-      "context": "При этом выручка компании за отчетный период увеличилась на 28,8% до 341,6 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/mobile/topic/1336723/"
-        }
-      ],
-      "published_at": "2026-08-05T12:10:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "putin-bans-asset-return",
-      "headline": "Президент Владимир Путин подписал закон о запрете возврата активов инвесторам из недружественных стран",
-      "context": "Новые нормы касаются сделок с иностранными инвесторами, заключенных после начала специальной военной операции.",
-      "category": "cb_policy",
-      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/08/04/1218841-o-zaprete-vozvrata-aktivov"
+          "url": "https://www.vedomosti.ru/politics/news/2026/08/07/1219481-wildberries-v-ekaterinburge"
         }
       ],
-      "published_at": "2026-08-04T18:42:00+03:00"
+      "published_at": "2026-08-07T07:44:00+03:00"
     },
     {
-      "id": "putin-signs-crypto-regulation",
-      "headline": "Президент Владимир Путин подписал закон о регулировании и легализации криптовалютного рынка в России",
-      "context": "Документ вступает в силу с 1 сентября 2026 года и создает правовую основу для использования цифровых валют.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8862437"
-        }
-      ],
-      "published_at": "2026-08-04T16:40:00+03:00"
-    },
-    {
-      "id": "putin-cancels-minority-offers",
-      "headline": "Президент Владимир Путин отменил обязательные оферты миноритариям при передаче акций государству по суду",
-      "context": "Соответствующий закон был подписан главой государства во вторник.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/04/1218753-putin-otmenil-oferti"
-        }
-      ],
-      "published_at": "2026-08-04T15:07:00+03:00"
-    },
-    {
-      "id": "rusagro-rejects-2025-dividends",
-      "headline": "Акционеры «Русагро» не приняли решение по распределению чистой прибыли и дивидендам за 2025 год",
-      "context": "Решение было принято по итогам повторного годового общего собрания акционеров компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8862268"
-        }
-      ],
-      "published_at": "2026-08-04T13:52:00+03:00"
-    },
-    {
-      "id": "fesco-suspends-black-sea-bookings",
-      "headline": "Транспортная группа Fesco приостановила прием заявок на отправки через Черное море после атаки",
-      "context": "Решение принято временно до момента выработки мер с учетом факторов риска после инцидента с судном.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/08/04/1218818-fesco-priostanovila"
-        }
-      ],
-      "published_at": "2026-08-04T17:35:00+03:00"
-    },
-    {
-      "id": "putin-signs-relocant-restrictions",
-      "headline": "Президент Владимир Путин подписал закон об ограничениях для уклоняющихся от наказания релокантов",
-      "context": "Документ предусматривает возможность блокировки денежных средств и имущества граждан за рубежом.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8862487"
-        }
-      ],
-      "published_at": "2026-08-04T17:25:00+03:00"
-    },
-    {
-      "id": "megafon-sues-mvideo",
-      "headline": "Дочерняя структура «Мегафона» потребовала в суде взыскать 1,8 млрд рублей с ритейлера «М.Видео»",
-      "context": "Иск компании «Рево Чардж Рус» связан с задолженностью за поставленный по договору товар.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8862396"
-        }
-      ],
-      "published_at": "2026-08-04T16:24:00+03:00"
-    },
-    {
-      "id": "alrosa-cuts-costs",
-      "headline": "Гендиректор «АЛРОСА» сообщил Владимиру Путину о сокращении затрат компании на 25%",
-      "context": "Сокращение расходов на фоне кризиса в алмазодобывающей отрасли составило 65 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8862323"
-        }
-      ],
-      "published_at": "2026-08-04T14:59:00+03:00"
-    },
-    {
-      "id": "astra-buys-persey-rights",
-      "headline": "«Группа Астра» приобрела исключительные права на систему управления базами данных «Персей»",
-      "context": "Сделка была осуществлена через дочернюю компанию «Тантор лабс», сумма оценивается экспертами в 400 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296815"
-        }
-      ],
-      "published_at": "2026-08-04T11:30:00+03:00"
-    },
-    {
-      "id": "non-qualified-investors-exit-bonds",
-      "headline": "Российские неквалифицированные инвесторы вывели из фондов облигаций почти 90 млрд рублей в июле",
-      "context": "При этом за первые семь месяцев 2026 года чистый приток в облигационные фонды остался положительным.",
+      "id": "spb-exchange-derivatives",
+      "headline": "СПБ Биржа прорабатывает запуск поставочных деривативов на заблокированные иностранные ценные бумаги",
+      "context": "К обсуждению вопроса выплаты дивидендов площадка может вернуться через два-три года.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296802"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108118"
         }
       ],
-      "published_at": "2026-08-04T10:37:00+03:00"
+      "published_at": "2026-08-07T17:09:00+03:00"
     },
     {
-      "id": "fns-transfer-pricing-checks",
-      "headline": "Федеральная налоговая служба усилила контроль за трансфертным ценообразованием по сделкам крупного бизнеса",
-      "context": "Налоговые органы стали чаще анализировать внешнеторговые сделки с независимыми лицами из офшорных списков.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296751"
-        }
-      ],
-      "published_at": "2026-08-04T08:34:00+03:00"
-    },
-    {
-      "id": "bank-websites-ssl-revoked",
-      "headline": "Сайты крупнейших российских банков перестали открываться в зарубежных браузерах из-за отзыва SSL-сертификатов",
-      "context": "Проблема затронула Сбербанк, ВТБ, Альфа-банк, Россельхозбанк и банк «Уралсиб» в браузерах Chrome и Safari.",
+      "id": "sberbank-wildberries-support",
+      "headline": "Сбербанк получил около двух тысяч заявок на реструктуризацию кредитов от пострадавших селлеров Wildberries",
+      "context": "Банк расширил программу поддержки предпринимателей, чьи товары пострадали на складах маркетплейса.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/296736"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1108106"
         }
       ],
-      "published_at": "2026-08-04T07:32:00+03:00"
+      "published_at": "2026-08-07T16:44:00+03:00"
+    },
+    {
+      "id": "eaes-brokers-agreement",
+      "headline": "Премьер-министры стран Евразийского экономического союза утвердили соглашение о взаимном доступе брокеров к торгам",
+      "context": "Документ позволит профессиональным участникам рынка торговать на биржах других стран союза.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1108014"
+        }
+      ],
+      "published_at": "2026-08-07T09:59:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "windfall-tax-metallurgists",
+      "headline": "Минфин России не обсуждает введение налога на сверхприбыль для металлургов и золотодобытчиков",
+      "context": "Все решения по доходам на следующий год будут приниматься в рамках бюджетного процесса.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/08/06/1219380-vopros-ne-obsuzhdaetsya"
+        }
+      ],
+      "published_at": "2026-08-06T17:50:00+03:00"
+    },
+    {
+      "id": "sheremetyevo-privatization",
+      "headline": "Президент России Владимир Путин разрешил приватизацию московского аэропорта Шереметьево",
+      "context": "Аэропорт был исключен из перечня стратегических предприятий соответствующим указом.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8864213"
+        }
+      ],
+      "published_at": "2026-08-06T17:26:00+03:00"
+    },
+    {
+      "id": "diasoft-dividends",
+      "headline": "Совет директоров Диасофта рекомендовал дивиденды в размере шестнадцати рублей на акцию",
+      "context": "Компания также приняла решение не проводить обратный выкуп акций в предстоящем квартале.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/06/1219364-diasofta-dividendi"
+        }
+      ],
+      "published_at": "2026-08-06T17:16:00+03:00"
+    },
+    {
+      "id": "yandex-dividends",
+      "headline": "Совет директоров Яндекса рекомендовал выплатить дивиденды в размере ста десяти рублей на акцию",
+      "context": "Рекомендация касается выплат по итогам первого полугодия 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/06/1219261-sd-yandeksa-rekomendoval"
+        }
+      ],
+      "published_at": "2026-08-06T12:05:00+03:00"
+    },
+    {
+      "id": "cb-listing-rules",
+      "headline": "Банк России ужесточил требования к листингу ценных бумаг для защиты инвесторов",
+      "context": "Регулятор предложил обновить правила допуска облигаций и акций на организованные торги.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/06/1219249-trebovaniya-k-listingu"
+        }
+      ],
+      "published_at": "2026-08-06T11:49:00+03:00"
+    },
+    {
+      "id": "uk-sanctions-ozon-bank",
+      "headline": "Великобритания расширила санкционный список и ввела ограничения против Озон-банка",
+      "context": "В банке заявили, что продолжают работать в обычном режиме и санкции не коснутся его деятельности.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8863803"
+        }
+      ],
+      "published_at": "2026-08-06T11:26:00+03:00"
+    },
+    {
+      "id": "eurotrans-default",
+      "headline": "Компания Евротранс официально подтвердила дефолт по одному из выпусков облигаций",
+      "context": "Ранее Сбербанк заявлял о намерении инициировать банкротство эмитента.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/06/1219240-evrotrans-defolt-obligatsii"
+        }
+      ],
+      "published_at": "2026-08-06T11:07:00+03:00"
+    },
+    {
+      "id": "wildberries-insurance-uav",
+      "headline": "Маркетплейс Wildberries включит риски от ударов беспилотников в программу страхования заказов",
+      "context": "Максимальный размер компенсации составит пятьдесят тысяч рублей за один товар.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8864251"
+        }
+      ],
+      "published_at": "2026-08-06T18:13:00+03:00"
+    },
+    {
+      "id": "mvideo-bond-redemption",
+      "headline": "Компания М.Видео полностью погасила выпуск облигаций на три с половиной миллиарда рублей",
+      "context": "Также был выплачен купонный доход в размере одного миллиарда шестисот миллионов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/380219"
+        }
+      ],
+      "published_at": "2026-08-06T14:38:00+03:00"
+    },
+    {
+      "id": "megafon-dividends",
+      "headline": "Совет директоров Мегафона рекомендовал выплатить дивиденды за первое полугодие",
+      "context": "Размер рекомендованной выплаты составил шестнадцать рублей сорок пять копеек на акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8863890"
+        }
+      ],
+      "published_at": "2026-08-06T13:25:00+03:00"
+    },
+    {
+      "id": "oil-gas-revenues-july",
+      "headline": "Нефтегазовые доходы федерального бюджета России выросли в июле благодаря выплатам налога на дополнительный доход",
+      "context": "Общий объем поступлений составил девятьсот тридцать четыре миллиарда рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал spydell_finance",
+          "url": "https://t.me/spydell_finance/9986"
+        }
+      ],
+      "published_at": "2026-08-06T08:03:00+03:00"
+    },
+    {
+      "id": "nationalization-ma",
+      "headline": "Доля сделок по национализации активов превысила сорок процентов рынка слияний и поглощений",
+      "context": "Аналитики зафиксировали пятнадцать таких транзакций на рекордные десять миллиардов долларов.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/297281"
+        }
+      ],
+      "published_at": "2026-08-06T06:00:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -384,6 +384,6 @@
     "kind": "evening",
     "title": "Итоги торгового дня",
     "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-08-04"
+    "last_trading_day": "2026-08-06"
   }
 }
