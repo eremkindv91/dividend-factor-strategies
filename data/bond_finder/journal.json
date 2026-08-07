@@ -2023,5 +2023,108 @@
     "coupon_pct_approx": 17.0
    }
   ]
+ },
+ {
+  "ts": "2026-08-07T01:17:48+00:00",
+  "snapshot_date": "2026-08-05",
+  "profile": "balanced",
+  "picks": [
+   {
+    "secid": "RU000A107RZ0",
+    "name": "СамолетP13",
+    "dirty_price": 965.25,
+    "face": 1000.0,
+    "weight": 0.15,
+    "coupon_pct_approx": 21.0
+   },
+   {
+    "secid": "RU000A10FG76",
+    "name": "ОДК1Р03",
+    "dirty_price": 1010.94,
+    "face": 1000.0,
+    "weight": 0.15,
+    "coupon_pct_approx": 16.5
+   },
+   {
+    "secid": "RU000A1082Y8",
+    "name": "СТМ 1P4",
+    "dirty_price": 1026.25,
+    "face": 1000.0,
+    "weight": 0.1218,
+    "coupon_pct_approx": 17.85
+   },
+   {
+    "secid": "RU000A10C8F3",
+    "name": "Брус 2Р04",
+    "dirty_price": 1016.36,
+    "face": 1000.0,
+    "weight": 0.0996,
+    "coupon_pct_approx": 21.5
+   },
+   {
+    "secid": "RU000A10FMQ8",
+    "name": "sГЛОРАК2Р1",
+    "dirty_price": 1014.86,
+    "face": 1000.0,
+    "weight": 0.0946,
+    "coupon_pct_approx": 19.5
+   },
+   {
+    "secid": "RU000A10FG84",
+    "name": "АЛМ01Р1",
+    "dirty_price": 1009.99,
+    "face": 1000.0,
+    "weight": 0.0845,
+    "coupon_pct_approx": 17.5
+   },
+   {
+    "secid": "RU000A10AS28",
+    "name": "БинФарм1P4",
+    "dirty_price": 1022.74,
+    "face": 1000.0,
+    "weight": 0.0787,
+    "coupon_pct_approx": 19.0
+   },
+   {
+    "secid": "RU000A10FC96",
+    "name": "БорецК1Р07",
+    "dirty_price": 1007.7,
+    "face": 1000.0,
+    "weight": 0.0742,
+    "coupon_pct_approx": 17.75
+   },
+   {
+    "secid": "RU000A106EZ0",
+    "name": "ВИС Ф БП04",
+    "dirty_price": 1026.72,
+    "face": 1000.0,
+    "weight": 0.0462,
+    "coupon_pct_approx": 12.9
+   },
+   {
+    "secid": "RU000A10B3S8",
+    "name": "Аэрфью2Р04",
+    "dirty_price": 1075.93,
+    "face": 1000.0,
+    "weight": 0.0409,
+    "coupon_pct_approx": 24.75
+   },
+   {
+    "secid": "RU000A10EA08",
+    "name": "iСЛ 2P2",
+    "dirty_price": 1067.96,
+    "face": 1000.0,
+    "weight": 0.0307,
+    "coupon_pct_approx": 19.5
+   },
+   {
+    "secid": "RU000A105M91",
+    "name": "СТМ 1P3",
+    "dirty_price": 1055.78,
+    "face": 1000.0,
+    "weight": 0.0289,
+    "coupon_pct_approx": 18.5
+   }
+  ]
  }
 ]
