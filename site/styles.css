@@ -2631,7 +2631,7 @@ tbody tr:hover td,
 .sc-ohlc .sc-up { color: var(--good-ink); font-weight: 650; }
 .sc-ohlc .sc-down { color: var(--risk-ink); font-weight: 650; }
 .sc-ohlc .sc-vol { color: var(--ink-faint); }
-.sc-canvas { position: relative; width: 100%; height: 320px; margin-top: 4px; }
+.sc-canvas { position: relative; width: 100%; height: 320px; }
 .sc-loading { display: flex; align-items: center; justify-content: center; height: 100%; font-size: .84rem; text-align: center; padding: 0 12px; }
 .sc-foot { margin-top: 8px; font-size: .72rem; line-height: 1.45; }
 @media (max-width: 760px) {
@@ -3864,7 +3864,9 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
    lightweight-charts 4.x не показывает оверлейные шкалы (панели появились в v5),
    поэтому подписи рисуются своим слоем — из тех же данных и по тем же scaleMargins,
    что задают высоту столбцов. */
-.sc-plot { position: relative; }
+/* Отступ живёт на .sc-plot, а не на .sc-canvas: оверлейные слои позиционируются
+   от .sc-plot, и margin внутри него сдвинул бы график относительно подписей. */
+.sc-plot { position: relative; margin-top: 4px; }
 .sc-volscale { position: absolute; right: 0; top: 0; bottom: 0; width: 78px;
   pointer-events: none; z-index: 2; }
 .sc-vs-tick { position: absolute; right: 4px; transform: translateY(-50%);
@@ -3876,4 +3878,33 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 @media (max-width: 640px) {
   .sc-volscale { width: 62px; }
   .sc-vs-tick { font-size: .6rem; }
+}
+
+/* ── График акции: профиль объёма ───────────────────────────────────────────
+   Слой лежит поверх области построения; координаты каждой полосы приходят
+   из priceToCoordinate самой ценовой серии, поэтому в CSS нет ни одной
+   геометрической константы — только внешний вид. */
+.sc-tools { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sc-pf-toggle { min-height: 30px; padding: 4px 11px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--bg); color: var(--ink-soft);
+  font: inherit; font-size: .76rem; font-weight: 650; cursor: pointer; }
+.sc-pf-toggle:hover { color: var(--ink); }
+.sc-pf-toggle[aria-pressed="true"] { background: var(--accent-deep); border-color: var(--accent-deep); color: #fff; }
+.sc-pf-toggle:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+.sc-profile { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.sc-pf-bar { position: absolute; display: block; background: rgba(139,160,199,.38);
+  border-radius: 2px 0 0 2px; }
+/* Зона стоимости (70% оборота) — насыщеннее: именно она отделяет цены, где реально
+   торговали, от хвостов распределения. */
+.sc-pf-bar.va { background: rgba(63,85,130,.5); }
+.sc-pf-line { position: absolute; height: 0; border-top: 1px dashed rgba(63,85,130,.75); }
+.sc-pf-line.poc { border-top: 1.5px solid #8A6224; }
+.sc-pf-tag { position: absolute; transform: translateY(-50%); font-size: .62rem; line-height: 1;
+  font-weight: 650; color: var(--ink-soft); white-space: nowrap;
+  background: color-mix(in srgb, var(--surface) 82%, transparent); padding: 1px 3px; border-radius: 3px; }
+.sc-pf-tag.poc { color: #8A6224; }
+.sc-pf-note { margin-top: 6px; font-size: .72rem; line-height: 1.45; min-height: 1em; }
+.sc-pf-note b { color: var(--ink); font-weight: 650; }
+@media (max-width: 640px) {
+  .sc-pf-tag { font-size: .58rem; }
 }

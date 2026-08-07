@@ -9098,13 +9098,18 @@ function stockPriceChartHTML(t) {
   return `<div class="detail-card stock-chart" data-sc-ticker="${esc(t.ticker)}">
     <div class="sc-top">
       <h4>${instrumentAvatarHTML(t.ticker, t.name, instrumentTypeHint(t), 'sm')}<span>Цена и объём торгов · ${esc(t.ticker)}</span></h4>
-      <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
+      <div class="sc-tools">
+        <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
+        <button type="button" class="sc-pf-toggle" aria-pressed="${SC_PROFILE_ON}">Профиль объёма</button>
+      </div>
     </div>
     <div class="sc-ohlc tnum" aria-live="polite"></div>
     <div class="sc-plot">
       <div class="sc-canvas"><div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div></div>
       <div class="sc-volscale tnum" aria-hidden="true"></div>
+      <div class="sc-profile tnum" aria-hidden="true" hidden></div>
     </div>
+    <div class="sc-pf-note muted" aria-live="polite"></div>
     <div class="sc-foot muted">Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.
       Столбцы внизу — оборот в рублях (поле VALUE), а не количество бумаг.
       Не является индивидуальной инвестиционной рекомендацией.</div>
@@ -9181,6 +9186,12 @@ function renderStockChartData(container, ticker, rows) {
   // копятся на удалённых узлах — классическая утечка на SPA-переключениях.
   if (container._scChart) { try { container._scChart.remove(); } catch (_e) { /* noop */ } container._scChart = null; }
   if (container._scResize) { try { container._scResize.disconnect(); } catch (_e) { /* noop */ } container._scResize = null; }
+  // Профиль пересчитывается под новые данные с нуля: старые полосы относятся к другому
+  // тикеру или периоду, и оставить их на экране значило бы показать чужое распределение.
+  if (container._scPfAbort) { try { container._scPfAbort.abort(); } catch (_e) { /* noop */ } container._scPfAbort = null; }
+  container._scProfile = null;
+  container._scProfileKey = null;
+  scProfileSay(container, '');
   canvas.innerHTML = '';
   const LC = window.LightweightCharts;
   const chart = LC.createChart(canvas, {
@@ -9222,10 +9233,25 @@ function renderStockChartData(container, ticker, rows) {
   // а пересчёт той же величины.
   const scale = container.querySelector('.sc-volscale');
   const redrawScale = () => scVolScaleDraw(scale, chart, vol, rows, hasValue);
+  // Отрисовка профиля и его пересчёт разведены по частоте: полосы перерисовываются
+  // почти сразу (чтобы не отставать от графика), а сеть дёргается только когда
+  // пользователь остановился.
+  const redrawProfile = () => scProfileDraw(container, chart, candles);
+  const refreshProfile = debounce(() => scProfileRefresh(container, ticker, chart, candles, rows), 320);
+  const onRange = () => { redrawScale(); redrawProfile(); refreshProfile(); };
   redrawScale();
-  chart.timeScale().subscribeVisibleLogicalRangeChange(debounce(redrawScale, 60));
-  const ro = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(debounce(redrawScale, 80)) : null;
+  chart.timeScale().subscribeVisibleLogicalRangeChange(debounce(onRange, 60));
+  const ro = (typeof ResizeObserver !== 'undefined')
+    ? new ResizeObserver(debounce(() => { redrawScale(); redrawProfile(); }, 80)) : null;
   if (ro) { ro.observe(canvas); container._scResize = ro; }
+
+  // Переключатель вызывает это же, поэтому включение профиля на уже нарисованном
+  // графике не требует перезагрузки дневных котировок.
+  container._scProfileApply = () => {
+    container._scProfileKey = null;
+    scProfileRefresh(container, ticker, chart, candles, rows);
+  };
+  if (SC_PROFILE_ON) container._scProfileApply();
 
   if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
   const byTime = new Map(rows.map((r) => [r[0], r]));
@@ -9260,6 +9286,9 @@ const SC_VOL_TOP = 0.8;
 // ══════════════════════════════════════════════════════════════════════════
 
 const SC_VALUE_AREA = 0.70;        // доля оборота в зоне стоимости — отраслевой стандарт
+const SC_PROFILE_ZONE = 0.32;      // доля ширины области построения под полосами
+const SC_PROFILE_MIN_ZONE = 46;    // ниже этого полосы перестают различаться по длине
+let SC_PROFILE_ON = false;         // предпочтение пользователя, общее для всех карточек
 
 function scProfileCompute(candles, binCount) {
   const rows = (candles || []).filter((c) => isNum(c.low) && isNum(c.high)
@@ -9330,8 +9359,11 @@ function scProfileBinCount(candleCount, isMobile) {
 
 // Интервал свечей под длину диапазона. Минутные не берём никогда: на трёх годах это
 // сотни тысяч точек, а профиль от них не станет точнее ширины ценовой корзины.
+// Граница в 100 дней — не круглое число, а место, где десятиминутные свечи (86 в день)
+// перестают помещаться в один проход: дальше выгоднее взять часовые и построить профиль,
+// чем настаивать на дробности и не построить его вовсе.
 function scIntradayInterval(days) {
-  if (days <= 120) return 10;                // 10 минут
+  if (days <= 100) return 10;                // 10 минут
   return 60;                                 // час
 }
 
@@ -9348,9 +9380,23 @@ function scFetchIntraday(ticker, from, till, interval, signal, cb) {
     + `${encodeURIComponent(ticker)}/candles.json?iss.meta=off&interval=${interval}`
     + `&from=${from}&till=${till}`;
   const step = (start) => {
-    fetch(`${base}&start=${start}`, { signal, cache: 'no-store' })
+    // Свой таймаут на каждую страницу: без него зависшее соединение оставляет
+    // подпись «строим профиль…» навсегда, и пользователь ждёт то, что не придёт.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const relay = () => ctrl.abort();
+    if (signal) {
+      if (signal.aborted) ctrl.abort();
+      else signal.addEventListener('abort', relay, { once: true });
+    }
+    const done = () => {
+      clearTimeout(timer);
+      if (signal) signal.removeEventListener('abort', relay);
+    };
+    fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((j) => {
+        done();
         const block = j.candles || {};
         const cols = block.columns || [];
         const iLow = cols.indexOf('low'), iHigh = cols.indexOf('high'), iVal = cols.indexOf('value');
@@ -9358,9 +9404,96 @@ function scFetchIntraday(ticker, from, till, interval, signal, cb) {
         if ((block.data || []).length >= 500 && out.length < SC_INTRADAY_CAP) step(start + block.data.length);
         else { SC_INTRADAY_CACHE[key] = out; cb(null, out); }
       })
-      .catch((e) => cb(e, out));
+      .catch((e) => { done(); cb(e, out); });
   };
   step(0);
+}
+
+// Свечей на КАЛЕНДАРНЫЙ день — замерено на живом ISS (SBER и SIBN, 92 и 365 дней):
+// 84,6 десятиминутных и 14,7 часовых. Именно календарный, а не торговый: MOEX проводит
+// торги выходного дня, поэтому поправка «5/7 рабочих дней» занижала бы выборку в 1,4 раза,
+// и профиль неожиданно упирался бы в потолок там, где оценка обещала запас.
+// Оценка нужна до сети — чтобы не гонять двадцать запросов ради заведомо обрезанного профиля.
+const SC_BARS_PER_DAY = { 10: 86, 60: 15 };
+
+function scIntradayEstimate(days, interval) {
+  if (!isNum(days) || days <= 0) return 0;
+  const perDay = SC_BARS_PER_DAY[interval] || SC_BARS_PER_DAY[60];
+  return Math.round(days) * perDay;
+}
+
+// Профиль по обрезанной выборке — не «менее точный» профиль, а другой: пагинация ISS
+// идёт от начала диапазона, поэтому потолок отрезал бы весь конец периода, а подпись
+// продолжала бы обещать видимый диапазон целиком. Такой профиль не строим вовсе.
+function scProfileFits(days, interval) {
+  return scIntradayEstimate(days, interval) <= SC_INTRADAY_CAP;
+}
+
+// Максимальная длина диапазона, на которой профиль ещё строится — для честного
+// текста отказа: «приблизьте до N лет» вместо расплывчатого «слишком много данных».
+function scProfileMaxDays(interval) {
+  const perDay = SC_BARS_PER_DAY[interval] || SC_BARS_PER_DAY[60];
+  return Math.floor(SC_INTRADAY_CAP / perDay);
+}
+
+const SC_PF_TAG_GAP = 11;          // ближе этого подписи уровней сливаются в кашу
+
+// Чистая функция: профиль + геометрия → разметка слоя. Ординаты приходят снаружи
+// (geom.y), потому что единственный источник истины о том, где нарисована цена, —
+// сама серия графика. Здесь нет ни одного пересчёта scaleMargins.
+function scProfileBarsHTML(profile, geom) {
+  if (!profile || !geom || !Array.isArray(profile.bins) || !profile.bins.length) return '';
+  const zoneW = geom.zoneW, right = geom.right || 0;
+  if (!isNum(zoneW) || zoneW <= 0) return '';
+  let max = 0;
+  for (const b of profile.bins) if (isNum(b.value) && b.value > max) max = b.value;
+  if (!(max > 0)) return '';
+
+  const px = (v) => v.toFixed(1);
+  const out = [];
+  for (const b of profile.bins) {
+    if (!isNum(b.value) || b.value <= 0) continue;
+    // Вырожденный профиль (весь период по одной цене) приходит без границ корзины —
+    // рисуем его одной тонкой полосой на своём уровне, а не растягиваем на всю высоту.
+    const edged = isNum(b.lo) && isNum(b.hi);
+    const yTop = geom.y(edged ? b.hi : b.price);
+    const yBot = edged ? geom.y(b.lo) : yTop;
+    if (!isNum(yTop) || !isNum(yBot)) continue;
+    const h = Math.max(2, yBot - yTop - 1);
+    const w = Math.max(1, (zoneW * b.value) / max);
+    const inVA = isNum(profile.val) && isNum(profile.vah) && b.price >= profile.val && b.price <= profile.vah;
+    out.push(`<i class="sc-pf-bar${inVA ? ' va' : ''}" style="top:${px(yTop)}px;height:${px(h)}px;`
+      + `right:${px(right)}px;width:${px(w)}px"></i>`);
+  }
+
+  // POC идёт первым: если уровни сошлись вплотную, подпись остаётся у него —
+  // это единственная цена профиля, которая читается сама по себе.
+  const placed = [];
+  for (const m of [['poc', 'POC', profile.poc], ['vah', 'VAH', profile.vah], ['val', 'VAL', profile.val]]) {
+    const [cls, label, price] = m;
+    if (!isNum(price)) continue;
+    const y = geom.y(price);
+    if (!isNum(y)) continue;
+    out.push(`<i class="sc-pf-line ${cls}" style="top:${px(y)}px;right:${px(right)}px;width:${px(zoneW)}px"></i>`);
+    if (!placed.every((p) => Math.abs(p - y) >= SC_PF_TAG_GAP)) continue;
+    placed.push(y);
+    out.push(`<span class="sc-pf-tag ${cls}" style="top:${px(y)}px;right:${px(right + zoneW + 4)}px">`
+      + `${esc(label)} ${esc(ru(price, 2))}</span>`);
+  }
+  return out.join('');
+}
+
+// Подпись под графиком. Каждое число здесь имеет базу и период: без них «POC 312,40»
+// выглядит как свойство бумаги, хотя это свойство выбранного диапазона.
+function scProfileNoteHTML(profile, meta) {
+  if (!profile || !meta) return '';
+  const bars = meta.interval === 10 ? '10-минутным' : 'часовым';
+  const inVA = profile.total * profile.valueAreaShare;
+  return `<b>Профиль объёма за видимый диапазон.</b> Построен по ${esc(ru(meta.bars, 0))} ${bars} свечам `
+    + `MOEX ISS за ${esc(sawDate(meta.from))} – ${esc(sawDate(meta.till))}; распределяется денежный оборот, `
+    + `а не количество бумаг. POC ${esc(ru(profile.poc, 2))} ₽ — цена с наибольшим оборотом. `
+    + `Зона стоимости ${esc(ru(profile.val, 2))} – ${esc(ru(profile.vah, 2))} ₽ вобрала `
+    + `${esc(ru(profile.valueAreaShare * 100, 1))}% оборота (${esc(scMoney(inVA))} из ${esc(scMoney(profile.total))}).`;
 }
 
 // Круглые деления шкалы: 1/2/2.5/5 × 10^n. Произвольные значения вроде «0,37 млрд»
@@ -9413,6 +9546,115 @@ function scVolScaleDraw(scale, chart, volSeries, rows, hasValue) {
   scale.innerHTML = html.join('');
 }
 
+// Перерисовка уже посчитанного профиля: без сети, поэтому вызывается и на каждом
+// сдвиге видимого диапазона, и на изменении размера — картинка не должна отставать
+// от графика, пока в фоне решается, нужен ли новый расчёт.
+function scProfileDraw(container, chart, priceSeries) {
+  const layer = container.querySelector('.sc-profile');
+  if (!layer) return;
+  const profile = container._scProfile;
+  if (!SC_PROFILE_ON || !profile) { layer.hidden = true; layer.innerHTML = ''; return; }
+  const canvas = container.querySelector('.sc-canvas');
+  const width = canvas ? canvas.clientWidth : 0;
+  if (!width) { layer.innerHTML = ''; return; }
+  // Ширину ценовой шкалы спрашиваем у графика: полосы должны упираться в край области
+  // построения, а не наезжать на подписи цен.
+  let scaleW = 0;
+  try { scaleW = chart.priceScale('right').width() || 0; } catch (_e) { scaleW = 0; }
+  const zoneW = Math.max(SC_PROFILE_MIN_ZONE, Math.round((width - scaleW) * SC_PROFILE_ZONE));
+  layer.hidden = false;
+  layer.innerHTML = scProfileBarsHTML(profile, {
+    y: (price) => { const c = priceSeries.priceToCoordinate(price); return isNum(c) ? c : null; },
+    zoneW, right: scaleW,
+  });
+}
+
+function scProfileSay(container, html) {
+  const note = container.querySelector('.sc-pf-note');
+  if (note) note.innerHTML = html;
+}
+
+// Пересчёт профиля под текущий видимый диапазон. Дорогая часть (сеть) — здесь,
+// поэтому вызывается через debounce, а не на каждый кадр панорамирования.
+function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
+  const layer = container.querySelector('.sc-profile');
+  if (!layer) return;
+  if (!SC_PROFILE_ON) {
+    container._scProfile = null;
+    container._scProfileKey = null;
+    scProfileSay(container, '');
+    scProfileDraw(container, chart, priceSeries);
+    return;
+  }
+  const range = chart.timeScale().getVisibleLogicalRange();
+  if (!range || !rows.length) return;
+  const i0 = Math.max(0, Math.round(range.from));
+  const i1 = Math.min(rows.length - 1, Math.round(range.to));
+  if (i1 <= i0) return;
+  const from = rows[i0][0], till = rows[i1][0];
+  const days = Math.round((Date.parse(till) - Date.parse(from)) / 86400000) + 1;
+  const interval = scIntradayInterval(days);
+  const key = `${ticker}|${from}|${till}|${interval}`;
+  if (container._scProfileKey === key) return;              // диапазон не изменился
+  container._scProfileKey = key;
+
+  if (!scProfileFits(days, interval)) {
+    container._scProfile = null;
+    scProfileDraw(container, chart, priceSeries);
+    const years = ru(scProfileMaxDays(interval) / 365, 1);
+    scProfileSay(container, `<b>Профиль не построен.</b> Он считается по внутридневным свечам MOEX ISS, `
+      + `а на диапазоне в ${esc(ru(days, 0))} дн. их больше, чем отдаёт один запрос — часть периода `
+      + `осталась бы за кадром, и профиль описывал бы не то, что на экране. `
+      + `Приблизьте график примерно до ${esc(years)} лет.`);
+    return;
+  }
+
+  if (container._scPfAbort) { try { container._scPfAbort.abort(); } catch (_e) { /* noop */ } }
+  const ctrl = new AbortController();
+  container._scPfAbort = ctrl;
+  scProfileSay(container, 'Считаем профиль по внутридневным свечам MOEX ISS…');
+  scFetchIntraday(ticker, from, till, interval, ctrl.signal, (err, candles) => {
+    if (ctrl.signal.aborted || container._scPfAbort !== ctrl) return;   // ответ по прошлому диапазону
+    container._scPfAbort = null;
+    container._scProfile = null;
+    const rowsIn = candles || [];
+    // Частичная выдача при ошибке — не «почти профиль»: пагинация обрывается на середине
+    // периода, и распределение получилось бы смещённым к его началу.
+    if (err) {
+      scProfileDraw(container, chart, priceSeries);
+      scProfileSay(container, `<b>Профиль не построен.</b> Внутридневные свечи MOEX ISS сейчас недоступны `
+        + `(${esc(String((err && err.message) || err))}).`);
+      return;
+    }
+    if (rowsIn.length >= SC_INTRADAY_CAP) {
+      scProfileDraw(container, chart, priceSeries);
+      scProfileSay(container, `<b>Профиль не построен.</b> На этом диапазоне внутридневных свечей больше, `
+        + `чем помещается в один запрос, — конец периода не попал бы в расчёт. Приблизьте график.`);
+      return;
+    }
+    if (!rowsIn.length) {
+      scProfileDraw(container, chart, priceSeries);
+      scProfileSay(container, `<b>Профиль не построен.</b> За ${esc(sawDate(from))} – ${esc(sawDate(till))} `
+        + `у ${esc(ticker)} нет внутридневных свечей MOEX ISS (они доступны с 2011 года).`);
+      return;
+    }
+    // Дробность профиля определяет ширина САМОГО графика, а не окна: карточка бывает
+    // узкой и на широком экране, а window.innerWidth к тому же равен нулю, пока вкладка
+    // не показана, — и профиль молча получал бы мобильную сетку на десктопе.
+    const canvas = container.querySelector('.sc-canvas');
+    const narrow = !canvas || !canvas.clientWidth || canvas.clientWidth <= 640;
+    const profile = scProfileCompute(rowsIn, scProfileBinCount(rowsIn.length, narrow));
+    if (!profile) {
+      scProfileDraw(container, chart, priceSeries);
+      scProfileSay(container, '<b>Профиль не построен.</b> В свечах MOEX ISS за этот период нет оборота.');
+      return;
+    }
+    container._scProfile = profile;
+    scProfileDraw(container, chart, priceSeries);
+    scProfileSay(container, scProfileNoteHTML(profile, { from, till, interval, bars: rowsIn.length }));
+  });
+}
+
 function wireStockChart(root, ticker) {
   const container = root.querySelector('.stock-chart');
   if (!container || container.dataset.wired) return;
@@ -9440,6 +9682,14 @@ function wireStockChart(root, ticker) {
     if (!button) return;
     container.querySelectorAll('.sc-periods button').forEach((b) => { b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', b === button); });
     load(button.dataset.scDays);
+  });
+  const toggle = container.querySelector('.sc-pf-toggle');
+  if (toggle) toggle.addEventListener('click', () => {
+    SC_PROFILE_ON = !SC_PROFILE_ON;
+    toggle.setAttribute('aria-pressed', String(SC_PROFILE_ON));
+    // График мог ещё не отрисоваться — тогда предпочтение просто запомнено и
+    // применится в renderStockChartData, когда придут дневные котировки.
+    if (container._scProfileApply) container._scProfileApply();
   });
   load('252');
 }
