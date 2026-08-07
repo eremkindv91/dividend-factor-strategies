@@ -9116,8 +9116,110 @@ function drawMarketChart(item) {
     const row = closeOnly
       ? [time, bar.value, bar.value, bar.value, bar.value]
       : [time, bar.open, bar.high, bar.low, bar.close];
-    ohlc.innerHTML = marketOhlcHTML(item, row, closeOnly);
+    ohlc.innerHTML = marketOhlcHTML(item, row, closeOnly)
+      + marketPositionsTooltipHTML(time);
   });
+  if (enabled.has('fizpos')) marketDrawPositions(item);
+  else marketPositionsSay('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ПОЗИЦИОНИРОВАНИЕ ФИЗЛИЦ ПО ИНДЕКСУ (site/futures_positions.json → indices)
+//
+// Ряд идёт своей шкалой и через ноль: нетто-позиция бывает и положительной, и
+// отрицательной, и именно переход через ноль — содержательное событие. Значения
+// в рублях, а не в контрактах: у трёх индексных фьючерсов разный размер контракта,
+// и общий график в штуках сравнивал бы несравнимое.
+//
+// Рублёвый ряд строится по ВЕЧНОМУ контракту IMOEXF: у него нет экспираций, поэтому
+// цена непрерывна и склейка серий не нужна.
+// ══════════════════════════════════════════════════════════════════════════
+let MARKET_POS_ROW = null;         // ряд текущего индекса, для подсказки под графиком
+
+function marketPositionsSay(html) {
+  const box = document.getElementById('market-pos-note');
+  if (box) box.innerHTML = html;
+}
+
+const marketPosRub = (v) => (isNum(v)
+  ? `${v >= 0 ? '+' : '−'}${ru(Math.abs(v) / 1e9, 2)} млрд ₽` : ND);
+
+// Подсказка под ценой: составляющие нетто-позиции на дату под курсором. Без неё
+// пользователь видит только результат вычитания и не знает, из чего он получился.
+function marketPositionsTooltipHTML(date) {
+  const row = MARKET_POS_ROW;
+  if (!row || !row.dates) return '';
+  const i = row.dates.indexOf(date);
+  if (i < 0) return '<span class="market-pos-tip muted">Физлица: нет наблюдения на эту дату</span>';
+  const net = (row.net || [])[i], long = (row.long || [])[i], short = (row.short || [])[i];
+  const rub = (row.net_rub || [])[i];
+  if (!isNum(net)) return '';
+  return `<span class="market-pos-tip"><b>Физлица:</b>
+    long ${esc(ru(long, 0))} · short ${esc(ru(short, 0))} ·
+    <b class="${net >= 0 ? 'up' : 'down'}">net ${net >= 0 ? '+' : '−'}${esc(ru(Math.abs(net), 0))} контр.${
+      isNum(rub) ? ` (${esc(marketPosRub(rub))})` : ''}</b></span>`;
+}
+
+function marketDrawPositions(item) {
+  if (item.id !== 'IMOEX') {
+    MARKET_POS_ROW = null;
+    marketPositionsSay(`<span class="muted">Позиции физлиц публикуются MOEX по фьючерсам;
+      для «${esc(item.name)}» такого ряда нет.</span>`);
+    return;
+  }
+  marketPositionsSay('<span class="muted">Загружаем позиции физлиц…</span>');
+  loadFutoi((err) => {
+    if (err || !SC_FUTOI) {
+      marketPositionsSay(`<span class="muted">Позиции физлиц не загрузились — ${
+        esc(String((err && err.message) || 'источник недоступен'))}.</span>`);
+      return;
+    }
+    const row = ((SC_FUTOI.indices || {}).IMOEX) || null;
+    if (!row || row.status !== 'ok') {
+      marketPositionsSay('<span class="muted">Ряд позиций по индексу сейчас недоступен.</span>');
+      return;
+    }
+    MARKET_POS_ROW = row;
+    if (!MARKET_CHART) return;
+    // Baseline-серия рисует ровно то, что нужно: заливка выше нулевой линии одним
+    // цветом, ниже — другим. Цвет не единственный признак: знак числа и подписи
+    // «нетто-лонг / нетто-шорт» несут тот же смысл текстом.
+    const series = MARKET_CHART.addBaselineSeries({
+      priceScaleId: 'fizpos', baseValue: { type: 'price', price: 0 },
+      topLineColor: '#16805E', topFillColor1: 'rgba(22,128,94,.30)', topFillColor2: 'rgba(22,128,94,.04)',
+      bottomLineColor: '#B34A32', bottomFillColor1: 'rgba(179,74,50,.04)', bottomFillColor2: 'rgba(179,74,50,.30)',
+      lineWidth: 2, lastValueVisible: false, priceLineVisible: false,
+      priceFormat: { type: 'custom', formatter: (v) => `${ru(v / 1e9, 1)} млрд` },
+    });
+    const data = [];
+    for (let i = 0; i < row.dates.length; i += 1) {
+      const v = (row.net_rub || [])[i];
+      if (isNum(v)) data.push({ time: row.dates[i], value: v });
+    }
+    if (!data.length) { marketPositionsSay('<span class="muted">Рублёвый ряд пуст.</span>'); return; }
+    series.setData(data);
+    MARKET_CHART.priceScale('fizpos').applyOptions({ scaleMargins: { top: 0.62, bottom: 0 } });
+    marketPositionsSay(marketPositionsNoteHTML(SC_FUTOI.meta || {}, row));
+  });
+}
+
+function marketPositionsNoteHTML(meta, row) {
+  const s = row.summary || {};
+  const dir = s.net > 0 ? 'нетто-лонге' : s.net < 0 ? 'нетто-шорте' : 'нуле';
+  const pct = isNum(s.percentile)
+    ? ` Это выше ${esc(ru(s.percentile, 0))}% наблюдений за последний год.` : '';
+  const w = isNum(s.change_5d)
+    ? ` За неделю позиция ${s.change_5d >= 0 ? 'выросла' : 'сократилась'} на
+        ${esc(ru(Math.abs(s.change_5d), 0))} контр.` : '';
+  return `<b>Физические лица в ${dir}: ${esc(marketPosRub(s.net_rub))}</b>
+    (${esc(ru(s.net, 0))} контрактов: ${esc(ru(s.long, 0))} длинных против
+    ${esc(ru(s.short, 0))} коротких, участников ${esc(ru(s.persons_long, 0))} и
+    ${esc(ru(s.persons_short, 0))}).${pct}${w}
+    <span class="muted">Вечный фьючерс на индекс (IMOEXF), данные MOEX за
+    ${esc(meta.freshness || 'предыдущий торговый день')} — ${esc(sawDate(s.as_of))}.
+    Рубли считаются как контракты × цена × ${esc(ru(s.multiplier || 0, 0))} ₽ за пункт
+    по спецификации контракта. Контракты MIX, MXI и IMOEX между собой не складываются:
+    у них разный размер.</span>`;
 }
 
 function renderMarketChartDialog() {
@@ -9386,7 +9488,11 @@ const SC_VOL_TOP = 0.8;
 // Когда high == low (неподвижная свеча), весь оборот идёт в одну корзину.
 // ══════════════════════════════════════════════════════════════════════════
 
-// ── Нетто-позиции физлиц во фьючерсах (site/futoi.json, сборщик scripts/build_futoi.py) ──
+// ── Открытые позиции физлиц во фьючерсах ────────────────────────────────────
+// site/futures_positions.json, сборщик scripts/build_futures_positions.py.
+// Источник — MOEX ISS openpositions: данные за предыдущий торговый день, а не с
+// двухнедельной отсечкой, как у analyticalproducts/futoi. Числа те же самые
+// (сверено до единицы), но лаг короче в четырнадцать раз.
 let SC_FUTOI = null;               // весь файл; грузится лениво, только по нажатию кнопки
 let SC_FUTOI_ON = false;           // предпочтение пользователя, общее для всех карточек
 let SC_FUTOI_ERR = null;           // причина, по которой файл не загрузился
@@ -9394,7 +9500,7 @@ let SC_FUTOI_ERR = null;           // причина, по которой фай
 function loadFutoi(cb) {
   if (SC_FUTOI) { cb(null); return; }
   if (SC_FUTOI_ERR) { cb(SC_FUTOI_ERR); return; }
-  fetch(dataURL('futoi.json'))
+  fetch(dataURL('futures_positions.json'))
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.tickers) throw new Error('в файле нет рядов'); SC_FUTOI = j; cb(null); })
     .catch((e) => { SC_FUTOI_ERR = e; cb(e); });
@@ -9775,22 +9881,22 @@ function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
 // края. Это не сбой отрисовки, и сказать об этом обязаны мы, а не пользователь себе сам.
 function scFutoiNoteHTML(meta, row) {
   const s = row.summary || {};
-  const dir = s.pos > 0 ? 'в лонге' : s.pos < 0 ? 'в шорте' : 'в нуле';
-  const lag = meta.delayed
-    ? `Данные с задержкой ${esc(ru(meta.delay_days, 0))} дн. (бесплатный доступ MOEX), поэтому линия
-       заканчивается ${esc(sawDate(s.as_of))}, а не сегодняшним днём.`
-    : 'Данные без задержки.';
-  const z = isNum(s.z)
-    ? ` Отклонение от собственной истории — ${esc(ru(s.z, 2))}σ за год.`
-    : '';
-  const net = Math.abs(s.pos);
-  return `<b>Нетто-позиция физлиц во фьючерсе на ${esc(row._ticker || '')}.</b>
+  const dir = s.net > 0 ? 'в нетто-лонге' : s.net < 0 ? 'в нетто-шорте' : 'в нуле';
+  const z = isNum(s.z) ? ` Отклонение от собственной истории — ${esc(ru(s.z, 2))}σ за год` : '';
+  const pct = isNum(s.percentile)
+    ? `${z ? ',' : '.'} позиционирование выше ${esc(ru(s.percentile, 0))}% наблюдений за год.` : `${z ? '.' : ''}`;
+  const w = isNum(s.change_5d)
+    ? ` За неделю нетто-позиция ${s.change_5d >= 0 ? 'выросла' : 'сократилась'} на
+        ${esc(ru(Math.abs(s.change_5d), 0))} ${plural(Math.abs(s.change_5d), 'контракт', 'контракта', 'контрактов')}.` : '';
+  const net = Math.abs(s.net);
+  return `<b>Открытые позиции физлиц во фьючерсе на ${esc(row._ticker || '')}.</b>
     На ${esc(sawDate(s.as_of))} физлица ${dir}: ${esc(ru(net, 0))} ${plural(net, 'контракт', 'контракта', 'контрактов')} нетто
-    (${esc(ru(s.long, 0))} длинных против ${esc(ru(Math.abs(s.short), 0))} коротких,
-    ${esc(ru((s.long_share || 0) * 100, 0))}% позиций — длинные).${z}
-    ${lag}
-    Показаны контракты, а не доля открытого интереса: знаменатель для доли в источнике
-    не подтверждён. Состав — ${esc(meta.contracts_scope || 'квартальные фьючерсы')}.`;
+    (${esc(ru(s.long, 0))} длинных против ${esc(ru(s.short, 0))} коротких,
+    ${esc(ru((s.long_share || 0) * 100, 0))}% позиций — длинные;
+    ${esc(ru(s.persons_long, 0))} и ${esc(ru(s.persons_short, 0))} участников).${z}${pct}${w}
+    Данные MOEX за ${esc(meta.freshness || 'предыдущий торговый день')} — линия заканчивается
+    ${esc(sawDate(s.as_of))}, это не сбой отрисовки.
+    Показаны контракты, а не доля открытого интереса: знаменатель источник не раскрывает.`;
 }
 
 // Линия рисуется своей ценовой шкалой: контракты и рубли — разные величины, и общая
@@ -9821,20 +9927,13 @@ function scFutoiDraw(container, chart, ticker) {
     if (row.status !== 'ok') {
       // Текст выбирается по коду причины, а не печатается из данных: иначе интерфейс
       // либо повторяет одну и ту же мысль дважды, либо расходится с ней по смыслу.
-      const why = {
-        not_in_futoi: `Фьючерс ${esc(row.futoi_code || '')} торгуется, но MOEX не публикует
-          по нему позиции клиентских групп — этого кода нет в срезе.`,
-        short_series: `По фьючерсу ${esc(row.futoi_code || '')} слишком короткий ряд, чтобы
-          из него что-то читать${row.reason ? ` (${esc(row.reason)})` : ''}.`,
-        source_error: `Источник не отдал ряд по фьючерсу ${esc(row.futoi_code || '')}${
-          row.reason ? ` (${esc(row.reason)})` : ''}.`,
-      }[row.reason_code] || 'Ряд по этому фьючерсу недоступен.';
-      say(`<b>Позиции физлиц не показаны.</b> ${why}`);
+      say(`<b>Позиции физлиц не показаны.</b> По фьючерсу ${esc(row.asset || '')} MOEX не отдал
+        пригодный ряд${row.reason ? ` (${esc(row.reason)})` : ''}.`);
       return;
     }
-    const dates = row.dates || [], pos = row.pos || [];
+    const dates = row.dates || [], net = row.net || [];
     const data = [];
-    for (let i = 0; i < dates.length; i += 1) if (isNum(pos[i])) data.push({ time: dates[i], value: pos[i] });
+    for (let i = 0; i < dates.length; i += 1) if (isNum(net[i])) data.push({ time: dates[i], value: net[i] });
     if (!data.length) { say('<b>Позиции физлиц не показаны.</b> Ряд пуст.'); return; }
     const series = chart.addLineSeries({
       priceScaleId: 'futoi', color: '#7A5AA8', lineWidth: 2, lastValueVisible: false,

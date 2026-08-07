@@ -1,0 +1,74 @@
+name: update futures positions (позиции физлиц во фьючерсах, MOEX ISS)
+
+# Собирает открытые позиции физических лиц во фьючерсах на акции и индекс МосБиржи
+# и обновляет site/futures_positions.json.
+# Источник — MOEX ISS openpositions: предыдущий торговый день, без авторизации. Раньше
+# здесь стоял analyticalproducts/futoi с отсечкой в две недели; числа совпадают до единицы,
+# но лаг был в четырнадцать раз длиннее.
+# Пайплайн — чистый stdlib, pip install не требуется.
+on:
+  schedule:
+    - cron: "30 4 * * 1-5"   # 04:30 UTC ≈ 07:30 МСК, по будням: к утру доступен новый день
+  workflow_dispatch:
+
+permissions:
+  contents: write            # коммит site/futures_positions.json и additive-push в gh-pages
+
+concurrency:
+  # общая группа с update.yml / bonds_update.yml / update-cbr-banks.yml:
+  # сериализует записи в gh-pages, чтобы публикации не гонялись друг с другом
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # build_futures_positions.py — только stdlib (urllib + json)
+
+      - name: Тесты сборщика (сеть не трогается)
+        run: python -m pytest tests/test_build_futures_positions.py -q
+        # pytest есть в образе runner-а; отдельная установка не нужна
+
+      - name: Сбор позиций физлиц (MOEX ISS openpositions)
+        # Токен не нужен: openpositions отдаёт предыдущий торговый день без авторизации.
+        # exit!=0 (источник недоступен или ни одного ряда) → коммита нет,
+        # прошлая версия futures_positions.json на сайте остаётся
+        run: python scripts/build_futures_positions.py
+
+      - name: Коммит site/futures_positions.json (только если изменилось)
+        run: |
+          if [ -z "$(git status --porcelain site/futures_positions.json)" ]; then
+            echo "новых данных по позициям физлиц нет — коммита нет"; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/futures_positions.json
+          git commit -m "data(positions): автообновление позиций физлиц во фьючерсах"
+          git push
+
+      - name: Публикация futures_positions.json → gh-pages (additive, не трогая остальной сайт)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMP="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
+            echo "[positions] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
+          fi
+          cp site/futures_positions.json "$TMP/futures_positions.json"
+          git -C "$TMP" add futures_positions.json
+          if git -C "$TMP" diff --cached --quiet; then
+            echo "[positions] на gh-pages без изменений"; rm -rf "$TMP"; exit 0
+          fi
+          git -C "$TMP" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "publish(positions): additive обновление позиций физлиц"
+          git -C "$TMP" push origin gh-pages
+          rm -rf "$TMP"

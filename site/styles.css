@@ -3972,3 +3972,19 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
   .bcr-part { grid-template-columns: 96px 1fr; }
   .bcr-part-val { grid-column: 2; text-align: left; }
 }
+
+/* ── Позиционирование физлиц на графике индекса ─────────────────────────────
+   Нетто-позиция идёт своей шкалой и через ноль: зелёное выше нулевой линии,
+   красное ниже. Цвет не единственный признак — знак числа и слова «нетто-лонг /
+   нетто-шорт» несут тот же смысл текстом. */
+.ma-swatch.mapos { background: linear-gradient(90deg, #B34A32 0 50%, #16805E 50% 100%); }
+.market-pos-toggle { white-space: nowrap; }
+.market-pos-note { margin-top: 8px; font-size: .78rem; line-height: 1.5; color: var(--ink-soft); }
+.market-pos-note b { color: var(--ink); font-weight: 700; }
+.market-pos-note .muted { display: block; margin-top: 4px; font-size: .72rem; }
+.market-pos-tip { display: inline-block; margin-left: 10px; font-size: .74rem; }
+.market-pos-tip .up { color: var(--good-ink); }
+.market-pos-tip .down { color: var(--risk-ink); }
+@media (max-width: 640px) {
+  .market-pos-tip { display: block; margin: 4px 0 0; }
+}
