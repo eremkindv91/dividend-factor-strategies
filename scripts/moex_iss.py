@@ -6,7 +6,7 @@
 Один bulk-запрос на весь борд (≈250 бумаг) вместо запроса на тикер — это минимизирует
 число обращений и риск рейт-лимита/блокировки облачных IP. Поля цены по приоритету:
 LCLOSEPRICE (закрытие последней сессии) → LAST (последняя сделка) → PREVPRICE (офиц.
-закрытие пред. дня). Плюс SHORTNAME (название) для подписи на сайте.
+закрытие пред. дня). Плюс SHORTNAME для подписи и SECNAME для поиска по имени.
 
 Особенности:
   • только stdlib (urllib) — без внешних зависимостей и токенов;
@@ -40,7 +40,7 @@ def _is_trading_day(d: date) -> bool:
 ISS_BOARD_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
     "?iss.meta=off&iss.only=securities,marketdata"
-    "&securities.columns=SECID,SHORTNAME,PREVPRICE,PREVDATE,LOTSIZE"
+    "&securities.columns=SECID,SHORTNAME,SECNAME,PREVPRICE,PREVDATE,LOTSIZE"
     "&marketdata.columns=SECID,LAST,LCLOSEPRICE,SYSTIME"
 )
 ISS_CANDLES_URL = (
@@ -118,6 +118,10 @@ def fetch_board_prices(timeout: int = 25, retries: int = 4) -> Tuple[Dict[str, d
             "price": price,
             "price_field": field,
             "name": s.get("SHORTNAME"),
+            # Биржевое короткое имя («СевСт-ао») и то, как компанию называют люди
+            # («Северсталь»), — разные строки. Без второй поиск по «Северсталь»
+            # не находит ничего, и бумага выглядит отсутствующей на сайте.
+            "full_name": s.get("SECNAME"),
             "prev_date": s.get("PREVDATE"),
             "lot_size": int(s.get("LOTSIZE") or 1),
         }
@@ -278,6 +282,7 @@ def get_prices(tickers: List[str], allow_cache: bool = True) -> dict:
             if row and row["price"] is not None:
                 asof = _price_asof(row["price_field"], row.get("prev_date"), close_date)
                 fresh_prices[tk] = {"price": row["price"], "name": row["name"],
+                                    "full_name": row.get("full_name"),
                                     "price_field": row["price_field"], "asof": asof,
                                     "lot_size": row.get("lot_size") or 1}
     except Exception as e:  # noqa: BLE001
@@ -300,6 +305,7 @@ def get_prices(tickers: List[str], allow_cache: bool = True) -> dict:
             n_cached += 1
         else:
             prices[tk] = {"price": None, "name": cache.get(tk, {}).get("name"),
+                          "full_name": cache.get(tk, {}).get("full_name"),
                           "price_field": None, "asof": None, "fresh": False,
                           "lot_size": cache.get(tk, {}).get("lot_size") or 1}
             n_missing += 1

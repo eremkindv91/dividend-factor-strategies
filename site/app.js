@@ -332,16 +332,31 @@ function init(data) {
 }
 
 // ── фильтрация + сортировка ──
+// Поиск идёт и по биржевому короткому имени, и по полному названию эмитента: на доске
+// Северсталь называется «СевСт-ао», а ищут её как «Северсталь». Совпадение по тикеру
+// проверяется отдельно — «CHMF» тоже должно находиться.
+function stockMatchesQuery(t, q) {
+  if (!q) return true;
+  const hay = [t.ticker, t.name, t.full_name];
+  return hay.some((v) => v && String(v).toLowerCase().includes(q));
+}
+
 function computeView() {
   const q = document.getElementById('search').value.trim().toLowerCase();
   const sec = document.getElementById('sector').value;
   const st = document.getElementById('statusFilter').value;
+  // Поиск по тикеру или названию — явное намерение найти конкретную бумагу, и фильтр
+  // качества его не перебивает. Иначе «Северсталь» при фильтре «Основной рейтинг» даёт
+  // пустоту: у CHMF payout выше 100%, она в разделе «на проверке» — и человек делает
+  // вывод, что бумаги на сайте нет вообще. Статус найденной строки виден по её чипу.
   let rows = DATA.tickers.filter((t) => {
     if (sec && t.sector !== sec) return false;
-    if (st === 'rankable' && !stockRankingEligible(t)) return false;
-    if (st === 'review' && stockRankingStatus(t) !== 'review') return false;
-    if (st === 'insufficient_data' && t.status !== 'insufficient_data') return false;
-    if (q && !(t.ticker.toLowerCase().includes(q) || String(t.name).toLowerCase().includes(q))) return false;
+    if (!q) {
+      if (st === 'rankable' && !stockRankingEligible(t)) return false;
+      if (st === 'review' && stockRankingStatus(t) !== 'review') return false;
+      if (st === 'insufficient_data' && t.status !== 'insufficient_data') return false;
+    }
+    if (q && !stockMatchesQuery(t, q)) return false;
     return true;
   });
   rows.sort((a, b) => {

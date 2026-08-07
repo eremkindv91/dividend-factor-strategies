@@ -411,6 +411,7 @@ def main() -> int:
             "announced_dividend": announced,
             "ticker": tk,
             "name": p.get("name") or tk,
+            "full_name": p.get("full_name") or None,
             "sector": r.get("sector") or ND,
             "cut_risk": num(r.get("cut_risk")),
             "stability_score": num(r.get("stability_score")),
