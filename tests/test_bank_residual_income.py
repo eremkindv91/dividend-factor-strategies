@@ -383,13 +383,19 @@ def test_second_contour_is_mounted_and_separate_from_the_regulatory_one():
 
 
 def test_frontend_never_shows_a_fair_share_price():
-    """Запрет варианта А доведён до интерфейса, а не только до конфига."""
+    """Запрет варианта А доведён до интерфейса, а не только до конфига.
+
+    Проверяется не точная фраза, а то, что объяснение на месте и называет причину:
+    формулировку можно переписать, но читатель обязан узнать, ПОЧЕМУ цены нет.
+    """
     app = APP.read_text(encoding="utf-8")
     start = app.index("function rivShellHTML")
     shell = app[start:app.index("function renderRiv")]
     assert "fair_price_per_share" not in shell, "цена акции просочилась в интерфейс"
-    assert "справедливая цена акции здесь не показана" in shell, (
+    assert "справедлив" in shell and "цены акции" in shell, (
         "отсутствие целевой цены обязано быть объяснено, а не просто пропущено")
+    assert "МСФО" in shell and "База капитала" in shell, (
+        "объяснение обязано называть причину — вторичный источник базы капитала")
 
 
 def test_frontend_separates_the_verdict_from_market_mispricing():

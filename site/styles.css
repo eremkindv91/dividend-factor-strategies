@@ -2015,6 +2015,12 @@ tbody tr:hover td,
   color: var(--ink-faint);
 }
 
+/* Разграничение двух баз капитала. Стоит первым в блоке и выглядит как предупреждение,
+   потому что похожие числа из двух моделей (P/капитал ЦБ ≈ 0,95 и P/BV группы ≈ 0,96)
+   читатель естественно принимает за одно и то же. */
+.bval-scope { margin: 10px 0 12px; padding: 11px 13px; border-left: 3px solid var(--accent);
+  background: var(--surface-soft, var(--bg)); font-size: .8rem; line-height: 1.55; }
+
 .bval-guide,
 .cbr-guide {
   display: grid;
@@ -3814,6 +3820,12 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 /* Ограничение публикации — не мелкая сноска: оно объясняет отсутствие целевой цены */
 .riv-limit { padding: 12px 14px; border-radius: var(--r-card, 12px); background: var(--warn-fill);
   color: var(--warn-ink); font-size: .84rem; line-height: 1.5; margin-bottom: 14px; }
+
+/* Сноска про расхождение с рынком: та же природа ограничения, что и у .riv-limit,
+   но она поясняет уже показанное число, поэтому тише — иначе предупреждения
+   начинают спорить за внимание и перестают читаться оба. */
+.riv-footnote { margin-top: 10px; padding: 9px 12px; border-left: 3px solid var(--warn-bar);
+  background: var(--surface-soft, var(--bg)); font-size: .76rem; line-height: 1.5; }
 
 .riv-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-card, 12px); }
 .riv-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
