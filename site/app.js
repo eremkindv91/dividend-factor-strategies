@@ -9136,6 +9136,11 @@ function drawMarketChart(item) {
   });
   if (enabled.has('fizpos')) marketDrawPositions(item);
   else marketPositionsSay('');
+  // Разворачивается сам <dialog>, а не его внутренняя оболочка. Оболочку с
+  // position: fixed диалог теряет из потока и схлопывается в нулевую высоту — график
+  // пропадает целиком. Диалог уже лежит в top layer, ему достаточно растянуться.
+  bindChartFullscreen(element.closest('dialog'),
+                      () => { if (MARKET_CHART) MARKET_CHART.timeScale().fitContent(); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -9297,6 +9302,84 @@ function openMarketChart(id) {
 }
 
 // ── График цены+объёма в карточке акции (дневные OHLC MOEX ISS, загрузка по клику) ──
+// ══════════════════════════════════════════════════════════════════════════
+// ПОЛНОЭКРАННЫЙ РЕЖИМ ГРАФИКОВ
+//
+// Сделан на CSS-оверлее, а не на Fullscreen API: iOS Safari не разворачивает
+// произвольные элементы (requestFullscreen там есть только у <video>), и на телефоне —
+// где мелкий график мешает больше всего — нативный путь просто не сработал бы.
+// Оверлей ведёт себя одинаково на всех платформах и не зависит от разрешений браузера.
+//
+// Выход: та же кнопка, Esc или системная кнопка «назад» — на телефоне это первое,
+// что нажимают, поэтому режим пишется в history.
+// ══════════════════════════════════════════════════════════════════════════
+let CHART_FS_EL = null;            // развёрнутый контейнер; одновременно может быть только один
+
+function chartFullscreenButtonHTML() {
+  return `<button type="button" class="chart-fs-toggle" aria-pressed="false"
+    title="Развернуть график" aria-label="Развернуть график на весь экран">
+    <span class="chart-fs-icon" aria-hidden="true"></span><span class="chart-fs-label">Развернуть</span></button>`;
+}
+
+function chartFullscreenExit(viaHistory = false) {
+  const el = CHART_FS_EL;
+  if (!el) return;
+  CHART_FS_EL = null;
+  el.classList.remove('is-chart-fullscreen');
+  document.body.classList.remove('has-chart-fullscreen');
+  const button = el.querySelector('.chart-fs-toggle');
+  if (button) {
+    button.setAttribute('aria-pressed', 'false');
+    button.title = 'Развернуть график';
+    const label = button.querySelector('.chart-fs-label');
+    if (label) label.textContent = 'Развернуть';
+    button.focus({ preventScroll: true });
+  }
+  // Полотно меняет размер — графику нужно пересчитать геометрию. Ждём кадр, иначе
+  // замер идёт по ещё не применённому layout.
+  requestAnimationFrame(() => { if (el._chartFsResize) el._chartFsResize(); });
+  if (!viaHistory && history.state && history.state.chartFullscreen) history.back();
+}
+
+function chartFullscreenEnter(el) {
+  if (CHART_FS_EL) chartFullscreenExit();
+  CHART_FS_EL = el;
+  el.classList.add('is-chart-fullscreen');
+  document.body.classList.add('has-chart-fullscreen');
+  const button = el.querySelector('.chart-fs-toggle');
+  if (button) {
+    button.setAttribute('aria-pressed', 'true');
+    button.title = 'Свернуть график';
+    const label = button.querySelector('.chart-fs-label');
+    if (label) label.textContent = 'Свернуть';
+  }
+  requestAnimationFrame(() => { if (el._chartFsResize) el._chartFsResize(); });
+  try { history.pushState({ chartFullscreen: true }, ''); } catch (e) { /* history может быть недоступна */ }
+}
+
+function chartFullscreenToggle(el) {
+  if (!el) return;
+  if (CHART_FS_EL === el) chartFullscreenExit();
+  else chartFullscreenEnter(el);
+}
+
+// Подключает кнопку внутри контейнера. resize — как пересчитать график после смены
+// размера: у lightweight-charts это applyOptions/fitContent, у Chart.js — resize().
+function bindChartFullscreen(container, resize) {
+  if (!container) return;
+  const button = container.querySelector('.chart-fs-toggle');
+  if (!button || button._chartFsBound) return;
+  button._chartFsBound = true;
+  container._chartFsResize = resize || null;
+  button.addEventListener('click', () => chartFullscreenToggle(container));
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && CHART_FS_EL) { event.stopPropagation(); chartFullscreenExit(); }
+}, true);   // capture: перехватываем раньше, чем Esc закроет диалог целиком
+
+window.addEventListener('popstate', () => { if (CHART_FS_EL) chartFullscreenExit(true); });
+
 const STOCK_CHART_PERIODS = [['127', '6М'], ['252', '1Г'], ['756', '3Г'], ['0', 'Макс']];
 
 function stockChartFromDate(days) {
@@ -9312,6 +9395,7 @@ function stockPriceChartHTML(t) {
         <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
         <button type="button" class="sc-pf-toggle" aria-pressed="${SC_PROFILE_ON}">Профиль объёма</button>
         <button type="button" class="sc-fi-toggle" aria-pressed="${SC_FUTOI_ON}">Позиции физлиц</button>
+        ${chartFullscreenButtonHTML()}
       </div>
     </div>
     <div class="sc-ohlc tnum" aria-live="polite"></div>
@@ -10003,6 +10087,12 @@ function wireStockChart(root, ticker) {
     SC_FUTOI_ON = !SC_FUTOI_ON;
     fiToggle.setAttribute('aria-pressed', String(SC_FUTOI_ON));
     if (container._scFutoiApply) container._scFutoiApply();
+  });
+  // Профиль объёма считается по видимому диапазону, поэтому после смены размера его
+  // надо пересобрать, а не только растянуть полотно.
+  bindChartFullscreen(container, () => {
+    if (container._scChart) container._scChart.timeScale().fitContent();
+    if (container._scProfileApply) container._scProfileApply();
   });
   load('252');
 }

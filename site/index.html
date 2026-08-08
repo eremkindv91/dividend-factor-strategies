@@ -70,43 +70,6 @@
         </div>
 
 
-        <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
-          <div class="market-chart-shell">
-            <header class="market-chart-head">
-              <div>
-                <h2 id="market-chart-title">Рынок</h2>
-                <div class="market-chart-sub" id="market-chart-sub"></div>
-              </div>
-              <button type="button" class="market-chart-close" id="market-chart-close" aria-label="Закрыть график" title="Закрыть">×</button>
-            </header>
-            <div class="market-chart-tabs" id="market-chart-tabs" aria-label="Инструмент"></div>
-            <div class="market-chart-toolbar">
-              <div class="market-chart-view">
-                <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
-                  <button type="button" data-period="63">3М</button>
-                  <button type="button" data-period="252" class="active">1Г</button>
-                  <button type="button" data-period="756">3Г</button>
-                  <button type="button" data-period="1260">5Л</button>
-                </div>
-                <span class="market-chart-mode" id="market-chart-mode">Свечи OHLC</span>
-              </div>
-              <div class="market-overlays" id="market-chart-overlays">
-                <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
-                <label><input type="checkbox" value="sma50" checked><span class="ma-swatch ma50"></span>SMA50</label>
-                <label><input type="checkbox" value="sma200"><span class="ma-swatch ma200"></span>SMA200</label>
-                <label class="market-pos-toggle"><input type="checkbox" value="fizpos"><span class="ma-swatch mapos"></span>Позиции физлиц</label>
-              </div>
-            </div>
-            <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
-            <div class="market-chart-canvas" id="market-chart-canvas"></div>
-            <div class="market-pos-note" id="market-pos-note" aria-live="polite"></div>
-            <div class="market-levels" id="market-chart-levels"></div>
-            <footer class="market-chart-foot">
-              <span>Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.</span>
-              <a id="market-chart-source" href="https://iss.moex.com/" target="_blank" rel="noopener noreferrer">MOEX ISS</a>
-            </footer>
-          </div>
-        </dialog>
       </section>
 
       <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
@@ -625,5 +588,47 @@
   <script src="bond_allocator.js" defer></script>
   <script src="bond_retail.js" defer></script>
   <script src="app.js" defer></script>
+  <!-- Диалог графика рынка живёт вне секций-вкладок: showModal() у элемента внутри
+       скрытой секции не показывает ничего — display:none на предке гасит и top layer. -->
+  <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
+  <div class="market-chart-shell">
+  <header class="market-chart-head">
+  <div>
+  <h2 id="market-chart-title">Рынок</h2>
+  <div class="market-chart-sub" id="market-chart-sub"></div>
+  </div>
+  <button type="button" class="market-chart-close" id="market-chart-close" aria-label="Закрыть график" title="Закрыть">×</button>
+  </header>
+  <div class="market-chart-tabs" id="market-chart-tabs" aria-label="Инструмент"></div>
+  <div class="market-chart-toolbar">
+  <div class="market-chart-view">
+  <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
+  <button type="button" data-period="63">3М</button>
+  <button type="button" data-period="252" class="active">1Г</button>
+  <button type="button" data-period="756">3Г</button>
+  <button type="button" data-period="1260">5Л</button>
+  </div>
+  <span class="market-chart-mode" id="market-chart-mode">Свечи OHLC</span>
+  <button type="button" class="chart-fs-toggle" aria-pressed="false"
+  title="Развернуть график" aria-label="Развернуть график на весь экран">
+  <span class="chart-fs-icon" aria-hidden="true"></span><span class="chart-fs-label">Развернуть</span></button>
+  </div>
+  <div class="market-overlays" id="market-chart-overlays">
+  <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
+  <label><input type="checkbox" value="sma50" checked><span class="ma-swatch ma50"></span>SMA50</label>
+  <label><input type="checkbox" value="sma200"><span class="ma-swatch ma200"></span>SMA200</label>
+  <label class="market-pos-toggle"><input type="checkbox" value="fizpos"><span class="ma-swatch mapos"></span>Позиции физлиц</label>
+  </div>
+  </div>
+  <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
+  <div class="market-chart-canvas" id="market-chart-canvas"></div>
+  <div class="market-pos-note" id="market-pos-note" aria-live="polite"></div>
+  <div class="market-levels" id="market-chart-levels"></div>
+  <footer class="market-chart-foot">
+  <span>Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.</span>
+  <a id="market-chart-source" href="https://iss.moex.com/" target="_blank" rel="noopener noreferrer">MOEX ISS</a>
+  </footer>
+  </div>
+  </dialog>
 </body>
 </html>
