@@ -261,7 +261,8 @@ jobs:
           [ -f site/macro_cbr.json ] && cp site/macro_cbr.json "$TMP/"   # макро ЦБ: ключевая ставка + инфляция
           # Генерируется update-futures-positions.yml и коммитится в репо, поэтому здесь просто копируется:
           # без этой строки orphan-push стирал бы позиции физлиц с gh-pages при каждом прогоне.
-          [ -f site/futures_positions.json ] && cp site/futures_positions.json "$TMP/"   # открытые позиции физлиц во фьючерсах
+          [ -f site/futures_positions.json ] && cp site/futures_positions.json "$TMP/"
+  cp site/market_positioning_commentary.json "$TMP/" 2>/dev/null || true   # разбор позиционирования (может отсутствовать при первом прогоне)   # открытые позиции физлиц во фьючерсах
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
           [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций

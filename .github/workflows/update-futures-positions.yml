@@ -31,8 +31,8 @@ jobs:
           python-version: "3.11"
           # build_futures_positions.py — только stdlib (urllib + json)
 
-      - name: Тесты сборщика (сеть не трогается)
-        run: python -m pytest tests/test_build_futures_positions.py -q
+      - name: Тесты сборщика и интерпретатора (сеть не трогается)
+        run: python -m pytest tests/test_build_futures_positions.py tests/test_positioning_interpretation.py -q
         # pytest есть в образе runner-а; отдельная установка не нужна
 
       - name: Сбор позиций физлиц (MOEX ISS openpositions)
@@ -41,14 +41,23 @@ jobs:
         # прошлая версия futures_positions.json на сайте остаётся
         run: python scripts/build_futures_positions.py
 
+      - name: Разбор позиционирования (правила + опциональный LLM-редактор)
+        env:
+          POSITIONING_LLM_ENABLED: ${{ vars.POSITIONING_LLM_ENABLED }}
+          POSITIONING_LLM_API_KEY: ${{ secrets.POSITIONING_LLM_API_KEY }}
+          POSITIONING_LLM_MODEL: ${{ vars.POSITIONING_LLM_MODEL }}
+        # Без ключа работает на правилах — это штатный режим, а не деградация.
+        # Сбой не должен ронять публикацию свежих позиций.
+        run: python scripts/build_positioning_interpretation.py || echo "[positioning] пропуск — остаётся прошлый разбор"
+
       - name: Коммит site/futures_positions.json (только если изменилось)
         run: |
-          if [ -z "$(git status --porcelain site/futures_positions.json)" ]; then
+          if [ -z "$(git status --porcelain site/futures_positions.json site/market_positioning_commentary.json)" ]; then
             echo "новых данных по позициям физлиц нет — коммита нет"; exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/futures_positions.json
+          git add site/futures_positions.json site/market_positioning_commentary.json
           git commit -m "data(positions): автообновление позиций физлиц во фьючерсах"
           git push
 
@@ -62,7 +71,8 @@ jobs:
             echo "[positions] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
           fi
           cp site/futures_positions.json "$TMP/futures_positions.json"
-          git -C "$TMP" add futures_positions.json
+          cp site/market_positioning_commentary.json "$TMP/" 2>/dev/null || true
+          git -C "$TMP" add futures_positions.json market_positioning_commentary.json
           if git -C "$TMP" diff --cached --quiet; then
             echo "[positions] на gh-pages без изменений"; rm -rf "$TMP"; exit 0
           fi

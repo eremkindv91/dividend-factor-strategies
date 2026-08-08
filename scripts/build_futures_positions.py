@@ -115,6 +115,7 @@ def positions(asset: str, date_to: str) -> list[dict]:
             continue
         out[date] = {
             "d": date, "long": int(long), "short": int(short), "net": int(long) - int(short),
+            "gross": int(long) + int(short),
             "persons_long": int(row.get("persons_long") or 0),
             "persons_short": int(row.get("persons_short") or 0),
         }
@@ -180,28 +181,85 @@ def percentile(values: list[float]) -> float | None:
     return round(100 * below / (len(window) - 1), 1)
 
 
+def value_of(row: dict, key: str) -> int:
+    """Значение поля; gross и net выводятся из сторон, а не требуются в строке."""
+    if key == "gross":
+        return row["long"] + row["short"]
+    if key == "net":
+        return row.get("net", row["long"] - row["short"])
+    return row[key]
+
+
 def change_over(rows: list[dict], days: int, key: str = "net") -> int | None:
     """Изменение за N наблюдений — по фактическому ряду, без домысливания пропусков."""
     if len(rows) <= days:
         return None
-    return rows[-1][key] - rows[-1 - days][key]
+    return value_of(rows[-1], key) - value_of(rows[-1 - days], key)
+
+
+def robust_z(values: list[float]) -> float | None:
+    """z по медиане и MAD: (x − median) / (1.4826 · MAD).
+
+    Обычный z-score здесь врёт. Ряд изменений позиций содержит редкие выбросы —
+    экспирации, всплески активности, — и они раздувают стандартное отклонение так,
+    что настоящее движение выглядит рядовым. Медиана и MAD к выбросам устойчивы,
+    множитель 1.4826 приводит MAD к масштабу сигмы нормального распределения.
+    """
+    window = [v for v in values[-Z_WINDOW:] if v is not None]
+    if len(window) < MIN_POINTS:
+        return None
+    ordered = sorted(window)
+
+    def median(seq: list[float]) -> float:
+        mid = len(seq) // 2
+        return seq[mid] if len(seq) % 2 else (seq[mid - 1] + seq[mid]) / 2
+
+    med = median(ordered)
+    mad = median(sorted(abs(v - med) for v in window))
+    if mad <= 0:
+        return None          # ряд без разброса — «насколько это необычно» смысла не имеет
+    return round((window[-1] - med) / (1.4826 * mad), 2)
+
+
+def change_series(rows: list[dict], days: int, key: str) -> list[float]:
+    """Ряд изменений за N наблюдений — вход для robust z."""
+    return [value_of(rows[i], key) - value_of(rows[i - days], key)
+            for i in range(days, len(rows))]
 
 
 def summarize(rows: list[dict], multiplier: float | None, price: float | None) -> dict:
     last = rows[-1]
     nets = [float(r["net"]) for r in rows]
-    total = last["long"] + last["short"]
+    gross = last["long"] + last["short"]
     out = {
         "as_of": last["d"],
         "long": last["long"], "short": last["short"], "net": last["net"],
+        # Gross показывает масштаб присутствия: Net может стоять на месте, пока обе
+        # стороны растут вдвое, и одно только Net этого не покажет.
+        "gross": gross,
         "persons_long": last["persons_long"], "persons_short": last["persons_short"],
         # Доля лонгов внутри позиций физлиц: знаменатель известен точно, в отличие от
         # доли в общем открытом интересе рынка.
-        "long_share": round(last["long"] / total, 4) if total else None,
-        "net_ratio": round(last["net"] / total, 4) if total else None,
+        "long_share": round(last["long"] / gross, 4) if gross else None,
+        "net_ratio": round(last["net"] / gross, 4) if gross else None,
         "z": z_score(nets), "percentile": percentile(nets),
         "change_1d": change_over(rows, 1), "change_5d": change_over(rows, 5),
         "change_20d": change_over(rows, 20),
+        # Декомпозиция: одно и то же изменение Net получается и набором длинных, и
+        # закрытием коротких. Без сторон причина неотличима от следствия.
+        "long_change_1d": change_over(rows, 1, "long"),
+        "long_change_5d": change_over(rows, 5, "long"),
+        "long_change_20d": change_over(rows, 20, "long"),
+        "short_change_1d": change_over(rows, 1, "short"),
+        "short_change_5d": change_over(rows, 5, "short"),
+        "short_change_20d": change_over(rows, 20, "short"),
+        "gross_change_1d": change_over(rows, 1, "gross"),
+        "gross_change_5d": change_over(rows, 5, "gross"),
+        "gross_change_20d": change_over(rows, 20, "gross"),
+        "persons_long_change_5d": change_over(rows, 5, "persons_long"),
+        "persons_short_change_5d": change_over(rows, 5, "persons_short"),
+        "net_change_5d_robust_z": robust_z(change_series(rows, 5, "net")),
+        "gross_change_5d_robust_z": robust_z(change_series(rows, 5, "gross")),
         "min": min(r["net"] for r in rows), "max": max(r["net"] for r in rows),
         "points": len(rows),
     }

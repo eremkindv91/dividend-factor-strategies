@@ -158,7 +158,8 @@ def test_percentile_places_the_last_point_among_observations():
 
 
 def test_change_is_measured_against_an_existing_point():
-    rows = [{"net": 100}, {"net": 120}, {"net": 150}]
+    rows = [{"long": 100, "short": 0, "net": 100}, {"long": 120, "short": 0, "net": 120},
+            {"long": 150, "short": 0, "net": 150}]
 
     assert pos.change_over(rows, 1) == 30
     assert pos.change_over(rows, 2) == 50

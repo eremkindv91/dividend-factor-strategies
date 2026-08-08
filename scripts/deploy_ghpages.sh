@@ -70,7 +70,8 @@ fi
 [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"
 [ -f site/news.json ] && cp site/news.json "$TMP/"
 [ -f site/macro_cbr.json ] && cp site/macro_cbr.json "$TMP/"
-[ -f site/futures_positions.json ] && cp site/futures_positions.json "$TMP/"   # открытые позиции физлиц во фьючерсах
+[ -f site/futures_positions.json ] && cp site/futures_positions.json "$TMP/"
+  cp site/market_positioning_commentary.json "$TMP/" 2>/dev/null || true   # разбор позиционирования (может отсутствовать при первом прогоне)   # открытые позиции физлиц во фьючерсах
 # Ниже — файлы, которых ручной скрипт лишился при расхождении с update.yml.
 # Расхождение теперь стережёт tests/test_publish_lists.py.
 [ -f site/market_pe_current.json ] && cp site/market_pe_current.json "$TMP/"

@@ -9220,7 +9220,109 @@ function marketDrawPositions(item) {
     series.setData(data);
     MARKET_CHART.priceScale('fizpos').applyOptions({ scaleMargins: { top: 0.62, bottom: 0 } });
     marketPositionsSay(marketPositionsNoteHTML(SC_FUTOI.meta || {}, row));
+    // Разбор — отдельный файл и отдельная загрузка: он нужен только здесь и только
+    // когда линия включена, поэтому не тянется вместе с остальным сайтом.
+    loadMarketPositioningCommentary((insightErr) => {
+      if (insightErr || !MARKET_INSIGHT) return;      // нет разбора — остаётся факт-строка
+      const box = document.getElementById('market-pos-note');
+      if (!box || !MARKET_POS_ROW) return;            // линию успели выключить
+      box.insertAdjacentHTML('beforeend', marketPositioningInsightHTML(MARKET_INSIGHT));
+    });
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// РАЗБОР ПОЗИЦИОНИРОВАНИЯ (site/market_positioning_commentary.json)
+//
+// Режим — long_building, short_covering и прочие — вычислен в сборщике из ΔLong и
+// ΔShort. Здесь он только показывается: фронтенд не переклассифицирует и не досчитывает
+// ничего, иначе два места считали бы одно и то же по-разному.
+//
+// Числа рисуются из блока facts, а не берутся из текста. Текст (в том числе если его
+// редактировала модель) проходит через esc() и никаких цифр не содержит по построению.
+// ══════════════════════════════════════════════════════════════════════════
+let MARKET_INSIGHT = null;
+let MARKET_INSIGHT_ERR = null;
+
+function loadMarketPositioningCommentary(cb) {
+  if (MARKET_INSIGHT) { cb(null); return; }
+  if (MARKET_INSIGHT_ERR) { cb(MARKET_INSIGHT_ERR); return; }
+  fetch(dataURL('market_positioning_commentary.json'))
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+    .then((json) => { MARKET_INSIGHT = json; cb(null); })
+    .catch((err) => { MARKET_INSIGHT_ERR = err; cb(err); });
+}
+
+const posSigned = (v, digits = 0) => (isNum(v)
+  ? `${v > 0 ? '+' : v < 0 ? '−' : ''}${ru(Math.abs(v), digits)}` : ND);
+
+function marketPositioningFactsHTML(f) {
+  const chip = (label, value, hint) => `<span class="mpi-chip" title="${esc(hint)}">
+    <b>${esc(label)}</b> ${esc(value)}</span>`;
+  const out = [
+    chip('1Д', posSigned(f.delta_net_1d), 'изменение чистой позиции за один торговый день'),
+    chip('5Д', posSigned(f.delta_net_5d), 'изменение чистой позиции за пять наблюдений'),
+    chip('20Д', posSigned(f.delta_net_20d), 'изменение чистой позиции за двадцать наблюдений'),
+  ];
+  if (isNum(f.percentile_1y)) {
+    out.push(chip('за год выше', `${ru(f.percentile_1y, 0)}%`,
+      'доля наблюдений за последний год, где чистая позиция была ниже текущей'));
+  }
+  if (isNum(f.price_return_5d)) {
+    out.push(chip('индекс 5Д', `${posSigned(f.price_return_5d * 100, 1)}%`,
+      'доходность индекса за тот же отрезок'));
+  }
+  return `<div class="mpi-chips tnum">${out.join('')}</div>`;
+}
+
+function marketPositioningDetailsHTML(f) {
+  const row = (label, value, d1, d5, d20) => `<tr><th scope="row">${esc(label)}</th>
+    <td>${esc(isNum(value) ? ru(value, 0) : ND)}</td>
+    <td>${esc(d1 === undefined ? '—' : posSigned(d1))}</td>
+    <td>${esc(posSigned(d5))}</td>
+    <td>${esc(d20 === undefined ? '—' : posSigned(d20))}</td></tr>`;
+  return `<details class="mpi-details"><summary>Из чего сложилось</summary>
+    <div class="mpi-table-wrap"><table class="mpi-table tnum">
+      <thead><tr><th scope="col">Показатель</th><th scope="col">Значение</th>
+        <th scope="col">Δ1Д</th><th scope="col">Δ5Д</th><th scope="col">Δ20Д</th></tr></thead>
+      <tbody>
+        ${row('Длинные', f.long, undefined, f.delta_long_5d, undefined)}
+        ${row('Короткие', f.short, undefined, f.delta_short_5d, undefined)}
+        ${row('Чистая позиция', f.net, f.delta_net_1d, f.delta_net_5d, f.delta_net_20d)}
+        ${row('Всего позиций', f.gross, undefined, f.delta_gross_5d, undefined)}
+        ${row('Участников с длинными', f.persons_long, undefined, f.persons_long_change_5d, undefined)}
+        ${row('Участников с короткими', f.persons_short, undefined, f.persons_short_change_5d, undefined)}
+      </tbody>
+    </table></div>
+    <p class="mpi-method muted">Чистая позиция = длинные − короткие. Она растёт и когда
+      открывают новые длинные, и когда закрывают короткие, поэтому рядом показаны обе
+      стороны отдельно — по одному итогу причину не отличить.</p>
+  </details>`;
+}
+
+function marketPositioningInsightHTML(payload) {
+  const block = (payload || {}).IMOEX;
+  const meta = (payload || {}).meta || {};
+  if (!block || !block.copy) return '';
+  const { headline, summary, watch } = block.copy;
+  const f = block.facts || {};
+  const stale = meta.position_latest && meta.position_latest !== meta.position_as_of
+    ? `<span class="mpi-stale">Разбор построен на общей дате с ценой индекса
+        (${esc(sawDate(meta.as_of))}); позиции доступны и на ${esc(sawDate(meta.position_latest))}.</span>`
+    : '';
+  return `<section class="mpi" aria-label="Разбор позиционирования физлиц">
+    <div class="mpi-head">
+      <span class="mpi-kicker">Позиционирование · данные за ${esc(sawDate(meta.as_of))}</span>
+      ${meta.llm_used ? '<span class="mpi-badge" title="Формулировку сократила языковая модель; режим и все числа рассчитаны кодом">текст отредактирован ИИ</span>' : ''}
+    </div>
+    <h5 class="mpi-headline">${esc(headline)}</h5>
+    <p class="mpi-summary">${esc(summary)}</p>
+    ${watch ? `<p class="mpi-watch muted">${esc(watch)}</p>` : ''}
+    ${marketPositioningFactsHTML(f)}
+    ${marketPositioningDetailsHTML(f)}
+    ${stale}
+    <p class="mpi-disclaimer muted">${esc(meta.disclaimer || '')}</p>
+  </section>`;
 }
 
 function marketPositionsNoteHTML(meta, row) {
