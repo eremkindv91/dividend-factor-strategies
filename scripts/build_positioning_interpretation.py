@@ -314,33 +314,78 @@ def validate_llm(payload: dict) -> tuple[dict | None, str]:
     return out, ""
 
 
+def _post_json(url: str, payload: dict, headers: dict, timeout: int) -> dict:
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
+                                 headers={"content-type": "application/json", **headers})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _extract_json(text: str) -> dict:
+    """Модели любят обрамлять JSON пояснениями и ```-заборами — берём сам объект."""
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end <= start:
+        raise ValueError("в ответе нет JSON")
+    return json.loads(text[start:end + 1])
+
+
+# Адаптеры провайдеров изолированы от движка режимов: смена провайдера не должна
+# трогать классификатор. Оба — на urllib, потому что этот пайплайн ходит без pip install
+# (новостной контур использует SDK google-genai, здесь такой зависимости нет).
+
+def _call_gemini(brief: dict, key: str, model: str, timeout: int) -> dict:
+    data = _post_json(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+        {
+            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "contents": [{"parts": [{"text": json.dumps(brief, ensure_ascii=False)}]}],
+            "generationConfig": {"response_mime_type": "application/json",
+                                 "temperature": 0.2, "maxOutputTokens": 800},
+        }, {}, timeout)
+    parts = (((data.get("candidates") or [{}])[0].get("content") or {}).get("parts") or [])
+    text = "".join(p.get("text", "") for p in parts)
+    if not text.strip():
+        raise ValueError("пустой ответ")
+    return _extract_json(text)
+
+
+def _call_anthropic(brief: dict, key: str, model: str, timeout: int) -> dict:
+    data = _post_json(
+        "https://api.anthropic.com/v1/messages",
+        {"model": model, "max_tokens": 600, "system": SYSTEM_PROMPT,
+         "messages": [{"role": "user", "content": json.dumps(brief, ensure_ascii=False)}]},
+        {"x-api-key": key, "anthropic-version": "2023-06-01"}, timeout)
+    text = "".join(b.get("text", "") for b in data.get("content", []))
+    return _extract_json(text)
+
+
+PROVIDERS = {"gemini": (_call_gemini, "gemini-3.5-flash"),
+             "anthropic": (_call_anthropic, "claude-sonnet-5")}
+
+
 def call_llm(brief: dict, timeout: int = 25) -> tuple[dict | None, str]:
-    """Anthropic Messages API. Любая ошибка — не исключение, а причина фолбэка."""
+    """Редактирует текст у выбранного провайдера. Любая ошибка — причина фолбэка, не сбой."""
     key = os.environ.get("POSITIONING_LLM_API_KEY", "").strip()
-    model = os.environ.get("POSITIONING_LLM_MODEL", "claude-sonnet-5").strip()
     if not key:
         return None, "ключ не задан"
-    body = json.dumps({
-        "model": model, "max_tokens": 600, "system": SYSTEM_PROMPT,
-        "messages": [{"role": "user", "content": json.dumps(brief, ensure_ascii=False)}],
-    }).encode("utf-8")
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages", data=body,
-        headers={"content-type": "application/json", "x-api-key": key,
-                 "anthropic-version": "2023-06-01"})
+    provider = (os.environ.get("POSITIONING_LLM_PROVIDER") or "gemini").strip().lower()
+    if provider not in PROVIDERS:
+        return None, f"провайдер «{provider}» не поддерживается"
+    call, default_model = PROVIDERS[provider]
+    model = os.environ.get("POSITIONING_LLM_MODEL", "").strip() or default_model
+
     for attempt in range(2):
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            text = "".join(b.get("text", "") for b in data.get("content", []))
-            start, end = text.find("{"), text.rfind("}")
-            if start < 0 or end <= start:
-                return None, "в ответе нет JSON"
-            return validate_llm(json.loads(text[start:end + 1]))
-        except (urllib.error.URLError, TimeoutError, ValueError, KeyError) as exc:
+            return validate_llm(call(brief, key, model, timeout))
+        except (urllib.error.URLError, TimeoutError, ValueError, KeyError, IndexError) as exc:
+            # Ключ и тело запроса в лог не попадают: текст ошибки провайдера может
+            # содержать эхо запроса, а лог сборки публичный.
+            reason = f"{type(exc).__name__}"
+            if isinstance(exc, urllib.error.HTTPError):
+                reason = f"HTTP {exc.code}"
             if attempt:
-                return None, f"провайдер недоступен: {str(exc)[:80]}"
-    return None, "провайдер недоступен"
+                return None, f"{provider}: {reason}"
+    return None, f"{provider}: недоступен"
 
 
 # ─────────────────────────── сборка ───────────────────────────
@@ -434,8 +479,10 @@ def build(now: datetime | None = None) -> dict | None:
         else:
             edited, why = call_llm(brief)
             if edited:
-                copy, llm_used, provider = edited, True, "anthropic"
-                model = os.environ.get("POSITIONING_LLM_MODEL", "claude-sonnet-5")
+                copy, llm_used = edited, True
+                provider = (os.environ.get("POSITIONING_LLM_PROVIDER") or "gemini").lower()
+                model = (os.environ.get("POSITIONING_LLM_MODEL", "").strip()
+                         or PROVIDERS.get(provider, (None, None))[1])
                 reason = "текст отредактирован моделью"
             else:
                 reason = f"фолбэк на правила: {why}"

@@ -44,9 +44,13 @@ jobs:
       - name: Разбор позиционирования (правила + опциональный LLM-редактор)
         env:
           POSITIONING_LLM_ENABLED: ${{ vars.POSITIONING_LLM_ENABLED }}
-          POSITIONING_LLM_API_KEY: ${{ secrets.POSITIONING_LLM_API_KEY }}
+          # Переиспользуем ключ новостного контура: один и тот же Gemini-ключ не нужно
+          # хранить дважды под разными именами. Имя переменной внутри процесса не обязано
+          # совпадать с именем секрета.
+          POSITIONING_LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          POSITIONING_LLM_PROVIDER: ${{ vars.POSITIONING_LLM_PROVIDER || 'gemini' }}
           POSITIONING_LLM_MODEL: ${{ vars.POSITIONING_LLM_MODEL }}
-        # Без ключа работает на правилах — это штатный режим, а не деградация.
+        # Без включённого флага работает на правилах — это штатный режим, а не деградация.
         # Сбой не должен ронять публикацию свежих позиций.
         run: python scripts/build_positioning_interpretation.py || echo "[positioning] пропуск — остаётся прошлый разбор"
 

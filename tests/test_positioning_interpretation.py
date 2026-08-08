@@ -359,3 +359,113 @@ def test_no_api_key_means_no_call(monkeypatch):
     out, why = bpi.call_llm({"instrument": "IMOEX"})
 
     assert out is None and "ключ" in why
+
+
+# ─────────────────────────── адаптеры провайдеров ───────────────────────────
+
+
+def test_gemini_is_the_default_provider(monkeypatch):
+    """Ключ в проекте уже есть — Gemini, поэтому он и стоит по умолчанию."""
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "k")
+    monkeypatch.delenv("POSITIONING_LLM_PROVIDER", raising=False)
+    seen = {}
+
+    def fake(url, payload, headers, timeout):
+        seen["url"], seen["payload"], seen["headers"] = url, payload, headers
+        return {"candidates": [{"content": {"parts": [{"text": json.dumps(
+            {"headline": "Заголовок", "summary": "Текст.", "watch": "Пометка."})}]}}]}
+
+    monkeypatch.setattr(bpi, "_post_json", fake)
+    out, why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out and not why
+    assert "generativelanguage.googleapis.com" in seen["url"]
+    assert "gemini-3.5-flash" in seen["url"], "модель по умолчанию — как в новостном контуре"
+    assert seen["payload"]["generationConfig"]["response_mime_type"] == "application/json"
+
+
+def test_anthropic_adapter_is_selected_explicitly(monkeypatch):
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "k")
+    monkeypatch.setenv("POSITIONING_LLM_PROVIDER", "anthropic")
+    seen = {}
+
+    def fake(url, payload, headers, timeout):
+        seen["url"], seen["headers"] = url, headers
+        return {"content": [{"text": json.dumps(
+            {"headline": "Заголовок", "summary": "Текст.", "watch": "Пометка."})}]}
+
+    monkeypatch.setattr(bpi, "_post_json", fake)
+    out, _why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out
+    assert "api.anthropic.com" in seen["url"]
+    assert seen["headers"]["x-api-key"] == "k"
+
+
+def test_unknown_provider_falls_back_instead_of_guessing(monkeypatch):
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "k")
+    monkeypatch.setenv("POSITIONING_LLM_PROVIDER", "openai")
+
+    out, why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out is None and "не поддерживается" in why
+
+
+def test_provider_error_text_never_leaks_into_the_reason(monkeypatch):
+    """Текст ошибки провайдера может содержать эхо запроса, а лог сборки публичный."""
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "секретный-ключ")
+    monkeypatch.setenv("POSITIONING_LLM_PROVIDER", "gemini")
+
+    def boom(url, payload, headers, timeout):
+        raise ValueError("API key секретный-ключ rejected for project foo")
+
+    monkeypatch.setattr(bpi, "_post_json", boom)
+    out, why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out is None
+    assert "секретный-ключ" not in why and "foo" not in why
+
+
+def test_http_error_is_reported_by_code(monkeypatch):
+    import urllib.error
+
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "k")
+
+    def boom(url, payload, headers, timeout):
+        raise urllib.error.HTTPError(url, 429, "Too Many Requests", {}, None)
+
+    monkeypatch.setattr(bpi, "_post_json", boom)
+    out, why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out is None and "429" in why
+
+
+def test_wrong_key_for_the_provider_degrades_to_rules(monkeypatch, tmp_path):
+    """Ключ Gemini, отправленный в Anthropic, даёт 401 — сайт обязан остаться рабочим."""
+    import urllib.error
+
+    dates = [f"2026-07-{d:02d}" for d in range(1, 21)]
+    _write(tmp_path, monkeypatch, _index(dates, [100_000] * 20, [80_000] * 20),
+           _series(dates, range(2600, 2620)))
+    monkeypatch.setenv("POSITIONING_LLM_ENABLED", "1")
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("POSITIONING_LLM_PROVIDER", "anthropic")
+
+    def boom(url, payload, headers, timeout):
+        raise urllib.error.HTTPError(url, 401, "Unauthorized", {}, None)
+
+    monkeypatch.setattr(bpi, "_post_json", boom)
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert payload["IMOEX"]["copy"] == payload["IMOEX"]["rule_copy"]
+    assert payload["meta"]["fallback_used"] is True and "401" in payload["meta"]["llm_note"]
+
+
+def test_gemini_empty_answer_is_a_fallback_not_a_crash(monkeypatch):
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "k")
+    monkeypatch.setattr(bpi, "_post_json",
+                        lambda url, payload, headers, timeout: {"candidates": []})
+
+    out, why = bpi.call_llm({"instrument": "IMOEX"})
+
+    assert out is None and why
