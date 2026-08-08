@@ -4084,3 +4084,24 @@ body.has-chart-fullscreen { overflow: hidden; }
   .mpi-headline { font-size: .88rem; }
   .mpi-chip { font-size: .7rem; padding: 3px 7px; }
 }
+
+/* ── Профиль объёма на графике индекса ──────────────────────────────────────
+   Цена — индекс, полосы — фьючерс IMOEXF: у индекса оборота не существует.
+   Слой лежит поверх полотна и разделяет с ним систему координат. */
+.market-chart-plot { position: relative; }
+.market-volume-profile { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+.market-pf-toggle {
+  padding: 4px 11px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--ink-soft);
+  font: inherit; font-size: .74rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.market-pf-toggle:hover { border-color: var(--accent); color: var(--ink); }
+.market-pf-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.market-pf-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.market-pf-note { margin-top: 8px; font-size: .76rem; line-height: 1.5; }
+.market-pf-note b { color: var(--ink); }
+.market-pf-tip { display: inline-block; margin-left: 10px; font-size: .74rem; color: var(--ink-soft); }
+.market-pf-tip b { color: var(--ink); }
+@media (max-width: 640px) {
+  .market-pf-tip { display: block; margin: 4px 0 0; }
+}

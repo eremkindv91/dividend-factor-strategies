@@ -609,6 +609,7 @@
   <button type="button" data-period="1260">5Л</button>
   </div>
   <span class="market-chart-mode" id="market-chart-mode">Свечи OHLC</span>
+  <button type="button" class="market-pf-toggle" id="market-pf-toggle" aria-pressed="false" hidden>Профиль объёма</button>
   <button type="button" class="chart-fs-toggle" aria-pressed="false"
   title="Развернуть график" aria-label="Развернуть график на весь экран">
   <span class="chart-fs-icon" aria-hidden="true"></span><span class="chart-fs-label">Развернуть</span></button>
@@ -621,7 +622,13 @@
   </div>
   </div>
   <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
+  <!-- Полотно и слой профиля лежат в общей обёртке с position: relative — полосы
+       позиционируются по координатам графика и обязаны разделять с ним систему отсчёта. -->
+  <div class="market-chart-plot">
   <div class="market-chart-canvas" id="market-chart-canvas"></div>
+  <div class="market-volume-profile" id="market-volume-profile" aria-hidden="true" hidden></div>
+  </div>
+  <div class="market-pf-note muted" id="market-pf-note" aria-live="polite"></div>
   <div class="market-pos-note" id="market-pos-note" aria-live="polite"></div>
   <div class="market-levels" id="market-chart-levels"></div>
   <footer class="market-chart-foot">

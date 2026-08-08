@@ -4689,6 +4689,7 @@ function wirePortfolio() {
 SAW_DATA = null;
 MARKET_HISTORY = null;
 let MARKET_CHART = null;
+let MARKET_PRICE_SERIES = null;   // основная серия: слой профиля берёт у неё priceToCoordinate
 let MARKET_CHART_STATE = { id: 'IMOEX', period: 252 };
 // lightweight-charts 4.2.1, лицензия Apache-2.0.
 // Логотип на графике выключается ШТАТНОЙ опцией layout.attributionLogo (по умолчанию true) —
@@ -9083,7 +9084,11 @@ function drawMarketChart(item) {
     localization: { locale: 'ru-RU', priceFormatter: (value) => marketNumber(value, item.decimals) },
     grid: { vertLines: { color: '#E9EDF3' }, horzLines: { color: '#E9EDF3' } },
     rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.08 } },
-    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 3, minBarSpacing: 3 },
+    // minBarSpacing 0.4, а не 3: на «5Л» в ряду 1260 дневных точек, и при шаге 3 px им
+    // потребовалось бы 3780 px — график физически не мог показать выбранный период и
+    // молча оставлял последние 270 дней. Кнопка обещала пять лет, показывала девять
+    // месяцев, а профиль объёма считался по этому же обрезку.
+    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 3, minBarSpacing: 0.4 },
     crosshair: {
       mode: LC.CrosshairMode.Normal,
       vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
@@ -9119,7 +9124,15 @@ function drawMarketChart(item) {
   const summary = item.summary || {};
   if (isNum(summary.low20)) primary.createPriceLine({ price: summary.low20, color: '#77A994', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d min' });
   if (isNum(summary.high20)) primary.createPriceLine({ price: summary.high20, color: '#C78B79', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d max' });
-  MARKET_CHART.timeScale().fitContent();
+  // Масштаб задаётся явно, а не через fitContent: библиотека его здесь игнорирует —
+  // окно остаётся тем, что влезло при barSpacing по умолчанию, и «5Л» показывает
+  // девять месяцев вместо пяти лет. Профиль объёма считается по видимому диапазону,
+  // поэтому неверный масштаб делает неверным и его.
+  marketFitPeriod(rows.length);
+  requestAnimationFrame(() => {
+    try { marketFitPeriod(rows.length); marketPfDraw(item); }
+    catch (_e) { /* график мог быть удалён до следующего кадра */ }
+  });
   const ohlc = document.getElementById('market-chart-ohlc');
   if (ohlc) ohlc.innerHTML = marketOhlcHTML(item, rows[rows.length - 1], closeOnly);
   MARKET_CHART.subscribeCrosshairMove((param) => {
@@ -9132,8 +9145,21 @@ function drawMarketChart(item) {
       ? [time, bar.value, bar.value, bar.value, bar.value]
       : [time, bar.open, bar.high, bar.low, bar.close];
     ohlc.innerHTML = marketOhlcHTML(item, row, closeOnly)
+      + marketPfTooltipHTML(param)
       + marketPositionsTooltipHTML(time);
   });
+  MARKET_PRICE_SERIES = primary;
+  // Профиль пересчитывается на изменение видимого диапазона — это и смена периода
+  // кнопками, и панорамирование, и зум. Сеть за ним стоит дорогая, поэтому вызов
+  // отложен: во время перетаскивания диапазон меняется каждый кадр.
+  let pfTimer = null;
+  MARKET_CHART.timeScale().subscribeVisibleLogicalRangeChange(() => {
+    marketPfDraw(item);                        // полосы не должны отставать от графика
+    clearTimeout(pfTimer);
+    pfTimer = setTimeout(() => marketPfRefresh(item), 320);
+  });
+  marketPfSetup(item);
+
   if (enabled.has('fizpos')) marketDrawPositions(item);
   else marketPositionsSay('');
   // Разворачивается сам <dialog>, а не его внутренняя оболочка. Оболочку с
@@ -9323,6 +9349,265 @@ function marketPositioningInsightHTML(payload) {
     ${stale}
     <p class="mpi-disclaimer muted">${esc(meta.disclaimer || '')}</p>
   </section>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ПРОФИЛЬ ОБЪЁМА НА ГРАФИКЕ ИНДЕКСА
+//
+// Индекс не торгуется — у него нет ни сделок, ни оборота, поэтому «профиль объёма
+// IMOEX» в буквальном смысле не существует. Профиль строится по ВЕЧНОМУ ФЬЮЧЕРСУ
+// IMOEXF: это самый ликвидный инструмент на индекс (6,4 млн контрактов за неделю
+// против 1,4 млн у квартального MXU6) и у него нет экспираций, поэтому ряд непрерывен.
+//
+// Подмена честно названа в интерфейсе — «Профиль объёма · IMOEXF», — потому что цена
+// на графике остаётся индексом, а уровни профиля приходят с фьючерса и отличаются
+// от индекса на величину базиса.
+//
+// Другим инструментам профиль НЕ включается: для MCFTR (индекс полной доходности),
+// RTSI и валютных пар торгуемый эквивалент либо отсутствует, либо требует отдельного
+// обоснования. Пустой реестр здесь — не недоработка, а отказ показывать proxy,
+// экономический смысл которого не проверен.
+//
+// Расчёт и отрисовка переиспользуют scProfileCompute и scProfileBarsHTML — те же, что
+// у графика акции. Второй алгоритм означал бы два определения POC, расходящихся со
+// временем.
+// ══════════════════════════════════════════════════════════════════════════
+const MARKET_PROFILE_PROXY = {
+  IMOEX: { secid: 'IMOEXF', label: 'IMOEXF', note: 'вечный фьючерс на индекс' },
+};
+const MARKET_PF_BINS = 48;
+let MARKET_PF_ON = false;             // предпочтение пользователя, живёт между открытиями
+let MARKET_PF_STATE = null;           // { profile, key } текущего инструмента
+let MARKET_PF_ABORT = null;
+const MARKET_PF_MULT = {};            // secid → рублей за пункт, из спецификации ISS
+
+function marketPfSay(html) {
+  const box = document.getElementById('market-pf-note');
+  if (box) box.innerHTML = html;
+}
+
+// Рублей за пункт цены: STEPPRICE / MINSTEP. Спрашивается у ISS, а не зашивается в код —
+// биржа меняет спецификации, и молча устаревший множитель ошибётся на порядок.
+function marketPfMultiplier(secid, cb) {
+  if (MARKET_PF_MULT[secid] !== undefined) { cb(MARKET_PF_MULT[secid]); return; }
+  fetch(`https://iss.moex.com/iss/engines/futures/markets/forts/securities/${encodeURIComponent(secid)}.json`
+        + '?iss.meta=off&iss.only=securities&securities.columns=SECID,MINSTEP,STEPPRICE')
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+    .then((j) => {
+      const row = ((j.securities || {}).data || [])[0] || [];
+      const step = row[1], priceStep = row[2];
+      const mult = (step && priceStep) ? Number(priceStep) / Number(step) : null;
+      MARKET_PF_MULT[secid] = mult;
+      cb(mult);
+    })
+    .catch(() => { MARKET_PF_MULT[secid] = null; cb(null); });
+}
+
+// Внутридневные свечи фьючерса. ISS отдаёт по срочному рынку VALUE = 0 (проверено на
+// IMOEXF, MXU6 и MMU6), поэтому денежный оборот считается из контрактов по той же
+// формуле, что и нотионал позиций: контракты × цена × рублей за пункт.
+function marketPfFetchCandles(secid, from, till, interval, multiplier, signal, cb) {
+  const out = [];
+  const base = 'https://iss.moex.com/iss/engines/futures/markets/forts/securities/'
+    + `${encodeURIComponent(secid)}/candles.json?iss.meta=off&interval=${interval}`
+    + `&from=${from}&till=${till}&candles.columns=low,high,close,value,volume`;
+  const step = (start) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const relay = () => ctrl.abort();
+    if (signal) {
+      if (signal.aborted) { ctrl.abort(); return; }
+      signal.addEventListener('abort', relay, { once: true });
+    }
+    const done = () => { clearTimeout(timer); if (signal) signal.removeEventListener('abort', relay); };
+    fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((j) => {
+        done();
+        const block = j.candles || {};
+        const c = block.columns || [];
+        const iLow = c.indexOf('low'), iHigh = c.indexOf('high');
+        const iClose = c.indexOf('close'), iVal = c.indexOf('value'), iVol = c.indexOf('volume');
+        (block.data || []).forEach((d) => {
+          const value = (isNum(d[iVal]) && d[iVal] > 0)
+            ? d[iVal]                                       // если биржа once отдаст рубли — берём их
+            : (isNum(d[iVol]) && isNum(d[iClose]) && multiplier
+              ? d[iVol] * d[iClose] * multiplier : null);
+          out.push({ low: d[iLow], high: d[iHigh], value });
+        });
+        if ((block.data || []).length >= 500 && out.length < SC_INTRADAY_CAP) {
+          step(start + block.data.length);
+        } else cb(null, out);
+      })
+      .catch((e) => { done(); cb(e, out); });
+  };
+  step(0);
+}
+
+// Кнопка показывается только там, где proxy определён. Для MCFTR, RTSI и валютных пар
+// её нет вовсе: неактивная кнопка обещала бы функцию, которой для них не будет, пока
+// торгуемый эквивалент не выбран осознанно.
+// Показать ровно выбранный период: ширину области построения делим на число баров.
+// scrollToPosition(0) прижимает правый край к последней свече — иначе часть периода
+// уезжает за кадр вместе с rightOffset.
+function marketFitPeriod(count) {
+  if (!MARKET_CHART || !(count > 0)) return;
+  const canvas = document.getElementById('market-chart-canvas');
+  const width = canvas ? canvas.clientWidth : 0;
+  if (!width) return;
+  let scaleW = 0;
+  try { scaleW = MARKET_CHART.priceScale('right').width() || 0; } catch (_e) { scaleW = 0; }
+  const ts = MARKET_CHART.timeScale();
+  const plot = Math.max(80, width - scaleW - (ts.options().rightOffset || 0) * 2);
+  const spacing = Math.max(ts.options().minBarSpacing || 0.4, plot / count);
+  ts.applyOptions({ barSpacing: spacing });
+  ts.scrollToPosition(0, false);
+}
+
+function marketPfSetup(item) {
+  const button = document.getElementById('market-pf-toggle');
+  if (!button) return;
+  const proxy = MARKET_PROFILE_PROXY[item.id];
+  button.hidden = !proxy;
+  if (!proxy) { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(item); return; }
+  button.setAttribute('aria-pressed', String(MARKET_PF_ON));
+  button.title = `Профиль объёма по ${proxy.label} — индекс не торгуется, оборота у него нет`;
+  if (!button._pfBound) {
+    button._pfBound = true;
+    button.addEventListener('click', () => {
+      MARKET_PF_ON = !MARKET_PF_ON;
+      button.setAttribute('aria-pressed', String(MARKET_PF_ON));
+      const current = marketInstrument(MARKET_CHART_STATE.id);
+      if (!MARKET_PF_ON) { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(current); }
+      else marketPfRefresh(current);
+    });
+  }
+  if (MARKET_PF_ON) marketPfRefresh(item);
+  else { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(item); }
+}
+
+function marketPfDraw(item) {
+  const layer = document.getElementById('market-volume-profile');
+  if (!layer || !MARKET_CHART) return;
+  const state = MARKET_PF_STATE;
+  if (!MARKET_PF_ON || !state || !state.profile || !MARKET_PRICE_SERIES) {
+    layer.hidden = true; layer.innerHTML = ''; return;
+  }
+  const canvas = document.getElementById('market-chart-canvas');
+  const width = canvas ? canvas.clientWidth : 0;
+  if (!width) { layer.innerHTML = ''; return; }
+  // Ширину ценовой шкалы спрашиваем у графика: полосы упираются в край области
+  // построения и не наезжают на подписи цен.
+  let scaleW = 0;
+  try { scaleW = MARKET_CHART.priceScale('right').width() || 0; } catch (_e) { scaleW = 0; }
+  const zoneW = Math.max(SC_PROFILE_MIN_ZONE, Math.round((width - scaleW) * SC_PROFILE_ZONE));
+  layer.hidden = false;
+  layer.innerHTML = scProfileBarsHTML(state.profile, {
+    y: (price) => { const c = MARKET_PRICE_SERIES.priceToCoordinate(price); return isNum(c) ? c : null; },
+    zoneW, right: scaleW,
+  });
+}
+
+// Подсказка по уровню под курсором: сколько оборота фьючерса пришлось на эту цену.
+// Курсор ходит по вертикали свободно, поэтому берётся корзина, в которую он попал.
+function marketPfTooltipHTML(param) {
+  const state = MARKET_PF_STATE;
+  if (!MARKET_PF_ON || !state || !state.profile || !MARKET_PRICE_SERIES) return '';
+  if (!param || !isNum(param.point && param.point.y)) return '';
+  const price = MARKET_PRICE_SERIES.coordinateToPrice(param.point.y);
+  if (!isNum(price)) return '';
+  const bin = state.profile.bins.find((b) => (isNum(b.lo) && isNum(b.hi))
+    ? (price >= b.lo && price <= b.hi) : Math.abs(b.price - price) < 1e-9);
+  if (!bin || !isNum(bin.value)) return '';
+  const proxy = MARKET_PROFILE_PROXY[MARKET_CHART_STATE.id] || {};
+  const mark = state.profile.poc === bin.price ? ' · POC'
+    : (isNum(state.profile.val) && isNum(state.profile.vah)
+       && bin.price >= state.profile.val && bin.price <= state.profile.vah) ? ' · зона стоимости' : '';
+  return `<span class="market-pf-tip"><b>${esc(proxy.label || 'фьючерс')}</b>
+    ${esc(ru(bin.price, 0))} → ${esc(scMoney(bin.value))}${esc(mark)}</span>`;
+}
+
+function marketPfNoteHTML(proxy, profile, from, till, candles) {
+  const share = isNum(profile.valueAreaShare) ? ru(profile.valueAreaShare * 100, 1) : ND;
+  return `<b>Профиль объёма · ${esc(proxy.label)}.</b> Цена на графике — индекс МосБиржи,
+    а оборот у индекса не существует: он не торгуется. Профиль построен по
+    ${esc(ru(candles, 0))} внутридневным свечам ${esc(proxy.label)} (${esc(proxy.note)})
+    за ${esc(sawDate(from))} – ${esc(sawDate(till))}, поэтому его уровни относятся к фьючерсу
+    и отличаются от индекса на величину базиса.
+    POC ${esc(ru(profile.poc, 0))} — цена с наибольшим оборотом; зона стоимости
+    ${esc(ru(profile.val, 0))} – ${esc(ru(profile.vah, 0))} вобрала ${esc(share)}% оборота.
+    Денежный оборот пересчитан из контрактов по спецификации контракта: ISS по срочному
+    рынку публикует объём в контрактах, а не в рублях.`;
+}
+
+function marketPfRefresh(item) {
+  const layer = document.getElementById('market-volume-profile');
+  if (!layer) return;
+  const proxy = MARKET_PROFILE_PROXY[item.id];
+  if (!MARKET_PF_ON || !proxy) {
+    MARKET_PF_STATE = null;
+    marketPfSay('');
+    marketPfDraw(item);
+    return;
+  }
+  const rows = marketChartRows(item);
+  const range = MARKET_CHART.timeScale().getVisibleLogicalRange();
+  if (!range || !rows.length) return;
+  const i0 = Math.max(0, Math.round(range.from));
+  const i1 = Math.min(rows.length - 1, Math.round(range.to));
+  if (i1 <= i0) return;
+  const from = rows[i0][0], till = rows[i1][0];
+  const days = Math.round((Date.parse(till) - Date.parse(from)) / 86400000) + 1;
+  const interval = scIntradayInterval(days);
+  const key = `${proxy.secid}|${from}|${till}|${interval}`;
+  if (MARKET_PF_STATE && MARKET_PF_STATE.key === key) { marketPfDraw(item); return; }
+
+  // Обрезанная выборка дала бы профиль не того периода, который на экране: пагинация
+  // ISS идёт от начала диапазона, и потолок отрезал бы весь конец. Такой профиль
+  // не строим вовсе — подпись честнее неверной картинки.
+  if (!scProfileFits(days, interval)) {
+    MARKET_PF_STATE = { key, profile: null };
+    marketPfDraw(item);
+    marketPfSay(`<b>Профиль недоступен.</b> На диапазоне в ${esc(ru(days, 0))} дн. внутридневных
+      свечей больше, чем отдаёт один запрос — часть периода осталась бы за кадром.
+      Приблизьте график примерно до ${esc(ru(scProfileMaxDays(interval) / 365, 1))} лет.`);
+    return;
+  }
+
+  if (MARKET_PF_ABORT) { try { MARKET_PF_ABORT.abort(); } catch (_e) { /* noop */ } }
+  const ctrl = new AbortController();
+  MARKET_PF_ABORT = ctrl;
+  marketPfSay(`<span class="muted">Строим профиль по ${esc(proxy.label)}…</span>`);
+
+  marketPfMultiplier(proxy.secid, (multiplier) => {
+    if (ctrl.signal.aborted) return;
+    if (!multiplier) {
+      MARKET_PF_STATE = { key, profile: null };
+      marketPfDraw(item);
+      marketPfSay(`<b>Профиль недоступен.</b> MOEX не отдал спецификацию контракта
+        ${esc(proxy.label)}, а без неё оборот в рублях не посчитать — показывать профиль
+        в контрактах рядом с рублёвым графиком значило бы смешивать единицы.`);
+      return;
+    }
+    marketPfFetchCandles(proxy.secid, from, till, interval, multiplier, ctrl.signal, (err, candles) => {
+      if (ctrl.signal.aborted) return;
+      const usable = (candles || []).filter((c) => isNum(c.value) && c.value > 0);
+      if (err || usable.length < 20) {
+        MARKET_PF_STATE = { key, profile: null };
+        marketPfDraw(item);
+        marketPfSay(`<b>Профиль недоступен.</b> Внутридневных данных по ${esc(proxy.label)}
+          на этот период MOEX сейчас не отдаёт${usable.length ? ` (получено ${esc(ru(usable.length, 0))} свечей)` : ''}.
+          Дневными свечами профиль не подделываем: они не содержат распределения сделок
+          внутри диапазона.`);
+        return;
+      }
+      const profile = scProfileCompute(usable, MARKET_PF_BINS);
+      MARKET_PF_STATE = { key, profile };
+      marketPfDraw(item);
+      marketPfSay(profile ? marketPfNoteHTML(proxy, profile, from, till, usable.length)
+        : '<b>Профиль недоступен.</b> Оборот в выборке нулевой.');
+    });
+  });
 }
 
 function marketPositionsNoteHTML(meta, row) {
@@ -9603,7 +9888,8 @@ function renderStockChartData(container, ticker, rows) {
     // Нижняя граница цены состыкована с зоной объёма: 1 − SC_VOL_TOP плюс узкий зазор.
     // Раньше между ними оставалось 8% высоты, не занятых ничем.
     rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.32 } },
-    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 4, minBarSpacing: 2 },
+    // То же ограничение: на «Макс» в ряду больше 2 800 дневных свечей.
+    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 4, minBarSpacing: 0.4 },
     crosshair: { mode: LC.CrosshairMode.Normal,
       vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
       horzLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' } },
