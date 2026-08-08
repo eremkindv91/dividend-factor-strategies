@@ -469,3 +469,119 @@ def test_gemini_empty_answer_is_a_fallback_not_a_crash(monkeypatch):
     out, why = bpi.call_llm({"instrument": "IMOEX"})
 
     assert out is None and why
+
+
+# ─────────────────────────── инвалидация кэша ───────────────────────────
+#
+# Кэш здесь опаснее, чем кажется: по одним только данным он не даёт модели включиться
+# вообще. Текст, написанный правилами при выключенном флаге, имеет тот же хеш входа —
+# и после включения LLM прогон брал бы его из кэша, а вызова не происходило бы никогда.
+
+
+def _fresh_env(monkeypatch, tmp_path, **env):
+    dates = [f"2026-07-{d:02d}" for d in range(1, 21)]
+    _write(tmp_path, monkeypatch, _index(dates, [100_000] * 20, [80_000] * 20),
+           _series(dates, range(2600, 2620)))
+    for k in ("POSITIONING_LLM_ENABLED", "POSITIONING_LLM_PROVIDER", "POSITIONING_LLM_MODEL"):
+        monkeypatch.delenv(k, raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    calls = []
+    monkeypatch.setattr(bpi, "call_llm", lambda brief: (calls.append(1), (
+        {"headline": "Заголовок от модели", "summary": "Текст.", "watch": "Пометка."}, ""))[1])
+    return calls
+
+
+def _persist(payload):
+    bpi.OUT.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+def test_turning_the_llm_on_actually_calls_it(tmp_path, monkeypatch):
+    """Главный сценарий: правила отработали при выключенном флаге, потом флаг включили."""
+    calls = _fresh_env(monkeypatch, tmp_path)
+    _persist(bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)))     # LLM выключен
+    assert calls == [], "при выключенном флаге модель не зовут"
+
+    monkeypatch.setenv("POSITIONING_LLM_ENABLED", "1")
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 1, "включение флага обязано привести к вызову модели"
+    assert payload["meta"]["llm_used"] is True
+
+
+def test_changing_the_model_invalidates_the_cache(tmp_path, monkeypatch):
+    calls = _fresh_env(monkeypatch, tmp_path, POSITIONING_LLM_ENABLED="1")
+    _persist(bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)))
+    monkeypatch.setenv("POSITIONING_LLM_MODEL", "gemini-3.5-pro")
+
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 2
+    assert payload["meta"]["model"] == "gemini-3.5-pro"
+
+
+def test_changing_the_provider_invalidates_the_cache(tmp_path, monkeypatch):
+    calls = _fresh_env(monkeypatch, tmp_path, POSITIONING_LLM_ENABLED="1")
+    _persist(bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)))
+    monkeypatch.setenv("POSITIONING_LLM_PROVIDER", "anthropic")
+
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 2
+    assert payload["meta"]["provider"] == "anthropic"
+
+
+def test_changing_the_prompt_version_invalidates_the_cache(tmp_path, monkeypatch):
+    calls = _fresh_env(monkeypatch, tmp_path, POSITIONING_LLM_ENABLED="1")
+    _persist(bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)))
+    monkeypatch.setattr(bpi, "PROMPT_VERSION", "positioning-v2")
+
+    bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 2, "новый промпт — новый текст, старый кэш к нему не относится"
+
+
+def test_a_failed_call_is_never_cached(tmp_path, monkeypatch):
+    """Иначе одна недоступность провайдера заморозила бы фолбэк навсегда."""
+    _fresh_env(monkeypatch, tmp_path, POSITIONING_LLM_ENABLED="1")
+    monkeypatch.setattr(bpi, "call_llm", lambda brief: (None, "провайдер недоступен"))
+    _persist(bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)))
+
+    calls = []
+    monkeypatch.setattr(bpi, "call_llm", lambda brief: (calls.append(1), (
+        {"headline": "Заголовок", "summary": "Текст.", "watch": "Пометка."}, ""))[1])
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 1, "следующий прогон обязан попробовать снова"
+    assert payload["meta"]["llm_used"] is True
+
+
+def test_identical_successful_run_reuses_the_text(tmp_path, monkeypatch):
+    """Ради чего кэш и нужен: тот же вход и та же модель не тратят вызов повторно."""
+    calls = _fresh_env(monkeypatch, tmp_path, POSITIONING_LLM_ENABLED="1")
+    first = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+    _persist(first)
+
+    second = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+
+    assert len(calls) == 1
+    assert second["IMOEX"]["copy"] == first["IMOEX"]["copy"]
+    assert second["meta"]["llm_used"] is True
+
+
+def test_gemini_key_goes_in_a_header_not_the_url(monkeypatch):
+    """URL оседают в логах прокси и диагностики — секрету там не место."""
+    monkeypatch.setenv("POSITIONING_LLM_API_KEY", "секретный-ключ")
+    monkeypatch.delenv("POSITIONING_LLM_PROVIDER", raising=False)
+    seen = {}
+
+    def fake(url, payload, headers, timeout):
+        seen["url"], seen["headers"] = url, headers
+        return {"candidates": [{"content": {"parts": [{"text": json.dumps(
+            {"headline": "Заголовок", "summary": "Текст.", "watch": "Пометка."})}]}}]}
+
+    monkeypatch.setattr(bpi, "_post_json", fake)
+    bpi.call_llm({"instrument": "IMOEX"})
+
+    assert "секретный-ключ" not in seen["url"] and "key=" not in seen["url"]
+    assert seen["headers"]["x-goog-api-key"] == "секретный-ключ"

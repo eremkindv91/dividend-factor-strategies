@@ -334,14 +334,16 @@ def _extract_json(text: str) -> dict:
 # (новостной контур использует SDK google-genai, здесь такой зависимости нет).
 
 def _call_gemini(brief: dict, key: str, model: str, timeout: int) -> dict:
+    # Ключ идёт заголовком, а не query-параметром: URL оседают в логах прокси, CDN и
+    # диагностики, и секрет в строке запроса рано или поздно окажется в чужом файле.
     data = _post_json(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         {
             "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
             "contents": [{"parts": [{"text": json.dumps(brief, ensure_ascii=False)}]}],
             "generationConfig": {"response_mime_type": "application/json",
                                  "temperature": 0.2, "maxOutputTokens": 800},
-        }, {}, timeout)
+        }, {"x-goog-api-key": key}, timeout)
     parts = (((data.get("candidates") or [{}])[0].get("content") or {}).get("parts") or [])
     text = "".join(p.get("text", "") for p in parts)
     if not text.strip():
@@ -465,24 +467,35 @@ def build(now: datetime | None = None) -> dict | None:
     input_hash = "sha256:" + hashlib.sha256(
         json.dumps(brief, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
 
+    # Ключ кэша шире, чем данные: он включает провайдера, модель и версию промпта.
+    # По одним данным кэш попадал бы и после смены модели, и — что хуже — после включения
+    # LLM: текст, написанный правилами при выключенном флаге, имел бы тот же хеш, и модель
+    # не вызвали бы никогда. Поэтому же переиспользуется только УСПЕШНЫЙ вызов: аварийный
+    # фолбэк, случившийся при недоступном провайдере, иначе закэшировался бы навсегда.
+    provider_name = (os.environ.get("POSITIONING_LLM_PROVIDER") or "gemini").strip().lower()
+    model_name = (os.environ.get("POSITIONING_LLM_MODEL", "").strip()
+                  or (PROVIDERS.get(provider_name) or (None, None))[1])
+    llm_cache_key = "sha256:" + hashlib.sha256(json.dumps(
+        {"brief": brief, "prompt_version": PROMPT_VERSION,
+         "provider": provider_name, "model": model_name},
+        ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+
     copy, llm_used, provider, model, reason = rule, False, None, None, "LLM выключен"
     if os.environ.get("POSITIONING_LLM_ENABLED", "").lower() in ("1", "true", "yes"):
-        previous = load(OUT) or {}
-        # Тот же вход — тот же текст: повторный вызов ничего не уточнит, а деньги и
-        # квоту потратит. Заодно текст не «мерцает» между прогонами при неизменных данных.
-        if (previous.get("meta") or {}).get("input_hash") == input_hash \
-                and (previous.get(INSTRUMENT) or {}).get("copy"):
-            prev = previous[INSTRUMENT]
-            copy, llm_used = prev["copy"], bool(previous["meta"].get("llm_used"))
-            provider, model = previous["meta"].get("provider"), previous["meta"].get("model")
-            reason = "вход не изменился — прошлый текст"
+        previous_meta = (load(OUT) or {}).get("meta") or {}
+        previous_copy = ((load(OUT) or {}).get(INSTRUMENT) or {}).get("copy")
+        reusable = (previous_meta.get("llm_used") is True
+                    and previous_meta.get("llm_cache_key") == llm_cache_key
+                    and previous_copy)
+        if reusable:
+            copy, llm_used = previous_copy, True
+            provider, model = previous_meta.get("provider"), previous_meta.get("model")
+            reason = "тот же вход и та же модель — прошлый текст модели"
         else:
             edited, why = call_llm(brief)
             if edited:
                 copy, llm_used = edited, True
-                provider = (os.environ.get("POSITIONING_LLM_PROVIDER") or "gemini").lower()
-                model = (os.environ.get("POSITIONING_LLM_MODEL", "").strip()
-                         or PROVIDERS.get(provider, (None, None))[1])
+                provider, model = provider_name, model_name
                 reason = "текст отредактирован моделью"
             else:
                 reason = f"фолбэк на правила: {why}"
@@ -496,7 +509,7 @@ def build(now: datetime | None = None) -> dict | None:
             "position_latest": summary["as_of"], "price_as_of": price_as_of,
             "engine_version": ENGINE_VERSION, "prompt_version": PROMPT_VERSION,
             "source": "MOEX ISS openpositions + market_history.json",
-            "input_hash": input_hash,
+            "input_hash": input_hash, "llm_cache_key": llm_cache_key,
             "llm_used": llm_used, "fallback_used": not llm_used,
             "provider": provider, "model": model, "llm_note": reason,
             "thresholds": {
