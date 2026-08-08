@@ -3893,13 +3893,23 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
   pointer-events: none; z-index: 2; }
 .sc-vs-tick { position: absolute; right: 4px; transform: translateY(-50%);
   font-size: .65rem; line-height: 1; color: var(--ink-faint);
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  /* Фон непрозрачный: под слоем идут деления цены от библиотеки, и просвечивая они
+     превращают колонку в мешанину двух шкал с разными единицами. */
+  background: var(--surface);
   padding: 1px 3px; border-radius: 3px; white-space: nowrap; }
+/* Граница между шкалой цены и шкалой оборота — иначе непонятно, где кончается одна. */
+.sc-vs-split { position: absolute; right: 0; width: 74px; height: 1px;
+  background: var(--line); }
+.sc-vs-cap { position: absolute; right: 4px; transform: translateY(-100%);
+  font-size: .58rem; line-height: 1.5; color: var(--ink-faint); letter-spacing: .03em;
+  background: var(--surface); padding: 0 3px; }
 .sc-turn { font-weight: 600; }
 .sc-trades { color: var(--ink-soft); }
 @media (max-width: 640px) {
   .sc-volscale { width: 62px; }
   .sc-vs-tick { font-size: .6rem; }
+  .sc-vs-split { width: 58px; }
+  .sc-vs-cap { font-size: .54rem; }
 }
 
 /* ── График акции: профиль объёма ───────────────────────────────────────────

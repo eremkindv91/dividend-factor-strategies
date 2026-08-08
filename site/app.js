@@ -9600,7 +9600,9 @@ function renderStockChartData(container, ticker, rows) {
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
     localization: { locale: 'ru-RU', priceFormatter: (v) => ru(v, 2) },
     grid: { vertLines: { color: '#EEF1F6' }, horzLines: { color: '#EEF1F6' } },
-    rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.28 } },
+    // Нижняя граница цены состыкована с зоной объёма: 1 − SC_VOL_TOP плюс узкий зазор.
+    // Раньше между ними оставалось 8% высоты, не занятых ничем.
+    rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.32 } },
     timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 4, minBarSpacing: 2 },
     crosshair: { mode: LC.CrosshairMode.Normal,
       vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
@@ -9626,7 +9628,16 @@ function renderStockChartData(container, ticker, rows) {
     color: (isNum(r[4]) && isNum(r[1]) && r[4] >= r[1]) ? 'rgba(22,128,94,.45)' : 'rgba(179,74,50,.45)',
   })));
   chart.priceScale('vol').applyOptions({ scaleMargins: { top: SC_VOL_TOP, bottom: 0 } });
+  // fitContent повторяется в следующем кадре, и это не перестраховка. Карточка вставляется
+  // в DOM раскрытием строки: в момент setData ширина контейнера ещё не применена, график
+  // подгоняет масштаб под неё и оставляет ровно столько баров, сколько влезает при
+  // barSpacing по умолчанию. На годовом периоде из 191 свечи было видно 105 — половину,
+  // причём вторую: кнопка обещала «1Г», а профиль объёма считался по пяти месяцам, и
+  // чтобы увидеть остальное, приходилось тащить график вбок.
   chart.timeScale().fitContent();
+  requestAnimationFrame(() => {
+    try { chart.timeScale().fitContent(); } catch (_e) { /* график мог быть уже удалён */ }
+  });
 
   // Оверлейную шкалу lightweight-charts 4.x не умеет показывать сама (панели появились
   // только в v5), поэтому подписи рисуются своим слоем — из тех же данных, что задают
@@ -9673,7 +9684,10 @@ function renderStockChartData(container, ticker, rows) {
 
 // Доля высоты графика под объёмом — та же константа, что уходит в scaleMargins,
 // иначе подписи разъедутся со столбцами.
-const SC_VOL_TOP = 0.8;
+// Объём занимает нижние 28% графика. Было 20%, и при типичной высоте карточки на зону
+// оставалось 36 пикселей: столбцы сливались в сплошную кайму, а на шкалу помещалось
+// одно деление. Цена по-прежнему получает основную площадь — она и остаётся главной.
+const SC_VOL_TOP = 0.72;
 
 // ══════════════════════════════════════════════════════════════════════════
 // ПРОФИЛЬ ОБЪЁМА (Visible Range Volume Profile)
@@ -9958,8 +9972,25 @@ function scVolScaleDraw(scale, chart, volSeries, rows, hasValue) {
   const zonePx = (isNum(zeroY) && isNum(maxY)) ? Math.abs(zeroY - maxY) : 0;
   const count = zonePx >= 90 ? 3 : (zonePx >= 45 ? 2 : 1);
 
-  const fmt = (v) => (hasValue ? scMoney(v) : `${ru(v / 1e6, 1)} млн шт`);
+  // Единица берётся по максимуму и держится для ВСЕХ делений. Иначе на одной шкале
+  // соседствуют «2,00 млрд ₽» и «140,0 млн ₽» — величины в разных единицах глазом
+  // не сравниваются, а длинная подпись ещё и обрезается узкой колонкой.
+  const unit = hasValue
+    ? (max >= 1e9 ? 'млрд' : max >= 1e6 ? 'млн' : max >= 1e3 ? 'тыс' : '')
+    : null;
+  const fmt = (v) => (hasValue ? scMoney(v, unit) : `${ru(v / 1e6, 1)} млн шт`);
   const html = [];
+  // Разделитель на верхней границе зоны объёма. Без него подписи оборота стоят в той же
+  // колонке, что и деления цены от библиотеки, и вместе читаются как одна сломанная
+  // шкала: «2,00 млрд ₽» прямо над «140,00», где первое — рубли оборота, а второе —
+  // цена акции. Линия и подпись единицы говорят, где кончается одна шкала и начинается
+  // другая.
+  const topY = volSeries.priceToCoordinate(max);
+  if (isNum(topY)) {
+    html.push(`<span class="sc-vs-split" style="top:${(topY - 9).toFixed(1)}px"></span>`);
+    html.push(`<span class="sc-vs-cap" style="top:${(topY - 9).toFixed(1)}px">${
+      hasValue ? 'оборот' : 'объём'}</span>`);
+  }
   for (const v of [0, ...scNiceTicks(max, count)]) {
     const y = volSeries.priceToCoordinate(v);
     if (!isNum(y)) continue;                  // значение вне видимой области шкалы
