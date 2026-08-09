@@ -5552,6 +5552,7 @@ let BOND_SCREEN_FILTERS = {
   minLiquidity: 45, sector: 'all', couponType: 'all', couponFreq: 'all',
   retailOnly: true, simpleOnly: true,
 };
+let BOND_FILTERS_OPEN = false;
 let BOND_USER_PORTFOLIO = [];
 let BOND_USER_IMPORT_ERRORS = [];
 let BOND_REBALANCE_MODE = 'full';
@@ -6254,7 +6255,12 @@ function bondUniverseScreenerHTML(universe) {
 
   const sectors = [...new Set(all.map((row) => row.sector).filter(Boolean))].sort();
   const ratingOptions = ['BBB-', 'BBB', 'BBB+', 'A-', 'A', 'A+', 'AA-', 'AA', 'AA+', 'AAA'];
-  const filters = `<div class="bond-filters">
+  const activeFilterCount = Object.keys(BOND_FILTERS_DEFAULT)
+    .filter((key) => String(f[key]) !== String(BOND_FILTERS_DEFAULT[key])).length;
+  const filtersOpen = BOND_FILTERS_OPEN || window.matchMedia('(min-width: 769px)').matches;
+  const filters = `<details class="bond-filter-drawer" data-bond-filter-drawer${filtersOpen ? ' open' : ''}>
+    <summary><span>Фильтры${activeFilterCount ? ` · ${activeFilterCount}` : ''}</span><small>YTM, срок, рейтинг и ликвидность</small></summary>
+    <div class="bond-filters">
     <label>Мин. рейтинг<select data-bond-filter="minRating"${риск ? ' disabled' : ''}>
       <option value=""${f.minRating === '' ? ' selected' : ''}>любой</option>
       ${ratingOptions.map((r) => `<option value="${r}"${f.minRating === r ? ' selected' : ''}>${r}</option>`).join('')}
@@ -6278,7 +6284,8 @@ function bondUniverseScreenerHTML(universe) {
     <label class="bond-filter-check"><input type="checkbox" data-bond-filter="retailOnly"${f.retailOnly ? ' checked' : ''}>Без статуса квалифицированного</label>
     <label class="bond-filter-check"><input type="checkbox" data-bond-filter="simpleOnly"${f.simpleOnly ? ' checked' : ''}>Без оферты и амортизации</label>
     <button type="button" class="btn" id="bond-filters-reset">Сбросить фильтры</button>
-  </div>`;
+    </div>
+  </details>`;
 
   const headers = [
     bondSortHeaderHTML('name', 'Выпуск'),
@@ -6612,6 +6619,10 @@ const BOND_FILTERS_DEFAULT = Object.freeze({
 });
 
 function wireBondLabControls() {
+  const filterDrawer = document.querySelector('[data-bond-filter-drawer]');
+  if (filterDrawer) filterDrawer.addEventListener('toggle', () => {
+    BOND_FILTERS_OPEN = filterDrawer.open;
+  });
   document.querySelectorAll('[data-bond-analytics]').forEach((button) => button.addEventListener('click', () => {
     BOND_ANALYTICS_VIEW = button.dataset.bondAnalytics;
     drawBondLab();
@@ -13745,4 +13756,87 @@ function pfxMemo(c) {
   return L;
 }
 
+// ── Единый responsive-слой для динамически создаваемых таблиц ───────────────
+// Рендереры заменяют таблицы через innerHTML, поэтому responsive-поведение нельзя
+// надёжно привязать один раз к исходному HTML. Наблюдатель добавляет только UI-
+// семантику и классы: строки, значения, сортировка и исходные массивы не меняются.
+const RESPONSIVE_TABLE_WRAPPER_SELECTOR = [
+  '.table-card', '.quality-table-wrap', '.mls-table-wrap', '.ml-table-wrap',
+  '.pf-holdings', '.pfx-tbl-scroll', '.mpe-recon-wrap', '.bonds-table-wrap',
+  '.fnd-table-scroll', '.cbr-table-scroll', '.bval-table-scroll', '.bval-cap-scroll',
+  '.riv-table-wrap', '.bcr-table-wrap', '.mpi-table-wrap', '.dc-table-wrap',
+  '.ef-excl-wrap', '.pfx-corr-wrap', '.sens',
+].join(',');
+let responsiveTableFrame = 0;
+let responsiveTableResizeObserver = null;
+
+function responsiveTableLabel(table) {
+  const panel = table.closest('section, .panel, .detail-card, .bondlab-panel, .market-pe, .quality-panel');
+  const heading = panel && panel.querySelector('h2, h3, h4, .panel-title, .bonds-section-title');
+  return heading && heading.textContent.trim()
+    ? `${heading.textContent.trim()}: таблица с горизонтальной прокруткой`
+    : 'Таблица с горизонтальной прокруткой';
+}
+
+function updateResponsiveTable(wrapper) {
+  const table = wrapper.querySelector('table');
+  if (!table) return;
+  wrapper.classList.add('responsive-table-scroll');
+  wrapper.classList.toggle('is-long-table', table.querySelectorAll('tbody tr').length > 10);
+  wrapper.classList.toggle('has-rank-ticker-columns', table.classList.contains('quality-table'));
+
+  const firstHeader = table.querySelector('thead th');
+  const firstLabel = firstHeader ? firstHeader.textContent.trim().replace(/\s+/g, ' ') : '';
+  const hasIdentity = /^(бумага|выпуск|банк|тикер|компания|инструмент|актив|дата|метод|secid|поле)/i.test(firstLabel);
+  wrapper.classList.toggle('has-sticky-identity', hasIdentity);
+
+  if (!wrapper.clientWidth) return;
+  const overflows = wrapper.scrollWidth > wrapper.clientWidth + 3;
+  wrapper.classList.toggle('has-horizontal-overflow', overflows);
+  wrapper.classList.toggle('is-at-x-start', wrapper.scrollLeft <= 2);
+  wrapper.classList.toggle('is-at-x-end', !overflows || wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 2);
+  if (overflows) {
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute('role', 'region');
+    if (!wrapper.hasAttribute('aria-label')) wrapper.setAttribute('aria-label', responsiveTableLabel(table));
+    wrapper.dataset.responsiveTableA11y = '1';
+  } else if (wrapper.dataset.responsiveTableA11y === '1') {
+    wrapper.removeAttribute('tabindex');
+    wrapper.removeAttribute('role');
+    wrapper.removeAttribute('aria-label');
+    delete wrapper.dataset.responsiveTableA11y;
+  }
+  if (!wrapper.dataset.responsiveTableWired) {
+    wrapper.dataset.responsiveTableWired = '1';
+    wrapper.addEventListener('scroll', () => updateResponsiveTable(wrapper), { passive: true });
+    if (responsiveTableResizeObserver) responsiveTableResizeObserver.observe(wrapper);
+  }
+}
+
+function enhanceResponsiveTables() {
+  document.querySelectorAll(RESPONSIVE_TABLE_WRAPPER_SELECTOR).forEach(updateResponsiveTable);
+}
+
+function scheduleResponsiveTables() {
+  if (responsiveTableFrame) return;
+  responsiveTableFrame = requestAnimationFrame(() => {
+    responsiveTableFrame = 0;
+    enhanceResponsiveTables();
+  });
+}
+
+function initResponsiveTables() {
+  if (window.ResizeObserver) {
+    responsiveTableResizeObserver = new ResizeObserver((entries) => {
+      entries.forEach((entry) => updateResponsiveTable(entry.target));
+    });
+  }
+  const observer = new MutationObserver(scheduleResponsiveTables);
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('resize', scheduleResponsiveTables, { passive: true });
+  window.addEventListener('hashchange', scheduleResponsiveTables);
+  enhanceResponsiveTables();
+}
+
+initResponsiveTables();
 initRouter();   // ПОСЛЕ всех модулей (marketsaw/bonds/marlamov/methodology/cbr) — все let-глобалы инициализированы
