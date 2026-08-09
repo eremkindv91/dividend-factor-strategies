@@ -1250,12 +1250,25 @@ td.empty { text-align: center; }
 .alfa-index-fallback b { color: var(--ink); font-size: .82rem; }
 .alfa-index-fallback span { color: var(--ink-faint); font-size: .72rem; }
 
+.news-teaser { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 8px; background: var(--surface); color: var(--ink); text-align: left; cursor: pointer;
+  box-shadow: var(--shadow); transition: border-color .14s, background .14s; }
+.news-teaser:hover { border-color: var(--accent); background: #FAFBFD; }
+.news-teaser:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 30%, transparent); outline-offset: 2px; }
+.news-teaser-copy { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.news-teaser-kicker { color: var(--accent-deep); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.news-teaser-copy b { overflow: hidden; color: var(--ink); font-size: .9rem; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.news-teaser-copy .muted { font-size: .72rem; }
+.news-teaser-action { flex: 0 0 auto; color: var(--accent-deep); font-size: .78rem; font-weight: 750; white-space: nowrap; }
+
 .market-instruments { margin: 0 0 16px; }
 .market-instruments-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
 .market-instruments-head h2 { margin: 0 0 2px; color: var(--ink); font-size: 1rem; line-height: 1.2; }
 .market-instruments-head span { font-size: .74rem; }
 .market-instrument-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .market-instrument-grid > .pulse-loading { grid-column: 1 / -1; }
+.market-instruments-error { grid-column: 1 / -1; padding: 14px; border: 1px dashed var(--line); border-radius: 8px; }
 .market-instrument-card { appearance: none; text-align: left; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 10px 11px; min-width: 0; cursor: pointer; box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; transition: border-color .14s, transform .14s, box-shadow .14s; }
 .market-instrument-card:hover { border-color: var(--accent); box-shadow: 0 7px 18px rgba(37, 48, 78, .1); transform: translateY(-1px); }
 .market-instrument-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
@@ -2564,82 +2577,11 @@ tbody tr:hover td,
   .mp-suggest { max-height: 200px; }
 }
 
-/* ═══════════ Навигация: второстепенные вкладки + Pro CTA (P5) ═══════════ */
-.nav-spacer { flex: 1 1 12px; min-width: 12px; }
+/* ═══════════ Навигация: второстепенные вкладки ═══════════ */
 .section-tab.tab-minor { background: transparent; border-color: transparent; box-shadow: none;
   color: var(--ink-faint); font-weight: 500; font-size: .82rem; padding: 8px 12px; }
 .section-tab.tab-minor:hover { color: var(--accent-deep); border-color: var(--line); background: var(--surface); }
 .section-tab.tab-minor.active { background: var(--neut-fill); color: var(--neut-ink); border-color: var(--neut-bar); }
-.section-tab.tab-pro { color: #fff; border: 0; font-weight: 700;
-  background: linear-gradient(135deg, #5566a6, #4C5C86); box-shadow: 0 4px 14px -4px rgba(76,92,134,.6); }
-.section-tab.tab-pro:hover { filter: brightness(1.08); border-color: transparent; }
-.section-tab.tab-pro.active { background: linear-gradient(135deg, #46538f, #3c496e); color: #fff; }
-
-/* ═══════════ P5 лендинг (Тарифы / О сервисе) ═══════════ */
-.pro-hero { position: relative; overflow: hidden; border-radius: 20px; padding: 40px 36px; margin-bottom: 26px;
-  background: linear-gradient(135deg, #eef1f8 0%, #f7f8fa 55%, #eaf2ee 100%); border: 1px solid var(--line); }
-.pro-hero-glow { position: absolute; inset: -40% 30% auto -10%; height: 340px; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(120,140,200,.28), transparent 70%); filter: blur(10px); }
-.pro-hero-inner { position: relative; max-width: 780px; }
-.pro-eyebrow { display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--accent-deep); background: rgba(76,92,134,.1); padding: 4px 11px; border-radius: 999px; margin-bottom: 14px; }
-.pro-hero-title { margin: 0 0 12px; font-size: clamp(1.5rem, 3.4vw, 2.35rem); line-height: 1.12; letter-spacing: -.01em; color: var(--ink); }
-.pro-hero-sub { margin: 0 0 20px; font-size: 1.02rem; line-height: 1.6; color: var(--ink-soft); }
-.pro-hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
-.pro-btn { font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; border-radius: 11px; padding: 11px 20px;
-  transition: transform .12s, filter .12s, background .12s, border-color .12s; }
-.pro-btn:active { transform: translateY(1px); }
-.pro-btn-primary { color: #fff; border: 0; background: linear-gradient(135deg, #5566a6, #4C5C86); box-shadow: 0 8px 20px -8px rgba(76,92,134,.7); }
-.pro-btn-primary:hover { filter: brightness(1.08); }
-.pro-btn-ghost { color: var(--accent-deep); background: var(--surface); border: 1px solid var(--accent); }
-.pro-btn-ghost:hover { border-color: var(--accent-deep); }
-.pro-waitnote { margin-top: 14px; font-size: .88rem; color: var(--good-ink); background: var(--good-fill);
-  border: 1px solid var(--good-bar); border-radius: 10px; padding: 10px 13px; max-width: 560px; }
-.pro-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 22px; font-size: .8rem; color: var(--ink-faint); }
-.pro-trust span { position: relative; padding-left: 15px; }
-.pro-trust span::before { content: "●"; position: absolute; left: 0; top: .12em; color: var(--mint); font-size: .7em; }
-
-.pro-h { margin: 30px 0 14px; font-size: 1.15rem; color: var(--ink); letter-spacing: -.01em; }
-.pro-hyp { font-size: .8rem; font-weight: 500; color: var(--ink-faint); margin-left: 8px; }
-
-.pro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.pro-card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
-  cursor: pointer; box-shadow: var(--shadow); transition: transform .14s, box-shadow .14s, border-color .14s; }
-.pro-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -12px rgba(46,52,64,.22); border-color: var(--accent); }
-.pro-card:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
-.pro-card-ic { display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; border-radius: 10px;
-  background: linear-gradient(135deg, #eef1f8, #e7efe9); color: var(--accent-deep); font-size: 1.15rem; margin-bottom: 10px; }
-.pro-card h4 { margin: 0 0 6px; font-size: 1rem; color: var(--ink); }
-.pro-card p { margin: 0 0 10px; font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
-.pro-card-go { font-size: .82rem; font-weight: 700; color: var(--accent-deep); }
-
-.pro-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; margin-top: 20px; }
-.pro-tier { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
-  border-radius: 16px; padding: 22px 18px 18px; box-shadow: var(--shadow); }
-.pro-tier-featured { border-color: var(--accent-deep); box-shadow: 0 14px 34px -16px rgba(76,92,134,.5);
-  background: linear-gradient(180deg, #fbfcff, #ffffff); }
-.pro-tier-badge { position: absolute; top: -11px; left: 18px; font-size: .68rem; font-weight: 800; letter-spacing: .04em;
-  text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #5566a6, #4C5C86); padding: 4px 10px; border-radius: 999px; }
-.pro-tier-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
-.pro-tier-name { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
-.pro-tier-price { font-size: .9rem; font-weight: 700; color: var(--accent-deep); white-space: nowrap; }
-.pro-tier-sub { margin: 0 0 12px; font-size: .84rem; color: var(--ink-faint); }
-.pro-tier-feats { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.pro-tier-feats li { position: relative; padding-left: 22px; font-size: .86rem; line-height: 1.4; color: var(--ink-soft); }
-.pro-tier-feats li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--good-ink); font-weight: 800; }
-.pro-tier .pro-btn { width: 100%; text-align: center; }
-.pro-note { margin: 16px 0 0; font-size: .8rem; line-height: 1.55; color: var(--ink-faint); max-width: 920px; }
-
-.pro-faq { display: grid; gap: 8px; max-width: 920px; }
-.pro-faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 2px 14px; }
-.pro-faq summary { cursor: pointer; padding: 11px 0; font-weight: 600; font-size: .9rem; color: var(--ink); }
-.pro-faq p { margin: 0 0 12px; font-size: .86rem; line-height: 1.55; color: var(--ink-soft); }
-
-@media (max-width: 860px) {
-  .pro-cards, .pro-tiers { grid-template-columns: 1fr; }
-  .pro-hero { padding: 26px 20px; }
-  .pro-hero-cta .pro-btn { flex: 1 1 auto; text-align: center; }
-}
 
 /* ═══════════ График цена+объём в карточке акции ═══════════ */
 .stock-chart { }
@@ -3272,6 +3214,7 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
     border-radius: 18px 18px 0 0; padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
     display: flex; flex-direction: column; gap: 4px; box-shadow: 0 -8px 30px rgba(20,24,36,.18); }
   .app-more-title { font-size: .74rem; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .04em; padding: 4px 8px 8px; }
+  .app-more-nav { display: grid; gap: 4px; }
   .app-more-panel .section-tab { width: 100%; justify-content: flex-start; text-align: left; min-height: 46px;
     padding: 10px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-weight: 600; font-size: .95rem; box-shadow: none; }
   .app-more-panel .section-tab.active { background: var(--c-brand-050); color: var(--accent-deep); }
@@ -3289,6 +3232,32 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 .tax-opt.active { background: var(--accent-deep); color: #fff; }
 .tax-profile-note { flex: 1 1 240px; min-width: 0; font-size: .76rem; line-height: 1.35; }
 @media (max-width: 560px) { .tax-profile-note { flex-basis: 100%; } }
+
+/* Глобальный налоговый профиль: настройка влияет сразу на акции, портфель и X-Ray,
+   поэтому живёт в шапке, а не внутри одного раздела. */
+.tax-profile-global { position: relative; display: block; flex: 0 0 auto; margin: 0; padding: 0;
+  border: 0; border-radius: 0; background: transparent; }
+.tax-profile-global > summary { list-style: none; display: inline-flex; align-items: center; gap: 5px;
+  min-height: 30px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); color: var(--ink-soft); font-size: .72rem; font-weight: 650;
+  cursor: pointer; white-space: nowrap; }
+.tax-profile-global > summary::-webkit-details-marker { display: none; }
+.tax-profile-global > summary::after { content: "▾"; color: var(--ink-faint); font-size: .65rem; }
+.tax-profile-global[open] > summary { border-color: var(--accent); color: var(--accent-deep); }
+.tax-profile-global[open] > summary::after { content: "▴"; }
+.tax-profile-global > summary b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.tax-profile-popover { position: absolute; z-index: 45; top: calc(100% + 8px); right: 0; width: min(360px, calc(100vw - 32px));
+  display: grid; gap: 9px; padding: 13px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); box-shadow: 0 12px 34px rgba(30, 37, 55, .16); }
+.tax-profile-popover .tax-profile-note { font-size: .72rem; }
+@media (max-width: 560px) {
+  .app-topbar { gap: 8px; }
+  .app-topbar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-topbar-sub { display: none; }
+  .app-topbar-meta { gap: 6px; }
+  .tax-profile-global > summary { padding-inline: 7px; }
+  .tax-profile-popover { position: fixed; top: 48px; left: 8px; right: 8px; width: auto; }
+}
 
 /* ═══════ Portfolio X-Ray — дашборд + вкладки (редизайн, Итерация 4, §12) ═══════ */
 /* Headline KPI-лента: грид на desktop, горизонтальный скролл на мобиле */
@@ -3691,7 +3660,7 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
 textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
 .section-tab:focus-visible, .pfx-tab:focus-visible, .stock-chip:focus-visible, .stock-view-btn:focus-visible,
-.tax-opt:focus-visible, .app-more-btn:focus-visible, .app-nav-toggle:focus-visible, .pro-card:focus-visible {
+.tax-opt:focus-visible, .app-more-btn:focus-visible, .app-nav-toggle:focus-visible {
   outline: 2px solid var(--accent-deep); outline-offset: 2px;
 }
 /* мышиный фокус не даёт кольца (только клавиатурный) */
@@ -4154,5 +4123,29 @@ body.has-chart-fullscreen { overflow: hidden; }
 .market-pf-tip { display: inline-block; margin-left: 10px; font-size: .74rem; color: var(--ink-soft); }
 .market-pf-tip b { color: var(--ink); }
 @media (max-width: 640px) {
+  .news-teaser { align-items: flex-start; padding: 11px 12px; }
+  .news-teaser-copy b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .news-teaser-action { font-size: 0; }
+  .news-teaser-action::after { content: "→"; font-size: .9rem; }
   .market-pf-tip { display: block; margin: 4px 0 0; }
+}
+
+
+/* ── Вкладки разделов ───────────────────────────────────────────────────────
+   Новости живут внутри «Обзора», банки — внутри «Акций». Это вкладки, а не пункты
+   меню: пункт меню обещал бы самостоятельный раздел. */
+.section-subtabs { display: flex; gap: 3px; padding: 3px; margin: 0 0 14px;
+  background: var(--neut-fill); border-radius: 8px; overflow-x: auto; }
+.section-subtabs button { flex: none; padding: 7px 15px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--ink-soft); font: inherit; font-size: .84rem;
+  font-weight: 700; white-space: nowrap; cursor: pointer; }
+.section-subtabs button:hover { color: var(--ink); }
+.section-subtabs button.active { background: var(--surface); color: var(--accent-deep);
+  box-shadow: 0 1px 4px rgba(31, 42, 68, .12); }
+.section-subtabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 640px) {
+  /* Достаточная область нажатия и горизонтальная прокрутка вместо переноса:
+     на 320 px две вкладки иначе ломают ширину страницы. */
+  .section-subtabs { margin-bottom: 11px; -webkit-overflow-scrolling: touch; }
+  .section-subtabs button { padding: 9px 14px; font-size: .8rem; }
 }

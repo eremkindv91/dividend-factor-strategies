@@ -19,19 +19,7 @@
         <span class="app-brand-mark" aria-hidden="true">РФ</span>
         <span class="app-brand-text">Аналитика<br>рынка РФ</span>
       </div>
-      <nav class="app-nav" aria-label="Разделы сайта">
-        <button class="section-tab" type="button" data-section="market"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.3"/></svg><span>Обзор</span></button>
-        <button class="section-tab" type="button" data-section="my-portfolio"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 10V2.5a7.5 7.5 0 1 0 7.5 7.5z"/><path d="M12.5 7.5H17.5A7.5 7.5 0 0 0 12.5 2.5z"/></svg><span>Портфель</span></button>
-        <button class="section-tab" type="button" data-section="stocks"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17h14"/><rect x="4" y="10" width="3" height="5"/><rect x="9" y="6" width="3" height="9"/><rect x="14" y="3" width="3" height="12"/></svg><span>Акции</span></button>
-        <button class="section-tab" type="button" data-section="strategies"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3 3 6.5 10 10l7-3.5z"/><path d="M3 13.5 10 17l7-3.5"/><path d="M3 10 10 13.5 17 10"/></svg><span>Стратегии</span></button>
-        <div class="app-nav-div" role="separator"></div>
-        <button class="section-tab" type="button" data-section="news"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="1.5"/><path d="M6 7h8M6 10h8M6 13h5"/></svg><span>Новости</span></button>
-        <button class="section-tab" type="button" data-section="bonds"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M7 13 13 7M7.5 8.2h.01M12.5 11.8h.01"/></svg><span>Облигации</span></button>
-        <button class="section-tab" type="button" data-section="cbr"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 17.5 6.5H2.5zM4 8v7M8 8v7M12 8v7M16 8v7M2.5 17.5h15"/></svg><span>Банки РФ</span></button>
-        <div class="app-nav-div" role="separator"></div>
-        <button class="section-tab tab-minor" type="button" data-section="methodology"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h9a2 2 0 0 1 2 2V16H6a2 2 0 0 0-2 2z"/><path d="M15 16v0"/></svg><span>Методология</span></button>
-        <button class="section-tab tab-minor" type="button" data-section="pro"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5M10 6.5h.01"/></svg><span>О проекте</span></button>
-      </nav>
+      <nav class="app-nav" id="app-nav" aria-label="Разделы сайта"></nav>
     </aside>
 
     <div class="app-main">
@@ -42,6 +30,14 @@
           <span class="app-topbar-sub" id="topbar-sub">Состояние рынка РФ, события и портфель</span>
         </div>
         <div class="app-topbar-meta">
+          <details class="tax-profile tax-profile-global" id="tax-profile">
+            <summary>НДФЛ <b id="tax-profile-current">13%</b></summary>
+            <div class="tax-profile-popover">
+              <span class="tax-profile-lbl">Налог на дивиденды</span>
+              <div class="tax-profile-opts" role="group" aria-label="Ставка НДФЛ на дивиденды" id="tax-profile-opts"></div>
+              <span class="tax-profile-note muted">Применяется к доходности «на руки» в акциях, портфеле и X-Ray. Серверные расчёты облигаций не меняет.</span>
+            </div>
+          </details>
           <div class="data-status" id="data-status"><span class="muted">Загрузка данных…</span></div>
           <span class="app-nir" title="Не индивидуальная инвестиционная рекомендация">Не ИИР</span>
         </div>
@@ -50,60 +46,55 @@
 
       <main class="sections">
       <!-- ─────────── НОВОСТИ ─────────── -->
-      <section class="app-section" data-section="news" hidden>
-        <p class="section-intro">Брифинг рынка РФ: рыночный снапшот, ночные и вчерашние новости, календарь на сегодня. Выходит до открытия, по итогам дня и в выходные — тип выпуска указан рядом со временем обновления. Данные собираются автоматически и структурируются; это не индивидуальная инвестиционная рекомендация.</p>
 
-        <section class="market-instruments" aria-labelledby="market-instruments-title">
-          <div class="market-instruments-head">
-            <div>
-              <h2 id="market-instruments-title">Графики рынка</h2>
-              <span class="muted" id="market-instruments-asof">MOEX ISS</span>
-            </div>
-          </div>
-          <div class="market-instrument-grid" id="market-instrument-grid">
-            <div class="pulse-loading muted">Загрузка истории MOEX...</div>
-          </div>
-        </section>
-
-        <div class="news-body" id="news-body">
-          <div class="news-loading muted">Загрузка новостного блока…</div>
-        </div>
-
-
-      </section>
 
       <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
       <section class="app-section" data-section="market">
         <p class="section-intro">Где сейчас рынок, что будет дальше и что из этого касается вашего портфеля. Индикаторы контекста, не прогноз.</p>
 
+
+        <!-- Вкладки раздела: «Новости» перестали быть отдельным пунктом меню — они
+             отвечают на вопрос «что произошло» внутри «Обзора», а не рядом с ним.
+             Названия — «Сводка» и «Новости»: «Обзор» внутри «Обзора» было бы тавтологией. -->
+        <div class="section-subtabs" role="tablist" aria-label="Разделы обзора">
+          <button type="button" role="tab" data-subtab="market:summary" id="tab-market-summary"
+            aria-controls="market-summary-panel" aria-selected="true" class="active">Сводка</button>
+          <button type="button" role="tab" data-subtab="market:news" id="tab-market-news"
+            aria-controls="market-news-panel" aria-selected="false" tabindex="-1">Новости</button>
+        </div>
+
+        <div class="section-panel" id="market-summary-panel" role="tabpanel"
+          aria-labelledby="tab-market-summary">
         <div class="market-pulse" id="market-pulse">
           <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
         </div>
-
-
-        <!-- open: фаза рынка — то, ради чего инвестор открывает «Обзор». Держать её за
-             кликом бессмысленно: сводка вверху даёт вердикт, а этот блок объясняет ПОЧЕМУ. -->
-        <details class="mapwrap saw-wrap" id="marketsaw" open hidden>
-          <summary>Помощник фазы рынка подробно <span class="muted">(волны MCFTR/IMOEX, зигзаг, историческое распределение)</span></summary>
-          <div class="saw-body" id="saw-body">
-            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
-          </div>
-        </details>
 
         <!-- Что впереди: единая лента событий + вердикт по портфелю (фильтр по МСК) -->
         <div class="events-today" id="events-today">
           <div class="pulse-loading muted">Загрузка событий…</div>
         </div>
 
-        <details class="mapwrap dividend-calendar-wrap" id="dividend-calendar">
-          <summary>
-            <span>Дивидендный календарь РФ</span>
-            <span class="dividend-calendar-summary muted" id="dividend-calendar-summary">Загрузка официальных событий…</span>
-          </summary>
-          <div class="dividend-calendar-body" id="dividend-calendar-body" aria-live="polite">
-            <div class="pulse-loading muted">Загрузка дивидендного календаря…</div>
+        <button class="news-teaser" id="news-teaser" type="button" data-open-subtab="market:news">
+          <span class="news-teaser-copy">
+            <span class="news-teaser-kicker">Новости рынка</span>
+            <b id="news-teaser-title">Последние события и утренний брифинг</b>
+            <span class="muted" id="news-teaser-meta">Загрузятся только при открытии вкладки</span>
+          </span>
+          <span class="news-teaser-action" aria-hidden="true">Открыть →</span>
+        </button>
+
+        <section class="market-instruments" aria-labelledby="market-instruments-title">
+          <div class="market-instruments-head">
+            <div>
+              <h2 id="market-instruments-title">Рынок в графиках</h2>
+              <span class="muted">Индексы и валюты MOEX · уровни, тренд, RSI и волатильность</span>
+            </div>
+            <span class="muted" id="market-instruments-asof"></span>
           </div>
-        </details>
+          <div class="market-instrument-grid" id="market-instrument-grid">
+            <div class="pulse-loading muted">Загрузка истории MOEX...</div>
+          </div>
+        </section>
 
         <!-- open: макро — то, от чего зависит выбор «акции или вклад». Держать за кликом
              нельзя. Раньше блок назывался «охват данных» и содержал служебную телеметрию
@@ -119,6 +110,23 @@
           </div>
         </details>
 
+        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+          <summary>Помощник фазы рынка подробно <span class="muted">(волны MCFTR/IMOEX, зигзаг, историческое распределение)</span></summary>
+          <div class="saw-body" id="saw-body">
+            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap dividend-calendar-wrap" id="dividend-calendar">
+          <summary>
+            <span>Дивидендный календарь РФ</span>
+            <span class="dividend-calendar-summary muted" id="dividend-calendar-summary">Загрузка официальных событий…</span>
+          </summary>
+          <div class="dividend-calendar-body" id="dividend-calendar-body" aria-live="polite">
+            <div class="pulse-loading muted">Загрузка дивидендного календаря…</div>
+          </div>
+        </details>
+
         <!-- P/E перенесён в САМЫЙ НИЗ вкладки: это оценочный ориентир с большим
              дисклеймером и ручной сверкой, он не должен стоять выше фазы рынка и
              событий, по которым инвестор принимает решения сегодня. -->
@@ -129,16 +137,20 @@
              на /robots.txt), последнее значение было от 17.07.2026. Обходить защиту от ботов не
              будем. Собственные индикаторы на данных MOEX («Рыночное напряжение», фаза MCFTR)
              покрывают ту же задачу и остаются на месте. -->
-      </section>
+
+        </div>
+
+        <div class="section-panel" id="market-news-panel" role="tabpanel"
+          aria-labelledby="tab-market-news" hidden>
+          <div class="news-body" id="news-body">
+          <div class="news-loading muted">Загрузка новостного блока…</div>
+        </div>
+        </div>
+</section>
 
       <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->
       <section class="app-section" data-section="my-portfolio" hidden>
         <p class="section-intro">Portfolio X-Ray — риск/перформанс-терминал: сравнение с MCFTR, alpha/beta, VaR/CVaR, вклад бумаг в риск, дивидендный стресс-тест, bootstrap-устойчивость, сценарный ребаланс и investment-memo. Расчёт месячный, локальный (данные остаются в браузере). Диагностика, не индивидуальная инвестиционная рекомендация.</p>
-        <div class="tax-profile" id="tax-profile">
-          <span class="tax-profile-lbl">Налог на дивиденды:</span>
-          <div class="tax-profile-opts" role="group" aria-label="Ставка НДФЛ на дивиденды" id="tax-profile-opts"></div>
-          <span class="tax-profile-note muted">Ставка для дивидендной доходности «на руки» по акциям, портфелю и X-Ray. Купонная доходность облигаций и форвардная доходность считаются сервером при 13%.</span>
-        </div>
         <div class="my-portfolio" id="my-portfolio">
           <div class="mp-editor">
             <div class="mp-input-wrap">
@@ -182,7 +194,19 @@
       <!-- ─────────── АКЦИИ ─────────── -->
       <section class="app-section" data-section="stocks" hidden>
         <p class="section-intro">Акции: ML-модель оценивает вероятность выплаты и размер ближайшего дивиденда. Цены MOEX обновляются ежедневно; фундаментальные данные и сама модель — реже.</p>
-        <div class="dates" id="dates"></div>
+
+        <!-- «Банки РФ» — отраслевой срез акций, а не самостоятельный раздел. Первая вкладка
+             называется «Скринер», а не «Акции»: пользователь уже внутри «Акций». -->
+        <div class="section-subtabs" role="tablist" aria-label="Разделы акций">
+          <button type="button" role="tab" data-subtab="stocks:screener" id="tab-stocks-screener"
+            aria-controls="stocks-screener-panel" aria-selected="true" class="active">Скринер</button>
+          <button type="button" role="tab" data-subtab="stocks:banks" id="tab-stocks-banks"
+            aria-controls="stocks-banks-panel" aria-selected="false" tabindex="-1">Банки РФ</button>
+        </div>
+
+        <div class="section-panel" id="stocks-screener-panel" role="tabpanel"
+          aria-labelledby="tab-stocks-screener">
+<div class="dates" id="dates"></div>
 
         <div class="controls" id="controls" hidden>
           <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
@@ -220,7 +244,60 @@
         <div id="app">
           <div class="loading">Загрузка данных…</div>
         </div>
-      </section>
+
+        </div>
+
+        <div class="section-panel" id="stocks-banks-panel" role="tabpanel"
+          aria-labelledby="tab-stocks-banks" hidden>
+
+        <div class="section-hero cbr-hero">
+          <div>
+            <span class="section-kicker">Банки РФ</span>
+            <h2>Дорого или дёшево — и на чём это держится</h2>
+            <p>Оценка публичных банков через модель остаточного дохода, а рядом — то, на чём стоит любая
+              оценка банка: достаточность капитала, дивидендная способность и отчётность ЦБ по формам
+              102/123/135.</p>
+          </div>
+          <div class="section-tags" aria-label="Ограничения данных">
+            <span>Не ИИР</span>
+            <span>Цена акции в рублях не публикуется</span>
+            <span>Каждая цифра с датой</span>
+          </div>
+        </div>
+
+        <!-- Порядок блоков = порядок вопросов инвестора: сначала «дорого или дёшево», затем
+             «на чём это держится», и только потом помесячная отчётность. Оценка раскрыта
+             по умолчанию: свёрнутая, она читалась как отсутствующая. -->
+        <details class="mapwrap riv-wrap" id="banks-fair-value" open>
+          <summary>Дорого или дёшево: оценка по модели остаточного дохода <span class="muted">(база — бухгалтерский капитал группы · справедливая цена акции в рублях НЕ публикуется, объяснение внутри)</span></summary>
+          <div class="riv-body" id="riv-body">
+            <div class="riv-loading muted">Загрузка фундаментальной оценки…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap bval-wrap" id="banks-valuation">
+          <summary>Капитал, нормативы и дивидендная способность <span class="muted">(P/капитал ЦБ — база формы 123, регуляторный капитал · диагностика, а НЕ оценка стоимости · банк ↔ карта ↔ история связаны)</span></summary>
+          <div class="bval-body" id="bval-body">
+            <div class="bval-loading muted">Загрузка данных по капиталу банков…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap bcr-wrap" id="banks-credit">
+          <summary>Кредитный портфель: из чего сложен <span class="muted">(форма 101 ЦБ, помесячно · РСБУ отдельного банка, НЕ МСФО группы · резервы и покрытие не публикуются)</span></summary>
+          <div class="bcr-body" id="bcr-body">
+            <div class="bcr-loading muted">Загрузка кредитных портфелей…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap cbr-ts-wrap" id="cbr-timeseries">
+          <summary>Историческая отчётность <span class="muted">(прибыль Ф.102 · капитал Ф.123 · нормативы Ф.135 по месяцам)</span></summary>
+          <div class="cbr-body" id="cbr-body">
+            <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
+          </div>
+        </details>
+
+        </div>
+</section>
 
       <!-- ─────────── СТРАТЕГИИ ─────────── -->
       <section class="app-section" data-section="strategies" hidden>
@@ -238,7 +315,7 @@
           <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
           <div class="pf-body">
             <div class="pf-controls">
-              <label>Стратегия<select id="pf-method">
+              <label>Метод формирования корзины<select id="pf-method">
                 <option value="quality">RU Quality · секторные модели</option>
                 <option value="momentum">Momentum (WML 12–1)</option>
                 <option value="marlamov">Дивидендная переоценка (Марламов)</option>
@@ -279,7 +356,6 @@
           <div class="quality-controls">
             <div class="quality-mode" aria-label="Режим модели">
               <button type="button" class="active" aria-pressed="true">Core</button>
-              <button type="button" disabled data-tooltip="Extended появится после проверки истории accruals, R&amp;D, NPL/CoR и дат публикации">Extended</button>
             </div>
             <label class="quality-toggle"><input type="checkbox" id="quality-sector-neutral" checked> Сравнивать внутри сектора</label>
             <label>Покрытие<select id="quality-min-coverage"><option value="0.67" selected>2 из 3 своей модели</option><option value="1">Все 3 своей модели</option></select></label>
@@ -368,53 +444,7 @@
       </section>
 
       <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
-      <section class="app-section" data-section="cbr" hidden>
-        <div class="section-hero cbr-hero">
-          <div>
-            <span class="section-kicker">Банки РФ</span>
-            <h2>Дорого или дёшево — и на чём это держится</h2>
-            <p>Оценка публичных банков через модель остаточного дохода, а рядом — то, на чём стоит любая
-              оценка банка: достаточность капитала, дивидендная способность и отчётность ЦБ по формам
-              102/123/135.</p>
-          </div>
-          <div class="section-tags" aria-label="Ограничения данных">
-            <span>Не ИИР</span>
-            <span>Цена акции в рублях не публикуется</span>
-            <span>Каждая цифра с датой</span>
-          </div>
-        </div>
 
-        <!-- Порядок блоков = порядок вопросов инвестора: сначала «дорого или дёшево», затем
-             «на чём это держится», и только потом помесячная отчётность. Оценка раскрыта
-             по умолчанию: свёрнутая, она читалась как отсутствующая. -->
-        <details class="mapwrap riv-wrap" id="banks-fair-value" open>
-          <summary>Дорого или дёшево: оценка по модели остаточного дохода <span class="muted">(база — бухгалтерский капитал группы · справедливая цена акции в рублях НЕ публикуется, объяснение внутри)</span></summary>
-          <div class="riv-body" id="riv-body">
-            <div class="riv-loading muted">Загрузка фундаментальной оценки…</div>
-          </div>
-        </details>
-
-        <details class="mapwrap bval-wrap" id="banks-valuation">
-          <summary>Капитал, нормативы и дивидендная способность <span class="muted">(P/капитал ЦБ — база формы 123, регуляторный капитал · диагностика, а НЕ оценка стоимости · банк ↔ карта ↔ история связаны)</span></summary>
-          <div class="bval-body" id="bval-body">
-            <div class="bval-loading muted">Загрузка данных по капиталу банков…</div>
-          </div>
-        </details>
-
-        <details class="mapwrap bcr-wrap" id="banks-credit">
-          <summary>Кредитный портфель: из чего сложен <span class="muted">(форма 101 ЦБ, помесячно · РСБУ отдельного банка, НЕ МСФО группы · резервы и покрытие не публикуются)</span></summary>
-          <div class="bcr-body" id="bcr-body">
-            <div class="bcr-loading muted">Загрузка кредитных портфелей…</div>
-          </div>
-        </details>
-
-        <details class="mapwrap cbr-ts-wrap" id="cbr-timeseries">
-          <summary>Историческая отчётность <span class="muted">(прибыль Ф.102 · капитал Ф.123 · нормативы Ф.135 по месяцам)</span></summary>
-          <div class="cbr-body" id="cbr-body">
-            <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
-          </div>
-        </details>
-      </section>
 
       <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->
       <section class="app-section" data-section="methodology" hidden>
@@ -450,112 +480,16 @@
       </section>
 
       <!-- ─────────── ТАРИФЫ / О СЕРВИСЕ (P5) ─────────── -->
-      <section class="app-section pro-landing" data-section="pro" hidden>
-        <div class="pro-hero">
-          <div class="pro-hero-glow" aria-hidden="true"></div>
-          <div class="pro-hero-inner">
-            <span class="pro-eyebrow">Аналитическая платформа по рынку РФ</span>
-            <h2 class="pro-hero-title">Дивиденды, риск портфеля и ставка — на реальных данных, без «купи-продай»</h2>
-            <p class="pro-hero-sub">ML-прогноз дивидендов и риска среза, профессиональный риск-разбор портфеля (VaR/CVaR, beta, стресс-тест), связка дивидендов со ставкой и облигациями, отчётность банков из ЦБ РФ. Каждая цифра — с источником и датой. Не индивидуальная инвестиционная рекомендация.</p>
-            <div class="pro-hero-cta">
-              <button class="pro-btn pro-btn-primary" type="button" data-goto="my-portfolio">Открыть Portfolio X-Ray</button>
-              <button class="pro-btn pro-btn-ghost" type="button" id="pro-waitlist">Ранний доступ к Pro</button>
-            </div>
-            <div class="pro-waitnote" id="pro-waitnote" hidden>Ранний доступ откроем позже — форма записи появится здесь. Пока весь функционал доступен бесплатно.</div>
-            <div class="pro-trust">
-              <span>MOEX ISS</span><span>ЦБ РФ</span><span>SmartLab</span><span>обновление ежедневно</span><span>данные с датой</span><span>расчёт в браузере</span>
-            </div>
-          </div>
-        </div>
 
-        <h3 class="pro-h">Что внутри</h3>
-        <div class="pro-cards">
-          <article class="pro-card" data-goto="my-portfolio" role="button" tabindex="0">
-            <span class="pro-card-ic">◈</span><h4>Portfolio X-Ray</h4>
-            <p>Риск/перформанс-терминал: сравнение с MCFTR, alpha/beta, VaR/CVaR, вклад бумаг в риск, bootstrap-устойчивость, сценарный ребаланс. Расчёт локальный.</p><span class="pro-card-go">Открыть →</span></article>
-          <article class="pro-card" data-goto="stocks" role="button" tabindex="0">
-            <span class="pro-card-ic">◆</span><h4>Дивидендный риск (ML)</h4>
-            <p>Двухэтапная ML-модель: вероятность выплаты и размер дивиденда, риск среза, устойчивость. Карточка «почему такой риск» с разбором факторов (SHAP).</p><span class="pro-card-go">Открыть →</span></article>
-          <article class="pro-card" data-goto="my-portfolio" role="button" tabindex="0">
-            <span class="pro-card-ic">◇</span><h4>Ставка и облигации</h4>
-            <p>КБД-кривая ОФЗ, дивидендная премия к безриску, порог замещения облигациями (net-of-tax) и чувствительность портфеля к ставке.</p><span class="pro-card-go">Открыть →</span></article>
-          <article class="pro-card" data-goto="cbr" role="button" tabindex="0">
-            <span class="pro-card-ic">▣</span><h4>Банки РФ (ЦБ)</h4>
-            <p>Отчётность СЗКО из форм ЦБ (102/123/135): прибыль, капитал, нормативы Н1, дивидендная способность, цена против капитала.</p><span class="pro-card-go">Открыть →</span></article>
-          <article class="pro-card" data-goto="market" role="button" tabindex="0">
-            <span class="pro-card-ic">◱</span><h4>Фаза рынка</h4>
-            <p>Режим рынка по индексу полной доходности MCFTR: где рынок относительно последнего экстремума, рыночное напряжение, безрисковая ставка.</p><span class="pro-card-go">Открыть →</span></article>
-          <article class="pro-card" data-goto="news" role="button" tabindex="0">
-            <span class="pro-card-ic">▤</span><h4>Новости и календарь</h4>
-            <p>Брифинг рынка РФ: снапшот, ночные и вчерашние новости, календарь событий на сегодня. Структурируется автоматически.</p><span class="pro-card-go">Открыть →</span></article>
-        </div>
-
-        <h3 class="pro-h">Тарифы <span class="pro-hyp">продуктовая гипотеза · сейчас всё бесплатно</span></h3>
-        <div class="pro-tiers">
-          <article class="pro-tier">
-            <div class="pro-tier-head"><span class="pro-tier-name">Инвестор</span><span class="pro-tier-price">Free</span></div>
-            <p class="pro-tier-sub">Частный инвестор, который сам ведёт портфель.</p>
-            <ul class="pro-tier-feats">
-              <li>Полный Portfolio X-Ray</li>
-              <li>Дивидендный ML-прогноз и риск среза</li>
-              <li>Облигации, банки, фаза рынка, новости</li>
-              <li>Данные MOEX ISS / ЦБ с датой</li>
-            </ul>
-            <button class="pro-btn pro-btn-ghost" type="button" data-goto="market">Пользоваться сейчас</button>
-          </article>
-          <article class="pro-tier pro-tier-featured">
-            <span class="pro-tier-badge">В разработке</span>
-            <div class="pro-tier-head"><span class="pro-tier-name">Аналитик · Pro</span><span class="pro-tier-price">ранний доступ</span></div>
-            <p class="pro-tier-sub">Продвинутый инвестор и аналитик.</p>
-            <ul class="pro-tier-feats">
-              <li>Всё из Free</li>
-              <li>Сохранение портфелей и алерты по риску/дивотсечкам</li>
-              <li>Экспорт отчётов (PDF/CSV) и история метрик</li>
-              <li>Расширенные сценарии и бэктест</li>
-            </ul>
-            <button class="pro-btn pro-btn-primary" type="button" id="pro-waitlist2">Ранний доступ</button>
-          </article>
-          <article class="pro-tier">
-            <div class="pro-tier-head"><span class="pro-tier-name">Институционал · B2B</span><span class="pro-tier-price">по запросу</span></div>
-            <p class="pro-tier-sub">УК, брокеры, редакции, финтех.</p>
-            <ul class="pro-tier-feats">
-              <li>Всё из Pro</li>
-              <li>API к данным и моделям</li>
-              <li>White-label встраивание блоков</li>
-              <li>SLA свежести и поддержка</li>
-            </ul>
-            <button class="pro-btn pro-btn-ghost" type="button" id="pro-waitlist3">Обсудить позже</button>
-          </article>
-        </div>
-        <p class="pro-note">Тарифы — продуктовая гипотеза, а не оффер. Сейчас весь функционал доступен бесплатно; платные уровни и цены появятся позже. Сервис не оказывает индивидуальных инвестиционных рекомендаций и не продаёт «сигналы».</p>
-
-        <h3 class="pro-h">Честно о проекте</h3>
-        <div class="pro-faq">
-          <details><summary>Почему сейчас бесплатно?</summary><p>Это исследовательский проект на открытых данных. Пока продукт развивается, доступ открыт; монетизация — гипотеза, которую проверяем.</p></details>
-          <details><summary>Откуда данные?</summary><p>Цены и потоки — MOEX ISS; отчётность банков — формы ЦБ РФ; фундамент — SmartLab и официальные отчёты. Каждый блок помечен источником, датой и статусом свежести (fresh/stale/fallback).</p></details>
-          <details><summary>Это инвестиционные рекомендации?</summary><p>Нет. Все расчёты — аналитические и модельные, без «купить/продать» и целевых цен. Дивдоходность — ожидаемая (прогноз модели) и не гарантирована.</p></details>
-          <details><summary>Где мои данные портфеля?</summary><p>Portfolio X-Ray считается локально в браузере — состав портфеля никуда не отправляется.</p></details>
-        </div>
-      </section>
       </main>
     </div>
   </div>
 
-  <nav class="app-bottomnav" aria-label="Разделы (мобильная навигация)">
-    <button class="section-tab" type="button" data-section="market"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.3"/></svg><span>Обзор</span></button>
-    <button class="section-tab" type="button" data-section="my-portfolio"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 10V2.5a7.5 7.5 0 1 0 7.5 7.5z"/><path d="M12.5 7.5H17.5A7.5 7.5 0 0 0 12.5 2.5z"/></svg><span>Портфель</span></button>
-    <button class="section-tab" type="button" data-section="stocks"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17h14"/><rect x="4" y="10" width="3" height="5"/><rect x="9" y="6" width="3" height="9"/><rect x="14" y="3" width="3" height="12"/></svg><span>Акции</span></button>
-    <button class="section-tab" type="button" data-section="strategies"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3 3 6.5 10 10l7-3.5z"/><path d="M3 13.5 10 17l7-3.5"/><path d="M3 10 10 13.5 17 10"/></svg><span>Стратегии</span></button>
-    <button class="app-more-btn" id="app-more-btn" type="button" aria-expanded="false" aria-controls="app-more-sheet"><svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/></svg><span>Ещё</span></button>
-  </nav>
+  <nav class="app-bottomnav" id="app-bottomnav" aria-label="Разделы (мобильная навигация)"></nav>
   <div class="app-more-sheet" id="app-more-sheet" hidden>
     <div class="app-more-panel">
       <div class="app-more-title">Дополнительно</div>
-      <button class="section-tab" type="button" data-section="news">Новости</button>
-      <button class="section-tab" type="button" data-section="bonds">Облигации</button>
-      <button class="section-tab" type="button" data-section="cbr">Банки РФ</button>
-      <button class="section-tab" type="button" data-section="methodology">Методология</button>
-      <button class="section-tab" type="button" data-section="pro">О проекте</button>
+      <div class="app-more-nav" id="app-more-nav"></div>
     </div>
   </div>
 

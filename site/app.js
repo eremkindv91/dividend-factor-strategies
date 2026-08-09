@@ -1053,10 +1053,13 @@ function applyTaxRate(rate) {
 function renderTaxControl() {
   const box = document.getElementById('tax-profile-opts');
   if (!box) return;
-  const cur = taxOption().rate;
+  const selected = taxOption();
+  const cur = selected.rate;
   box.innerHTML = TAX_OPTIONS.map((o) =>
     `<button type="button" class="tax-opt${o.rate === cur ? ' active' : ''}" data-rate="${o.rate}" aria-pressed="${o.rate === cur}" data-tooltip="${esc(o.hint)}">${esc(o.label)}</button>`
   ).join('');
+  const current = document.getElementById('tax-profile-current');
+  if (current) current.textContent = selected.label;
 }
 function onTaxChange(rate) {
   applyTaxRate(rate);
@@ -2958,7 +2961,6 @@ function renderMyPortfolio() {
   if (!PF_RETURNS && typeof loadReturns === 'function') { loadReturns(() => renderMyPortfolio()); }
   if (!SAW_DATA && typeof loadMarketSaw === 'function') { loadMarketSaw(() => renderMyPortfolio()); }
   if (!MARLAMOV && typeof loadMarlamov === 'function') { loadMarlamov(() => renderMyPortfolio()); }
-  if (!NEWS && typeof loadNews === 'function') { loadNews(() => renderMyPortfolio()); }   // P2: новости по тикерам
   if (!BONDS && typeof loadBonds === 'function') { loadBonds(() => renderMyPortfolio()); }   // P4: ставка/облигации
   const c = pfxCompute(rows);
   c._warnings = (parsed.warnings || []).slice();
@@ -4788,9 +4790,23 @@ function wireMarketSaw() {
   const el = document.getElementById('marketsaw');
   if (!el) return;
   el.hidden = false;
-  el.addEventListener('toggle', function () {
-    if (this.open && !this.dataset.shown) { this.dataset.shown = '1'; renderMarketSaw(); }
-  });
+  // Блок закрыт по умолчанию: итог фазы рынка уже показан в пульсе сверху, а подробный
+  // разбор — по запросу. Раньше он стоял open и занимал экран до того, как пользователь
+  // о нём спросил.
+  el.open = false;
+  el.addEventListener('toggle', function () { if (this.open) renderMarketSawOnce(el); });
+  // Если блок окажется открытым не через клик — восстановлением состояния или атрибутом
+  // в разметке, — события toggle не будет, и внутри навсегда останется «Загрузим индекс
+  // MCFTR…». Отрисовка вызывается и напрямую; сама она идемпотентна.
+  if (el.open) renderMarketSawOnce(el);
+}
+
+// Один вход для отрисовки: повторный вызов ничего не портит, а пропущенный toggle
+// больше не оставляет вечный загрузчик.
+function renderMarketSawOnce(el) {
+  if (!el || el.dataset.shown === '1') return;
+  el.dataset.shown = '1';
+  renderMarketSaw();
 }
 
 function loadMarketSaw(cb) {
@@ -7180,26 +7196,138 @@ function renderDataCoverage() {
 // Vanilla, без фреймворка. Логика блоков не тронута — на активации секции форс-открываем
 // нужные <details>, что запускает уже существующий lazy-render через их toggle-листенеры.
 // ══════════════════════════════════════════════════════════════════════════
-const SECTIONS = ['news', 'market', 'my-portfolio', 'stocks', 'strategies', 'bonds', 'cbr', 'methodology', 'pro'];
+// ══════════════════════════════════════════════════════════════════════════
+// НАВИГАЦИЯ: ОДИН ИСТОЧНИК ИСТИНЫ
+//
+// Раньше список разделов жил в пяти независимых местах: SECTIONS, SECTION_META,
+// боковое меню, нижняя панель и лист «Ещё». Любое изменение требовало пяти правок,
+// и они уже разъехались — в нижней панели стояли «Стратегии», а «Облигации» прятались
+// в «Ещё», хотя в боковом меню порядок был другим.
+//
+// Новости и банки перестали быть разделами верхнего уровня: новости отвечают на вопрос
+// «что произошло» внутри «Обзора», а банки — это отраслевой срез внутри «Акций».
+// Оба живут вкладками, а не пунктами меню.
+// ══════════════════════════════════════════════════════════════════════════
+const NAV_CONFIG = [
+  { id: 'market', label: 'Обзор', icon: 'overview', sub: 'Состояние рынка РФ, события и портфель', mobile: true,
+    tabs: [{ id: 'summary', label: 'Сводка', sub: 'Состояние рынка РФ, события и портфель' },
+           { id: 'news', label: 'Новости', sub: 'Брифинг рынка РФ' }] },
+  { id: 'my-portfolio', label: 'Портфель', icon: 'portfolio',
+    sub: 'Portfolio X-Ray — риск и доходность, расчёт локально в браузере', mobile: true },
+  { id: 'stocks', label: 'Акции', icon: 'stocks', sub: 'Скринер: прогноз дивидендов, оценка, риск невыплаты',
+    mobile: true,
+    tabs: [{ id: 'screener', label: 'Скринер', sub: 'Прогноз дивидендов, оценка, риск невыплаты' },
+           { id: 'banks', label: 'Банки РФ', sub: 'Отчётность банков по формам ЦБ РФ' }] },
+  { id: 'bonds', label: 'Облигации', icon: 'bonds', sub: 'Скринер рублёвых корпоративных облигаций MOEX',
+    mobile: true },
+  { id: 'strategies', label: 'Стратегии', icon: 'strategies', sub: 'Факторные и сценарные портфели поверх данных по акциям' },
+  { divider: true },
+  { id: 'methodology', label: 'Методология', icon: 'methodology', sub: 'Источники, расчёты и ограничения', minor: true },
+];
 
-// Заголовок и подзаголовок раздела для topbar (редизайн, Итерация 2).
-const SECTION_META = {
-  market: ['Обзор', 'Состояние рынка РФ, события и портфель'],
-  'my-portfolio': ['Портфель', 'Portfolio X-Ray — риск и доходность, расчёт локально в браузере'],
-  stocks: ['Акции', 'Скринер: прогноз дивидендов, оценка, риск невыплаты'],
-  strategies: ['Стратегии', 'Факторные и сценарные портфели поверх данных по акциям'],
-  news: ['Новости', 'Брифинг рынка РФ'],
-  bonds: ['Облигации', 'Скринер рублёвых корпоративных облигаций MOEX'],
-  cbr: ['Банки РФ', 'Отчётность банков по формам ЦБ РФ'],
-  methodology: ['Методология', 'Источники, расчёты и ограничения'],
-  pro: ['О проекте', 'Честно о проекте и тарифах-гипотезе'],
+const NAV_SECTIONS = NAV_CONFIG.filter((n) => n.id);
+const SECTIONS = NAV_SECTIONS.map((n) => n.id);
+const SECTION_BY_ID = Object.fromEntries(NAV_SECTIONS.map((n) => [n.id, n]));
+
+const NAV_ICONS = {
+  overview: '<rect x="2.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.3"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.3"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.3"/>',
+  portfolio: '<path d="M10 10V2.5a7.5 7.5 0 1 0 7.5 7.5z"/><path d="M12.5 7.5H17.5A7.5 7.5 0 0 0 12.5 2.5z"/>',
+  stocks: '<path d="M3 17h14"/><rect x="4" y="10" width="3" height="5"/><rect x="9" y="6" width="3" height="9"/><rect x="14" y="3" width="3" height="12"/>',
+  bonds: '<circle cx="10" cy="10" r="7.5"/><path d="M7 13 13 7M7.5 8.2h.01M12.5 11.8h.01"/>',
+  strategies: '<path d="M10 3 3 6.5 10 10l7-3.5z"/><path d="M3 13.5 10 17l7-3.5"/><path d="M3 10 10 13.5 17 10"/>',
+  methodology: '<path d="M4 3.5h9a2 2 0 0 1 2 2V16H6a2 2 0 0 0-2 2z"/><path d="M15 16v0"/>',
+  more: '<circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/>',
 };
 
+function navIconHTML(icon) {
+  return `<svg class="nav-ico" viewBox="0 0 20 20" aria-hidden="true">${NAV_ICONS[icon] || ''}</svg>`;
+}
+
+function navButtonHTML(item, withIcon = true) {
+  const minor = item.minor ? ' tab-minor' : '';
+  return `<button class="section-tab${minor}" type="button" data-section="${esc(item.id)}" title="${esc(item.label)}">${withIcon ? navIconHTML(item.icon) : ''}<span>${esc(item.label)}</span></button>`;
+}
+
+function renderNavigation() {
+  const desktop = document.getElementById('app-nav');
+  if (desktop) {
+    desktop.innerHTML = NAV_CONFIG.map((item) => item.divider
+      ? '<div class="app-nav-div" role="separator"></div>'
+      : navButtonHTML(item)).join('');
+  }
+  const bottom = document.getElementById('app-bottomnav');
+  if (bottom) {
+    bottom.innerHTML = NAV_SECTIONS.filter((item) => item.mobile).map((item) => navButtonHTML(item)).join('')
+      + `<button class="app-more-btn" id="app-more-btn" type="button" aria-expanded="false" aria-controls="app-more-sheet">${navIconHTML('more')}<span>Ещё</span></button>`;
+  }
+  const more = document.getElementById('app-more-nav');
+  if (more) more.innerHTML = NAV_SECTIONS.filter((item) => !item.mobile).map((item) => navButtonHTML(item, false)).join('');
+}
+
+// Разделы, которых больше нет: ведут туда, где их содержимое теперь живёт. Ссылки
+// такого вида уже разошлись по закладкам и внешним материалам, поэтому они
+// канонизируются, а не отбрасываются.
+const LEGACY_ROUTES = {
+  news: 'market?tab=news',
+  cbr: 'stocks?tab=banks',
+  banks: 'stocks?tab=banks',
+  pro: 'market',
+  about: 'market',
+  overview: 'market',
+};
+
+// ── Разбор и сборка хеша. Раньше query-строку резали вручную в нескольких местах,
+//    и переключение вкладки затирало бы параметры вроде calendar=dividends.
+function getRouteState() {
+  const raw = (location.hash || '').replace(/^#/, '');
+  const [section, query] = raw.split('?', 2);
+  return { section, params: new URLSearchParams(query || '') };
+}
+
+function buildRoute(section, params) {
+  const q = params ? params.toString() : '';
+  return `#${section}${q ? `?${q}` : ''}`;
+}
+
+// Канонический маршрут: раскрывает legacy-имена, сохраняя параметры запроса.
+// Возвращает null, если маршрут уже канонический — чтобы не плодить записи в истории.
+function canonicalRoute() {
+  const { section, params } = getRouteState();
+  if (!section) return null;
+  const target = LEGACY_ROUTES[section];
+  if (!target) return null;
+  const [newSection, newQuery] = target.split('?', 2);
+  const merged = new URLSearchParams(newQuery || '');
+  // Параметры старой ссылки важнее подставленных: #news?ticker=SBER должен сохранить тикер.
+  params.forEach((v, k) => merged.set(k, v));
+  return buildRoute(newSection, merged);
+}
+
 function getSectionFromHash() {
-  const h = (location.hash || '').replace('#', '');
-  let section = h.split('?', 1)[0];
-  if (section === 'overview') section = 'market';   // двусторонний алиас overview↔market (§9)
+  const { section } = getRouteState();
   return SECTIONS.includes(section) ? section : 'market';
+}
+
+// Активная вкладка раздела: из ?tab=, иначе первая. Неизвестное значение не ломает
+// страницу — считается первой вкладкой.
+function getSectionTab(sec) {
+  const meta = SECTION_BY_ID[sec];
+  if (!meta || !meta.tabs) return null;
+  const asked = getRouteState().params.get('tab');
+  return meta.tabs.some((t) => t.id === asked) ? asked : meta.tabs[0].id;
+}
+
+// Смена вкладки СОХРАНЯЕТ остальные параметры: deep-link на дивидендный календарь
+// не должен пропадать оттого, что пользователь заглянул в новости.
+function setSectionTab(sec, tab) {
+  const meta = SECTION_BY_ID[sec];
+  if (!meta || !meta.tabs) return;
+  const { params } = getRouteState();
+  if (tab === meta.tabs[0].id) params.delete('tab');
+  else params.set('tab', tab);
+  const next = buildRoute(sec, params);
+  if (location.hash !== next) location.hash = next;
+  else applySectionTab(sec);
 }
 
 function openDetails(id) {
@@ -7207,20 +7335,29 @@ function openDetails(id) {
   if (d && d.tagName === 'DETAILS') { d.hidden = false; if (!d.open) d.open = true; }
 }
 
-function onSectionShown(sec) {
-  if (sec === 'market') { if (dividendDeepLink().open) openDetails('dividend-calendar'); ensureKpiData(); renderMarketPulse(); renderMarketPE(); renderMarketKPI(); renderMarketSignals(); loadMacroCbr(() => renderMacroCbr()); renderEventsToday(); renderDividendCalendar(); }
-  else if (sec === 'my-portfolio') {
+// Работа вкладки: то, что раньше делал onSectionShown для разделов «Новости» и
+// «Банки РФ». Тяжёлые данные грузятся ЗДЕСЬ, а не при открытии родителя — заход
+// в «Акции» не должен тянуть отчётность банков, а «Обзор» — всю ленту новостей.
+function onSubtabShown(sec, tab) {
+  if (sec === 'market' && tab === 'summary') {
+    if (dividendDeepLink().open) openDetails('dividend-calendar');
     ensureKpiData();
-    if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
-    renderMyPortfolio();
-  }
-  else if (sec === 'strategies') {
-    if (ACTIVE_STRATEGY_MODE === 'ml') renderMlStrategy();
-    else { openDetails('pf'); openDetails('marlamov'); }
-  }
-  else if (sec === 'news') { renderNews(true); if (MARKET_HISTORY) renderMarketInstruments(); else loadMarketHistory(() => renderMarketInstruments()); }
-  else if (sec === 'bonds') { renderBondLab(); }
-  else if (sec === 'cbr') {
+    renderMarketPulse();
+    renderMarketPE();
+    renderMarketKPI();
+    renderMarketSignals();
+    loadMacroCbr(() => renderMacroCbr());
+    renderEventsToday();
+    renderDividendCalendar();
+    renderNewsTeaser();
+    loadMarketHistory((err) => {
+      const grid = document.getElementById('market-instrument-grid');
+      if (err && grid) grid.innerHTML = '<div class="market-instruments-error muted">История MOEX сейчас недоступна. Остальные блоки сводки продолжают работать.</div>';
+      else renderMarketInstruments();
+    });
+  } else if (sec === 'market' && tab === 'news') {
+    renderNews();
+  } else if (sec === 'stocks' && tab === 'banks') {
     // Раскрываем оценку, а не помесячную отчётность: вопрос «дорого или дёшево» —
     // первый, с которым приходят в раздел, и свёрнутый блок читался как отсутствующий.
     openDetails('banks-fair-value');
@@ -7240,6 +7377,19 @@ function onSectionShown(sec) {
       ts.addEventListener('toggle', function () { if (this.open) renderCbr(); });
     }
   }
+}
+
+function onSectionShown(sec) {
+  if (sec === 'my-portfolio') {
+    ensureKpiData();
+    if (!SITE_FINANCIALS && typeof loadSiteFinancials === 'function') loadSiteFinancials(() => renderMyPortfolio());
+    renderMyPortfolio();
+  }
+  else if (sec === 'strategies') {
+    if (ACTIVE_STRATEGY_MODE === 'ml') renderMlStrategy();
+    else { openDetails('pf'); openDetails('marlamov'); }
+  }
+  else if (sec === 'bonds') { renderBondLab(); }
   else if (sec === 'methodology') {
     openDetails('data-coverage');
     const c = document.getElementById('data-coverage');
@@ -7253,19 +7403,46 @@ function onSectionShown(sec) {
   // stocks: контролы/таблица рендерятся в init() при загрузке data.json (независимо от секции)
 }
 
+// Показывает панель активной вкладки и подсвечивает её кнопку. Раздел без вкладок
+// проходит мимо без изменений.
+function applySectionTab(sec) {
+  const meta = SECTION_BY_ID[sec];
+  if (!meta || !meta.tabs) return null;
+  const active = getSectionTab(sec);
+  meta.tabs.forEach((tab) => {
+    const panel = document.getElementById(`${sec}-${tab.id}-panel`);
+    if (panel) panel.hidden = tab.id !== active;
+    const button = document.querySelector(`[data-subtab="${sec}:${tab.id}"]`);
+    if (button) {
+      button.classList.toggle('active', tab.id === active);
+      button.setAttribute('aria-selected', String(tab.id === active));
+      button.tabIndex = tab.id === active ? 0 : -1;
+    }
+  });
+  onSubtabShown(sec, active);
+  return active;
+}
+
 function setActiveSection(sec) {
   document.querySelectorAll('main.sections > section.app-section').forEach((s) => {
     s.hidden = (s.dataset.section !== sec);
   });
+  // Пункт меню подсвечивается РОДИТЕЛЬСКИЙ: новости и банки — вкладки, а не разделы,
+  // поэтому «Обзор» и «Акции» остаются активными и внутри них.
   document.querySelectorAll('.section-tab').forEach((t) => {
     const active = t.dataset.section === sec;
     t.classList.toggle('active', active);
-    t.setAttribute('aria-current', active ? 'page' : 'false');
+    if (active) t.setAttribute('aria-current', 'page');
+    else t.removeAttribute('aria-current');
   });
-  // topbar: заголовок/подзаголовок раздела (редизайн, Итерация 2)
-  const meta = SECTION_META[sec] || [sec, ''];
-  const tt = document.getElementById('topbar-title'); if (tt) tt.textContent = meta[0];
-  const ts = document.getElementById('topbar-sub'); if (ts) ts.textContent = meta[1];
+  const tab = applySectionTab(sec);
+  const meta = SECTION_BY_ID[sec] || { label: sec, sub: '' };
+  const tabMeta = (meta.tabs || []).find((t) => t.id === tab);
+  const tt = document.getElementById('topbar-title'); if (tt) tt.textContent = meta.label;
+  // Подзаголовок уточняет вкладку, а заголовок остаётся родительским — иначе меню и
+  // шапка называли бы разные вещи.
+  const ts = document.getElementById('topbar-sub');
+  if (ts) ts.textContent = (tabMeta && tabMeta.sub) || meta.sub || '';
   // закрыть мобильный «Ещё»-sheet при переходе в раздел
   const sheet = document.getElementById('app-more-sheet');
   if (sheet) sheet.hidden = true;
@@ -7275,7 +7452,31 @@ function setActiveSection(sec) {
   onSectionShown(sec);
 }
 
+// Вкладки разделов: клик, Enter/Space (нативно у <button>) и стрелки — как требует
+// паттерн tablist. Состояние живёт в адресе, поэтому обработчик только меняет маршрут.
+function wireSubtabs() {
+  document.addEventListener('click', (e) => {
+    const button = e.target.closest('[data-subtab]');
+    if (!button) return;
+    const [sec, tab] = button.dataset.subtab.split(':');
+    setSectionTab(sec, tab);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const button = e.target.closest('[data-subtab]');
+    if (!button) return;
+    const list = [...button.closest('[role="tablist"]').querySelectorAll('[data-subtab]')];
+    const next = list[(list.indexOf(button) + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length];
+    if (!next) return;
+    e.preventDefault();
+    next.focus();
+    const [sec, tab] = next.dataset.subtab.split(':');
+    setSectionTab(sec, tab);
+  });
+}
+
 function initRouter() {
+  renderNavigation();
   // Escape: нативный <dialog> закрывается сам и сам возвращает фокус на триггер,
   // но aria-expanded надо снять руками. Слушаем 'cancel' (Escape), а не 'close':
   // событие close в связке showModal()+close() здесь не доставляется, проверено.
@@ -7338,17 +7539,14 @@ function initRouter() {
     }
     const dc = e.target.closest('[data-divcal-tab]');
     if (dc && typeof openDividendCalendarTab === 'function') { openDividendCalendarTab(dc.dataset.divcalTab); return; }
+    const subtab = e.target.closest('[data-open-subtab]');
+    if (subtab) {
+      const [sec, tab] = subtab.dataset.openSubtab.split(':');
+      setSectionTab(sec, tab);
+      return;
+    }
     const g = e.target.closest('[data-goto]');
     if (g && SECTIONS.includes(g.dataset.goto)) { location.hash = g.dataset.goto; return; }
-    if (e.target.closest('#pro-waitlist, #pro-waitlist2, #pro-waitlist3')) {
-      const n = document.getElementById('pro-waitnote');
-      if (n) { n.hidden = false; n.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-    }
-  });
-  document.addEventListener('keydown', (e) => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.pro-card[data-goto]')) {
-      e.preventDefault(); location.hash = e.target.dataset.goto;
-    }
   });
   // App-shell (Итерация 2): свёртка сайдбара в icon-rail (desktop) + мобильный «Ещё»-sheet
   const navToggle = document.getElementById('app-nav-toggle');
@@ -7383,7 +7581,24 @@ function initRouter() {
     });
     renderTaxControl();
   }
-  window.addEventListener('hashchange', () => setActiveSection(getSectionFromHash()));
+  const taxProfile = document.getElementById('tax-profile');
+  if (taxProfile) {
+    document.addEventListener('click', (event) => {
+      if (taxProfile.open && !taxProfile.contains(event.target)) taxProfile.open = false;
+    });
+  }
+  wireSubtabs();
+  const initialCanonical = canonicalRoute();
+  if (initialCanonical) history.replaceState(null, '', initialCanonical);
+  window.addEventListener('hashchange', () => {
+    const canonical = canonicalRoute();
+    if (canonical) {
+      // replaceState, а не присваивание hash: автоматический перенос не должен
+      // порождать запись в истории — «назад» вернуло бы на тот же старый адрес.
+      history.replaceState(null, '', canonical);
+    }
+    setActiveSection(getSectionFromHash());
+  });
   setActiveSection(getSectionFromHash());
 }
 
@@ -7401,7 +7616,7 @@ function loadSiteStatus(cb) {
 function updateDataStatus() {
   const el = document.getElementById('data-status');
   if (!el) return;
-  if (!SITE_STATUS) { loadSiteStatus(() => updateDataStatus()); }
+  if (!SITE_STATUS) { loadSiteStatus(() => { updateDataStatus(); renderNewsTeaser(); }); }
   const d10 = (s) => (s ? String(s).slice(0, 10) : null);
   const st = (SITE_STATUS && SITE_STATUS.blocks) ? SITE_STATUS.blocks : {};
   const cls = { fresh: 'ds-fresh', stale: 'ds-stale', fallback: 'ds-fallback', broken: 'ds-broken' };
@@ -7427,8 +7642,7 @@ function updateDataStatus() {
     ? `<span class="ds-health ${cls[overall] || ''}" title="Свежесть данных по торговому календарю MOEX">● ${esc(oText)}</span>`
     : '';
   el.innerHTML = chip + item('Цены MOEX', price, 'market') + item('MCFTR', saw, 'marketsaw')
-    + item('Новости', news, 'news') + item('Облигации', bonds, 'bonds') + item('Фундамент', fin, 'financials')
-    + '<span class="ds-item ds-disc">Не ИИР</span>';
+    + item('Новости', news, 'news') + item('Облигации', bonds, 'bonds') + item('Фундамент', fin, 'financials');
 }
 
 // ── KPI «Текущий рынок» ──
@@ -12596,6 +12810,25 @@ function newsWire() {
   });
 }
 
+function renderNewsTeaser() {
+  const title = document.getElementById('news-teaser-title');
+  const meta = document.getElementById('news-teaser-meta');
+  if (!title || !meta) return;
+  if (NEWS) {
+    const items = [...(NEWS.overnight || []), ...(NEWS.yesterday || [])]
+      .slice().sort((a, b) => (b.importance || 0) - (a.importance || 0));
+    const first = items.find((item) => item && item.headline);
+    title.textContent = first ? first.headline : 'Новых значимых сообщений пока нет';
+    const updated = newsMskTime(NEWS.generated_at, true);
+    meta.textContent = `${items.length} ${items.length === 1 ? 'сообщение' : 'сообщений'}${updated ? ` · обновлено ${updated} МСК` : ''}`;
+    return;
+  }
+  const block = SITE_STATUS && SITE_STATUS.blocks ? SITE_STATUS.blocks.news : null;
+  const asof = block && block.asof ? sawDate(String(block.asof).slice(0, 10)) : '';
+  title.textContent = 'Последние события и утренний брифинг';
+  meta.textContent = asof ? `Сводка за ${asof} · откроется по запросу` : 'Загрузится только при открытии вкладки';
+}
+
 function renderNews(force = false) {
   const body = document.getElementById('news-body');
   if (!body) return;
@@ -12614,11 +12847,13 @@ function renderNews(force = false) {
     body.innerHTML = newsShellHTML(NEWS);
     body.dataset.shown = '1';
     newsWire();
+    renderNewsTeaser();
   }, force || alreadyShown);
 }
 
 function refreshVisibleNews() {
-  if (document.visibilityState === 'visible' && getSectionFromHash() === 'news'
+  if (document.visibilityState === 'visible' && getSectionFromHash() === 'market'
+      && getSectionTab('market') === 'news'
       && Date.now() - NEWS_FETCHED_AT >= NEWS_REFRESH_MS) renderNews(true);
 }
 
