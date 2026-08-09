@@ -4215,6 +4215,7 @@ textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible,
    на всех платформах — предсказуемее, чем нативный путь с ветвлением. */
 .chart-fs-toggle {
   display: inline-flex; align-items: center; gap: 6px;
+  min-width: 44px; justify-content: center;
   padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px;
   background: var(--surface); color: var(--ink-soft);
   font: inherit; font-size: .72rem; cursor: pointer; white-space: nowrap;

@@ -149,6 +149,10 @@ test.describe('mobile responsive data surfaces', () => {
       '.sc-periods button, .sc-pf-toggle, .sc-fi-toggle, .chart-fs-toggle',
     ).evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
     expect(Math.min(...stockControlHeights)).toBeGreaterThanOrEqual(44);
+    const fullscreenControlWidth = await stockChart.locator('.chart-fs-toggle').evaluate(
+      (node) => node.getBoundingClientRect().width,
+    );
+    expect(fullscreenControlWidth).toBeGreaterThanOrEqual(44);
 
     await goto(page, '#market');
     const marketCard = page.locator('[data-market-id]').first();
