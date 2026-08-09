@@ -44,7 +44,7 @@ let IMOEX_SAW = null, MARKET_SAW_ACTIVE = 'MCFTR', MARKET_SAW_MANIFEST = null, I
 let MARKET_PE = null;
 let MARKET_PE_HIST = null, MPE_RANGE = '5y', MPE_METRIC = 'reported';   // история оценки рынка (site/market_pe_history.json)
 let MACRO_CBR = null;      // макро ЦБ: ключевая ставка + инфляция (site/macro_cbr.json)
-const STOCK_OHLC_CACHE = {};   // ticker|from → [[date,open,high,low,close,volume]...] (MOEX ISS, дневные)
+const STOCK_OHLC_CACHE = {};   // ticker|period → MOEX ISS rows (дневные или 10-минутные)
 let ALFA_INDEX_LOAD = null, ALFA_INDEX_CHART = null, ALFA_INDEX_RESIZE = null;
 const PFX_DAILY = { index: null, bench: null, cache: {} };   // веб-мост дневного риска (ленивый, per-secid)
 
@@ -4691,6 +4691,14 @@ MARKET_HISTORY = null;
 let MARKET_CHART = null;
 let MARKET_PRICE_SERIES = null;   // основная серия: слой профиля берёт у неё priceToCoordinate
 let MARKET_CHART_STATE = { id: 'IMOEX', period: 252 };
+const MARKET_INTRADAY_CACHE = {};
+const MARKET_INTRADAY_SPEC = {
+  IMOEX: { engine: 'stock', market: 'index', board: 'SNDX', secid: 'IMOEX' },
+  RTSI: { engine: 'stock', market: 'index', board: 'RTSI', secid: 'RTSI' },
+  USD000UTSTOM: { engine: 'currency', market: 'selt', board: 'CETS', secid: 'USD000UTSTOM' },
+  CNYRUB_TOM: { engine: 'currency', market: 'selt', board: 'CETS', secid: 'CNYRUB_TOM' },
+};
+let MARKET_CHART_REQUEST = 0;
 // lightweight-charts 4.2.1, лицензия Apache-2.0.
 // Логотип на графике выключается ШТАТНОЙ опцией layout.attributionLogo (по умолчанию true) —
 // она есть в публичном API именно для этого. Прятать элемент через CSS или MutationObserver
@@ -4700,6 +4708,77 @@ const LWC_SRC = 'https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-cha
 
 const sawPct = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
 const sawDate = (s) => { const [y, m, d] = String(s).split('-'); return `${d}.${m}.${y}`; };
+
+// MOEX ISS отдаёт begin без timezone. Торговое время в этих рядах — МСК.
+// Явный +03:00 не даёт браузеру сдвинуть свечу в другой день.
+function moexIntradayTimestamp(begin) {
+  const raw = String(begin || '').trim();
+  if (!raw) return null;
+  const iso = raw.includes('T') ? raw : raw.replace(' ', 'T');
+  const zoned = /(?:Z|[+-]\d{2}:\d{2})$/.test(iso) ? iso : `${iso}+03:00`;
+  const parsed = Date.parse(zoned);
+  return Number.isFinite(parsed) ? Math.floor(parsed / 1000) : null;
+}
+
+function chartTimeKey(value) {
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'string') return value;
+  if (value && isNum(value.year) && isNum(value.month) && isNum(value.day)) {
+    return `${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+  }
+  return String(value || '');
+}
+
+function moexRowLabel(row) {
+  const raw = String((row || [])[8] || '');
+  if (raw) {
+    const [date, time = ''] = raw.replace('T', ' ').split(' ');
+    return `${sawDate(date)}${time ? ` · ${time.slice(0, 5)} МСК` : ''}`;
+  }
+  return sawDate((row || [])[0]);
+}
+
+// Один коллектор для акций, индексов и валют: так период 1Д везде имеет
+// одинаковую семантику: 10-минутные свечи последней торговой сессии.
+function fetchMoexIntradayCandles(spec, cb) {
+  const rows = [];
+  const from = new Date(Date.now() - 12 * 86400000).toISOString().slice(0, 10);
+  const cols = 'begin,open,high,low,close,volume,value';
+  const base = `https://iss.moex.com/iss/engines/${encodeURIComponent(spec.engine)}`
+    + `/markets/${encodeURIComponent(spec.market)}/boards/${encodeURIComponent(spec.board)}`
+    + `/securities/${encodeURIComponent(spec.secid)}/candles.json`
+    + `?iss.only=candles&iss.meta=off&interval=10&from=${from}&candles.columns=${cols}`;
+  const finish = () => {
+    rows.sort((a, b) => a[0] - b[0]);
+    const last = rows.length ? String(rows[rows.length - 1][8]).slice(0, 10) : '';
+    cb(null, last ? rows.filter((row) => String(row[8]).slice(0, 10) === last) : []);
+  };
+  const step = (start) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
+      .then((json) => {
+        clearTimeout(timer);
+        const block = json.candles || {};
+        const columns = block.columns || [];
+        const at = (name) => columns.indexOf(name);
+        const iBegin = at('begin'), iOpen = at('open'), iHigh = at('high');
+        const iLow = at('low'), iClose = at('close'), iVolume = at('volume'), iValue = at('value');
+        const data = block.data || [];
+        data.forEach((source) => {
+          const time = moexIntradayTimestamp(source[iBegin]);
+          if (!isNum(time) || ![iOpen, iHigh, iLow, iClose].every((index) => isNum(source[index]))) return;
+          rows.push([time, source[iOpen], source[iHigh], source[iLow], source[iClose],
+            source[iVolume], source[iValue], null, source[iBegin]]);
+        });
+        if (data.length >= 500 && rows.length < 4000) step(start + data.length);
+        else finish();
+      })
+      .catch((error) => { clearTimeout(timer); cb(error, []); });
+  };
+  step(0);
+}
 const SAW_SHORT = {                                   // короткие подписи сегментов gauge
   up: { neutral: 'Отскок', positive: 'Рост', reduce_zone: 'Сниж. риска', strong_reduce_zone: 'Перегрев' },
   down: { neutral: 'Нач. корр.', watch: 'Коррекция', buy_zone: 'Докупка', strong_buy_zone: 'Глуб. просадка' },
@@ -9025,27 +9104,111 @@ function renderMarketInstruments() {
   wireMarketChartDialog();
 }
 
-function marketLevel(label, value, note) {
-  return `<div class="market-level"><span>${esc(label)}</span><b>${esc(value)}</b>${note ? `<em>${esc(note)}</em>` : ''}</div>`;
+function marketTrendSummary(s) {
+  if (![s.last, s.sma20, s.sma50, s.sma200].every(isNum)) {
+    return { label: 'Нет данных', note: 'Недостаточно истории для структуры средних' };
+  }
+  if (s.last > s.sma200 && s.sma20 > s.sma50) {
+    return { label: 'Восходящий', note: 'цена выше SMA200 · SMA20 выше SMA50' };
+  }
+  if (s.last < s.sma200 && s.sma20 < s.sma50) {
+    return { label: 'Нисходящий', note: 'цена ниже SMA200 · SMA20 ниже SMA50' };
+  }
+  return { label: 'Смешанный', note: `${s.last >= s.sma200 ? 'цена выше' : 'цена ниже'} SMA200 · SMA20 ${s.sma20 >= s.sma50 ? 'выше' : 'ниже'} SMA50` };
 }
 
-function marketLevelsHTML(item) {
+function marketMomentumSummary(rsi) {
+  if (!isNum(rsi)) return { label: 'Нет данных', note: 'RSI (14) недоступен' };
+  if (rsi >= 70) return { label: 'Перекупленность', note: `RSI ${ru(rsi, 1)} · выше 70` };
+  if (rsi <= 30) return { label: 'Перепроданность', note: `RSI ${ru(rsi, 1)} · ниже 30` };
+  return { label: 'Нейтральный', note: `RSI ${ru(rsi, 1)} · нейтральная зона` };
+}
+
+function marketConceptCard(label, value, note) {
+  return `<article class="market-concept-card">
+    <span>${esc(label)}</span><b>${esc(value)}</b><small>${esc(note)}</small>
+  </article>`;
+}
+
+function marketRangeHTML(label, current, low, high, decimals) {
+  if (![current, low, high].every(isNum) || high <= low) return '';
+  const raw = ((current - low) / (high - low)) * 100;
+  const position = Math.max(0, Math.min(100, raw));
+  const fmt = (value) => marketNumber(value, decimals);
+  return `<div class="market-range" aria-label="${esc(label)}: цена на ${esc(ru(position, 0))}% диапазона">
+    <div class="market-range-head"><b>${esc(label)}</b><span>${esc(ru(position, 0))}% диапазона</span></div>
+    <div class="market-range-scale" style="--market-range-position:${position.toFixed(2)}%">
+      <i aria-hidden="true"></i><span class="market-range-dot" aria-hidden="true"></span>
+    </div>
+    <div class="market-range-values tnum"><span>${esc(fmt(low))}</span><strong>${esc(fmt(current))}</strong><span>${esc(fmt(high))}</span></div>
+  </div>`;
+}
+
+function marketKeyLevel(label, value, decimals, note = '') {
+  if (!isNum(value)) return '';
+  return `<div class="market-key-level"><span>${esc(label)}</span><b>${esc(marketNumber(value, decimals))}</b>${note ? `<small>${esc(note)}</small>` : ''}</div>`;
+}
+
+function marketTechnicalAnalyticsHTML(item) {
   const s = item.summary || {};
-  const fmt = (value) => marketNumber(value, item.decimals);
-  const rsiNote = !isNum(s.rsi14) ? '' : s.rsi14 >= 70 ? 'выше 70' : s.rsi14 <= 30 ? 'ниже 30' : 'нейтральная зона';
-  return [
-    marketLevel('Структура средних', s.trend || '—', `SMA20 ${fmt(s.sma20)} · SMA50 ${fmt(s.sma50)} · SMA200 ${fmt(s.sma200)}`),
-    marketLevel('RSI (14)', isNum(s.rsi14) ? ru(s.rsi14, 1) : '—', rsiNote),
-    marketLevel('Волатильность 20d', isNum(s.volatility20_annualized_pct) ? ru(s.volatility20_annualized_pct, 1) + '%' : '—', 'годовая, close-to-close'),
-    marketLevel('Диапазон 20d', `${fmt(s.low20)} — ${fmt(s.high20)}`, 'фактические low / high'),
-    marketLevel('Диапазон 60d', `${fmt(s.low60)} — ${fmt(s.high60)}`, 'фактические low / high'),
-    marketLevel('Диапазон 1Y', `${fmt(s.low252)} — ${fmt(s.high252)}`, '252 торговые сессии'),
-  ].join('');
+  const trend = marketTrendSummary(s);
+  const momentum = marketMomentumSummary(s.rsi14);
+  const volatility = isNum(s.volatility20_annualized_pct)
+    ? { label: `${ru(s.volatility20_annualized_pct, 1)}%`, note: '20-дневная, annualized' }
+    : { label: 'Нет данных', note: '20-дневная оценка недоступна' };
+  const ranges = [
+    marketRangeHTML('20 дней', s.last, s.low20, s.high20, item.decimals),
+    marketRangeHTML('1 год', s.last, s.low252, s.high252, item.decimals),
+  ].filter(Boolean).join('');
+  const proxy = MARKET_PROFILE_PROXY[item.id];
+  const profile = MARKET_PF_ON && proxy && MARKET_PF_STATE && MARKET_PF_STATE.profile
+    && MARKET_PF_STATE.proxy && MARKET_PF_STATE.proxy.secid === proxy.secid
+    ? MARKET_PF_STATE.profile : null;
+  const levels = [
+    profile ? marketKeyLevel('POC', profile.poc, item.decimals, proxy ? proxy.label : '') : '',
+    profile ? marketKeyLevel('VAL', profile.val, item.decimals, proxy ? proxy.label : '') : '',
+    profile ? marketKeyLevel('VAH', profile.vah, item.decimals, proxy ? proxy.label : '') : '',
+    marketKeyLevel('20д low', s.low20, item.decimals),
+    marketKeyLevel('20д high', s.high20, item.decimals),
+  ].filter(Boolean).join('');
+  const range60 = [s.low60, s.high60].every(isNum)
+    ? `${marketNumber(s.low60, item.decimals)} — ${marketNumber(s.high60, item.decimals)}` : ND;
+  const profileMethod = profile && MARKET_PF_STATE.proxy
+    ? marketPfNoteHTML(MARKET_PF_STATE.proxy, profile, MARKET_PF_STATE.from,
+      MARKET_PF_STATE.till, MARKET_PF_STATE.candles) : '';
+  return `<section class="market-technical" aria-label="Технический контекст">
+    <div class="market-concepts">
+      ${marketConceptCard('Тренд', trend.label, trend.note)}
+      ${marketConceptCard('Momentum', momentum.label, momentum.note)}
+      ${marketConceptCard('Волатильность', volatility.label, volatility.note)}
+    </div>
+    ${ranges ? `<div class="market-range-group"><h3>Положение цены в диапазоне</h3>${ranges}</div>` : ''}
+    ${levels ? `<div class="market-key-levels"><div class="market-key-head"><h3>Ключевые уровни</h3>${profile ? `<span>POC / VAL / VAH относятся к ${esc(proxy.label)}, не к индексу</span>` : ''}</div><div class="market-key-grid">${levels}</div></div>` : ''}
+    <details class="market-methodology">
+      <summary>Методология и дополнительные данные</summary>
+      <div class="market-methodology-body">
+        <p><b>Диапазон 60 дней:</b> ${esc(range60)}. Тренд описывает положение цены и SMA, RSI — только текущую зону momentum. Это технический контекст, не прогноз.</p>
+        ${profileMethod}
+      </div>
+    </details>
+  </section>`;
+}
+
+function renderMarketTechnicalAnalytics(item) {
+  const box = document.getElementById('market-chart-levels');
+  if (box) box.innerHTML = marketTechnicalAnalyticsHTML(item);
 }
 
 function marketChartRows(item) {
+  if (MARKET_CHART_STATE.period === '1d') return MARKET_INTRADAY_CACHE[item.id] || [];
   const count = MARKET_CHART_STATE.period || 252;
   return (item.series || []).slice(-count);
+}
+
+function fetchMarketIntraday(item, cb) {
+  const spec = MARKET_INTRADAY_SPEC[item.id];
+  if (!spec) { cb(new Error('внутридневной ряд MOEX ISS не публикуется'), []); return; }
+  fetchMoexIntradayCandles(spec, cb);
 }
 
 function marketUsesCloseLine(item, rows) {
@@ -9065,19 +9228,24 @@ function marketOhlcHTML(item, row, closeOnly = false) {
   if (!row) return '';
   const fmt = (value) => marketNumber(value, item.decimals);
   if (closeOnly) {
-    return `<b>${esc(sawDate(row[0]))}</b><span>Закрытие <strong>${fmt(row[4])}</strong></span><span class="market-chart-row-note">индексный ряд без внутридневного OHLC</span>`;
+    return `<b>${esc(moexRowLabel(row))}</b><span>Закрытие <strong>${fmt(row[4])}</strong></span><span class="market-chart-row-note">индексный ряд без внутридневного OHLC</span>`;
   }
-  return `<b>${esc(sawDate(row[0]))}</b><span>O ${fmt(row[1])}</span><span>H ${fmt(row[2])}</span><span>L ${fmt(row[3])}</span><span>C ${fmt(row[4])}</span>`;
+  return `<b>${esc(moexRowLabel(row))}</b><span>O ${fmt(row[1])}</span><span>H ${fmt(row[2])}</span><span>L ${fmt(row[3])}</span><span>C ${fmt(row[4])}</span>`;
 }
 
-function drawMarketChart(item) {
+function drawMarketChart(item, suppliedRows = null) {
   const element = document.getElementById('market-chart-canvas');
   if (!element || !window.LightweightCharts) return;
   if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; }
   element.innerHTML = '';
   const LC = window.LightweightCharts;
-  const rows = marketChartRows(item);
-  const closeOnly = marketUsesCloseLine(item, rows);
+  const intraday = MARKET_CHART_STATE.period === '1d';
+  const rows = suppliedRows || marketChartRows(item);
+  if (!rows.length) {
+    element.innerHTML = '<div class="news-fallback">Данные для выбранного периода недоступны.</div>';
+    return;
+  }
+  const closeOnly = !intraday && marketUsesCloseLine(item, rows);
   MARKET_CHART = LC.createChart(element, {
     autoSize: true,
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
@@ -9088,7 +9256,8 @@ function drawMarketChart(item) {
     // потребовалось бы 3780 px — график физически не мог показать выбранный период и
     // молча оставлял последние 270 дней. Кнопка обещала пять лет, показывала девять
     // месяцев, а профиль объёма считался по этому же обрезку.
-    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 3, minBarSpacing: 0.4 },
+    timeScale: { borderColor: '#D8DEE8', timeVisible: intraday, secondsVisible: false,
+      rightOffset: 3, minBarSpacing: 0.4 },
     crosshair: {
       mode: LC.CrosshairMode.Normal,
       vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
@@ -9112,7 +9281,10 @@ function drawMarketChart(item) {
     });
     primary.setData(rows.map((row) => ({ time: row[0], open: row[1], high: row[2], low: row[3], close: row[4] })));
   }
-  const enabled = new Set(Array.from(document.querySelectorAll('#market-chart-overlays input:checked')).map((input) => input.value));
+  // В intraday-строках колонки 5/6 — volume/value, а не SMA20/SMA50. Дневные
+  // overlays здесь не просто скрыты в UI, а исключены из серий графика.
+  const enabled = intraday ? new Set()
+    : new Set(Array.from(document.querySelectorAll('#market-chart-overlays input:checked')).map((input) => input.value));
   const overlays = [
     ['sma20', 5, '#176B87'], ['sma50', 6, '#C58A14'], ['sma200', 7, '#59616E'],
   ];
@@ -9122,51 +9294,63 @@ function drawMarketChart(item) {
     line.setData(rows.filter((row) => isNum(row[index])).map((row) => ({ time: row[0], value: row[index] })));
   });
   const summary = item.summary || {};
-  if (isNum(summary.low20)) primary.createPriceLine({ price: summary.low20, color: '#77A994', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d min' });
-  if (isNum(summary.high20)) primary.createPriceLine({ price: summary.high20, color: '#C78B79', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d max' });
+  // На 1Д уровни 20 дней могут сжать внутридневные свечи в тонкую линию.
+  if (!intraday && isNum(summary.low20)) primary.createPriceLine({ price: summary.low20, color: '#77A994', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d min' });
+  if (!intraday && isNum(summary.high20)) primary.createPriceLine({ price: summary.high20, color: '#C78B79', lineStyle: LC.LineStyle.Dashed, lineWidth: 1, axisLabelVisible: false, title: '20d max' });
   // Масштаб задаётся явно, а не через fitContent: библиотека его здесь игнорирует —
   // окно остаётся тем, что влезло при barSpacing по умолчанию, и «5Л» показывает
   // девять месяцев вместо пяти лет. Профиль объёма считается по видимому диапазону,
   // поэтому неверный масштаб делает неверным и его.
   marketFitPeriod(rows.length);
   requestAnimationFrame(() => {
-    try { marketFitPeriod(rows.length); marketPfDraw(item); }
+    try { marketFitPeriod(rows.length); if (!intraday) marketPfDraw(item); }
     catch (_e) { /* график мог быть удалён до следующего кадра */ }
   });
   const ohlc = document.getElementById('market-chart-ohlc');
   if (ohlc) ohlc.innerHTML = marketOhlcHTML(item, rows[rows.length - 1], closeOnly);
+  const byTime = new Map(rows.map((row) => [chartTimeKey(row[0]), row]));
   MARKET_CHART.subscribeCrosshairMove((param) => {
     if (!ohlc || !param || !param.time || !param.seriesData) return;
     const bar = param.seriesData.get(primary);
     if (!bar) return;
-    const time = typeof param.time === 'string' ? param.time
-      : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
-    const row = closeOnly
-      ? [time, bar.value, bar.value, bar.value, bar.value]
-      : [time, bar.open, bar.high, bar.low, bar.close];
+    const time = chartTimeKey(param.time);
+    const row = byTime.get(time) || (closeOnly
+      ? [param.time, bar.value, bar.value, bar.value, bar.value]
+      : [param.time, bar.open, bar.high, bar.low, bar.close]);
     ohlc.innerHTML = marketOhlcHTML(item, row, closeOnly)
-      + marketPfTooltipHTML(param)
-      + marketPositionsTooltipHTML(time);
+      + (intraday ? '' : marketPfTooltipHTML(param))
+      + (intraday ? '' : marketPositionsTooltipHTML(time));
   });
   MARKET_PRICE_SERIES = primary;
   // Профиль пересчитывается на изменение видимого диапазона — это и смена периода
   // кнопками, и панорамирование, и зум. Сеть за ним стоит дорогая, поэтому вызов
   // отложен: во время перетаскивания диапазон меняется каждый кадр.
-  let pfTimer = null;
-  MARKET_CHART.timeScale().subscribeVisibleLogicalRangeChange(() => {
-    marketPfDraw(item);                        // полосы не должны отставать от графика
-    clearTimeout(pfTimer);
-    pfTimer = setTimeout(() => marketPfRefresh(item), 320);
-  });
-  marketPfSetup(item);
-
-  if (enabled.has('fizpos')) marketDrawPositions(item);
-  else marketPositionsSay('');
+  if (!intraday) {
+    let pfTimer = null;
+    MARKET_CHART.timeScale().subscribeVisibleLogicalRangeChange(() => {
+      marketPfDraw(item);                        // полосы не должны отставать от графика
+      clearTimeout(pfTimer);
+      pfTimer = setTimeout(() => marketPfRefresh(item), 320);
+    });
+    marketPfSetup(item);
+    if (enabled.has('fizpos')) marketDrawPositions(item);
+    else marketPositionsSay('');
+  } else {
+    MARKET_PF_STATE = null;
+    MARKET_POS_ROW = null;
+    marketPfSay('');
+    marketPositionsSay('');
+    const layer = document.getElementById('market-volume-profile');
+    if (layer) { layer.hidden = true; layer.innerHTML = ''; }
+  }
   // Разворачивается сам <dialog>, а не его внутренняя оболочка. Оболочку с
   // position: fixed диалог теряет из потока и схлопывается в нулевую высоту — график
   // пропадает целиком. Диалог уже лежит в top layer, ему достаточно растянуться.
-  bindChartFullscreen(element.closest('dialog'),
-                      () => { if (MARKET_CHART) MARKET_CHART.timeScale().fitContent(); });
+  bindChartFullscreen(element.closest('dialog'), () => {
+    const settle = () => { if (MARKET_CHART) MARKET_CHART.timeScale().fitContent(); };
+    settle();
+    requestAnimationFrame(() => requestAnimationFrame(settle));
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -9209,8 +9393,7 @@ function marketPositionsTooltipHTML(date) {
 function marketDrawPositions(item) {
   if (item.id !== 'IMOEX') {
     MARKET_POS_ROW = null;
-    marketPositionsSay(`<span class="muted">Позиции физлиц публикуются MOEX по фьючерсам;
-      для «${esc(item.name)}» такого ряда нет.</span>`);
+    marketPositionsSay('');
     return;
   }
   marketPositionsSay('<span class="muted">Загружаем позиции физлиц…</span>');
@@ -9245,14 +9428,14 @@ function marketDrawPositions(item) {
     if (!data.length) { marketPositionsSay('<span class="muted">Рублёвый ряд пуст.</span>'); return; }
     series.setData(data);
     MARKET_CHART.priceScale('fizpos').applyOptions({ scaleMargins: { top: 0.62, bottom: 0 } });
-    marketPositionsSay(marketPositionsNoteHTML(SC_FUTOI.meta || {}, row));
+    marketPositionsSay(marketPositioningInsightHTML(null, row, SC_FUTOI.meta || {}));
     // Разбор — отдельный файл и отдельная загрузка: он нужен только здесь и только
     // когда линия включена, поэтому не тянется вместе с остальным сайтом.
     loadMarketPositioningCommentary((insightErr) => {
-      if (insightErr || !MARKET_INSIGHT) return;      // нет разбора — остаётся факт-строка
+      if (insightErr || !MARKET_INSIGHT) return;      // нет разбора — остаётся deterministic fallback
       const box = document.getElementById('market-pos-note');
       if (!box || !MARKET_POS_ROW) return;            // линию успели выключить
-      box.insertAdjacentHTML('beforeend', marketPositioningInsightHTML(MARKET_INSIGHT));
+      box.innerHTML = marketPositioningInsightHTML(MARKET_INSIGHT, row, SC_FUTOI.meta || {});
     });
   });
 }
@@ -9282,32 +9465,79 @@ function loadMarketPositioningCommentary(cb) {
 const posSigned = (v, digits = 0) => (isNum(v)
   ? `${v > 0 ? '+' : v < 0 ? '−' : ''}${ru(Math.abs(v), digits)}` : ND);
 
-function marketPositioningFactsHTML(f) {
-  const chip = (label, value, hint) => `<span class="mpi-chip" title="${esc(hint)}">
-    <b>${esc(label)}</b> ${esc(value)}</span>`;
-  const out = [
-    chip('1Д', posSigned(f.delta_net_1d), 'изменение чистой позиции за один торговый день'),
-    chip('5Д', posSigned(f.delta_net_5d), 'изменение чистой позиции за пять наблюдений'),
-    chip('20Д', posSigned(f.delta_net_20d), 'изменение чистой позиции за двадцать наблюдений'),
-  ];
-  if (isNum(f.percentile_1y)) {
-    out.push(chip('за год выше', `${ru(f.percentile_1y, 0)}%`,
-      'доля наблюдений за последний год, где чистая позиция была ниже текущей'));
-  }
-  if (isNum(f.price_return_5d)) {
-    out.push(chip('индекс 5Д', `${posSigned(f.price_return_5d * 100, 1)}%`,
-      'доходность индекса за тот же отрезок'));
-  }
-  return `<div class="mpi-chips tnum">${out.join('')}</div>`;
+function marketPositioningFacts(row, payload) {
+  const s = (row || {}).summary || {};
+  const block = (payload || {}).IMOEX || {};
+  const source = block.facts || {};
+  const pick = (primary, fallback) => (isNum(primary) ? primary : fallback);
+  return {
+    long: pick(source.long, s.long), short: pick(source.short, s.short),
+    net: pick(source.net, s.net), gross: pick(source.gross, s.gross),
+    persons_long: pick(source.persons_long, s.persons_long),
+    persons_short: pick(source.persons_short, s.persons_short),
+    delta_long_5d: pick(source.delta_long_5d, s.long_change_5d),
+    delta_short_5d: pick(source.delta_short_5d, s.short_change_5d),
+    delta_net_1d: pick(source.delta_net_1d, s.change_1d),
+    delta_net_5d: pick(source.delta_net_5d, s.change_5d),
+    delta_net_20d: pick(source.delta_net_20d, s.change_20d),
+    delta_gross_5d: pick(source.delta_gross_5d, s.gross_change_5d),
+    persons_long_change_5d: pick(source.persons_long_change_5d, s.persons_long_change_5d),
+    persons_short_change_5d: pick(source.persons_short_change_5d, s.persons_short_change_5d),
+    percentile_1y: pick(source.percentile_1y, s.percentile),
+    net_rub: pick(source.net_rub, s.net_rub),
+  };
 }
 
-function marketPositioningDetailsHTML(f) {
+function marketPositioningStrength(percentile) {
+  if (!isNum(percentile)) return { label: 'История недоступна', key: 'unknown' };
+  if (percentile < 20 || percentile > 80) return { label: 'Необычный уровень', key: 'unusual' };
+  if (percentile < 40 || percentile > 60) return { label: 'Умеренное отклонение', key: 'moderate' };
+  return { label: 'Обычный уровень', key: 'ordinary' };
+}
+
+function marketPositioningDirection(net) {
+  if (!isNum(net)) return { label: 'Данные недоступны', key: 'unknown' };
+  if (net > 0) return { label: 'Нетто-лонг', key: 'long' };
+  if (net < 0) return { label: 'Нетто-шорт', key: 'short' };
+  return { label: 'Баланс', key: 'neutral' };
+}
+
+function marketPositioningActivity(f, regime) {
+  const modes = {
+    two_sided_expansion: ['Рост активности с обеих сторон', 'Лонги и шорты растут одновременно: это рост общей активности, а не однозначный направленный сигнал.'],
+    deleveraging: ['Снижение активности с обеих сторон', 'Лонги и шорты одновременно сокращаются.'],
+    long_building: ['Растут длинные позиции', 'Изменение чистой позиции связано прежде всего с ростом числа лонгов.'],
+    short_covering: ['Сокращаются короткие позиции', 'Изменение чистой позиции связано прежде всего с закрытием шортов.'],
+    short_building: ['Растут короткие позиции', 'Изменение чистой позиции связано прежде всего с ростом числа шортов.'],
+    long_unwinding: ['Сокращаются длинные позиции', 'Изменение чистой позиции связано прежде всего с закрытием лонгов.'],
+    mixed: ['Разнонаправленная динамика', 'Стороны меняют позиции без устойчивого общего режима.'],
+    stable: ['Позиции меняются слабо', 'За пять наблюдений состав позиций изменился незначительно.'],
+  };
+  if (modes[regime]) return modes[regime];
+  return ['Динамика без классификации', 'Для уверенной интерпретации состава изменений недостаточно данных.'];
+}
+
+function marketContracts(value) {
+  if (!isNum(value)) return ND;
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  const abs = Math.abs(value);
+  if (abs >= 1e6) return `${sign}${ru(abs / 1e6, 2)} млн`;
+  if (abs >= 1e3) return `${sign}${ru(abs / 1e3, 1)} тыс.`;
+  return `${sign}${ru(abs, 0)}`;
+}
+
+function marketPositioningKpi(label, value, note, tone = '') {
+  return `<div class="mpi-kpi ${tone}"><span>${esc(label)}</span><b>${esc(value)}</b><small>${esc(note)}</small></div>`;
+}
+
+function marketPositioningDetailsHTML(f, meta) {
   const row = (label, value, d1, d5, d20) => `<tr><th scope="row">${esc(label)}</th>
     <td>${esc(isNum(value) ? ru(value, 0) : ND)}</td>
     <td>${esc(d1 === undefined ? '—' : posSigned(d1))}</td>
     <td>${esc(posSigned(d5))}</td>
     <td>${esc(d20 === undefined ? '—' : posSigned(d20))}</td></tr>`;
-  return `<details class="mpi-details"><summary>Из чего сложилось</summary>
+  const notionalTip = 'Расчётный номинал позиции по спецификации фьючерса. Не является денежным потоком, стоимостью обеспечения или суммой фактически вложенных средств.';
+  return `<details class="mpi-details"><summary>Подробнее о позициях</summary>
     <div class="mpi-table-wrap"><table class="mpi-table tnum">
       <thead><tr><th scope="col">Показатель</th><th scope="col">Значение</th>
         <th scope="col">Δ1Д</th><th scope="col">Δ5Д</th><th scope="col">Δ20Д</th></tr></thead>
@@ -9320,34 +9550,47 @@ function marketPositioningDetailsHTML(f) {
         ${row('Участников с короткими', f.persons_short, undefined, f.persons_short_change_5d, undefined)}
       </tbody>
     </table></div>
-    <p class="mpi-method muted">Чистая позиция = длинные − короткие. Она растёт и когда
-      открывают новые длинные, и когда закрывают короткие, поэтому рядом показаны обе
-      стороны отдельно — по одному итогу причину не отличить.</p>
+    <div class="mpi-secondary">
+      <span>Расчётный notional</span><b>${esc(isNum(f.net_rub) ? `≈ ${marketPosRub(f.net_rub)}` : ND)}</b>
+      <button type="button" class="market-info-tip" aria-label="${esc(notionalTip)}" data-tip="${esc(notionalTip)}">i</button>
+    </div>
+    <p class="mpi-method muted">Чистая позиция = длинные − короткие. Данные позиций:
+      фьючерс IMOEXF · MOEX. Контракты MIX, MXI и IMOEX не суммируются: размер контрактов различается.</p>
+    <p class="mpi-method muted">${esc((meta || {}).disclaimer || 'Описание наблюдаемых позиций, а не прогноз и не рекомендация.')}</p>
   </details>`;
 }
 
-function marketPositioningInsightHTML(payload) {
-  const block = (payload || {}).IMOEX;
-  const meta = (payload || {}).meta || {};
-  if (!block || !block.copy) return '';
-  const { headline, summary, watch } = block.copy;
-  const f = block.facts || {};
+function marketPositioningInsightHTML(payload, row, fallbackMeta = {}) {
+  const block = (payload || {}).IMOEX || {};
+  const meta = { ...fallbackMeta, ...((payload || {}).meta || {}) };
+  const f = marketPositioningFacts(row, payload);
+  if (!isNum(f.net)) return '';
+  const direction = marketPositioningDirection(f.net);
+  const strength = marketPositioningStrength(f.percentile_1y);
+  const [activity, explanation] = marketPositioningActivity(f, block.flow_regime);
+  const deltaNote = !isNum(f.delta_net_5d) ? 'нет данных'
+    : f.delta_net_5d > 0 ? 'сдвиг в сторону лонга'
+      : f.delta_net_5d < 0 ? 'сдвиг в сторону шорта' : 'без изменения';
+  const historyValue = isNum(f.percentile_1y) ? `${ru(f.percentile_1y, 0)}-й percentile` : ND;
+  const asOf = meta.as_of || ((row || {}).summary || {}).as_of;
   const stale = meta.position_latest && meta.position_latest !== meta.position_as_of
     ? `<span class="mpi-stale">Разбор построен на общей дате с ценой индекса
         (${esc(sawDate(meta.as_of))}); позиции доступны и на ${esc(sawDate(meta.position_latest))}.</span>`
     : '';
   return `<section class="mpi" aria-label="Разбор позиционирования физлиц">
     <div class="mpi-head">
-      <span class="mpi-kicker">Позиционирование · данные за ${esc(sawDate(meta.as_of))}</span>
-      ${meta.llm_used ? '<span class="mpi-badge" title="Формулировку сократила языковая модель; режим и все числа рассчитаны кодом">текст отредактирован ИИ</span>' : ''}
+      <span class="mpi-kicker">Позиционирование физлиц</span>
+      <span class="mpi-date">${esc(sawDate(asOf))}</span>
     </div>
-    <h5 class="mpi-headline">${esc(headline)}</h5>
-    <p class="mpi-summary">${esc(summary)}</p>
-    ${watch ? `<p class="mpi-watch muted">${esc(watch)}</p>` : ''}
-    ${marketPositioningFactsHTML(f)}
-    ${marketPositioningDetailsHTML(f)}
+    <h3 class="mpi-headline mpi-${esc(direction.key)}">${esc(direction.label)} · ${esc(strength.label)}</h3>
+    <p class="mpi-summary"><b>${esc(activity)}.</b> ${esc(explanation)}</p>
+    <div class="mpi-kpis tnum">
+      ${marketPositioningKpi('Нетто-позиция', `${marketContracts(f.net)} контрактов`, direction.label, `mpi-${direction.key}`)}
+      ${marketPositioningKpi('Изменение 5д', isNum(f.delta_net_5d) ? `${marketContracts(f.delta_net_5d)} контрактов` : ND, deltaNote)}
+      ${marketPositioningKpi('Исторический уровень', historyValue, strength.label)}
+    </div>
+    ${marketPositioningDetailsHTML(f, meta)}
     ${stale}
-    <p class="mpi-disclaimer muted">${esc(meta.disclaimer || '')}</p>
   </section>`;
 }
 
@@ -9467,9 +9710,21 @@ function marketFitPeriod(count) {
 function marketPfSetup(item) {
   const button = document.getElementById('market-pf-toggle');
   if (!button) return;
+  if (MARKET_CHART_STATE.period === '1d') {
+    button.hidden = true;
+    MARKET_PF_STATE = null;
+    marketPfSay('');
+    return;
+  }
   const proxy = MARKET_PROFILE_PROXY[item.id];
   button.hidden = !proxy;
-  if (!proxy) { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(item); return; }
+  if (!proxy) {
+    MARKET_PF_STATE = null;
+    marketPfSay('');
+    marketPfDraw(item);
+    renderMarketTechnicalAnalytics(item);
+    return;
+  }
   button.setAttribute('aria-pressed', String(MARKET_PF_ON));
   button.title = `Профиль объёма по ${proxy.label} — индекс не торгуется, оборота у него нет`;
   if (!button._pfBound) {
@@ -9478,12 +9733,22 @@ function marketPfSetup(item) {
       MARKET_PF_ON = !MARKET_PF_ON;
       button.setAttribute('aria-pressed', String(MARKET_PF_ON));
       const current = marketInstrument(MARKET_CHART_STATE.id);
-      if (!MARKET_PF_ON) { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(current); }
+      if (!MARKET_PF_ON) {
+        MARKET_PF_STATE = null;
+        marketPfSay('');
+        marketPfDraw(current);
+        renderMarketTechnicalAnalytics(current);
+      }
       else marketPfRefresh(current);
     });
   }
   if (MARKET_PF_ON) marketPfRefresh(item);
-  else { MARKET_PF_STATE = null; marketPfSay(''); marketPfDraw(item); }
+  else {
+    MARKET_PF_STATE = null;
+    marketPfSay('');
+    marketPfDraw(item);
+    renderMarketTechnicalAnalytics(item);
+  }
 }
 
 function marketPfDraw(item) {
@@ -9529,25 +9794,30 @@ function marketPfTooltipHTML(param) {
 
 function marketPfNoteHTML(proxy, profile, from, till, candles) {
   const share = isNum(profile.valueAreaShare) ? ru(profile.valueAreaShare * 100, 1) : ND;
-  return `<b>Профиль объёма · ${esc(proxy.label)}.</b> Цена на графике — индекс МосБиржи,
-    а оборот у индекса не существует: он не торгуется. Профиль построен по
-    ${esc(ru(candles, 0))} внутридневным свечам ${esc(proxy.label)} (${esc(proxy.note)})
-    за ${esc(sawDate(from))} – ${esc(sawDate(till))}, поэтому его уровни относятся к фьючерсу
-    и отличаются от индекса на величину базиса.
-    POC ${esc(ru(profile.poc, 0))} — цена с наибольшим оборотом; зона стоимости
-    ${esc(ru(profile.val, 0))} – ${esc(ru(profile.vah, 0))} вобрала ${esc(share)}% оборота.
-    Денежный оборот пересчитан из контрактов по спецификации контракта: ISS по срочному
-    рынку публикует объём в контрактах, а не в рублях.`;
+  return `<p><b>Профиль объёма · ${esc(proxy.label)}.</b> Индекс не торгуется, поэтому профиль
+    построен по ${esc(ru(candles, 0))} внутридневным свечам ${esc(proxy.label)} (${esc(proxy.note)})
+    за ${esc(sawDate(from))} – ${esc(sawDate(till))}. POC и зона стоимости
+    ${esc(ru(profile.val, 0))} – ${esc(ru(profile.vah, 0))} (${esc(share)}% оборота) относятся
+    к фьючерсу и отличаются от индекса на величину базиса. Оборот пересчитан из контрактов
+    по действующей спецификации MOEX.</p>`;
 }
 
 function marketPfRefresh(item) {
   const layer = document.getElementById('market-volume-profile');
   if (!layer) return;
+  if (MARKET_CHART_STATE.period === '1d') {
+    MARKET_PF_STATE = null;
+    layer.hidden = true;
+    layer.innerHTML = '';
+    marketPfSay('');
+    return;
+  }
   const proxy = MARKET_PROFILE_PROXY[item.id];
   if (!MARKET_PF_ON || !proxy) {
     MARKET_PF_STATE = null;
     marketPfSay('');
     marketPfDraw(item);
+    renderMarketTechnicalAnalytics(item);
     return;
   }
   const rows = marketChartRows(item);
@@ -9566,8 +9836,9 @@ function marketPfRefresh(item) {
   // ISS идёт от начала диапазона, и потолок отрезал бы весь конец. Такой профиль
   // не строим вовсе — подпись честнее неверной картинки.
   if (!scProfileFits(days, interval)) {
-    MARKET_PF_STATE = { key, profile: null };
+    MARKET_PF_STATE = { key, profile: null, proxy };
     marketPfDraw(item);
+    renderMarketTechnicalAnalytics(item);
     marketPfSay(`<b>Профиль недоступен.</b> На диапазоне в ${esc(ru(days, 0))} дн. внутридневных
       свечей больше, чем отдаёт один запрос — часть периода осталась бы за кадром.
       Приблизьте график примерно до ${esc(ru(scProfileMaxDays(interval) / 365, 1))} лет.`);
@@ -9577,13 +9848,16 @@ function marketPfRefresh(item) {
   if (MARKET_PF_ABORT) { try { MARKET_PF_ABORT.abort(); } catch (_e) { /* noop */ } }
   const ctrl = new AbortController();
   MARKET_PF_ABORT = ctrl;
+  MARKET_PF_STATE = { key, profile: null, proxy };
+  renderMarketTechnicalAnalytics(item);
   marketPfSay(`<span class="muted">Строим профиль по ${esc(proxy.label)}…</span>`);
 
   marketPfMultiplier(proxy.secid, (multiplier) => {
     if (ctrl.signal.aborted) return;
     if (!multiplier) {
-      MARKET_PF_STATE = { key, profile: null };
+      MARKET_PF_STATE = { key, profile: null, proxy };
       marketPfDraw(item);
+      renderMarketTechnicalAnalytics(item);
       marketPfSay(`<b>Профиль недоступен.</b> MOEX не отдал спецификацию контракта
         ${esc(proxy.label)}, а без неё оборот в рублях не посчитать — показывать профиль
         в контрактах рядом с рублёвым графиком значило бы смешивать единицы.`);
@@ -9593,8 +9867,9 @@ function marketPfRefresh(item) {
       if (ctrl.signal.aborted) return;
       const usable = (candles || []).filter((c) => isNum(c.value) && c.value > 0);
       if (err || usable.length < 20) {
-        MARKET_PF_STATE = { key, profile: null };
+        MARKET_PF_STATE = { key, profile: null, proxy };
         marketPfDraw(item);
+        renderMarketTechnicalAnalytics(item);
         marketPfSay(`<b>Профиль недоступен.</b> Внутридневных данных по ${esc(proxy.label)}
           на этот период MOEX сейчас не отдаёт${usable.length ? ` (получено ${esc(ru(usable.length, 0))} свечей)` : ''}.
           Дневными свечами профиль не подделываем: они не содержат распределения сделок
@@ -9602,36 +9877,21 @@ function marketPfRefresh(item) {
         return;
       }
       const profile = scProfileCompute(usable, MARKET_PF_BINS);
-      MARKET_PF_STATE = { key, profile };
+      MARKET_PF_STATE = { key, profile, proxy, from, till, candles: usable.length };
       marketPfDraw(item);
-      marketPfSay(profile ? marketPfNoteHTML(proxy, profile, from, till, usable.length)
-        : '<b>Профиль недоступен.</b> Оборот в выборке нулевой.');
+      renderMarketTechnicalAnalytics(item);
+      marketPfSay(profile ? '' : '<b>Профиль недоступен.</b> Оборот в выборке нулевой.');
     });
   });
-}
-
-function marketPositionsNoteHTML(meta, row) {
-  const s = row.summary || {};
-  const dir = s.net > 0 ? 'нетто-лонге' : s.net < 0 ? 'нетто-шорте' : 'нуле';
-  const pct = isNum(s.percentile)
-    ? ` Это выше ${esc(ru(s.percentile, 0))}% наблюдений за последний год.` : '';
-  const w = isNum(s.change_5d)
-    ? ` За неделю позиция ${s.change_5d >= 0 ? 'выросла' : 'сократилась'} на
-        ${esc(ru(Math.abs(s.change_5d), 0))} контр.` : '';
-  return `<b>Физические лица в ${dir}: ${esc(marketPosRub(s.net_rub))}</b>
-    (${esc(ru(s.net, 0))} контрактов: ${esc(ru(s.long, 0))} длинных против
-    ${esc(ru(s.short, 0))} коротких, участников ${esc(ru(s.persons_long, 0))} и
-    ${esc(ru(s.persons_short, 0))}).${pct}${w}
-    <span class="muted">Вечный фьючерс на индекс (IMOEXF), данные MOEX за
-    ${esc(meta.freshness || 'предыдущий торговый день')} — ${esc(sawDate(s.as_of))}.
-    Рубли считаются как контракты × цена × ${esc(ru(s.multiplier || 0, 0))} ₽ за пункт
-    по спецификации контракта. Контракты MIX, MXI и IMOEX между собой не складываются:
-    у них разный размер.</span>`;
 }
 
 function renderMarketChartDialog() {
   const item = marketInstrument(MARKET_CHART_STATE.id);
   if (!item) return;
+  if (MARKET_CHART_STATE.period === '1d' && !MARKET_INTRADAY_SPEC[item.id]) {
+    MARKET_CHART_STATE.period = 22;
+  }
+  const intraday = MARKET_CHART_STATE.period === '1d';
   const s = item.summary || {};
   document.getElementById('market-chart-title').innerHTML = `${instrumentAvatarHTML(item.id, item.description || item.name, item.type, 'md')}<span>${esc(item.name)} · ${marketNumber(s.last, item.decimals)}</span>`;
   document.getElementById('market-chart-sub').innerHTML = `<span class="${(s.change_pct || 0) >= 0 ? 'up' : 'down'}">${marketChange(s.change_pct)}</span> · ${esc(item.description)} · ${esc(sawDate(item.data_last))}`;
@@ -9639,22 +9899,55 @@ function renderMarketChartDialog() {
     `<button type="button" data-market-tab="${esc(row.id)}" class="${row.id === item.id ? 'active' : ''}">${instrumentAvatarHTML(row.id, row.description || row.name, row.type, 'xs')}${esc(row.name)}</button>`
   ).join('');
   const seriesMode = document.getElementById('market-chart-mode');
-  if (seriesMode) seriesMode.textContent = marketUsesCloseLine(item) ? 'Линия закрытия' : 'Свечи OHLC';
+  if (seriesMode) seriesMode.textContent = intraday ? '10-минутные свечи'
+    : (marketUsesCloseLine(item) ? 'Линия закрытия' : 'Свечи OHLC');
+  const positionToggle = document.querySelector('.market-pos-toggle');
+  if (positionToggle) {
+    positionToggle.hidden = item.id !== 'IMOEX';
+    if (intraday) positionToggle.hidden = true;
+  }
+  const overlays = document.getElementById('market-chart-overlays');
+  if (overlays) overlays.hidden = intraday;
+  const profileToggle = document.getElementById('market-pf-toggle');
+  if (profileToggle && intraday) profileToggle.hidden = true;
   document.querySelectorAll('#market-chart-periods [data-period]').forEach((button) => {
-    button.classList.toggle('active', Number(button.dataset.period) === MARKET_CHART_STATE.period);
+    const value = button.dataset.period === '1d' ? '1d' : Number(button.dataset.period);
+    const unavailable = value === '1d' && !MARKET_INTRADAY_SPEC[item.id];
+    button.disabled = unavailable;
+    button.title = unavailable ? 'Мосбиржа не публикует внутридневные свечи этого индекса' : '';
+    button.classList.toggle('active', value === MARKET_CHART_STATE.period);
   });
-  document.getElementById('market-chart-levels').innerHTML = marketLevelsHTML(item);
+  renderMarketTechnicalAnalytics(item);
   const source = document.getElementById('market-chart-source');
   source.href = /^https:\/\/iss\.moex\.com\//i.test(String(item.source_url || ''))
     ? item.source_url : 'https://iss.moex.com/';
   source.textContent = `${item.source} · ${sawDate(item.data_last)}`;
+  const foot = document.querySelector('.market-chart-foot span');
+  if (foot) foot.textContent = intraday
+    ? '1Д: 10-минутные OHLC последней торговой сессии MOEX ISS. Технические ориентиры не являются прогнозом.'
+    : 'Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.';
+  const request = ++MARKET_CHART_REQUEST;
   loadLWC((error) => {
     const canvas = document.getElementById('market-chart-canvas');
+    if (request !== MARKET_CHART_REQUEST) return;
     if (error || !window.LightweightCharts) {
       canvas.innerHTML = '<div class="news-fallback">График недоступен; числовые уровни рассчитаны и сохранены.</div>';
       return;
     }
-    drawMarketChart(item);
+    if (!intraday) { drawMarketChart(item); return; }
+    if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; }
+    canvas.innerHTML = '<div class="news-fallback">Загружаем 10-минутные свечи MOEX ISS…</div>';
+    const cached = MARKET_INTRADAY_CACHE[item.id];
+    if (cached && cached.length) { drawMarketChart(item, cached); return; }
+    fetchMarketIntraday(item, (fetchError, rows) => {
+      if (request !== MARKET_CHART_REQUEST) return;
+      if (fetchError || !rows.length) {
+        canvas.innerHTML = `<div class="news-fallback">1Д сейчас недоступен: ${esc(String((fetchError && fetchError.message) || 'в MOEX ISS нет свечей'))}.</div>`;
+        return;
+      }
+      MARKET_INTRADAY_CACHE[item.id] = rows;
+      drawMarketChart(item, rows);
+    });
   });
 }
 
@@ -9671,8 +9964,8 @@ function wireMarketChartDialog() {
   });
   document.getElementById('market-chart-periods').addEventListener('click', (event) => {
     const button = event.target.closest('[data-period]');
-    if (!button) return;
-    MARKET_CHART_STATE.period = Number(button.dataset.period);
+    if (!button || button.disabled) return;
+    MARKET_CHART_STATE.period = button.dataset.period === '1d' ? '1d' : Number(button.dataset.period);
     renderMarketChartDialog();
   });
   document.getElementById('market-chart-overlays').addEventListener('change', () => renderMarketChartDialog());
@@ -9767,11 +10060,27 @@ document.addEventListener('keydown', (event) => {
 
 window.addEventListener('popstate', () => { if (CHART_FS_EL) chartFullscreenExit(true); });
 
-const STOCK_CHART_PERIODS = [['127', '6М'], ['252', '1Г'], ['756', '3Г'], ['0', 'Макс']];
+const STOCK_CHART_PERIODS = [
+  ['1d', '1Д'], ['31', '1М'], ['183', '6М'], ['365', '1Г'], ['1096', '3Г'], ['0', 'Макс'],
+];
+const STOCK_CHART_DEFAULT = '365';
 
 function stockChartFromDate(days) {
   if (!days) return '2014-01-01';   // «Макс» — практический старт TQBR-истории
-  return new Date(Date.now() - (days + 25) * 86400000).toISOString().slice(0, 10);
+  // Буфер нужен только для загрузки: на экране ряд потом обрезается ровно
+  // от последней фактической свечи, а не от текущего календарного дня.
+  return new Date(Date.now() - (days + 35) * 86400000).toISOString().slice(0, 10);
+}
+
+function stockTrimDailyRows(rows, days) {
+  if (!days || !rows.length) return rows.slice();
+  const last = Date.parse(`${rows[rows.length - 1][0]}T00:00:00Z`);
+  if (!Number.isFinite(last)) return rows.slice();
+  const cutoff = last - days * 86400000;
+  return rows.filter((row) => {
+    const value = Date.parse(`${row[0]}T00:00:00Z`);
+    return Number.isFinite(value) && value >= cutoff;
+  });
 }
 
 function stockPriceChartHTML(t) {
@@ -9779,7 +10088,7 @@ function stockPriceChartHTML(t) {
     <div class="sc-top">
       <h4>${instrumentAvatarHTML(t.ticker, t.name, instrumentTypeHint(t), 'sm')}<span>Цена и объём торгов · ${esc(t.ticker)}</span></h4>
       <div class="sc-tools">
-        <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l], i) => `<button type="button" data-sc-days="${d}" class="${i === 1 ? 'active' : ''}" aria-pressed="${i === 1}">${l}</button>`).join('')}</div>
+        <div class="sc-periods" role="tablist" aria-label="Период графика">${STOCK_CHART_PERIODS.map(([d, l]) => `<button type="button" data-sc-days="${d}" class="${d === STOCK_CHART_DEFAULT ? 'active' : ''}" aria-pressed="${d === STOCK_CHART_DEFAULT}">${l}</button>`).join('')}</div>
         <button type="button" class="sc-pf-toggle" aria-pressed="${SC_PROFILE_ON}">Профиль объёма</button>
         <button type="button" class="sc-fi-toggle" aria-pressed="${SC_FUTOI_ON}">Позиции физлиц</button>
         ${chartFullscreenButtonHTML()}
@@ -9825,6 +10134,10 @@ function fetchStockOHLC(ticker, fromDate, cb) {
   step(0);
 }
 
+function fetchStockIntradayOHLC(ticker, cb) {
+  fetchMoexIntradayCandles({ engine: 'stock', market: 'shares', board: 'TQBR', secid: ticker }, cb);
+}
+
 // Денежные суммы: тыс/млн/млрд ₽. Отдельная функция, потому что одна и та же шкала
 // используется и в подписях оси объёма, и в tooltip, и в профиле — расхождение форматов
 // между ними читалось бы как расхождение данных.
@@ -9852,7 +10165,7 @@ function stockOhlcReadout(ticker, r) {
   // прочитать его как деньги.
   const turnover = isNum(r[6]) ? scMoney(r[6]) : null;
   const trades = isNum(r[7]) ? ru(r[7], 0) : null;
-  return `<span class="sc-date">${esc(sawDate(r[0]))}</span>
+  return `<span class="sc-date">${esc(moexRowLabel(r))}</span>
     <span>O ${n(r[1])}</span><span>H ${n(r[2])}</span><span>L ${n(r[3])}</span>
     <span class="${up ? 'sc-up' : 'sc-down'}">C ${n(r[4])}</span>
     ${turnover ? `<span class="sc-turn">Оборот ${turnover}</span>` : ''}
@@ -9860,9 +10173,10 @@ function stockOhlcReadout(ticker, r) {
     ${trades ? `<span class="sc-trades">Сделок ${trades}</span>` : ''}`;
 }
 
-function renderStockChartData(container, ticker, rows) {
+function renderStockChartData(container, ticker, rows, options = {}) {
   const canvas = container.querySelector('.sc-canvas');
   const ohlc = container.querySelector('.sc-ohlc');
+  const intraday = Boolean(options.intraday);
   if (!canvas) return;
   if (!window.LightweightCharts) { canvas.innerHTML = '<div class="sc-loading muted">График недоступен.</div>'; return; }
   // Освобождаем и график, и наблюдатель размера: иначе при смене акции подписки
@@ -9878,6 +10192,16 @@ function renderStockChartData(container, ticker, rows) {
   scProfileSay(container, '');
   const fiNote = container.querySelector('.sc-fi-note');
   if (fiNote) fiNote.innerHTML = '';
+  container.classList.toggle('sc-intraday', intraday);
+  container.style.setProperty('--sc-volume-top', `${SC_VOL_TOP * 100}%`);
+  const profileToggle = container.querySelector('.sc-pf-toggle');
+  const futoiToggle = container.querySelector('.sc-fi-toggle');
+  if (profileToggle) profileToggle.hidden = intraday;
+  if (futoiToggle) futoiToggle.hidden = intraday;
+  const foot = container.querySelector('.sc-foot');
+  if (foot) foot.innerHTML = intraday
+    ? '1Д — 10-минутные OHLC и денежный оборот последней торговой сессии MOEX ISS, режим TQBR. Не является индивидуальной инвестиционной рекомендацией.'
+    : 'Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR. Столбцы внизу — оборот в рублях (VALUE), а не количество бумаг. Не является индивидуальной инвестиционной рекомендацией.';
   canvas.innerHTML = '';
   const LC = window.LightweightCharts;
   const chart = LC.createChart(canvas, {
@@ -9889,7 +10213,8 @@ function renderStockChartData(container, ticker, rows) {
     // Раньше между ними оставалось 8% высоты, не занятых ничем.
     rightPriceScale: { borderColor: '#D8DEE8', scaleMargins: { top: 0.08, bottom: 0.32 } },
     // То же ограничение: на «Макс» в ряду больше 2 800 дневных свечей.
-    timeScale: { borderColor: '#D8DEE8', timeVisible: false, rightOffset: 4, minBarSpacing: 0.4 },
+    timeScale: { borderColor: '#D8DEE8', timeVisible: intraday, secondsVisible: false,
+      rightOffset: 4, minBarSpacing: 0.4 },
     crosshair: { mode: LC.CrosshairMode.Normal,
       vertLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' },
       horzLine: { color: '#98A2B3', style: LC.LineStyle.Dashed, labelBackgroundColor: '#344054' } },
@@ -9931,12 +10256,17 @@ function renderStockChartData(container, ticker, rows) {
   // а пересчёт той же величины.
   const scale = container.querySelector('.sc-volscale');
   const redrawScale = () => scVolScaleDraw(scale, chart, vol, rows, hasValue);
+  container._scVolumeApply = redrawScale;
   // Отрисовка профиля и его пересчёт разведены по частоте: полосы перерисовываются
   // почти сразу (чтобы не отставать от графика), а сеть дёргается только когда
   // пользователь остановился.
   const redrawProfile = () => scProfileDraw(container, chart, candles);
-  const refreshProfile = debounce(() => scProfileRefresh(container, ticker, chart, candles, rows), 320);
-  const onRange = () => { redrawScale(); redrawProfile(); refreshProfile(); };
+  const refreshProfile = intraday ? null
+    : debounce(() => scProfileRefresh(container, ticker, chart, candles, rows), 320);
+  const onRange = () => {
+    redrawScale();
+    if (!intraday) { redrawProfile(); refreshProfile(); }
+  };
   redrawScale();
   chart.timeScale().subscribeVisibleLogicalRangeChange(debounce(onRange, 60));
   const ro = (typeof ResizeObserver !== 'undefined')
@@ -9945,26 +10275,26 @@ function renderStockChartData(container, ticker, rows) {
 
   // Переключатель вызывает это же, поэтому включение профиля на уже нарисованном
   // графике не требует перезагрузки дневных котировок.
-  container._scProfileApply = () => {
+  container._scProfileApply = intraday ? null : () => {
     container._scProfileKey = null;
     scProfileRefresh(container, ticker, chart, candles, rows);
   };
-  if (SC_PROFILE_ON) container._scProfileApply();
+  if (!intraday && SC_PROFILE_ON) container._scProfileApply();
 
-  container._scFutoiApply = () => scFutoiDraw(container, chart, ticker);
-  if (SC_FUTOI_ON) container._scFutoiApply();
+  container._scFutoiApply = intraday ? null : () => scFutoiDraw(container, chart, ticker);
+  if (!intraday && SC_FUTOI_ON) container._scFutoiApply();
 
   if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
-  const byTime = new Map(rows.map((r) => [r[0], r]));
+  const byTime = new Map(rows.map((r) => [chartTimeKey(r[0]), r]));
   chart.subscribeCrosshairMove((param) => {
     if (!ohlc || !param || !param.time || !param.seriesData) return;
     const bar = param.seriesData.get(candles);
     if (!bar) return;
-    const time = typeof param.time === 'string' ? param.time
-      : `${param.time.year}-${String(param.time.month).padStart(2, '0')}-${String(param.time.day).padStart(2, '0')}`;
+    const time = chartTimeKey(param.time);
     // Берём ИСХОДНУЮ строку, а не значение серии: в серии лежит только оборот,
     // а показать надо и количество бумаг, и число сделок.
-    ohlc.innerHTML = stockOhlcReadout(ticker, byTime.get(time) || [time, bar.open, bar.high, bar.low, bar.close]);
+    ohlc.innerHTML = stockOhlcReadout(ticker, byTime.get(time)
+      || [param.time, bar.open, bar.high, bar.low, bar.close]);
   });
 }
 
@@ -10263,8 +10593,11 @@ function scVolScaleDraw(scale, chart, volSeries, rows, hasValue) {
   // не сравниваются, а длинная подпись ещё и обрезается узкой колонкой.
   const unit = hasValue
     ? (max >= 1e9 ? 'млрд' : max >= 1e6 ? 'млн' : max >= 1e3 ? 'тыс' : '')
-    : null;
-  const fmt = (v) => (hasValue ? scMoney(v, unit) : `${ru(v / 1e6, 1)} млн шт`);
+    : (max >= 1e9 ? 'млрд' : max >= 1e6 ? 'млн' : max >= 1e3 ? 'тыс' : '');
+  const divisor = unit === 'млрд' ? 1e9 : unit === 'млн' ? 1e6 : unit === 'тыс' ? 1e3 : 1;
+  const fmt = (v) => ru(v / divisor, Math.abs(v / divisor) >= 100 ? 0 : 1);
+  const full = (v) => (hasValue ? scMoney(v, unit) : `${ru(v / divisor, 1)} ${unit} шт`);
+  const unitLabel = unit ? unit.toUpperCase() : '';
   const html = [];
   // Разделитель на верхней границе зоны объёма. Без него подписи оборота стоят в той же
   // колонке, что и деления цены от библиотеки, и вместе читаются как одна сломанная
@@ -10275,12 +10608,12 @@ function scVolScaleDraw(scale, chart, volSeries, rows, hasValue) {
   if (isNum(topY)) {
     html.push(`<span class="sc-vs-split" style="top:${(topY - 9).toFixed(1)}px"></span>`);
     html.push(`<span class="sc-vs-cap" style="top:${(topY - 9).toFixed(1)}px">${
-      hasValue ? 'оборот' : 'объём'}</span>`);
+      hasValue ? `ОБОРОТ · ${unitLabel} ₽` : `ОБЪЁМ · ${unitLabel} ШТ`}</span>`);
   }
   for (const v of [0, ...scNiceTicks(max, count)]) {
     const y = volSeries.priceToCoordinate(v);
     if (!isNum(y)) continue;                  // значение вне видимой области шкалы
-    html.push(`<span class="sc-vs-tick" style="top:${y.toFixed(1)}px">${v === 0 ? '0' : esc(fmt(v))}</span>`);
+    html.push(`<span class="sc-vs-tick" style="top:${y.toFixed(1)}px" title="${esc(full(v))}">${v === 0 ? '0' : esc(fmt(v))}</span>`);
   }
   scale.innerHTML = html.join('');
 }
@@ -10469,21 +10802,34 @@ function wireStockChart(root, ticker) {
   const container = root.querySelector('.stock-chart');
   if (!container || container.dataset.wired) return;
   container.dataset.wired = '1';
-  const load = (days) => {
-    const from = stockChartFromDate(Number(days));
-    const key = `${ticker}|${from}`;
+  const load = (period) => {
+    const intraday = period === '1d';
+    const days = intraday ? null : Number(period);
+    const from = intraday ? null : stockChartFromDate(days);
+    const key = intraday ? `${ticker}|intraday-10m` : `${ticker}|${from}`;
+    const token = (container._scLoadToken || 0) + 1;
+    container._scLoadToken = token;
     const canvas = container.querySelector('.sc-canvas');
-    if (STOCK_OHLC_CACHE[key]) { renderStockChartData(container, ticker, STOCK_OHLC_CACHE[key]); return; }
-    if (canvas) canvas.innerHTML = '<div class="sc-loading muted">Загрузка дневных котировок MOEX ISS…</div>';
+    const render = (sourceRows) => {
+      const visibleRows = intraday ? sourceRows : stockTrimDailyRows(sourceRows, days);
+      renderStockChartData(container, ticker, visibleRows, { intraday });
+    };
+    if (STOCK_OHLC_CACHE[key]) { render(STOCK_OHLC_CACHE[key]); return; }
+    if (canvas) canvas.innerHTML = `<div class="sc-loading muted">Загрузка ${intraday ? '10-минутных' : 'дневных'} котировок MOEX ISS…</div>`;
     loadLWC((lerr) => {
+      if (token !== container._scLoadToken) return;
       if (lerr) { if (canvas) canvas.innerHTML = '<div class="sc-loading muted">Библиотека графиков не загрузилась.</div>'; return; }
-      fetchStockOHLC(ticker, from, (err, rows) => {
+      const fetcher = intraday
+        ? (done) => fetchStockIntradayOHLC(ticker, done)
+        : (done) => fetchStockOHLC(ticker, from, done);
+      fetcher((err, rows) => {
+        if (token !== container._scLoadToken) return;
         if (err || !rows.length) {
-          if (canvas) canvas.innerHTML = `<div class="sc-loading muted">Дневные котировки ${esc(ticker)} на MOEX ISS сейчас недоступны.</div>`;
+          if (canvas) canvas.innerHTML = `<div class="sc-loading muted">${intraday ? '10-минутные' : 'Дневные'} котировки ${esc(ticker)} на MOEX ISS сейчас недоступны.</div>`;
           return;
         }
         STOCK_OHLC_CACHE[key] = rows;
-        renderStockChartData(container, ticker, rows);
+        render(rows);
       });
     });
   };
@@ -10510,10 +10856,15 @@ function wireStockChart(root, ticker) {
   // Профиль объёма считается по видимому диапазону, поэтому после смены размера его
   // надо пересобрать, а не только растянуть полотно.
   bindChartFullscreen(container, () => {
-    if (container._scChart) container._scChart.timeScale().fitContent();
-    if (container._scProfileApply) container._scProfileApply();
+    const settle = () => {
+      if (container._scChart) container._scChart.timeScale().fitContent();
+      if (container._scVolumeApply) container._scVolumeApply();
+      if (container._scProfileApply) container._scProfileApply();
+    };
+    settle();
+    requestAnimationFrame(() => requestAnimationFrame(settle));
   });
-  load('252');
+  load(STOCK_CHART_DEFAULT);
 }
 
 // initRouter() вызывается в самом конце файла (после ВСЕХ модулей и их let-глобалов) — см. низ app.js

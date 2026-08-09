@@ -603,6 +603,8 @@
   <div class="market-chart-toolbar">
   <div class="market-chart-view">
   <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
+  <button type="button" data-period="1d">1Д</button>
+  <button type="button" data-period="22">1М</button>
   <button type="button" data-period="63">3М</button>
   <button type="button" data-period="252" class="active">1Г</button>
   <button type="button" data-period="756">3Г</button>
@@ -618,7 +620,7 @@
   <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
   <label><input type="checkbox" value="sma50" checked><span class="ma-swatch ma50"></span>SMA50</label>
   <label><input type="checkbox" value="sma200"><span class="ma-swatch ma200"></span>SMA200</label>
-  <label class="market-pos-toggle"><input type="checkbox" value="fizpos"><span class="ma-swatch mapos"></span>Позиции физлиц</label>
+  <label class="market-pos-toggle"><input type="checkbox" value="fizpos" checked><span class="ma-swatch mapos"></span>Позиции физлиц</label>
   </div>
   </div>
   <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
@@ -628,9 +630,9 @@
   <div class="market-chart-canvas" id="market-chart-canvas"></div>
   <div class="market-volume-profile" id="market-volume-profile" aria-hidden="true" hidden></div>
   </div>
-  <div class="market-pf-note muted" id="market-pf-note" aria-live="polite"></div>
   <div class="market-pos-note" id="market-pos-note" aria-live="polite"></div>
-  <div class="market-levels" id="market-chart-levels"></div>
+  <div class="market-analytics" id="market-chart-levels"></div>
+  <div class="market-pf-note muted" id="market-pf-note" aria-live="polite"></div>
   <footer class="market-chart-foot">
   <span>Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.</span>
   <a id="market-chart-source" href="https://iss.moex.com/" target="_blank" rel="noopener noreferrer">MOEX ISS</a>
