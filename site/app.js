@@ -10220,6 +10220,16 @@ function openMarketChart(id) {
 // ══════════════════════════════════════════════════════════════════════════
 let CHART_FS_EL = null;            // развёрнутый контейнер; одновременно может быть только один
 
+function chartFullscreenRestore(el) {
+  const marker = el && el._chartFsMarker;
+  if (!marker) return;
+  if (marker.parentNode) marker.parentNode.insertBefore(el, marker);
+  else if (el._chartFsParent && el._chartFsParent.isConnected) el._chartFsParent.appendChild(el);
+  marker.remove();
+  delete el._chartFsMarker;
+  delete el._chartFsParent;
+}
+
 function chartFullscreenButtonHTML() {
   return `<button type="button" class="chart-fs-toggle" aria-pressed="false"
     title="Развернуть график" aria-label="Развернуть график на весь экран">
@@ -10232,6 +10242,7 @@ function chartFullscreenExit(viaHistory = false) {
   CHART_FS_EL = null;
   el.classList.remove('is-chart-fullscreen');
   document.body.classList.remove('has-chart-fullscreen');
+  chartFullscreenRestore(el);
   const button = el.querySelector('.chart-fs-toggle');
   if (button) {
     button.setAttribute('aria-pressed', 'false');
@@ -10249,6 +10260,17 @@ function chartFullscreenExit(viaHistory = false) {
 function chartFullscreenEnter(el) {
   if (CHART_FS_EL) chartFullscreenExit();
   CHART_FS_EL = el;
+  // Fullscreen-контейнер переносится в body. Иначе при повороте телефона шире
+  // desktop-breakpoint родитель `.cards` скрывается медиазапросом: график становится
+  // 0×0, а прокрутка body остаётся заблокированной. Маркер возвращает узел точно на
+  // прежнее место после выхода, не пересоздавая график и его обработчики.
+  if (el.parentNode && el.parentNode !== document.body) {
+    const marker = document.createComment('chart-fullscreen');
+    el._chartFsParent = el.parentNode;
+    el._chartFsMarker = marker;
+    el.parentNode.insertBefore(marker, el);
+    document.body.appendChild(el);
+  }
   el.classList.add('is-chart-fullscreen');
   document.body.classList.add('has-chart-fullscreen');
   const button = el.querySelector('.chart-fs-toggle');

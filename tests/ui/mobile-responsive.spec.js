@@ -154,6 +154,32 @@ test.describe('mobile responsive data surfaces', () => {
     );
     expect(fullscreenControlWidth).toBeGreaterThanOrEqual(44);
 
+    if (page.viewportSize().width === 390) {
+      await stockChart.locator('.chart-fs-toggle').click();
+      const fullscreenChart = page.locator('body > .stock-chart.is-chart-fullscreen');
+      await expect(fullscreenChart).toBeVisible();
+      await page.setViewportSize({ width: 844, height: 390 });
+      const landscape = await fullscreenChart.evaluate((node) => {
+        const canvas = node.querySelector('.sc-canvas').getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
+        return {
+          width: bounds.width,
+          height: bounds.height,
+          canvasWidth: canvas.width,
+          canvasHeight: canvas.height,
+          pageOverflow: document.documentElement.scrollWidth - window.innerWidth,
+        };
+      });
+      expect(landscape.width).toBeGreaterThanOrEqual(843);
+      expect(landscape.height).toBeGreaterThanOrEqual(389);
+      expect(landscape.canvasWidth).toBeGreaterThanOrEqual(700);
+      expect(landscape.canvasHeight).toBeGreaterThanOrEqual(180);
+      expect(landscape.pageOverflow).toBeLessThanOrEqual(1);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await fullscreenChart.locator('.chart-fs-toggle').click();
+      await expect(page.locator('body')).not.toHaveClass(/has-chart-fullscreen/);
+    }
+
     await goto(page, '#market');
     const marketCard = page.locator('[data-market-id]').first();
     await marketCard.waitFor({ state: 'visible' });
