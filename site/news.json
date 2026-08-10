@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-09",
-  "generated_at": "2026-08-09T17:58:31+03:00",
+  "date": "2026-08-10",
+  "generated_at": "2026-08-10T07:17:11+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись ростом, золото подорожало на 3.72%, нефть Brent выросла на 1.29%.",
+  "external_backdrop": "Азиатские индексы, нефть и золото растут перед открытием торгов в РФ, американские рынки закрылись ростом в пятницу.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,30 +20,30 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "65606.71",
-      "change_pct": "-0.12%",
-      "as_of": "2026-08-07",
+      "value": "66926.04",
+      "change_pct": "+2.01%",
+      "as_of": "2026-08-10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25668.03",
-      "change_pct": "+0.54%",
-      "as_of": "2026-08-07",
+      "value": "25853.69",
+      "change_pct": "+0.72%",
+      "as_of": "2026-08-10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "83.55",
-      "change_pct": "+1.29%",
-      "as_of": "2026-08-07",
+      "value": "84.41",
+      "change_pct": "+1.03%",
+      "as_of": "2026-08-10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4399.70",
-      "change_pct": "+3.72%",
-      "as_of": "2026-08-07",
+      "value": "4384.50",
+      "change_pct": "+1.01%",
+      "as_of": "2026-08-10",
       "group": "commodity"
     },
     {
@@ -59,45 +59,91 @@
       "change_pct": "-1.12%",
       "as_of": "2026-08-07 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "82.67",
-      "change_pct": "+1.24%",
-      "as_of": "2026-08-07 23:55:00",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.24",
-      "change_pct": "+1.31%",
-      "as_of": "2026-08-07 23:50:02",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "trump-iran-war-end",
-      "headline": "Трамп выразил готовность завершить конфликт с Ираном без заключения ядерной сделки",
-      "context": "Главным условием победы президент США назвал полное открытие Ормузского пролива для судоходства.",
-      "category": "geopolitics",
+      "id": "spb-exchange-derivatives-blocked-shares",
+      "headline": "СПБ Биржа планирует запустить торги производными инструментами на заблокированные иностранные акции",
+      "context": "Площадка рассматривает поставочные деривативы для снижения дисконта, возникающего при внебиржевых сделках с заблокированными бумагами.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/09/08/2026/6a788e149a7947575a8bb441"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875859"
         }
       ],
-      "published_at": "2026-08-09T17:53:00+03:00"
+      "published_at": "2026-08-09T18:29:00+03:00"
     },
     {
-      "id": "houthis-attack-saudi-aramco",
-      "headline": "Йеменские хуситы атаковали нефтеперерабатывающий завод компании Saudi Aramco в Саудовской Аравии",
-      "context": "Пожарным удалось ликвидировать возгорание на территории предприятия в городе Джизан.",
+      "id": "us-senate-tariffs-russian-energy",
+      "headline": "Сенат США одобрил законопроект о пошлинах до 100% для импортеров российских энергоносителей",
+      "context": "Документ предусматривает новые персональные санкции и ограничительные пошлины в отношении пяти крупнейших покупателей энергоресурсов из РФ.",
       "category": "geopolitics",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875784"
+        }
+      ],
+      "published_at": "2026-08-09T15:18:00+03:00"
+    },
+    {
+      "id": "eurochem-lifosa-plant-suspended",
+      "headline": "Литовский завод Еврохима приостановил производство фосфорных удобрений из-за рекордных цен на серу",
+      "context": "Предприятие мощностью 1 млн тонн продукции в год остановило работу, что вызвало рост цен на удобрения в Европе.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875870"
+        }
+      ],
+      "published_at": "2026-08-09T19:14:00+03:00"
+    },
+    {
+      "id": "psb-usdt-blocking-risks-warning",
+      "headline": "Председатель ПСБ предупредил о рисках блокировок стейблкоинов USDT для российских пользователей",
+      "context": "Эмитент Tether является крупным держателем гособлигаций США, что обязывает компанию соблюдать американский комплаенс.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/03/06/2026/6a202a849a79472aab1cb5c3"
+        }
+      ],
+      "published_at": "2026-08-10T00:01:00+03:00"
+    },
+    {
+      "id": "turkey-resumes-black-sea-shipping",
+      "headline": "Турция возобновила пропуск судов через проливы Дарданеллы и Босфор в Черное море",
+      "context": "По данным Bloomberg, нефтяной танкер Aegean Dream и контейнеровоз Mehmet Kahveci A проследовали в направлении Новороссийска.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a7780ac9a7947568a94253b"
+        }
+      ],
+      "published_at": "2026-08-09T23:50:00+03:00"
+    },
+    {
+      "id": "houthis-attack-saudi-aramco-refinery",
+      "headline": "Йеменские хуситы атаковали беспилотником нефтеперерабатывающий завод Saudi Aramco в Саудовской Аравии",
+      "context": "Пожар на территории НПЗ в городе Джизан был ликвидирован, Трамп склоняется к усилению экономического давления на Иран.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
@@ -107,253 +153,42 @@
       "published_at": "2026-08-09T10:16:00+03:00"
     },
     {
-      "id": "berkshire-google-investment",
-      "headline": "Новый генеральный директор Berkshire Hathaway инвестировал 10 млрд долларов в акции холдинга Alphabet",
-      "context": "Сделка отражена в отчетности инвестиционной компании за второй квартал 2026 года.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/09/1219838-10-mlrd-v-google"
-        }
-      ],
-      "published_at": "2026-08-09T17:10:00+03:00"
-    },
-    {
-      "id": "moore-threads-hong-kong-listing",
-      "headline": "Китайский разработчик чипов искусственного интеллекта Moore Threads планирует листинг в Гонконге",
-      "context": "Компания намерена провести первичное публичное размещение акций на гонконгской бирже.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/09/1219835-moore-threads-v-gonkonge"
-        }
-      ],
-      "published_at": "2026-08-09T16:50:00+03:00"
-    },
-    {
-      "id": "iran-us-indirect-talks",
-      "headline": "Глава МИД Ирана заявил об отсутствии прямых переговоров с Соединенными Штатами",
-      "context": "Контакты между Тегераном и Вашингтоном осуществляются исключительно через посредников.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/07/08/2026/6a76198d9a7947c70adebaf0"
-        }
-      ],
-      "published_at": "2026-08-09T14:35:00+03:00"
-    },
-    {
-      "id": "rosatom-bushehr-return",
-      "headline": "Росатом начал возвращение российских специалистов на площадку атомной электростанции Бушер в Иране",
-      "context": "Первые пять человек из числа инженерно-технического персонала уже прибыли на место работы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/360600"
-        }
-      ],
-      "published_at": "2026-08-09T14:14:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "ukraine-cpc-pipeline-promise",
-      "headline": "Украина обязалась перед США не атаковать инфраструктуру КТК в Черном море",
-      "context": "Обязательство последовало за серией атак беспилотников на суда у морского терминала Тенгиз — Новороссийск.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/380412"
-        }
-      ],
-      "published_at": "2026-08-08T10:05:00+03:00"
-    },
-    {
-      "id": "us-senate-russia-sanctions",
-      "headline": "Сенат США принял законопроект о новых санкциях против Российской Федерации",
-      "context": "Ограничения были одобрены в рамках нового пакета мер американского законодательного органа.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23477"
-        }
-      ],
-      "published_at": "2026-08-08T10:04:00+03:00"
-    },
-    {
-      "id": "eurotrans-bond-default",
-      "headline": "Эмитент Евротранс допустил первый полноценный дефолт на российском долговом рынке",
-      "context": "Событие зафиксировано в обзоре долгового рынка за период с 3 по 7 августа 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/297903"
-        }
-      ],
-      "published_at": "2026-08-08T10:00:00+03:00"
-    },
-    {
-      "id": "iran-ormuz-strait-control",
-      "headline": "Иран потребовал от США признать его контроль над Ормузским проливом под угрозой последствий",
-      "context": "Представитель вооруженных сил Ирана заявил, что у Вашингтона нет иного выбора, кроме как принять ситуацию.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/360544"
-        }
-      ],
-      "published_at": "2026-08-08T21:14:00+03:00"
-    },
-    {
-      "id": "uralsib-bank-earnings",
-      "headline": "Чистая прибыль банка Уралсиб по РСБУ за первое полугодие снизилась на 19.9%",
-      "context": "Чистые процентные доходы кредитной организации выросли на 21.8% до 26.2 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1338097.php"
-        }
-      ],
-      "published_at": "2026-08-08T17:57:00+03:00"
-    },
-    {
-      "id": "witkoff-kushner-moscow-visit",
-      "headline": "Представители США Уиткофф и Кушнер могут посетить Москву и Киев на следующей неделе",
-      "context": "Визиты планируются в рамках дипломатических контактов по урегулированию конфликта.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "IF Market News",
-          "url": "https://t.me/if_market_news/84303"
-        }
-      ],
-      "published_at": "2026-08-08T17:46:00+03:00"
-    },
-    {
-      "id": "berkshire-hathaway-net-buyer",
-      "headline": "Компания Berkshire Hathaway направила 20 млрд долларов на покупку акций США во втором квартале",
-      "context": "До этого инвестиционный холдинг выступал нетто-продавцом американских акций на протяжении 14 кварталов подряд.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/380434"
-        }
-      ],
-      "published_at": "2026-08-08T16:29:00+03:00"
-    },
-    {
-      "id": "wildberries-drone-insurance",
-      "headline": "Маркетплейс Wildberries включил атаки беспилотников в страхование заказов при росте тарифов",
-      "context": "Тарифы на страхование выросли до 1.96–5.6% стоимости товара на фоне повреждений логистических объектов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "IF Market News",
-          "url": "https://t.me/if_market_news/84302"
-        }
-      ],
-      "published_at": "2026-08-08T13:31:00+03:00"
-    },
-    {
-      "id": "banks-malware-blocking",
-      "headline": "Российские банки с марта 2027 года будут блокировать переводы при наличии вредоносного ПО",
-      "context": "Соответствующий закон принят для усиления кибербезопасности и предотвращения несанкционированных финансовых операций.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/08/08/1219712-banki-marta-blokirovat"
-        }
-      ],
-      "published_at": "2026-08-08T11:16:00+03:00"
-    },
-    {
-      "id": "eu-russian-lng-import-growth",
-      "headline": "Импорт сжиженного природного газа из России в Евросоюз вырос на 14% в июне",
-      "context": "Рост поставок зафиксирован по сравнению с аналогичным периодом прошлого года.",
+      "id": "russia-consumer-spending-july-growth",
+      "headline": "Входящие платежи в потребительских отраслях России выросли в июле на 1,5%",
+      "context": "По данным ЦБ, общий объем платежей снизился на 3,4% к уровню второго квартала, но потребительский спрос поддержали финуслуги и недвижимость.",
       "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/380423"
-        }
-      ],
-      "published_at": "2026-08-08T10:50:00+03:00"
-    },
-    {
-      "id": "minfin-fx-purchases-increase",
-      "headline": "Минфин России увеличил покупки валюты по бюджетному правилу на 20% в августе",
-      "context": "Решение принято на фоне обновления курсами ведущих мировых валют многомесячных максимумов.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/380418"
-        }
-      ],
-      "published_at": "2026-08-08T10:27:00+03:00"
-    },
-    {
-      "id": "new-zealand-russia-sanctions",
-      "headline": "Новая Зеландия расширила санкционный список против России на 33 физических и юридических лица",
-      "context": "Ограничения введены в рамках очередного пакета санкций против российских граждан и компаний.",
-      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/08/1219719-novaya-zelandiya"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875935"
         }
       ],
-      "published_at": "2026-08-08T12:29:00+03:00"
+      "published_at": "2026-08-10T02:55:00+03:00"
+    },
+    {
+      "id": "russia-ai-tax-incentives-sme",
+      "headline": "В правительстве России обсуждают введение налоговых льгот для малого бизнеса за внедрение ИИ",
+      "context": "Предлагается уменьшить налог на приобретение отечественных ИИ-решений и субсидировать разработчиков софта.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875938"
+        }
+      ],
+      "published_at": "2026-08-10T03:17:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
     "last_trading_day": "2026-08-07"
   }
 }
