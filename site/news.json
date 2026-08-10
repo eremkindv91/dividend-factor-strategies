@@ -1,8 +1,8 @@
 {
   "date": "2026-08-10",
-  "generated_at": "2026-08-10T07:17:11+03:00",
+  "generated_at": "2026-08-10T09:02:43+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские индексы, нефть и золото растут перед открытием торгов в РФ, американские рынки закрылись ростом в пятницу.",
+  "external_backdrop": "Американские индексы закрылись ростом в пятницу, азиатские рынки и золото растут в понедельник утром, в то время как нефть марки Brent демонстрирует незначительное снижение.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,29 +20,29 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66926.04",
-      "change_pct": "+2.01%",
+      "value": "66918.96",
+      "change_pct": "+2.00%",
       "as_of": "2026-08-10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25853.69",
+      "value": "25854.03",
       "change_pct": "+0.72%",
       "as_of": "2026-08-10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "84.41",
-      "change_pct": "+1.03%",
+      "value": "83.51",
+      "change_pct": "-0.05%",
       "as_of": "2026-08-10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4384.50",
-      "change_pct": "+1.01%",
+      "value": "4411.50",
+      "change_pct": "+1.63%",
       "as_of": "2026-08-10",
       "group": "commodity"
     },
@@ -63,9 +63,39 @@
   ],
   "overnight": [
     {
-      "id": "spb-exchange-derivatives-blocked-shares",
+      "id": "nizhnekamsk-bpla-attack",
+      "headline": "Производственные и гражданские объекты в Нижнекамске подверглись массированной атаке беспилотников",
+      "context": "В результате ударов по промышленной зоне города есть погибшие, в Татарстане объявлен траур.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/10/08/2026/6a7963c19a794723a722f9fe"
+        }
+      ],
+      "published_at": "2026-08-10T08:40:00+03:00"
+    },
+    {
+      "id": "rosseti-power-lines-funding",
+      "headline": "Россети профинансируют строительство магистральных ЛЭП за счет надбавок для промышленных потребителей",
+      "context": "Общий объем инвестиций в проекты развития единой национальной электросети до 2032 года оценивается более чем в 1 триллион рублей.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875957"
+        }
+      ],
+      "published_at": "2026-08-10T07:00:00+03:00"
+    },
+    {
+      "id": "spb-exchange-blocked-shares-derivatives",
       "headline": "СПБ Биржа планирует запустить торги производными инструментами на заблокированные иностранные акции",
-      "context": "Площадка рассматривает поставочные деривативы для снижения дисконта, возникающего при внебиржевых сделках с заблокированными бумагами.",
+      "context": "Площадка рассматривает запуск поставочных деривативов для снижения дисконта, возникающего при внебиржевых сделках с заблокированными бумагами.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 5,
@@ -78,109 +108,79 @@
       "published_at": "2026-08-09T18:29:00+03:00"
     },
     {
-      "id": "us-senate-tariffs-russian-energy",
-      "headline": "Сенат США одобрил законопроект о пошлинах до 100% для импортеров российских энергоносителей",
-      "context": "Документ предусматривает новые персональные санкции и ограничительные пошлины в отношении пяти крупнейших покупателей энергоресурсов из РФ.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8875784"
-        }
-      ],
-      "published_at": "2026-08-09T15:18:00+03:00"
-    },
-    {
-      "id": "eurochem-lifosa-plant-suspended",
-      "headline": "Литовский завод Еврохима приостановил производство фосфорных удобрений из-за рекордных цен на серу",
-      "context": "Предприятие мощностью 1 млн тонн продукции в год остановило работу, что вызвало рост цен на удобрения в Европе.",
+      "id": "kazakhstan-oil-export-alternative",
+      "headline": "Казахстан переориентировал часть экспорта нефти на альтернативные маршруты из-за сбоев в работе КТК",
+      "context": "Министерство энергетики республики рассматривает возможность увеличения поставок сырья через Азербайджан.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8875870"
+          "url": "https://www.kommersant.ru/doc/8876028"
         }
       ],
-      "published_at": "2026-08-09T19:14:00+03:00"
+      "published_at": "2026-08-10T08:56:00+03:00"
     },
     {
-      "id": "psb-usdt-blocking-risks-warning",
-      "headline": "Председатель ПСБ предупредил о рисках блокировок стейблкоинов USDT для российских пользователей",
-      "context": "Эмитент Tether является крупным держателем гособлигаций США, что обязывает компанию соблюдать американский комплаенс.",
-      "category": "markets",
+      "id": "fns-foreign-accounts-violations",
+      "headline": "Федеральная налоговая служба зафиксировала сокращение нарушений по зарубежным счетам россиян на одиннадцать процентов",
+      "context": "При этом налоговые органы стали чаще запрашивать у физических лиц выписки и подтверждения пребывания за границей.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/03/06/2026/6a202a849a79472aab1cb5c3"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/298116"
         }
       ],
-      "published_at": "2026-08-10T00:01:00+03:00"
+      "published_at": "2026-08-10T07:58:00+03:00"
     },
     {
-      "id": "turkey-resumes-black-sea-shipping",
-      "headline": "Турция возобновила пропуск судов через проливы Дарданеллы и Босфор в Черное море",
-      "context": "По данным Bloomberg, нефтяной танкер Aegean Dream и контейнеровоз Mehmet Kahveci A проследовали в направлении Новороссийска.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a7780ac9a7947568a94253b"
-        }
-      ],
-      "published_at": "2026-08-09T23:50:00+03:00"
-    },
-    {
-      "id": "houthis-attack-saudi-aramco-refinery",
-      "headline": "Йеменские хуситы атаковали беспилотником нефтеперерабатывающий завод Saudi Aramco в Саудовской Аравии",
-      "context": "Пожар на территории НПЗ в городе Джизан был ликвидирован, Трамп склоняется к усилению экономического давления на Иран.",
+      "id": "iran-ormuz-strait-ban",
+      "headline": "В Иране одобрили запрет на проход американских и израильских судов через Ормузский пролив",
+      "context": "Тегеран требует от США снятия санкций, вывода войск и разблокировки активов в обмен на возобновление судоходства.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/09/1219800-husiti-atakovali"
+          "url": "https://www.vedomosti.ru/politics/news/2026/08/09/1219851-v-irane-odobrili-zapret"
         }
       ],
-      "published_at": "2026-08-09T10:16:00+03:00"
+      "published_at": "2026-08-09T20:24:00+03:00"
     },
     {
-      "id": "russia-consumer-spending-july-growth",
-      "headline": "Входящие платежи в потребительских отраслях России выросли в июле на 1,5%",
-      "context": "По данным ЦБ, общий объем платежей снизился на 3,4% к уровню второго квартала, но потребительский спрос поддержали финуслуги и недвижимость.",
-      "category": "macro",
+      "id": "husiti-attack-saudi-aramco",
+      "headline": "Йеменские хуситы атаковали беспилотником нефтеперерабатывающий завод Saudi Aramco в Саудовской Аравии",
+      "context": "На территории предприятия в городе Джизан произошло возгорание, которое впоследствии было ликвидировано пожарными.",
+      "category": "geopolitics",
       "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8875765"
+        }
+      ],
+      "published_at": "2026-08-09T14:25:00+03:00"
+    },
+    {
+      "id": "restaurant-alcohol-sales-drop",
+      "headline": "Продажи алкогольной продукции в российских ресторанах сократились почти вдвое за первое полугодие",
+      "context": "Падение продаж в сегменте HoReCa составило 42,4% год к году на фоне снижения трафика и роста цен.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8875935"
+          "url": "https://www.kommersant.ru/doc/8875984"
         }
       ],
-      "published_at": "2026-08-10T02:55:00+03:00"
-    },
-    {
-      "id": "russia-ai-tax-incentives-sme",
-      "headline": "В правительстве России обсуждают введение налоговых льгот для малого бизнеса за внедрение ИИ",
-      "context": "Предлагается уменьшить налог на приобретение отечественных ИИ-решений и субсидировать разработчиков софта.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8875938"
-        }
-      ],
-      "published_at": "2026-08-10T03:17:00+03:00"
+      "published_at": "2026-08-10T08:00:00+03:00"
     }
   ],
   "yesterday": [],
