@@ -247,8 +247,13 @@ def test_gemini_schema_uses_supported_subset():
     assert '"title"' not in encoded
     assert '"$defs"' not in encoded
     assert '"$ref"' not in encoded
+    assert '"anyOf"' not in encoded
     assert schema["type"] == "object"
     assert "findings" in schema["properties"]
+    evidence_value = schema["properties"]["findings"]["items"]["properties"]["evidence"]["items"][
+        "properties"
+    ]["value"]
+    assert evidence_value["type"] == ["string", "integer", "number", "boolean", "null"]
     assert schema["properties"]["analyst"]["enum"] == [
         "market",
         "macro",

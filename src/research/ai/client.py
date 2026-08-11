@@ -149,6 +149,13 @@ def _gemini_json_schema(response_model: type[BaseModel]) -> dict[str, Any]:
                 if name in resolving or name not in definitions:
                     raise ValueError(f"unsupported recursive or missing schema reference: {ref}")
                 return clean(definitions[name], resolving | {name})
+            variants = value.get("anyOf")
+            if isinstance(variants, list) and variants and all(
+                isinstance(item, dict) and set(item) == {"type"} and isinstance(item["type"], str)
+                for item in variants
+            ):
+                types = list(dict.fromkeys(item["type"] for item in variants))
+                return {"type": types}
             return {
                 key: clean(item, resolving)
                 for key, item in value.items()
