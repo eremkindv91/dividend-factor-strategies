@@ -41,7 +41,10 @@ jobs:
           cache-dependency-path: requirements-research-ai.txt
 
       - name: Install controlled smoke dependencies
-        run: python -m pip install --quiet -r requirements-research-ai.txt pandas pyyaml pytest
+        run: >-
+          python -m pip install --quiet
+          -r requirements-research-ai.txt
+          pandas scipy scikit-learn pyyaml pytest
 
       - name: Restore public last-good inputs without publishing
         run: |
