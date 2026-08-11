@@ -126,7 +126,9 @@ def _usage_value(usage: Any, *names: str) -> int | None:
     return None
 
 
-_UNSUPPORTED_GEMINI_SCHEMA_KEYS = frozenset({"default", "minLength", "maxLength"})
+_UNSUPPORTED_GEMINI_SCHEMA_KEYS = frozenset(
+    {"additionalProperties", "default", "minLength", "maxLength", "title"}
+)
 
 
 def _gemini_json_schema(response_model: type[BaseModel]) -> dict[str, Any]:

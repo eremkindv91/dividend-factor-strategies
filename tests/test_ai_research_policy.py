@@ -243,6 +243,8 @@ def test_gemini_schema_uses_supported_subset():
     assert '"minLength"' not in encoded
     assert '"maxLength"' not in encoded
     assert '"default"' not in encoded
+    assert '"additionalProperties"' not in encoded
+    assert '"title"' not in encoded
     assert '"$defs"' not in encoded
     assert '"$ref"' not in encoded
     assert schema["type"] == "object"
