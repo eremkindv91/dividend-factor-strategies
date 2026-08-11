@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -12,6 +13,7 @@ from src.research.ai.client import (
     GeminiClient,
     RequestBudget,
     TechnicalAIError,
+    _gemini_json_schema,
     _safe_error_detail,
 )
 from src.research.ai.config import AIConfig
@@ -232,6 +234,26 @@ def test_malformed_structured_response_retry_is_bounded():
     assert client.budget.requests == 3
     assert "response_json_schema" in models.last_kwargs["config"]
     assert "response_schema" not in models.last_kwargs["config"]
+
+
+def test_gemini_schema_uses_supported_subset():
+    schema = _gemini_json_schema(AnalystOutput)
+    encoded = json.dumps(schema, sort_keys=True)
+
+    assert '"minLength"' not in encoded
+    assert '"maxLength"' not in encoded
+    assert '"default"' not in encoded
+    assert schema["type"] == "object"
+    assert "findings" in schema["properties"]
+    assert schema["properties"]["analyst"]["enum"] == [
+        "market",
+        "macro",
+        "equity",
+        "bonds",
+        "banks",
+        "news",
+        "stock",
+    ]
 
 
 def test_429_is_bounded_and_never_switches_provider():

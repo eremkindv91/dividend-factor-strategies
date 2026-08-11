@@ -126,6 +126,30 @@ def _usage_value(usage: Any, *names: str) -> int | None:
     return None
 
 
+_UNSUPPORTED_GEMINI_SCHEMA_KEYS = frozenset({"default", "minLength", "maxLength"})
+
+
+def _gemini_json_schema(response_model: type[BaseModel]) -> dict[str, Any]:
+    """Return the documented Gemini JSON Schema subset for a Pydantic model.
+
+    Gemini rejects unsupported Pydantic string constraints with a generic
+    INVALID_ARGUMENT response. The full model still validates every response.
+    """
+
+    def clean(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {
+                key: clean(item)
+                for key, item in value.items()
+                if key not in _UNSUPPORTED_GEMINI_SCHEMA_KEYS
+            }
+        if isinstance(value, list):
+            return [clean(item) for item in value]
+        return value
+
+    return clean(response_model.model_json_schema())
+
+
 class GeminiClient(AIClient):
     def __init__(self, config: AIConfig, budget: RequestBudget | None = None):
         if config.billing_allowed:
@@ -174,7 +198,7 @@ class GeminiClient(AIClient):
                         config=self._types.GenerateContentConfig(
                             system_instruction=system_prompt,
                             response_mime_type="application/json",
-                            response_json_schema=response_model.model_json_schema(),
+                            response_json_schema=_gemini_json_schema(response_model),
                             temperature=self.config.temperature,
                             max_output_tokens=self.config.max_output_tokens,
                         ),
