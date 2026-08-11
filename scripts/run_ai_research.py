@@ -294,6 +294,12 @@ async def _run(args: argparse.Namespace) -> dict:
         "model_fallbacks": model_fallbacks,
         "available_models_count": len(available),
         "structured_output_probe": bool(args.probe_structured_output),
+        "warnings": telemetry.warnings,
+        "failed_nodes": {
+            name: node.model_dump(mode="json")
+            for name, node in telemetry.nodes.items()
+            if node.status == "failed"
+        },
     }
 
 

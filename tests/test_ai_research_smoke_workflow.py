@@ -35,6 +35,7 @@ def test_ai_smoke_workflow_is_secret_safe_and_bounded():
     assert 'AI_REAL_GEMINI_SMOKE_AUTHORIZED: "true"' in text
     assert 'MAX_STOCK_MEMOS_PER_RUN: "3"' in text
     assert "--tickers SBER,GAZP,YDEX" in text
+    assert "--require-stocks SBER,GAZP,YDEX" in text
     assert "--preflight-only" in text
     assert "--probe-wire-schemas" in text
     assert text.count("set -o pipefail") == 3

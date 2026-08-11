@@ -13,7 +13,7 @@ from typing import Any
 from .analysts import committee_tasks, run_analyst, run_parallel_analysts, stock_task
 from .artifacts import ResearchState, validate_ai_output_dir, write_json_atomic
 from .cache import ValidatedCache, ai_run_fingerprint, stock_ai_fingerprint
-from .client import AIClient, RequestBudget
+from .client import AIClient, RequestBudget, _safe_error_detail
 from .config import AIConfig
 from .eligibility import select_stock_universe
 from .prompts import PROMPT_VERSIONS, system_prompt
@@ -546,10 +546,13 @@ class ResearchGraph:
                 if memo:
                     stock_memos[ticker] = memo
             except Exception as exc:  # noqa: BLE001 - stock failure cannot break market memo
-                telemetry.warnings.append(f"stock_memo_failed:{ticker}:{type(exc).__name__}")
+                detail = _safe_error_detail(exc)
+                telemetry.warnings.append(
+                    f"stock_memo_failed:{ticker}:{type(exc).__name__}:{detail}"
+                )
                 self._node(
                     telemetry, f"stock_graph:{ticker}", status="failed", critical=False,
-                    error_type=type(exc).__name__,
+                    error_type=type(exc).__name__, warning=detail,
                 )
 
         telemetry.finished_at = _now_iso()

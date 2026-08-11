@@ -97,7 +97,9 @@ jobs:
             --tickers SBER,GAZP,YDEX \
             --max-stock-memos 3 \
             | tee "$RUNNER_TEMP/smoke/stock_summary.json"
-          python scripts/validate_ai_research.py --require-real
+          python scripts/validate_ai_research.py \
+            --require-real \
+            --require-stocks SBER,GAZP,YDEX
           cp -R site/data/research/ai/. "$RUNNER_TEMP/smoke/final/"
 
       - name: Public-safety scan

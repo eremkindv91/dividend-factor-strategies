@@ -207,6 +207,22 @@ def test_stock_evidence_registry_contains_selected_snapshot(tmp_path):
     assert result["stock_memos"][ticker].evidence
 
 
+def test_stock_failure_preserves_sanitized_reason_in_telemetry(tmp_path, monkeypatch):
+    graph, _client, _, _config = _fixture(tmp_path, max_stocks=1)
+
+    async def fail_stock(**_kwargs):
+        raise CriticalGraphError("stock memo references unknown finding")
+
+    monkeypatch.setattr(graph, "_run_stock", fail_stock)
+    result = asyncio.run(graph.run())
+    ticker = result["status"]["universe"]["selected"][0]
+    node = result["telemetry"].nodes[f"stock_graph:{ticker}"]
+    assert node.warning == "stock memo references unknown finding"
+    assert result["telemetry"].warnings == [
+        f"stock_memo_failed:{ticker}:CriticalGraphError:stock memo references unknown finding"
+    ]
+
+
 def test_priority_universe_uses_first_pass_sector_diversification(tmp_path):
     _, research_dir, _ = _build(tmp_path)
     state = ResearchState(research_dir)
