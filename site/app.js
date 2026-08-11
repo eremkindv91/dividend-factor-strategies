@@ -5794,9 +5794,9 @@ function bondOpenIdentityHTML(row, size = 'sm') {
 function bondSafetyBadgeHTML(row) {
   const safety = row.bond_safety || (window.BondRetail && window.BondRetail.classifyBond(row));
   if (!safety) return '<span class="bond-safe-badge unknown">Недостаточно данных</span>';
-  if (safety.investable) return '<span class="bond-safe-badge checked">Проверено</span>';
-  const high = safety.riskLevel === 'high';
-  return `<span class="bond-safe-badge ${high ? 'high' : 'attention'}">${high ? 'Высокий риск' : 'Требует внимания'}</span>`;
+  if (safety.investable && !(safety.warningCodes || []).length) return '<span class="bond-safe-badge checked">Проверено</span>';
+  if (safety.investable) return '<span class="bond-safe-badge attention">Частично проверено</span>';
+  return '<span class="bond-safe-badge attention">Требует проверки</span>';
 }
 
 function bondReasonListHTML(row, compact = false) {
@@ -6429,10 +6429,14 @@ function bondRisksHTML(row, safety) {
   if (row.has_call) risks.push('<li><b>Риск досрочного выкупа.</b> Эмитент вправе погасить выпуск раньше срока — обычно когда это выгодно ему, а не держателю.</li>');
   if (row.amortizing) risks.push('<li><b>Амортизация.</b> Номинал возвращается частями: полученные деньги придётся вкладывать заново по неизвестной сегодня ставке.</li>');
   if (row.coupon_type === 'floating') risks.push('<li><b>Плавающий купон.</b> Размер будущих выплат зависит от базовой ставки и заранее неизвестен.</li>');
+  if (row.index_linked || row.bond_structure_type === 'INDEX_LINKED') risks.push('<li><b>Индексация номинала.</b> Будущие выплаты зависят от индекса: официальный индикатор MOEX нельзя напрямую сравнивать с YTM обычной рублёвой облигации.</li>');
+  else if (row.variable_nominal || row.bond_structure_type === 'VARIABLE_NOMINAL') risks.push('<li><b>Переменный номинал.</b> Сумма будущего погашения заранее не фиксирована.</li>');
   if (row.coupon_type === 'zero') risks.push('<li><b>Бескупонный выпуск.</b> Промежуточных выплат нет, весь доход — в разнице цены и номинала.</li>');
   if (row.qualified_only) risks.push('<li><b>Только для квалифицированных инвесторов.</b> Купить выпуск без этого статуса нельзя.</li>');
   if (!row.ultimate_parent_id) risks.push('<li><b>Концентрация по группе.</b> Материнская структура эмитента не подтверждена — учесть связанные выпуски в лимите группы нельзя.</li>');
-  if (safety && !safety.ytmConfirmed) risks.push('<li><b>Доходность не подтверждена.</b> Расчёт YTM не прошёл проверку — не опирайтесь на это число без сверки с условиями выпуска.</li>');
+  if (safety && !safety.ytmConfirmed) risks.push(row.cashflows_deterministic === false
+    ? '<li><b>Собственный YTM не рассчитан.</b> Полный сценарий будущих денежных потоков не подтверждён, поэтому точное номинальное значение было бы ложной точностью.</li>'
+    : '<li><b>Доходность не подтверждена.</b> Расчёт YTM не прошёл проверку — не опирайтесь на это число без сверки с условиями выпуска.</li>');
   return `<ul class="bond-risks">${risks.join('')}</ul>`;
 }
 
@@ -6482,6 +6486,11 @@ function bondDetailHTML(row) {
   const liq = (window.BondRetail && window.BondRetail.liquidity(row)) || {};
   const src = row.source_dates || {};
   const face = Number(row.face_value_per_bond_rub || 0);
+  const indeterminateCashflows = row.cashflows_deterministic === false;
+  const indexLinked = row.index_linked || row.bond_structure_type === 'INDEX_LINKED';
+  const ytmReferenceMismatch = row.ytm_calculation_status === 'REFERENCE_MISMATCH'
+    || (row.data_quality_flags || []).includes('YTM_REFERENCE_MISMATCH');
+  const ownYtmUnavailable = indeterminateCashflows || ytmReferenceMismatch || !isNum(row.ytm_gross_pct);
   // Текущая доходность = годовой купон в рублях ÷ грязная цена. Для бескупонных не определена.
   const annualCoupon = isNum(row.coupon_pct) ? face * Number(row.coupon_pct) / 100 : null;
   const dirty = Number(row.dirty_price_per_bond_rub || 0);
@@ -6498,7 +6507,15 @@ function bondDetailHTML(row) {
     const tax = flow.flow_type === 'principal' ? 0 : gross * 0.13;
     return `<tr><td>${esc(shortIsoDate(flow.date))}</td><td>${type}</td><td class="tnum">${rub2(gross)}</td><td class="tnum">${rub2(tax)}</td><td class="tnum b-strong">${rub2(gross - tax)}</td></tr>`;
   }).join('');
-  const maturityNote = row.amortizing
+  const maturityNote = indexLinked || row.variable_nominal
+    ? `<p class="muted">Текущий номинал — ${rub2(face)} на бумагу. Сумма погашения ${esc(shortIsoDate(row.maturity_date))} зависит от условий индексации и не фиксируется сайтом заранее.</p>`
+    : indeterminateCashflows && row.has_put_offer
+    ? '<p class="muted">У выпуска есть оферта. Сайт не подменяет доходность к оферте доходностью к погашению: сценарий выкупа и будущий купон нужно сверить с условиями выпуска.</p>'
+    : indeterminateCashflows && row.amortizing
+    ? '<p class="muted">Номинал возвращается частями. До подтверждения полного графика амортизации сайт не рассчитывает YTM и дюрацию по неполному потоку.</p>'
+    : indeterminateCashflows
+    ? '<p class="muted">Полная модель будущих денежных потоков не подтверждена; сумма и сроки выплат требуют проверки по условиям выпуска.</p>'
+    : row.amortizing
     ? '<p class="muted">У выпуска амортизация: график возврата номинала в данных MOEX за 12 месяцев не детализирован, поэтому показаны только купоны.</p>'
     : `<p class="muted">Погашение номинала ${rub2(face)} на бумагу — ${esc(shortIsoDate(row.maturity_date))}. Возврат номинала не является доходом.</p>`;
 
@@ -6506,11 +6523,25 @@ function bondDetailHTML(row) {
     row.amortizing ? 'амортизация' : null,
     row.has_put_offer ? 'оферта' : null,
     row.has_call ? 'call-опцион' : null,
+    indexLinked ? 'индексируемый номинал' : null,
+    !indexLinked && row.variable_nominal ? 'переменный номинал' : null,
     row.qualified_only ? 'только для квалифицированных' : null,
     row.new_placement ? 'новое размещение' : null,
   ].filter(Boolean);
 
-  const couponTypeLabel = { fixed: 'фиксированный', floating: 'плавающий', zero: 'бескупонный' }[row.coupon_type] || row.coupon_type || ND;
+  const couponTypeLabel = {
+    fixed: 'фиксированный', floating: 'плавающий', zero: 'бескупонный',
+    index_linked: 'фиксированный к индексируемому номиналу',
+    variable_nominal: 'купон к переменному номиналу', complex: 'сложная формула',
+  }[row.coupon_type] || row.coupon_type || ND;
+  const ytmCards = ownYtmUnavailable
+    ? `${kpi('Расчётный YTM', '<span class="bond-unconfirmed-yield">не рассчитан</span>', ytmReferenceMismatch ? 'расчёт не совпал с MOEX' : 'полная модель потоков не подтверждена')}
+       ${kpi('Доходность MOEX', bondPct(row.moex_yield_pct, 2), 'официальный индикатор, не наш YTM')}
+       ${kpi('Оценка после налога', ND, 'без модели потоков не рассчитывается')}`
+    : `${kpi('YTM gross', bondPct(row.ytm_gross_pct, 2))}
+       ${kpi('Оценка после налога', safety && !safety.ytmConfirmed ? '<span class="bond-unconfirmed-yield">не подтверждена</span>' : bondPct(row.ytm_net_est_pct, 2), 'упрощённо; не персональный расчёт')}`;
+  const currentYieldLabel = indexLinked ? 'Купон / текущая цена' : 'Текущая доходность';
+  const currentYieldNote = indexLinked ? 'не учитывает будущую индексацию номинала' : '';
 
   return `<div class="bond-detail">
     <header class="bond-detail-head">
@@ -6529,10 +6560,9 @@ function bondDetailHTML(row) {
       ? `<div class="bond-detail-note"><b>Прошла фильтр, но не всё подтверждено.</b>${bondWarningListHTML(row)}</div>` : ''}
     <div class="bond-detail-kpis">
       ${kpi('Цена', bondPct(row.clean_price_pct, 2), src.price ? `на ${shortIsoDate(src.price)}` : 'дата цены не указана')}
-      ${kpi('YTM gross', bondPct(row.ytm_gross_pct, 2))}
-      ${kpi('YTM net', safety && !safety.ytmConfirmed ? '<span class="bond-unconfirmed-yield">не подтверждена</span>' : bondPct(row.ytm_net_est_pct, 2), 'оценка налога, не персональный расчёт')}
-      ${kpi('Текущая доходность', currentYield == null ? ND : bondPct(currentYield, 2))}
-      ${kpi('Дюрация', isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND, row.duration_type === 'modified_duration_effective_annual' ? 'модифицированная' : '')}
+      ${ytmCards}
+      ${kpi(currentYieldLabel, currentYield == null ? ND : bondPct(currentYield, 2), currentYieldNote)}
+      ${kpi('Дюрация', isNum(row.duration_value) ? Number(row.duration_value).toFixed(2) : ND, ownYtmUnavailable ? 'не подтверждена расчётом потоков' : row.duration_type === 'modified_duration_effective_annual' ? 'модифицированная' : '')}
       ${kpi('До погашения', isNum(row.years_to_maturity) ? Number(row.years_to_maturity).toFixed(2) + ' г.' : ND, shortIsoDate(row.maturity_date))}
       ${kpi('Рейтинг', row.rating ? esc(row.rating) : '<span class="muted">не найден</span>', row.rating_agency || '')}
       ${kpi('Ликвидность', liq.score == null ? ND : `${liq.score}/100`, liq.label || 'данных недостаточно')}
@@ -6549,7 +6579,11 @@ function bondDetailHTML(row) {
         <div><dt>Объём выпуска</dt><dd>${isNum(row.issue_size_rub) ? rub0(row.issue_size_rub) : ND}</dd></div>
         <div><dt>Особенности</dt><dd>${features.length ? esc(features.join(', ')) : 'нет'}</dd></div>
       </dl>
-      ${features.length ? '<p class="bond-detail-note">Сложные условия меняют фактическую доходность: расчёт YTM их полностью не учитывает.</p>' : ''}
+      ${ytmReferenceMismatch
+        ? '<p class="bond-detail-note"><b>Расчётный YTM не подтверждён.</b> Внутренний IRR расходится с официальным индикатором MOEX больше допустимого порога, поэтому он скрыт и не используется в портфеле.</p>'
+        : indeterminateCashflows
+        ? '<p class="bond-detail-note"><b>Собственный YTM намеренно не рассчитан.</b> Для индексации, оферты, амортизации или иной сложной структуры нужна отдельная подтверждённая модель потоков. Доходность MOEX показана отдельно как официальный индикатор.</p>'
+        : features.length ? '<p class="bond-detail-note">Сложные условия могут менять фактическую доходность: перед покупкой проверьте график выплат и оферты.</p>' : ''}
     </section>
 
     ${buy ? `<section><h3>Сколько стоит купить один лот</h3>
@@ -6561,7 +6595,7 @@ function bondDetailHTML(row) {
       </tbody></table>
       <p class="muted">Комиссия и проскальзывание — оценка по умолчанию, а не тариф вашего брокера.</p></section>` : ''}
 
-    <section><h3>Денежные потоки · 12 месяцев</h3>
+    <section><h3>${indeterminateCashflows ? 'Опубликованные выплаты · 12 месяцев' : 'Денежные потоки · 12 месяцев'}</h3>
       ${flows ? `<div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Дата</th><th>Тип</th><th>На бумагу</th><th>Налог, оценка</th><th>После налога</th></tr></thead><tbody>${flows}</tbody></table></div>`
         : '<p class="muted">Выплат в ближайшие 12 месяцев в данных MOEX не найдено.</p>'}
       ${maturityNote}
@@ -6585,6 +6619,7 @@ function bondDetailHTML(row) {
     <section><h3>Источники и актуальность</h3>
       <div class="bonds-table-wrap"><table class="bonds-table bond-sources-table"><thead><tr><th>Поле</th><th>Источник</th><th>Обновлено</th></tr></thead><tbody>
         ${bondSourceRow('Цена и НКД', src.price, null, 'MOEX ISS')}
+        ${row.moex_yield_pct != null ? bondSourceRow('Доходность MOEX', src.price, null, row.moex_yield_source_field || 'MOEX ISS') : ''}
         ${bondSourceRow('Условия выпуска и купоны', src.price, null, 'MOEX ISS bondization')}
         ${bondSourceRow('История торгов', src.history, null, 'MOEX ISS')}
         ${bondSourceRow('Рейтинг', row.rating_date || src.rating, row.rating_source_url, row.rating_agency ? `${row.rating_agency}, карточка выпуска` : null)}
@@ -10330,6 +10365,31 @@ function stockTrimDailyRows(rows, days) {
   });
 }
 
+function stockVisibleRange(rows) {
+  const dates = (rows || []).map((row) => String((row || [])[0] || '').slice(0, 10))
+    .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value));
+  return dates.length ? { visibleStart: dates[0], visibleEnd: dates[dates.length - 1] } : null;
+}
+
+function scFutoiVisibleData(row, range) {
+  if (!row || !range) return [];
+  const dates = row.dates || [];
+  const net = row.net || [];
+  const data = [];
+  for (let index = 0; index < dates.length; index += 1) {
+    const time = String(dates[index] || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(time) || !isNum(net[index])) continue;
+    if (time < range.visibleStart || time > range.visibleEnd) continue;
+    data.push({ time, value: net[index] });
+  }
+  return data;
+}
+
+function scFutoiDomain(data) {
+  const values = (data || []).map((item) => item.value).filter(isNum);
+  return values.length ? { min: Math.min(...values), max: Math.max(...values) } : null;
+}
+
 function stockPriceChartHTML(t) {
   return `<div class="detail-card stock-chart" data-sc-ticker="${esc(t.ticker)}">
     <div class="sc-top">
@@ -10435,7 +10495,12 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   if (container._scPfAbort) { try { container._scPfAbort.abort(); } catch (_e) { /* noop */ } container._scPfAbort = null; }
   container._scProfile = null;
   container._scProfileKey = null;
+  container._scProfileRange = null;
   container._scFutoiSeries = null;      // серия жила на старом графике, который сейчас удалён
+  container._scFutoiData = [];
+  container._scFutoiDomain = null;
+  const visibleRange = intraday ? null : stockVisibleRange(rows);
+  container._scVisibleRange = visibleRange;
   scProfileSay(container, '');
   const fiNote = container.querySelector('.sc-fi-note');
   if (fiNote) fiNote.innerHTML = '';
@@ -10528,7 +10593,7 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   };
   if (!intraday && SC_PROFILE_ON) container._scProfileApply();
 
-  container._scFutoiApply = intraday ? null : () => scFutoiDraw(container, chart, ticker);
+  container._scFutoiApply = intraday ? null : () => scFutoiDraw(container, chart, ticker, visibleRange);
   if (!intraday && SC_FUTOI_ON) container._scFutoiApply();
 
   if (ohlc) ohlc.innerHTML = stockOhlcReadout(ticker, rows[rows.length - 1]);
@@ -10893,6 +10958,19 @@ function scProfileSay(container, html) {
   if (note) note.innerHTML = html;
 }
 
+function scProfileVisibleRequest(ticker, rows, logicalRange) {
+  if (!logicalRange || !rows || !rows.length) return null;
+  const i0 = Math.max(0, Math.ceil(logicalRange.from));
+  const i1 = Math.min(rows.length - 1, Math.floor(logicalRange.to));
+  if (i1 <= i0) return null;
+  const from = rows[i0][0];
+  const till = rows[i1][0];
+  const days = Math.round((Date.parse(till) - Date.parse(from)) / 86400000) + 1;
+  if (!Number.isFinite(days) || days < 1) return null;
+  const interval = scIntradayInterval(days);
+  return { from, till, days, interval, key: `${ticker}|${from}|${till}|${interval}` };
+}
+
 // Пересчёт профиля под текущий видимый диапазон. Дорогая часть (сеть) — здесь,
 // поэтому вызывается через debounce, а не на каждый кадр панорамирования.
 function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
@@ -10901,21 +10979,21 @@ function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
   if (!SC_PROFILE_ON) {
     container._scProfile = null;
     container._scProfileKey = null;
+    container._scProfileRange = null;
     scProfileSay(container, '');
     scProfileDraw(container, chart, priceSeries);
     return;
   }
   const range = chart.timeScale().getVisibleLogicalRange();
-  if (!range || !rows.length) return;
-  const i0 = Math.max(0, Math.round(range.from));
-  const i1 = Math.min(rows.length - 1, Math.round(range.to));
-  if (i1 <= i0) return;
-  const from = rows[i0][0], till = rows[i1][0];
-  const days = Math.round((Date.parse(till) - Date.parse(from)) / 86400000) + 1;
-  const interval = scIntradayInterval(days);
-  const key = `${ticker}|${from}|${till}|${interval}`;
+  const request = scProfileVisibleRequest(ticker, rows, range);
+  if (!request) return;
+  const { from, till, days, interval, key } = request;
   if (container._scProfileKey === key) return;              // диапазон не изменился
   container._scProfileKey = key;
+  container._scProfileRange = { from, till };
+  // Не оставляем POC/VAH/VAL от прошлого окна, пока новый профиль грузится.
+  container._scProfile = null;
+  scProfileDraw(container, chart, priceSeries);
 
   if (!scProfileFits(days, interval)) {
     container._scProfile = null;
@@ -11000,13 +11078,15 @@ function scFutoiNoteHTML(meta, row) {
 // Линия рисуется своей ценовой шкалой: контракты и рубли — разные величины, и общая
 // шкала либо расплющила бы цену, либо увела линию за экран. Шкала невидимая: числа
 // контрактов на оси спорили бы с ценой за внимание, а нужен здесь профиль поведения.
-function scFutoiDraw(container, chart, ticker) {
+function scFutoiDraw(container, chart, ticker, visibleRange) {
   const note = container.querySelector('.sc-fi-note');
   const say = (html) => { if (note) note.innerHTML = html; };
   if (container._scFutoiSeries) {
     try { chart.removeSeries(container._scFutoiSeries); } catch (_e) { /* noop */ }
     container._scFutoiSeries = null;
   }
+  container._scFutoiData = [];
+  container._scFutoiDomain = null;
   if (!SC_FUTOI_ON) { say(''); return; }
   say('Загружаем позиции физлиц…');
   loadFutoi((err) => {
@@ -11029,10 +11109,11 @@ function scFutoiDraw(container, chart, ticker) {
         пригодный ряд${row.reason ? ` (${esc(row.reason)})` : ''}.`);
       return;
     }
-    const dates = row.dates || [], net = row.net || [];
-    const data = [];
-    for (let i = 0; i < dates.length; i += 1) if (isNum(net[i])) data.push({ time: dates[i], value: net[i] });
-    if (!data.length) { say('<b>Позиции физлиц не показаны.</b> Ряд пуст.'); return; }
+    const data = scFutoiVisibleData(row, visibleRange);
+    if (!data.length) {
+      say(`<b>Позиции физлиц не показаны.</b> В выбранном диапазоне ${esc(visibleRange && visibleRange.visibleStart || '')} – ${esc(visibleRange && visibleRange.visibleEnd || '')} нет наблюдений MOEX.`);
+      return;
+    }
     const series = chart.addLineSeries({
       priceScaleId: 'futoi', color: '#7A5AA8', lineWidth: 2, lastValueVisible: false,
       priceLineVisible: false, crosshairMarkerVisible: false,
@@ -11041,6 +11122,8 @@ function scFutoiDraw(container, chart, ticker) {
     series.setData(data);
     chart.priceScale('futoi').applyOptions({ scaleMargins: { top: 0.06, bottom: 0.34 }, visible: false });
     container._scFutoiSeries = series;
+    container._scFutoiData = data;
+    container._scFutoiDomain = scFutoiDomain(data);
     say(scFutoiNoteHTML(SC_FUTOI.meta || {}, { ...row, _ticker: ticker }));
   });
 }

@@ -146,3 +146,118 @@ def test_stock_intraday_hides_daily_profile_and_position_overlays():
     assert "futoiToggle.hidden = intraday" in render
     assert "!intraday && SC_PROFILE_ON" in render
     assert "!intraday && SC_FUTOI_ON" in render
+
+
+def _futoi_helpers(source: str) -> str:
+    return "\n".join([
+        "const isNum = (value) => typeof value === 'number' && Number.isFinite(value);",
+        _function(source, "stockVisibleRange"),
+        _function(source, "scFutoiVisibleData"),
+        _function(source, "scFutoiDomain"),
+    ])
+
+
+def test_futoi_is_clipped_to_the_same_six_month_price_range():
+    """TEST A: no position point may escape the visible price window."""
+    source = _source()
+    result = _node(f"""
+{_futoi_helpers(source)}
+const range = stockVisibleRange([['2026-02-07'], ['2026-08-07']]);
+const data = scFutoiVisibleData({{
+  dates: ['2023-06-20', '2026-02-06', '2026-02-07', '2026-05-01', '2026-08-07', '2026-08-08'],
+  net: [1, 2, 3, 4, 5, 6],
+}}, range);
+console.log(JSON.stringify({{ range, dates: data.map((item) => item.time) }}));
+""")
+
+    assert result["range"] == {"visibleStart": "2026-02-07", "visibleEnd": "2026-08-07"}
+    assert result["dates"] == ["2026-02-07", "2026-05-01", "2026-08-07"]
+
+
+def test_futoi_max_to_one_month_does_not_keep_stale_observations():
+    """TEST B: deriving a shorter view is pure and cannot retain the prior series."""
+    source = _source()
+    result = _node(f"""
+{_futoi_helpers(source)}
+const row = {{
+  dates: ['2024-01-01', '2026-07-07', '2026-07-20', '2026-08-07'],
+  net: [10, 20, 30, 40],
+}};
+const maximum = scFutoiVisibleData(row, {{ visibleStart: '2024-01-01', visibleEnd: '2026-08-07' }});
+const month = scFutoiVisibleData(row, {{ visibleStart: '2026-07-07', visibleEnd: '2026-08-07' }});
+console.log(JSON.stringify({{
+  maximum: maximum.map((item) => item.time),
+  month: month.map((item) => item.time),
+  sourceDates: row.dates,
+}}));
+""")
+
+    assert result["maximum"][0] == "2024-01-01"
+    assert result["month"] == ["2026-07-07", "2026-07-20", "2026-08-07"]
+    assert result["sourceDates"][0] == "2024-01-01", "helper must not mutate source data"
+
+
+def test_volume_profile_request_and_levels_change_with_the_range():
+    """TEST C: a new range gets a new cache key and independently computed levels."""
+    source = _source()
+    request = _function(source, "scProfileVisibleRequest")
+    compute = _function(source, "scProfileCompute")
+    result = _node(f"""
+const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
+const SC_VALUE_AREA = 0.70;
+const scIntradayInterval = (days) => days <= 100 ? 10 : 60;
+{request}
+{compute}
+const rows = [['2026-01-01'], ['2026-02-01'], ['2026-03-01'], ['2026-04-01']];
+const shortRequest = scProfileVisibleRequest('SBER', rows, {{ from: 2, to: 3 }});
+const longRequest = scProfileVisibleRequest('SBER', rows, {{ from: 0, to: 3 }});
+const low = scProfileCompute([{{ low: 90, high: 100, value: 1000 }}], 10);
+const high = scProfileCompute([{{ low: 190, high: 200, value: 1000 }}], 10);
+console.log(JSON.stringify({{
+  keys: [shortRequest.key, longRequest.key],
+  low: [low.poc, low.vah, low.val],
+  high: [high.poc, high.vah, high.val],
+}}));
+""")
+
+    assert result["keys"][0] != result["keys"][1]
+    assert result["low"] != result["high"]
+    refresh = _function(source, "scProfileRefresh")
+    key_pos = refresh.index("container._scProfileKey = key")
+    clear_pos = refresh.index("container._scProfile = null", key_pos)
+    fetch_pos = refresh.index("scFetchIntraday", clear_pos)
+    assert key_pos < clear_pos < fetch_pos, "old POC/VAH/VAL must disappear before the new request"
+
+
+def test_futoi_domain_uses_only_visible_observations():
+    """TEST D: hidden historical extremes cannot flatten the current overlay."""
+    source = _source()
+    result = _node(f"""
+{_futoi_helpers(source)}
+const row = {{
+  dates: ['2024-01-01', '2026-07-01', '2026-08-01'],
+  net: [-1000000, -120, 340],
+}};
+const visible = scFutoiVisibleData(row, {{ visibleStart: '2026-07-01', visibleEnd: '2026-08-07' }});
+console.log(JSON.stringify(scFutoiDomain(visible)));
+""")
+
+    assert result == {"min": -120, "max": 340}
+
+
+def test_futoi_does_not_fill_the_start_from_a_future_observation():
+    """TEST E: missing start data stays missing; the line starts at the first real point."""
+    source = _source()
+    result = _node(f"""
+{_futoi_helpers(source)}
+const data = scFutoiVisibleData({{
+  dates: ['2026-01-05', '2026-01-15', '2026-01-20'],
+  net: [10, 15, 20],
+}}, {{ visibleStart: '2026-01-10', visibleEnd: '2026-01-31' }});
+console.log(JSON.stringify(data));
+""")
+
+    assert result == [
+        {"time": "2026-01-15", "value": 15},
+        {"time": "2026-01-20", "value": 20},
+    ]

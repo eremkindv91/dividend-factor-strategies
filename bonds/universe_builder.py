@@ -33,6 +33,28 @@ RATING_RANK = {
     "CCC": 3, "CCC-": 2, "CC": 1, "C": 0,
 }
 
+BOND_STRUCTURE_TYPES = frozenset({
+    "VANILLA_FIXED",
+    "FLOATING",
+    "AMORTIZING",
+    "OFFER",
+    "INDEX_LINKED",
+    "VARIABLE_NOMINAL",
+    "STRUCTURED_OR_COMPLEX",
+    "UNKNOWN",
+})
+
+_INDEX_LINKED_MARKERS = (
+    "линкер", "индексируем", "индексир", "inflation-linked", "index-linked",
+)
+_FLOATING_MARKERS = (
+    "переменн", "плавающ", "флоат", "ruonia", "ключевой ставк",
+)
+_COMPLEX_MARKERS = (
+    "структур", "инвестиционн", "иос", "конвертируем", "суборд", "вечн",
+)
+YTM_REFERENCE_TOLERANCE_PP = 1.0
+
 
 def load_json(path: str | os.PathLike) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -90,6 +112,98 @@ def _market_clean(row: dict) -> float | None:
         if value and value > 0:
             return value
     return None
+
+
+def _market_yield(row: dict) -> tuple[float | None, str | None]:
+    """Return an official MOEX yield without presenting it as our own IRR."""
+    market = row.get("_md") or {}
+    for key in ("YIELDATWAPRICE", "YIELD", "YIELDTOOFFER"):
+        value = _num(market.get(key))
+        if value is not None and value > -100:
+            return value, f"marketdata.{key}"
+    for key in ("YIELDATPREVWAPRICE", "YIELDATPREVPRICE"):
+        value = _num(row.get(key))
+        if value is not None and value > -100:
+            return value, f"securities.{key}"
+    return None, None
+
+
+def classify_bond_structure(raw: dict, description: dict, enrichment: dict) -> dict:
+    """Classify cash-flow structure before deciding whether an internal YTM is valid.
+
+    The primary type is intentionally conservative. Feature booleans remain separate,
+    because an issue may have both an offer and amortization.
+    """
+    source_text = " ".join(str(value or "") for value in (
+        description.get("BOND_TYPE"), raw.get("BONDTYPE"),
+        description.get("NAME"), raw.get("SHORTNAME"), raw.get("SECNAME"),
+    )).lower()
+    contains = lambda markers: any(marker in source_text for marker in markers)
+    initial_face = _num(description.get("INITIALFACEVALUE")) or _num(raw.get("INITIALFACEVALUE"))
+    current_face = _num(raw.get("FACEVALUEONSETTLEDATE")) or _num(raw.get("FACEVALUE"))
+    amortizing = bool(enrichment.get("amortizing"))
+    has_put = bool(enrichment.get("has_offer")) or any(
+        _iso(raw.get(key)) for key in ("OFFERDATE", "PUTOPTIONDATE", "BUYBACKDATE")
+    )
+    has_call = bool(_iso(raw.get("CALLOPTIONDATE")))
+    index_linked = contains(_INDEX_LINKED_MARKERS)
+    floating = contains(_FLOATING_MARKERS)
+    structured = contains(_COMPLEX_MARKERS)
+    face_changed = bool(
+        initial_face and current_face
+        and abs(current_face - initial_face) > max(0.01, abs(initial_face) * 1e-6)
+    )
+    variable_nominal = bool(index_linked or (face_changed and not amortizing))
+    coupon_rate = _num(raw.get("COUPONPERCENT"))
+
+    if index_linked:
+        structure_type = "INDEX_LINKED"
+    elif structured:
+        structure_type = "STRUCTURED_OR_COMPLEX"
+    elif floating:
+        structure_type = "FLOATING"
+    elif variable_nominal:
+        structure_type = "VARIABLE_NOMINAL"
+    elif has_put or has_call:
+        structure_type = "OFFER"
+    elif amortizing:
+        structure_type = "AMORTIZING"
+    elif coupon_rate is not None:
+        structure_type = "VANILLA_FIXED"
+    else:
+        structure_type = "UNKNOWN"
+
+    # The current internal solver is a yield-to-maturity model for a complete,
+    # fixed bullet cash-flow schedule.  An offer needs a separate exercise
+    # scenario, while an amortizer needs principal-flow completeness checks.
+    # Until those models exist, publishing their IRR as a comparable YTM would
+    # be false precision even when MOEX exposes an official yield indicator.
+    deterministic = structure_type == "VANILLA_FIXED"
+    if structure_type == "INDEX_LINKED":
+        coupon_type = "index_linked"
+    elif structure_type == "VARIABLE_NOMINAL":
+        coupon_type = "variable_nominal"
+    elif structure_type == "FLOATING":
+        coupon_type = "floating"
+    elif structure_type == "STRUCTURED_OR_COMPLEX":
+        coupon_type = "complex"
+    elif not coupon_rate:
+        coupon_type = "zero"
+    else:
+        coupon_type = "fixed"
+
+    return {
+        "bond_structure_type": structure_type,
+        "bond_structure_source": str(description.get("BOND_TYPE") or raw.get("BONDTYPE") or "") or None,
+        "coupon_type": coupon_type,
+        "initial_face_value_per_bond_rub": initial_face,
+        "index_linked": index_linked,
+        "variable_nominal": variable_nominal,
+        "cashflows_deterministic": deterministic,
+        "has_put_offer": has_put,
+        "has_call": has_call,
+        "amortizing": amortizing,
+    }
 
 
 def solve_effective_annual_ytm(
@@ -229,6 +343,15 @@ def normalize_bond(
     if clean_price is None or not face or not maturity_text or lot_size < 1:
         return None
 
+    description = enrichment.get("description") or {}
+    structure = classify_bond_structure(raw, description, enrichment)
+    coupon_type = structure["coupon_type"]
+    has_put = structure["has_put_offer"]
+    has_call = structure["has_call"]
+    amortizing = structure["amortizing"]
+    is_qualified = str(description.get("ISQUALIFIEDINVESTORS") or "0") == "1"
+
+    # MOEX quotes clean bond prices as a percentage of the current nominal.
     dirty_per_bond = clean_price / 100.0 * face + float(aci or 0.0)
     dirty_per_lot = dirty_per_bond * lot_size
     cashflows = enrichment.get("cashflows") or []
@@ -242,24 +365,55 @@ def normalize_bond(
     if not any(dt == maturity and amount >= face * 0.5 for dt, amount in flows):
         flows.append((maturity, face))
 
-    ytm = solve_effective_annual_ytm(flows, dirty_per_bond, as_of)
+    future_coupon_count = enrichment.get("future_coupon_count")
+    missing_coupon_cashflows = bool(
+        structure["cashflows_deterministic"]
+        and coupon_type == "fixed"
+        and (_num(raw.get("COUPONPERCENT"), 0.0) or 0.0) > 0
+        and future_coupon_count is not None
+        and int(future_coupon_count) == 0
+    )
+    can_calculate_ytm = bool(structure["cashflows_deterministic"] and not missing_coupon_cashflows)
+    calculated_ytm = solve_effective_annual_ytm(flows, dirty_per_bond, as_of) if can_calculate_ytm else None
+    moex_yield, moex_yield_source = _market_yield(raw)
+    ytm_reference_mismatch = bool(
+        calculated_ytm is not None
+        and moex_yield is not None
+        and abs(calculated_ytm * 100.0 - moex_yield) > YTM_REFERENCE_TOLERANCE_PP
+    )
+    # Keep an inconsistent solver output out of public analytics and the
+    # optimizer.  MOEX remains available as a separately labelled reference.
+    ytm = None if ytm_reference_mismatch else calculated_ytm
     duration = modified_duration_effective_annual(flows, dirty_per_bond, ytm, as_of) if ytm is not None else None
     raw_duration_days = _num(market.get("DURATION"))
+    years_to_maturity = (maturity - as_of).days / 365.0
+    price_date = _iso(raw.get("PREVDATE")) or _iso(str(market.get("SYSTIME") or "")[:10])
     flags: list[str] = []
     if duration is None:
         flags.append("modified_duration_unavailable")
     if not enrichment.get("history_sessions"):
         flags.append("liquidity_history_unavailable")
 
-    description = enrichment.get("description") or {}
-    is_qualified = str(description.get("ISQUALIFIEDINVESTORS") or "0") == "1"
-    coupon_type_raw = str(description.get("BOND_TYPE") or raw.get("BONDTYPE") or "").lower()
-    coupon_type = "floating" if "перем" in coupon_type_raw or "флоат" in coupon_type_raw else "fixed"
-    if not _num(raw.get("COUPONPERCENT")):
-        coupon_type = "zero"
-    has_put = any(_iso(raw.get(key)) for key in ("OFFERDATE", "PUTOPTIONDATE", "BUYBACKDATE"))
-    has_call = bool(_iso(raw.get("CALLOPTIONDATE")))
-    amortizing = bool(enrichment.get("amortizing"))
+    if structure["index_linked"]:
+        flags.append("INDEX_LINKED")
+    if structure["variable_nominal"]:
+        flags.append("VARIABLE_NOMINAL")
+    if not structure["cashflows_deterministic"]:
+        flags.append("INDETERMINATE_CASHFLOWS")
+    if missing_coupon_cashflows:
+        flags.append("MISSING_CASHFLOWS")
+    if structure["bond_structure_type"] == "UNKNOWN":
+        flags.append("UNKNOWN_COUPON")
+    reference_yield = ytm * 100.0 if ytm is not None else moex_yield
+    if reference_yield is not None and reference_yield < 3.0 and years_to_maturity > 1.0:
+        flags.append("SUSPICIOUS_YIELD")
+    if ytm_reference_mismatch:
+        flags.append("YTM_REFERENCE_MISMATCH")
+    max_price_age = int(config.get("quality_gate", {}).get("max_price_age_days", 4))
+    if price_date and (as_of - date.fromisoformat(price_date)).days > max_price_age:
+        flags.append("STALE_PRICE")
+    if not math.isfinite(dirty_per_bond) or dirty_per_bond <= 0 or not (0 < clean_price <= 250):
+        flags.append("PRICE_UNIT_ERROR")
     if is_qualified:
         flags.append("qualified_only")
     if has_put:
@@ -308,7 +462,6 @@ def normalize_bond(
     g_spread = ytm * 100.0 - g_rate if ytm is not None and g_rate is not None else None
     start_date = _iso(description.get("STARTDATEMOEX") or raw.get("PREVDATE"))
     new_placement = bool(start_date and (as_of - date.fromisoformat(start_date)).days <= 90)
-    price_date = _iso(raw.get("PREVDATE")) or _iso(str(market.get("SYSTIME") or "")[:10])
 
     row = {
         "secid": str(raw.get("SECID") or ""),
@@ -332,6 +485,12 @@ def normalize_bond(
         "rating_checked_at": (rating_record or {}).get("rating_checked_at") if instrument_type == "corp" else None,
         "rating_source_url": (rating_record or {}).get("rating_source_url") if instrument_type == "corp" else None,
         "rating_records": rating_records,
+        "bond_structure_type": structure["bond_structure_type"],
+        "bond_structure_source": structure["bond_structure_source"],
+        "cashflows_deterministic": structure["cashflows_deterministic"],
+        "cashflow_model_status": "DETERMINISTIC" if can_calculate_ytm else "INDETERMINATE_OR_INCOMPLETE",
+        "ytm_calculation_status": "REFERENCE_MISMATCH" if ytm_reference_mismatch else "CALCULATED" if ytm is not None else "NOT_CALCULATED",
+        "initial_face_value_per_bond_rub": round(structure["initial_face_value_per_bond_rub"], 4) if structure["initial_face_value_per_bond_rub"] is not None else None,
         "face_value_per_bond_rub": round(face, 4),
         "lot_size": lot_size,
         "clean_price_pct": round(clean_price, 4),
@@ -341,21 +500,26 @@ def normalize_bond(
         "ytm_gross_pct": round(ytm * 100.0, 4) if ytm is not None else None,
         "ytm_net_est_pct": round(ytm * (1.0 - float(config["tax_model"]["tax_rate"])) * 100.0, 4) if ytm is not None else None,
         "tax_model_version": config["tax_model"]["version"],
+        "moex_yield_pct": round(moex_yield, 4) if moex_yield is not None else None,
+        "moex_yield_source_field": moex_yield_source,
+        "moex_yield_method": "official_moex_iss_indicator" if moex_yield is not None else None,
         "g_curve_yield_pct": round(g_rate, 4) if g_rate is not None else None,
         "g_spread_pp": round(g_spread, 4) if g_spread is not None else None,
         "peer_spread_pp": None,
         "excess_spread_pp": None,
         "z_spread_bp": _num(market.get("ZSPREADATWAPRICE")) or _num(market.get("ZSPREAD")),
-        "duration_value": round(duration, 6) if duration is not None else 0.0,
+        "duration_value": round(duration, 6) if duration is not None else None,
         "duration_type": "modified_duration_effective_annual" if duration is not None else "unavailable",
         "duration_source": "calculated_from_moex_bondization_and_market_price" if duration is not None else "unavailable",
         "duration_as_of": price_date,
         "moex_duration_raw_days": raw_duration_days,
         "maturity_date": maturity_text,
-        "years_to_maturity": round((maturity - as_of).days / 365.0, 4),
+        "years_to_maturity": round(years_to_maturity, 4),
         "coupon_pct": round(_num(raw.get("COUPONPERCENT"), 0.0) or 0.0, 4),
         "coupon_frequency": int(_num(description.get("COUPONFREQUENCY")) or (round(365 / float(raw.get("COUPONPERIOD"))) if _num(raw.get("COUPONPERIOD")) else 0)),
         "coupon_type": coupon_type,
+        "index_linked": structure["index_linked"],
+        "variable_nominal": structure["variable_nominal"],
         "median_volume_20d_rub": round(median_volume, 2),
         "history_sessions": history_sessions,
         "value_today_rub": round(value_today, 2),
@@ -396,13 +560,16 @@ def _fetch_enrichment(raw: dict, http_json: Callable[[str], dict], iss: str, tod
     bondization = http_json(f"{iss}/securities/{secid}/bondization.json?iss.meta=off&limit=unlimited")
     coupons = _block_rows(bondization, "coupons")
     amortizations = _block_rows(bondization, "amortizations")
+    offers = _block_rows(bondization, "offers")
     flows: list[list] = []
     cashflows_12m: list[dict] = []
+    future_coupon_count = 0
     for coupon in coupons:
         coupon_date = _iso(coupon.get("coupondate"))
         amount = _num(coupon.get("value"))
         if not coupon_date or amount is None or date.fromisoformat(coupon_date) <= today:
             continue
+        future_coupon_count += 1
         flows.append([coupon_date, amount])
         if (date.fromisoformat(coupon_date) - today).days <= 366:
             cashflows_12m.append({"date": coupon_date, "amount_per_bond_rub": round(amount, 4)})
@@ -423,6 +590,12 @@ def _fetch_enrichment(raw: dict, http_json: Callable[[str], dict], iss: str, tod
         "emitter_id": description.get("EMITTER_ID"),
         "cashflows": sorted(flows),
         "cashflows_12m": sorted(cashflows_12m, key=lambda item: item["date"]),
+        "future_coupon_count": future_coupon_count,
+        "future_amortization_count": sum(
+            1 for row in amort_rows
+            if _iso(row.get("amortdate")) and date.fromisoformat(_iso(row.get("amortdate"))) > today
+        ),
+        "has_offer": bool(offers),
         "amortizing": len(amort_rows) > 1,
         "history_values": history_values,
         "history_sessions": len(history_values),

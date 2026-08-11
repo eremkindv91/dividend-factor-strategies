@@ -22,6 +22,8 @@
     minLiquidityScore: 45,
     maxSuspiciousYtmGrossPct: 45,
     maxSuspiciousYtmNetPct: 40,
+    minSuspiciousYtmGrossPct: 3,
+    minSuspiciousYtmMaturityYears: 1,
     minCleanPricePct: 1,
     maxCleanPricePct: 250,
     allowedCouponTypes: Object.freeze(['fixed']),
@@ -51,6 +53,14 @@
     INVALID_CASHFLOWS: 'Недостаточно данных для проверки денежных потоков',
     INVALID_YTM: 'Доходность не рассчитана или расчёт не сошёлся',
     SUSPICIOUS_YTM: 'Расчётная доходность аномальна и требует проверки',
+    SUSPICIOUS_YIELD: 'Необычно низкая рублёвая доходность требует проверки структуры выпуска',
+    PRICE_UNIT_ERROR: 'Единицы цены или номинала не прошли проверку',
+    MISSING_CASHFLOWS: 'В источнике не хватает будущих денежных потоков',
+    VARIABLE_NOMINAL: 'Номинал выпуска изменяется и не фиксирован заранее',
+    INDEX_LINKED: 'Выпуск привязан к индексу; обычный номинальный YTM несопоставим',
+    UNKNOWN_COUPON: 'Формула будущего купона не определена',
+    INDETERMINATE_CASHFLOWS: 'Полная модель будущих денежных потоков не подтверждена',
+    YTM_REFERENCE_MISMATCH: 'Расчётная доходность заметно расходится с индикатором MOEX',
     LOW_LIQUIDITY: 'Ликвидность ниже безопасного порога',
     LIQUIDITY_DATA_MISSING: 'Данных для оценки ликвидности недостаточно',
     COMPLEX_COUPON: 'Купонная структура не поддерживается безопасным режимом',
@@ -64,7 +74,8 @@
     PEER_COMPARISON_WEAK: 'Недостаточно сопоставимых выпусков для relative value',
   });
 
-  const finite = (value) => Number.isFinite(Number(value));
+  const finite = (value) => value !== null && value !== undefined && value !== ''
+    && Number.isFinite(Number(value));
   const number = (value, fallback = null) => finite(value) ? Number(value) : fallback;
   const round = (value, digits = 2) => Number(Number(value).toFixed(digits));
   const isoDay = (value) => /^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null;
@@ -134,14 +145,24 @@
     if (clean == null || clean < config.minCleanPricePct || clean > config.maxCleanPricePct
       || dirty == null || dirty <= 0 || face == null || face <= 0 || lotSize == null || lotSize <= 0) add('INVALID_PRICE');
 
+    const structureType = String((row && row.bond_structure_type) || '').toUpperCase();
+    const indeterminateCashflows = Boolean(row && row.cashflows_deterministic === false);
     const maturity = isoDay(row && row.maturity_date);
-    if (!maturity || number(row && row.duration_value) == null) add('INVALID_CASHFLOWS');
+    if (!maturity || (!indeterminateCashflows && number(row && row.duration_value) == null)) add('INVALID_CASHFLOWS');
     else if (daysBetween(asOf, maturity) < 0) add('MATURITY_PASSED');
+    if (indeterminateCashflows) add('INDETERMINATE_CASHFLOWS');
+    if (structureType === 'INDEX_LINKED' || row && row.index_linked === true) add('INDEX_LINKED');
+    if (structureType === 'VARIABLE_NOMINAL' || row && row.variable_nominal === true) add('VARIABLE_NOMINAL');
 
     const gross = number(row && row.ytm_gross_pct);
     const net = number(row && row.ytm_net_est_pct);
-    if (gross == null || net == null || gross <= -100 || net <= -100) add('INVALID_YTM');
-    else if (gross > config.maxSuspiciousYtmGrossPct || net > config.maxSuspiciousYtmNetPct) add('SUSPICIOUS_YTM');
+    if (!indeterminateCashflows) {
+      if (gross == null || net == null || gross <= -100 || net <= -100) add('INVALID_YTM');
+      else if (gross > config.maxSuspiciousYtmGrossPct || net > config.maxSuspiciousYtmNetPct) add('SUSPICIOUS_YTM');
+      else if (structureType === 'VANILLA_FIXED'
+        && gross < config.minSuspiciousYtmGrossPct
+        && number(row && row.years_to_maturity, 0) > config.minSuspiciousYtmMaturityYears) add('SUSPICIOUS_YIELD');
+    }
 
     const liquidityResult = liquidity(row || {}, config);
     if (!liquidityResult.sufficient) add('LIQUIDITY_DATA_MISSING');
@@ -160,13 +181,25 @@
     }
 
     const flags = Array.isArray(row && row.data_quality_flags) ? row.data_quality_flags : [];
+    if (flags.includes('PRICE_UNIT_ERROR')) add('PRICE_UNIT_ERROR');
+    if (flags.includes('MISSING_CASHFLOWS')) add('MISSING_CASHFLOWS');
+    if (flags.includes('UNKNOWN_COUPON')) add('UNKNOWN_COUPON');
+    if (flags.includes('YTM_REFERENCE_MISMATCH')) add('YTM_REFERENCE_MISMATCH');
+    if (flags.includes('STALE_PRICE')) add('STALE_PRICE');
     if (flags.some((flag) => /conflict|invalid|missing_(face|price|maturity)|calculation_failed/i.test(flag))) add('DATA_CONFLICT');
     if (!row || !row.ultimate_parent_id) warn('GROUP_DATA_UNAVAILABLE');
     if (!isOfz && number(row && row.peer_n, 0) < config.minPeerObservations) warn('PEER_COMPARISON_WEAK');
 
     const investable = reasons.length === 0;
+    const status = investable ? (warnings.length ? 'partially_verified' : 'verified') : 'requires_review';
+    const yieldBlocked = reasons.some((code) => [
+      'INVALID_YTM', 'SUSPICIOUS_YTM', 'SUSPICIOUS_YIELD', 'INDETERMINATE_CASHFLOWS',
+      'INDEX_LINKED', 'VARIABLE_NOMINAL', 'MISSING_CASHFLOWS', 'UNKNOWN_COUPON',
+      'YTM_REFERENCE_MISMATCH',
+    ].includes(code));
     return {
       investable,
+      status,
       riskLevel: investable ? 'checked' : reasons.includes('SUSPICIOUS_YTM') || reasons.includes('INVALID_YTM') || reasons.includes('INVALID_PRICE') ? 'high' : 'attention',
       reasonCodes: reasons,
       warningCodes: warnings,
@@ -174,7 +207,7 @@
       warningLabels: warnings.map((code) => REASON_LABELS[code] || code),
       liquidity: liquidityResult,
       priceAgeDays,
-      ytmConfirmed: !reasons.includes('INVALID_YTM') && !reasons.includes('SUSPICIOUS_YTM'),
+      ytmConfirmed: !yieldBlocked,
       configVersion: 'retail-safe-v1',
     };
   }

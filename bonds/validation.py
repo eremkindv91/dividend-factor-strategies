@@ -75,13 +75,21 @@ def quality_gate(universe: dict, config_path: str | Path = DEFAULT_CONFIG, today
         return sum(1 for row in rows if predicate(row)) / len(rows) if rows else 0.0
 
     rated = [row for row in corporate if row.get("rating_rank") is not None]
+    duration_applicable = [row for row in bonds if row.get("cashflows_deterministic") is not False]
+    indeterminate_cashflows = [row for row in bonds if row.get("cashflows_deterministic") is False]
     metrics = {
         # Доли остаются В ОТЧЁТЕ, но БОЛЬШЕ НЕ БЛОКИРУЮТ публикацию — см. комментарий ниже.
         "rating_coverage": coverage(corporate, lambda row: row.get("rating_rank") is not None),
         "sector_coverage": coverage(corporate, lambda row: row.get("sector") not in {None, "", "unknown"}),
         "rated_corporate_issues": len(rated),
         "rated_corporate_issuers": len({row.get("issuer_id") for row in rated if row.get("issuer_id")}),
-        "modified_duration_coverage": coverage(bonds, lambda row: row.get("duration_type") == "modified_duration_effective_annual"),
+        # A duration coverage gate must not demand a made-up duration from floaters,
+        # linkers or structured notes. Those rows are in the public catalogue but are
+        # excluded by the portfolio engine. The threshold still applies unchanged to
+        # every issue for which future cash flows are modelled as deterministic.
+        "modified_duration_coverage": coverage(duration_applicable, lambda row: row.get("duration_type") == "modified_duration_effective_annual"),
+        "duration_applicable_issues": len(duration_applicable),
+        "indeterminate_cashflow_issues": len(indeterminate_cashflows),
         "liquidity_history_coverage": coverage(bonds, lambda row: int(row.get("history_sessions") or 0) >= 10),
     }
     source_ratings = ((universe.get("source_status") or {}).get("ratings") or {}).get("sources") or {}

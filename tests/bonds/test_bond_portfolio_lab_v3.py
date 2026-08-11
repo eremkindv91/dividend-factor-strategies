@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from copy import deepcopy
 from datetime import date, timedelta
+from pathlib import Path
 
 from bonds.integer_allocator import allocate_integer_lots
 from bonds.fns_sector_enrichment import (
@@ -15,8 +16,10 @@ from bonds.portfolio_engine import solve_target_portfolio
 from bonds.pipeline_v3 import _persist_verified_issuer_records
 from bonds.universe_builder import (
     attach_peer_benchmarks,
+    classify_bond_structure,
     load_json,
     modified_duration_effective_annual,
+    normalize_bond,
     solve_effective_annual_ytm,
 )
 from bonds.validation import (
@@ -119,6 +122,176 @@ def test_dirty_price_contract_and_schema_validation():
     assert any("dirty_price_per_lot_mismatch" in item for item in validate_universe_schema(broken))
 
 
+def _normalized_case(
+    *, bond_type: str, current_face: float = 1034.70, initial_face: float = 1000.0,
+    coupon_pct: float = 1.85, moex_yield_pct: float | None = 1.88,
+    enrichment_overrides: dict | None = None,
+) -> dict:
+    as_of = date(2026, 8, 10)
+    coupon_cash = round(current_face * coupon_pct / 100 / 2, 4)
+    coupon_dates = [
+        "2026-11-19", "2027-05-26", "2027-11-30",
+        "2028-06-05", "2028-12-10", "2029-06-16",
+    ]
+    raw = {
+        "SECID": "RU000A10F504",
+        "ISIN": "RU000A10F504",
+        "SHORTNAME": "ВЭБ2Р-58",
+        "BONDTYPE": bond_type,
+        "FACEUNIT": "SUR",
+        "FACEVALUE": current_face,
+        "FACEVALUEONSETTLEDATE": current_face,
+        "ACCRUEDINT": 4.62,
+        "LOTSIZE": 1,
+        "MATDATE": "2029-06-16",
+        "COUPONPERCENT": coupon_pct,
+        "COUPONPERIOD": 188,
+        "ISSUESIZE": 150_000_000,
+        "PREVDATE": "2026-08-07",
+        "_board": "TQCB",
+        "_md": {
+            "WAPRICE": 99.95,
+            **({"YIELDATWAPRICE": moex_yield_pct} if moex_yield_pct is not None else {}),
+            "DURATION": 1014,
+            "VALTODAY_RUR": 50_000_000,
+        },
+    }
+    enrichment = {
+        "description": {
+            "BOND_TYPE": bond_type,
+            "INITIALFACEVALUE": initial_face,
+            "COUPONFREQUENCY": 2,
+            "EMITTER_ID": 123,
+        },
+        "cashflows": [[coupon_date, coupon_cash] for coupon_date in coupon_dates]
+        + [["2029-06-16", current_face]],
+        "cashflows_12m": [
+            {"date": "2026-11-19", "amount_per_bond_rub": coupon_cash},
+            {"date": "2027-05-26", "amount_per_bond_rub": coupon_cash},
+        ],
+        "future_coupon_count": 6,
+        "future_amortization_count": 1,
+        "amortizing": False,
+        "has_offer": False,
+        "history_values": [50_000_000] * 20,
+        "history_sessions": 20,
+        "history_as_of": "2026-08-07",
+    }
+    enrichment.update(enrichment_overrides or {})
+    row = normalize_bond(
+        raw,
+        {"rating": "AAA", "rating_scope": "issue", "rating_records": []},
+        {"INN": "7710489036", "SHORT_TITLE": "ВЭБ.РФ"},
+        enrichment,
+        lambda _duration: 14.8,
+        load_json("bonds/portfolio_config.json"),
+        {"issuers": {}},
+        as_of,
+    )
+    assert row is not None
+    return row
+
+
+def test_ru000a10f504_is_an_index_linker_not_a_vanilla_fixed_bond():
+    row = _normalized_case(bond_type="Линкер/облигации с индексируемым")
+
+    assert row["bond_structure_type"] == "INDEX_LINKED"
+    assert row["coupon_type"] == "index_linked"
+    assert row["index_linked"] is True
+    assert row["variable_nominal"] is True
+    assert row["cashflows_deterministic"] is False
+    assert row["initial_face_value_per_bond_rub"] == 1000
+    assert row["face_value_per_bond_rub"] == 1034.7
+    assert row["dirty_price_per_bond_rub"] == round(99.95 / 100 * 1034.7 + 4.62, 4)
+    assert row["ytm_gross_pct"] is None
+    assert row["ytm_net_est_pct"] is None
+    assert row["duration_value"] is None
+    assert row["g_spread_pp"] is None
+    assert row["moex_yield_pct"] == 1.88
+    assert row["moex_yield_source_field"] == "marketdata.YIELDATWAPRICE"
+    assert {"INDEX_LINKED", "VARIABLE_NOMINAL", "INDETERMINATE_CASHFLOWS"} <= set(row["data_quality_flags"])
+
+
+def test_vanilla_fixed_control_still_gets_a_reproducible_internal_ytm():
+    row = _normalized_case(
+        bond_type="Корпоративная облигация", current_face=1000, initial_face=1000,
+        coupon_pct=12, moex_yield_pct=None,
+    )
+
+    assert row["bond_structure_type"] == "VANILLA_FIXED"
+    assert row["cashflows_deterministic"] is True
+    assert row["ytm_gross_pct"] is not None
+    assert row["duration_value"] is not None
+    assert row["g_spread_pp"] is not None
+
+
+def test_structure_classifier_covers_supported_non_vanilla_cases():
+    base = {
+        "BONDTYPE": "Корпоративная облигация", "FACEVALUE": 1000,
+        "FACEVALUEONSETTLEDATE": 1000, "COUPONPERCENT": 12,
+    }
+    cases = [
+        ({**base, "BONDTYPE": "Флоатер с переменным купоном"}, {}, {}, "FLOATING"),
+        (base, {}, {"amortizing": True}, "AMORTIZING"),
+        ({**base, "OFFERDATE": "2027-01-01"}, {}, {}, "OFFER"),
+        ({**base, "BONDTYPE": "Структурная облигация"}, {}, {}, "STRUCTURED_OR_COMPLEX"),
+        ({**base, "COUPONPERCENT": None}, {}, {}, "UNKNOWN"),
+    ]
+    for raw, description, enrichment, expected in cases:
+        result = classify_bond_structure(raw, description, enrichment)
+        assert result["bond_structure_type"] == expected
+        assert result["cashflows_deterministic"] is False
+
+
+def test_offer_and_amortizing_bonds_do_not_publish_unmodelled_internal_ytm():
+    offer = _normalized_case(
+        bond_type="Корпоративная облигация",
+        current_face=1000,
+        initial_face=1000,
+        coupon_pct=12,
+        moex_yield_pct=None,
+        enrichment_overrides={"has_offer": True},
+    )
+    amortizing = _normalized_case(
+        bond_type="Амортизируемые облигации",
+        current_face=1000,
+        initial_face=1000,
+        coupon_pct=12,
+        moex_yield_pct=None,
+        enrichment_overrides={"amortizing": True, "future_amortization_count": 4},
+    )
+
+    assert offer["bond_structure_type"] == "OFFER"
+    assert amortizing["bond_structure_type"] == "AMORTIZING"
+    for row in (offer, amortizing):
+        assert row["cashflows_deterministic"] is False
+        assert row["ytm_gross_pct"] is None
+        assert row["ytm_net_est_pct"] is None
+        assert row["duration_value"] is None
+        assert row["g_spread_pp"] is None
+        assert "INDETERMINATE_CASHFLOWS" in row["data_quality_flags"]
+
+
+def test_vanilla_ytm_is_suppressed_when_it_disagrees_with_moex_reference():
+    row = _normalized_case(
+        bond_type="Корпоративная облигация",
+        current_face=1000,
+        initial_face=1000,
+        coupon_pct=12,
+        moex_yield_pct=30,
+    )
+
+    assert row["bond_structure_type"] == "VANILLA_FIXED"
+    assert row["cashflows_deterministic"] is True
+    assert row["ytm_calculation_status"] == "REFERENCE_MISMATCH"
+    assert row["ytm_gross_pct"] is None
+    assert row["ytm_net_est_pct"] is None
+    assert row["duration_value"] is None
+    assert row["g_spread_pp"] is None
+    assert row["moex_yield_pct"] == 30
+    assert "YTM_REFERENCE_MISMATCH" in row["data_quality_flags"]
+
+
 def test_cashflow_ytm_and_modified_duration_are_numerical_and_deterministic():
     as_of = date(2026, 1, 1)
     flows = [
@@ -189,6 +362,34 @@ def test_quality_gate_checks_sources_and_coverages(tmp_path):
     # доли рейтинга и сектора остаются В ОТЧЁТЕ, но больше не блокируют публикацию
     assert "rating_coverage" in gate["metrics"] and "sector_coverage" in gate["metrics"]
     assert not any(f.startswith(("rating_coverage", "sector_coverage")) for f in gate["failures"])
+
+
+def test_duration_gate_excludes_only_explicitly_indeterminate_cashflows(tmp_path):
+    universe = universe_fixture()
+    complex_row = deepcopy(universe["bonds"][0])
+    complex_row.update({
+        "secid": "INDEX-LINKER",
+        "cashflows_deterministic": False,
+        "bond_structure_type": "INDEX_LINKED",
+        "duration_value": None,
+        "duration_type": "unavailable",
+        "duration_source": "unavailable",
+    })
+    universe["bonds"].append(complex_row)
+    config = _config_with(
+        tmp_path,
+        minimum_modified_duration_coverage=1.0,
+        minimum_liquidity_history_coverage=0.0,
+        minimum_rated_corporate_issues=1,
+        minimum_rated_corporate_issuers=1,
+    )
+
+    gate = quality_gate(universe, config_path=config, today=date(2026, 8, 2))
+
+    assert gate["status"] == "PASS", gate["failures"]
+    assert gate["metrics"]["indeterminate_cashflow_issues"] == 1
+    assert gate["metrics"]["duration_applicable_issues"] == len(universe["bonds"]) - 1
+    assert gate["metrics"]["modified_duration_coverage"] == 1.0
 
 
 def test_all_fifteen_presets_satisfy_target_constraints_and_are_deterministic():
@@ -350,3 +551,37 @@ def test_infeasible_preset_keeps_constraints_and_has_user_diagnostics():
     assert target["status"] == "INFEASIBLE"
     assert target["reason_codes"] == ["insufficient_eligible_issues_or_issuers"]
     assert target["candidate_diagnostics"]["issues_inside_duration_corridor"] >= 0
+
+
+def test_published_artifacts_do_not_expose_or_allocate_untrusted_ytm():
+    site_bonds = Path("site/bonds")
+    universe = json.loads((site_bonds / "universe.json").read_text(encoding="utf-8"))
+    presets = json.loads((site_bonds / "portfolio_presets.json").read_text(encoding="utf-8"))
+    rows = universe["bonds"]
+    by_secid = {row["secid"]: row for row in rows}
+
+    untrusted = [
+        row for row in rows
+        if row.get("bond_structure_type") != "VANILLA_FIXED"
+        or row.get("ytm_calculation_status") == "REFERENCE_MISMATCH"
+    ]
+    assert untrusted
+    for row in untrusted:
+        assert row.get("ytm_gross_pct") is None, row["secid"]
+        assert row.get("ytm_net_est_pct") is None, row["secid"]
+        assert row.get("duration_value") is None, row["secid"]
+        assert row.get("g_spread_pp") is None, row["secid"]
+
+    allocated = {
+        position["secid"]
+        for allocation in (presets.get("allocations") or {}).values()
+        for position in allocation.get("positions") or []
+    }
+    offenders = [
+        secid for secid in allocated
+        if secid in by_secid and (
+            by_secid[secid].get("bond_structure_type") != "VANILLA_FIXED"
+            or by_secid[secid].get("ytm_calculation_status") == "REFERENCE_MISMATCH"
+        )
+    ]
+    assert offenders == []

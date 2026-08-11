@@ -511,3 +511,103 @@ def test_warnings_are_visible_and_the_useless_one_does_not_crowd_them_out():
     warn = app[app.index("function bondWarningListHTML"):]
     warn = warn[:warn.index("\nfunction ")]
     assert "sort(" in warn, "универсальное предупреждение должно уводиться в конец"
+
+
+def test_index_linker_is_not_marked_verified_or_given_a_fake_internal_ytm():
+    script = """
+    const B = require('./site/bond_retail.js');
+    const row = {
+      secid: 'RU000A10F504', instrument_type: 'corp', rating: 'AAA', qualified_only: false,
+      source_dates: { price: '2026-08-07' }, clean_price_pct: 99.95,
+      dirty_price_per_lot_rub: 1038.80, face_value_per_bond_rub: 1034.70, lot_size: 1,
+      maturity_date: '2029-06-16', years_to_maturity: 2.85, duration_value: null,
+      ytm_gross_pct: null, ytm_net_est_pct: null, moex_yield_pct: 1.88,
+      median_volume_20d_rub: 50000000, value_today_rub: 50000000, history_sessions: 20,
+      coupon_type: 'index_linked', bond_structure_type: 'INDEX_LINKED',
+      index_linked: true, variable_nominal: true, cashflows_deterministic: false,
+      sector: 'Финансы', ultimate_parent_id: 'state:veb', peer_n: 10,
+      has_put_offer: false, has_call: false, amortizing: false,
+      data_quality_flags: ['INDEX_LINKED', 'VARIABLE_NOMINAL', 'INDETERMINATE_CASHFLOWS'],
+    };
+    console.log(JSON.stringify(B.classifyBond(row, { asOf: '2026-08-10' })));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    safety = json.loads(result.stdout)
+
+    assert safety["investable"] is False
+    assert safety["status"] == "requires_review"
+    assert safety["ytmConfirmed"] is False
+    assert "INDEX_LINKED" in safety["reasonCodes"]
+    assert "VARIABLE_NOMINAL" in safety["reasonCodes"]
+    assert "INDETERMINATE_CASHFLOWS" in safety["reasonCodes"]
+    assert "INVALID_YTM" not in safety["reasonCodes"], (
+        "an intentionally omitted YTM is not a failed numerical solver"
+    )
+
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    assert "Расчётный YTM" in app and "не рассчитан" in app
+    assert "Доходность MOEX" in app
+    assert "официальный индикатор, не наш YTM" in app
+    assert "Частично проверено" in app and "Требует проверки" in app
+
+
+def test_null_numeric_fields_are_not_silently_coerced_to_zero():
+    script = """
+    const B = require('./site/bond_retail.js');
+    const row = {
+      secid: 'NULLS', instrument_type: 'ofz', source_dates: { price: '2026-08-07' },
+      clean_price_pct: 100, dirty_price_per_lot_rub: 1000,
+      face_value_per_bond_rub: 1000, lot_size: 1, maturity_date: '2029-01-01',
+      duration_value: null, ytm_gross_pct: null, ytm_net_est_pct: null,
+      median_volume_20d_rub: 50000000, value_today_rub: 50000000, history_sessions: 20,
+      coupon_type: 'fixed', sector: 'Государственные облигации', ultimate_parent_id: 'state',
+      data_quality_flags: [],
+    };
+    const out = B.classifyBond(row, { asOf: '2026-08-10' });
+    console.log(JSON.stringify(out.reasonCodes));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    reasons = json.loads(result.stdout)
+
+    assert "INVALID_CASHFLOWS" in reasons
+    assert "INVALID_YTM" in reasons
+
+
+def test_offer_and_amortizing_rows_are_not_presented_as_verified_internal_ytm():
+    script = """
+    const B = require('./site/bond_retail.js');
+    const base = {
+      secid: 'COMPLEX', instrument_type: 'corp', rating: 'AAA', qualified_only: false,
+      source_dates: { price: '2026-08-07' }, clean_price_pct: 100,
+      dirty_price_per_lot_rub: 1010, face_value_per_bond_rub: 1000, lot_size: 1,
+      maturity_date: '2029-01-01', years_to_maturity: 2.4, duration_value: null,
+      ytm_gross_pct: null, ytm_net_est_pct: null, moex_yield_pct: 15,
+      median_volume_20d_rub: 50000000, value_today_rub: 50000000, history_sessions: 20,
+      coupon_type: 'fixed', cashflows_deterministic: false,
+      sector: 'Финансы', ultimate_parent_id: 'group', peer_n: 10,
+      has_call: false, qualified_only: false, data_quality_flags: ['INDETERMINATE_CASHFLOWS'],
+    };
+    const offer = B.classifyBond({ ...base, bond_structure_type: 'OFFER', has_put_offer: true, amortizing: false }, { asOf: '2026-08-10' });
+    const amortizing = B.classifyBond({ ...base, bond_structure_type: 'AMORTIZING', has_put_offer: false, amortizing: true }, { asOf: '2026-08-10' });
+    console.log(JSON.stringify({ offer, amortizing }));
+    """
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    checks = json.loads(result.stdout)
+
+    for safety in checks.values():
+        assert safety["investable"] is False
+        assert safety["status"] == "requires_review"
+        assert safety["ytmConfirmed"] is False
+        assert "INDETERMINATE_CASHFLOWS" in safety["reasonCodes"]
+
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    assert "сценарий выкупа" in app
+    assert "полного графика амортизации" in app
+    assert "Расчётный YTM не подтверждён" in app
+    assert "не используется в портфеле" in app
