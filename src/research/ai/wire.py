@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from hashlib import sha256
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
@@ -206,6 +207,18 @@ def _hydrate_refs(refs: list[str], catalog: EvidenceCatalog) -> list[Evidence]:
     ]
 
 
+def _domain_finding_id(agent: Agent, wire_id: str) -> str:
+    raw = wire_id.strip()
+    if not raw:
+        raise ValueError("empty wire finding ID")
+    candidate = f"{agent}:{raw}"
+    if len(candidate) <= 120:
+        return candidate
+    digest = sha256(raw.encode("utf-8")).hexdigest()[:12]
+    prefix = f"{agent}:"
+    return f"{prefix}{raw[:120 - len(prefix) - len(digest) - 1]}:{digest}"
+
+
 def hydrate_analyst_output(
     wire: WireAnalystOutput,
     *,
@@ -217,7 +230,7 @@ def hydrate_analyst_output(
         raise ValueError("duplicate wire finding IDs")
     findings = [
         Finding(
-            id=row.id,
+            id=_domain_finding_id(agent, row.id),
             agent=agent,
             entity_type=row.entity_type,
             entity_id=row.entity_id,

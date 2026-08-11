@@ -104,6 +104,9 @@ def _validate_memo(
     rejected_ids: set[str],
 ) -> None:
     allowed_ids = {finding.id for finding in allowed_findings}
+    overlap = allowed_ids & rejected_ids
+    if overlap:
+        raise CriticalGraphError(f"accepted/rejected finding IDs overlap: {sorted(overlap)}")
     used_ids = _finding_ids_in_market(memo) if isinstance(memo, MarketMemo) else _finding_ids_in_stock(memo)
     if not used_ids.issubset(allowed_ids):
         raise CriticalGraphError(f"memo references unknown findings: {sorted(used_ids - allowed_ids)}")
@@ -498,6 +501,11 @@ class ResearchGraph:
             usable = passed + partial
             if not any(finding.agent == "market" for finding in usable):
                 raise CriticalGraphError("verifier rejected all required market findings")
+            accepted_ids = {finding.id for finding in usable}
+            if accepted_ids & rejected_ids:
+                raise CriticalGraphError(
+                    f"accepted/rejected finding IDs overlap: {sorted(accepted_ids & rejected_ids)}"
+                )
             warnings = sorted(
                 set(manifest.get("temporal_warnings") or [])
                 | {f"analyst_failed:{name}" for name in failed_domains}

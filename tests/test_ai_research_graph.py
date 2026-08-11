@@ -67,7 +67,7 @@ class RejectNewsClient(FaultClient):
             return generated
         decisions = []
         for decision in generated.value.results:
-            if decision.finding_id.startswith("news_"):
+            if decision.finding_id.startswith("news:"):
                 decision = decision.model_copy(
                     update={"verdict": "REJECT", "reason": "unsupported_news_claim"}
                 )
@@ -148,7 +148,7 @@ def test_rejected_finding_never_reaches_synthesizer(tmp_path):
         ).run()
     )
     synthesis_ids = {row["id"] for row in client.payloads["synthesizer"]["findings"]}
-    news_id = next(item for item in result["status"]["rejected_finding_ids"] if item.startswith("news_"))
+    news_id = next(item for item in result["status"]["rejected_finding_ids"] if item.startswith("news:"))
     assert news_id not in synthesis_ids
     assert news_id not in result["market_memo"].key_findings
     assert client.calls.count("verifier") == 1

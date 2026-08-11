@@ -147,6 +147,20 @@ def test_ai_cannot_create_target_price_or_financial_projection(claim, claim_type
     assert reason in result.rejected[finding.id]
 
 
+def test_reducer_rejects_every_finding_with_an_ambiguous_global_id():
+    market = _finding("shared_id", agent="market")
+    macro = _finding("shared_id", agent="macro", entity_type="macro")
+    macro = macro.model_copy(update={"claim": "Другое состояние по тому же ambiguous ID."})
+    reduced = reduce_findings(
+        [
+            AnalystOutput(analyst="market", findings=[market]),
+            AnalystOutput(analyst="macro", findings=[macro]),
+        ]
+    )
+    assert reduced.findings == []
+    assert reduced.rejected_before_verifier == {"shared_id": ["duplicate_finding_id"]}
+
+
 def test_partial_pit_warning_is_mandatory_and_confidence_is_reduced():
     finding = _finding(
         "stock_fundamental",

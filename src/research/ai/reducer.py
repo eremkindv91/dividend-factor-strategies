@@ -18,32 +18,38 @@ def _canonical_entity(finding: Finding) -> Finding:
 
 
 def reduce_findings(outputs: list[AnalystOutput]) -> ReducedFindings:
+    ordered_findings = [
+        _canonical_entity(raw)
+        for output in sorted(outputs, key=lambda item: item.analyst)
+        for raw in sorted(output.findings, key=lambda item: item.id)
+    ]
+    id_counts: dict[str, int] = defaultdict(int)
+    for finding in ordered_findings:
+        id_counts[finding.id] += 1
+    ambiguous_ids = {finding_id for finding_id, count in id_counts.items() if count > 1}
+
     findings: list[Finding] = []
     seen_signatures: set[tuple[str, ...]] = set()
-    seen_ids: dict[str, str] = {}
     removed = 0
-    rejected: dict[str, list[str]] = {}
+    rejected: dict[str, list[str]] = {
+        finding_id: ["duplicate_finding_id"] for finding_id in sorted(ambiguous_ids)
+    }
 
-    ordered = sorted(outputs, key=lambda output: output.analyst)
-    for output in ordered:
-        for raw in sorted(output.findings, key=lambda finding: finding.id):
-            finding = _canonical_entity(raw)
-            signature = (
-                finding.agent,
-                finding.entity_type,
-                finding.entity_id,
-                finding.claim_type,
-                _normalize_text(finding.claim),
-            )
-            if signature in seen_signatures:
-                removed += 1
-                continue
-            if finding.id in seen_ids and seen_ids[finding.id] != _normalize_text(finding.claim):
-                rejected[finding.id] = ["duplicate_finding_id_with_different_claim"]
-                continue
-            seen_ids[finding.id] = _normalize_text(finding.claim)
-            seen_signatures.add(signature)
-            findings.append(finding)
+    for finding in ordered_findings:
+        if finding.id in ambiguous_ids:
+            continue
+        signature = (
+            finding.agent,
+            finding.entity_type,
+            finding.entity_id,
+            finding.claim_type,
+            _normalize_text(finding.claim),
+        )
+        if signature in seen_signatures:
+            removed += 1
+            continue
+        seen_signatures.add(signature)
+        findings.append(finding)
 
     groups: dict[tuple[str, str, str], list[Finding]] = defaultdict(list)
     for finding in findings:

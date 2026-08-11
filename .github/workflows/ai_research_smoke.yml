@@ -63,6 +63,7 @@ jobs:
           tests/test_research_eligibility.py
           tests/test_ai_research_graph.py
           tests/test_ai_research_policy.py
+          tests/test_ai_research_wire.py
           tests/test_ai_research_smoke_workflow.py
 
       - name: Real Gemini model and structured-output preflight

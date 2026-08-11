@@ -88,10 +88,28 @@ def test_evidence_reference_hydrates_from_source_state():
         catalog=catalog,
     )
     evidence = output.findings[0].evidence[0]
+    assert output.findings[0].id == "market:market_state"
     assert evidence.metric == "asof"
     assert evidence.value == "2026-08-10"
     assert evidence.asof == "2026-08-10"
     assert evidence.source_ref == "market_snapshot.json#asof"
+
+
+def test_wire_finding_ids_are_namespaced_by_analyst():
+    catalog = build_evidence_catalog({"market_snapshot.json": {"asof": "2026-08-10"}})
+    market = hydrate_analyst_output(
+        WireAnalystOutput(findings=[_wire_finding(id="state")], warnings=[]),
+        agent="market",
+        catalog=catalog,
+    )
+    macro = hydrate_analyst_output(
+        WireAnalystOutput(findings=[_wire_finding(id="state")], warnings=[]),
+        agent="macro",
+        catalog=catalog,
+    )
+    assert market.findings[0].id == "market:state"
+    assert macro.findings[0].id == "macro:state"
+    assert market.findings[0].id != macro.findings[0].id
 
 
 def test_unknown_evidence_ref_is_rejected():
