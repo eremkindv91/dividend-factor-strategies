@@ -114,3 +114,5 @@ site/marketsaw_mcftr.json
 site/_snapshot/
 artifacts/
 site/build.json
+# Deterministic research snapshots are generated from the selected current/last-good inputs.
+site/data/research/
