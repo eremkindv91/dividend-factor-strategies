@@ -1,0 +1,110 @@
+name: AI research smoke (manual only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      free_tier_verified:
+        description: "Confirm only if the Gemini project billing tier was independently verified as Free Tier"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-research-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  real-gemini-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      AI_EXECUTION_MODE: real
+      AI_REAL_GEMINI_SMOKE_AUTHORIZED: "true"
+      AI_BILLING_ALLOWED: "false"
+      GEMINI_FREE_TIER_VERIFIED: ${{ inputs.free_tier_verified }}
+      MAX_AI_REQUESTS_PER_RUN: "18"
+      MAX_STOCK_MEMOS_PER_RUN: "3"
+      MAX_PARALLEL_REQUESTS: "3"
+      MAX_RETRIES: "2"
+      MAX_OUTPUT_TOKENS: "4096"
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-research-ai.txt
+
+      - name: Install controlled smoke dependencies
+        run: python -m pip install --quiet -r requirements-research-ai.txt pandas pyyaml pytest
+
+      - name: Restore public last-good inputs without publishing
+        run: |
+          git clone --quiet --depth 1 --branch gh-pages \
+            "https://github.com/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/last-good"
+
+      - name: Build and validate deterministic research state
+        run: |
+          python scripts/build_research_state.py --fallback-root "$RUNNER_TEMP/last-good"
+          python scripts/validate_research_state.py
+
+      - name: Run relevant backend tests
+        run: >-
+          python -m pytest -q
+          tests/test_research_state.py
+          tests/test_research_eligibility.py
+          tests/test_ai_research_graph.py
+          tests/test_ai_research_policy.py
+          tests/test_ai_research_smoke_workflow.py
+
+      - name: Real Gemini market committee and structured-output preflight
+        run: |
+          mkdir -p "$RUNNER_TEMP/smoke/committee"
+          python scripts/run_ai_research.py \
+            --mode real \
+            --max-stock-memos 0 \
+            --probe-structured-output \
+            | tee "$RUNNER_TEMP/smoke/committee_summary.json"
+          python scripts/validate_ai_research.py --require-real
+          cp -R site/data/research/ai/. "$RUNNER_TEMP/smoke/committee/"
+
+      - name: Real Gemini representative stock memos
+        run: |
+          mkdir -p "$RUNNER_TEMP/smoke/final"
+          python scripts/run_ai_research.py \
+            --mode real \
+            --tickers SBER,GAZP,YDEX \
+            --max-stock-memos 3 \
+            | tee "$RUNNER_TEMP/smoke/stock_summary.json"
+          python scripts/validate_ai_research.py --require-real
+          cp -R site/data/research/ai/. "$RUNNER_TEMP/smoke/final/"
+
+      - name: Public-safety scan
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from src.research.validators import validate_safe_content
+
+          root = Path("site/data/research/ai")
+          errors = []
+          for path in root.rglob("*.json"):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              errors.extend(validate_safe_content(path.name, payload).errors)
+          if errors:
+              raise SystemExit("unsafe AI smoke artifact: " + "; ".join(sorted(set(errors))))
+          print("AI smoke artifacts contain no secrets, local paths, or private portfolio fields")
+          PY
+
+      - name: Upload sanitized smoke artifacts (not GitHub Pages)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-research-smoke-${{ github.run_id }}
+          path: ${{ runner.temp }}/smoke
+          if-no-files-found: error
+          retention-days: 7
