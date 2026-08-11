@@ -424,7 +424,10 @@ class ResearchGraph:
                         duration_ms=result.duration_ms,
                     )
                     if result.critical:
-                        raise CriticalGraphError(f"required analyst failed: {result.name}") from result.error
+                        detail = f"{type(result.error).__name__}: {result.error}"[:500]
+                        raise CriticalGraphError(
+                            f"required analyst failed: {result.name} ({detail})"
+                        ) from result.error
                     continue
                 if result.usage:
                     self._usage(telemetry, result.usage)

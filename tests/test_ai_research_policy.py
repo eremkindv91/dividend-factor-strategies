@@ -7,7 +7,13 @@ import pytest
 from pydantic import ValidationError
 
 from src.research.ai.cache import ai_run_fingerprint, stock_ai_fingerprint
-from src.research.ai.client import CapacityError, GeminiClient, RequestBudget, TechnicalAIError
+from src.research.ai.client import (
+    CapacityError,
+    GeminiClient,
+    RequestBudget,
+    TechnicalAIError,
+    _safe_error_detail,
+)
 from src.research.ai.config import AIConfig
 from src.research.ai.prompts import PROMPT_VERSIONS
 from src.research.ai.reducer import reduce_findings
@@ -71,6 +77,14 @@ def test_model_preflight_uses_only_allowlisted_flash_fallback():
 
     with pytest.raises(RuntimeError, match="no allowlisted Flash fallback"):
         _available_model("gemini-unavailable", {"gemini-paid-pro"}, ANALYST_FALLBACKS)
+
+
+def test_provider_error_diagnostics_redact_gemini_key(monkeypatch):
+    key = "AI" + "za012345678901234567890123456789"
+    monkeypatch.setenv("GEMINI_API_KEY", key)
+    detail = _safe_error_detail(RuntimeError(f"request failed for key {key}"))
+    assert key not in detail
+    assert "<redacted>" in detail
 
 
 def test_fingerprint_changes_on_prompt_model_and_graph_change(monkeypatch):

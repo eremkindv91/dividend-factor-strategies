@@ -62,6 +62,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-stock-memos", type=int, default=None)
     parser.add_argument("--list-models", action="store_true", help="List models visible to the configured Gemini key")
     parser.add_argument("--probe-structured-output", action="store_true")
+    parser.add_argument("--preflight-only", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -126,6 +127,22 @@ async def _run(args: argparse.Namespace) -> dict:
         client = DeterministicMockAIClient(budget)
         if args.list_models:
             print(json.dumps({"available_models": await client.list_models()}, ensure_ascii=False))
+
+    if args.preflight_only:
+        if config.execution_mode != "real":
+            raise ValueError("--preflight-only requires --mode real")
+        return {
+            "ok": True,
+            "execution_mode": "real",
+            "billing_allowed": False,
+            "estimated_cost": 0 if config.free_tier_verified else None,
+            "free_tier_verified": config.free_tier_verified,
+            "selected_models": selected_models,
+            "model_fallbacks": model_fallbacks,
+            "available_models": available,
+            "requests": budget.requests,
+            "structured_output_probe": bool(args.probe_structured_output),
+        }
 
     result = await ResearchGraph(
         config=config,

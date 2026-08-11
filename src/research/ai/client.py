@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -92,6 +93,17 @@ def _retryable(exc: Exception) -> bool:
 def _capacity(exc: Exception) -> bool:
     text = f"{type(exc).__name__}: {exc}".lower()
     return "429" in text or "resource_exhausted" in text or "rate_limit" in text
+
+
+_GEMINI_KEY_PATTERN = re.compile(r"\bAIza[A-Za-z0-9_-]{20,}")
+
+
+def _safe_error_detail(exc: Exception) -> str:
+    detail = re.sub(r"\s+", " ", str(exc)).strip()
+    key = os.getenv("GEMINI_API_KEY", "").strip()
+    if key:
+        detail = detail.replace(key, "<redacted>")
+    return _GEMINI_KEY_PATTERN.sub("<redacted>", detail)[:400]
 
 
 def _parse_response(response: Any, response_model: type[T]) -> T:
@@ -193,7 +205,10 @@ class GeminiClient(AIClient):
                 await asyncio.sleep(min(2**attempt, 4))
         if last_error is not None and _capacity(last_error):
             raise CapacityError(f"Gemini free-tier capacity unavailable after {attempts} attempts") from last_error
-        raise TechnicalAIError(f"Gemini request failed after {attempts} attempts: {type(last_error).__name__}") from last_error
+        detail = _safe_error_detail(last_error) if last_error is not None else "unknown error"
+        raise TechnicalAIError(
+            f"Gemini request failed after {attempts} attempts: {type(last_error).__name__}: {detail}"
+        ) from last_error
 
     async def list_models(self) -> list[str]:
         models = await asyncio.to_thread(lambda: list(self._client.models.list()))

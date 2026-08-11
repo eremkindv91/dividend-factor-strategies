@@ -65,19 +65,30 @@ jobs:
           tests/test_ai_research_policy.py
           tests/test_ai_research_smoke_workflow.py
 
-      - name: Real Gemini market committee and structured-output preflight
+      - name: Real Gemini model and structured-output preflight
         run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/smoke"
+          python scripts/run_ai_research.py \
+            --mode real \
+            --preflight-only \
+            --probe-structured-output \
+            | tee "$RUNNER_TEMP/smoke/preflight.json"
+
+      - name: Real Gemini market committee
+        run: |
+          set -o pipefail
           mkdir -p "$RUNNER_TEMP/smoke/committee"
           python scripts/run_ai_research.py \
             --mode real \
             --max-stock-memos 0 \
-            --probe-structured-output \
             | tee "$RUNNER_TEMP/smoke/committee_summary.json"
           python scripts/validate_ai_research.py --require-real
           cp -R site/data/research/ai/. "$RUNNER_TEMP/smoke/committee/"
 
       - name: Real Gemini representative stock memos
         run: |
+          set -o pipefail
           mkdir -p "$RUNNER_TEMP/smoke/final"
           python scripts/run_ai_research.py \
             --mode real \

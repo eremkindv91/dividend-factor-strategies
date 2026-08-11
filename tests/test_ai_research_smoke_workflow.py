@@ -35,6 +35,8 @@ def test_ai_smoke_workflow_is_secret_safe_and_bounded():
     assert 'AI_REAL_GEMINI_SMOKE_AUTHORIZED: "true"' in text
     assert 'MAX_STOCK_MEMOS_PER_RUN: "3"' in text
     assert "--tickers SBER,GAZP,YDEX" in text
+    assert "--preflight-only" in text
+    assert text.count("set -o pipefail") == 3
     assert "--require-real" in text
     assert "actions/upload-artifact@v4" in text
     assert "actions/upload-pages-artifact" not in text
