@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 
 
 GRAPH_VERSION = "graph_v1"
-MODEL_CONFIG_VERSION = "gemini_free_v1"
+MODEL_CONFIG_VERSION = "gemini_free_v2_single_model"
 
 
 def _bool_env(name: str, default: bool = False) -> bool:
@@ -29,8 +29,8 @@ class AIConfig(BaseModel):
     billing_allowed: bool = False
     free_tier_verified: bool = False
     analyst_model: str = "gemini-3.1-flash-lite"
-    verifier_model: str = "gemini-3.5-flash"
-    synthesizer_model: str = "gemini-3.5-flash"
+    verifier_model: str = "gemini-3.1-flash-lite"
+    synthesizer_model: str = "gemini-3.1-flash-lite"
     stock_universe_mode: Literal["priority", "changed", "explicit", "all"] = "priority"
     explicit_tickers: list[str] = Field(default_factory=list)
     allow_all_universe: bool = False
@@ -71,8 +71,8 @@ class AIConfig(BaseModel):
             billing_allowed=_bool_env("AI_BILLING_ALLOWED"),
             free_tier_verified=_bool_env("GEMINI_FREE_TIER_VERIFIED"),
             analyst_model=os.getenv("GEMINI_ANALYST_MODEL", "gemini-3.1-flash-lite"),
-            verifier_model=os.getenv("GEMINI_VERIFIER_MODEL", "gemini-3.5-flash"),
-            synthesizer_model=os.getenv("GEMINI_SYNTHESIZER_MODEL", "gemini-3.5-flash"),
+            verifier_model=os.getenv("GEMINI_VERIFIER_MODEL", "gemini-3.1-flash-lite"),
+            synthesizer_model=os.getenv("GEMINI_SYNTHESIZER_MODEL", "gemini-3.1-flash-lite"),
             stock_universe_mode=os.getenv("AI_STOCK_UNIVERSE_MODE", "priority").strip().lower(),
             explicit_tickers=explicit,
             allow_all_universe=_bool_env("AI_ALLOW_ALL_UNIVERSE"),

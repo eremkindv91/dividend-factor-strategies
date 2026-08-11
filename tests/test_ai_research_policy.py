@@ -58,6 +58,14 @@ def test_free_only_mode_rejects_billing_and_unverified_real_execution():
     assert config.free_tier_verified is False
 
 
+def test_free_first_default_uses_one_flash_lite_model():
+    config = AIConfig()
+    assert config.analyst_model == "gemini-3.1-flash-lite"
+    assert config.verifier_model == config.analyst_model
+    assert config.synthesizer_model == config.analyst_model
+    assert config.model_config_version == "gemini_free_v2_single_model"
+
+
 def test_model_preflight_keeps_configured_model_when_available():
     selected, used_fallback = _available_model(
         "gemini-3.1-flash-lite",

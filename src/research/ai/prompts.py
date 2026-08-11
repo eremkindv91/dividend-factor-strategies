@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 PROMPT_VERSIONS = {
-    "financial_reasoning": "financial_reasoning_v2",
+    "financial_reasoning": "financial_reasoning_v3_ru",
     "market": "market_analyst_v2",
     "macro": "macro_analyst_v2",
     "equity": "equity_analyst_v2",
@@ -21,6 +21,8 @@ evidence catalog, без интернета и без самостоятельн
 fact, inference и hypothesis. Не создавай BUY/HOLD/SELL, target prices и opaque AI scores.
 Каждый материальный вывод должен ссылаться только на переданные evidence ID. Не переписывай
 value, asof или source_ref: Python восстановит их детерминированно после ответа.
+Все аналитические тексты, причины, предупреждения и summaries пиши по-русски; тикеры и
+общепринятые финансовые термины можно оставлять без перевода.
 Не называй RESEARCH_ONLY sector model торговым сигналом. Не утверждай причинность без evidence.
 Сохраняй противоречия и указывай, что изменило бы вывод. Publication timestamp unavailable
 означает partial point-in-time lineage и должно снижать confidence, если вывод зависит от fundamentals.
