@@ -136,18 +136,27 @@ def _gemini_json_schema(response_model: type[BaseModel]) -> dict[str, Any]:
     INVALID_ARGUMENT response. The full model still validates every response.
     """
 
-    def clean(value: Any) -> Any:
+    schema = response_model.model_json_schema()
+    definitions = schema.get("$defs", {})
+
+    def clean(value: Any, resolving: frozenset[str] = frozenset()) -> Any:
         if isinstance(value, dict):
+            ref = value.get("$ref")
+            if isinstance(ref, str) and ref.startswith("#/$defs/"):
+                name = ref.rsplit("/", 1)[-1]
+                if name in resolving or name not in definitions:
+                    raise ValueError(f"unsupported recursive or missing schema reference: {ref}")
+                return clean(definitions[name], resolving | {name})
             return {
-                key: clean(item)
+                key: clean(item, resolving)
                 for key, item in value.items()
-                if key not in _UNSUPPORTED_GEMINI_SCHEMA_KEYS
+                if key not in _UNSUPPORTED_GEMINI_SCHEMA_KEYS and key != "$defs"
             }
         if isinstance(value, list):
-            return [clean(item) for item in value]
+            return [clean(item, resolving) for item in value]
         return value
 
-    return clean(response_model.model_json_schema())
+    return clean(schema)
 
 
 class GeminiClient(AIClient):
