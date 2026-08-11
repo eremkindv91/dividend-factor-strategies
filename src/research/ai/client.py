@@ -174,7 +174,7 @@ class GeminiClient(AIClient):
                         config=self._types.GenerateContentConfig(
                             system_instruction=system_prompt,
                             response_mime_type="application/json",
-                            response_schema=response_model,
+                            response_json_schema=response_model.model_json_schema(),
                             temperature=self.config.temperature,
                             max_output_tokens=self.config.max_output_tokens,
                         ),

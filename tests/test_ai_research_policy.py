@@ -192,9 +192,11 @@ class _InvalidJSONModels:
     def __init__(self, *, capacity: bool = False):
         self.calls = 0
         self.capacity = capacity
+        self.last_kwargs = None
 
     async def generate_content(self, **_kwargs):
         self.calls += 1
+        self.last_kwargs = _kwargs
         if self.capacity:
             raise RuntimeError("429 RESOURCE_EXHAUSTED")
         return SimpleNamespace(parsed=None, text="{", usage_metadata=None)
@@ -228,6 +230,8 @@ def test_malformed_structured_response_retry_is_bounded():
         )
     assert models.calls == 3
     assert client.budget.requests == 3
+    assert "response_json_schema" in models.last_kwargs["config"]
+    assert "response_schema" not in models.last_kwargs["config"]
 
 
 def test_429_is_bounded_and_never_switches_provider():
