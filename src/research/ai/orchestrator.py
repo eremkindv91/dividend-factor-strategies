@@ -29,6 +29,14 @@ from .schemas import (
     VerifierOutput,
 )
 from .verification import preverify_findings, split_verified, validate_verifier_output
+from .wire import (
+    WireMarketMemo,
+    WireStockMemo,
+    WireVerifierOutput,
+    hydrate_market_memo,
+    hydrate_stock_memo,
+    hydrate_verifier_output,
+)
 
 
 class CriticalGraphError(RuntimeError):
@@ -206,11 +214,11 @@ class ResearchGraph:
             node=node,
             system_prompt=system_prompt("verifier"),
             payload=_verification_payload(findings, conflicts, manifest),
-            response_model=VerifierOutput,
+            response_model=WireVerifierOutput,
             model=self.config.verifier_model,
         )
         self._usage(telemetry, generated.usage)
-        verified = validate_verifier_output(generated.value, findings, forced_partial)
+        verified = validate_verifier_output(hydrate_verifier_output(generated.value), findings, forced_partial)
         self._node(
             telemetry, node, status="success", critical=True,
             duration_ms=round((time.perf_counter() - started) * 1000),
@@ -228,6 +236,7 @@ class ResearchGraph:
         telemetry: RunTelemetry,
     ) -> MarketMemo:
         started = time.perf_counter()
+        generated_at = _now_iso()
         generated = await self.client.generate(
             node="synthesizer",
             system_prompt=system_prompt("synthesizer"),
@@ -239,10 +248,10 @@ class ResearchGraph:
                 "verification_summary": summary,
                 "metadata": {
                     "research_asof": manifest.get("research_asof"),
-                    "generated_at": _now_iso(),
+                    "generated_at": generated_at,
                 },
             },
-            response_model=MarketMemo,
+            response_model=WireMarketMemo,
             model=self.config.synthesizer_model,
         )
         self._usage(telemetry, generated.usage)
@@ -250,7 +259,12 @@ class ResearchGraph:
             telemetry, "synthesizer", status="success", critical=True,
             duration_ms=round((time.perf_counter() - started) * 1000),
         )
-        return generated.value
+        return hydrate_market_memo(
+            generated.value,
+            asof=str(manifest.get("research_asof") or ""),
+            generated_at=generated_at,
+            status="partial" if warnings else "complete",
+        )
 
     async def _synthesize_stock(
         self,
@@ -262,6 +276,7 @@ class ResearchGraph:
         telemetry: RunTelemetry,
     ) -> StockMemo:
         node = f"stock_synthesizer:{ticker}"
+        generated_at = _now_iso()
         generated = await self.client.generate(
             node=node,
             system_prompt=system_prompt("synthesizer"),
@@ -272,15 +287,21 @@ class ResearchGraph:
                 "metadata": {
                     "ticker": ticker,
                     "research_asof": manifest.get("research_asof"),
-                    "generated_at": _now_iso(),
+                    "generated_at": generated_at,
                 },
             },
-            response_model=StockMemo,
+            response_model=WireStockMemo,
             model=self.config.synthesizer_model,
         )
         self._usage(telemetry, generated.usage)
         self._node(telemetry, node, status="success", critical=True, duration_ms=generated.usage.duration_ms)
-        return generated.value
+        return hydrate_stock_memo(
+            generated.value,
+            ticker=ticker,
+            asof=str(manifest.get("research_asof") or ""),
+            generated_at=generated_at,
+            status="partial" if warnings else "complete",
+        )
 
     async def _run_stock(
         self,

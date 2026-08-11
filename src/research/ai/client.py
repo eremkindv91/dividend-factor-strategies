@@ -12,17 +12,18 @@ from typing import Any, Generic, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from .config import AIConfig
-from .schemas import (
-    AnalystOutput,
-    Evidence,
-    Finding,
-    MarketMemo,
-    MemoSection,
-    RegimeView,
-    RequestUsage,
-    StockMemo,
-    VerificationDecision,
-    VerifierOutput,
+from .schemas import RequestUsage
+from .wire import (
+    MARKET_SECTIONS,
+    STOCK_SECTIONS,
+    WireAnalystOutput,
+    WireFinding,
+    WireMarketMemo,
+    WireMarketSection,
+    WireStockMemo,
+    WireStockSection,
+    WireVerificationDecision,
+    WireVerifierOutput,
 )
 
 
@@ -330,8 +331,9 @@ class DeterministicMockAIClient(AIClient):
         self.calls: list[str] = []
 
     @staticmethod
-    def _finding(node: str, payload: dict[str, Any]) -> AnalystOutput:
-        artifact_names = sorted((payload.get("artifacts") or {}).keys())
+    def _finding(node: str, payload: dict[str, Any]) -> WireAnalystOutput:
+        catalog = payload.get("evidence_catalog") or []
+        artifact_names = sorted({str(row.get("source_ref") or "").split("#", 1)[0] for row in catalog})
         agent = "stock" if node.startswith("stock:") else node
         entity_type = "stock" if agent == "stock" else ("market" if agent == "market" else agent.rstrip("s"))
         if entity_type not in {"market", "macro", "sector", "stock", "bank", "bond", "news"}:
@@ -347,98 +349,90 @@ class DeterministicMockAIClient(AIClient):
             artifact_names = preferred
         else:
             artifact_names = artifact_names[:1]
-        findings = []
+        findings: list[WireFinding] = []
         for index, artifact in enumerate(artifact_names):
-            source = (payload["artifacts"][artifact] or {}).get("asof")
             source_ref = f"{artifact}#asof"
+            entry = next((row for row in catalog if row.get("source_ref") == source_ref), None)
+            if entry is None:
+                continue
+            source = entry.get("value")
             findings.append(
-                Finding(
+                WireFinding(
                     id=f"{node.replace(':', '_')}_asof_{index}",
-                    agent=agent,
                     entity_type=entity_type,
                     entity_id=entity_id,
                     claim=f"Доступен проверяемый срез данных {artifact} на дату {source}.",
                     claim_type="data_availability",
-                    fact_inference_type="fact",
-                    evidence=[Evidence(metric="asof", value=source, asof=source, source_ref=source_ref)],
+                    kind="fact",
+                    evidence_refs=[entry["id"]],
+                    counter_evidence_refs=[],
                     materiality="medium",
                     confidence=0.8,
-                    causal_claim=False,
+                    causal=False,
                     warnings=[],
-                    what_would_change_my_mind=["Появление более свежего валидного среза."],
+                    invalidation=["Появление более свежего валидного среза."],
                 )
             )
-        return AnalystOutput(
-            analyst=agent,
-            findings=findings,
-        )
+        return WireAnalystOutput(findings=findings, warnings=[])
 
     @staticmethod
-    def _verifier(payload: dict[str, Any]) -> VerifierOutput:
-        return VerifierOutput(
-            decisions=[
-                VerificationDecision(
+    def _verifier(payload: dict[str, Any]) -> WireVerifierOutput:
+        return WireVerifierOutput(
+            results=[
+                WireVerificationDecision(
                     finding_id=row["id"],
-                    status="PASS",
-                    adjusted_confidence=min(float(row.get("confidence", 0)), 0.8),
-                    reasons=["mock_evidence_contract_passed"],
+                    verdict="PASS",
+                    confidence=min(float(row.get("confidence", 0)), 0.8),
+                    reason="mock_evidence_contract_passed",
                     warnings=[],
                 )
                 for row in payload.get("findings", [])
-            ]
+            ],
+            warnings=[],
         )
 
     @staticmethod
-    def _market_memo(payload: dict[str, Any]) -> MarketMemo:
+    def _market_memo(payload: dict[str, Any]) -> WireMarketMemo:
         findings = payload.get("findings", [])
         ids = [row["id"] for row in findings]
-        section = MemoSection(summary="Выводы ограничены доступными проверенными findings.", finding_ids=ids)
-        return MarketMemo(
-            asof=payload["metadata"]["research_asof"],
-            generated_at=payload["metadata"]["generated_at"],
-            status="partial" if payload.get("warnings") else "complete",
-            regime=RegimeView(label="недостаточно данных для изменения режима", confidence="low", finding_ids=ids),
+        return WireMarketMemo(
+            regime_label="недостаточно данных для изменения режима",
+            regime_confidence="low",
             summary="Mock-проверка graph contract; не является реальным Gemini research.",
-            key_findings=ids,
-            sector_context=section,
-            equity_context=section,
-            bond_context=section,
-            bank_context=section,
-            catalysts=MemoSection(),
-            contradictions=MemoSection(),
-            risks=MemoSection(summary="Сохраняются ограничения качества данных.", finding_ids=ids),
-            watch=MemoSection(),
-            data_quality=payload.get("warnings", []),
-            verification_summary=payload.get("verification_summary", {}),
-            sources=sorted({e["source_ref"].split("#", 1)[0] for row in findings for e in row.get("evidence", [])}),
-            evidence=[],
+            key_finding_ids=ids,
+            sections=[
+                WireMarketSection(
+                    key=key,
+                    summary=(
+                        "Сохраняются ограничения качества данных."
+                        if key == "risks"
+                        else "Выводы ограничены доступными проверенными findings."
+                    ),
+                    finding_ids=ids,
+                )
+                for key in sorted(MARKET_SECTIONS)
+            ],
         )
 
     @staticmethod
-    def _stock_memo(payload: dict[str, Any]) -> StockMemo:
+    def _stock_memo(payload: dict[str, Any]) -> WireStockMemo:
         findings = payload.get("findings", [])
         ids = [row["id"] for row in findings]
-        section = MemoSection(summary="Доступен только проверенный source-state context.", finding_ids=ids)
-        return StockMemo(
-            ticker=payload["metadata"]["ticker"],
-            asof=payload["metadata"]["research_asof"],
-            generated_at=payload["metadata"]["generated_at"],
-            status="partial",
-            investment_view=section,
-            market_context=section,
-            sector_context=section,
-            company_vs_sector=section,
-            valuation=MemoSection(),
-            quality=MemoSection(),
-            dividends=MemoSection(),
-            momentum_positioning=MemoSection(),
-            catalysts=MemoSection(),
-            risks=MemoSection(summary="Сохраняются ограничения качества данных.", finding_ids=ids),
-            contradictions=MemoSection(),
-            what_would_change_the_view=["Более свежий валидный research state."],
+        return WireStockMemo(
             confidence="low",
-            evidence=[],
-            data_quality=payload.get("warnings", []),
+            sections=[
+                WireStockSection(
+                    key=key,
+                    summary=(
+                        "Сохраняются ограничения качества данных."
+                        if key == "risks"
+                        else "Доступен только проверенный source-state context."
+                    ),
+                    finding_ids=ids,
+                )
+                for key in sorted(STOCK_SECTIONS)
+            ],
+            invalidation=["Более свежий валидный research state."],
         )
 
     async def generate(
@@ -455,13 +449,13 @@ class DeterministicMockAIClient(AIClient):
         started = time.perf_counter()
         if self.delay_seconds:
             await asyncio.sleep(self.delay_seconds)
-        if response_model is AnalystOutput:
+        if response_model is WireAnalystOutput:
             value = self._finding(node, payload)
-        elif response_model is VerifierOutput:
+        elif response_model is WireVerifierOutput:
             value = self._verifier(payload)
-        elif response_model is MarketMemo:
+        elif response_model is WireMarketMemo:
             value = self._market_memo(payload)
-        elif response_model is StockMemo:
+        elif response_model is WireStockMemo:
             value = self._stock_memo(payload)
         else:  # pragma: no cover - new schema requires explicit mock support
             raise TechnicalAIError(f"unsupported deterministic mock schema: {response_model.__name__}")

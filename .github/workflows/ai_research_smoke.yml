@@ -73,6 +73,7 @@ jobs:
             --mode real \
             --preflight-only \
             --probe-structured-output \
+            --probe-wire-schemas \
             | tee "$RUNNER_TEMP/smoke/preflight.json"
 
       - name: Real Gemini market committee

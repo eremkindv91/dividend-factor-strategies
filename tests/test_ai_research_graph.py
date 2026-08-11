@@ -23,7 +23,7 @@ from src.research.ai.client import (
 from src.research.ai.config import AIConfig
 from src.research.ai.eligibility import select_stock_universe
 from src.research.ai.orchestrator import CriticalGraphError, ResearchGraph
-from src.research.ai.schemas import VerifierOutput
+from src.research.ai.wire import WireVerifierOutput
 from tests.test_research_state import _build
 
 
@@ -66,14 +66,14 @@ class RejectNewsClient(FaultClient):
         if kwargs["node"] != "verifier":
             return generated
         decisions = []
-        for decision in generated.value.decisions:
+        for decision in generated.value.results:
             if decision.finding_id.startswith("news_"):
                 decision = decision.model_copy(
-                    update={"status": "REJECT", "reasons": ["unsupported_news_claim"]}
+                    update={"verdict": "REJECT", "reason": "unsupported_news_claim"}
                 )
             decisions.append(decision)
         return Generated(
-            value=VerifierOutput(decisions=decisions),
+            value=WireVerifierOutput(results=decisions, warnings=generated.value.warnings),
             usage=generated.usage,
         )
 

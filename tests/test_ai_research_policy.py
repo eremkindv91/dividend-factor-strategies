@@ -108,10 +108,10 @@ def test_fingerprint_changes_on_prompt_model_and_graph_change(monkeypatch):
         manifest,
         AIConfig(execution_mode="real", real_execution_authorized=True),
     ) != base_run
-    monkeypatch.setitem(PROMPT_VERSIONS, "market", "market_analyst_v2")
+    monkeypatch.setitem(PROMPT_VERSIONS, "market", "market_analyst_v3")
     assert ai_run_fingerprint(manifest, base) != base_run
     assert stock_ai_fingerprint(stock_fingerprint="sha256:stock", manifest=manifest, config=base) == base_stock
-    monkeypatch.setitem(PROMPT_VERSIONS, "stock", "stock_analyst_v2")
+    monkeypatch.setitem(PROMPT_VERSIONS, "stock", "stock_analyst_v3")
     assert stock_ai_fingerprint(stock_fingerprint="sha256:stock", manifest=manifest, config=base) != base_stock
 
 

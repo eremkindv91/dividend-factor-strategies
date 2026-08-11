@@ -10,6 +10,7 @@ from .client import AIClient
 from .config import AIConfig
 from .prompts import system_prompt
 from .schemas import AnalystOutput, RequestUsage
+from .wire import WireAnalystOutput, build_evidence_catalog, hydrate_analyst_output
 
 
 @dataclass(frozen=True)
@@ -87,6 +88,13 @@ async def run_analyst(
     manifest: dict[str, Any],
 ) -> AnalystResult:
     started = time.perf_counter()
+    source_safety = validate_safe_content(f"ai_source_payload:{task.name}", task.artifacts)
+    if source_safety.errors:
+        return AnalystResult(
+            task.name, None, None, ValueError("; ".join(source_safety.errors)),
+            round((time.perf_counter() - started) * 1000), task.critical,
+        )
+    catalog = build_evidence_catalog(task.artifacts)
     payload = {
         "graph_version": config.graph_version,
         "analyst": "stock" if task.name.startswith("stock:") else task.name,
@@ -96,7 +104,7 @@ async def run_analyst(
             "temporal_warnings": manifest.get("temporal_warnings") or [],
             "survivorship_status": manifest.get("survivorship_status"),
         },
-        "artifacts": task.artifacts,
+        "evidence_catalog": catalog.public(),
     }
     safety = validate_safe_content(f"ai_payload:{task.name}", payload)
     if safety.errors:
@@ -110,13 +118,12 @@ async def run_analyst(
             node=task.name,
             system_prompt=system_prompt(role),
             payload=payload,
-            response_model=AnalystOutput,
+            response_model=WireAnalystOutput,
             model=config.analyst_model,
         )
-        if generated.value.analyst != role:
-            raise ValueError(f"analyst identity mismatch: expected {role}, got {generated.value.analyst}")
+        output = hydrate_analyst_output(generated.value, agent=role, catalog=catalog)
         return AnalystResult(
-            task.name, generated.value, generated.usage, None,
+            task.name, output, generated.usage, None,
             round((time.perf_counter() - started) * 1000), task.critical,
         )
     except Exception as exc:  # noqa: BLE001 - failure-domain boundary

@@ -18,9 +18,22 @@ from src.research.ai.client import (  # noqa: E402
     DeterministicMockAIClient,
     GeminiClient,
     RequestBudget,
+    _gemini_json_schema,
+    _safe_error_detail,
 )
 from src.research.ai.config import AIConfig  # noqa: E402
 from src.research.ai.orchestrator import CriticalGraphError, ResearchGraph  # noqa: E402
+from src.research.ai.schemas import AnalystOutput, MarketMemo, StockMemo, VerifierOutput  # noqa: E402
+from src.research.ai.wire import (  # noqa: E402
+    MARKET_SECTIONS,
+    STOCK_SECTIONS,
+    WireAnalystOutput,
+    WireMarketMemo,
+    WireStockMemo,
+    WireVerifierOutput,
+    schema_statistics,
+    validate_wire_schema_compatibility,
+)
 
 
 ANALYST_FALLBACKS = (
@@ -62,8 +75,111 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-stock-memos", type=int, default=None)
     parser.add_argument("--list-models", action="store_true", help="List models visible to the configured Gemini key")
     parser.add_argument("--probe-structured-output", action="store_true")
+    parser.add_argument("--probe-wire-schemas", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
     return parser.parse_args(argv)
+
+
+def _wire_probe_cases(config: AIConfig):
+    analyst_example = {"findings": [], "warnings": []}
+    market_sections = [
+        {"key": key, "summary": "Нет проверенных выводов.", "finding_ids": []}
+        for key in sorted(MARKET_SECTIONS)
+    ]
+    stock_sections = [
+        {"key": key, "summary": "Нет проверенных выводов.", "finding_ids": []}
+        for key in sorted(STOCK_SECTIONS)
+    ]
+    cases = [
+        (role, config.analyst_model, WireAnalystOutput, analyst_example)
+        for role in ("market", "macro", "equity", "bonds", "banks", "news")
+    ]
+    cases.extend(
+        [
+            (
+                "verifier",
+                config.verifier_model,
+                WireVerifierOutput,
+                {"results": [], "warnings": []},
+            ),
+            (
+                "market_synthesizer",
+                config.synthesizer_model,
+                WireMarketMemo,
+                {
+                    "regime_label": "нет данных",
+                    "regime_confidence": "low",
+                    "summary": "Нет проверенных выводов.",
+                    "key_finding_ids": [],
+                    "sections": market_sections,
+                },
+            ),
+            (
+                "stock_synthesizer",
+                config.synthesizer_model,
+                WireStockMemo,
+                {"confidence": "low", "sections": stock_sections, "invalidation": []},
+            ),
+        ]
+    )
+    return cases
+
+
+async def _probe_wire_schemas(client: GeminiClient, config: AIConfig) -> tuple[list[dict], list[dict]]:
+    wire_models = (WireAnalystOutput, WireVerifierOutput, WireMarketMemo, WireStockMemo)
+    diagnostics = [
+        schema_statistics(model, schema=_gemini_json_schema(model))
+        for model in wire_models
+    ]
+    errors = validate_wire_schema_compatibility(diagnostics)
+    domain = [schema_statistics(model) for model in (AnalystOutput, VerifierOutput, MarketMemo, StockMemo)]
+    print(
+        json.dumps(
+            {
+                "wire_schema_diagnostics": diagnostics,
+                "domain_schema_diagnostics": domain,
+                "local_compatibility_errors": errors,
+            },
+            ensure_ascii=False,
+        )
+    )
+    if errors:
+        raise RuntimeError("wire schema compatibility validation failed: " + "; ".join(errors))
+    matrix: list[dict] = []
+    for name, model, response_model, example in _wire_probe_cases(config):
+        try:
+            generated = await client.generate(
+                node=f"wire_schema_probe:{name}",
+                system_prompt="Return the example object exactly and do not add commentary.",
+                payload={"example": example},
+                response_model=response_model,
+                model=model,
+            )
+            row = {
+                "probe": name,
+                "model": model,
+                "schema": response_model.__name__,
+                "http_status": 200,
+                "structured_parse_status": "pass",
+                "input_tokens": generated.usage.input_tokens,
+                "output_tokens": generated.usage.output_tokens,
+            }
+        except Exception as exc:  # noqa: BLE001 - probe reports provider compatibility
+            detail = _safe_error_detail(exc)
+            row = {
+                "probe": name,
+                "model": model,
+                "schema": response_model.__name__,
+                "http_status": 400 if "400" in detail else None,
+                "structured_parse_status": "fail",
+                "error_type": type(exc).__name__,
+                "error": detail,
+            }
+            print(json.dumps({"wire_schema_probe_result": row}, ensure_ascii=False))
+            raise RuntimeError(f"wire schema probe failed: {name}") from exc
+        matrix.append(row)
+        print(json.dumps({"wire_schema_probe_result": row}, ensure_ascii=False))
+    return diagnostics, matrix
 
 
 async def _run(args: argparse.Namespace) -> dict:
@@ -87,6 +203,8 @@ async def _run(args: argparse.Namespace) -> dict:
     }
     model_fallbacks: dict[str, bool] = {key: False for key in selected_models}
     available: list[str] = []
+    wire_schema_diagnostics: list[dict] = []
+    wire_schema_matrix: list[dict] = []
     if config.execution_mode == "real":
         client = GeminiClient(config, budget)
         available = await client.list_models()
@@ -123,6 +241,8 @@ async def _run(args: argparse.Namespace) -> dict:
             )
             if probe.value.status != "ok":
                 raise RuntimeError("Gemini structured-output probe returned an invalid status")
+        if args.probe_wire_schemas:
+            wire_schema_diagnostics, wire_schema_matrix = await _probe_wire_schemas(client, config)
     else:
         client = DeterministicMockAIClient(budget)
         if args.list_models:
@@ -142,6 +262,9 @@ async def _run(args: argparse.Namespace) -> dict:
             "available_models": available,
             "requests": budget.requests,
             "structured_output_probe": bool(args.probe_structured_output),
+            "wire_schema_probe": bool(args.probe_wire_schemas),
+            "wire_schema_diagnostics": wire_schema_diagnostics,
+            "wire_schema_matrix": wire_schema_matrix,
         }
 
     result = await ResearchGraph(
