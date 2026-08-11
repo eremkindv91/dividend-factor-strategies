@@ -1,8 +1,8 @@
 {
   "date": "2026-08-11",
-  "generated_at": "2026-08-11T07:05:32+03:00",
+  "generated_at": "2026-08-11T08:42:43+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись в небольшом минусе, азиатские рынки торгуются разнонаправленно, нефть марки Brent превысила 87 долларов за баррель.",
+  "external_backdrop": "Азиатские индексы торгуются разнонаправленно (Nikkei растет, Hang Seng снижается), золото и нефть марки Brent дорожают, в то время как американские индексы закрылись в небольшом минусе.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,23 +27,23 @@
     },
     {
       "name": "Hang Seng",
-      "value": "25776.87",
-      "change_pct": "-0.62%",
+      "value": "25749.54",
+      "change_pct": "-0.72%",
       "as_of": "2026-08-11",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "87.72",
-      "change_pct": "+4.99%",
-      "as_of": "2026-08-10",
+      "value": "88.04",
+      "change_pct": "+0.36%",
+      "as_of": "2026-08-11",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4361.80",
-      "change_pct": "+0.49%",
-      "as_of": "2026-08-10",
+      "value": "4434.40",
+      "change_pct": "+1.66%",
+      "as_of": "2026-08-11",
       "group": "commodity"
     },
     {
@@ -63,7 +63,7 @@
   ],
   "overnight": [
     {
-      "id": "rusal-dividends-1h-2026",
+      "id": "rusal-no-dividends-h1-2026",
       "headline": "Совет директоров Русала рекомендовал не выплачивать дивиденды за первое полугодие 2026 года",
       "context": "Решение принято на фоне роста мировых цен на алюминий выше 3300 долларов за тонну.",
       "category": "corporate",
@@ -71,19 +71,64 @@
       "importance": 5,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/380625"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84335"
         }
       ],
-      "published_at": "2026-08-11T07:02:00+03:00"
+      "published_at": "2026-08-11T07:51:00+03:00"
     },
     {
-      "id": "yabloko-party-removal",
-      "headline": "Верховный суд России снял партию Яблоко с выборов в Государственную думу",
-      "context": "Судебная инстанция признала, что партия допустила нарушения при использовании интеллектуальной собственности.",
+      "id": "massive-drone-attack-russia-regions",
+      "headline": "Силы ПВО за ночь нейтрализовали 396 украинских беспилотников над российскими регионами",
+      "context": "В сторону Московского региона летели 237 дронов, большая часть которых сбита на дальних подступах.",
       "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 5,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a7ab1939a79473efd2c4b6e"
+        }
+      ],
+      "published_at": "2026-08-11T08:23:00+03:00"
+    },
+    {
+      "id": "unsold-housing-inventory-growth",
+      "headline": "На реализацию нераспроданных квартир в новостройках крупнейших городов России может уйти до четырех лет",
+      "context": "Рост доли непроданного жилья у девелоперов стал результатом резкого снижения спроса в первом полугодии.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-08-11T08:06:00+03:00"
+    },
+    {
+      "id": "us-house-sanctions-bill-russia",
+      "headline": "В Палату представителей США внесли законопроект о введении новых санкций против России",
+      "context": "Двухпартийный документ дублирует ранее одобренную Сенатом версию ограничений против РФ и Ирана.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1108574"
+        }
+      ],
+      "published_at": "2026-08-11T03:09:00+03:00"
+    },
+    {
+      "id": "supreme-court-removes-yabloko-elections",
+      "headline": "Верховный суд России снял список партии Яблоко с выборов в Государственную думу",
+      "context": "Иск партии Родина был удовлетворен из-за нарушений авторских прав при использовании интеллектуальной собственности.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -93,55 +138,10 @@
       "published_at": "2026-08-10T19:47:00+03:00"
     },
     {
-      "id": "usdt-bank-inquiries",
-      "headline": "Российские банки усилили контроль за операциями юридических лиц со стейблкоинами USDT",
-      "context": "Крупные кредитные организации запрашивают пояснения об экономическом смысле сделок после вступления в силу закона о цифровой валюте.",
+      "id": "nspk-warning-visa-mastercard-online-payments",
+      "headline": "Национальная система платежных карт предупредила о возможных сложностях при оплате картами Visa и Mastercard",
+      "context": "Проблемы могут возникнуть из-за перехода НСПК на российские сертификаты безопасности для своих сервисов.",
       "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/business/10/08/2026/6a7a1b059a79475966cc7c65"
-        }
-      ],
-      "published_at": "2026-08-11T00:01:00+03:00"
-    },
-    {
-      "id": "us-sanctions-bill",
-      "headline": "В Палату представителей США внесен законопроект о введении санкций против России и Ирана",
-      "context": "Документ дублирует ранее одобренную Сенатом версию законопроекта.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/380623"
-        }
-      ],
-      "published_at": "2026-08-11T06:54:00+03:00"
-    },
-    {
-      "id": "greek-tankers-russian-oil",
-      "headline": "Доля связанных с G7 танкеров в перевозках российской нефти выросла до 36,2% в июле",
-      "context": "Показатель растет четвертый месяц подряд, достигнув максимального значения за последние три года.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8876766"
-        }
-      ],
-      "published_at": "2026-08-11T06:01:00+03:00"
-    },
-    {
-      "id": "nspk-visa-mastercard-warning",
-      "headline": "Национальная система платежных карт предупредила о возможных сбоях при онлайн-оплате картами Visa и Mastercard",
-      "context": "Сложности могут возникнуть из-за перехода НСПК на российские сертификаты безопасности для своих сервисов.",
-      "category": "tech",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
@@ -153,56 +153,41 @@
       "published_at": "2026-08-10T19:27:00+03:00"
     },
     {
-      "id": "nvidia-500b-ai-infrastructure",
-      "headline": "Компания Nvidia договаривается с крупнейшими фондами Уолл-стрит о привлечении 500 миллиардов долларов",
-      "context": "Финансирование планируется направить на строительство инфраструктуры для фабрик искусственного интеллекта.",
-      "category": "tech",
+      "id": "cbr-exporters-fx-sales-decline",
+      "headline": "Крупнейшие российские экспортеры в июле сократили продажи валюты в три с половиной раза",
+      "context": "Объем продаж снизился до 2,2 млрд долларов по сравнению с 7,6 млрд долларов в июне.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a79c6459a79476eb3a86cd4"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108532"
         }
       ],
-      "published_at": "2026-08-11T00:45:00+03:00"
+      "published_at": "2026-08-10T19:09:00+03:00"
     },
     {
-      "id": "wildberries-evacuation-voronezh",
-      "headline": "Компания Wildberries эвакуировала логистические объекты в Воронежской области из-за беспилотной опасности",
-      "context": "Эвакуация проведена в соответствии с требованиями безопасности на фоне объявленного в регионе режима угрозы БПЛА.",
-      "category": "corporate",
+      "id": "cbr-retail-investors-july-buyers",
+      "headline": "Частные инвесторы в июле стали основными покупателями акций на Московской бирже",
+      "context": "Физические лица приобрели акций на 24,4 млрд рублей больше, чем продали, несмотря на коррекцию рынка.",
+      "category": "markets",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/11/1220191-wildberries-voronezhskoi-oblasti"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108531"
         }
       ],
-      "published_at": "2026-08-11T06:25:00+03:00"
+      "published_at": "2026-08-10T19:04:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "nizhnekamsk-drone-attack",
-      "headline": "Массированная атака беспилотников на Нижнекамск привела к гибели 13 человек",
-      "context": "Удары были нанесены по гражданским и производственным объектам, в Татарстане объявлен траур.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1108411"
-        }
-      ],
-      "published_at": "2026-08-10T08:39:00+03:00"
-    },
-    {
-      "id": "samolet-shareholder-change",
-      "headline": "Казахстанский фонд Fonte Capital приобрел 18% акций девелопера Самолет у наследников сооснователя",
-      "context": "Фонд Горизонт продал практически весь свой пакет акций, сумма сделки оценивается в 4,2 миллиарда рублей.",
+      "id": "samolet-shareholder-change-kazakh-fund",
+      "headline": "Казахстанский фонд Fonte Capital приобрел 18% акций российского девелопера Самолет у наследников сооснователя",
+      "context": "Фонд Горизонт продал практически весь свой пакет акций, сумма сделки оценивается в 4,2 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -212,45 +197,30 @@
           "url": "https://www.kommersant.ru/doc/8876439"
         }
       ],
-      "published_at": "2026-08-10T15:03:00+03:00"
+      "published_at": "2026-08-10T15:25:00+03:00"
     },
     {
-      "id": "cb-recommendation-loan-restructuring",
-      "headline": "Банк России рекомендовал кредиторам реструктурировать долги пострадавшего от атак бизнеса без неустоек",
-      "context": "Рекомендация касается малого и среднего предпринимательства, чьи склады и помещения пострадали от обстрелов.",
+      "id": "cbr-recommendation-loan-restructuring-affected-businesses",
+      "headline": "Банк России рекомендовал кредиторам реструктурировать долги пострадавшего от атак ВСУ бизнеса",
+      "context": "Рекомендация касается малого и среднего предпринимательства, чьи склады и помещения пострадали от терактов.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298184"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8876191"
         }
       ],
-      "published_at": "2026-08-10T11:21:00+03:00"
+      "published_at": "2026-08-10T11:45:00+03:00"
     },
     {
-      "id": "fas-fuel-price-calculation-suspension",
-      "headline": "Федеральная антимонопольная служба приостановила использование биржевых индексов при госзакупках топлива до конца года",
-      "context": "Решение принято на фоне сезонного роста спроса, ремонтов на НПЗ и высоких биржевых цен.",
+      "id": "rosseti-grid-funding-mechanism-consumers",
+      "headline": "Правительство определило механизм финансирования строительства магистральных электросетей за счет надбавок для потребителей",
+      "context": "Инвестиции в ЛЭП до 2032 года оцениваются более чем в 1 трлн рублей, Россети получат надбавку на оптовом рынке.",
       "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1108443"
-        }
-      ],
-      "published_at": "2026-08-10T12:19:00+03:00"
-    },
-    {
-      "id": "rosseti-funding-power-lines",
-      "headline": "Правительство утвердило механизм финансирования строительства магистральных электросетей за счет надбавок для промышленности",
-      "context": "Инвестиции в проекты до 2032 года оцениваются более чем в 1 триллион рублей.",
-      "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -260,39 +230,24 @@
       "published_at": "2026-08-10T07:00:00+03:00"
     },
     {
-      "id": "inarctica-1h-2026-results",
-      "headline": "Выручка компании Инарктика в первом полугодии 2026 года выросла на 38%",
-      "context": "Объем продаж увеличился на 57% до 13,2 тысячи тонн, а биомасса выросла на 33%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/10/1219966-inarktika-viruchku"
-        }
-      ],
-      "published_at": "2026-08-10T12:01:00+03:00"
-    },
-    {
-      "id": "fnb-july-decline",
-      "headline": "Объем Фонда национального благосостояния России в июле сократился на 383,3 миллиарда рублей",
-      "context": "На 1 августа 2026 года размер фонда составил 12,72 триллиона рублей.",
+      "id": "fnb-july-decline-three-percent",
+      "headline": "Объем Фонда национального благосостояния России в июле сократился на три процента",
+      "context": "Размер фонда снизился на 383,3 млрд рублей и составил 12,72 трлн рублей.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298354"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108507"
         }
       ],
-      "published_at": "2026-08-10T17:00:00+03:00"
+      "published_at": "2026-08-10T17:09:00+03:00"
     },
     {
-      "id": "lenta-acquires-okey",
-      "headline": "Торговая сеть Лента официально получила контроль над 99,56% уставного капитала сети О'кей",
-      "context": "Под контроль ритейлера переходят 75 гипермаркетов и 4 распределительных центра.",
+      "id": "lenta-acquires-okey-hypermarkets",
+      "headline": "Продуктовая сеть Лента официально получила контроль над гипермаркетами конкурента Окей",
+      "context": "Подконтрольная Ленте структура получила 99,56% в уставном капитале компании Окей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -305,57 +260,87 @@
       "published_at": "2026-08-10T12:55:00+03:00"
     },
     {
-      "id": "russian-trade-balance-1h-2026",
-      "headline": "Профицит внешней торговли России в первом полугодии 2026 года вырос на 14%",
-      "context": "Экспорт увеличился на 11,8% до 219,5 миллиарда долларов, импорт вырос на 10,8% до 146,1 миллиарда долларов.",
+      "id": "inarctica-h1-2026-revenue-growth",
+      "headline": "Компания Инарктика увеличила выручку на 38% по итогам первого полугодия 2026 года",
+      "context": "Выручка компании достигла 13,8 млрд рублей против аналогичного периода прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/08/10/1219966-inarktika-viruchku"
+        }
+      ],
+      "published_at": "2026-08-10T12:26:00+03:00"
+    },
+    {
+      "id": "fas-suspends-fuel-price-indexing-state-procurement",
+      "headline": "Федеральная антимонопольная служба приостановила использование биржевых индексов при госзакупках топлива",
+      "context": "Действие особого порядка расчета цен приостановлено регулятором до конца декабря 2026 года.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/08/10/1220027-profitsit-torgovli"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1108443"
         }
       ],
-      "published_at": "2026-08-10T13:38:00+03:00"
+      "published_at": "2026-08-10T12:19:00+03:00"
     },
     {
-      "id": "private-investors-activity",
-      "headline": "Вложения частных инвесторов в акции на Московской бирже в июле выросли почти вдвое",
-      "context": "Физические лица стали чистыми покупателями акций на сумму 24,4 миллиарда рублей, несмотря на коррекцию рынка.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298185"
-        }
-      ],
-      "published_at": "2026-08-10T10:32:00+03:00"
-    },
-    {
-      "id": "aluminium-price-surge-rusal",
-      "headline": "Мировые цены на алюминий превысили отметку 3300 долларов за тонну впервые с июня",
-      "context": "На фоне удорожания металла акции Русала на Московской бирже выросли более чем на 5%.",
-      "category": "markets",
+      "id": "steel-production-growth-july-record",
+      "headline": "Производство стали и готового проката в России в июле показало максимальные темпы роста",
+      "context": "Выпуск стали увеличился на 3,1% год к году на фоне оживления внутреннего спроса и роста цен.",
+      "category": "macro",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8876113"
+          "url": "https://www.kommersant.ru/doc/8876538"
         }
       ],
-      "published_at": "2026-08-10T10:42:00+03:00"
+      "published_at": "2026-08-10T17:04:00+03:00"
     },
     {
-      "id": "a7a5-stablecoin-turnover",
-      "headline": "Оборот рублевого стейблкоина А7А5 с момента запуска в начале 2025 года достиг 140 миллиардов долларов",
-      "context": "Инструмент является крупнейшим недолларовым стейблкоином на мировом рынке по заявлению главы ПСБ.",
+      "id": "railway-export-agricultural-products-support",
+      "headline": "Правительство России планирует выделить 10 миллиардов рублей на поддержку железнодорожного экспорта сельхозпродукции",
+      "context": "Субсидии направят на фоне ограничений коммерческого судоходства в Азовском море.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8876148"
+        }
+      ],
+      "published_at": "2026-08-10T11:08:00+03:00"
+    },
+    {
+      "id": "positive-technologies-bank-losses-cyberattacks",
+      "headline": "Доля прямых финансовых потерь российских банков от кибератак выросла до 18%",
+      "context": "По данным Positive Technologies, в первом полугодии доля DDoS-атак в структуре киберпреступности достигла 36%.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8876153"
+        }
+      ],
+      "published_at": "2026-08-10T11:07:00+03:00"
+    },
+    {
+      "id": "a7a5-stablecoin-volume-milestone",
+      "headline": "Оборот рублевого стейблкоина А7А5 превысил 140 миллиардов долларов с момента запуска",
+      "context": "Инструмент, запущенный в начале 2025 года, стал крупнейшим недолларовым стейблкоином на рынке.",
       "category": "markets",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
@@ -363,9 +348,102 @@
         }
       ],
       "published_at": "2026-08-10T10:10:00+03:00"
+    },
+    {
+      "id": "fns-foreign-accounts-violations-decline",
+      "headline": "Федеральная налоговая служба зафиксировала снижение числа нарушений по зарубежным счетам россиян",
+      "context": "Количество недочетов при информировании об иностранных счетах в первом полугодии сократилось на 11%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/298116"
+        }
+      ],
+      "published_at": "2026-08-10T07:58:00+03:00"
     }
   ],
-  "today_agenda": [],
+  "today_agenda": [
+    {
+      "time": "07:30",
+      "event": "Решение Резервного банка Австралии по процентной ставке",
+      "ticker": "",
+      "type": "cb_minfin",
+      "importance": 3
+    },
+    {
+      "time": "11:30",
+      "event": "Финансовая отчетность Huya за второй квартал",
+      "ticker": "HUYA",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "12:00",
+      "event": "Финансовая отчетность Tencent Music за второй квартал",
+      "ticker": "TME",
+      "type": "earnings",
+      "importance": 2
+    },
+    {
+      "time": "15:00",
+      "event": "Публикация индекса потребительских цен (CPI) Бразилии за июль",
+      "ticker": "",
+      "type": "macro",
+      "importance": 2
+    },
+    {
+      "time": "16:00",
+      "event": "Публикация данных по торговому балансу РФ за июнь",
+      "ticker": "",
+      "type": "macro",
+      "importance": 4
+    },
+    {
+      "time": "17:00",
+      "event": "Публикация данных по продажам на вторичном рынке жилья в США за июль",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "19:00",
+      "event": "Публикация краткосрочных прогнозов Минэнерго США по рынку нефти",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "23:05",
+      "event": "Финансовая отчетность SuperMicro",
+      "ticker": "SMCI",
+      "type": "earnings",
+      "importance": 3
+    },
+    {
+      "time": "-",
+      "event": "Публикация финансовых результатов Т-Технологии по МСФО",
+      "ticker": "T",
+      "type": "earnings",
+      "importance": 5
+    },
+    {
+      "time": "-",
+      "event": "Публикация финансовых результатов Сбербанка по РСБУ за 7 месяцев",
+      "ticker": "SBER",
+      "type": "earnings",
+      "importance": 5
+    },
+    {
+      "time": "-",
+      "event": "Публикация операционных результатов Аэрофлота",
+      "ticker": "AFLT",
+      "type": "earnings",
+      "importance": 4
+    }
+  ],
   "briefing": {
     "kind": "premarket",
     "title": "Сводка до открытия",
