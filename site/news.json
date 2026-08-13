@@ -1,49 +1,49 @@
 {
-  "date": "2026-08-12",
-  "generated_at": "2026-08-12T19:07:26+03:00",
+  "date": "2026-08-13",
+  "generated_at": "2026-08-13T07:29:05+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, золото подорожало, а котировки нефти Brent незначительно снизились.",
+  "external_backdrop": "Американские и азиатские индексы растут, золото дорожает, в то время как нефть марки Brent снижается.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7744.28",
-      "change_pct": "+0.21%",
+      "value": "7748.50",
+      "change_pct": "+0.26%",
       "as_of": "2026-08-12",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26559.31",
-      "change_pct": "+0.43%",
+      "value": "26588.49",
+      "change_pct": "+0.54%",
       "as_of": "2026-08-12",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "66970.22",
-      "change_pct": "+2.08%",
-      "as_of": "2026-08-10",
+      "value": "68686.85",
+      "change_pct": "+1.72%",
+      "as_of": "2026-08-13",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25652.82",
-      "change_pct": "-1.10%",
-      "as_of": "2026-08-11",
+      "value": "25457.33",
+      "change_pct": "+0.07%",
+      "as_of": "2026-08-13",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.80",
-      "change_pct": "-0.12%",
-      "as_of": "2026-08-12",
+      "value": "88.76",
+      "change_pct": "-0.25%",
+      "as_of": "2026-08-13",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4479.40",
-      "change_pct": "+2.20%",
-      "as_of": "2026-08-12",
+      "value": "4453.00",
+      "change_pct": "+1.00%",
+      "as_of": "2026-08-13",
       "group": "commodity"
     },
     {
@@ -59,57 +59,135 @@
       "change_pct": "-1.71%",
       "as_of": "2026-08-12 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "82.97",
-      "change_pct": "-0.11%",
-      "as_of": "2026-08-12 19:07:25",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.30",
-      "change_pct": "+0.44%",
-      "as_of": "2026-08-12 19:07:23",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "rosstat-deflation-weekly",
+      "id": "putin-ruble-comment",
+      "headline": "Президент Владимир Путин назвал крепкий рубль проблемой для российских экспортеров",
+      "context": "При этом глава государства отметил, что укрепление национальной валюты выгодно для граждан страны.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/economics/13/08/2026/6a7d45899a7947b46052ab07"
+        }
+      ],
+      "published_at": "2026-08-13T07:25:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-banks",
+      "headline": "Вступили в силу новые санкции Европейского союза против российских банков",
+      "context": "Ограничения введены в рамках двадцать первого пакета санкций ЕС.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/380912"
+        }
+      ],
+      "published_at": "2026-08-13T07:24:00+03:00"
+    },
+    {
+      "id": "rosstat-deflation",
       "headline": "Росстат зафиксировал недельную дефляцию в России на уровне 0,06 процента",
-      "context": "С начала года потребительские цены выросли на 4,69%, а годовая инфляция в июле замедлилась до 5,98%.",
+      "context": "Годовая инфляция в стране замедлилась до 6,05% по состоянию на 10 августа.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/05/08/2026/6a7361a39a794733f8a563a5"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/08/12/1220732-zafiksirovana-nedelnaya-deflyatsiya"
         }
       ],
       "published_at": "2026-08-12T19:00:00+03:00"
     },
     {
-      "id": "bashneft-shares-drop-bashkiria-sale",
-      "headline": "Привилегированные акции Башнефти упали на фоне планов Башкирии продать долю Роснефти",
-      "context": "Глава республики Радий Хабиров сообщил о намерении продать оставшийся пакет акций компании.",
+      "id": "lukoil-uk-license",
+      "headline": "Великобритания продлила лицензию на операции с зарубежными дочерними компаниями Лукойла",
+      "context": "Разрешение на осуществление деятельности продлено до 26 февраля 2027 года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8878171"
+          "url": "https://www.kommersant.ru/doc/8878285"
         }
       ],
-      "published_at": "2026-08-12T16:52:00+03:00"
+      "published_at": "2026-08-12T18:59:00+03:00"
     },
     {
-      "id": "cb-simplifies-securities-emission",
-      "headline": "Банк России предложил упростить эмиссию акций и облигаций для опытных эмитентов",
-      "context": "Регулятор планирует освободить известных рынку эмитентов от составления проспектов и сократить сроки реализации преимущественного права.",
+      "id": "us-senators-sanctions",
+      "headline": "Сенаторы США потребовали от администрации Трампа объяснить отсутствие новых санкций против России",
+      "context": "Законодатели выразили обеспокоенность тем, что Соединенные Штаты не вводили новые ограничения последние 17 месяцев.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/07/08/2026/6a7615039a79475671c30d98"
+        }
+      ],
+      "published_at": "2026-08-13T00:36:00+03:00"
+    },
+    {
+      "id": "sevastopol-blackout",
+      "headline": "Севастополь был полностью обесточен в результате атаки на энергетическую инфраструктуру",
+      "context": "Губернатор города сообщил, что специалисты оценивают масштабы повреждений для восстановления электроснабжения.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878391"
+        }
+      ],
+      "published_at": "2026-08-13T00:16:00+03:00"
+    },
+    {
+      "id": "kpler-refining-drop",
+      "headline": "Переработка нефти на российских заводах в августе может сократиться до четырех миллионов баррелей в сутки",
+      "context": "Аналитики Kpler прогнозируют снижение показателя на пять процентов к июлю из-за внеплановых ремонтов и простоев.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878313"
+        }
+      ],
+      "published_at": "2026-08-12T19:38:00+03:00"
+    },
+    {
+      "id": "avo-nrd-bankruptcy",
+      "headline": "Ассоциация владельцев облигаций предложила назначать защитников инвесторов при банкротстве через Национальный расчетный депозитарий",
+      "context": "Инициатива призвана повысить эффективность борьбы за средства инвесторов на долговом рынке.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878298"
+        }
+      ],
+      "published_at": "2026-08-12T19:15:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "cbr-simplification-emission",
+      "headline": "Банк России предложил упростить эмиссию ценных бумаг для облегчения выхода компаний на биржу",
+      "context": "Регулятор планирует освободить известных рынку эмитентов от составления проспектов при выпуске облигаций.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -119,301 +197,209 @@
           "url": "https://www.kommersant.ru/doc/8878191"
         }
       ],
-      "published_at": "2026-08-12T15:13:00+03:00"
+      "published_at": "2026-08-12T17:15:00+03:00"
     },
     {
-      "id": "us-oil-inventories-unexpected-growth",
-      "headline": "Коммерческие запасы нефти в США неожиданно выросли на 17,42 миллиона баррелей",
-      "context": "Аналитики прогнозировали снижение запасов на 1,4 миллиона баррелей.",
+      "id": "bashkortostan-bashneft-sale",
+      "headline": "Башкирия планирует продать Роснефти оставшуюся часть своего пакета акций в Башнефти",
+      "context": "Об этом сообщил глава республики Радий Хабиров, что вызвало падение привилегированных акций компании на 9,3%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108910"
+        }
+      ],
+      "published_at": "2026-08-12T16:14:00+03:00"
+    },
+    {
+      "id": "ozon-bank-google-play",
+      "headline": "Приложение Ozon Банка было удалено из магазина приложений Google Play из-за санкций",
+      "context": "Ранее финансовая организация попала под санкции Европейского союза в рамках двадцать первого пакета.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1108877"
+        }
+      ],
+      "published_at": "2026-08-12T13:44:00+03:00"
+    },
+    {
+      "id": "nkhp-terminal-damaged",
+      "headline": "Инфраструктура Новороссийского комбината хлебопродуктов была повреждена в результате ночной атаки беспилотников",
+      "context": "Объединенная зерновая компания подтвердила повреждения, акции НКХП на Мосбирже снижались более чем на 6%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1108843"
+        }
+      ],
+      "published_at": "2026-08-12T11:19:00+03:00"
+    },
+    {
+      "id": "putin-mirror-response",
+      "headline": "Президент Владимир Путин пообещал зеркально отвечать на любые попытки захвата российских торговых судов",
+      "context": "Глава государства назвал планы западных стран по задержанию судов пиратством и разбоем.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1108839"
+        }
+      ],
+      "published_at": "2026-08-12T11:14:00+03:00"
+    },
+    {
+      "id": "avo-moscow-courts",
+      "headline": "Ассоциация владельцев облигаций выступила за перенос всех судебных дел по дефолтам в Москву",
+      "context": "Организация указывает на заградительные барьеры для частных инвесторов при взыскании долгов в регионах.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878264"
+        }
+      ],
+      "published_at": "2026-08-12T18:18:00+03:00"
+    },
+    {
+      "id": "ozon-pharm-div-policy",
+      "headline": "Озон Фармацевтика утвердила положение о дивидендной политике в новой редакции",
+      "context": "Решение было принято на заседании совета директоров компании 12 августа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108860"
+        }
+      ],
+      "published_at": "2026-08-12T12:49:00+03:00"
+    },
+    {
+      "id": "almaz-duty-postponed",
+      "headline": "Правительство России отложило введение восьмипроцентной экспортной пошлины на алмазы до марта",
+      "context": "Срок введения пошлины перенесен с 1 сентября 2026 года на 1 марта 2027 года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1108829"
+        }
+      ],
+      "published_at": "2026-08-12T10:44:00+03:00"
+    },
+    {
+      "id": "rostelecom-msfo-results",
+      "headline": "Чистая прибыль Ростелекома по МСФО за первое полугодие выросла на девять процентов",
+      "context": "Показатель составил 14 млрд рублей при росте выручки на 11% до 435,7 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/298699"
+        }
+      ],
+      "published_at": "2026-08-12T10:25:00+03:00"
+    },
+    {
+      "id": "antidrone-systems-demand",
+      "headline": "Спрос коммерческих компаний на закупку систем защиты от беспилотников вырос в шесть раз",
+      "context": "В первом полугодии бизнес потратил на антидроновые системы 441,3 млн рублей на фоне участившихся атак.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/298673"
+        }
+      ],
+      "published_at": "2026-08-12T09:46:00+03:00"
+    },
+    {
+      "id": "tax-crimes-mvd-record",
+      "headline": "Число выявленных налоговых преступлений в России выросло на рекордные семнадцать процентов",
+      "context": "В первом полугодии МВД зарегистрировало 3 362 таких правонарушения, что стало максимумом за последние 12 лет.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108932"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/298642"
         }
       ],
-      "published_at": "2026-08-12T17:30:00+03:00"
+      "published_at": "2026-08-12T08:22:00+03:00"
     },
     {
-      "id": "us-inflation-cpi-july-slowdown",
-      "headline": "Потребительская инфляция в США в июле замедлилась до 3,4 процента",
-      "context": "Показатель совпал с ожиданиями аналитиков, базовый CPI составил 2,5% в годовом выражении.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1108915"
-        }
-      ],
-      "published_at": "2026-08-12T15:30:00+03:00"
-    },
-    {
-      "id": "ozon-bank-app-removed-google-play",
-      "headline": "Приложение Ozon Банка удалено из Google Play из-за европейских санкций",
-      "context": "Ранее банк попал под санкции Евросоюза в рамках 21-го пакета ограничений.",
+      "id": "alfa-bank-belarus-court",
+      "headline": "Суд обязал передать российскому Альфа-банку долю в белорусском Альфа-банке за долги",
+      "context": "Арбитражный суд Москвы обратил взыскание на 15,56% акций в счет погашения задолженности кипрской ABH Belarus.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/298745"
+          "url": "https://frankmedia.ru/298643"
         }
       ],
-      "published_at": "2026-08-12T12:44:00+03:00"
+      "published_at": "2026-08-12T07:53:00+03:00"
     },
     {
-      "id": "rostelecom-h1-revenue-growth",
-      "headline": "Выручка Ростелекома за первое полугодие выросла на 11 процентов до 435,7 миллиарда рублей",
-      "context": "Чистая прибыль компании по МСФО за отчетный период увеличилась на 9% и составила 14 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108825"
-        }
-      ],
-      "published_at": "2026-08-12T10:14:00+03:00"
-    },
-    {
-      "id": "nkhp-terminal-damaged-drone-attack",
-      "headline": "Инфраструктура Новороссийского комбината хлебопродуктов повреждена в результате ночной атаки беспилотников",
-      "context": "Объединенная зерновая компания подтвердила повреждения, сотрудники предприятия не пострадали.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877817"
-        }
-      ],
-      "published_at": "2026-08-12T07:30:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "russia-budget-deficit-h1-record",
-      "headline": "Дефицит федерального бюджета России за семь месяцев достиг 6,455 триллиона рублей",
-      "context": "Доходы бюджета составили 22,11 трлн рублей, а расходы выросли до 28,57 трлн рублей.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/08/11/1220386"
-        }
-      ],
-      "published_at": "2026-08-11T17:42:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default-bonds",
-      "headline": "Компания ЕвроТранс допустила технический дефолт по зеленым облигациям на 25 миллионов рублей",
-      "context": "Эмитент не выплатил купон за 29-й период из-за временной нехватки свободных денежных средств на счетах.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84350"
-        }
-      ],
-      "published_at": "2026-08-11T16:01:00+03:00"
-    },
-    {
-      "id": "cb-allows-crypto-trading-retail",
-      "headline": "Банк России разрешил обращение биткоина и эфира на биржах для неквалифицированных инвесторов",
-      "context": "Лимит на покупку криптовалют для неквалифицированных инвесторов составит 300 тысяч рублей в год у каждого посредника.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877117"
-        }
-      ],
-      "published_at": "2026-08-11T12:59:00+03:00"
-    },
-    {
-      "id": "rusal-no-dividends-h1",
-      "headline": "Совет директоров Русала рекомендовал не выплачивать дивиденды за первое полугодие",
-      "context": "Внеочередное собрание акционеров по вопросу выплаты состоится 4 сентября в Калининграде.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877018"
-        }
-      ],
-      "published_at": "2026-08-11T11:29:00+03:00"
-    },
-    {
-      "id": "t-technologies-q2-net-profit-growth",
-      "headline": "Операционная чистая прибыль Т-Технологий во втором квартале выросла на 25 процентов",
-      "context": "Совет директоров компании рекомендовал выплатить дивиденды за второй квартал в размере 4,7 рубля на акцию.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298444"
-        }
-      ],
-      "published_at": "2026-08-11T10:09:00+03:00"
-    },
-    {
-      "id": "sberbank-h1-net-profit-record",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за семь месяцев превысила один триллион рублей",
-      "context": "В июле кредитная организация заработала 168,4 млрд рублей, что на 16,2% больше прошлогоднего результата.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298429"
-        }
-      ],
-      "published_at": "2026-08-11T09:54:00+03:00"
-    },
-    {
-      "id": "cb-explains-ruble-weakening-july",
-      "headline": "Центробанк связал ослабление рубля в июле с падением сырьевых цен и поведением агентов",
-      "context": "Ослабление курса к основным валютам носило догоняющий характер на фоне изменения внешнеторгового баланса.",
+      "id": "budget-deficit-record",
+      "headline": "В России зафиксирован рекордный дефицит федерального бюджета за первые семь месяцев года",
+      "context": "Накопленный дефицит достиг 6,46 трлн рублей, превысив годовой план на 170,5 процента.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108743"
+          "name": "spydell_finance",
+          "url": "https://t.me/spydell_finance/10000"
         }
       ],
-      "published_at": "2026-08-11T18:39:00+03:00"
+      "published_at": "2026-08-12T07:36:00+03:00"
     },
     {
-      "id": "cb-no-liquidity-issues-banks",
-      "headline": "Банк России заявил об отсутствии системных проблем с ликвидностью в банковском секторе",
-      "context": "Регулятор объяснил рост ставок на рынке стратегией отдельных кредитных организаций.",
-      "category": "cb_policy",
+      "id": "retail-share-stocks-low",
+      "headline": "Доля вложений граждан России в отечественные акции опустилась до шестилетнего минимума",
+      "context": "По данным ЦБ на 1 июля, доля акций резидентов в активах домохозяйств сократилась до 3,6%.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108741"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/380779"
         }
       ],
-      "published_at": "2026-08-11T18:34:00+03:00"
-    },
-    {
-      "id": "switzerland-expands-sanctions-russia",
-      "headline": "Швейцария расширила санкционный список против России на девять физлиц и 45 организаций",
-      "context": "Под ограничения попали в том числе исполнительный директор Ростеха Олег Евтушенко и 18-й ЦНИИ Минобороны.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877490"
-        }
-      ],
-      "published_at": "2026-08-11T18:23:00+03:00"
-    },
-    {
-      "id": "russia-trade-surplus-h1-growth",
-      "headline": "Профицит внешней торговли России за первое полугодие вырос на 20 процентов",
-      "context": "По данным Банка России, объем экспорта в июне увеличился на 0,5%, а импорт вырос на 7,2%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877327"
-        }
-      ],
-      "published_at": "2026-08-11T17:12:00+03:00"
-    },
-    {
-      "id": "spb-exchange-no-dividends-2025",
-      "headline": "Акционеры СПБ Биржи утвердили решение не выплачивать дивиденды по итогам 2025 года",
-      "context": "Полученный по результатам года убыток решено не распределять среди акционеров.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877189"
-        }
-      ],
-      "published_at": "2026-08-11T13:34:00+03:00"
-    },
-    {
-      "id": "psb-acquires-atom-electric-car-stake",
-      "headline": "Промсвязьбанк вошел в капитал производителя электромобилей Атом за десять миллиардов рублей",
-      "context": "Пакет акций АО «Кама» приобретен в рамках дополнительной эмиссии с прицелом на будущее IPO.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877048"
-        }
-      ],
-      "published_at": "2026-08-11T12:13:00+03:00"
-    },
-    {
-      "id": "kuibyshevazot-acquires-linde-assets",
-      "headline": "Куйбышевазот получил российские активы немецкой Linde в рамках взыскания долга",
-      "context": "В собственность компании перешла 100-процентная доля ООО «Праксэа Рус» по контракту на строительство комплекса в Усть-Луге.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8877000"
-        }
-      ],
-      "published_at": "2026-08-11T11:00:00+03:00"
-    },
-    {
-      "id": "banks-demand-usdt-purchase-explanations",
-      "headline": "Российские банки начали требовать от клиентов объяснения экономического смысла покупки USDT",
-      "context": "Запросы направляются на фоне подготовки к вступлению в силу нового регулирования цифровых валют.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298399"
-        }
-      ],
-      "published_at": "2026-08-11T09:02:00+03:00"
+      "published_at": "2026-08-12T07:11:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-08-11"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-08-12"
   }
 }
