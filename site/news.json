@@ -1,353 +1,357 @@
 {
-  "date": "2026-08-13",
-  "generated_at": "2026-08-13T09:07:23+03:00",
+  "date": "2026-08-14",
+  "generated_at": "2026-08-14T07:26:31+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись ростом, японский Nikkei 225 растет, а нефть марки Brent торгуется на уровне 88.94 долларов за баррель.",
+  "external_backdrop": "Американские индексы закрылись ростом, в Азии наблюдается разнонаправленная динамика, нефть марки Brent торгуется на уровне 87.14 доллара за баррель",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7748.50",
-      "change_pct": "+0.26%",
-      "as_of": "закрытие 12.08",
+      "value": "7798.99",
+      "change_pct": "+0.65%",
+      "as_of": "2026-08-13",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26588.49",
-      "change_pct": "+0.54%",
-      "as_of": "закрытие 12.08",
+      "value": "26803.03",
+      "change_pct": "+0.81%",
+      "as_of": "2026-08-13",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "68502.52",
-      "change_pct": "+1.45%",
-      "as_of": "09:07 13.08",
+      "value": "68628.29",
+      "change_pct": "+0.47%",
+      "as_of": "2026-08-14",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25431.46",
-      "change_pct": "-0.03%",
-      "as_of": "09:07 13.08",
+      "value": "25160.25",
+      "change_pct": "-0.93%",
+      "as_of": "2026-08-14",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.94",
-      "change_pct": "-0.04%",
-      "as_of": "09:07 13.08",
+      "value": "87.14",
+      "change_pct": "+0.08%",
+      "as_of": "2026-08-14",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4442.30",
-      "change_pct": "+0.76%",
-      "as_of": "09:07 13.08",
+      "value": "4381.40",
+      "change_pct": "+0.41%",
+      "as_of": "2026-08-14",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2301.43",
-      "change_pct": "-0.96%",
-      "as_of": "закрытие 12.08",
+      "value": "2232.14",
+      "change_pct": "-3.01%",
+      "as_of": "2026-08-13 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "873.52",
-      "change_pct": "-1.71%",
-      "as_of": "закрытие 12.08",
+      "value": "839.05",
+      "change_pct": "-3.95%",
+      "as_of": "2026-08-13 19:00:12",
       "group": "ru_equity"
     }
   ],
   "overnight": [
     {
-      "id": "putin-ruble-export",
-      "headline": "Путин назвал крепкий рубль выгодным для граждан и проблемой для экспортеров",
-      "context": "Президент России Владимир Путин в ходе встречи с губернатором Сахалинской области Валерием Лимаренко отметил, что твердая валюта создает сложности для экспортных предприятий.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a7c366f9a794719659ee288"
-        }
-      ],
-      "published_at": "2026-08-13T07:25:00+03:00"
-    },
-    {
-      "id": "rosstat-weekly-deflation",
-      "headline": "Росстат зафиксировал недельную дефляцию в России на уровне 0,06%",
-      "context": "Снижение потребительских цен зафиксировано вторую неделю подряд, при этом годовая инфляция замедлилась до 6,05%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/08/12/1220732-zafiksirovana-nedelnaya-deflyatsiya"
-        }
-      ],
-      "published_at": "2026-08-12T19:00:00+03:00"
-    },
-    {
-      "id": "oil-refining-drop-august",
-      "headline": "Переработка нефти в России в августе может упасть до 4 млн баррелей в сутки",
-      "context": "По прогнозам Kpler, показатель сократится почти на 5% относительно июля из-за внеплановых ремонтов и простоев на НПЗ.",
+      "id": "ust-luga-port-fire",
+      "headline": "В порту Усть-Луга произошло возгорание в результате атаки беспилотников",
+      "context": "Губернатор Ленинградской области Александр Дрозденко сообщил о нейтрализации 54 дронов над регионом и повреждении в районе порта.",
       "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8878313"
-        }
-      ],
-      "published_at": "2026-08-12T19:38:00+03:00"
-    },
-    {
-      "id": "wildberries-damage-drones",
-      "headline": "Ущерб Wildberries и продавцов от атак на склады может достигать 800 млрд рублей",
-      "context": "По оценкам участников рынка, от инцидентов пострадали более 400 тысяч селлеров, у некоторых из которых сгорело до 95% запасов.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1339564.php"
-        }
-      ],
-      "published_at": "2026-08-13T09:04:00+03:00"
-    },
-    {
-      "id": "ai-models-morality-check",
-      "headline": "Российским моделям искусственного интеллекта пропишут проверку на соответствие традиционным ценностям",
-      "context": "Прохождение независимой экспертизы на духовность и нравственность станет условием получения статуса национальной или суверенной модели.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298906"
-        }
-      ],
-      "published_at": "2026-08-13T07:57:00+03:00"
-    },
-    {
-      "id": "rockwool-lawsuit-parent",
-      "headline": "Российское подразделение Rockwool взыскивает 8,6 млрд рублей с датской материнской компании",
-      "context": "Иск направлен в Арбитражный суд Московской области с требованием вернуть задолженность по договору займа.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8878435"
-        }
-      ],
-      "published_at": "2026-08-13T09:00:00+03:00"
-    },
-    {
-      "id": "sevastopol-blackout-attack",
-      "headline": "Севастополь был временно обесточен после атаки ВСУ на энергетическую инфраструктуру",
-      "context": "Губернатор Михаил Развожаев сообщил, что город остался без электроснабжения в результате ударов со стороны ВСУ.",
-      "category": "geopolitics",
-      "importance": 3,
-      "investment_relevant": false,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8878391"
-        }
-      ],
-      "published_at": "2026-08-13T00:16:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "bashneft-sale-bashkiria",
-      "headline": "Башкирия планирует продать Роснефти оставшуюся часть своего пакета в Башнефти",
-      "context": "Глава республики Радий Хабиров объявил о намерении полностью выйти из капитала нефтяной компании.",
-      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108910"
-        }
-      ],
-      "published_at": "2026-08-12T16:14:00+03:00"
-    },
-    {
-      "id": "cb-emission-simplification",
-      "headline": "Банк России определил пути дальнейшего упрощения эмиссии акций и облигаций",
-      "context": "Предлагаемые регулятором меры направлены на облегчение выхода компаний на биржу и сокращение их издержек.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
+          "url": "https://www.interfax.ru/russia/1109225"
+        },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8878174"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a7e84289a79476e7b10502a"
         }
       ],
-      "published_at": "2026-08-12T16:43:00+03:00"
+      "published_at": "2026-08-14T07:14:00+03:00"
     },
     {
-      "id": "budget-deficit-record",
-      "headline": "Дефицит федерального бюджета России за семь месяцев достиг 6,46 трлн рублей",
-      "context": "Показатель обновил рекорд за аналогичные периоды и уже значительно превышает первоначальный план на весь год.",
+      "id": "russian-exporters-fx-sales-drop",
+      "headline": "Продажи валюты крупнейшими российскими экспортерами в июле упали до исторического минимума",
+      "context": "В июле крупнейшие экспортеры продали на внутреннем рынке всего 2,22 млрд долларов, что на 71% меньше июньского показателя.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "spydell_finance",
-          "url": "https://t.me/spydell_finance/10000"
+          "url": "https://t.me/spydell_finance/10015"
         }
       ],
-      "published_at": "2026-08-12T07:36:00+03:00"
+      "published_at": "2026-08-13T21:33:00+03:00"
     },
     {
-      "id": "rostelecom-earnings-1h",
-      "headline": "Чистая прибыль Ростелекома по МСФО за первое полугодие выросла на 9%",
-      "context": "Показатель составил 14 млрд рублей при росте выручки на 11% до 435,7 млрд рублей.",
+      "id": "adnoc-ships-attacked",
+      "headline": "Два судна национальной нефтяной компании Абу-Даби атакованы в Ормузском проливе",
+      "context": "Компания ADNOC подтвердила факт нападения на два ее коммерческих судна, пострадавших в результате инцидента нет.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1109201"
+        }
+      ],
+      "published_at": "2026-08-14T02:14:00+03:00"
+    },
+    {
+      "id": "structural-deficit-of-liquidity",
+      "headline": "Структурный дефицит ликвидности в российской банковской системе достиг двух триллионов рублей",
+      "context": "На начало 13 августа структурный дефицит ликвидности составил 2,708 трлн рублей из-за аномального роста наличных денег в обращении.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "spydell_finance",
+          "url": "https://t.me/spydell_finance/10017"
+        }
+      ],
+      "published_at": "2026-08-14T06:53:00+03:00"
+    },
+    {
+      "id": "dollar-reached-84-15",
+      "headline": "Внебиржевой курс доллара достиг максимальной отметки с двадцатого марта",
+      "context": "Стоимость американской валюты на внебиржевом рынке поднималась до 84,15 рубля за доллар.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8879093"
+        }
+      ],
+      "published_at": "2026-08-13T20:50:00+03:00"
+    },
+    {
+      "id": "rusagro-board-change",
+      "headline": "Совет директоров Русагро досрочно сменил состав правления компании",
+      "context": "Решение о досрочной смене правления было принято на заседании совета директоров группы.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/12/1220507-pribil-rostelkoma"
+          "url": "https://www.vedomosti.ru/business/news/2026/08/13/1221016-rusagro-pravlenie"
         }
       ],
-      "published_at": "2026-08-12T10:29:00+03:00"
+      "published_at": "2026-08-13T19:00:00+03:00"
     },
     {
-      "id": "ozon-bank-google-play",
-      "headline": "Приложение Ozon Банка удалили из магазина приложений Google Play из-за санкций",
-      "context": "В кредитной организации подтвердили удаление и сообщили, что ранее установленные версии продолжают работать.",
-      "category": "banks",
+      "id": "trump-drone-tariffs",
+      "headline": "Дональд Трамп ввел стопроцентные пошлины на импорт тяжелых беспилотников в США",
+      "context": "Пошлина в размере 100% распространяется на импорт БПЛА с максимальной взлетной массой более 25 кг.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a7d47119a794745f2b27fc4"
+        }
+      ],
+      "published_at": "2026-08-14T01:45:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "vk-results-and-covenant",
+      "headline": "Холдинг ВК увеличил выручку на двенадцать процентов и получил вейвер по нарушенному ковенанту",
+      "context": "Выручка за первое полугодие выросла до 81 млрд рублей, а чистый убыток сократился до 3,8 млрд рублей.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/298745"
+          "url": "https://frankmedia.ru/298921"
         }
       ],
-      "published_at": "2026-08-12T12:44:00+03:00"
+      "published_at": "2026-08-13T18:11:00+03:00"
     },
     {
-      "id": "diamond-export-duty-delay",
-      "headline": "Правительство России отложило введение экспортной пошлины на алмазы до марта 2027 года",
-      "context": "Срок введения 8-процентной пошлины перенесен с ранее планировавшегося 1 сентября 2026 года.",
-      "category": "macro",
+      "id": "novorossiysk-grain-terminal",
+      "headline": "Группа компаний Дело приостановила операционную деятельность зернового терминала в Новороссийске",
+      "context": "Терминал КСК прекратил разгрузку транспорта и погрузку зерна на суда в целях безопасности сотрудников и инфраструктуры.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1108829"
+          "url": "https://www.interfax.ru/business/1109141"
         }
       ],
-      "published_at": "2026-08-12T10:44:00+03:00"
+      "published_at": "2026-08-13T16:24:00+03:00"
     },
     {
-      "id": "lukoil-uk-license-extension",
-      "headline": "Великобритания продлила лицензию на операции с зарубежными дочками Лукойла",
-      "context": "Разрешение на проведение операций продлено до 26 февраля 2027 года, а для болгарских структур — до 29 октября.",
+      "id": "orsk-refinery-stopped",
+      "headline": "Орский нефтеперерабатывающий завод полностью остановлен после атак беспилотников",
+      "context": "Губернатор Оренбургской области сообщил, что ремонт импортного оборудования из-за санкций может занять до шести месяцев.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1109087"
+        }
+      ],
+      "published_at": "2026-08-13T13:34:00+03:00"
+    },
+    {
+      "id": "x5-results",
+      "headline": "Чистая прибыль ритейлера ИКС пять во втором квартале упала почти на тридцать процентов",
+      "context": "Чистая прибыль компании по МСФО составила 21,19 млрд рублей при росте выручки на 9,9%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878604"
+        }
+      ],
+      "published_at": "2026-08-13T11:04:00+03:00"
+    },
+    {
+      "id": "t-technologies-results",
+      "headline": "Т-Технологии отчитались за второй квартал и рекомендовали дивиденды в размере четырех рублей",
+      "context": "Чистая прибыль компании составила 39,5 млрд рублей, а совет директоров рекомендовал квартальный дивиденд в размере 4,7 рубля на акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1339440.php"
+          "url": "https://smart-lab.ru/mobile/topic/1339518/"
         }
       ],
-      "published_at": "2026-08-12T18:20:00+03:00"
+      "published_at": "2026-08-13T09:32:00+03:00"
     },
     {
-      "id": "nkhp-terminal-damaged",
-      "headline": "Инфраструктура Новороссийского комбината хлебопродуктов повреждена в результате ночной атаки беспилотников",
-      "context": "Объединенная зерновая компания подтвердила повреждения терминала, при этом сотрудники предприятия не пострадали.",
+      "id": "dom-rf-results",
+      "headline": "Банк ДОМ РФ увеличил чистую прибыль на тридцать процентов по итогам первого полугодия",
+      "context": "Чистая прибыль финансовой организации за шесть месяцев достигла 57,2 млрд рублей при рентабельности капитала 23,8%.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84406"
+        }
+      ],
+      "published_at": "2026-08-13T16:54:00+03:00"
+    },
+    {
+      "id": "rosselkhozbank-results",
+      "headline": "Чистая прибыль Россельхозбанка по итогам первого полугодия выросла на двадцать три процента",
+      "context": "Банк получил рекордные 48,6 млрд рублей чистой прибыли по МСФО, показав наилучший результат во втором квартале.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878908"
+        }
+      ],
+      "published_at": "2026-08-13T16:04:00+03:00"
+    },
+    {
+      "id": "m-video-share-issue",
+      "headline": "Банк России зарегистрировал дополнительную эмиссию акций компании М Видео по закрытой подписке",
+      "context": "Регулятор одобрил выпуск ценных бумаг ритейлера, предназначенный для размещения среди определенного круга инвесторов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/380816"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/13/1220924-dopemissiyu-mvideo"
         }
       ],
-      "published_at": "2026-08-12T11:00:00+03:00"
+      "published_at": "2026-08-13T15:16:00+03:00"
     },
     {
-      "id": "russian-equity-holdings-low",
-      "headline": "Доля вложений россиян в акции отечественных компаний опустилась до шестилетнего минимума",
-      "context": "На 1 июля 2026 года доля акций резидентов в активах домохозяйств снизилась до 3,6%.",
+      "id": "moex-futures",
+      "headline": "Московская биржа расширит линейку фьючерсов на российские акции с восемнадцатого августа",
+      "context": "На срочном рынке начнутся торги фьючерсами на акции Fix Price, Русагро, группы Астра и Новабев групп.",
       "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878658"
+        }
+      ],
+      "published_at": "2026-08-13T14:53:00+03:00"
+    },
+    {
+      "id": "diasoft-results",
+      "headline": "Чистая прибыль компании Диасофт в первом квартале финансового года выросла на восемьдесят четыре процента",
+      "context": "Выручка компании за отчетный период увеличилась на 21% и составила 2,9 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/13/1220883-pribil-diasofta"
+        }
+      ],
+      "published_at": "2026-08-13T13:17:00+03:00"
+    },
+    {
+      "id": "putin-on-strong-ruble",
+      "headline": "Владимир Путин заявил о создании крепким рублем проблем для российских экспортных предприятий",
+      "context": "Президент отметил, что укрепление национальной валюты выгодно гражданам, но создает сложности для экспортеров.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8878481"
+        }
+      ],
+      "published_at": "2026-08-13T08:45:00+03:00"
+    },
+    {
+      "id": "russian-bond-defaults",
+      "headline": "Количество уникальных дефолтов по облигациям в России к началу августа достигло шестидесяти одного",
+      "context": "По данным Cbonds, этот показатель уже сопоставим с общим количеством дефолтов за весь прошлый год.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
           "name": "markettwits",
-          "url": "https://t.me/markettwits/380779"
+          "url": "https://t.me/markettwits/380925"
         }
       ],
-      "published_at": "2026-08-12T07:11:00+03:00"
-    },
-    {
-      "id": "tax-crimes-record-growth",
-      "headline": "Число выявленных налоговых преступлений в России выросло на рекордные 17%",
-      "context": "В первом полугодии МВД зарегистрировало 3362 преступления, что стало максимальным приростом за последние 12 лет.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298642"
-        }
-      ],
-      "published_at": "2026-08-12T08:22:00+03:00"
-    },
-    {
-      "id": "anti-drone-systems-demand",
-      "headline": "Спрос коммерческих компаний на средства защиты от беспилотников вырос в 6,6 раза",
-      "context": "В первом полугодии бизнес закупил антидроновые системы на сумму 441,3 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298673"
-        }
-      ],
-      "published_at": "2026-08-12T09:46:00+03:00"
-    },
-    {
-      "id": "cyfron-director-arrested",
-      "headline": "В Москве арестовали генерального директора крупного поставщика иностранных микросхем Цифрон",
-      "context": "Игоря Винюкова обвиняют в неуплате налогов почти на 150 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/298866"
-        }
-      ],
-      "published_at": "2026-08-12T18:21:00+03:00"
+      "published_at": "2026-08-13T08:28:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -355,6 +359,6 @@
     "kind": "premarket",
     "title": "Сводка до открытия",
     "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
-    "last_trading_day": "2026-08-12"
+    "last_trading_day": "2026-08-13"
   }
 }
