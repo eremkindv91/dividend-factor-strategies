@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-15",
-  "generated_at": "2026-08-15T10:48:23+03:00",
+  "date": "2026-08-16",
+  "generated_at": "2026-08-16T17:44:29+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы и Hang Seng закрылись снижением, Nikkei вырос, цены на Brent и золото повысились.",
+  "external_backdrop": "Американские индексы и Hang Seng снизились, Nikkei 225 вырос, цены на Brent и золото укрепились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -41,8 +41,8 @@
     },
     {
       "name": "Золото",
-      "value": "4380.40",
-      "change_pct": "+0.38%",
+      "value": "4437.30",
+      "change_pct": "+1.69%",
       "as_of": "2026-08-14",
       "group": "commodity"
     },
@@ -77,9 +77,39 @@
   ],
   "overnight": [
     {
+      "id": "wildberries-warehouse-fire-podolsk",
+      "headline": "В подмосковном Подольске после атаки беспилотника загорелся склад Wildberries",
+      "context": "Возгорание произошло на логистическом объекте компании в Коледино площадью около 250 тысяч квадратных метров.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/361835"
+        }
+      ],
+      "published_at": "2026-08-16T08:54:00+03:00"
+    },
+    {
+      "id": "massive-drone-attack-russia",
+      "headline": "Московский регион и ряд областей России подверглись массированной атаке беспилотников",
+      "context": "С вечера субботы в сторону Московского региона летели 600 беспилотников, из которых 201 был уничтожен силами ПВО.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890592"
+        }
+      ],
+      "published_at": "2026-08-16T06:52:00+03:00"
+    },
+    {
       "id": "ozon-apps-removed-google-play",
-      "headline": "Google Play удалил приложения маркетплейса Ozon и его сервисов Ozon Fresh и Ozon Seller",
-      "context": "Компания подтвердила удаление, заявив, что не нарушала правила платформы, а сервисы остаются доступными в App Store.",
+      "headline": "Приложения маркетплейса Ozon удалены из магазина Google Play",
+      "context": "Компания подтвердила удаление приложений Ozon, Ozon fresh и Ozon Travel, заявив, что не нарушала правил платформы.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -92,54 +122,54 @@
       "published_at": "2026-08-15T00:25:00+03:00"
     },
     {
-      "id": "cb-crypto-broker-capital",
-      "headline": "Банк России предложил включить цифровые валюты в расчет собственных средств профессиональных участников",
-      "context": "Доля криптовалют, допущенных к торгам в России, не должна будет превышать 25% активов брокеров и управляющих компаний.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299601"
-        }
-      ],
-      "published_at": "2026-08-14T19:55:00+03:00"
-    },
-    {
-      "id": "mass-drone-attack-regions",
-      "headline": "Российские силы противовоздушной обороны уничтожили пятьсот девяносто восемь беспилотников за ночь",
-      "context": "Атаки зафиксированы над двадцатью регионами страны, а также над акваториями Азовского и Черного морей.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890406"
-        }
-      ],
-      "published_at": "2026-08-15T08:33:00+03:00"
-    },
-    {
-      "id": "kaluga-fuel-rationing",
-      "headline": "В Калужской области ввели систему заправки чет-нечет на автозаправочных станциях",
-      "context": "Решение принято на фоне осложнения ситуации с поставками топлива в некоторых регионах России.",
+      "id": "july-new-build-sales-drop",
+      "headline": "Продажи новостроек в России в июле сократились на семь целых шесть десятых процента",
+      "context": "В городах-миллионниках падение показателя составило девять целых шесть десятых процента по сравнению с прошлым годом.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/economics/14/08/2026/6a7f41019a79471328ece771"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890759"
         }
       ],
-      "published_at": "2026-08-15T09:20:00+03:00"
+      "published_at": "2026-08-16T15:53:00+03:00"
+    },
+    {
+      "id": "kazakhstan-halts-druzhba-oil",
+      "headline": "Казахстан приостановил поставки нефти в Германию по трубопроводу Дружба",
+      "context": "Минэнерго республики заявило о готовности возобновить прокачку при достижении договоренностей и устранении технических барьеров.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890618"
+        }
+      ],
+      "published_at": "2026-08-16T08:52:00+03:00"
+    },
+    {
+      "id": "adnoc-vessel-attacked-hormuz",
+      "headline": "Судно эмиратской компании ADNOC подверглось атаке в Ормузском проливе",
+      "context": "Трафик судов в проливе сократился до трех единиц в сутки на фоне обострения конфликта между США и Ираном.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1109486"
+        }
+      ],
+      "published_at": "2026-08-15T10:34:00+03:00"
     },
     {
       "id": "swissquote-closes-russian-accounts",
-      "headline": "Швейцарский банк Swissquote начал рассылать уведомления о закрытии счетов проживающим в стране россиянам",
-      "context": "Решение затрагивает около шестисот клиентов и объясняется высокими экономическими затратами на комплаенс-мониторинг.",
+      "headline": "Швейцарский банк Swissquote начал предупреждать проживающих в стране россиян о закрытии счетов",
+      "context": "Уведомления также рассылает дочерний банк Yuh на фоне санкционных ограничений.",
       "category": "banks",
       "investment_relevant": false,
       "importance": 4,
@@ -161,214 +191,18 @@
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1109437"
+          "url": "https://t.me/interfax_news/361693"
         }
       ],
       "published_at": "2026-08-15T01:19:00+03:00"
-    },
-    {
-      "id": "trump-hormuz-strait-claims",
-      "headline": "Дональд Трамп пообещал объявить Ормузский пролив американской территорией после победы над Ираном",
-      "context": "Заявление прозвучало на фоне практически полной остановки транзита судов через пролив из-за продолжающегося конфликта.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890132"
-        }
-      ],
-      "published_at": "2026-08-14T23:37:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default",
-      "headline": "Компания Евротранс допустила технический дефолт по выплате десятого купона облигаций",
-      "context": "Сумма невыплаченного купонного дохода по выпуску БО-001Р-08 составила 77,57 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1340353.php"
-        }
-      ],
-      "published_at": "2026-08-14T19:56:00+03:00"
     }
   ],
-  "yesterday": [
-    {
-      "id": "russian-stock-market-crash",
-      "headline": "Индекс Мосбиржи закрыл торги в пятницу падением на четыре процента",
-      "context": "Снижение до уровня 2136,35 пункта стало самым сильным дневным падением рынка акций с сентября 2022 года.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890098"
-        }
-      ],
-      "published_at": "2026-08-14T18:50:00+03:00"
-    },
-    {
-      "id": "raspadskaya-skips-dividend",
-      "headline": "Совет директоров Распадской рекомендовал не выплачивать дивиденды по итогам первого полугодия",
-      "context": "Решение объясняется финансовыми результатами, рыночной конъюнктурой и санкционным давлением.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8879359"
-        }
-      ],
-      "published_at": "2026-08-14T11:44:00+03:00"
-    },
-    {
-      "id": "moscow-exchange-extends-trading",
-      "headline": "Московская биржа с четырнадцатого сентября расширяет время проведения основной торговой сессии",
-      "context": "Торги на фондовом, срочном и валютном рынках будут начинаться на час раньше — с девяти утра.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8879345"
-        }
-      ],
-      "published_at": "2026-08-14T10:56:00+03:00"
-    },
-    {
-      "id": "sovcombank-earnings-growth",
-      "headline": "Чистая прибыль Совкомбанка по МСФО за первое полугодие выросла в два с половиной раза",
-      "context": "Показатель достиг 45,3 млрд рублей на фоне восстановления чистой процентной маржи до 7,2%.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/14/1221113-pribil-sovkombanka"
-        }
-      ],
-      "published_at": "2026-08-14T10:24:00+03:00"
-    },
-    {
-      "id": "headhunter-dividend-recommendation",
-      "headline": "Совет директоров Хэдхантера рекомендовал дивиденды в размере двухсот рублей на акцию",
-      "context": "На выплаты по итогам первого полугодия планируется направить около 116% скорректированной чистой прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8879249"
-        }
-      ],
-      "published_at": "2026-08-14T09:16:00+03:00"
-    },
-    {
-      "id": "novorossiysk-oil-terminal-suspended",
-      "headline": "Нефтяной терминал Шесхарис в Новороссийске приостановил погрузку нефти после атаки беспилотников",
-      "context": "Приостановка экспорта произошла в пятницу на фоне участившихся ударов по черноморской инфраструктуре.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1340287.php"
-        }
-      ],
-      "published_at": "2026-08-14T17:24:00+03:00"
-    },
-    {
-      "id": "baltic-leasing-bond-selloff",
-      "headline": "Держатели облигаций Балтийского лизинга начали распродажу бумаг из-за блокировки счетов материнской компании",
-      "context": "Распродажа произошла накануне налоговой блокировки счетов Контрол лизинга.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299396"
-        }
-      ],
-      "published_at": "2026-08-14T17:15:00+03:00"
-    },
-    {
-      "id": "russia-current-account-surplus",
-      "headline": "Профицит текущего счета платежного баланса России в первом полугодии вырос в один и семь десятых раза",
-      "context": "Показатель увеличился до 34,1 млрд долларов вслед за ростом стоимостных объемов экспорта товаров.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1109372"
-        }
-      ],
-      "published_at": "2026-08-14T16:34:00+03:00"
-    },
-    {
-      "id": "banking-liquidity-deficit",
-      "headline": "Структурный дефицит ликвидности российского банковского сектора вырос до двух триллионов рублей",
-      "context": "По данным Банка России на тринадцатое августа, показатель достиг рекордного значения с марта 2022 года.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8889830"
-        }
-      ],
-      "published_at": "2026-08-14T14:22:00+03:00"
-    },
-    {
-      "id": "inter-rao-earnings-decline",
-      "headline": "Чистая прибыль Интер РАО по МСФО в первом полугодии снизилась на семнадцать процентов",
-      "context": "Показатель составил 68,7 млрд рублей на фоне сокращения производства электроэнергии на 5%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1109291"
-        }
-      ],
-      "published_at": "2026-08-14T11:29:00+03:00"
-    },
-    {
-      "id": "novatek-ust-luga-damaged",
-      "headline": "Комплекс Новатэка в порту Усть-Луга получил повреждения в результате атаки беспилотников",
-      "context": "Степень повреждения комплекса по фракционированию газоконденсата уточняется, экспортная перевалка нефти не нарушена.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/14/1221086-povrezhdenie-raione"
-        }
-      ],
-      "published_at": "2026-08-14T06:18:00+03:00"
-    }
-  ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "week_ahead",
+    "title": "К новой неделе",
+    "context": "в воскресенье, накануне открытия недели",
     "last_trading_day": "2026-08-14"
   }
 }
