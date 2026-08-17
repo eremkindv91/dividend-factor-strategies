@@ -87,6 +87,69 @@ console.log(JSON.stringify(new Date(timestamp * 1000).toISOString()));
     assert result == "2026-08-07T07:00:00.000Z"
 
 
+def _current_session_helpers(source: str) -> str:
+    return "\n".join([
+        "const isNum = (value) => typeof value === 'number' && Number.isFinite(value);",
+        _function(source, "stockIntradayToDailyRow"),
+        _function(source, "mergeStockDailyWithIntraday"),
+    ])
+
+
+def test_stock_current_session_is_aggregated_from_real_intraday_candles():
+    source = _source()
+    result = _node(f"""
+{_current_session_helpers(source)}
+const intraday = [
+  [1, 270, 273, 269, 272, 100, 1000, null, '2026-08-17 10:00:00'],
+  [2, 272, 275, 271, 274, 150, 2500, null, '2026-08-17 10:10:00'],
+];
+console.log(JSON.stringify(stockIntradayToDailyRow(intraday)));
+""")
+
+    assert result == ["2026-08-17", 270, 275, 269, 274, 250, 3500,
+                      None, "2026-08-17", "current_session"]
+
+
+def test_stock_current_session_merge_is_stable_and_never_replaces_official_daily():
+    source = _source()
+    result = _node(f"""
+{_current_session_helpers(source)}
+const official = [['2026-08-14', 260, 265, 258, 264, 10, 20, 30]];
+const intraday = [[1, 270, 275, 269, 274, 100, 1000, null, '2026-08-17 10:00:00']];
+const appended = mergeStockDailyWithIntraday(official, intraday);
+const finalized = mergeStockDailyWithIntraday(
+  [['2026-08-17', 268, 276, 267, 275, 200, 3000, 40]], intraday
+);
+const refreshed = mergeStockDailyWithIntraday(appended.rows,
+  [[2, 270, 277, 268, 276, 120, 1500, null, '2026-08-17 10:10:00']]);
+console.log(JSON.stringify({{
+  source: official,
+  appended,
+  finalized,
+  refreshed,
+}}));
+""")
+
+    assert result["source"] == [["2026-08-14", 260, 265, 258, 264, 10, 20, 30]]
+    assert result["appended"]["currentSessionDate"] == "2026-08-17"
+    assert len(result["appended"]["rows"]) == 2
+    assert result["finalized"]["currentSessionDate"] is None
+    assert len(result["finalized"]["rows"]) == 1
+    assert result["refreshed"]["rows"][-1][4] == 276
+    assert result["refreshed"]["rows"][-1][6] == 1500
+
+
+def test_daily_stock_chart_revalidates_current_session_without_browser_cache():
+    source = _source()
+    fetcher = _function(source, "fetchMoexIntradayCandles")
+    wire = _function(source, "wireStockChart")
+
+    assert "cache: 'no-store'" in fetcher
+    assert "refreshCurrentSession" in wire
+    assert "5 * 60 * 1000" in wire
+    assert "current_session" in _function(source, "stockOhlcReadout")
+
+
 def test_index_dialog_has_one_day_and_one_month_controls():
     html = HTML.read_text(encoding="utf-8")
 
@@ -102,6 +165,8 @@ def test_intraday_market_support_is_explicit_and_mcftr_is_not_faked():
     assert "RTSI:" in spec
     assert "MCFTR:" not in spec
     assert "!MARKET_INTRADAY_SPEC[item.id]" in _function(source, "renderMarketChartDialog")
+    assert "MCFTR может выходить позже ценового IMOEX" in source
+    assert "ряд не достраивается искусственно" in source
 
 
 def test_shared_collector_selects_latest_session_and_official_candles():
@@ -243,6 +308,35 @@ console.log(JSON.stringify(scFutoiDomain(visible)));
 """)
 
     assert result == {"min": -120, "max": 340}
+
+
+def test_futoi_draws_fresh_delayed_and_truthful_last_good_states():
+    source = _source()
+    drawable = _function(source, "futoiDrawable")
+    result = _node(f"""
+{drawable}
+const row = (status) => ({{ status, dates: ['2026-08-10'], net: [20] }});
+console.log(JSON.stringify({{
+  fresh: futoiDrawable(row('fresh')),
+  delayed: futoiDrawable(row('delayed_by_exchange')),
+  stale: futoiDrawable(row('stale')),
+  unavailable: futoiDrawable(row('unavailable')),
+}}));
+""")
+
+    assert result == {"fresh": True, "delayed": True, "stale": True, "unavailable": False}
+
+
+def test_futoi_uses_one_authoritative_observation_date_and_revalidates_cache():
+    source = _source()
+    note = _function(source, "scFutoiNoteHTML")
+    loader = _function(source, "loadFutoi")
+    market = _function(source, "marketDrawPositions")
+
+    assert "row.latest_observation_date || s.as_of" in note
+    assert "futoiFreshnessText(row)" in note
+    assert "cache: 'no-store'" in loader
+    assert "insightLatest !== rowLatest" in market, "old commentary must not replace a newer series"
 
 
 def test_futoi_does_not_fill_the_start_from_a_future_observation():

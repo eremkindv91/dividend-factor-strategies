@@ -405,7 +405,7 @@ def build(now: datetime | None = None) -> dict | None:
     now = now or datetime.now(timezone.utc)
     positions = load(POSITIONS)
     index = ((positions or {}).get("indices") or {}).get(INSTRUMENT) or {}
-    if index.get("status") != "ok":
+    if index.get("status") not in {"ok", "fresh", "delayed_by_exchange", "stale"}:
         log("ряд позиций по индексу недоступен — артефакт не пересобираем")
         return None
     summary = index["summary"]
@@ -507,6 +507,7 @@ def build(now: datetime | None = None) -> dict | None:
             "as_of": as_of,
             "position_as_of": position.get("as_of", summary["as_of"]),
             "position_latest": summary["as_of"], "price_as_of": price_as_of,
+            "position_freshness": index.get("status"),
             "engine_version": ENGINE_VERSION, "prompt_version": PROMPT_VERSION,
             "source": "MOEX ISS openpositions + market_history.json",
             "input_hash": input_hash, "llm_cache_key": llm_cache_key,
