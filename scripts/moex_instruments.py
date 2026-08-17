@@ -97,7 +97,7 @@ def classify(iss_type: str, iss_group: str) -> str:
     return "other"
 
 
-def describe(secid: str, use_cache: bool = True) -> dict:
+def describe(secid: str, use_cache: bool = True, allow_stale_cache: bool = False) -> dict:
     """Discovery одного инструмента. Ничего не выдумывает: чего нет в ISS — None.
 
     Возвращает:
@@ -110,7 +110,7 @@ def describe(secid: str, use_cache: bool = True) -> dict:
 
     cache = _load_cache() if use_cache else {}
     hit = cache.get(key)
-    if hit and (time.time() - hit.get("_cached_at", 0)) < CACHE_TTL_SEC:
+    if hit and (allow_stale_cache or (time.time() - hit.get("_cached_at", 0)) < CACHE_TTL_SEC):
         return {k: v for k, v in hit.items() if k != "_cached_at"}
 
     try:
@@ -174,10 +174,19 @@ def describe(secid: str, use_cache: bool = True) -> dict:
     return result
 
 
-def describe_many(secids: list[str], use_cache: bool = True, pause: float = 0.12) -> dict:
+def describe_many(
+    secids: list[str],
+    use_cache: bool = True,
+    pause: float = 0.12,
+    allow_stale_cache: bool = False,
+) -> dict:
     out = {}
     for i, tk in enumerate(secids):
-        out[str(tk).upper()] = describe(tk, use_cache=use_cache)
+        out[str(tk).upper()] = describe(
+            tk,
+            use_cache=use_cache,
+            allow_stale_cache=allow_stale_cache,
+        )
         if i + 1 < len(secids):
             time.sleep(pause)
     return out
