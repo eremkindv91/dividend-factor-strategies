@@ -150,6 +150,18 @@ def test_daily_stock_chart_revalidates_current_session_without_browser_cache():
     assert "current_session" in _function(source, "stockOhlcReadout")
 
 
+def test_stock_moex_requests_have_bounded_transient_retry():
+    source = _source()
+    for name in ["fetchStockOHLC", "fetchMoexIntradayCandles"]:
+        function = _function(source, name)
+        assert "attempt = 0" in function
+        assert "attempt < 1" in function
+        assert "step(start, attempt + 1)" in function
+        assert "750" in function
+        assert "18000" in function
+        assert "cache: 'no-store'" in function
+
+
 def test_index_dialog_has_one_day_and_one_month_controls():
     html = HTML.read_text(encoding="utf-8")
 

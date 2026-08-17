@@ -4759,9 +4759,9 @@ function fetchMoexIntradayCandles(spec, cb) {
     const last = rows.length ? String(rows[rows.length - 1][8]).slice(0, 10) : '';
     cb(null, last ? rows.filter((row) => String(row[8]).slice(0, 10) === last) : []);
   };
-  const step = (start) => {
+  const step = (start, attempt = 0) => {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const timer = setTimeout(() => ctrl.abort(), 18000);
     fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
       .then((json) => {
@@ -4778,10 +4778,17 @@ function fetchMoexIntradayCandles(spec, cb) {
           rows.push([time, source[iOpen], source[iHigh], source[iLow], source[iClose],
             source[iVolume], source[iValue], null, source[iBegin]]);
         });
-        if (data.length >= 500 && rows.length < 4000) step(start + data.length);
+        if (data.length >= 500 && rows.length < 4000) step(start + data.length, 0);
         else finish();
       })
-      .catch((error) => { clearTimeout(timer); cb(error, []); });
+      .catch((error) => {
+        clearTimeout(timer);
+        if (attempt < 1) {
+          setTimeout(() => step(start, attempt + 1), 750);
+          return;
+        }
+        cb(error, []);
+      });
   };
   step(0);
 }
@@ -10431,19 +10438,26 @@ function fetchStockOHLC(ticker, fromDate, cb) {
   const cols = 'TRADEDATE,OPEN,HIGH,LOW,CLOSE,VOLUME,VALUE,NUMTRADES';
   const base = `https://iss.moex.com/iss/history/engines/stock/markets/shares/boards/TQBR/securities/${encodeURIComponent(ticker)}.json`
     + `?iss.only=history&iss.meta=off&history.columns=${cols}&from=${fromDate}`;
-  const step = (start) => {
+  const step = (start, attempt = 0) => {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const timer = setTimeout(() => ctrl.abort(), 18000);
     fetch(`${base}&start=${start}`, { signal: ctrl.signal, cache: 'no-store' })
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((j) => {
         clearTimeout(timer);
         const data = (j.history && j.history.data) || [];
         data.forEach((d) => { if (isNum(d[4])) rows.push(d); });
-        if (data.length >= 100 && rows.length < 4000) step(start + data.length);
+        if (data.length >= 100 && rows.length < 4000) step(start + data.length, 0);
         else cb(null, rows);
       })
-      .catch((e) => { clearTimeout(timer); cb(e, rows); });
+      .catch((error) => {
+        clearTimeout(timer);
+        if (attempt < 1) {
+          setTimeout(() => step(start, attempt + 1), 750);
+          return;
+        }
+        cb(error, rows);
+      });
   };
   step(0);
 }
