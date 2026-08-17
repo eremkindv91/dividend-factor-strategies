@@ -1,101 +1,160 @@
 {
   "date": "2026-08-17",
-  "generated_at": "2026-08-17T08:22:22+03:00",
+  "generated_at": "2026-08-17T18:36:16+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские рынки растут на торгах в понедельник, в то время как индексы США закрылись снижением в пятницу.",
+  "external_backdrop": "Американские индексы закрылись разнонаправленно, азиатские рынки и сырьевые товары, включая нефть Brent и золото, демонстрируют рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7785.76",
+      "value": "7772.55",
       "change_pct": "-0.17%",
-      "as_of": "закрытие 14.08",
+      "as_of": "2026-08-17",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26729.16",
-      "change_pct": "-0.28%",
-      "as_of": "закрытие 14.08",
+      "value": "26753.19",
+      "change_pct": "+0.09%",
+      "as_of": "2026-08-17",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "68922.30",
-      "change_pct": "+0.30%",
-      "as_of": "17.08",
+      "value": "68713.80",
+      "change_pct": "+0.59%",
+      "as_of": "2026-08-14",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25517.08",
-      "change_pct": "+1.59%",
-      "as_of": "17.08",
+      "value": "25453.23",
+      "change_pct": "+1.34%",
+      "as_of": "2026-08-17",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.56",
-      "change_pct": "+0.05%",
-      "as_of": "17.08",
+      "value": "89.03",
+      "change_pct": "+0.58%",
+      "as_of": "2026-08-17",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4447.30",
-      "change_pct": "+1.53%",
-      "as_of": "17.08",
+      "value": "4478.50",
+      "change_pct": "+2.24%",
+      "as_of": "2026-08-17",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2136.35",
-      "change_pct": "-4.29%",
-      "as_of": "14.08",
+      "value": "2090.38",
+      "change_pct": "-2.15%",
+      "as_of": "2026-08-17 18:36:12",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "796.02",
-      "change_pct": "-5.13%",
-      "as_of": "14.08",
+      "value": "774.59",
+      "change_pct": "-2.69%",
+      "as_of": "2026-08-17 18:36:13",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "85.30",
+      "change_pct": "-0.11%",
+      "as_of": "2026-08-17 18:36:14",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.61",
+      "change_pct": "+0.01%",
+      "as_of": "2026-08-17 18:36:15",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "bond-defaults-losses-2026",
-      "headline": "Российские инвесторы потеряли около сорока пяти миллиардов рублей из-за дефолтов по облигациям",
-      "context": "По оценкам Московской биржи, потери зафиксированы с начала года в сегменте бумаг с рейтингом ниже BBB+.",
+      "id": "ugk-bts-most-offer",
+      "headline": "Компания БТС-Мост Холдинг выставила оферту миноритариям Южуралзолота по цене 0,7425 рубля за акцию",
+      "context": "На фоне этой новости акции ЮГК на Московской бирже продемонстрировали рост более чем на 3%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1340981.php"
+        }
+      ],
+      "published_at": "2026-08-17T18:10:00+03:00"
+    },
+    {
+      "id": "ru-bond-defaults-45b",
+      "headline": "Инвесторы потеряли около 45 миллиардов рублей из-за дефолтов по облигациям с начала 2026 года",
+      "context": "По оценкам Московской биржи, речь идет о бумагах с рейтингом ниже BBB+, не относящихся к инвестиционной категории.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "IF News",
-          "url": "https://t.me/if_market_news/84462"
+          "name": "IF-Market-News",
+          "url": "https://t.me/if_market_news/84463"
         }
       ],
       "published_at": "2026-08-17T07:33:00+03:00"
     },
     {
-      "id": "eu-sanctions-autumn-2026",
-      "headline": "Евросоюз готовит самый масштабный с две тысячи двадцать второго года пакет санкций против России",
-      "context": "Глава европейской дипломатии Кая Каллас заявила, что новые ограничения будут представлены осенью и могут увеличить число подсанкционных лиц на треть.",
-      "category": "geopolitics",
+      "id": "bspb-7m-2026-results",
+      "headline": "Чистая прибыль банка Санкт-Петербург по РСБУ за семь месяцев 2026 года снизилась на 38,3%",
+      "context": "Показатель составил 18 миллиардов рублей, при этом за июль банк заработал 1,4 миллиарда рублей.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a7aad8c9a79474f9f55af0f"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/381238"
         }
       ],
-      "published_at": "2026-08-17T05:10:00+03:00"
+      "published_at": "2026-08-17T09:20:00+03:00"
     },
     {
-      "id": "npz-repairs-fuel-shortage-september",
+      "id": "util-fee-budget-revenues",
+      "headline": "Поступления от утилизационного сбора в федеральный бюджет выросли на 40% с начала 2026 года",
+      "context": "Сумма сборов за семь с половиной месяцев достигла 309,2 миллиарда рублей, однако годовой план выполнен лишь на 20%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/299632"
+        }
+      ],
+      "published_at": "2026-08-17T08:56:00+03:00"
+    },
+    {
+      "id": "ru-banks-branches-reduction",
+      "headline": "Российские банки могут закрыть более 2000 отделений по итогам 2026 года",
+      "context": "С начала года кредитные организации уже ликвидировали около 1370 офисов для снижения расходов и перевода обслуживания в цифру.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/08/17/1221553-bolee-2000-otdelenii"
+        }
+      ],
+      "published_at": "2026-08-17T07:53:00+03:00"
+    },
+    {
+      "id": "npz-repairs-fuel-shortage",
       "headline": "Плановые ремонты на нефтеперерабатывающих заводах России и Белоруссии могут вызвать дефицит топлива в сентябре",
-      "context": "Источники сообщают, что ограничения коснутся крупных российских предприятий и белорусского Новополоцкого НПЗ.",
+      "context": "Снижение поставок может негативно сказаться на независимых АЗС, особенно в Поволжье.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 4,
@@ -108,87 +167,42 @@
       "published_at": "2026-08-17T01:58:00+03:00"
     },
     {
-      "id": "nestle-temporary-management-request",
-      "headline": "В российских структурах компании Nestle могут ввести временное управление по обращению логистического оператора",
-      "context": "Компания «КС Логистика» обратилась к президенту Владимиру Путину с просьбой рассмотреть такую возможность для пяти юридических лиц.",
-      "category": "corporate",
+      "id": "fast-securities-transfer-depository",
+      "headline": "Сервис быстрого перевода ценных бумаг между депозитариями планируется запустить с 1 сентября 2026 года",
+      "context": "Технология позволит инвесторам переводить активы без потери налоговых льгот, что усилит конкуренцию среди брокеров.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890881"
+          "name": "IF-Market-News",
+          "url": "https://t.me/if_market_news/84460"
         }
       ],
-      "published_at": "2026-08-17T01:17:00+03:00"
+      "published_at": "2026-08-17T00:28:00+03:00"
     },
     {
-      "id": "moex-crypto-futures-september",
-      "headline": "Московская биржа планирует запустить вечные фьючерсы на биткоин и эфириум в сентябре",
-      "context": "Об этом сообщила управляющий директор рынка деривативов торговой площадки Мария Патрикеева.",
+      "id": "moex-perpetual-futures-crypto",
+      "headline": "Московская биржа планирует запустить вечные фьючерсы на Bitcoin и Ethereum в сентябре 2026 года",
+      "context": "Об этом сообщила управляющий директор рынка деривативов площадки Мария Патрикеева.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/361892"
+          "url": "https://www.interfax.ru/russia/1109637"
         }
       ],
       "published_at": "2026-08-17T00:14:00+03:00"
-    },
-    {
-      "id": "moex-insider-trading-cases",
-      "headline": "Московская биржа выявила восемьдесят один случай возможной инсайдерской торговли в первом полугодии",
-      "context": "При этом Банк России подтверждает факты нарушений и возбуждает дела лишь в пяти процентах случаев.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "IF News",
-          "url": "https://t.me/if_market_news/84459"
-        }
-      ],
-      "published_at": "2026-08-17T00:10:00+03:00"
-    },
-    {
-      "id": "secret-oil-exports-hormuz",
-      "headline": "Ближневосточные экспортеры наладили тайный вывоз нефти через Ормузский пролив с отключенными транспондерами",
-      "context": "По данным источников Bloomberg, скрытная схема транспортировки позволяет удерживать мировые котировки Brent в диапазоне 80–90 долларов.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890863"
-        }
-      ],
-      "published_at": "2026-08-16T23:34:00+03:00"
-    },
-    {
-      "id": "x5-group-q2-2026-results",
-      "headline": "Компания X5 Group опубликовала финансовые результаты за второй квартал две тысячи двадцать шестого года",
-      "context": "Выручка ритейлера выросла на 9,9% до 1,29 трлн рублей, однако чистая прибыль снизилась на 28,9%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Mozgovik Research",
-          "url": "https://t.me/mozgovikresearch/3804"
-        }
-      ],
-      "published_at": "2026-08-16T15:54:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "premarket",
-    "title": "Сводка до открытия",
-    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-08-14"
   }
 }
