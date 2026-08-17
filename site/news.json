@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-16",
-  "generated_at": "2026-08-16T17:44:29+03:00",
+  "date": "2026-08-17",
+  "generated_at": "2026-08-17T06:31:23+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы и Hang Seng снизились, Nikkei 225 вырос, цены на Brent и золото укрепились.",
+  "external_backdrop": "Азиатские индексы преимущественно растут, нефть марки Brent и золото дорожают.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,30 +20,30 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "68713.80",
-      "change_pct": "+0.59%",
-      "as_of": "2026-08-14",
+      "value": "68721.44",
+      "change_pct": "+0.01%",
+      "as_of": "2026-08-17",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25116.85",
-      "change_pct": "-1.10%",
-      "as_of": "2026-08-14",
+      "value": "25521.17",
+      "change_pct": "+1.61%",
+      "as_of": "2026-08-17",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.52",
-      "change_pct": "+1.67%",
-      "as_of": "2026-08-14",
+      "value": "88.85",
+      "change_pct": "+0.37%",
+      "as_of": "2026-08-17",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4437.30",
-      "change_pct": "+1.69%",
-      "as_of": "2026-08-14",
+      "value": "4447.00",
+      "change_pct": "+1.52%",
+      "as_of": "2026-08-17",
       "group": "commodity"
     },
     {
@@ -59,150 +59,136 @@
       "change_pct": "-5.13%",
       "as_of": "2026-08-14 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "84.69",
-      "change_pct": "+0.58%",
-      "as_of": "2026-08-14 23:54:58",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.54",
-      "change_pct": "+0.67%",
-      "as_of": "2026-08-14 23:50:02",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "wildberries-warehouse-fire-podolsk",
-      "headline": "В подмосковном Подольске после атаки беспилотника загорелся склад Wildberries",
-      "context": "Возгорание произошло на логистическом объекте компании в Коледино площадью около 250 тысяч квадратных метров.",
-      "category": "corporate",
-      "investment_relevant": false,
+      "id": "moex-crypto-futures",
+      "headline": "Московская биржа в сентябре запустит торги вечными фьючерсами на Bitcoin и Ethereum",
+      "context": "Площадка также работает над расширением линейки вечных контрактов на инструменты фондового рынка США.",
+      "category": "markets",
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/361835"
+          "name": "@interfax_news",
+          "url": "https://t.me/interfax_news/361892"
         }
       ],
-      "published_at": "2026-08-16T08:54:00+03:00"
+      "published_at": "2026-08-17T00:14:00+03:00"
     },
     {
-      "id": "massive-drone-attack-russia",
-      "headline": "Московский регион и ряд областей России подверглись массированной атаке беспилотников",
-      "context": "С вечера субботы в сторону Московского региона летели 600 беспилотников, из которых 201 был уничтожен силами ПВО.",
+      "id": "moex-bond-defaults",
+      "headline": "Московская биржа оценила ущерб инвесторов от дефолтов по облигациям в 45 миллиардов рублей",
+      "context": "Количество дефолтов и технических дефолтов на российском долговом рынке продолжает увеличиваться с начала года.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/17/08/2026/6a7f17219a79474f4d48c66b"
+        }
+      ],
+      "published_at": "2026-08-17T00:00:00+03:00"
+    },
+    {
+      "id": "drone-attacks-warehouses",
+      "headline": "Массированная атака беспилотников привела к пожарам на крупных логистических складах в Подмосковье",
+      "context": "Пострадали распределительный центр Wildberries в Подольске и склад фармацевтической компании в Домодедово.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890592"
+          "url": "https://www.kommersant.ru/doc/8890623"
         }
       ],
-      "published_at": "2026-08-16T06:52:00+03:00"
+      "published_at": "2026-08-16T09:10:00+03:00"
     },
     {
-      "id": "ozon-apps-removed-google-play",
-      "headline": "Приложения маркетплейса Ozon удалены из магазина Google Play",
-      "context": "Компания подтвердила удаление приложений Ozon, Ozon fresh и Ozon Travel, заявив, что не нарушала правил платформы.",
+      "id": "moex-videogame-ipo",
+      "headline": "Московская биржа планирует привлечь российских разработчиков видеоигр к проведению первичных размещений акций",
+      "context": "Торговая площадка уже сотрудничает с профильной ассоциацией для содействия компаниям в привлечении финансирования.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/08/15/1221325-ozon-podtverdil-udalenie"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890903"
         }
       ],
-      "published_at": "2026-08-15T00:25:00+03:00"
+      "published_at": "2026-08-17T06:29:00+03:00"
     },
     {
-      "id": "july-new-build-sales-drop",
-      "headline": "Продажи новостроек в России в июле сократились на семь целых шесть десятых процента",
-      "context": "В городах-миллионниках падение показателя составило девять целых шесть десятых процента по сравнению с прошлым годом.",
+      "id": "eu-sanctions-fall",
+      "headline": "Евросоюз готовит самый масштабный с 2022 года пакет санкций против России",
+      "context": "Глава дипломатии ЕС Кая Каллас заявила о планах увеличить число подсанкционных лиц на треть этой осенью.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890898"
+        }
+      ],
+      "published_at": "2026-08-17T06:08:00+03:00"
+    },
+    {
+      "id": "minselkhoz-grain-interventions",
+      "headline": "Министерство сельского хозяйства предложило провести закупочные интервенции для поддержки пострадавших аграриев",
+      "context": "Меры поддержки обсуждаются на фоне ограничений экспорта зерна и включают пролонгацию льготных кредитов.",
       "category": "macro",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890759"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/12/08/2026/6a7c43a29a794789375136d4"
         }
       ],
-      "published_at": "2026-08-16T15:53:00+03:00"
+      "published_at": "2026-08-17T06:00:00+03:00"
     },
     {
-      "id": "kazakhstan-halts-druzhba-oil",
-      "headline": "Казахстан приостановил поставки нефти в Германию по трубопроводу Дружба",
-      "context": "Минэнерго республики заявило о готовности возобновить прокачку при достижении договоренностей и устранении технических барьеров.",
+      "id": "moex-spac-placement",
+      "headline": "Московская биржа подготовила инфраструктуру для первого размещения SPAC-компании без прохождения листинга",
+      "context": "Название компании пока не раскрывается, но площадка подтвердила техническую готовность к проведению сделки.",
       "category": "markets",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890618"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/17/08/2026/6a7ed27b9a79470293f3ae5a"
         }
       ],
-      "published_at": "2026-08-16T08:52:00+03:00"
+      "published_at": "2026-08-17T00:00:00+03:00"
     },
     {
-      "id": "adnoc-vessel-attacked-hormuz",
-      "headline": "Судно эмиратской компании ADNOC подверглось атаке в Ормузском проливе",
-      "context": "Трафик судов в проливе сократился до трех единиц в сутки на фоне обострения конфликта между США и Ираном.",
-      "category": "markets",
-      "investment_relevant": false,
+      "id": "x5-q2-results",
+      "headline": "Компания X5 Retail Group опубликовала финансовые результаты за второй квартал 2026 года",
+      "context": "Выручка ритейлера выросла на 9,9%, однако чистая прибыль снизилась на 28,9%.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1109486"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3804"
         }
       ],
-      "published_at": "2026-08-15T10:34:00+03:00"
-    },
-    {
-      "id": "swissquote-closes-russian-accounts",
-      "headline": "Швейцарский банк Swissquote начал предупреждать проживающих в стране россиян о закрытии счетов",
-      "context": "Уведомления также рассылает дочерний банк Yuh на фоне санкционных ограничений.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8890376"
-        }
-      ],
-      "published_at": "2026-08-15T01:35:00+03:00"
-    },
-    {
-      "id": "crypto-mining-ban-moscow",
-      "headline": "В Москве и Московской области вступил в силу запрет на майнинг криптовалют",
-      "context": "Ограничения, распространяющиеся также на отдельные территории Курской области, будут действовать до конца 2032 года.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/361693"
-        }
-      ],
-      "published_at": "2026-08-15T01:19:00+03:00"
+      "published_at": "2026-08-16T15:54:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
     "last_trading_day": "2026-08-14"
   }
 }
