@@ -1,14 +1,12 @@
-name: update futures positions (позиции физлиц во фьючерсах, MOEX ISS)
+name: manual futures positions diagnostic (MOEX ISS)
 
-# Собирает открытые позиции физических лиц во фьючерсах на акции и индекс МосБиржи
-# и обновляет site/futures_positions.json.
+# Ручной recovery/diagnostic запуск. Штатное обновление встроено в update.yml, чтобы
+# позиции публиковались вместе с остальными ежедневными данными сайта.
 # Источник — MOEX ISS openpositions: предыдущий торговый день, без авторизации. Раньше
 # здесь стоял analyticalproducts/futoi с отсечкой в две недели; числа совпадают до единицы,
 # но лаг был в четырнадцать раз длиннее.
 # Пайплайн — чистый stdlib, pip install не требуется.
 on:
-  schedule:
-    - cron: "30 4 * * 1-5"   # 04:30 UTC ≈ 07:30 МСК, по будням: к утру доступен новый день
   workflow_dispatch:
 
 permissions:
@@ -29,7 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          # build_futures_positions.py — только stdlib (urllib + json)
+
+      - name: Установка test dependency
+        run: python -m pip install --quiet pytest
 
       - name: Тесты сборщика и интерпретатора (сеть не трогается)
         run: python -m pytest tests/test_build_futures_positions.py tests/test_positioning_interpretation.py -q
@@ -39,7 +39,7 @@ jobs:
         # Токен не нужен: openpositions отдаёт предыдущий торговый день без авторизации.
         # exit!=0 (источник недоступен или ни одного ряда) → коммита нет,
         # прошлая версия futures_positions.json на сайте остаётся
-        run: python scripts/build_futures_positions.py
+        run: python scripts/build_futures_positions.py --audit
 
       - name: Разбор позиционирования (правила + опциональный LLM-редактор)
         env:

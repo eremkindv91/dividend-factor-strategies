@@ -131,6 +131,13 @@ jobs:
         # Скрипт сохраняет last-good по каждому инструменту при частичном сбое ISS.
         run: python scripts/build_market_history.py || echo "[market-history] пропуск — сохранён предыдущий валидный файл"
 
+      - name: Позиции физлиц во фьючерсах (MOEX ISS, весь equity universe)
+        # Входит в основной daily pipeline: отдельный workflow оставлен только для ручной
+        # диагностики. Сбор инкрементальный, а ошибка одной бумаги не останавливает batch.
+        run: |
+          python scripts/build_futures_positions.py --audit
+          python scripts/build_positioning_interpretation.py || echo "[positioning] текст не обновлён — позиции уже сохранены"
+
       - name: Сборка marlamov.json (форвардная дивдоходность, 2 года + макро-режим)
         # читает site/data.json (создан шагом выше); сбой не блокирует деплой
         run: |

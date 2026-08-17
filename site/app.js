@@ -71,6 +71,10 @@ function invalidateStaleDataCaches() {
   if (typeof BVAL !== 'undefined') BVAL = null;
   if (typeof BHIST !== 'undefined') BHIST = null;
   if (typeof DATA_COVERAGE !== 'undefined') DATA_COVERAGE = null;
+  // Дневная история акции может быть загружена во время открытой сессии, когда
+  // официальный history ещё заканчивается предыдущим закрытием. Через общий TTL
+  // разрешаем карточке заново получить и history, и текущие intraday-свечи.
+  Object.keys(STOCK_OHLC_CACHE).forEach((key) => { delete STOCK_OHLC_CACHE[key]; });
   _dataCacheAt = Date.now();
   return true;
 }
@@ -5342,7 +5346,7 @@ function sawUIHTML(d) {
 
   return `
     <p class="saw-sub">Модель показывает, где сейчас находится рынок относительно последнего значимого минимума или максимума индекса <span class="saw-help" data-tooltip="${esc(TT_MCFTR)}">MCFTR ⓘ</span>.</p>
-    <div class="saw-fresh muted">Обновлено: ${esc((d.generated_at || '').replace('T', ' ').slice(0, 16))} · Последняя торговая дата MCFTR: <b>${esc(sawDate(d.data_last))}</b></div>
+    <div class="saw-fresh muted">Источник проверен: ${esc((d.generated_at || '').replace('T', ' ').slice(0, 16))} · Последний опубликованный MOEX-срез MCFTR: <b>${esc(sawDate(d.data_last))}</b>. MCFTR может выходить позже ценового IMOEX; ряд не достраивается искусственно.</div>
     ${stale}
 
     ${sawGaugeHTML(d)}
@@ -9664,7 +9668,7 @@ function marketDrawPositions(item) {
       return;
     }
     const row = ((SC_FUTOI.indices || {}).IMOEX) || null;
-    if (!row || row.status !== 'ok') {
+    if (!futoiDrawable(row)) {
       marketPositionsSay('<span class="muted">Ряд позиций по индексу сейчас недоступен.</span>');
       return;
     }
@@ -9693,6 +9697,9 @@ function marketDrawPositions(item) {
     // когда линия включена, поэтому не тянется вместе с остальным сайтом.
     loadMarketPositioningCommentary((insightErr) => {
       if (insightErr || !MARKET_INSIGHT) return;      // нет разбора — остаётся deterministic fallback
+      const insightLatest = ((MARKET_INSIGHT.meta || {}).position_latest || (MARKET_INSIGHT.meta || {}).as_of);
+      const rowLatest = row.latest_observation_date || ((row.summary || {}).as_of);
+      if (insightLatest && rowLatest && insightLatest !== rowLatest) return;
       const box = document.getElementById('market-pos-note');
       if (!box || !MARKET_POS_ROW) return;            // линию успели выключить
       box.innerHTML = marketPositioningInsightHTML(MARKET_INSIGHT, row, SC_FUTOI.meta || {});
@@ -10445,6 +10452,41 @@ function fetchStockIntradayOHLC(ticker, cb) {
   fetchMoexIntradayCandles({ engine: 'stock', market: 'shares', board: 'TQBR', secid: ticker }, cb);
 }
 
+// Текущая дневная свеча строится только из фактических 10-минутных свечей MOEX.
+// Это не оценка и не перенос последней цены: open/high/low/close, оборот и объём
+// агрегируются из одной и той же текущей торговой сессии.
+function stockIntradayToDailyRow(rows) {
+  const valid = (rows || []).filter((row) => row && isNum(row[1]) && isNum(row[2])
+    && isNum(row[3]) && isNum(row[4]) && /^\d{4}-\d{2}-\d{2}/.test(String(row[8] || '')));
+  if (!valid.length) return null;
+  const date = String(valid[valid.length - 1][8]).slice(0, 10);
+  const session = valid.filter((row) => String(row[8]).slice(0, 10) === date);
+  if (!session.length) return null;
+  const sum = (index) => {
+    const values = session.map((row) => row[index]).filter(isNum);
+    return values.length ? values.reduce((total, value) => total + value, 0) : null;
+  };
+  return [date, session[0][1], Math.max(...session.map((row) => row[2])),
+    Math.min(...session.map((row) => row[3])), session[session.length - 1][4],
+    sum(5), sum(6), null, date, 'current_session'];
+}
+
+function mergeStockDailyWithIntraday(dailyRows, intradayRows) {
+  const rows = (dailyRows || []).map((row) => row.slice());
+  const current = stockIntradayToDailyRow(intradayRows);
+  if (!current) return { rows, currentSessionDate: null };
+  const last = rows[rows.length - 1];
+  const lastDate = last ? String(last[0]).slice(0, 10) : '';
+  if (lastDate === current[0] && last[9] === 'current_session') {
+    rows[rows.length - 1] = current;
+    return { rows, currentSessionDate: current[0] };
+  }
+  // Финальная дневная свеча history имеет приоритет над intraday того же дня.
+  if (lastDate && current[0] <= lastDate) return { rows, currentSessionDate: null };
+  rows.push(current);
+  return { rows, currentSessionDate: current[0] };
+}
+
 // Денежные суммы: тыс/млн/млрд ₽. Отдельная функция, потому что одна и та же шкала
 // используется и в подписях оси объёма, и в tooltip, и в профиле — расхождение форматов
 // между ними читалось бы как расхождение данных.
@@ -10472,7 +10514,7 @@ function stockOhlcReadout(ticker, r) {
   // прочитать его как деньги.
   const turnover = isNum(r[6]) ? scMoney(r[6]) : null;
   const trades = isNum(r[7]) ? ru(r[7], 0) : null;
-  return `<span class="sc-date">${esc(moexRowLabel(r))}</span>
+  return `<span class="sc-date">${esc(moexRowLabel(r))}</span>${r[9] === 'current_session' ? '<span class="sc-session">текущая сессия</span>' : ''}
     <span>O ${n(r[1])}</span><span>H ${n(r[2])}</span><span>L ${n(r[3])}</span>
     <span class="${up ? 'sc-up' : 'sc-down'}">C ${n(r[4])}</span>
     ${turnover ? `<span class="sc-turn">Оборот ${turnover}</span>` : ''}
@@ -10484,6 +10526,7 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   const canvas = container.querySelector('.sc-canvas');
   const ohlc = container.querySelector('.sc-ohlc');
   const intraday = Boolean(options.intraday);
+  const currentSessionDate = options.currentSessionDate || null;
   if (!canvas) return;
   if (!window.LightweightCharts) { canvas.innerHTML = '<div class="sc-loading muted">График недоступен.</div>'; return; }
   // Освобождаем и график, и наблюдатель размера: иначе при смене акции подписки
@@ -10513,7 +10556,9 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   const foot = container.querySelector('.sc-foot');
   if (foot) foot.innerHTML = intraday
     ? '1Д — 10-минутные OHLC и денежный оборот последней торговой сессии MOEX ISS, режим TQBR. Не является индивидуальной инвестиционной рекомендацией.'
-    : 'Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR. Столбцы внизу — оборот в рублях (VALUE), а не количество бумаг. Не является индивидуальной инвестиционной рекомендацией.';
+    : `Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.${currentSessionDate
+      ? ` Последняя свеча за ${esc(sawDate(currentSessionDate))} собрана из официальных 10-минутных свечей и ещё может меняться до закрытия.`
+      : ''} Столбцы внизу — оборот в рублях (VALUE), а не количество бумаг. Не является индивидуальной инвестиционной рекомендацией.`;
   canvas.innerHTML = '';
   const LC = window.LightweightCharts;
   const chart = LC.createChart(canvas, {
@@ -10640,10 +10685,25 @@ let SC_FUTOI = null;               // весь файл; грузится лен
 let SC_FUTOI_ON = false;           // предпочтение пользователя, общее для всех карточек
 let SC_FUTOI_ERR = null;           // причина, по которой файл не загрузился
 
+function futoiDrawable(row) {
+  return !!row && ['ok', 'fresh', 'delayed_by_exchange', 'stale'].includes(row.status)
+    && Array.isArray(row.dates) && Array.isArray(row.net) && row.dates.length === row.net.length;
+}
+
+function futoiFreshnessText(row) {
+  const day = row.latest_observation_date || ((row.summary || {}).as_of) || '';
+  if (row.status === 'fresh' || row.status === 'ok') return `данные MOEX на ${sawDate(day)}`;
+  if (row.status === 'delayed_by_exchange') return `MOEX пока опубликовала данные на ${sawDate(day)}`;
+  if (row.status === 'stale') return `последний сохранённый ряд устарел: ${sawDate(day)}`;
+  return 'данные сейчас недоступны';
+}
+
 function loadFutoi(cb) {
   if (SC_FUTOI) { cb(null); return; }
   if (SC_FUTOI_ERR) { cb(SC_FUTOI_ERR); return; }
-  fetch(dataURL('futures_positions.json'))
+  // Artifact меняется без изменения app.js SHA, поэтому revalidation не должна
+  // зависеть от общего cache key статической сборки.
+  fetch(dataURL('futures_positions.json'), { cache: 'no-store' })
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => { if (!j || !j.tickers) throw new Error('в файле нет рядов'); SC_FUTOI = j; cb(null); })
     .catch((e) => { SC_FUTOI_ERR = e; cb(e); });
@@ -11057,6 +11117,7 @@ function scProfileRefresh(container, ticker, chart, priceSeries, rows) {
 // края. Это не сбой отрисовки, и сказать об этом обязаны мы, а не пользователь себе сам.
 function scFutoiNoteHTML(meta, row) {
   const s = row.summary || {};
+  const latest = row.latest_observation_date || s.as_of;
   const dir = s.net > 0 ? 'в нетто-лонге' : s.net < 0 ? 'в нетто-шорте' : 'в нуле';
   const z = isNum(s.z) ? ` Отклонение от собственной истории — ${esc(ru(s.z, 2))}σ за год` : '';
   const pct = isNum(s.percentile)
@@ -11066,12 +11127,11 @@ function scFutoiNoteHTML(meta, row) {
         ${esc(ru(Math.abs(s.change_5d), 0))} ${plural(Math.abs(s.change_5d), 'контракт', 'контракта', 'контрактов')}.` : '';
   const net = Math.abs(s.net);
   return `<b>Открытые позиции физлиц во фьючерсе на ${esc(row._ticker || '')}.</b>
-    На ${esc(sawDate(s.as_of))} физлица ${dir}: ${esc(ru(net, 0))} ${plural(net, 'контракт', 'контракта', 'контрактов')} нетто
+    На ${esc(sawDate(latest))} физлица ${dir}: ${esc(ru(net, 0))} ${plural(net, 'контракт', 'контракта', 'контрактов')} нетто
     (${esc(ru(s.long, 0))} длинных против ${esc(ru(s.short, 0))} коротких,
     ${esc(ru((s.long_share || 0) * 100, 0))}% позиций — длинные;
     ${esc(ru(s.persons_long, 0))} и ${esc(ru(s.persons_short, 0))} участников).${z}${pct}${w}
-    Данные MOEX за ${esc(meta.freshness || 'предыдущий торговый день')} — линия заканчивается
-    ${esc(sawDate(s.as_of))}, это не сбой отрисовки.
+    ${esc(futoiFreshnessText(row))}; линия заканчивается этой же фактической датой, без искусственного продления.
     Показаны контракты, а не доля открытого интереса: знаменатель источник не раскрывает.`;
 }
 
@@ -11102,7 +11162,7 @@ function scFutoiDraw(container, chart, ticker, visibleRange) {
     }
     // «Фьючерс есть, но источник по нему молчит» — не то же самое, что «фьючерса нет»:
     // во втором случае бумага вне срочного рынка, в первом данные просто не публикуются.
-    if (row.status !== 'ok') {
+    if (!futoiDrawable(row)) {
       // Текст выбирается по коду причины, а не печатается из данных: иначе интерфейс
       // либо повторяет одну и ту же мысль дважды, либо расходится с ней по смыслу.
       say(`<b>Позиции физлиц не показаны.</b> По фьючерсу ${esc(row.asset || '')} MOEX не отдал
@@ -11140,11 +11200,34 @@ function wireStockChart(root, ticker) {
     const token = (container._scLoadToken || 0) + 1;
     container._scLoadToken = token;
     const canvas = container.querySelector('.sc-canvas');
-    const render = (sourceRows) => {
+    if (container._scLiveTimer) { clearTimeout(container._scLiveTimer); container._scLiveTimer = null; }
+    const render = (sourceRows, extra = {}) => {
       const visibleRows = intraday ? sourceRows : stockTrimDailyRows(sourceRows, days);
-      renderStockChartData(container, ticker, visibleRows, { intraday });
+      renderStockChartData(container, ticker, visibleRows, { intraday, ...extra });
     };
-    if (STOCK_OHLC_CACHE[key]) { render(STOCK_OHLC_CACHE[key]); return; }
+    const refreshCurrentSession = (baseRows) => {
+      fetchStockIntradayOHLC(ticker, (err, intradayRows) => {
+        if (token !== container._scLoadToken || err) return;
+        const merged = mergeStockDailyWithIntraday(baseRows, intradayRows);
+        if (!merged.currentSessionDate) return;
+        STOCK_OHLC_CACHE[key] = merged;
+        render(merged.rows, { currentSessionDate: merged.currentSessionDate });
+        // Пока свеча незавершённая, обновляем только открытую карточку. После закрытия
+        // history на следующей загрузке заменит её финальной дневной свечой.
+        container._scLiveTimer = setTimeout(() => {
+          if (container.isConnected && container._scLoadToken === token) {
+            refreshCurrentSession((STOCK_OHLC_CACHE[key] || merged).rows);
+          }
+        }, 5 * 60 * 1000);
+      });
+    };
+    if (STOCK_OHLC_CACHE[key]) {
+      const cached = STOCK_OHLC_CACHE[key];
+      const cachedRows = Array.isArray(cached) ? cached : cached.rows;
+      render(cachedRows, Array.isArray(cached) ? {} : { currentSessionDate: cached.currentSessionDate });
+      if (!intraday) refreshCurrentSession(cachedRows);
+      return;
+    }
     if (canvas) canvas.innerHTML = `<div class="sc-loading muted">Загрузка ${intraday ? '10-минутных' : 'дневных'} котировок MOEX ISS…</div>`;
     loadLWC((lerr) => {
       if (token !== container._scLoadToken) return;
@@ -11158,8 +11241,9 @@ function wireStockChart(root, ticker) {
           if (canvas) canvas.innerHTML = `<div class="sc-loading muted">${intraday ? '10-минутные' : 'Дневные'} котировки ${esc(ticker)} на MOEX ISS сейчас недоступны.</div>`;
           return;
         }
-        STOCK_OHLC_CACHE[key] = rows;
+        STOCK_OHLC_CACHE[key] = { rows, currentSessionDate: null };
         render(rows);
+        if (!intraday) refreshCurrentSession(rows);
       });
     });
   };
