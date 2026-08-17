@@ -68,7 +68,9 @@ def supplementary_instruments() -> list[tuple[str, str, str, str]]:
     try:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import moex_instruments as mi  # noqa: E402
-        described = mi.describe_many(secids)
+        # Этот post-step не должен блокировать весь deploy при недоступном ISS.
+        # Тип, доска и имя меняются редко; актуальные цены обновляет отдельный pipeline.
+        described = mi.describe_many(secids, allow_stale_cache=True)
     except Exception as e:  # noqa: BLE001
         log(f"discovery недоступен ({e}) — имена и типы будут пустыми")
     out = []
