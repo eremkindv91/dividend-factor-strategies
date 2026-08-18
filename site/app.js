@@ -9474,7 +9474,21 @@ function renderMarketTechnicalAnalytics(item) {
 function marketChartRows(item) {
   if (MARKET_CHART_STATE.period === '1d') return MARKET_INTRADAY_CACHE[item.id] || [];
   const count = MARKET_CHART_STATE.period || 252;
-  return (item.series || []).slice(-count);
+  const rows = (item.series || []).map((row) => row.slice());
+  const current = marketPublishedCurrentSessionRow(item);
+  if (current) rows.push(current);
+  return rows.slice(-count);
+}
+
+function marketPublishedCurrentSessionRow(item) {
+  const current = item && item.current_session;
+  if (!current || !/^\d{4}-\d{2}-\d{2}$/.test(String(current.date || ''))) return null;
+  const values = [current.open, current.high, current.low, current.close];
+  if (!values.every(isNum) || Math.min(...values) <= 0) return null;
+  const officialDate = String(item.data_last || ((item.series || []).at(-1) || [])[0] || '').slice(0, 10);
+  if (officialDate && current.date <= officialDate) return null;
+  return [current.date, current.open, current.high, current.low, current.close,
+    null, null, null, current.last_candle_at || current.date, 'current_session'];
 }
 
 function marketIntradayToDailyRow(rows) {
@@ -9496,6 +9510,10 @@ function mergeMarketDailyWithIntraday(dailyRows, intradayRows) {
   const current = marketIntradayToDailyRow(intradayRows);
   if (!current) return { rows, currentSessionDate: null };
   const lastDate = rows.length ? String(rows[rows.length - 1][0]).slice(0, 10) : '';
+  if (lastDate === current[0] && (rows[rows.length - 1] || [])[9] === 'current_session') {
+    rows[rows.length - 1] = current;
+    return { rows, currentSessionDate: current[0] };
+  }
   // Завершённая дневная свеча всегда приоритетнее повторно агрегированного intraday.
   if (lastDate && current[0] <= lastDate) return { rows, currentSessionDate: null };
   rows.push(current);
@@ -9543,8 +9561,10 @@ function drawMarketChart(item, suppliedRows = null, options = {}) {
     return;
   }
   const closeOnly = !intraday && marketUsesCloseLine(item, rows);
+  const lastRow = rows[rows.length - 1] || [];
   const currentSessionDate = options.currentSessionDate
-    || (intraday ? String((rows[rows.length - 1] || [])[8] || '').slice(0, 10) : null);
+    || (lastRow[9] === 'current_session' ? String(lastRow[0]).slice(0, 10) : null)
+    || (intraday ? String(lastRow[8] || '').slice(0, 10) : null);
   if (currentSessionDate) {
     const liveClose = rows[rows.length - 1][4];
     const previousClose = intraday

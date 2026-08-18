@@ -2,7 +2,12 @@ import json
 from pathlib import Path
 
 from scripts import build_market_history
-from scripts.build_market_history import INSTRUMENTS, calculate_instrument, history_url
+from scripts.build_market_history import (
+    INSTRUMENTS,
+    aggregate_current_session,
+    calculate_instrument,
+    history_url,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +42,32 @@ def test_market_history_sources_are_exact_official_moex_endpoints():
         assert f"/boards/{spec['board']}/securities/{spec['id']}.json" in source
 
 
+def test_current_session_aggregates_only_real_latest_moex_candles():
+    payload = {
+        "candles": {
+            "columns": ["begin", "open", "high", "low", "close"],
+            "data": [
+                ["2026-08-17 18:40:00", 2100, 2105, 2098, 2102],
+                ["2026-08-18 10:00:00", 2094, 2110, 2090, 2105],
+                ["2026-08-18 10:10:00", 2105, 2120, 2100, 2115],
+            ],
+        },
+    }
+
+    result = aggregate_current_session(payload)
+
+    assert result == {
+        "date": "2026-08-18",
+        "open": 2094.0,
+        "high": 2120.0,
+        "low": 2090.0,
+        "close": 2115.0,
+        "last_candle_at": "2026-08-18 10:10:00",
+        "candle_count": 2,
+        "status": "current_session",
+    }
+
+
 def test_market_drilldown_is_built_and_deployed_daily():
     app = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
     html = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
@@ -69,9 +100,27 @@ def test_market_history_keeps_one_instrument_last_good_on_partial_iss_failure(tm
         return rows
 
     monkeypatch.setattr(build_market_history, "fetch_history", fake_fetch)
+    monkeypatch.setattr(build_market_history, "fetch_current_session", lambda *_args, **_kwargs: None)
 
     payload = build_market_history.build(output)
 
     cny = next(row for row in payload["instruments"] if row["id"] == "CNYRUB_TOM")
     assert cny["fallback"] is True
     assert payload["errors"] == [{"instrument": "CNYRUB_TOM", "error": "ISS timeout", "fallback": True}]
+
+
+def test_build_publishes_current_session_without_changing_completed_close_asof(tmp_path, monkeypatch):
+    output = tmp_path / "market_history.json"
+    rows = real_mcftr_rows()
+    monkeypatch.setattr(build_market_history, "fetch_history", lambda *_args, **_kwargs: rows)
+    monkeypatch.setattr(build_market_history, "fetch_current_session", lambda *_args, **_kwargs: {
+        "date": "2026-08-18", "open": 2100.0, "high": 2120.0, "low": 2090.0,
+        "close": 2110.0, "last_candle_at": "2026-08-18 14:50:00",
+        "candle_count": 30, "status": "current_session",
+    })
+
+    payload = build_market_history.build(output, today=build_market_history.date(2026, 8, 18))
+
+    assert payload["data_asof"] == rows[-1]["date"]
+    assert payload["current_session_asof"] == "2026-08-18"
+    assert all(row["current_session"]["date"] == "2026-08-18" for row in payload["instruments"])
