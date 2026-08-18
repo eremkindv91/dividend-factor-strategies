@@ -22,10 +22,10 @@ def _source() -> str:
 
 
 def _function(source: str, name: str) -> str:
-    start = source.index(f"function {name}")
-    signature = re.search(rf"function\s+{re.escape(name)}\s*\([^)]*\)\s*\{{", source[start:])
+    signature = re.search(rf"function\s+{re.escape(name)}\s*\([^)]*\)\s*\{{", source)
     assert signature, f"function {name} signature not found"
-    body_start = start + signature.end() - 1
+    start = signature.start()
+    body_start = signature.end() - 1
     depth = 0
     for index in range(body_start, len(source)):
         char = source[index]
@@ -152,7 +152,7 @@ def test_daily_stock_chart_revalidates_current_session_without_browser_cache():
 
 def test_stock_moex_requests_have_bounded_transient_retry():
     source = _source()
-    for name in ["fetchStockOHLC", "fetchMoexIntradayCandles"]:
+    for name in ["fetchStockOHLCFromMoex", "fetchMoexIntradayCandles"]:
         function = _function(source, name)
         assert "attempt = 0" in function
         assert "attempt < 1" in function
@@ -160,6 +160,22 @@ def test_stock_moex_requests_have_bounded_transient_retry():
         assert "750" in function
         assert "18000" in function
         assert "cache: 'no-store'" in function
+
+
+def test_daily_stock_chart_prefers_published_foundation_and_keeps_moex_fallback():
+    source = _source()
+    published = _function(source, "fetchStockPublishedOHLC")
+    fetcher = _function(source, "fetchStockOHLC")
+
+    assert "daily/web/" in published
+    assert "cache: 'no-store'" in published
+    assert "stockPublishedOhlcRows" in published
+    assert "coverageLimited" in published
+    assert "fetchStockPublishedOHLC" in fetcher
+    assert "fetchStockOHLCFromMoex" in fetcher
+    assert fetcher.index("fetchStockPublishedOHLC") < fetcher.index("fetchStockOHLCFromMoex")
+    assert "!meta.coverageLimited" in fetcher
+    assert "if (!publishedError && publishedRows.length)" in fetcher
 
 
 def test_index_dialog_has_one_day_and_one_month_controls():

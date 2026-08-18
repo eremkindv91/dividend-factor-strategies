@@ -28,6 +28,22 @@ def test_build_one_adjusted_returns():
     assert rec["corporate_action_status"] == "resolved"
 
 
+def test_build_one_publishes_official_ohlcv_without_synthetic_fields():
+    rows = [
+        {"trade_date": "2026-08-14", "open": 270.0, "high": 274.0, "low": 269.0,
+         "close": 272.0, "volume": 1000.0, "value": 271500.0},
+        {"trade_date": "2026-08-17", "open": 272.0, "high": 273.0, "low": 269.0,
+         "close": 270.0, "volume": 1200.0, "value": 325000.0},
+    ]
+
+    rec = web.build_one("SBER", rows, splits=None, quality_status="good")
+
+    assert rec["schema_version"] == 2
+    assert rec["source_as_of"] == "2026-08-17"
+    assert rec["ohlcv_observations"] == 2
+    assert rec["ohlcv"][-1] == ["2026-08-17", 272.0, 273.0, 269.0, 270.0, 1200.0, 325000.0]
+
+
 def test_window_truncation():
     rec = web.build_one("SBER", _rows(1000), splits=None, quality_status="good", window=504)
     assert rec["observations"] == 504 and len(rec["dates"]) == 504
