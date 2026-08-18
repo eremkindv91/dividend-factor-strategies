@@ -4698,6 +4698,7 @@ let MARKET_CHART = null;
 let MARKET_PRICE_SERIES = null;   // основная серия: слой профиля берёт у неё priceToCoordinate
 let MARKET_CHART_STATE = { id: 'IMOEX', period: 252 };
 const MARKET_INTRADAY_CACHE = {};
+const MARKET_INTRADAY_CACHE_AT = {};
 const MARKET_INTRADAY_SPEC = {
   IMOEX: { engine: 'stock', market: 'index', board: 'SNDX', secid: 'IMOEX' },
   RTSI: { engine: 'stock', market: 'index', board: 'RTSI', secid: 'RTSI' },
@@ -7698,7 +7699,7 @@ function updateDataStatus() {
   const chip = overall
     ? `<span class="ds-health ${cls[overall] || ''}" title="Свежесть данных по торговому календарю MOEX">● ${esc(oText)}</span>`
     : '';
-  el.innerHTML = chip + item('Цены MOEX', price, 'market') + item('MCFTR', saw, 'marketsaw')
+  el.innerHTML = chip + item('Акции · close', price, 'market') + item('MCFTR · close', saw, 'marketsaw')
     + item('Новости', news, 'news') + item('Облигации', bonds, 'bonds') + item('Фундамент', fin, 'financials');
 }
 
@@ -9476,6 +9477,31 @@ function marketChartRows(item) {
   return (item.series || []).slice(-count);
 }
 
+function marketIntradayToDailyRow(rows) {
+  const valid = (rows || []).filter((row) => row && isNum(row[1]) && isNum(row[2])
+    && isNum(row[3]) && isNum(row[4]) && /^\d{4}-\d{2}-\d{2}/.test(String(row[8] || '')));
+  if (!valid.length) return null;
+  const date = String(valid[valid.length - 1][8]).slice(0, 10);
+  const session = valid.filter((row) => String(row[8]).slice(0, 10) === date);
+  if (!session.length) return null;
+  // Индексные дневные строки используют колонки 5–7 под SMA. Для незавершённой
+  // свечи их оставляем пустыми: пересчитывать технические индикаторы на фронте нельзя.
+  return [date, session[0][1], Math.max(...session.map((row) => row[2])),
+    Math.min(...session.map((row) => row[3])), session[session.length - 1][4],
+    null, null, null, date, 'current_session'];
+}
+
+function mergeMarketDailyWithIntraday(dailyRows, intradayRows) {
+  const rows = (dailyRows || []).map((row) => row.slice());
+  const current = marketIntradayToDailyRow(intradayRows);
+  if (!current) return { rows, currentSessionDate: null };
+  const lastDate = rows.length ? String(rows[rows.length - 1][0]).slice(0, 10) : '';
+  // Завершённая дневная свеча всегда приоритетнее повторно агрегированного intraday.
+  if (lastDate && current[0] <= lastDate) return { rows, currentSessionDate: null };
+  rows.push(current);
+  return { rows, currentSessionDate: current[0] };
+}
+
 function fetchMarketIntraday(item, cb) {
   const spec = MARKET_INTRADAY_SPEC[item.id];
   if (!spec) { cb(new Error('внутридневной ряд MOEX ISS не публикуется'), []); return; }
@@ -9504,7 +9530,7 @@ function marketOhlcHTML(item, row, closeOnly = false) {
   return `<b>${esc(moexRowLabel(row))}</b><span>O ${fmt(row[1])}</span><span>H ${fmt(row[2])}</span><span>L ${fmt(row[3])}</span><span>C ${fmt(row[4])}</span>`;
 }
 
-function drawMarketChart(item, suppliedRows = null) {
+function drawMarketChart(item, suppliedRows = null, options = {}) {
   const element = document.getElementById('market-chart-canvas');
   if (!element || !window.LightweightCharts) return;
   if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; }
@@ -9517,6 +9543,24 @@ function drawMarketChart(item, suppliedRows = null) {
     return;
   }
   const closeOnly = !intraday && marketUsesCloseLine(item, rows);
+  const currentSessionDate = options.currentSessionDate
+    || (intraday ? String((rows[rows.length - 1] || [])[8] || '').slice(0, 10) : null);
+  if (currentSessionDate) {
+    const liveClose = rows[rows.length - 1][4];
+    const previousClose = intraday
+      ? (item.summary || {}).last
+      : ((rows[rows.length - 2] || [])[4]);
+    const liveChange = isNum(liveClose) && isNum(previousClose) && previousClose !== 0
+      ? liveClose / previousClose - 1 : null;
+    document.getElementById('market-chart-title').innerHTML = `${instrumentAvatarHTML(item.id, item.description || item.name, item.type, 'md')}<span>${esc(item.name)} · ${marketNumber(liveClose, item.decimals)}</span>`;
+    document.getElementById('market-chart-sub').innerHTML = `${isNum(liveChange)
+      ? `<span class="${liveChange >= 0 ? 'up' : 'down'}">${marketChange(liveChange)}</span> · `
+      : ''}${esc(item.description)} · ${esc(sawDate(currentSessionDate))} · текущая сессия`;
+    const source = document.getElementById('market-chart-source');
+    if (source) source.textContent = `MOEX ISS · текущая сессия ${sawDate(currentSessionDate)}`;
+    const foot = document.querySelector('.market-chart-foot span');
+    if (foot && !intraday) foot.textContent = `Последняя свеча за ${sawDate(currentSessionDate)} собрана из официальных 10-минутных свечей MOEX ISS и может меняться до закрытия. Технические ориентиры рассчитаны по завершённым дневным данным.`;
+  }
   MARKET_CHART = LC.createChart(element, {
     autoSize: true,
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#5A6472', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: 11, attributionLogo: false },
@@ -10208,11 +10252,35 @@ function renderMarketChartDialog() {
       canvas.innerHTML = '<div class="news-fallback">График недоступен; числовые уровни рассчитаны и сохранены.</div>';
       return;
     }
-    if (!intraday) { drawMarketChart(item); return; }
+    if (!intraday) {
+      drawMarketChart(item);
+      if (!MARKET_INTRADAY_SPEC[item.id]) return;
+      const applyCurrentSession = (rows) => {
+        const merged = mergeMarketDailyWithIntraday(marketChartRows(item), rows);
+        if (!merged.currentSessionDate) return;
+        const count = MARKET_CHART_STATE.period || 252;
+        drawMarketChart(item, merged.rows.slice(-count), {
+          currentSessionDate: merged.currentSessionDate,
+        });
+      };
+      const cached = MARKET_INTRADAY_CACHE[item.id];
+      const cacheFresh = cached && cached.length
+        && Date.now() - (MARKET_INTRADAY_CACHE_AT[item.id] || 0) < 5 * 60 * 1000;
+      if (cacheFresh) { applyCurrentSession(cached); return; }
+      fetchMarketIntraday(item, (fetchError, rows) => {
+        if (request !== MARKET_CHART_REQUEST || fetchError || !rows.length) return;
+        MARKET_INTRADAY_CACHE[item.id] = rows;
+        MARKET_INTRADAY_CACHE_AT[item.id] = Date.now();
+        applyCurrentSession(rows);
+      });
+      return;
+    }
     if (MARKET_CHART) { MARKET_CHART.remove(); MARKET_CHART = null; }
     canvas.innerHTML = '<div class="news-fallback">Загружаем 10-минутные свечи MOEX ISS…</div>';
     const cached = MARKET_INTRADAY_CACHE[item.id];
-    if (cached && cached.length) { drawMarketChart(item, cached); return; }
+    const cacheFresh = cached && cached.length
+      && Date.now() - (MARKET_INTRADAY_CACHE_AT[item.id] || 0) < 5 * 60 * 1000;
+    if (cacheFresh) { drawMarketChart(item, cached); return; }
     fetchMarketIntraday(item, (fetchError, rows) => {
       if (request !== MARKET_CHART_REQUEST) return;
       if (fetchError || !rows.length) {
@@ -10220,6 +10288,7 @@ function renderMarketChartDialog() {
         return;
       }
       MARKET_INTRADAY_CACHE[item.id] = rows;
+      MARKET_INTRADAY_CACHE_AT[item.id] = Date.now();
       drawMarketChart(item, rows);
     });
   });

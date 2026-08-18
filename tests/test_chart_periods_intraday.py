@@ -220,6 +220,41 @@ def test_intraday_does_not_mix_daily_overlays_or_fake_index_volume():
     assert "intraday ? '' : marketPositionsTooltipHTML" in draw
 
 
+def test_market_current_session_is_appended_without_recalculating_sma():
+    source = _source()
+    helpers = "\n".join([
+        "const isNum = (value) => typeof value === 'number' && Number.isFinite(value);",
+        _function(source, "marketIntradayToDailyRow"),
+        _function(source, "mergeMarketDailyWithIntraday"),
+    ])
+    result = _node(f"""
+{helpers}
+const official = [['2026-08-17', 2100, 2140, 2080, 2093, 2000, 2100, 2200]];
+const live = [
+  [1, 2094, 2110, 2090, 2105, 10, 20, null, '2026-08-18 10:00:00'],
+  [2, 2105, 2120, 2100, 2115, 15, 25, null, '2026-08-18 10:10:00'],
+];
+console.log(JSON.stringify(mergeMarketDailyWithIntraday(official, live)));
+""")
+
+    assert result["currentSessionDate"] == "2026-08-18"
+    assert result["rows"][-1] == ["2026-08-18", 2094, 2120, 2090, 2115,
+                                   None, None, None, "2026-08-18", "current_session"]
+
+
+def test_multiday_market_chart_refreshes_from_real_intraday_but_not_for_mcftr():
+    source = _source()
+    render = _function(source, "renderMarketChartDialog")
+    status = _function(source, "updateDataStatus")
+
+    assert "mergeMarketDailyWithIntraday" in render
+    assert "fetchMarketIntraday" in render
+    assert "MARKET_INTRADAY_SPEC[item.id]" in render
+    assert "5 * 60 * 1000" in render
+    assert "Акции · close" in status
+    assert "MCFTR · close" in status
+
+
 def test_stock_volume_has_a_separate_labeled_scale_pane():
     source = _source()
     css = CSS.read_text(encoding="utf-8")
