@@ -1,48 +1,48 @@
 {
   "date": "2026-08-18",
-  "generated_at": "2026-08-18T06:26:23+03:00",
+  "generated_at": "2026-08-18T08:14:32+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы торгуются разнонаправленно, цены на нефть марки Brent и золото демонстрируют рост, в то время как американские рынки закрылись снижением.",
+  "external_backdrop": "Азиатские индексы торгуются разнонаправленно, нефть марки Brent и золото растут.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7745.06",
-      "change_pct": "-0.52%",
-      "as_of": "2026-08-17",
+      "value": "7785.76",
+      "change_pct": "-0.17%",
+      "as_of": "2026-08-14",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26644.91",
-      "change_pct": "-0.32%",
-      "as_of": "2026-08-17",
+      "value": "26729.16",
+      "change_pct": "-0.28%",
+      "as_of": "2026-08-14",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "68098.54",
-      "change_pct": "-0.90%",
+      "value": "67856.32",
+      "change_pct": "-1.25%",
       "as_of": "2026-08-18",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25296.81",
-      "change_pct": "+0.72%",
+      "value": "25287.25",
+      "change_pct": "+0.68%",
       "as_of": "2026-08-18",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "91.40",
-      "change_pct": "+3.25%",
+      "value": "91.54",
+      "change_pct": "+0.74%",
       "as_of": "2026-08-18",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4457.50",
-      "change_pct": "+1.76%",
+      "value": "4448.30",
+      "change_pct": "+0.69%",
       "as_of": "2026-08-18",
       "group": "commodity"
     },
@@ -59,317 +59,296 @@
       "change_pct": "-2.56%",
       "as_of": "2026-08-17 19:00:11",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "85.30",
-      "change_pct": "+0.72%",
-      "as_of": "2026-08-17 23:54:58",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.61",
-      "change_pct": "+0.63%",
-      "as_of": "2026-08-17 23:50:02",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-inflation-july",
-      "headline": "Центробанк оценил годовую инфляцию в России в июле в одиннадцать целых шесть десятых процента",
-      "context": "Регулятор связал ускорение роста цен с топливным кризисом и ослаблением курса рубля.",
-      "category": "cb_policy",
+      "id": "july-inflation-reaches-11-6-percent",
+      "headline": "Годовая инфляция в России в июле составила 11,6% на фоне роста цен на топливо",
+      "context": "Центробанк связал ускорение инфляции с топливным кризисом, ослаблением рубля и вторичными эффектами на рынке.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://t.me/frank_media/23571"
+          "url": "https://frankmedia.ru/299843"
         }
       ],
-      "published_at": "2026-08-17T20:18:00+03:00"
+      "published_at": "2026-08-17T20:01:00+03:00"
     },
     {
-      "id": "moscow-drone-attack",
-      "headline": "Силы ПВО уничтожили сто восемьдесят беспилотников в Московском регионе в ходе ночной атаки",
-      "context": "Всего с вечера понедельника в сторону Московского региона летело шестьсот двадцать беспилотных летательных аппаратов.",
+      "id": "greek-tanker-attacked-near-novorossiysk",
+      "headline": "Греческий нефтяной танкер Skiros подвергся атаке беспилотника в Черном море вблизи Новороссийска",
+      "context": "Судно было атаковано после погрузки партии российской нефти на терминале Каспийского трубопроводного консорциума.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/362080"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8891635"
         }
       ],
-      "published_at": "2026-08-18T06:09:00+03:00"
+      "published_at": "2026-08-17T22:46:00+03:00"
     },
     {
-      "id": "greek-tanker-attack",
-      "headline": "Греческий нефтяной танкер подвергся атаке в Черном море после погрузки под Новороссийском",
-      "context": "Судно Skiros было загружено российской нефтью на терминале Каспийского трубопроводного консорциума.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84485"
-        }
-      ],
-      "published_at": "2026-08-17T23:02:00+03:00"
-    },
-    {
-      "id": "inter-rao-q2-earnings",
-      "headline": "Чистая прибыль компании Интер РАО во втором квартале снизилась на тридцать восемь процентов",
-      "context": "Выручка компании за отчетный период выросла на четырнадцать целых одну десятую процента до четырехсот тридцати миллиардов рублей.",
+      "id": "rosatom-dp-world-fesco-deal-approved",
+      "headline": "Правительственная комиссия одобрила сделку Росатома и DP World по созданию совместного предприятия",
+      "context": "Госкорпорация внесет в капитал СП дочернюю группу FESCO, а DP World предоставит денежные средства.",
       "category": "corporate",
       "investment_relevant": true,
+      "ticker": "FESH",
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/18/08/2026/6a83e1cc9a794757c641209f"
+        }
+      ],
+      "published_at": "2026-08-18T07:52:00+03:00"
+    },
+    {
+      "id": "subsidized-mortgage-issuance-halved-in-july",
+      "headline": "Выдача льготной ипотеки в России сократилась вдвое за месяц по итогам июля",
+      "context": "По сравнению с июлем прошлого года объем выдачи снизился на 42%, а количество кредитов — на 44%.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Mozgovik Research",
-          "url": "https://t.me/mozgovikresearch/3805"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a83de079a7947a9c107de71"
+        }
+      ],
+      "published_at": "2026-08-18T08:10:00+03:00"
+    },
+    {
+      "id": "alrosa-export-duty-postponed",
+      "headline": "Правительство России отложило введение экспортной пошлины на необработанные алмазы АЛРОСА на полгода",
+      "context": "Аналитики предупреждают, что после введения пошлин компании будет сложно переложить издержки на покупателей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "ticker": "ALRS",
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/business/18/08/2026/6a8321f99a794718b295de0d"
+        }
+      ],
+      "published_at": "2026-08-18T08:00:00+03:00"
+    },
+    {
+      "id": "russia-considers-aromatic-hydrocarbons-export-ban",
+      "headline": "Правительство России обсуждает введение запрета на экспорт ароматических углеводородов",
+      "context": "Ограничения могут коснуться поставок бензола, фенола, толуола и ксилолов на внешние рынки.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8891660"
+        }
+      ],
+      "published_at": "2026-08-18T01:30:00+03:00"
+    },
+    {
+      "id": "inter-rao-q2-net-profit-drops",
+      "headline": "Чистая прибыль Интер РАО по МСФО во втором квартале упала на 38% до 22,2 млрд рублей",
+      "context": "Снижение операционных показателей по выработке электроэнергии на 8,5% негативно повлияло на финансовые результаты.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "ticker": "IRAO",
+      "importance": 4,
+      "sources": [
+        {
+          "name": "smart-lab.ru",
+          "url": "https://smart-lab.ru/mobile/topic/1341035/"
         }
       ],
       "published_at": "2026-08-17T20:53:00+03:00"
     },
     {
-      "id": "us-treasury-yields-high",
-      "headline": "Доходность тридцатилетних казначейских облигаций США достигла максимума с две тысячи седьмого года",
-      "context": "Рост доходностей произошел на фоне риторики Дональда Трампа по конфликту США и Ирана.",
+      "id": "ruble-weakens-to-yuan-new-minimum",
+      "headline": "Российский рубль обновил минимум к китайскому юаню с февраля 2025 года",
+      "context": "Падение произошло на фоне стабильных цен на нефть и новых санкционных рисков со стороны Евросоюза.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84487"
-        }
-      ],
-      "published_at": "2026-08-17T23:45:00+03:00"
-    },
-    {
-      "id": "us-senate-oman-resolution",
-      "headline": "В Сенате США подготовят резолюцию о запрете военных действий против Омана",
-      "context": "Инициатива сенатора Тима Кейна последовала за угрозами Дональда Трампа нанести удары по Оману.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/362081"
+          "url": "https://www.interfax.ru/business/1109790"
         }
       ],
-      "published_at": "2026-08-18T06:24:00+03:00"
-    },
-    {
-      "id": "us-china-ai-restrictions",
-      "headline": "США планируют принудить другие страны отказаться от сотрудничества с Китаем в сфере искусственного интеллекта",
-      "context": "Вашингтон может пригрозить исключением из партнерства странам, участвующим в конкурирующих структурах Пекина.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/17/1221781-ssha-hotyat-zastavit"
-        }
-      ],
-      "published_at": "2026-08-17T21:51:00+03:00"
-    },
-    {
-      "id": "russia-us-treasuries-cut",
-      "headline": "Россия сократила вложения в государственные облигации США до двадцати семи миллионов долларов",
-      "context": "По данным американского Минфина, в июне объем вложений снизился на два миллиона долларов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891671"
-        }
-      ],
-      "published_at": "2026-08-18T04:19:00+03:00"
+      "published_at": "2026-08-17T19:24:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "yugk-bts-most-offer",
-      "headline": "Компания БТС-Мост Холдинг выставила оферту миноритариям Южуралзолота по цене семьдесят четыре копейки за акцию",
-      "context": "На фоне этой новости акции ЮГК на Московской бирже росли более чем на три процента.",
+      "id": "bts-most-offers-ugld-minorities",
+      "headline": "БТС-Мост Холдинг выставил оферту миноритариям Южуралзолота по цене 74,25 копейки за акцию",
+      "context": "Акции ЮГК отреагировали ростом более чем на 3% на новость о предложении мажоритарного акционера.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1340981.php"
-        }
-      ],
-      "published_at": "2026-08-17T18:10:00+03:00"
-    },
-    {
-      "id": "eurotrans-bond-default",
-      "headline": "Акции компании Евротранс упали на пять процентов на новостях о дефолте по облигациям",
-      "context": "Эмитент допустил второй полноценный дефолт по купонным выплатам по выпускам биржевых облигаций.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891232"
-        }
-      ],
-      "published_at": "2026-08-17T13:35:00+03:00"
-    },
-    {
-      "id": "bspb-7m-earnings",
-      "headline": "Чистая прибыль банка Санкт-Петербург за семь месяцев снизилась на тридцать восемь процентов",
-      "context": "Показатель по РСБУ составил восемнадцать миллиардов рублей против результата аналогичного периода прошлого года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381238"
-        }
-      ],
-      "published_at": "2026-08-17T09:20:00+03:00"
-    },
-    {
-      "id": "moex-crypto-futures",
-      "headline": "Московская биржа планирует запустить вечные фьючерсы на индексы биткоина и эфириума в сентябре",
-      "context": "Об этом сообщила управляющий директор рынка деривативов торговой площадки Мария Патрикеева.",
-      "category": "markets",
-      "investment_relevant": true,
+      "ticker": "UGLD",
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891284"
+          "url": "https://www.kommersant.ru/doc/8891524"
         }
       ],
-      "published_at": "2026-08-17T14:07:00+03:00"
+      "published_at": "2026-08-17T18:41:00+03:00"
     },
     {
-      "id": "moex-foreign-stock-futures",
-      "headline": "Московская биржа запустит около двадцати вечных фьючерсов на иностранные акции",
-      "context": "Расчеты по контрактам на популярные базовые активы будут производиться в рублях.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381243"
-        }
-      ],
-      "published_at": "2026-08-17T09:42:00+03:00"
-    },
-    {
-      "id": "moex-floating-rate-repo",
-      "headline": "Московская биржа запустит репо по плавающей ставке с автоматической капитализацией процентов",
-      "context": "Новый инструмент начнет работу четырнадцатого сентября в безадресном режиме.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299656"
-        }
-      ],
-      "published_at": "2026-08-17T09:40:00+03:00"
-    },
-    {
-      "id": "eco-invest-bank-nationalization",
-      "headline": "Небольшой частный банк Эко-инвест перешел в собственность государства по решению суда",
-      "context": "Росимущество стало владельцем кредитной организации седьмого августа две тысячи двадцать шестого года.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23567"
-        }
-      ],
-      "published_at": "2026-08-17T13:12:00+03:00"
-    },
-    {
-      "id": "fas-rebar-prices-check",
-      "headline": "Федеральная антимонопольная служба проверит обоснованность роста цен на строительную арматуру",
-      "context": "Ведомство направило запросы производителям для оценки экономической обоснованности ценообразования.",
+      "id": "russia-imports-gasoline-from-india",
+      "headline": "Россия начала импортировать бензин из Индии для борьбы с дефицитом из-за атак беспилотников",
+      "context": "Поставки призваны компенсировать снижение объемов переработки на отечественных НПЗ.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1109722"
-        }
-      ],
-      "published_at": "2026-08-17T13:14:00+03:00"
-    },
-    {
-      "id": "russia-india-fuel-import",
-      "headline": "Россия начала импорт автомобильного бензина из Индии для борьбы с дефицитом",
-      "context": "Поставки начались на фоне плановых ремонтов на НПЗ и атак беспилотных летательных аппаратов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1340962.php"
+          "name": "Reuters",
+          "url": ""
         }
       ],
       "published_at": "2026-08-17T17:38:00+03:00"
     },
     {
-      "id": "tatneft-dividend-consensus",
-      "headline": "Дивиденды Татнефти за первое полугодие могут составить тридцать две целых девять десятых рубля на акцию",
-      "context": "Консенсус-прогноз аналитиков предполагает направление на выплаты пятидесяти процентов чистой прибыли по РСБУ.",
+      "id": "ozon-board-to-discuss-financing-instruments",
+      "headline": "Совет директоров Ozon обсудит инструменты привлечения финансирования на заседании 18 августа",
+      "context": "Компания планирует рассмотреть различные варианты привлечения дополнительного капитала.",
       "category": "corporate",
       "investment_relevant": true,
+      "ticker": "OZON",
       "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1340887.php"
+          "url": "https://smart-lab.ru/blog/1340904.php"
         }
       ],
-      "published_at": "2026-08-17T14:53:00+03:00"
+      "published_at": "2026-08-17T15:47:00+03:00"
     },
     {
-      "id": "headhunter-paying-clients-drop",
-      "headline": "Число платящих за размещение объявлений компаний на платформе HeadHunter снизилось на десять процентов",
-      "context": "Работодатели в текущей экономической ситуации стали осторожнее открывать новые вакансии.",
+      "id": "tatneft-half-year-dividend-consensus",
+      "headline": "Татнефть может направить на дивиденды за первое полугодие 50% чистой прибыли по РСБУ",
+      "context": "Согласно консенсус-прогнозу аналитиков, размер выплат может составить 32,9 рубля на акцию.",
       "category": "corporate",
       "investment_relevant": true,
+      "ticker": "TATN",
       "importance": 4,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381244"
+          "name": "Интерфакс",
+          "url": ""
         }
       ],
-      "published_at": "2026-08-17T09:43:00+03:00"
+      "published_at": "2026-08-17T14:41:00+03:00"
     },
     {
-      "id": "aptk-h1-earnings",
-      "headline": "Выручка Аптечной сети тридцать шесть и шесть за первое полугодие выросла на десять процентов",
-      "context": "Показатель достиг шестидесяти двух целых четырех десятых миллиарда рублей на фоне роста сопоставимых продаж.",
+      "id": "nestle-russian-structures-temporary-management",
+      "headline": "В отношении пяти российских структур компании Nestle могут ввести временное управление",
+      "context": "С соответствующей просьбой к президенту Владимиру Путину обратилось ООО КС Логистика.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890881"
+        }
+      ],
+      "published_at": "2026-08-17T01:17:00+03:00"
+    },
+    {
+      "id": "russian-bond-market-defaults-reach-45-billion",
+      "headline": "Инвесторы потеряли 45 млрд рублей из-за технических дефолтов по облигациям с начала года",
+      "context": "Речь идет о бумагах с рейтингом ниже BBB+, не относящихся к инвестиционной категории.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Московская биржа",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-08-17T07:33:00+03:00"
+    },
+    {
+      "id": "refinery-maintenance-may-cause-fuel-shortage",
+      "headline": "Плановые ремонты на НПЗ России и Белоруссии могут спровоцировать дефицит топлива в сентябре",
+      "context": "Сокращение поставок из Белоруссии на фоне ремонтов может негативно сказаться на потребителях в Поволжье.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8890885"
+        }
+      ],
+      "published_at": "2026-08-17T01:58:00+03:00"
+    },
+    {
+      "id": "bspb-7-months-net-profit-drops",
+      "headline": "Чистая прибыль банка Санкт-Петербург по РСБУ за семь месяцев снизилась на 38,3%",
+      "context": "Показатель составил 18,0 млрд рублей, при этом за июль прибыль снизилась на 25%.",
       "category": "corporate",
       "investment_relevant": true,
+      "ticker": "BSPB",
       "importance": 4,
+      "sources": [
+        {
+          "name": "smart-lab.ru",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-08-17T09:20:00+03:00"
+    },
+    {
+      "id": "recycling-fee-budget-revenues-grow",
+      "headline": "Поступления от утилизационного сбора в бюджет России выросли на 40% с начала года",
+      "context": "Сумма достигла 309,2 млрд рублей, однако годовой план властей выполнен пока лишь на 20%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/299632"
+        }
+      ],
+      "published_at": "2026-08-17T08:38:00+03:00"
+    },
+    {
+      "id": "klepach-leaves-veb-rf-chief-economist-post",
+      "headline": "Андрей Клепач покинул должность главного экономиста государственной корпорации ВЭБ.РФ",
+      "context": "Официальные причины ухода не раскрываются, на его место уже подобран новый кандидат.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-08-17T08:37:00+03:00"
+    },
+    {
+      "id": "pharmacy-chain-36-6-half-year-revenue-grows",
+      "headline": "Выручка Аптечной сети 36,6 за первое полугодие увеличилась на 9,9% до 62,4 млрд рублей",
+      "context": "На рост показателя повлияли увеличение сопоставимых продаж на 4,1% и расширение сети на 8%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "ticker": "APTK",
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -379,22 +358,87 @@
       "published_at": "2026-08-17T09:42:00+03:00"
     },
     {
-      "id": "premium-banking-tightening",
-      "headline": "Крупнейшие российские банки ужесточили условия обслуживания премиальных клиентов с начала года",
-      "context": "Девять из восемнадцати ведущих кредитных организаций повысили требования к остаткам на счетах.",
-      "category": "banks",
-      "investment_relevant": false,
+      "id": "globaltruck-shares-drop-on-subsidiary-bankruptcy",
+      "headline": "Акции автоперевозчика Globaltruck упали на 13% на фоне банкротства дочерней компании",
+      "context": "Операционная компания Лорри подала на добровольное банкротство из-за долгов перед ФНС.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "ticker": "GTRK",
       "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23569"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84472"
         }
       ],
-      "published_at": "2026-08-17T15:01:00+03:00"
+      "published_at": "2026-08-17T13:40:00+03:00"
     }
   ],
-  "today_agenda": [],
+  "today_agenda": [
+    {
+      "time": "11:00",
+      "event": "Квартальный отчет Baidu",
+      "ticker": "BIDU",
+      "type": "earnings",
+      "importance": 3
+    },
+    {
+      "time": "12:00",
+      "event": "Индекс экономических настроений ZEW в Германии",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "12:00",
+      "event": "Индекс экономических настроений ZEW в Еврозоне",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "13:00",
+      "event": "Квартальный отчет Home Depot",
+      "ticker": "HD",
+      "type": "earnings",
+      "importance": 3
+    },
+    {
+      "time": "15:30",
+      "event": "Число закладок новых домов в США",
+      "ticker": "",
+      "type": "macro",
+      "importance": 2
+    },
+    {
+      "time": "16:15",
+      "event": "Промышленное производство в США",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "23:30",
+      "event": "Запасы нефти от API",
+      "ticker": "",
+      "type": "macro",
+      "importance": 3
+    },
+    {
+      "time": "-",
+      "event": "Совет директоров Татнефти обсудит дивиденды за I полугодие 2026 года",
+      "ticker": "TATN",
+      "type": "dividend_cutoff",
+      "importance": 4
+    },
+    {
+      "time": "-",
+      "event": "Совет директоров Ozon обсудит инструменты привлечения финансирования",
+      "ticker": "OZON",
+      "type": "macro",
+      "importance": 4
+    }
+  ],
   "briefing": {
     "kind": "premarket",
     "title": "Сводка до открытия",
