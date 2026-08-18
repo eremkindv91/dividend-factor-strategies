@@ -122,15 +122,27 @@ def build_and_publish(
             continue
         allocation = allocate_integer_lots(target, universe, config["default_budget_rub"], config_path)
         allocation_errors = validate_integer_allocation(allocation, target, universe, config_path)
-        validation["presets"][key] = {
-            "status": "PASS" if not allocation_errors else "FAIL",
-            "target_errors": [],
-            "allocation_errors": allocation_errors,
-        }
         if allocation_errors:
-            critical_errors.extend(f"{key}:{error}" for error in allocation_errors)
-        else:
-            allocations[key] = allocation
+            # A valid continuous target can still be impossible to express in
+            # integer lots for today's prices and configured budget. Keep the
+            # preset explicitly unavailable without discarding every other
+            # independently validated allocation from the same fresh run.
+            validation["presets"][key] = {
+                "status": "UNAVAILABLE",
+                "target_errors": [],
+                "target_status": target.get("status"),
+                "allocation_errors": allocation_errors,
+                "reason_codes": allocation.get("reason_codes") or allocation_errors,
+                "solver_message": allocation.get("solver_message"),
+            }
+            unavailable_presets.append(key)
+            continue
+        validation["presets"][key] = {
+            "status": "PASS",
+            "target_errors": [],
+            "allocation_errors": [],
+        }
+        allocations[key] = allocation
 
     if critical_errors:
         validation.update({"status": "FAIL", "critical_errors": critical_errors})
