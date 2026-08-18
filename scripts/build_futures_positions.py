@@ -14,6 +14,7 @@ the complete available history again.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import math
 import os
@@ -91,7 +92,8 @@ def http_json(url: str, tries: int = 3, timeout: int = 45) -> dict:
             last = exc
             if exc.code not in TRANSIENT_HTTP:
                 raise IssError(f"HTTP {exc.code}: {url}") from exc
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+        except (urllib.error.URLError, http.client.HTTPException, ConnectionError,
+                TimeoutError, OSError, json.JSONDecodeError, ValueError) as exc:
             last = exc
         if attempt + 1 < tries:
             time.sleep(0.6 * (2**attempt))
@@ -649,7 +651,24 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
                         "mapping_source": "last_good catalog",
                     })
 
-    resolved, discovery_errors = equity_assets(catalog, existing)
+    mapping_error = ""
+    try:
+        resolved, discovery_errors = equity_assets(catalog, existing)
+    except IssError as exc:
+        if not existing:
+            raise
+        mapping_error = str(exc)
+        discovery_errors = [f"issuer mapping unavailable; using last-good lineage: {exc}"]
+        resolved = {}
+        for ticker, old in (existing.get("tickers") or {}).items():
+            asset = old.get("underlying") or old.get("asset")
+            if asset in catalog:
+                resolved[ticker] = {
+                    **catalog[asset],
+                    "mapping_source": "last_good emitter mapping",
+                }
+        log(f"issuer mapping unavailable; using last-good mappings: {exc}")
+    source_error = mapping_error or catalog_error or calendar_error
     log(f"universe={len(resolved)} expected_date={expected} mode={'full' if full_refresh else 'incremental'}")
     for error in discovery_errors:
         log(f"mapping_warning={error}")
@@ -663,9 +682,11 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
             now=now,
             full_refresh=full_refresh,
         )
-        if entry.get("status") in {"fresh", "delayed_by_exchange"} and (calendar_error or catalog_error):
-            entry["status"] = "stale"
-            entry["reason"] = "contract/calendar validation unavailable: " + (calendar_error or catalog_error)[:240]
+        if source_error and entry.get("status") != "unavailable":
+            if entry.get("status") in {"fresh", "delayed_by_exchange"}:
+                entry["status"] = "stale"
+            source_reason = "contract/calendar/mapping validation unavailable: " + source_error[:240]
+            entry["reason"] = "; ".join(filter(None, [source_reason, entry.get("reason")]))
         tickers[ticker] = entry
         log(f"{ticker} -> {entry.get('current_futures') or '-'} asset={entry.get('asset') or '-'} "
             f"latest={entry.get('latest_observation_date') or '-'} expected={expected} "
@@ -699,9 +720,11 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
             full_refresh=full_refresh,
             index_prices=(asset == "IMOEX"),
         )
-        if entry.get("status") in {"fresh", "delayed_by_exchange"} and (calendar_error or catalog_error):
-            entry["status"] = "stale"
-            entry["reason"] = "contract/calendar validation unavailable: " + (calendar_error or catalog_error)[:240]
+        if source_error and entry.get("status") != "unavailable":
+            if entry.get("status") in {"fresh", "delayed_by_exchange"}:
+                entry["status"] = "stale"
+            source_reason = "contract/calendar/mapping validation unavailable: " + source_error[:240]
+            entry["reason"] = "; ".join(filter(None, [source_reason, entry.get("reason")]))
         entry["title"] = title
         indices[asset] = entry
 
