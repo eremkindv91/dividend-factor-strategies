@@ -402,7 +402,7 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .quality-drawer-note { margin-top: 10px; padding: 9px 10px; border-radius: 6px; background: #F5F7FA; color: var(--ink-soft); font-size: .76rem; line-height: 1.4; }
 
 /* ML optimizer: browser renders only validated server-side snapshots. */
-.mls-panel { margin-top: 14px; padding-top: 18px; border-top: 1px solid var(--line); }
+.mls-panel { margin-top: 14px; padding: 18px 0 22px; border-top: 1px solid var(--line); }
 .mls-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 14px; }
 .mls-head h2 { margin: 2px 0 5px; font-size: 1.45rem; letter-spacing: 0; }
 .mls-head p { max-width: 860px; margin: 0; color: var(--ink-soft); font-size: .86rem; line-height: 1.48; }
@@ -424,7 +424,14 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .mls-meta span { padding: 5px 7px; border: 1px solid #D5DEE9; border-radius: 5px; background: #fff; white-space: nowrap; }
 .mls-meta b { margin-left: 3px; font-size: .72rem; }
-.mls-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 12px 0; border: 1px solid var(--line);
+.mls-gate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0 0; }
+.mls-gate-grid > div { min-width: 0; padding: 10px 11px; border: 1px solid var(--line); border-left-width: 3px; border-radius: 7px; background: #fff; }
+.mls-gate-grid > div.pass { border-left-color: #2F8065; }
+.mls-gate-grid > div.fail { border-left-color: #B44D36; background: #FFF9F7; }
+.mls-gate-grid > div.watch { border-left-color: #B27A24; background: #FFFCF5; }
+.mls-gate-grid span, .mls-gate-grid small { display: block; color: var(--ink-faint); font-size: .64rem; line-height: 1.3; }
+.mls-gate-grid b { display: block; margin: 3px 0 2px; color: var(--ink); font-size: .84rem; }
+.mls-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 12px 0; border: 1px solid var(--line);
   border-radius: 8px; overflow: hidden; background: #fff; }
 .mls-kpis > div { min-width: 0; padding: 10px; border-right: 1px solid var(--line); }
 .mls-kpis > div:last-child { border-right: 0; }
@@ -435,11 +442,12 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-sector-summary > div span, .mls-sector-summary small { color: var(--ink-faint); font-size: .65rem; line-height: 1.35; }
 .mls-sector-summary > div b { color: var(--ink); font-size: .88rem; }
 .mls-sector-summary ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
-.mls-sector-summary li { display: flex; justify-content: space-between; gap: 8px; min-width: 0; padding: 7px 8px; border: 1px solid #E1E7EF; border-radius: 6px; background: #fff; }
-.mls-sector-summary li span { min-width: 0; }
+.mls-sector-summary li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; min-width: 0; padding: 8px 9px; border: 1px solid #E1E7EF; border-radius: 6px; background: #fff; }
+.mls-sector-summary li > div { min-width: 0; }
 .mls-sector-summary li b, .mls-sector-summary li small { display: block; overflow-wrap: anywhere; }
 .mls-sector-summary li b { color: var(--ink-soft); font-size: .68rem; }
 .mls-sector-summary li small { margin-top: 2px; }
+.mls-sector-summary li p { grid-column: 1 / -1; margin: 2px 0 0; color: var(--ink-soft); font-size: .64rem; line-height: 1.35; }
 .mls-sector-summary strong { flex: 0 0 auto; font-size: .56rem; }
 .mls-sector-summary strong.approved { color: var(--good-ink); }
 .mls-sector-summary strong.research_only { color: #8A5B22; }
@@ -465,6 +473,9 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .strategy-empty { display: grid; align-content: center; gap: 7px; min-height: 150px; padding: 24px; border: 1px dashed #CBD5E1; border-radius: 7px; background: #F8FAFC; }
 .strategy-empty b { color: var(--ink); font-size: 1rem; }
 .strategy-empty span, .strategy-empty small { color: var(--ink-faint); font-size: .76rem; line-height: 1.45; }
+.mls-outcome { display: grid; gap: 5px; padding: 14px; border: 1px solid #E4C895; border-radius: 7px; background: #FFF9ED; }
+.mls-outcome b { color: #6F4E1E; font-size: .9rem; }
+.mls-outcome span { color: var(--ink-soft); font-size: .73rem; line-height: 1.45; }
 .mls-candidate { margin: 12px 0; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
 .mls-candidate > summary { min-height: 44px; padding: 12px 14px; color: var(--accent-deep); font-weight: 750; cursor: pointer; }
 .candidate-warning { padding: 10px 14px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #FFF9EC; color: #75541F; font-size: .72rem; }
@@ -472,7 +483,7 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-checks li small { color: var(--ink-faint); font-size: .6rem; }
 .mls-diagnostics { display: grid; gap: 8px; }
 .momentum-table { margin: 0 20px 18px; width: calc(100% - 40px); }
-.mls-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 12px; align-items: start; }
+.mls-layout { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
 .mls-main, .mls-side, .mls-backtest { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
 .mls-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 11px 13px; border-bottom: 1px solid var(--line); }
 .mls-section-head h3, .mls-side h3 { margin: 0 0 3px; font-size: .88rem; letter-spacing: 0; }
@@ -500,6 +511,13 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 .mls-checks b.pass { color: var(--good-ink); }
 .mls-checks b.degraded { color: #8A5B22; }
 .mls-checks b.blocked { color: var(--risk-ink); }
+.mls-quality { margin: 12px 0; border: 1px solid var(--line); border-radius: 7px; background: #fff; overflow: hidden; }
+.mls-quality > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 10px 12px; color: var(--accent-deep); font-size: .72rem; font-weight: 750; cursor: pointer; }
+.mls-quality > summary b { color: var(--ink-soft); font-size: .66rem; text-align: right; }
+.mls-quality[open] > summary { border-bottom: 1px solid var(--line); }
+.mls-sector-tech { grid-column: 1 / -1; border-top: 1px solid #EDF0F4; margin-top: 3px; padding-top: 5px; }
+.mls-sector-tech summary { color: var(--accent-deep); font-size: .61rem; font-weight: 700; cursor: pointer; }
+.mls-sector-tech small { margin-top: 5px !important; line-height: 1.4 !important; }
 .mls-backtest { margin-top: 12px; }
 .mls-chart { position: relative; height: 220px; padding: 8px 12px 28px; }
 .mls-chart svg { width: 100%; height: 100%; overflow: visible; }
@@ -523,7 +541,9 @@ tbody tr.data-row:hover { background: #FAFBFD; }
 
 @media (max-width: 1000px) { .quality-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } .quality-kpi:nth-child(4n) { border-right: 0; } }
 @media (max-width: 700px) {
-  .strategy-mode-tabs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .strategy-mode-tabs { width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .strategy-mode-tabs::-webkit-scrollbar { display: none; }
+  .strategy-mode { flex: 0 0 auto; white-space: nowrap; }
   .quality-head { flex-direction: column; gap: 8px; }
   .quality-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .quality-kpi:nth-child(2n) { border-right: 0; }
@@ -532,7 +552,9 @@ tbody tr.data-row:hover { background: #FAFBFD; }
   .quality-backtest-state { align-items: flex-start; flex-direction: column; gap: 2px; }
   .quality-factor-row { grid-template-columns: 100px minmax(90px, 1fr) 42px; }
   .mls-head, .mls-action { flex-direction: column; gap: 10px; }
+  .mls-head p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
   .mls-meta { justify-content: flex-start; }
+  .mls-gate-grid { grid-template-columns: 1fr; }
   .mls-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mls-kpis > div:nth-child(2n) { border-right: 0; }
   .mls-layout { grid-template-columns: 1fr; }
@@ -544,7 +566,8 @@ tbody tr.data-row:hover { background: #FAFBFD; }
   .strategy-schedule-grid > div:nth-child(2) { border-right: 0; }
   .strategy-schedule-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .momentum-table { margin-inline: 12px; width: calc(100% - 24px); }
-  .mls-side { order: -1; }
+  .mls-quality > summary { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .mls-quality > summary b { text-align: left; }
   .mls-metrics { grid-template-columns: repeat(2, 1fr); }
   .mls-metrics span:nth-child(2n) { border-right: 0; }
 }

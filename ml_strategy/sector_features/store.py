@@ -15,7 +15,7 @@ from .mapping import load_sector_mapping, pack_for_security
 from .packs import PACKS
 from .publication_calendar import market_series_observations, point_in_time_values
 from .registry import load_config, load_source_registry
-from .transformations import trailing_return
+from .transformations import trailing_return, trailing_volatility
 
 SECTOR_ID_COLUMNS = [f"sector_id__{pack.lower()}" for pack in PACKS]
 
@@ -37,6 +37,10 @@ def _wide_pit_series(
     generated_at: pd.Timestamp,
 ) -> tuple[pd.Series, pd.Series]:
     observations = market_series_observations(series_id, values, lag, generated_at)
+    if observations.empty:
+        empty_values = pd.Series(np.nan, index=dates, dtype=float)
+        empty_available = pd.Series(pd.NaT, index=dates, dtype="datetime64[ns]")
+        return empty_values, empty_available
     prediction_times = pd.DatetimeIndex(dates).tz_localize("UTC")
     aligned = point_in_time_values(observations, prediction_times)
     aligned = aligned.set_index(pd.to_datetime(aligned["prediction_at"]).dt.tz_convert(None))
@@ -47,7 +51,8 @@ def _wide_pit_series(
 
 
 def _assign(panel: pd.DataFrame, dates: pd.Series, mask: np.ndarray, name: str, values: pd.Series) -> None:
-    panel[name] = values.reindex(pd.DatetimeIndex(dates)).to_numpy(dtype=float) * mask.astype(float)
+    aligned = values.reindex(pd.DatetimeIndex(dates)).to_numpy(dtype=float)
+    panel[name] = np.where(mask.astype(bool), aligned, 0.0)
 
 
 def build_sector_features(
@@ -73,6 +78,17 @@ def build_sector_features(
     pack_values = pd.Series(tickers.map(pack_by_ticker), index=panel.index)
 
     source_map = {
+        "MOEX_IMOEX": data.macro.get("IMOEX", pd.Series(dtype=float)),
+        "MOEX_MOEXOG": data.macro.get("MOEXOG", pd.Series(dtype=float)),
+        "MOEX_MOEXMM": data.macro.get("MOEXMM", pd.Series(dtype=float)),
+        "MOEX_MOEXFN": data.macro.get("MOEXFN", pd.Series(dtype=float)),
+        "MOEX_MOEXRE": data.macro.get("MOEXRE", pd.Series(dtype=float)),
+        "MOEX_MOEXEU": data.macro.get("MOEXEU", pd.Series(dtype=float)),
+        "MOEX_MOEXCN": data.macro.get("MOEXCN", pd.Series(dtype=float)),
+        "MOEX_MOEXIT": data.macro.get("MOEXIT", pd.Series(dtype=float)),
+        "MOEX_MOEXTL": data.macro.get("MOEXTL", pd.Series(dtype=float)),
+        "MOEX_MOEXTN": data.macro.get("MOEXTN", pd.Series(dtype=float)),
+        "MOEX_MOEXCH": data.macro.get("MOEXCH", pd.Series(dtype=float)),
         "MOEX_USDRUB": data.macro.get("USDRUB", pd.Series(dtype=float)),
         "MOEX_RGBI": data.macro.get("RGBI", pd.Series(dtype=float)),
         "CBR_KEY_RATE": data.macro.get("KEY_RATE", pd.Series(dtype=float)),
@@ -93,6 +109,38 @@ def build_sector_features(
     key_rate = aligned["CBR_KEY_RATE"] / 100.0
     key_rate_change = key_rate.diff(60)
     masks = {pack: (pack_values == pack).to_numpy() for pack in PACKS}
+    market_return_20d = trailing_return(aligned["MOEX_IMOEX"], 20)
+    for pack_id, pack in PACKS.items():
+        prefix = str(pack["feature_prefix"])
+        sector_index = aligned[str(pack["sector_index_source"])]
+        sector_return_20d = trailing_return(sector_index, 20)
+        _assign(out, dates, masks[pack_id], f"{prefix}_sector_return_20d", sector_return_20d)
+        _assign(out, dates, masks[pack_id], f"{prefix}_sector_return_60d", trailing_return(sector_index, 60))
+        _assign(
+            out,
+            dates,
+            masks[pack_id],
+            f"{prefix}_sector_relative_20d",
+            sector_return_20d - market_return_20d,
+        )
+        _assign(
+            out,
+            dates,
+            masks[pack_id],
+            f"{prefix}_sector_volatility_20d",
+            trailing_volatility(sector_index, 20),
+        )
+        out[f"{prefix}_sector_index_missing"] = (
+            masks[pack_id]
+            & out[
+                [
+                    f"{prefix}_sector_return_20d",
+                    f"{prefix}_sector_return_60d",
+                    f"{prefix}_sector_relative_20d",
+                    f"{prefix}_sector_volatility_20d",
+                ]
+            ].isna().any(axis=1).to_numpy()
+        ).astype(float)
     _assign(out, dates, masks["OIL_AND_GAS"], "oil_fx_driver", usd_return)
     _assign(out, dates, masks["STEEL_AND_FERROUS_METALS"], "steel_fx_driver", usd_return)
     _assign(out, dates, masks["BANKS_AND_FINANCIALS"], "bank_key_rate_level", key_rate)
@@ -120,6 +168,11 @@ def build_sector_features(
     for pack_id, pack in PACKS.items():
         source_rows = [registry[source_id] for source_id in pack["approved_sources"]]
         blocked = [source_id for source_id in pack["blocked_sources"] if registry[source_id].status == "BLOCKED"]
+        unavailable = [
+            source.series_id
+            for source in source_rows
+            if aligned.get(source.series_id, pd.Series(dtype=float)).dropna().empty
+        ]
         latest_dates = [
             available[source.series_id].dropna().max()
             for source in source_rows
@@ -138,6 +191,7 @@ def build_sector_features(
                 "features": pack["features"],
                 "approved_sources": pack["approved_sources"],
                 "blocked_sources": blocked,
+                "unavailable_sources": unavailable,
                 "latest_available_at": latest_available.date().isoformat() if latest_available is not None else None,
                 "reason": pack["reason"],
             }
@@ -163,10 +217,22 @@ def build_sector_features(
     quality_payload = {
         "schema_version": 1,
         "generated_at": generated_at.isoformat(),
-        "status": "DEGRADED" if any(row["blocked_sources"] for row in pack_rows) else "PASS",
+        "status": "DEGRADED"
+        if any(row["blocked_sources"] or row["unavailable_sources"] for row in pack_rows)
+        else "PASS",
         "point_in_time_policy": "available_at <= prediction_timestamp",
         "issuer_exposure_status": mapping["issuer_exposure_status"],
         "issuer_exposure_reason": mapping["issuer_exposure_reason"],
+        "mapped_security_count": sum(pack is not None for pack in pack_by_ticker.values()),
+        "unmapped_security_count": sum(pack is None for pack in pack_by_ticker.values()),
+        "mapped_security_share": (
+            sum(pack is not None for pack in pack_by_ticker.values()) / max(1, len(pack_by_ticker))
+        ),
+        "unmapped_sectors": sorted({
+            str(data.master.get(ticker, {}).get("sector") or "Не определён")
+            for ticker, pack in pack_by_ticker.items()
+            if pack is None
+        }),
         "packs": pack_rows,
     }
     return SectorFeatureResult(

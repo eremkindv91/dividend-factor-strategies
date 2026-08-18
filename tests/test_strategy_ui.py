@@ -55,6 +55,15 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert "renderMlStrategy" in app
     assert "ML-оптимизатор" in html
     assert ".mls-table" in styles
+    assert "Система воздержалась от ребалансировки" in app
+    assert "после следующего официального закрытия MOEX" in app
+    assert "Качество и полнота данных" in app
+    assert "не действующий портфель" in app
+    assert "source_availability" in app
+    assert "mlsGateStatusLabel" in app
+    assert "mlsCheckStatusLabel" in app
+    assert ".mls-gate-grid" in styles
+    assert ".mls-quality" in styles
     assert "check_ml_strategy" in validator
     assert "scripts/build_ml_strategy.py --allow-network" in workflow
     assert "Publish validated snapshot additively" in workflow

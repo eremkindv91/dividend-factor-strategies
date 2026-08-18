@@ -145,10 +145,14 @@ def validate_sector_quality(payload: dict) -> list[str]:
     if payload.get("point_in_time_policy") != "available_at <= prediction_timestamp":
         errors.append("sector quality: point-in-time policy missing")
     packs = payload.get("packs")
-    if not isinstance(packs, list) or len(packs) != 4:
-        errors.append("sector quality: four priority packs required")
-    elif any(row.get("status") not in {"APPROVED", "RESEARCH_ONLY", "BLOCKED"} for row in packs):
-        errors.append("sector quality: invalid pack status")
+    if not isinstance(packs, list) or len(packs) < 4:
+        errors.append("sector quality: at least four priority packs required")
+    else:
+        pack_ids = [row.get("pack_id") for row in packs]
+        if any(not pack_id for pack_id in pack_ids) or len(set(pack_ids)) != len(pack_ids):
+            errors.append("sector quality: pack ids must be present and unique")
+        if any(row.get("status") not in {"APPROVED", "RESEARCH_ONLY", "BLOCKED"} for row in packs):
+            errors.append("sector quality: invalid pack status")
     return errors
 
 

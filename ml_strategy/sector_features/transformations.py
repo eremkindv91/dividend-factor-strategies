@@ -14,6 +14,11 @@ def trailing_return(values: pd.Series, periods: int) -> pd.Series:
     return values.div(values.shift(periods)).sub(1)
 
 
+def trailing_volatility(values: pd.Series, periods: int = 20) -> pd.Series:
+    returns = values.pct_change(fill_method=None)
+    return returns.rolling(periods, min_periods=periods).std(ddof=1).mul(np.sqrt(252.0))
+
+
 def stale_days(available_at: pd.Series, dates: pd.DatetimeIndex) -> pd.Series:
     available = pd.to_datetime(available_at, utc=True).dt.tz_convert(None)
     date_series = pd.Series(pd.to_datetime(dates), index=dates)

@@ -4,7 +4,14 @@
     "OIL_AND_GAS": {"enabled": true, "production_candidate": true},
     "STEEL_AND_FERROUS_METALS": {"enabled": true, "production_candidate": true},
     "BANKS_AND_FINANCIALS": {"enabled": true, "production_candidate": true},
-    "REAL_ESTATE_DEVELOPERS": {"enabled": true, "production_candidate": true}
+    "REAL_ESTATE_DEVELOPERS": {"enabled": true, "production_candidate": true},
+    "ELECTRIC_UTILITIES": {"enabled": true, "production_candidate": true},
+    "CONSUMER_SECTOR": {"enabled": true, "production_candidate": true},
+    "INFORMATION_TECHNOLOGY": {"enabled": true, "production_candidate": true},
+    "TELECOMMUNICATIONS": {"enabled": true, "production_candidate": true},
+    "TRANSPORT": {"enabled": true, "production_candidate": true},
+    "CHEMICALS_AND_PETROCHEMICALS": {"enabled": true, "production_candidate": true},
+    "FINANCIAL_SERVICES": {"enabled": true, "production_candidate": true}
   },
   "promotion": {
     "minimum_spearman_ic_improvement": 0.01,

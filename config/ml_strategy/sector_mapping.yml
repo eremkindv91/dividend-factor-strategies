@@ -18,6 +18,34 @@
     "REAL_ESTATE_DEVELOPERS": {
       "security_master_sectors": ["Недвижимость"],
       "priority_tickers": ["PIKK", "SMLT", "LSRG", "ETLN"]
+    },
+    "ELECTRIC_UTILITIES": {
+      "security_master_sectors": ["Энергетика", "Электроэнергетика"],
+      "priority_tickers": []
+    },
+    "CONSUMER_SECTOR": {
+      "security_master_sectors": ["Потребительский сектор"],
+      "priority_tickers": []
+    },
+    "INFORMATION_TECHNOLOGY": {
+      "security_master_sectors": ["IT"],
+      "priority_tickers": []
+    },
+    "TELECOMMUNICATIONS": {
+      "security_master_sectors": ["Телекоммуникации"],
+      "priority_tickers": []
+    },
+    "TRANSPORT": {
+      "security_master_sectors": ["Транспорт"],
+      "priority_tickers": []
+    },
+    "CHEMICALS_AND_PETROCHEMICALS": {
+      "security_master_sectors": ["Химия"],
+      "priority_tickers": []
+    },
+    "FINANCIAL_SERVICES": {
+      "security_master_sectors": ["Финансы"],
+      "priority_tickers": []
     }
   },
   "issuer_exposures": [],

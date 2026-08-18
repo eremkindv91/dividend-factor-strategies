@@ -2,6 +2,17 @@
   "schema_version": 1,
   "default_calendar_days": 1,
   "series": {
+    "MOEX_IMOEX": 0,
+    "MOEX_MOEXOG": 0,
+    "MOEX_MOEXMM": 0,
+    "MOEX_MOEXFN": 0,
+    "MOEX_MOEXRE": 0,
+    "MOEX_MOEXEU": 0,
+    "MOEX_MOEXCN": 0,
+    "MOEX_MOEXIT": 0,
+    "MOEX_MOEXTL": 0,
+    "MOEX_MOEXTN": 0,
+    "MOEX_MOEXCH": 0,
     "MOEX_USDRUB": 0,
     "MOEX_RGBI": 0,
     "CBR_KEY_RATE": 0
