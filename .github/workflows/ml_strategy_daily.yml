@@ -2,19 +2,19 @@ name: ml-strategy-daily (MOEX inference + validated snapshot)
 
 on:
   schedule:
-    - cron: "30 21 * * 1-5"
+    # 01:30 МСК следующего дня: после daily market data и тяжёлого bond workflow.
+    # Расчёт вынесен из общей очереди gh-pages, поэтому задержка публикации больше
+    # не отменяет сам inference run.
+    - cron: "30 22 * * 1-5"
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: gh-pages-publish
-  cancel-in-progress: false
+  contents: read
 
 jobs:
   inference:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,6 +38,29 @@ jobs:
           python scripts/build_ml_strategy.py --allow-network
           python scripts/validate_ml_strategy.py
           python scripts/validate_site_data.py ml_strategy
+      - name: Save validated snapshot for publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-strategy-site-${{ github.run_id }}
+          path: site/ml_strategy
+          retention-days: 3
+          if-no-files-found: error
+
+  publish:
+    needs: inference
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: gh-pages-publish
+      cancel-in-progress: false
+    steps:
+      - name: Restore validated snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: ml-strategy-site-${{ github.run_id }}
+          path: site/ml_strategy
       - name: Publish validated snapshot additively
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
