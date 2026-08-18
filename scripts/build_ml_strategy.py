@@ -27,6 +27,16 @@ def main() -> int:
         benchmarks = daily / "benchmarks"
         for secid in ("MCFTR", "IMOEX", "RGBI"):
             refresh_index_cache(benchmarks / f"{secid}.parquet", secid)
+        for secid in (
+            "MOEXOG", "MOEXMM", "MOEXFN", "MOEXRE", "MOEXEU",
+            "MOEXCN", "MOEXIT", "MOEXTL", "MOEXTN", "MOEXCH",
+        ):
+            output = benchmarks / f"{secid}.parquet"
+            try:
+                refresh_index_cache(output, secid)
+            except Exception as error:  # optional sector input must not block the core model
+                state = "preserving previous cache" if output.exists() else "pack remains unavailable"
+                print(f"[ml-strategy] {secid} refresh failed; {state}: {error}", file=sys.stderr)
         refresh_moex_instrument_cache(
             benchmarks / "USDRUB.parquet",
             {

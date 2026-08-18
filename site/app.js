@@ -1633,7 +1633,33 @@ function mlsActionLabel(action) {
 }
 
 function mlsModelStatusLabel(status) {
-  return ({ production: 'Production', research_only: 'Только исследование', rejected: 'Отклонена', failed: 'Ошибка расчёта', APPROVED: 'Production', RESEARCH_ONLY: 'Только исследование' })[status] || status || '—';
+  return ({
+    production: 'Допущена к формированию портфеля',
+    research_only: 'Исследовательский режим',
+    rejected: 'Не прошла отбор',
+    failed: 'Ошибка расчёта',
+    APPROVED: 'Допущена к формированию портфеля',
+    RESEARCH_ONLY: 'Исследовательский режим',
+  })[status] || status || '—';
+}
+
+function mlsModelLabel(name) {
+  return ({ elastic_net: 'ElasticNet', ridge: 'Ridge', random_forest: 'Random Forest' })[name] || name || '—';
+}
+
+function mlsCheckStatusLabel(status) {
+  return ({ PASS: 'Пройдено', DEGRADED: 'Ограничение', BLOCKED: 'Блокирует' })[String(status || '').toUpperCase()] || status || '—';
+}
+
+function mlsGateStatusLabel(status) {
+  return String(status || '').toLowerCase() === 'pass' ? 'Пройден' : 'Не пройден';
+}
+
+function mlsDataStatusLabel(status) {
+  return ({
+    PASS: 'Данные пригодны', OK: 'Данные пригодны', FRESH: 'Данные свежие',
+    DEGRADED: 'Есть ограничения', BLOCKED: 'Расчёт заблокирован', FAILED: 'Ошибка расчёта',
+  })[String(status || '').toUpperCase()] || status || '—';
 }
 
 function mlsCheckLabel(name) {
@@ -1641,7 +1667,7 @@ function mlsCheckLabel(name) {
     price_series: 'Ценовые ряды',
     history_depth: 'Глубина истории',
     benchmark_history: 'История MCFTR',
-    latest_investable_cross_section: 'Ликвидный universe',
+    latest_investable_cross_section: 'Ликвидный набор бумаг',
     staleness: 'Свежесть',
     official_dividend_coverage: 'Дивиденды MOEX',
     macro_market_features: 'Рыночные и макро-факторы',
@@ -1713,8 +1739,15 @@ function renderMlStrategy() {
   const candidateRows = ((candidate || {}).positions || []).map((row) => `<tr>
     <td>${instrumentIdentityHTML(row.ticker, row.name, row.instrument_type, 'sm')}</td><td>${esc(row.sector || '—')}</td>
     <td><b>${mlsPct(row.calculated_weight)}</b></td><td>${mlsPct(row.expected_excess_return_20d, 2)}</td></tr>`).join('');
-  const dqChecks = (dataQuality.checks || []).map((check) =>
-    `<li><span>${esc(mlsCheckLabel(check.name))}${check.value != null ? `<small>${esc(String(check.value))}${check.minimum != null ? ` / min ${esc(String(check.minimum))}` : ''}</small>` : ''}</span><b class="${String(check.status).toLowerCase()}">${esc(check.status)}</b></li>`
+  const qualityChecks = dataQuality.checks || [];
+  const passedCheckCount = qualityChecks.filter((check) => String(check.status).toUpperCase() === 'PASS').length;
+  const blockedCheckCount = qualityChecks.filter((check) => String(check.status).toUpperCase() === 'BLOCKED').length;
+  const limitedCheckCount = qualityChecks.length - passedCheckCount - blockedCheckCount;
+  const qualitySummary = blockedCheckCount
+    ? `${blockedCheckCount} блокируют · ${passedCheckCount} пройдено`
+    : `${passedCheckCount} пройдено · ${limitedCheckCount} с ограничениями`;
+  const dqChecks = qualityChecks.map((check) =>
+    `<li><span>${esc(mlsCheckLabel(check.name))}${check.value != null ? `<small>${esc(String(check.value))}${check.minimum != null ? ` / минимум ${esc(String(check.minimum))}` : ''}</small>` : ''}</span><b class="${String(check.status).toLowerCase()}">${esc(mlsCheckStatusLabel(check.status))}</b></li>`
   ).join('');
   const limitations = (modelCard.limitations || []).map((text) => `<li>${esc(text)}</li>`).join('');
   const sectorPacks = (sectorQuality.packs || []).map((pack) => {
@@ -1724,9 +1757,11 @@ function renderMlStrategy() {
       identical_test_rows: 'общая OOS-выборка', sector_oos_evidence: 'объём отраслевой выборки',
       rank_ic_improvement: 'прирост Rank IC', hit_rate_change: 'hit rate',
       positive_top_bottom_spread: 'top-bottom spread', relative_after_cost_portfolio: 'результат после издержек',
+      source_availability: 'доступность официальных рядов',
     };
-    const blocked = (pack.blocked_sources || []).length
-      ? ` · недоступны: ${(pack.blocked_sources || []).join(', ')}`
+    const unavailableSources = [...(pack.blocked_sources || []), ...(pack.unavailable_sources || [])];
+    const blocked = unavailableSources.length
+      ? ` · недоступны: ${[...new Set(unavailableSources)].join(', ')}`
       : '';
     const timing = evaluation.feature_role === 'sector_timing';
     const baseIc = timing ? evaluation.timing_base_rank_ic : evaluation.base_rank_ic;
@@ -1739,40 +1774,60 @@ function renderMlStrategy() {
       ? `${evaluation.sector_oos_rows} OOS-строк · ${evaluation.sector_oos_tickers || 0} бумаг · ${timing ? evaluation.timing_dates : evaluation.sector_oos_dates || 0} дат`
       : 'отраслевая выборка недоступна';
     const failed = (evaluation.failed_gates || []).map((name) => gateLabels[name] || name).join(', ');
-    const sourceState = (pack.blocked_sources || []).length ? 'источники неполные' : 'официальные источники готовы';
-    return `<li><span><b>${esc(pack.label || pack.pack_id)}</b><small>${timing ? 'Timing сектора' : 'Отбор внутри сектора'} · ${esc(sourceState)} · ${esc(evidence)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${failed ? ` · не пройдено: ${esc(failed)}` : ''}${esc(blocked)}</small></span><strong class="${esc(ablation)}">${pack.used_in_production ? 'В production' : 'Не прошёл gate'}</strong></li>`;
+    const sourceState = unavailableSources.length ? 'источники неполные' : 'официальные ряды загружены';
+    const decision = pack.used_in_production ? 'Влияет на модель' : 'Не влияет на портфель';
+    const reason = failed ? `Не пройдено: ${failed}.` : (unavailableSources.length ? 'Не хватает официальных данных.' : 'Все отраслевые gates пройдены.');
+    return `<li class="mls-sector-card"><div><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(decision)}</small></div><strong class="${esc(ablation)}">${pack.used_in_production ? 'Допущен' : 'Не прошёл gate'}</strong><p>${esc(reason)}</p><details class="mls-sector-tech"><summary>Метрики проверки</summary><small>${timing ? 'Timing сектора' : 'Отбор внутри сектора'} · ${esc(sourceState)} · ${esc(evidence)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${esc(blocked)}</small></details></li>`;
   }).join('');
   const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
   const evaluatedPackCount = sectorQuality.evaluated_pack_count || (sectorQuality.packs || []).filter((pack) => pack.ablation_status).length;
+  const totalPackCount = (sectorQuality.packs || []).length;
   const approvedSources = (sectorRegistry.sources || []).filter((source) => source.status === 'APPROVED').length;
   const diagnostics = latest.diagnostics || {};
   const predictive = diagnostics.predictive_gate || {};
   const portfolioGate = diagnostics.portfolio_gate || {};
   const predictiveActual = predictive.actual || {};
   const portfolioActual = portfolioGate.actual || {};
+  const predictivePassed = String(predictive.status || '').toLowerCase() === 'pass';
+  const portfolioPassed = String(portfolioGate.status || '').toLowerCase() === 'pass';
+  const sectorPassed = approvedPackCount > 0;
+  const decisionTitle = published
+    ? (String(action).toLowerCase() === 'rebalance' ? 'Сформирован новый подтверждённый состав' : 'Действующий состав сохранён')
+    : 'Система воздержалась от ребалансировки';
+  const decisionReason = published
+    ? ((latest.signal || {}).reason || 'Новые веса не требуют изменения позиций.')
+    : 'Прогноз и портфель после издержек не прошли обязательные проверки. Расчётный кандидат не влияет на операции.';
+  const executionKpis = published ? `
+      <div><span>Оборот</span><b>${isNum(execution.turnover) ? mlsPct(execution.turnover) : '—'}</b><small>лимит ${isNum(execution.turnover_cap) ? mlsPct(execution.turnover_cap) : '—'}</small></div>
+      <div><span>Издержки</span><b>${isNum(execution.estimated_cost_rub) ? ru(execution.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(execution.one_way_cost_bps) ? ru(execution.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>` : '';
   const publishedTitle = published ? 'Последний подтверждённый модельный состав' : 'Целевой состав не сформирован';
-  const publishedBody = published ? `<div class="mls-layout"><div class="mls-main">
+  const publishedBody = published ? `<div class="mls-main">
       <div class="mls-section-head"><div><h3>${publishedTitle}</h3><p>Опубликован ${esc(published.as_of || latest.data_as_of || '—')} · run ${esc(published.published_from_run_id || published.run_id || '—')}.</p></div><b>${mlsPct(published.cash_weight)} cash</b></div>
       <div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Подтверждённый вес</th><th>Excess 20д</th></tr></thead><tbody>${publishedRows}</tbody></table></div>
-    </div><aside class="mls-side"><h3>Контроль качества</h3><ul class="mls-checks">${dqChecks}</ul></aside></div>`
-    : `<div class="mls-layout"><div class="strategy-empty"><b>${publishedTitle}</b><span>${esc((latest.signal || {}).reason || 'Новый кандидат не прошёл обязательные gates.')}</span><small>Расчётные веса не являются операциями и скрыты ниже.</small></div><aside class="mls-side"><h3>Контроль качества</h3><ul class="mls-checks">${dqChecks}</ul></aside></div>`;
+    </div>`
+    : `<div class="mls-outcome"><b>${publishedTitle}</b><span>Новых покупок и продаж нет. Расчётные веса скрыты ниже и не являются операциями.</span></div>`;
   target.innerHTML = `
     <div class="mls-action">
-      <div><span>Статус стратегии</span><b>${esc((latest.signal || {}).title || mlsActionLabel(action))}</b><small>${esc((latest.signal || {}).reason || '')}</small></div>
+      <div><span>Решение на сегодня</span><b>${esc(decisionTitle)}</b><small>${esc(decisionReason)}</small><small>Следующая проверка — после следующего официального закрытия MOEX.</small></div>
       <div class="mls-meta"><span>Данные <b>${esc(latest.data_as_of || '—')}</b></span><span>Run <b>${esc(((latest.run || {}).run_id) || '—')}</b></span><span>Benchmark <b>${esc(latest.benchmark || 'MCFTR')}</b></span></div>
     </div>
+    <div class="mls-gate-grid" aria-label="Ключевые проверки стратегии">
+      <div class="${predictivePassed ? 'pass' : 'fail'}"><span>Качество прогноза</span><b>${esc(mlsGateStatusLabel(predictive.status))}</b><small>Rank IC ${isNum(predictiveActual.spearman_ic) ? ru(predictiveActual.spearman_ic, 3) : '—'} · hit rate ${mlsPct(predictiveActual.hit_rate)}</small></div>
+      <div class="${portfolioPassed ? 'pass' : 'fail'}"><span>Портфель после издержек</span><b>${esc(mlsGateStatusLabel(portfolioGate.status))}</b><small>Excess ${mlsPct(portfolioActual.excess_cumulative_return)} · Sharpe ${isNum(portfolioActual.sharpe_after_costs) ? ru(portfolioActual.sharpe_after_costs, 2) : '—'}</small></div>
+      <div class="${sectorPassed ? 'pass' : 'watch'}"><span>Отраслевые модели</span><b>${approvedPackCount} из ${evaluatedPackCount || totalPackCount} допущено</b><small>${isNum(sectorQuality.mapped_security_share) ? ru(sectorQuality.mapped_security_share * 100, 0) + '% бумаг имеют отраслевой контекст' : 'Оцениваются автоматически на каждом ML-run'}</small></div>
+    </div>
     <div class="mls-kpis">
-      <div><span>Модель</span><b>${esc(model.champion || '—')}</b><small>${esc(mlsModelStatusLabel(latest.model_status || model.status))}</small></div>
+      <div><span>Модель</span><b>${esc(mlsModelLabel(model.champion))}</b><small>${esc(mlsModelStatusLabel(latest.model_status || model.status))}</small></div>
       <div><span>Подтверждённый состав</span><b>${positions.length ? positions.length + ' бумаг' : 'Нет'}</b><small>${published ? esc(published.method || '—') : 'кандидат не опубликован'}</small></div>
       <div><span>Действие</span><b>${esc(mlsActionLabel(action))}</b><small>${action === 'rebalance' ? 'принятый rebalance' : 'исполняемых изменений нет'}</small></div>
-      <div><span>Оборот</span><b>${isNum(execution.turnover) ? mlsPct(execution.turnover) : '—'}</b><small>лимит ${isNum(execution.turnover_cap) ? mlsPct(execution.turnover_cap) : '—'}</small></div>
-      <div><span>Издержки</span><b>${isNum(execution.estimated_cost_rub) ? ru(execution.estimated_cost_rub, 0) + ' ₽' : '—'}</b><small>${isNum(execution.one_way_cost_bps) ? ru(execution.one_way_cost_bps, 0) + ' б.п.' : '—'}</small></div>
-      <div><span>Входы модели</span><b>${esc(latest.data_status || String(dataQuality.status || '—').toLowerCase())}</b><small>${latest.data_quality ? latest.data_quality.investable_companies : '—'} investable</small></div>
+      <div><span>Качество данных</span><b>${esc(mlsDataStatusLabel(latest.data_status || dataQuality.status))}</b><small>${passedCheckCount} из ${qualityChecks.length} проверок пройдено</small></div>
+      ${executionKpis}
     </div>
     ${publishedBody}
-    ${candidateRows ? `<details class="mls-candidate"><summary>Исследовательский кандидат — не используется для операций</summary><div class="candidate-warning">Расчётные веса нового run. Нет количества акций, рублёвых сумм и команд увеличить/снизить.</div><div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Расчётный вес</th><th>Excess 20д</th></tr></thead><tbody>${candidateRows}</tbody></table></div></details>` : ''}
+    <details class="mls-quality"><summary><span>Качество и полнота данных</span><b>${esc(qualitySummary)}</b></summary><ul class="mls-checks">${dqChecks}</ul></details>
+    ${candidateRows ? `<details class="mls-candidate"><summary>Что модель рассматривала — не действующий портфель</summary><div class="candidate-warning">Эти веса не прошли проверки и не влияют на операции. Они показаны только для прозрачности расчёта.</div><div class="mls-table-wrap"><table class="mls-table"><thead><tr><th>Бумага</th><th>Сектор</th><th>Расчётный вес</th><th>Excess 20д</th></tr></thead><tbody>${candidateRows}</tbody></table></div></details>` : ''}
     <div class="mls-backtest">
-      <div class="mls-section-head"><div><h3>Out-of-sample против MCFTR</h3><p>Purged walk-forward, следующий торговый день, после заданных издержек.</p></div></div>
+      <div class="mls-section-head"><div><h3>Проверка стратегии на истории против MCFTR</h3><p>Purged walk-forward без подглядывания в будущее, после комиссий и оборота.</p></div></div>
       ${mlsCurveSvg(backtest.curve)}
       <div class="mls-metrics">
         <span>CAGR <b>${mlsPct(metrics.cagr_after_costs)}</b></span>
@@ -1783,8 +1838,8 @@ function renderMlStrategy() {
       </div>
     </div>
     <details class="mls-method">
-      <summary>Почему такой статус?</summary>
-      <div class="mls-diagnostics"><p><b>Прогнозный gate:</b> ${esc(predictive.status || '—')} · Rank IC ${isNum(predictiveActual.spearman_ic) ? ru(predictiveActual.spearman_ic, 3) : '—'} · hit rate ${mlsPct(predictiveActual.hit_rate)}.</p><p><b>After-cost gate:</b> ${esc(portfolioGate.status || '—')} · excess ${mlsPct(portfolioActual.excess_cumulative_return)} · Sharpe ${isNum(portfolioActual.sharpe_after_costs) ? ru(portfolioActual.sharpe_after_costs, 2) : '—'}.</p><p><b>Target:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><div class="mls-sector-summary"><div><span>Отраслевые признаки</span><b>${evaluatedPackCount} из 4 оценены · ${approvedPackCount} в production</b><small>${approvedSources} официальных ряда. Веса production-модели используют только packs, прошедшие все фиксированные OOS gates.</small></div><ul>${sectorPacks}</ul></div><ul>${limitations}</ul></div>
+      <summary>Методология и отраслевые проверки</summary>
+      <div class="mls-diagnostics"><p><b>Целевая переменная:</b> ${esc((modelCard.target || {}).name || '—')}. Scaler и imputer обучаются внутри каждого fold; незакрытые targets исключаются.</p><div class="mls-sector-summary"><div><span>Отраслевые признаки</span><b>${evaluatedPackCount} из ${totalPackCount} оценены · ${approvedPackCount} в рабочей модели</b><small>${approvedSources} официальных рядов. Покрыто ${sectorQuality.mapped_security_count ?? '—'} из ${(sectorQuality.mapped_security_count || 0) + (sectorQuality.unmapped_security_count || 0) || '—'} бумаг. Каждый pack попадает в модель только после одинаковой OOS-проверки и учёта издержек.</small></div><ul>${sectorPacks}</ul></div><ul>${limitations}</ul></div>
     </details>`;
 }
 

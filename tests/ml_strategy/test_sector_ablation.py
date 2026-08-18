@@ -7,6 +7,7 @@ import pandas as pd
 from ml_strategy.config import StrategyConfig
 from ml_strategy.models import ModelEvaluation
 from ml_strategy.pipeline import build_bundle
+from ml_strategy.sector_features.packs import PACKS
 from ml_strategy.sector_features.store import _sector_comparison, _sector_timing_comparison
 
 
@@ -52,7 +53,7 @@ def test_ablation_uses_identical_folds_and_keeps_unapproved_features_out(market_
     )
     bundle = build_bundle(market_repo, config=config, today=date(2024, 12, 1))
     rows = bundle["backtest.json"]["sector_ablation"]
-    assert len(rows) == 4
+    assert len(rows) == len(PACKS)
     assert all(row["same_folds"] for row in rows)
     assert all(row["candidate_n"] > 0 for row in rows)
     assert all("promotion_gates" in row for row in rows)
@@ -72,5 +73,22 @@ def test_ablation_uses_identical_folds_and_keeps_unapproved_features_out(market_
     assert approved <= model_features
     assert all(row["issuer_exposure_variant"] == "BLOCKED" for row in rows)
     quality = bundle["sector_features/latest_quality.json"]
-    assert quality["evaluated_pack_count"] == 4
+    assert quality["evaluated_pack_count"] == len(PACKS)
     assert quality["production_pack_count"] == sum(row["status"] == "APPROVED" for row in rows)
+
+
+def test_unavailable_official_sector_index_cannot_be_promoted(market_repo):
+    (market_repo / "data" / "daily" / "benchmarks" / "MOEXOG.parquet").unlink()
+    config = StrategyConfig(
+        min_training_rows=300,
+        evaluation_folds=4,
+        max_universe=18,
+        min_cross_section=10,
+    )
+    bundle = build_bundle(market_repo, config=config, today=date(2024, 12, 1))
+    oil = next(row for row in bundle["backtest.json"]["sector_ablation"] if row["pack_id"] == "OIL_AND_GAS")
+
+    assert oil["promotion_gates"]["source_availability"]["status"] == "FAIL"
+    assert "source_availability" in oil["failed_gates"]
+    assert oil["status"] == "RESEARCH_ONLY"
+    assert not oil["used_in_production"]

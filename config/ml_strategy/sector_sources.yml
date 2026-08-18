@@ -1,7 +1,128 @@
 {
   "schema_version": 1,
-  "registry_version": "2026-07-27",
+  "registry_version": "2026-08-18",
   "sources": [
+    {
+      "series_id": "MOEX_IMOEX",
+      "label": "Индекс МосБиржи",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/IMOEX",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["OIL_AND_GAS", "STEEL_AND_FERROUS_METALS", "BANKS_AND_FINANCIALS", "REAL_ESTATE_DEVELOPERS", "ELECTRIC_UTILITIES", "CONSUMER_SECTOR", "INFORMATION_TECHNOLOGY", "TELECOMMUNICATIONS", "TRANSPORT", "CHEMICALS_AND_PETROCHEMICALS", "FINANCIAL_SERVICES"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXOG",
+      "label": "Индекс МосБиржи нефти и газа",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXOG",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["OIL_AND_GAS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXMM",
+      "label": "Индекс МосБиржи металлов и добычи",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXMM",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["STEEL_AND_FERROUS_METALS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXFN",
+      "label": "Индекс МосБиржи финансов",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXFN",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["BANKS_AND_FINANCIALS", "FINANCIAL_SERVICES"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXRE",
+      "label": "Индекс МосБиржи строительства",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXRE",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["REAL_ESTATE_DEVELOPERS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXEU",
+      "label": "Индекс МосБиржи электроэнергетики",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXEU",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["ELECTRIC_UTILITIES"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXCN",
+      "label": "Индекс МосБиржи потребительского сектора",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXCN",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["CONSUMER_SECTOR"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXIT",
+      "label": "Индекс МосБиржи информационных технологий",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXIT",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["INFORMATION_TECHNOLOGY"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXTL",
+      "label": "Индекс МосБиржи телекоммуникаций",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXTL",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["TELECOMMUNICATIONS"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXTN",
+      "label": "Индекс МосБиржи транспорта",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXTN",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["TRANSPORT"],
+      "status": "APPROVED"
+    },
+    {
+      "series_id": "MOEX_MOEXCH",
+      "label": "Индекс МосБиржи химии и нефтехимии",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXCH",
+      "frequency": "daily",
+      "availability_lag_calendar_days": 0,
+      "revision_policy": "append_only_market_close",
+      "required_by": ["CHEMICALS_AND_PETROCHEMICALS"],
+      "status": "APPROVED"
+    },
     {
       "series_id": "MOEX_USDRUB",
       "label": "USD/RUB",

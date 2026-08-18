@@ -18,9 +18,22 @@ def market_repo(tmp_path: Path) -> Path:
     (repo / "data" / "daily" / "benchmarks").mkdir(parents=True)
     dates = pd.bdate_range("2022-01-03", periods=760)
     securities = []
+    sectors = (
+        "Нефть и газ",
+        "Металлы и добыча",
+        "Финансы (Банки)",
+        "Недвижимость",
+        "IT",
+        "Электроэнергетика",
+        "Потребительский сектор",
+        "Телекоммуникации",
+        "Транспорт",
+        "Химия",
+        "Финансы",
+    )
     for number in range(18):
         ticker = f"T{number:02d}"
-        sector = f"Sector {number % 6}"
+        sector = sectors[number % len(sectors)]
         securities.append(
             {
                 "canonical_ticker": ticker,
@@ -64,6 +77,16 @@ def market_repo(tmp_path: Path) -> Path:
         "RGBI": 100 + 0.01 * np.arange(len(dates)),
         "USDRUB": 70 + 0.015 * np.arange(len(dates)),
         "KEY_RATE": np.full(len(dates), 12.0),
+        "MOEXOG": 1200 * np.cumprod(1 + 0.00035 + 0.0018 * np.sin(np.arange(len(dates)) / 23)),
+        "MOEXMM": 900 * np.cumprod(1 + 0.00020 + 0.0021 * np.sin(np.arange(len(dates)) / 17)),
+        "MOEXFN": 1100 * np.cumprod(1 + 0.00030 + 0.0016 * np.sin(np.arange(len(dates)) / 29)),
+        "MOEXRE": 700 * np.cumprod(1 + 0.00010 + 0.0024 * np.sin(np.arange(len(dates)) / 13)),
+        "MOEXEU": 800 * np.cumprod(1 + 0.00022 + 0.0014 * np.sin(np.arange(len(dates)) / 31)),
+        "MOEXCN": 950 * np.cumprod(1 + 0.00018 + 0.0017 * np.sin(np.arange(len(dates)) / 27)),
+        "MOEXIT": 600 * np.cumprod(1 + 0.00040 + 0.0022 * np.sin(np.arange(len(dates)) / 21)),
+        "MOEXTL": 750 * np.cumprod(1 + 0.00014 + 0.0012 * np.sin(np.arange(len(dates)) / 25)),
+        "MOEXTN": 680 * np.cumprod(1 + 0.00025 + 0.0019 * np.sin(np.arange(len(dates)) / 15)),
+        "MOEXCH": 720 * np.cumprod(1 + 0.00016 + 0.0018 * np.sin(np.arange(len(dates)) / 33)),
     }.items():
         value_column = "rate" if name == "KEY_RATE" else "close"
         pd.DataFrame({"trade_date": dates, value_column: values}).to_parquet(

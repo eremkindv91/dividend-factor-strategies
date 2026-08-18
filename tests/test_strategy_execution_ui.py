@@ -18,12 +18,12 @@ def test_rejected_ml_candidate_is_non_executable_and_collapsed():
     app = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
     assert "candidate_portfolio" in app
     assert "published_portfolio" in app
-    assert "Исследовательский кандидат — не используется для операций" in app
+    assert "Что модель рассматривала — не действующий портфель" in app
     assert "Расчётный вес" in app
     assert "Модель не уверена" not in app
     assert "candidate.diagnostic_turnover" not in app
-    assert "из 4 оценены" in app
-    assert "Веса production-модели используют только packs" in app
+    assert "mapped_security_share" in app
+    assert "Каждый pack попадает в модель только после одинаковой OOS-проверки" in app
 
 
 def test_dividend_empty_state_preserves_cash_and_watchlist_has_no_targets():

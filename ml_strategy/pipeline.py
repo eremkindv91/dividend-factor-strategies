@@ -238,6 +238,16 @@ def build_bundle(
             "RGBI": daily_root / "benchmarks" / "RGBI.parquet",
             "USDRUB": daily_root / "benchmarks" / "USDRUB.parquet",
             "KEY_RATE": daily_root / "benchmarks" / "KEY_RATE.parquet",
+            "MOEXOG": daily_root / "benchmarks" / "MOEXOG.parquet",
+            "MOEXMM": daily_root / "benchmarks" / "MOEXMM.parquet",
+            "MOEXFN": daily_root / "benchmarks" / "MOEXFN.parquet",
+            "MOEXRE": daily_root / "benchmarks" / "MOEXRE.parquet",
+            "MOEXEU": daily_root / "benchmarks" / "MOEXEU.parquet",
+            "MOEXCN": daily_root / "benchmarks" / "MOEXCN.parquet",
+            "MOEXIT": daily_root / "benchmarks" / "MOEXIT.parquet",
+            "MOEXTL": daily_root / "benchmarks" / "MOEXTL.parquet",
+            "MOEXTN": daily_root / "benchmarks" / "MOEXTN.parquet",
+            "MOEXCH": daily_root / "benchmarks" / "MOEXCH.parquet",
         },
     )
     panel = build_feature_panel(data, config)
@@ -252,6 +262,7 @@ def build_bundle(
         config,
         feature_flags["promotion"],
     )
+    pack_quality = {row["pack_id"]: row for row in sector_result.pack_rows}
     for row in ablation_rows:
         reference = ablation_evaluations[f"{row['pack_id']}:SECTOR_ID"]
         candidate = ablation_evaluations[f"{row['pack_id']}:SECTOR_FEATURES"]
@@ -282,6 +293,12 @@ def build_bundle(
             if is_timing else row["candidate_top_bottom_spread"]
         )
         row["promotion_gates"] = {
+            "source_availability": {
+                "status": "PASS"
+                if not pack_quality[row["pack_id"]].get("unavailable_sources")
+                else "FAIL",
+                "unavailable_sources": pack_quality[row["pack_id"]].get("unavailable_sources", []),
+            },
             "identical_test_rows": {
                 "status": "PASS" if (
                     row["base_n"] == row["candidate_n"]
@@ -341,6 +358,14 @@ def build_bundle(
         if row["status"] == "APPROVED" and not after_costs_pass:
             row["status"] = "RESEARCH_ONLY"
             row["reason"] = "Forecast gate passed, but the fixed after-cost portfolio gate failed."
+            pack_columns = sector_result.pack_columns[row["pack_id"]]
+            sector_column = f"sector_id__{row['pack_id'].lower()}"
+            approved_columns = [
+                column for column in approved_columns if column not in {sector_column, *pack_columns}
+            ]
+        if row["status"] == "APPROVED" and pack_quality[row["pack_id"]].get("unavailable_sources"):
+            row["status"] = "RESEARCH_ONLY"
+            row["reason"] = "Required official sector source is unavailable in this run."
             pack_columns = sector_result.pack_columns[row["pack_id"]]
             sector_column = f"sector_id__{row['pack_id'].lower()}"
             approved_columns = [
