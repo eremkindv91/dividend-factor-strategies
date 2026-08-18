@@ -1,6 +1,7 @@
 """Contract tests for the incremental MOEX physical-position pipeline."""
 
 import importlib.util
+import http.client
 import io
 import json
 import sys
@@ -95,6 +96,20 @@ def test_timeout_has_bounded_retries(monkeypatch):
     def fail(*_args, **_kwargs):
         calls.append(1)
         raise urllib.error.URLError("timeout")
+
+    monkeypatch.setattr(pos.urllib.request, "urlopen", fail)
+    monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
+    with pytest.raises(pos.IssError):
+        pos.http_json("https://example.test", tries=3)
+    assert len(calls) == 3
+
+
+def test_remote_disconnect_has_bounded_retries(monkeypatch):
+    calls = []
+
+    def fail(*_args, **_kwargs):
+        calls.append(1)
+        raise http.client.RemoteDisconnected("closed without response")
 
     monkeypatch.setattr(pos.urllib.request, "urlopen", fail)
     monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
@@ -224,6 +239,27 @@ def test_partial_batch_failure_is_isolated(monkeypatch):
     assert payload["tickers"]["SBER"]["status"] == "stale"  # July is older than expected.
     assert payload["tickers"]["GAZP"]["status"] == "unavailable"
     assert payload["meta"]["update_counts"]["failed"] == 1
+
+
+def test_issuer_mapping_failure_uses_last_good_lineage(monkeypatch):
+    old = _entry(_rows(), status="fresh")
+    existing = {"tickers": {"SBER": old}, "indices": {}}
+    monkeypatch.setattr(pos, "moex_trading_dates", lambda _now: TRADING_DATES)
+    monkeypatch.setattr(pos, "futures_catalog", lambda _now: {"SBRF": _contract()})
+    monkeypatch.setattr(
+        pos,
+        "equity_assets",
+        lambda *_args: (_ for _ in ()).throw(pos.IssError("remote disconnected")),
+    )
+    monkeypatch.setattr(pos, "positions", lambda *_args, **_kwargs: _rows())
+    monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
+
+    payload = pos.build(NOW, existing=existing)
+
+    entry = payload["tickers"]["SBER"]
+    assert entry["mapping_source"] == "last_good emitter mapping"
+    assert entry["status"] == "stale"
+    assert "mapping validation unavailable" in entry["reason"]
 
 
 # M: cache fallback is retained and truthfully marked stale.
