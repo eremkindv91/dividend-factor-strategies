@@ -8,10 +8,12 @@ market_history.json → бенчмарк IMOEX. Публикует ПО ФАЙЛ
 перф: ~4 КБ/бумага вместо мегабайтного универсума). Окно ограничено WINDOW дней.
 
 Ряды/сплиты/бенчмарк инъектируются → тесты детерминированы, без сети/parquet.
+Доходности ограничены WINDOW, а официальный OHLCV для ленивого графика — CHART_WINDOW.
 """
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from datetime import datetime, timezone
@@ -25,8 +27,9 @@ DAILY_DIR = os.path.join(REPO, "data", "daily")
 MARKET_HISTORY = os.path.join(REPO, "site", "market_history.json")
 QUALITY = os.path.join(REPO, "site", "daily_market_data_quality.json")
 OUT_DIR = os.path.join(REPO, "site", "daily", "web")
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 WINDOW = 504                # ≈2 года торговых дней (дневной риск; хвостовые — с пометкой confidence)
+CHART_WINDOW = 850           # >3 лет сессий; полный ряд остаётся в parquet, браузер грузит лениво
 ROUND = 6
 
 
@@ -46,20 +49,43 @@ def _returns_from_rows(rows: list[dict], splits: dict | None) -> tuple[list[str]
     return out_dates, out_rets, rtype, ca_status
 
 
+def _finite(value):
+    return value if isinstance(value, (int, float)) and math.isfinite(value) else None
+
+
+def _ohlcv_from_rows(rows: list[dict], window: int = CHART_WINDOW) -> list[list]:
+    """Компактный официальный OHLCV для графика; неполные свечи не синтезируем."""
+    out = []
+    for row in rows[-window:]:
+        values = [_finite(row.get(key)) for key in ("open", "high", "low", "close")]
+        date_value = str(row.get("trade_date") or "")[:10]
+        if len(date_value) != 10 or any(value is None for value in values):
+            continue
+        out.append([
+            date_value,
+            *values,
+            _finite(row.get("volume")),
+            _finite(row.get("value")),
+        ])
+    return out
+
+
 def build_one(secid: str, rows: list[dict], splits: dict | None, quality_status: str,
-              window: int = WINDOW) -> dict | None:
+              window: int = WINDOW, chart_window: int = CHART_WINDOW) -> dict | None:
     if not rows or len(rows) < 2:
         return None
     dates, rets, rtype, ca_status = _returns_from_rows(rows, splits)
     if not rets:
         return None
     dates, rets = dates[-window:], rets[-window:]
+    ohlcv = _ohlcv_from_rows(rows, chart_window)
     return {
         "schema_version": SCHEMA_VERSION, "secid": secid, "return_type": rtype,
         "quality_status": quality_status, "corporate_action_status": ca_status,
         "fallback_status": "none", "first_date": dates[0], "last_date": dates[-1],
         "observations": len(rets), "source_as_of": dates[-1],
         "dates": dates, "returns": rets,
+        "ohlcv_observations": len(ohlcv), "ohlcv": ohlcv,
     }
 
 

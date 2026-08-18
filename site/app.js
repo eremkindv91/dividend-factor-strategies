@@ -10429,8 +10429,35 @@ function stockPriceChartHTML(t) {
   </div>`;
 }
 
+function stockPublishedOhlcRows(payload, fromDate) {
+  return ((payload || {}).ohlcv || []).filter((row) => Array.isArray(row)
+    && /^\d{4}-\d{2}-\d{2}$/.test(String(row[0] || '').slice(0, 10))
+    && String(row[0]).slice(0, 10) >= fromDate
+    && row.slice(1, 5).every(isNum))
+    .map((row) => [String(row[0]).slice(0, 10), row[1], row[2], row[3], row[4],
+      isNum(row[5]) ? row[5] : null, isNum(row[6]) ? row[6] : null, null]);
+}
+
+// Публичный daily foundation строится серверным pipeline из тех же официальных свечей
+// MOEX ISS. Он даёт графику быстрый last-good ряд, даже когда ISS недоступен из браузера.
+function fetchStockPublishedOHLC(ticker, fromDate, cb) {
+  fetch(dataURL(`daily/web/${encodeURIComponent(ticker)}.json`), { cache: 'no-store' })
+    .then((response) => { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+    .then((payload) => {
+      const rows = stockPublishedOhlcRows(payload, fromDate);
+      if (!rows.length) throw new Error('published OHLCV is empty');
+      const publishedFirstDate = String(((payload.ohlcv || [])[0] || [])[0] || '').slice(0, 10);
+      cb(null, rows, {
+        source: 'daily_foundation',
+        sourceAsOf: payload.source_as_of || rows[rows.length - 1][0],
+        coverageLimited: Boolean(publishedFirstDate && publishedFirstDate > fromDate),
+      });
+    })
+    .catch((error) => cb(error, []));
+}
+
 // Пагинированная выборка дневной истории ISS (start=0,100,…). Отдаёт [date,o,h,l,c,vol].
-function fetchStockOHLC(ticker, fromDate, cb) {
+function fetchStockOHLCFromMoex(ticker, fromDate, cb) {
   const rows = [];
   // VALUE — официальный ДЕНЕЖНЫЙ оборот в рублях. Считать его как close×volume нельзя:
   // сделки за день проходят по разным ценам, и произведение даёт систематическую ошибку.
@@ -10448,7 +10475,7 @@ function fetchStockOHLC(ticker, fromDate, cb) {
         const data = (j.history && j.history.data) || [];
         data.forEach((d) => { if (isNum(d[4])) rows.push(d); });
         if (data.length >= 100 && rows.length < 4000) step(start + data.length, 0);
-        else cb(null, rows);
+        else cb(null, rows, { source: 'moex_live', sourceAsOf: rows.length ? rows[rows.length - 1][0] : null });
       })
       .catch((error) => {
         clearTimeout(timer);
@@ -10460,6 +10487,26 @@ function fetchStockOHLC(ticker, fromDate, cb) {
       });
   };
   step(0);
+}
+
+function fetchStockOHLC(ticker, fromDate, cb) {
+  fetchStockPublishedOHLC(ticker, fromDate, (publishedError, publishedRows, meta) => {
+    if (!publishedError && publishedRows.length && !meta.coverageLimited) {
+      cb(null, publishedRows, meta);
+      return;
+    }
+    fetchStockOHLCFromMoex(ticker, fromDate, (moexError, moexRows, moexMeta) => {
+      if (!moexError && moexRows.length) {
+        cb(null, moexRows, moexMeta);
+        return;
+      }
+      if (!publishedError && publishedRows.length) {
+        cb(null, publishedRows, meta);
+        return;
+      }
+      cb(moexError || publishedError || new Error('daily OHLCV is unavailable'), []);
+    });
+  });
 }
 
 function fetchStockIntradayOHLC(ticker, cb) {
@@ -10541,6 +10588,7 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   const ohlc = container.querySelector('.sc-ohlc');
   const intraday = Boolean(options.intraday);
   const currentSessionDate = options.currentSessionDate || null;
+  const sourceAsOf = options.sourceAsOf || null;
   if (!canvas) return;
   if (!window.LightweightCharts) { canvas.innerHTML = '<div class="sc-loading muted">График недоступен.</div>'; return; }
   // Освобождаем и график, и наблюдатель размера: иначе при смене акции подписки
@@ -10570,7 +10618,11 @@ function renderStockChartData(container, ticker, rows, options = {}) {
   const foot = container.querySelector('.sc-foot');
   if (foot) foot.innerHTML = intraday
     ? '1Д — 10-минутные OHLC и денежный оборот последней торговой сессии MOEX ISS, режим TQBR. Не является индивидуальной инвестиционной рекомендацией.'
-    : `Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.${currentSessionDate
+    : `Дневные OHLC и денежный оборот — MOEX ISS, режим TQBR.${options.source === 'daily_foundation' && sourceAsOf
+      ? ` Проверенный daily foundation актуален на ${esc(sawDate(sourceAsOf))}.`
+      : ''}${options.coverageLimited
+      ? ' Полная история MOEX сейчас недоступна; показан весь доступный опубликованный диапазон.'
+      : ''}${currentSessionDate
       ? ` Последняя свеча за ${esc(sawDate(currentSessionDate))} собрана из официальных 10-минутных свечей и ещё может меняться до закрытия.`
       : ''} Столбцы внизу — оборот в рублях (VALUE), а не количество бумаг. Не является индивидуальной инвестиционной рекомендацией.`;
   canvas.innerHTML = '';
@@ -11219,18 +11271,19 @@ function wireStockChart(root, ticker) {
       const visibleRows = intraday ? sourceRows : stockTrimDailyRows(sourceRows, days);
       renderStockChartData(container, ticker, visibleRows, { intraday, ...extra });
     };
-    const refreshCurrentSession = (baseRows) => {
+    const refreshCurrentSession = (baseRows, sourceMeta = {}) => {
       fetchStockIntradayOHLC(ticker, (err, intradayRows) => {
         if (token !== container._scLoadToken || err) return;
         const merged = mergeStockDailyWithIntraday(baseRows, intradayRows);
         if (!merged.currentSessionDate) return;
-        STOCK_OHLC_CACHE[key] = merged;
-        render(merged.rows, { currentSessionDate: merged.currentSessionDate });
+        STOCK_OHLC_CACHE[key] = { ...sourceMeta, ...merged };
+        render(merged.rows, { ...sourceMeta, currentSessionDate: merged.currentSessionDate });
         // Пока свеча незавершённая, обновляем только открытую карточку. После закрытия
         // history на следующей загрузке заменит её финальной дневной свечой.
         container._scLiveTimer = setTimeout(() => {
           if (container.isConnected && container._scLoadToken === token) {
-            refreshCurrentSession((STOCK_OHLC_CACHE[key] || merged).rows);
+            const cached = STOCK_OHLC_CACHE[key] || merged;
+            refreshCurrentSession(cached.rows, cached);
           }
         }, 5 * 60 * 1000);
       });
@@ -11238,8 +11291,8 @@ function wireStockChart(root, ticker) {
     if (STOCK_OHLC_CACHE[key]) {
       const cached = STOCK_OHLC_CACHE[key];
       const cachedRows = Array.isArray(cached) ? cached : cached.rows;
-      render(cachedRows, Array.isArray(cached) ? {} : { currentSessionDate: cached.currentSessionDate });
-      if (!intraday) refreshCurrentSession(cachedRows);
+      render(cachedRows, Array.isArray(cached) ? {} : cached);
+      if (!intraday) refreshCurrentSession(cachedRows, Array.isArray(cached) ? {} : cached);
       return;
     }
     if (canvas) canvas.innerHTML = `<div class="sc-loading muted">Загрузка ${intraday ? '10-минутных' : 'дневных'} котировок MOEX ISS…</div>`;
@@ -11249,15 +11302,15 @@ function wireStockChart(root, ticker) {
       const fetcher = intraday
         ? (done) => fetchStockIntradayOHLC(ticker, done)
         : (done) => fetchStockOHLC(ticker, from, done);
-      fetcher((err, rows) => {
+      fetcher((err, rows, sourceMeta = {}) => {
         if (token !== container._scLoadToken) return;
         if (err || !rows.length) {
           if (canvas) canvas.innerHTML = `<div class="sc-loading muted">${intraday ? '10-минутные' : 'Дневные'} котировки ${esc(ticker)} на MOEX ISS сейчас недоступны.</div>`;
           return;
         }
-        STOCK_OHLC_CACHE[key] = { rows, currentSessionDate: null };
-        render(rows);
-        if (!intraday) refreshCurrentSession(rows);
+        STOCK_OHLC_CACHE[key] = { rows, currentSessionDate: null, ...sourceMeta };
+        render(rows, sourceMeta);
+        if (!intraday) refreshCurrentSession(rows, sourceMeta);
       });
     });
   };
