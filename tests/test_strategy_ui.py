@@ -58,3 +58,19 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert "check_ml_strategy" in validator
     assert "scripts/build_ml_strategy.py --allow-network" in workflow
     assert "Publish validated snapshot additively" in workflow
+
+
+def test_ml_daily_computation_is_not_cancelled_by_gh_pages_publication_queue():
+    workflow = (ROOT / ".github" / "workflows" / "ml_strategy_daily.yml").read_text(encoding="utf-8")
+
+    assert 'cron: "30 22 * * 1-5"' in workflow
+    assert "  inference:\n" in workflow
+    assert "  publish:\n" in workflow
+    assert "needs: inference" in workflow
+    assert "actions/upload-artifact@v4" in workflow
+    assert "actions/download-artifact@v4" in workflow
+
+    inference, publish = workflow.split("  publish:\n", 1)
+    assert "group: gh-pages-publish" not in inference
+    assert "group: gh-pages-publish" in publish
+    assert "Publish validated snapshot additively" in publish
