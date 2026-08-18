@@ -13,7 +13,7 @@ from bonds.fns_sector_enrichment import (
     sector_from_okved,
 )
 from bonds.portfolio_engine import solve_target_portfolio
-from bonds.pipeline_v3 import _persist_verified_issuer_records
+from bonds.pipeline_v3 import _persist_verified_issuer_records, build_and_publish
 from bonds.universe_builder import (
     attach_peer_benchmarks,
     classify_bond_structure,
@@ -111,6 +111,72 @@ def universe_fixture() -> dict:
         },
         "bonds": rows,
     }
+
+
+def test_integer_allocation_failure_degrades_only_affected_preset(monkeypatch, tmp_path):
+    universe = universe_fixture()
+    preset_base = {
+        "status": "OPTIMAL",
+        "profile": "defensive",
+        "horizon": "5y",
+        "target_positions": [{"secid": universe["bonds"][0]["secid"], "target_weight": 1.0}],
+    }
+    presets = {
+        "schema_version": "3.0",
+        "universe_hash": "fixture-hash",
+        "profiles": {},
+        "horizons": {},
+        "costs": {},
+        "budget_limits": {},
+        "presets": {
+            "defensive:3y": {**preset_base, "key": "defensive:3y"},
+            "defensive:5y": {**preset_base, "key": "defensive:5y"},
+        },
+    }
+    config_path = tmp_path / "portfolio_config.json"
+    config_path.write_text(json.dumps({"default_budget_rub": 1_000_000}), encoding="utf-8")
+
+    monkeypatch.setattr("bonds.pipeline_v3.build_live_universe", lambda **_kwargs: universe)
+    monkeypatch.setattr("bonds.pipeline_v3.quality_gate", lambda *_args: {"status": "PASS"})
+    monkeypatch.setattr("bonds.pipeline_v3.build_preset_matrix", lambda *_args: deepcopy(presets))
+    monkeypatch.setattr("bonds.pipeline_v3.validate_target_portfolio", lambda *_args: [])
+
+    def allocation(target, *_args):
+        if target["key"] == "defensive:5y":
+            return {
+                "status": "INFEASIBLE",
+                "reason_codes": ["integer_allocation_failed"],
+                "solver_message": "fixture infeasible",
+                "positions": [],
+            }
+        return {"status": "VALIDATED", "positions": []}
+
+    monkeypatch.setattr("bonds.pipeline_v3.allocate_integer_lots", allocation)
+    monkeypatch.setattr(
+        "bonds.pipeline_v3.validate_integer_allocation",
+        lambda allocation, *_args: [] if allocation["status"] == "VALIDATED" else ["allocation_not_validated"],
+    )
+
+    validation = build_and_publish(
+        load_board=lambda *_args: [],
+        http_json=lambda *_args: {},
+        iss="fixture",
+        ratings={},
+        ratings_meta={},
+        gcurve_rate=lambda _years: 0.0,
+        output_dir=tmp_path / "out",
+        config_path=config_path,
+    )
+
+    assert validation["status"] == "PASS"
+    assert validation["available_presets"] == 1
+    assert validation["unavailable_presets"] == ["defensive:5y"]
+    unavailable = validation["presets"]["defensive:5y"]
+    assert unavailable["status"] == "UNAVAILABLE"
+    assert unavailable["allocation_errors"] == ["allocation_not_validated"]
+    assert unavailable["reason_codes"] == ["integer_allocation_failed"]
+    published = json.loads((tmp_path / "out" / "portfolio_presets.json").read_text(encoding="utf-8"))
+    assert set(published["allocations"]) == {"defensive:3y"}
 
 
 def test_dirty_price_contract_and_schema_validation():

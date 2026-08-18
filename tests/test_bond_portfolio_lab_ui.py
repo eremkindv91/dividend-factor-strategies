@@ -125,13 +125,17 @@ def test_published_v3_presets_cover_matrix_without_relaxing_unavailable_case():
     for key in unavailable:
         record = validation["presets"][key]
         assert record["status"] == "UNAVAILABLE", key
-        assert record["target_status"] == "INFEASIBLE", key
-        diagnostics = record["candidate_diagnostics"]
-        assert isinstance(diagnostics.get("issues_inside_duration_corridor"), int), key
-        assert diagnostics.get("candidates") is not None, (
-            f"{key}: недоступность обязана сопровождаться списком кандидатов, "
-            "иначе причину не проверить"
-        )
+        if record["target_status"] == "INFEASIBLE":
+            diagnostics = record["candidate_diagnostics"]
+            assert isinstance(diagnostics.get("issues_inside_duration_corridor"), int), key
+            assert diagnostics.get("candidates") is not None, (
+                f"{key}: недоступность обязана сопровождаться списком кандидатов, "
+                "иначе причину не проверить"
+            )
+        else:
+            assert record["target_status"] in {"OPTIMAL", "FEASIBLE"}, key
+            assert record.get("allocation_errors"), key
+            assert record.get("reason_codes"), key
 
 
 def test_published_allocations_reconcile_budget_and_use_integer_lots():
