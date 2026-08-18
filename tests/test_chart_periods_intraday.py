@@ -242,6 +242,48 @@ console.log(JSON.stringify(mergeMarketDailyWithIntraday(official, live)));
                                    None, None, None, "2026-08-18", "current_session"]
 
 
+def test_published_market_current_session_survives_direct_iss_timeout():
+    source = _source()
+    helpers = "\n".join([
+        "const isNum = (value) => typeof value === 'number' && Number.isFinite(value);",
+        "const MARKET_CHART_STATE = {period: 30};",
+        _function(source, "marketPublishedCurrentSessionRow"),
+        _function(source, "marketChartRows"),
+    ])
+    result = _node(f"""
+{helpers}
+const item = {{data_last: '2026-08-17', series: [['2026-08-17', 2100, 2140, 2080, 2093]],
+  current_session: {{date: '2026-08-18', open: 2094, high: 2120, low: 2090,
+    close: 2115, last_candle_at: '2026-08-18 14:50:00'}}}};
+console.log(JSON.stringify(marketChartRows(item)));
+""")
+
+    assert result[-1] == ["2026-08-18", 2094, 2120, 2090, 2115,
+                           None, None, None, "2026-08-18 14:50:00", "current_session"]
+
+
+def test_direct_intraday_replaces_same_date_published_partial_candle():
+    source = _source()
+    helpers = "\n".join([
+        "const isNum = (value) => typeof value === 'number' && Number.isFinite(value);",
+        _function(source, "marketIntradayToDailyRow"),
+        _function(source, "mergeMarketDailyWithIntraday"),
+    ])
+    result = _node(f"""
+{helpers}
+const published = [
+  ['2026-08-17', 2100, 2140, 2080, 2093],
+  ['2026-08-18', 2094, 2110, 2090, 2105, null, null, null,
+    '2026-08-18 12:00:00', 'current_session'],
+];
+const direct = [[1, 2094, 2120, 2088, 2115, 10, 20, null, '2026-08-18 15:00:00']];
+console.log(JSON.stringify(mergeMarketDailyWithIntraday(published, direct)));
+""")
+
+    assert result["currentSessionDate"] == "2026-08-18"
+    assert result["rows"][-1][1:5] == [2094, 2120, 2088, 2115]
+
+
 def test_multiday_market_chart_refreshes_from_real_intraday_but_not_for_mcftr():
     source = _source()
     render = _function(source, "renderMarketChartDialog")

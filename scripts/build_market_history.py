@@ -23,7 +23,7 @@ ISS = "https://iss.moex.com/iss"
 HEADERS = {"User-Agent": "dividend-factor-strategies/market-history (+https://github.com/eremkindv91/dividend-factor-strategies)"}
 PAGE_SIZE = 100
 YEARS = 6
-SCHEMA = 1
+SCHEMA = 2
 
 INSTRUMENTS = [
     {"id": "MCFTR", "name": "MCFTR", "description": "Индекс полной доходности МосБиржи", "engine": "stock", "market": "index", "board": "RTSI", "decimals": 2},
@@ -57,6 +57,71 @@ def history_url(spec: dict) -> str:
         f"{ISS}/history/engines/{spec['engine']}/markets/{spec['market']}"
         f"/boards/{spec['board']}/securities/{spec['id']}.json"
     )
+
+
+def candles_url(spec: dict) -> str:
+    return (
+        f"{ISS}/engines/{spec['engine']}/markets/{spec['market']}"
+        f"/boards/{spec['board']}/securities/{spec['id']}/candles.json"
+    )
+
+
+def aggregate_current_session(payload: dict) -> dict | None:
+    """Aggregate only real MOEX 10-minute candles from the latest session."""
+    block = payload.get("candles") or {}
+    columns = block.get("columns") or []
+    rows = []
+    for values in block.get("data") or []:
+        item = dict(zip(columns, values))
+        try:
+            row = {
+                "date": str(item["begin"])[:10],
+                "begin": str(item["begin"]),
+                "open": float(item["open"]),
+                "high": float(item["high"]),
+                "low": float(item["low"]),
+                "close": float(item["close"]),
+            }
+        except (KeyError, TypeError, ValueError):
+            continue
+        if min(row["open"], row["high"], row["low"], row["close"]) <= 0:
+            continue
+        if not (row["low"] <= min(row["open"], row["close"])
+                <= max(row["open"], row["close"]) <= row["high"]):
+            continue
+        rows.append(row)
+    if not rows:
+        return None
+    latest_date = max(row["date"] for row in rows)
+    session = sorted((row for row in rows if row["date"] == latest_date), key=lambda row: row["begin"])
+    return {
+        "date": latest_date,
+        "open": session[0]["open"],
+        "high": max(row["high"] for row in session),
+        "low": min(row["low"] for row in session),
+        "close": session[-1]["close"],
+        "last_candle_at": session[-1]["begin"],
+        "candle_count": len(session),
+        "status": "current_session",
+    }
+
+
+def fetch_current_session(spec: dict, from_date: str,
+                          session: requests.Session | None = None) -> dict | None:
+    session = session or requests.Session()
+    session.headers.update(HEADERS)
+    payload = _get_json(
+        session,
+        candles_url(spec),
+        {
+            "iss.meta": "off",
+            "iss.only": "candles",
+            "interval": 10,
+            "from": from_date,
+            "candles.columns": "begin,open,high,low,close",
+        },
+    )
+    return aggregate_current_session(payload)
 
 
 def fetch_history(spec: dict, from_date: str, session: requests.Session | None = None) -> list[dict]:
@@ -207,10 +272,27 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
     session.headers.update(HEADERS)
     instruments = []
     errors = []
+    intraday_errors = []
     for spec in INSTRUMENTS:
         try:
             rows = fetch_history(spec, from_date, session=session)
-            instruments.append(calculate_instrument(spec, rows, checked_at))
+            instrument = calculate_instrument(spec, rows, checked_at)
+            try:
+                current = fetch_current_session(
+                    spec, (today - timedelta(days=7)).isoformat(), session=session,
+                )
+                if current and current["date"] > instrument["data_last"]:
+                    current.update({
+                        "source": "MOEX ISS official 10-minute candles",
+                        "source_url": candles_url(spec),
+                        "checked_at": checked_at,
+                    })
+                    instrument["current_session"] = current
+                    log(f"{spec['id']}: current session through {current['last_candle_at']}")
+            except Exception as exc:  # noqa: BLE001 - optional live snapshot
+                intraday_errors.append({"instrument": spec["id"], "error": str(exc)[:180]})
+                log(f"{spec['id']}: current session unavailable: {exc}")
+            instruments.append(instrument)
             log(f"{spec['id']}: {len(rows)} rows through {rows[-1]['date']}")
         except Exception as exc:  # noqa: BLE001 - preserve per-instrument last good
             old = previous.get(spec["id"])
@@ -227,6 +309,8 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
     # НЕ время экспорта JSON. Read-слой (build_site_status) читает именно это поле.
     data_dates = [str(row.get("data_last")) for row in instruments if row.get("data_last")]
     data_asof = max(data_dates) if data_dates else None
+    current_dates = [str((row.get("current_session") or {}).get("date"))
+                     for row in instruments if (row.get("current_session") or {}).get("date")]
     return {
         "schema": SCHEMA,
         "generated_at": checked_at,
@@ -235,6 +319,8 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
         "history_from": from_date,
         "methodology": "SMA and RSI use the ta library; ranges are observed rolling OHLC extrema; volatility is 20-session close-to-close standard deviation annualized by sqrt(252).",
         "errors": errors,
+        "intraday_errors": intraday_errors,
+        "current_session_asof": max(current_dates) if current_dates else None,
         "instruments": instruments,
     }
 
