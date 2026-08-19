@@ -1,374 +1,254 @@
 {
   "date": "2026-08-19",
-  "generated_at": "2026-08-19T08:15:39+03:00",
+  "generated_at": "2026-08-19T18:43:14+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы и японский Nikkei снизились, в то время как нефть Brent и золото демонстрируют умеренный рост.",
+  "external_backdrop": "Мировые фондовые индексы преимущественно выросли, а цены на нефть Brent и золото продемонстрировали положительную динамику.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7691.76",
-      "change_pct": "-0.69%",
-      "as_of": "2026-08-18",
-      "group": "global_equity"
-    },
-    {
-      "name": "Nasdaq",
-      "value": "26289.71",
-      "change_pct": "-1.33%",
-      "as_of": "2026-08-18",
-      "group": "global_equity"
-    },
-    {
-      "name": "Nikkei 225",
-      "value": "65348.73",
-      "change_pct": "-3.13%",
+      "value": "7721.99",
+      "change_pct": "+0.39%",
       "as_of": "2026-08-19",
       "group": "global_equity"
     },
     {
+      "name": "Nasdaq",
+      "value": "26360.60",
+      "change_pct": "+0.27%",
+      "as_of": "2026-08-19",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "67460.73",
+      "change_pct": "-2.54%",
+      "as_of": "2026-08-18",
+      "group": "global_equity"
+    },
+    {
       "name": "Hang Seng",
-      "value": "25515.72",
-      "change_pct": "+0.17%",
+      "value": "25495.07",
+      "change_pct": "+0.09%",
       "as_of": "2026-08-19",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "91.56",
-      "change_pct": "+0.59%",
+      "value": "92.33",
+      "change_pct": "+1.44%",
       "as_of": "2026-08-19",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4400.80",
-      "change_pct": "+0.80%",
+      "value": "4541.80",
+      "change_pct": "+4.03%",
       "as_of": "2026-08-19",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2148.13",
-      "change_pct": "+2.62%",
-      "as_of": "2026-08-18 19:00:11",
+      "value": "2174.06",
+      "change_pct": "+1.21%",
+      "as_of": "2026-08-19 18:43:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "794.59",
-      "change_pct": "+2.44%",
-      "as_of": "2026-08-18 19:00:12",
+      "value": "804.51",
+      "change_pct": "+1.25%",
+      "as_of": "2026-08-19 18:43:12",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "83.92",
+      "change_pct": "-0.89%",
+      "as_of": "2026-08-19 18:43:12",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.44",
+      "change_pct": "-1.25%",
+      "as_of": "2026-08-19 18:43:13",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "rusal-1h-results",
-      "headline": "ОК Русал отчиталась о чистой прибыли в размере 419 миллионов долларов за первое полугодие",
-      "context": "Выручка компании выросла на 10,9% до 8,33 миллиарда долларов, а скорректированная EBITDA составила 1,23 миллиарда долларов.",
+      "id": "rusal-earnings",
+      "headline": "Русал отчитался о чистой прибыли в размере четырехсот девятнадцати миллионов долларов за первое полугодие",
+      "context": "Выручка компании за отчетный период выросла на 10,9% до 8,338 миллиарда долларов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1110034"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1341508.php"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84517"
         }
       ],
-      "published_at": "2026-08-19T07:39:00+03:00"
+      "published_at": "2026-08-19T09:17:00+03:00"
     },
     {
-      "id": "inarctica-dividends",
-      "headline": "Совет директоров Инарктики рекомендовал дивиденды за первое полугодие в размере 10 рублей на акцию",
-      "context": "Внеочередное общее собрание акционеров назначено на 23 сентября, закрытие реестра для получения дивидендов — 4 октября.",
+      "id": "nornickel-dividends",
+      "headline": "Совет директоров Норникеля рассмотрит вопрос о дивидендах за первое полугодие на заседании двадцать пятого августа",
+      "context": "Акции компании отреагировали ростом более чем на 2% на новость о включении вопроса в повестку дня.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/18/1222097-inarktiki-dividendi"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1341443.php"
-        }
-      ],
-      "published_at": "2026-08-18T23:10:00+03:00"
-    },
-    {
-      "id": "eurotrans-defaults",
-      "headline": "Евротранс допустил дефолты по купонам пяти выпусков облигаций на общую сумму 210,3 миллиона рублей",
-      "context": "Компания не выплатила купонный доход по пяти выпускам долговых бумаг.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1341472.php"
+          "url": "https://smart-lab.ru/blog/1341810.php"
         }
       ],
-      "published_at": "2026-08-18T19:59:00+03:00"
+      "published_at": "2026-08-19T17:00:00+03:00"
     },
     {
-      "id": "shanghai-moscow-shipping-cost",
-      "headline": "Стоимость контейнерных перевозок из Шанхая в Москву обновила максимум за три с половиной года",
-      "context": "Спотовая цена доставки 40-футового контейнера превысила 9 тысяч долларов, увеличившись за год на 77%.",
+      "id": "us-treasury-buyback",
+      "headline": "Минфин США увеличивает объемы обратного выкупа долгосрочных государственных облигаций для поддержки ликвидности",
+      "context": "Объем выкупа долгосрочных бумаг со сроком обращения от 10 до 30 лет будет удвоен до 4 миллиардов долларов за операцию.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892491"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84540"
         }
       ],
-      "published_at": "2026-08-19T06:31:00+03:00"
+      "published_at": "2026-08-19T18:36:00+03:00"
     },
     {
-      "id": "massive-drone-attacks",
-      "headline": "Российские силы противовоздушной обороны отразили массированные атаки беспилотников в нескольких регионах",
-      "context": "На подлете к Москве сбито 25 дронов, в Тульской области — 27, в Ростовской — около 15, также атакованы промпредприятия в Уфе.",
-      "category": "geopolitics",
+      "id": "fuel-import-rf",
+      "headline": "Россия начала импортировать топливо на фоне продолжающихся ремонтов на отечественных нефтеперерабатывающих заводах",
+      "context": "Вице-премьер Александр Новак заявил, что правительство рассчитывает на скорый выход нескольких НПЗ из ремонта.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892473"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/moscow/1110015"
-        },
         {
           "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6a83de079a7947a9c107de71"
+          "url": "https://www.rbc.ru/politics/19/08/2026/6a85c83e9a7947450e402be9"
         }
       ],
-      "published_at": "2026-08-19T03:32:00+03:00"
+      "published_at": "2026-08-19T18:17:00+03:00"
     },
     {
-      "id": "uae-iran-trade-suspension",
-      "headline": "Объединенные Арабские Эмираты полностью приостановили торговые и финансовые операции с Ираном",
-      "context": "Решение принято на фоне обострения геополитической напряженности и сообщений о запуске баллистических ракет.",
+      "id": "oae-embargo-iran",
+      "headline": "Объединенные Арабские Эмираты ввели полное торговое эмбарго против Ирана из-за обострения ситуации",
+      "context": "Решение было принято на следующий день после того, как аравийское государство обвинило Иран в запуске двух ракет.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/19/1222103-oae-torgovlyu-s-iranom"
-        },
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892457"
+          "url": "https://www.kommersant.ru/doc/8893044"
         }
       ],
-      "published_at": "2026-08-19T01:01:00+03:00"
+      "published_at": "2026-08-19T16:39:00+03:00"
     },
     {
-      "id": "us-treasury-yields-record",
-      "headline": "Доходность тридцатилетних гособлигаций США достигла девятнадцатилетнего максимума на уровне 5,3%",
-      "context": "Рост стоимости заимствований произошел после публикации данных об увеличении дефицита американского бюджета в июле до 432 миллиардов долларов.",
-      "category": "markets",
-      "investment_relevant": false,
+      "id": "cian-dividends",
+      "headline": "Компания Циан планирует выплатить дивиденды в размере не менее тридцати рублей на акцию",
+      "context": "Чистая прибыль сервиса по МСФО за первое полугодие 2026 года удвоилась и составила 2,045 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892306"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299975"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381568"
         }
       ],
-      "published_at": "2026-08-18T19:07:00+03:00"
+      "published_at": "2026-08-19T10:33:00+03:00"
+    },
+    {
+      "id": "inarctica-dividends",
+      "headline": "Совет директоров Инарктики рекомендовал дивиденды за первое полугодие в размере десяти рублей на акцию",
+      "context": "Дивидендная доходность к текущим ценам составляет около 3%, реестр закроется 4 октября 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381499"
+        }
+      ],
+      "published_at": "2026-08-18T19:00:00+03:00"
+    },
+    {
+      "id": "anterra-default",
+      "headline": "Компания Антерра допустила технические дефолты по двум выпускам облигаций из-за ареста счетов",
+      "context": "Общая сумма невыплаченных купонов составила 38,7 миллиона рублей, счета заблокированы в рамках спора с контрагентом.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84525"
+        }
+      ],
+      "published_at": "2026-08-19T12:29:00+03:00"
     }
   ],
   "yesterday": [
     {
       "id": "rosatom-dpworld-fesco",
-      "headline": "Правкомиссия одобрила создание совместного предприятия Росатома и эмиратской DP World с акциями ДВМП",
-      "context": "Росатом внесет в капитал нового СП дочернюю группу FESCO, на фоне чего акции ДВМП выросли на Мосбирже на 18%.",
+      "headline": "Правительственная комиссия одобрила сделку Росатома и эмиратской DP World по созданию совместного предприятия",
+      "context": "В рамках сделки госкорпорация планирует внести логистическую группу FESCO в совместное предприятие.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891962"
-        },
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/381363"
+          "url": "https://www.kommersant.ru/doc/8891766"
         }
       ],
-      "published_at": "2026-08-18T12:35:00+03:00"
+      "published_at": "2026-08-18T09:22:00+03:00"
+    },
+    {
+      "id": "sibur-earnings",
+      "headline": "Чистая прибыль Сибур холдинга за первое полугодие сократилась на пятьдесят четыре процента",
+      "context": "Снижение финансовых показателей произошло на фоне изменения рыночной конъюнктуры.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/18/1221889"
+        }
+      ],
+      "published_at": "2026-08-18T11:34:00+03:00"
     },
     {
       "id": "business-budget-contributions",
-      "headline": "Добровольные взносы российского бизнеса в федеральный бюджет достигли рекордных 383,69 миллиарда рублей",
-      "context": "Поступления по статье безвозмездных взносов негосударственных организаций превысили годовой план властей в 300 миллиардов рублей.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891928"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299858"
-        }
-      ],
-      "published_at": "2026-08-18T12:01:00+03:00"
-    },
-    {
-      "id": "segezha-taiga-project-court",
-      "headline": "Суд запретил Минпромторгу исключать инвестиционный проект дочерней структуры Сегежи из перечня приоритетных",
-      "context": "Обеспечительные меры в отношении проекта компании Тайга по строительству целлюлозно-бумажного комбината в Сибири наложены до 9 сентября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1341406.php"
-        }
-      ],
-      "published_at": "2026-08-18T17:49:00+03:00"
-    },
-    {
-      "id": "novatek-dividend-meeting",
-      "headline": "Совет директоров Новатэка рассмотрит вопрос о дивидендах за первое полугодие двадцать пятого августа",
-      "context": "Компания официально анонсировала заседание руководящего органа для принятия рекомендаций по выплатам.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1341382.php"
-        }
-      ],
-      "published_at": "2026-08-18T17:00:00+03:00"
-    },
-    {
-      "id": "sber-budget-forecast",
-      "headline": "Сбербанк понизил прогноз дефицита федерального бюджета России на текущий год до семи триллионов рублей",
-      "context": "Аналитики банка ожидают цену отсечения в рамках нового бюджетного правила на уровне 50 долларов за баррель.",
+      "headline": "Добровольные взносы негосударственного бизнеса в федеральный бюджет России достигли почти триста восьмидесяти четырех миллиардов рублей",
+      "context": "Показатель за неполные восемь месяцев 2026 года уже в полтора раза превысил объем безвозмездных поступлений за весь прошлый год.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/381473"
+          "name": "frank_media",
+          "url": "https://t.me/frank_media/23576"
         }
       ],
-      "published_at": "2026-08-18T16:42:00+03:00"
+      "published_at": "2026-08-18T08:41:00+03:00"
     },
     {
-      "id": "russia-myanmar-agreements",
-      "headline": "Россия и Мьянма подписали более десяти соглашений по итогам трехчасовых переговоров в Кремле",
-      "context": "Стороны договорились о сотрудничестве в сфере энергетики, включая поставки сжиженного природного газа и строительство АЭС в 2027 году.",
-      "category": "geopolitics",
+      "id": "aromatic-export-ban",
+      "headline": "Правительство России обсуждает введение запрета на экспорт ароматических углеводородов для борьбы с дефицитом топлива",
+      "context": "Ограничения могут коснуться бензола, фенола, толуола и ксилолов, используемых как октаноповышающие компоненты.",
+      "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892293"
-        }
-      ],
-      "published_at": "2026-08-18T15:33:00+03:00"
-    },
-    {
-      "id": "fas-fuel-cases",
-      "headline": "Федеральная антимонопольная служба возбудила сорок одно дело против участников топливного рынка в регионах",
-      "context": "Ведомство также выдало 68 предупреждений нефтяным компаниям и независимым операторам по признакам нарушения законодательства.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1109935"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8892235"
-        }
-      ],
-      "published_at": "2026-08-18T15:19:00+03:00"
-    },
-    {
-      "id": "domrf-subordinated-bonds",
-      "headline": "Банк Дом РФ проведет сбор заявок на семилетние субординированные облигации объемом двадцать миллиардов рублей",
-      "context": "Выплата ежемесячного купона будет рассчитываться по плавающей ставке, привязанной к ключевой ставке ЦБ с надбавкой до 400 базисных пунктов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/18/1221957-domrf-provedet-sbor"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299986"
-        }
-      ],
-      "published_at": "2026-08-18T13:57:00+03:00"
-    },
-    {
-      "id": "yabloko-election-exclusion",
-      "headline": "Центризбирком исключил партию Яблоко из федерального избирательного бюллетеня на выборах в Госдуму",
-      "context": "Решение принято на основании вердикта Верховного суда, при этом нумерация остальных десяти партий в бюллетене не изменится.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8891814"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/18/1221867-tsik-isklyuchil-yabloko"
-        }
-      ],
-      "published_at": "2026-08-18T10:09:00+03:00"
-    },
-    {
-      "id": "unlicensed-isp-network-transfer",
-      "headline": "Минцифры предложило автоматически передавать сети лишенных лицензий интернет-провайдеров крупным федеральным операторам",
-      "context": "Малые операторы связи выступили против инициативы, опасаясь принудительного перераспределения своих активов.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/299857"
-        }
-      ],
-      "published_at": "2026-08-18T08:14:00+03:00"
-    },
-    {
-      "id": "aromatic-hydrocarbons-export-ban",
-      "headline": "Правительство России обсуждает введение запрета на экспорт ароматических углеводородов для борьбы с дефицитом бензина",
-      "context": "Данное сырье активно применяется в качестве октаноповышающего компонента при производстве моторного топлива на НПЗ.",
-      "category": "cb_policy",
-      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
@@ -379,26 +259,116 @@
       "published_at": "2026-08-18T01:30:00+03:00"
     },
     {
-      "id": "saudi-uae-transfer-restrictions",
-      "headline": "Центральный банк Саудовской Аравии ужесточил проверки финансовых переводов в Объединенные Арабские Эмираты",
-      "context": "Регулятор фактически отнес ОАЭ к юрисдикциям повышенного риска на фоне нарастающих экономических и политических разногласий.",
-      "category": "geopolitics",
+      "id": "sber-budget-forecast",
+      "headline": "Сбербанк понизил прогноз дефицита федерального бюджета России на две тысячи двадцать шестой год",
+      "context": "Аналитики ожидают дефицит на уровне 7 триллионов рублей вместо прежних 7,5 триллиона рублей.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/300107"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381473"
         }
       ],
-      "published_at": "2026-08-18T18:23:00+03:00"
+      "published_at": "2026-08-18T16:42:00+03:00"
+    },
+    {
+      "id": "ananyev-sentence",
+      "headline": "Бывшие владельцы Промсвязьбанка братья Ананьевы заочно приговорены к восьми годам колонии за хищение",
+      "context": "Суд признал их виновными в выводе 39 миллиардов рублей через выдачу невозвратных кредитов подконтрольным компаниям.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8892203"
+        }
+      ],
+      "published_at": "2026-08-18T16:41:00+03:00"
+    },
+    {
+      "id": "business-price-expectations",
+      "headline": "Банк России зафиксировал умеренный рост ценовых ожиданий бизнеса в августе",
+      "context": "Данные регулятора указывают на сохранение инфляционного давления в корпоративном секторе.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381469"
+        }
+      ],
+      "published_at": "2026-08-18T16:31:00+03:00"
+    },
+    {
+      "id": "domrf-subordinated-bonds",
+      "headline": "Банк Дом.РФ планирует провести сбор заявок на субординированные облигации объемом двадцать миллиардов рублей",
+      "context": "Купонный доход по выпуску будет рассчитываться исходя из ключевой ставки ЦБ с надбавкой до 400 базисных пунктов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/18/1221957"
+        }
+      ],
+      "published_at": "2026-08-18T13:57:00+03:00"
+    },
+    {
+      "id": "online-cinema-revenue",
+      "headline": "Выручка российских онлайн-кинотеатров за первое полугодие выросла почти на треть до ста миллиардов рублей",
+      "context": "По данным TelecomDaily, показатель увеличился на 31% по сравнению с аналогичным периодом прошлого года.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8891918"
+        }
+      ],
+      "published_at": "2026-08-18T13:19:00+03:00"
+    },
+    {
+      "id": "vector-rail-acquisition",
+      "headline": "Сбербанк планирует приобрести на торгах лизинговую компанию Вектор рейл в качестве основного кредитора",
+      "context": "Интерес банка к активу связан с урегулированием задолженности лизингового оператора.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/299930"
+        }
+      ],
+      "published_at": "2026-08-18T11:05:00+03:00"
+    },
+    {
+      "id": "mincifry-provider-networks",
+      "headline": "Министерство цифрового развития предложило механизм автоматической передачи сетей лишенных лицензий провайдеров крупным операторам",
+      "context": "Инициатива обяжет малых операторов заранее заключать соглашения о приоритетном выкупе инфраструктуры федеральными игроками.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "frank_media",
+          "url": "https://t.me/frank_media/23575"
+        }
+      ],
+      "published_at": "2026-08-18T08:27:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "premarket",
-    "title": "Сводка до открытия",
-    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-08-18"
   }
 }
