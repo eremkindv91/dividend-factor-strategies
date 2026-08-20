@@ -1,103 +1,89 @@
 {
   "date": "2026-08-20",
-  "generated_at": "2026-08-20T06:27:47+03:00",
+  "generated_at": "2026-08-20T08:16:21+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и цены на сырье демонстрируют умеренно позитивную динамику, в то время как рубль укрепился к юаню.",
+  "external_backdrop": "Азиатские рынки, золото и нефть марки Brent растут утром 20 августа.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7707.98",
       "change_pct": "+0.21%",
-      "as_of": "закрытие 19.08",
+      "as_of": "2026-08-19",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "26331.09",
       "change_pct": "+0.16%",
-      "as_of": "закрытие 19.08",
+      "as_of": "2026-08-19",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65982.49",
-      "change_pct": "+1.00%",
-      "as_of": "утро 20.08",
+      "value": "66187.14",
+      "change_pct": "+1.32%",
+      "as_of": "2026-08-20",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25667.45",
-      "change_pct": "+0.68%",
-      "as_of": "утро 20.08",
+      "value": "25772.56",
+      "change_pct": "+1.09%",
+      "as_of": "2026-08-20",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "91.78",
-      "change_pct": "+0.83%",
-      "as_of": "утро 20.08",
+      "value": "91.81",
+      "change_pct": "+0.21%",
+      "as_of": "2026-08-20",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4550.00",
-      "change_pct": "+4.21%",
-      "as_of": "утро 20.08",
+      "value": "4549.40",
+      "change_pct": "+1.34%",
+      "as_of": "2026-08-20",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
       "value": "2172.38",
       "change_pct": "+1.13%",
-      "as_of": "закрытие 19.08",
+      "as_of": "2026-08-19 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
       "value": "803.89",
       "change_pct": "+1.17%",
-      "as_of": "закрытие 19.08",
+      "as_of": "2026-08-19 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "83.92",
-      "change_pct": "-1.93%",
-      "as_of": "ночь 19.08",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.43",
-      "change_pct": "-1.29%",
-      "as_of": "ночь 19.08",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "fed-minutes-rate-hike",
-      "headline": "Протокол ФРС указал на готовность некоторых членов повысить ставку при отсутствии замедления инфляции",
-      "context": "Большинство участников заседания поддержали сохранение ставок, однако отдельные представители высказались за немедленное ужесточение политики.",
-      "category": "cb_policy",
+      "id": "tramp-economic-war-iran",
+      "headline": "Дональд Трамп объявил о начале разрушительной экономической операции против Ирана",
+      "context": "Президент США заявил о начале экономической войны и изоляции Исламской Республики беспрецедентного масштаба.",
+      "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381661"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8893320"
         }
       ],
-      "published_at": "2026-08-19T21:01:00+03:00"
+      "published_at": "2026-08-20T02:19:00+03:00"
     },
     {
-      "id": "rosstat-deflation-three-weeks",
-      "headline": "Росстат зафиксировал дефляцию в России на уровне 0,02% третью неделю подряд",
-      "context": "С начала года потребительские цены выросли на 4,67%, а годовая инфляция на 17 августа составила 6,09%.",
+      "id": "rosstat-deflyaciya-rf",
+      "headline": "Росстат зафиксировал дефляцию в России третью неделю подряд на уровне двух сотых процента",
+      "context": "Снижение потребительских цен с 11 по 17 августа составило 0,02%, при этом годовая инфляция ускорилась до 6,13%.",
       "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
@@ -107,9 +93,54 @@
       "published_at": "2026-08-19T19:14:00+03:00"
     },
     {
-      "id": "swiss-sanctions-crypto-ban",
-      "headline": "Швейцария присоединилась к санкциям Евросоюза и запретила использование российских криптоплатформ",
-      "context": "Ограничения введены в рамках присоединения к мерам 20-го пакета санкций ЕС против Российской Федерации.",
+      "id": "cb-digital-ruble-crossborder",
+      "headline": "Банк России обсуждает возможность проведения трансграничных расчетов в цифровых рублях",
+      "context": "Регулятор ведет переговоры о проведении трансграничных платежей в цифровой валюте с другими странами.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8893336"
+        }
+      ],
+      "published_at": "2026-08-20T06:29:00+03:00"
+    },
+    {
+      "id": "china-lpr-rate-unchanged",
+      "headline": "Народный банк Китая сохранил базовые процентные ставки без изменений пятнадцатый месяц подряд",
+      "context": "Годовая ставка LPR сохранена на уровне 3%, пятилетняя — на уровне 3,5% на фоне слабой динамики кредитования.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/300408"
+        }
+      ],
+      "published_at": "2026-08-20T07:27:00+03:00"
+    },
+    {
+      "id": "inflation-expectations-august",
+      "headline": "Инфляционные ожидания населения России в августе снизились до тринадцати и семи процентов",
+      "context": "По данным опроса ИНФОМ по заказу ЦБ, ожидания на ближайшие 12 месяцев снизились с 14,7% в июле до 13,7% в августе.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8893322"
+        }
+      ],
+      "published_at": "2026-08-20T02:34:00+03:00"
+    },
+    {
+      "id": "switzerland-ban-russian-crypto",
+      "headline": "Швейцария ввела полный запрет на использование российских криптоплатформ в рамках санкций",
+      "context": "Ограничения приняты в рамках присоединения страны к мерам из 20-го пакета санкций Евросоюза.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
@@ -122,71 +153,41 @@
       "published_at": "2026-08-19T20:47:00+03:00"
     },
     {
-      "id": "trump-iran-economic-isolation",
-      "headline": "Дональд Трамп объявил о начале беспрецедентной экономической изоляции Ирана",
-      "context": "Президент США заявил, что любая страна, которая окажет помощь Тегерану, столкнется с огромными экономическими последствиями.",
-      "category": "geopolitics",
+      "id": "banks-cut-mortgage-discounts",
+      "headline": "Российские банки начали сокращать скидки по рыночным ипотечным программам из-за стоимости фондирования",
+      "context": "Три банка из топ-20 ужесточили свои скидочные программы на фоне высокой стоимости привлечения средств.",
+      "category": "banks",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/19/08/2026/6a85098c9a79474f18a1f295"
-        }
-      ],
-      "published_at": "2026-08-20T02:31:00+03:00"
-    },
-    {
-      "id": "vbrr-capital-increase",
-      "headline": "Уставный капитал Всероссийского банка развития регионов увеличен на 45 миллиардов рублей",
-      "context": "Докапитализация привела к росту нормативов достаточности капитала банка до 14,7% по оценке агентства Эксперт РА.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23602"
-        }
-      ],
-      "published_at": "2026-08-19T20:24:00+03:00"
-    },
-    {
-      "id": "g7-bond-yields-crisis-levels",
-      "headline": "Доходности гособлигаций стран G7 выросли до уровней мирового финансового кризиса",
-      "context": "Максимальный рост стоимости заимствований с начала 2022 года зафиксирован в Великобритании — на 380 базисных пунктов.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23603"
-        }
-      ],
-      "published_at": "2026-08-19T20:26:00+03:00"
-    },
-    {
-      "id": "moscow-drone-attack-overnight",
-      "headline": "Силы противовоздушной обороны сбили 20 беспилотников на подлете к Москве за ночь",
-      "context": "Мэр столицы Сергей Собянин сообщил, что на месте падения обломков работают экстренные службы.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8893337"
+          "url": "https://www.kommersant.ru/doc/8893327"
         }
       ],
-      "published_at": "2026-08-20T05:52:00+03:00"
+      "published_at": "2026-08-20T02:53:00+03:00"
+    },
+    {
+      "id": "coal-export-growth-7m",
+      "headline": "Экспорт российского угля за семь месяцев вырос на семь процентов благодаря спросу Индии",
+      "context": "Общий объем поставок угля за рубеж достиг 125,7 млн тонн на фоне высоких мировых цен.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-08-20T08:01:00+03:00"
     }
   ],
   "yesterday": [
     {
       "id": "norilsk-nickel-dividends-meeting",
-      "headline": "Совет директоров Норникеля рассмотрит вопрос о дивидендах за первое полугодие 25 августа",
-      "context": "На фоне этой новости акции компании в ходе торгов выросли более чем на 2%.",
+      "headline": "Совет директоров Норникеля рассмотрит вопрос о дивидендах за первое полугодие двадцать пятого августа",
+      "context": "Заседание совета директоров компании по вопросу промежуточных дивидендов за 2026 год запланировано на 25 августа.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -199,132 +200,42 @@
       "published_at": "2026-08-19T17:00:00+03:00"
     },
     {
-      "id": "rusal-earnings-1h-2026",
-      "headline": "Русал вышел на чистую прибыль в размере 419 миллионов долларов в первом полугодии",
-      "context": "Годом ранее за аналогичный период компания зафиксировала чистый убыток в размере 87 миллионов долларов.",
+      "id": "cian-h1-profit-double",
+      "headline": "Сервис Циан удвоил чистую прибыль по МСФО в первом полугодии двадцать шестого года",
+      "context": "Чистая прибыль компании достигла 2 млрд рублей, также планируется выплата дивидендов не менее 30 рублей на акцию.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84517"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8892648"
         }
       ],
-      "published_at": "2026-08-19T09:17:00+03:00"
+      "published_at": "2026-08-19T10:39:00+03:00"
     },
     {
-      "id": "inflation-expectations-august-drop",
-      "headline": "Инфляционные ожидания населения России в августе снизились до 13,7% с 14,7%",
-      "context": "Согласно опросу ИНФОМ по заказу ЦБ, наблюдаемая населением инфляция также замедлилась до 14,3%.",
-      "category": "cb_policy",
-      "investment_relevant": false,
+      "id": "rusal-h1-net-profit",
+      "headline": "Компания Русал вышла на чистую прибыль в первом полугодии после убытков годом ранее",
+      "context": "Чистая прибыль компании по МСФО составила 419 млн долларов против убытка в 87 млн долларов в первом полугодии 2025 года.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381599"
-        }
-      ],
-      "published_at": "2026-08-19T14:38:00+03:00"
-    },
-    {
-      "id": "cian-dividends-plan",
-      "headline": "Циан планирует выплатить дивиденды в размере не менее 30 рублей на акцию",
-      "context": "Выплату планируется осуществить до конца текущего года, также компания проводит программу обратного выкупа акций.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381568"
-        }
-      ],
-      "published_at": "2026-08-19T10:33:00+03:00"
-    },
-    {
-      "id": "inarctica-dividends-recommendation",
-      "headline": "Совет директоров Инарктики рекомендовал дивиденды за первое полугодие в размере 10 рублей",
-      "context": "Дата закрытия реестра для получения выплат установлена на 4 октября 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Dohod",
-          "url": "https://t.me/dohod/13164"
-        }
-      ],
-      "published_at": "2026-08-19T10:49:00+03:00"
-    },
-    {
-      "id": "cherkizovo-dividends-meeting",
-      "headline": "Совет директоров Черкизово рассмотрит вопрос о дивидендах за первое полугодие 21 августа",
-      "context": "Заседание совета директоров группы по вопросу промежуточных выплат официально запланировано на пятницу.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381600"
-        }
-      ],
-      "published_at": "2026-08-19T14:39:00+03:00"
-    },
-    {
-      "id": "ozon-pharmaceuticals-dividends-date",
-      "headline": "Совет директоров Озон Фармацевтики объявит рекомендацию по дивидендам за первое полугодие 25 августа",
-      "context": "Компания официально определила дату проведения заседания по вопросу распределения прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/19/1222206-ozon-farmatsevtika-obyavit"
+          "url": "https://www.vedomosti.ru/business/news/2026/08/19/1222147-rusal-v-pervom-polugodii"
         }
       ],
-      "published_at": "2026-08-19T12:55:00+03:00"
+      "published_at": "2026-08-19T10:28:00+03:00"
     },
     {
-      "id": "phosagro-us-tariffs-reduction",
-      "headline": "США снизили компенсационную пошлину на продукцию АО Апатит группы Фосагро до 22,86%",
-      "context": "Ранее ставка пошлины составляла 28,5%, новое решение вступит в силу 22 августа.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381538"
-        }
-      ],
-      "published_at": "2026-08-19T08:13:00+03:00"
-    },
-    {
-      "id": "russia-fuel-import-start",
-      "headline": "Россия начала импорт топлива на фоне продолжающихся ремонтов на нефтеперерабатывающих заводах",
-      "context": "Вице-премьер Александр Новак сообщил, что кабмин рассчитывает на выход ряда НПЗ из ремонтов в ближайшее время.",
+      "id": "putin-economic-reform-plan",
+      "headline": "Президенту России предложат план реформ экономики из семи пунктов с опорой на частный капитал",
+      "context": "Проект новой модели экономического развития представят на заседании президентского совета по стратегическому развитию.",
       "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/381640"
-        }
-      ],
-      "published_at": "2026-08-19T18:08:00+03:00"
-    },
-    {
-      "id": "economic-reform-plan-private-capital",
-      "headline": "Владимиру Путину предложат план реформ экономики из семи пунктов с опорой на частный капитал",
-      "context": "Проект новой модели развития будет представлен на заседании президентского совета по стратегическому развитию.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -334,34 +245,139 @@
       "published_at": "2026-08-19T09:45:00+03:00"
     },
     {
-      "id": "tmk-insider-information-violation",
-      "headline": "Банк России выдал Трубной металлургической компании предписание за нарушение закона об инсайдерской информации",
-      "context": "Регулятор предписал ПАО ТМК устранить допущенные нарушения и не допускать их в дальнейшем.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
+      "id": "cb-digital-ruble-readiness",
+      "headline": "Центробанк заявил о готовности крупнейших банков к запуску цифрового рубля с первого сентября",
+      "context": "Все 12 системно значимых банков России готовы к массовому запуску цифрового рубля.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/19/1222313-tsb-tmk-predpisanie"
+          "url": "https://www.vedomosti.ru/finance/news/2026/08/19/1222102-tsifrovogo-rublya"
         }
       ],
-      "published_at": "2026-08-19T17:51:00+03:00"
+      "published_at": "2026-08-19T00:20:00+03:00"
+    },
+    {
+      "id": "rusgirdo-bond-placement-60b",
+      "headline": "Компания Русгидро зафиксировала объем размещения выпуска облигаций на уровне шестидесяти миллиардов рублей",
+      "context": "Компания завершила сбор заявок на выпуск трехлетних облигаций с плавающим купоном.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/19/1222292-rusgidro-60-mlrd"
+        }
+      ],
+      "published_at": "2026-08-19T16:50:00+03:00"
+    },
+    {
+      "id": "novak-friendly-countries-trade",
+      "headline": "Доля дружественных стран во внешнеторговом обороте России превысила восемьдесят процентов по заявлению Новака",
+      "context": "Вице-премьер сообщил, что доля дружественных государств достигла 84%, а доля национальных валют в расчетах — 89%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8893028"
+        }
+      ],
+      "published_at": "2026-08-19T16:09:00+03:00"
+    },
+    {
+      "id": "minstroy-installments-law",
+      "headline": "Минстрой России подготовил законопроект о покупке строящегося жилья в рассрочку",
+      "context": "Инициатива призвана снизить финансовую нагрузку на дольщиков, данные о рассрочке будут передаваться в бюро кредитных историй.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381578"
+        }
+      ],
+      "published_at": "2026-08-19T11:55:00+03:00"
+    },
+    {
+      "id": "inarctica-h1-dividends",
+      "headline": "Совет директоров Инарктики рекомендовал дивиденды за первое полугодие в размере десяти рублей",
+      "context": "Совет директоров компании рекомендовал выплату с доходностью около 3,1% к текущим ценам, закрытие реестра — 4 октября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Доход",
+          "url": "https://t.me/dohod/13164"
+        }
+      ],
+      "published_at": "2026-08-19T10:49:00+03:00"
     },
     {
       "id": "anterra-technical-default",
       "headline": "Компания Антерра допустила технические дефолты по двум выпускам облигаций из-за ареста счетов",
-      "context": "Эмитент не выплатил купоны на общую сумму 38,7 млн рублей, рассчитывая снять арест в течение 10 дней.",
+      "context": "Компания не выплатила купоны на общую сумму 38,7 млн рублей из-за блокировки счетов в рамках спора с контрагентом.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84525"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/19/1222197-anterra-dopustila-defolti"
         }
       ],
-      "published_at": "2026-08-19T12:29:00+03:00"
+      "published_at": "2026-08-19T12:28:00+03:00"
+    },
+    {
+      "id": "phosagro-us-duty-reduction",
+      "headline": "Минфин США снизил компенсационную пошлину на продукцию компании Фосагро до двадцати двух процентов",
+      "context": "Пошлина на продукцию АО «Апатит» снижена до 22,86% с прежних 28,5%, решение вступит в силу 22 августа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/381538"
+        }
+      ],
+      "published_at": "2026-08-19T08:13:00+03:00"
+    },
+    {
+      "id": "fts-record-business-charges",
+      "headline": "Федеральная таможенная служба доначислила российскому бизнесу рекордные тридцать пять миллиардов рублей",
+      "context": "За первое полугодие сумма доначислений выросла на 25% год к году, средний размер проверки увеличился до 800 тысяч рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/300169"
+        }
+      ],
+      "published_at": "2026-08-19T07:31:00+03:00"
+    },
+    {
+      "id": "coal-export-india-july",
+      "headline": "Экспорт российского угля на индийский рынок в июле подскочил почти в три раза",
+      "context": "Поставки выросли до 3,62 млн тонн, в том числе экспорт коксующегося угля увеличился в три раза.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8892467"
+        }
+      ],
+      "published_at": "2026-08-19T02:11:00+03:00"
     }
   ],
   "today_agenda": [],
