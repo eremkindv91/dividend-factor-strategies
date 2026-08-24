@@ -1,202 +1,232 @@
 {
   "date": "2026-08-24",
-  "generated_at": "2026-08-24T08:25:37+03:00",
+  "generated_at": "2026-08-24T18:52:44+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы и нефть марки Brent снижаются, в то время как золото дорожает.",
+  "external_backdrop": "Американские и азиатские индексы снижаются, нефть марки Brent дешевеет, в то время как золото демонстрирует рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7674.37",
-      "change_pct": "+0.43%",
-      "as_of": "закрытие 21.08",
+      "value": "7662.56",
+      "change_pct": "-0.15%",
+      "as_of": "2026-08-24",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26180.46",
-      "change_pct": "+0.43%",
-      "as_of": "закрытие 21.08",
+      "value": "26088.41",
+      "change_pct": "-0.35%",
+      "as_of": "2026-08-24",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65714.21",
-      "change_pct": "-0.46%",
-      "as_of": "24.08",
+      "value": "66016.36",
+      "change_pct": "-0.30%",
+      "as_of": "2026-08-21",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25484.19",
-      "change_pct": "-2.02%",
-      "as_of": "24.08",
+      "value": "25517.33",
+      "change_pct": "-1.89%",
+      "as_of": "2026-08-24",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "93.05",
-      "change_pct": "-1.42%",
-      "as_of": "24.08",
+      "value": "92.42",
+      "change_pct": "-2.09%",
+      "as_of": "2026-08-24",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4699.30",
-      "change_pct": "+1.63%",
-      "as_of": "24.08",
+      "value": "4719.80",
+      "change_pct": "+2.07%",
+      "as_of": "2026-08-24",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2134.97",
-      "change_pct": "+0.63%",
-      "as_of": "закрытие 21.08",
+      "value": "2071.11",
+      "change_pct": "-2.99%",
+      "as_of": "2026-08-24 18:52:41",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "811.09",
-      "change_pct": "+1.16%",
-      "as_of": "закрытие 21.08",
+      "value": "783.36",
+      "change_pct": "-3.42%",
+      "as_of": "2026-08-24 18:52:42",
       "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "84.18",
+      "change_pct": "+0.29%",
+      "as_of": "2026-08-24 18:52:42",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.49",
+      "change_pct": "+0.01%",
+      "as_of": "2026-08-24 18:52:43",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ozon-afks-drop-bpla",
-      "headline": "Акции Ozon и АФК Система упали на десять процентов на утренних торгах после атак беспилотников",
-      "context": "Логистические центры маркетплейса в Краснодаре, Махачкале, Оренбурге и Адыгее пострадали от ударов БПЛА, а объекты в Адыгейске и Невинномысске были эвакуированы.",
-      "category": "corporate",
+      "id": "critical-infra-decree",
+      "headline": "Президент подписал указ о передаче объектов критической инфраструктуры под временное госуправление",
+      "context": "Решение может быть принято в случае необеспечения безопасности объектов, включая склады маркетплейсов, на фоне участившихся атак беспилотников.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/24/08/2026/6a8bbb339a7947291ac05da8"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8907120"
         },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1110874"
+          "url": "https://www.interfax.ru/russia/1110972"
         }
       ],
-      "published_at": "2026-08-24T07:51:00+03:00"
+      "published_at": "2026-08-24T15:17:00+03:00"
     },
     {
-      "id": "alibaba-share-sale-ai",
-      "headline": "Компания Alibaba планирует привлечь десять миллиардов долларов за счет продажи акций для инвестиций в искусственный интеллект",
-      "context": "На торгах в Гонконге акции компании снизились на десять процентов на фоне новостей о допэмиссии.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906534"
-        },
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/382034"
-        }
-      ],
-      "published_at": "2026-08-24T08:07:00+03:00"
-    },
-    {
-      "id": "reverse-buyout-mechanism",
-      "headline": "Министерство экономического развития подготовило проект постановления о новом механизме обратного выкупа российских активов иностранными инвесторами",
-      "context": "Документ разработан для регулирования процессов выхода зарубежных участников из российских проектов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/382031"
-        }
-      ],
-      "published_at": "2026-08-24T07:31:00+03:00"
-    },
-    {
-      "id": "baltic-coal-prices-record",
-      "headline": "Цены на российский энергетический уголь в портах Балтики достигли максимума с весны две тысячи двадцать третьего года",
-      "context": "Рост котировок на два с половиной — четыре и две десятых процента обусловлен перебоями с отгрузками через Черное море.",
+      "id": "ozon-sistema-crash",
+      "headline": "Акции Ozon и АФК Система обвалились на Московской бирже после атак беспилотников",
+      "context": "Бумаги маркетплейса падали в моменте на 29%, из-за чего Мосбиржа проводила дискретный аукцион.",
       "category": "markets",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1110901"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/300892"
+        }
+      ],
+      "published_at": "2026-08-24T10:39:00+03:00"
+    },
+    {
+      "id": "rwb-support-measures",
+      "headline": "Минфин разработал меры поддержки для группы РВБ и пострадавших от атак селлеров",
+      "context": "Проекты постановлений предусматривают отсрочку по уплате налогов и страховых взносов, а также приостановку проверок до конца года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906597"
+          "url": "https://www.kommersant.ru/doc/8906758"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/300832"
         }
       ],
-      "published_at": "2026-08-24T06:31:00+03:00"
+      "published_at": "2026-08-24T09:09:00+03:00"
     },
     {
-      "id": "bspb-weak-results-h1",
-      "headline": "Банк Санкт-Петербург отчитался о снижении чистой прибыли в первом полугодии до шестнадцати с половиной миллиардов рублей",
-      "context": "Менеджмент банка повысил ориентир по стоимости риска на две тысячи двадцать шестой год до двухсот базисных пунктов.",
+      "id": "banks-profit-july",
+      "headline": "Чистая прибыль российского банковского сектора в июле выросла на 18 процентов",
+      "context": "По данным ЦБ, банки заработали 443 млрд рублей благодаря снижению отчислений в резервы по корпоративным кредитам.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://t.me/mozgovikresearch/3822"
-        }
-      ],
-      "published_at": "2026-08-24T01:26:00+03:00"
-    },
-    {
-      "id": "turkey-gasoline-import-rf",
-      "headline": "Россия может получить первую партию импортного бензина из Турции объемом двести тысяч баррелей до конца августа",
-      "context": "Танкер Wendrix класса MR направляется в один из балтийских портов на фоне временных сложностей на внутреннем топливном рынке.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1111009"
+        },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906533"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/301029"
         }
       ],
-      "published_at": "2026-08-23T16:41:00+03:00"
+      "published_at": "2026-08-24T18:00:00+03:00"
     },
     {
-      "id": "putin-fuel-market-control",
-      "headline": "Президент России заявил о контроле правительства над ситуацией на внутреннем топливном рынке",
-      "context": "По словам главы государства, проблемы на рынке еще есть, но они оперативно решаются.",
-      "category": "macro",
+      "id": "trump-canada-tariffs",
+      "headline": "Дональд Трамп анонсировал введение 50-процентных пошлин на автомобили и сталь из Канады",
+      "context": "Ограничения вступят в силу с 1 января 2027 года, Канада больше не будет рассматриваться как американский штат.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1110792"
+          "url": "https://www.interfax.ru/world/1110998"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/22/08/2026/6a89369c9a7947073438dceb"
         }
       ],
-      "published_at": "2026-08-23T13:49:00+03:00"
+      "published_at": "2026-08-24T17:14:00+03:00"
     },
     {
-      "id": "siluanov-budget-resources",
-      "headline": "Министр финансов Антон Силуанов заявил об обеспеченности федерального бюджета всеми необходимыми ресурсами",
-      "context": "Глава Минфина подчеркнул, что никаких проблем с государственными финансами в стране нет.",
-      "category": "macro",
+      "id": "eurotrans-tech-default",
+      "headline": "Компания Евротранс допустила технический дефолт по зеленым облигациям серии 01",
+      "context": "Причиной невыплаты купона на сумму 75,6 млн рублей названа временная нехватка свободных денежных средств.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/24/1223306-evrotrans-dopustil"
+        }
+      ],
+      "published_at": "2026-08-24T15:39:00+03:00"
+    },
+    {
+      "id": "cherkizovo-dividends",
+      "headline": "Совет директоров Черкизово рекомендовал дивиденды за первое полугодие в размере 120,19 рубля",
+      "context": "Дивидендная доходность по текущим ценам составляет около 3,7%, реестр закроется 11 октября 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/24/1223331-cherkizovo-rekomendoval-dividendi"
+        }
+      ],
+      "published_at": "2026-08-24T15:00:00+03:00"
+    },
+    {
+      "id": "iran-oil-blockade",
+      "headline": "Иран пригрозил полностью перекрыть экспорт нефти из Персидского залива в случае санкций США",
+      "context": "Тегеран готов заблокировать Ормузский пролив, если Вашингтон продолжит оказывать масштабное экономическое давление.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906465"
+          "url": "https://www.kommersant.ru/doc/8906908"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1110852"
         }
       ],
-      "published_at": "2026-08-23T12:49:00+03:00"
+      "published_at": "2026-08-24T11:56:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "premarket",
-    "title": "Сводка до открытия",
-    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-08-21"
   }
 }
