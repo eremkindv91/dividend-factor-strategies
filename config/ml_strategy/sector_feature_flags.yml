@@ -22,6 +22,7 @@
     "minimum_timing_dates": 12,
     "minimum_timing_ic": 0.0,
     "minimum_timing_ic_improvement": 0.05,
+    "maximum_sector_index_age_calendar_days": 10,
     "require_positive_top_bottom_spread": true,
     "require_identical_test_rows": true
   }
