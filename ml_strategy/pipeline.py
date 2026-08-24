@@ -264,6 +264,7 @@ def build_bundle(
     )
     pack_quality = {row["pack_id"]: row for row in sector_result.pack_rows}
     for row in ablation_rows:
+        quality_row = pack_quality[row["pack_id"]]
         reference = ablation_evaluations[f"{row['pack_id']}:SECTOR_ID"]
         candidate = ablation_evaluations[f"{row['pack_id']}:SECTOR_FEATURES"]
         base_portfolio_metrics = _portfolio_backtest(reference, config)[1]
@@ -295,9 +296,15 @@ def build_bundle(
         row["promotion_gates"] = {
             "source_availability": {
                 "status": "PASS"
-                if not pack_quality[row["pack_id"]].get("unavailable_sources")
+                if not quality_row.get("unavailable_sources")
                 else "FAIL",
-                "unavailable_sources": pack_quality[row["pack_id"]].get("unavailable_sources", []),
+                "unavailable_sources": quality_row.get("unavailable_sources", []),
+            },
+            "source_freshness": {
+                "status": "PASS" if not quality_row.get("stale_sources") else "FAIL",
+                "stale_sources": quality_row.get("stale_sources", []),
+                "latest_sector_index_at": quality_row.get("latest_sector_index_at"),
+                "sector_index_age_days": quality_row.get("sector_index_age_days"),
             },
             "identical_test_rows": {
                 "status": "PASS" if (
@@ -363,9 +370,11 @@ def build_bundle(
             approved_columns = [
                 column for column in approved_columns if column not in {sector_column, *pack_columns}
             ]
-        if row["status"] == "APPROVED" and pack_quality[row["pack_id"]].get("unavailable_sources"):
+        if row["status"] == "APPROVED" and (
+            quality_row.get("unavailable_sources") or quality_row.get("stale_sources")
+        ):
             row["status"] = "RESEARCH_ONLY"
-            row["reason"] = "Required official sector source is unavailable in this run."
+            row["reason"] = "Required official sector source is unavailable or stale in this run."
             pack_columns = sector_result.pack_columns[row["pack_id"]]
             sector_column = f"sector_id__{row['pack_id'].lower()}"
             approved_columns = [

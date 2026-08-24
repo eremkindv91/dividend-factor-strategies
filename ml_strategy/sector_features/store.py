@@ -66,9 +66,13 @@ def build_sector_features(
     mapping = load_sector_mapping(config_root / "sector_mapping.yml")
     flags = load_config(config_root / "sector_feature_flags.yml")
     lags = load_config(config_root / "sector_release_lags.yml")
+    max_sector_index_age_days = int(
+        flags.get("promotion", {}).get("maximum_sector_index_age_calendar_days", 10)
+    )
     generated_at = generated_at or pd.Timestamp(datetime.now(timezone.utc))
     dates = panel.index.get_level_values("date")
     unique_dates = dates.unique().sort_values()
+    panel_asof = pd.Timestamp(unique_dates.max()).tz_localize(None).normalize()
     tickers = panel.index.get_level_values("ticker")
     sectors = panel["sector"].astype(str)
     pack_by_ticker = {
@@ -173,6 +177,24 @@ def build_sector_features(
             for source in source_rows
             if aligned.get(source.series_id, pd.Series(dtype=float)).dropna().empty
         ]
+        sector_source_id = str(pack["sector_index_source"])
+        sector_observations = source_map.get(sector_source_id, pd.Series(dtype=float)).dropna()
+        latest_sector_observed = (
+            pd.Timestamp(sector_observations.index.max()).tz_localize(None).normalize()
+            if not sector_observations.empty
+            else None
+        )
+        sector_index_age_days = (
+            int((panel_asof - latest_sector_observed).days)
+            if latest_sector_observed is not None
+            else None
+        )
+        stale = (
+            [sector_source_id]
+            if sector_index_age_days is not None
+            and sector_index_age_days > max_sector_index_age_days
+            else []
+        )
         latest_dates = [
             available[source.series_id].dropna().max()
             for source in source_rows
@@ -192,6 +214,13 @@ def build_sector_features(
                 "approved_sources": pack["approved_sources"],
                 "blocked_sources": blocked,
                 "unavailable_sources": unavailable,
+                "stale_sources": stale,
+                "latest_sector_index_at": (
+                    latest_sector_observed.date().isoformat()
+                    if latest_sector_observed is not None
+                    else None
+                ),
+                "sector_index_age_days": sector_index_age_days,
                 "latest_available_at": latest_available.date().isoformat() if latest_available is not None else None,
                 "reason": pack["reason"],
             }
@@ -218,9 +247,13 @@ def build_sector_features(
         "schema_version": 1,
         "generated_at": generated_at.isoformat(),
         "status": "DEGRADED"
-        if any(row["blocked_sources"] or row["unavailable_sources"] for row in pack_rows)
+        if any(
+            row["blocked_sources"] or row["unavailable_sources"] or row["stale_sources"]
+            for row in pack_rows
+        )
         else "PASS",
         "point_in_time_policy": "available_at <= prediction_timestamp",
+        "maximum_sector_index_age_calendar_days": max_sector_index_age_days,
         "issuer_exposure_status": mapping["issuer_exposure_status"],
         "issuer_exposure_reason": mapping["issuer_exposure_reason"],
         "mapped_security_count": sum(pack is not None for pack in pack_by_ticker.values()),

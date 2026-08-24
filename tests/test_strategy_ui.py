@@ -60,6 +60,7 @@ def test_ml_optimizer_tab_renders_validated_server_snapshots_only():
     assert "Качество и полнота данных" in app
     assert "не действующий портфель" in app
     assert "source_availability" in app
+    assert "source_freshness" in app
     assert "mlsGateStatusLabel" in app
     assert "mlsCheckStatusLabel" in app
     assert ".mls-gate-grid" in styles

@@ -1758,10 +1758,15 @@ function renderMlStrategy() {
       rank_ic_improvement: 'прирост Rank IC', hit_rate_change: 'hit rate',
       positive_top_bottom_spread: 'top-bottom spread', relative_after_cost_portfolio: 'результат после издержек',
       source_availability: 'доступность официальных рядов',
+      source_freshness: 'свежесть отраслевого индекса',
     };
+    const staleSources = pack.stale_sources || [];
     const unavailableSources = [...(pack.blocked_sources || []), ...(pack.unavailable_sources || [])];
     const blocked = unavailableSources.length
       ? ` · недоступны: ${[...new Set(unavailableSources)].join(', ')}`
+      : '';
+    const stale = staleSources.length
+      ? ` · устарели: ${[...new Set(staleSources)].join(', ')}`
       : '';
     const timing = evaluation.feature_role === 'sector_timing';
     const baseIc = timing ? evaluation.timing_base_rank_ic : evaluation.base_rank_ic;
@@ -1774,10 +1779,16 @@ function renderMlStrategy() {
       ? `${evaluation.sector_oos_rows} OOS-строк · ${evaluation.sector_oos_tickers || 0} бумаг · ${timing ? evaluation.timing_dates : evaluation.sector_oos_dates || 0} дат`
       : 'отраслевая выборка недоступна';
     const failed = (evaluation.failed_gates || []).map((name) => gateLabels[name] || name).join(', ');
-    const sourceState = unavailableSources.length ? 'источники неполные' : 'официальные ряды загружены';
+    const sourceState = staleSources.length
+      ? `индекс устарел (${pack.latest_sector_index_at || 'дата неизвестна'})`
+      : (unavailableSources.length ? 'источники неполные' : 'официальные ряды загружены');
     const decision = pack.used_in_production ? 'Влияет на модель' : 'Не влияет на портфель';
-    const reason = failed ? `Не пройдено: ${failed}.` : (unavailableSources.length ? 'Не хватает официальных данных.' : 'Все отраслевые gates пройдены.');
-    return `<li class="mls-sector-card"><div><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(decision)}</small></div><strong class="${esc(ablation)}">${pack.used_in_production ? 'Допущен' : 'Не прошёл gate'}</strong><p>${esc(reason)}</p><details class="mls-sector-tech"><summary>Метрики проверки</summary><small>${timing ? 'Timing сектора' : 'Отбор внутри сектора'} · ${esc(sourceState)} · ${esc(evidence)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${esc(blocked)}</small></details></li>`;
+    const reason = failed
+      ? `Не пройдено: ${failed}.`
+      : (unavailableSources.length || staleSources.length
+        ? 'Официальные отраслевые данные недоступны или устарели.'
+        : 'Все отраслевые gates пройдены.');
+    return `<li class="mls-sector-card"><div><b>${esc(pack.label || pack.pack_id)}</b><small>${esc(decision)}</small></div><strong class="${esc(ablation)}">${pack.used_in_production ? 'Допущен' : 'Не прошёл gate'}</strong><p>${esc(reason)}</p><details class="mls-sector-tech"><summary>Метрики проверки</summary><small>${timing ? 'Timing сектора' : 'Отбор внутри сектора'} · ${esc(sourceState)} · ${esc(evidence)} · ${esc(rankIc)} · after-cost ${esc(String(evaluation.after_costs_gate || '—'))}${esc(blocked)}${esc(stale)}</small></details></li>`;
   }).join('');
   const approvedPackCount = (sectorQuality.packs || []).filter((pack) => pack.status === 'APPROVED').length;
   const evaluatedPackCount = sectorQuality.evaluated_pack_count || (sectorQuality.packs || []).filter((pack) => pack.ablation_status).length;

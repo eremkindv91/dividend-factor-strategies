@@ -114,3 +114,15 @@ def test_missing_optional_sector_index_degrades_pack_without_breaking_pipeline(m
     assert oil["status"] == "RESEARCH_ONLY"
     assert oil["unavailable_sources"] == ["MOEX_MOEXOG"]
     assert result.panel["oil_sector_index_missing"].sum() > 0
+
+
+def test_stale_sector_index_is_reported_in_quality_payload(market_repo):
+    path = market_repo / "data" / "daily" / "benchmarks" / "MOEXTL.parquet"
+    frame = pd.read_parquet(path).iloc[:-40]
+    frame.to_parquet(path, index=False)
+    result = _build(market_repo)
+    telecom = next(row for row in result.pack_rows if row["pack_id"] == "TELECOMMUNICATIONS")
+
+    assert result.quality_payload["maximum_sector_index_age_calendar_days"] == 10
+    assert telecom["stale_sources"] == ["MOEX_MOEXTL"]
+    assert telecom["sector_index_age_days"] > 10

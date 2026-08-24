@@ -92,3 +92,22 @@ def test_unavailable_official_sector_index_cannot_be_promoted(market_repo):
     assert "source_availability" in oil["failed_gates"]
     assert oil["status"] == "RESEARCH_ONLY"
     assert not oil["used_in_production"]
+
+
+def test_stale_official_sector_index_cannot_be_promoted(market_repo):
+    path = market_repo / "data" / "daily" / "benchmarks" / "MOEXOG.parquet"
+    frame = pd.read_parquet(path).iloc[:-40]
+    frame.to_parquet(path, index=False)
+    config = StrategyConfig(
+        min_training_rows=300,
+        evaluation_folds=4,
+        max_universe=18,
+        min_cross_section=10,
+    )
+    bundle = build_bundle(market_repo, config=config, today=date(2024, 12, 1))
+    oil = next(row for row in bundle["backtest.json"]["sector_ablation"] if row["pack_id"] == "OIL_AND_GAS")
+
+    assert oil["promotion_gates"]["source_freshness"]["status"] == "FAIL"
+    assert "source_freshness" in oil["failed_gates"]
+    assert oil["status"] == "RESEARCH_ONLY"
+    assert not oil["used_in_production"]
