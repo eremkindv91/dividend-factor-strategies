@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-23",
-  "generated_at": "2026-08-23T17:45:29+03:00",
+  "date": "2026-08-24",
+  "generated_at": "2026-08-24T06:36:27+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом, азиатские рынки торгуются разнонаправленно, нефть Brent и золото дорожают.",
+  "external_backdrop": "Американские индексы закрылись ростом, азиатские рынки снижаются, нефть марки Brent дешевеет, золото дорожает.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,30 +20,30 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66016.36",
-      "change_pct": "-0.30%",
-      "as_of": "2026-08-21",
+      "value": "65968.71",
+      "change_pct": "-0.07%",
+      "as_of": "2026-08-24",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "26009.46",
-      "change_pct": "+1.21%",
-      "as_of": "2026-08-21",
+      "value": "25463.35",
+      "change_pct": "-2.10%",
+      "as_of": "2026-08-24",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "94.39",
-      "change_pct": "+0.65%",
-      "as_of": "2026-08-21",
+      "value": "93.17",
+      "change_pct": "-1.29%",
+      "as_of": "2026-08-24",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4680.60",
-      "change_pct": "+3.64%",
-      "as_of": "2026-08-21",
+      "value": "4703.90",
+      "change_pct": "+1.73%",
+      "as_of": "2026-08-24",
       "group": "commodity"
     },
     {
@@ -59,61 +59,115 @@
       "change_pct": "+1.16%",
       "as_of": "2026-08-21 19:00:11",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "83.03",
-      "change_pct": "-0.23%",
-      "as_of": "2026-08-21 23:55:01",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.34",
-      "change_pct": "+0.10%",
-      "as_of": "2026-08-21 23:50:02",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ozon-sistema-segezha-weekend-drop",
-      "headline": "Акции Ozon, АФК Система и Сегежа упали до нижней планки на торгах выходного дня",
-      "context": "Падение котировок произошло на фоне сообщений о повреждении логистических комплексов Ozon в Самарской и Оренбургской областях в результате атак беспилотников.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1342802.php"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906147"
-        }
-      ],
-      "published_at": "2026-08-22T11:44:00+03:00"
-    },
-    {
-      "id": "phosagro-1h2026-msfo-earnings",
-      "headline": "Чистая прибыль ФосАгро по МСФО в первом полугодии снизилась в четыре раза",
-      "context": "Выручка компании за отчетный период сократилась на 5,8% до 281,4 млрд рублей, а чистая прибыль упала до 18,7 млрд рублей.",
+      "id": "ozon-krasnodar-fire-uav",
+      "headline": "Логистический центр Ozon в Краснодаре загорелся в результате атаки беспилотников",
+      "context": "Ранее компания также приостановила работу склада в Оренбургской области после падения обломков БПЛА.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1342764.php"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1110856"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8906658"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/22/08/2026/6a89dca89a7947a589cc5436"
         }
       ],
-      "published_at": "2026-08-22T07:37:00+03:00"
+      "published_at": "2026-08-24T02:59:00+03:00"
+    },
+    {
+      "id": "iran-oil-export-threats",
+      "headline": "Иран пригрозил полностью перекрыть экспорт нефти из Персидского залива в случае давления США",
+      "context": "Тегеран пообещал не допустить экспорта ни одной капли нефти, если экономическое давление Вашингтона продолжится.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1110852"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/economics/19/08/2026/6a860d589a79475f2e240c83"
+        }
+      ],
+      "published_at": "2026-08-24T02:49:00+03:00"
+    },
+    {
+      "id": "germany-rating-downgrade-risk",
+      "headline": "Германия рискует потерять высший кредитный рейтинг из-за рекордных долгов и отсутствия роста",
+      "context": "Агентство S&P Global Ratings предупредило о возможном снижении рейтинга AAA.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8906646"
+        }
+      ],
+      "published_at": "2026-08-24T02:36:00+03:00"
+    },
+    {
+      "id": "bspb-h1-2026-results",
+      "headline": "Банк Санкт-Петербург снизил чистую прибыль в первом полугодии до шестнадцати с половиной миллиардов рублей",
+      "context": "Менеджмент банка повысил ориентир стоимости риска на 2026 год со 150 до около 200 базисных пунктов.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Mozgovik Research",
+          "url": "https://smart-lab.ru/mobile/topic/1343021/"
+        }
+      ],
+      "published_at": "2026-08-24T01:26:00+03:00"
+    },
+    {
+      "id": "binance-halts-sanctioned-exchanges",
+      "headline": "Криптобиржа Binance прекратила обработку транзакций с участием ряда платформ из-за санкций",
+      "context": "Ограничения затронули такие площадки, как Rapira, Aifory Pro, ABCeX, HTX и EXMO.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/382015"
+        }
+      ],
+      "published_at": "2026-08-23T23:39:00+03:00"
+    },
+    {
+      "id": "alibaba-share-sale-ai",
+      "headline": "Китайская Alibaba планирует привлечь более десяти миллиардов долларов за счет продажи акций",
+      "context": "Привлеченные средства в размере около 80 млрд гонконгских долларов планируется направить на инвестиции в ИИ.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8906534"
+        }
+      ],
+      "published_at": "2026-08-23T16:57:00+03:00"
     },
     {
       "id": "russia-turkey-gasoline-import",
-      "headline": "Россия может получить первую партию импортного бензина из Турции до конца августа",
-      "context": "Танкер Wendrix везет партию объемом 200 тысяч баррелей из турецкого порта Мерсин в один из портов Балтики.",
+      "headline": "Россия до конца августа может получить первую партию бензина из Турции",
+      "context": "Танкер Wendrix класса MR объемом 200 тысяч баррелей направляется в один из балтийских портов.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 4,
@@ -121,92 +175,36 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8906533"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1343003.php"
         }
       ],
       "published_at": "2026-08-23T16:41:00+03:00"
     },
     {
-      "id": "okey-1h2026-msfo-earnings",
-      "headline": "Чистая прибыль ритейлера Окей в первом полугодии выросла на 17,3 процента",
-      "context": "Выручка компании увеличилась на 10,4% до 43,3 млрд рублей, а показатель EBITDA вырос на 6,7% до 4,2 млрд рублей.",
+      "id": "okey-h1-2026-results",
+      "headline": "Чистая прибыль ритейлера Окей по МСФО за первое полугодие выросла на семнадцать процентов",
+      "context": "Выручка компании увеличилась на 10,4% до 43,3 млрд рублей, а EBITDA выросла на 6,7%.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал Мозговик",
-          "url": "https://t.me/mozgovikresearch/3821"
+          "name": "Mozgovik Research",
+          "url": "https://smart-lab.ru/mobile/topic/1342897/"
         }
       ],
       "published_at": "2026-08-23T13:57:00+03:00"
-    },
-    {
-      "id": "iran-hormuz-strait-oil-export-threat",
-      "headline": "Иран пригрозил атаковать альтернативные маршруты экспорта нефти в случае поддержки санкций США",
-      "context": "Секретарь Высшего совета национальной безопасности Ирана Мохсен Резаи заявил о готовности наносить удары по любым путям поставок из Персидского залива.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906336"
-        }
-      ],
-      "published_at": "2026-08-23T02:53:00+03:00"
-    },
-    {
-      "id": "minfin-ofz-auctions-september",
-      "headline": "Минфин России допускает возобновление аукционов по размещению ОФЗ в сентябре",
-      "context": "Министр финансов Антон Силуанов заявил, что окончательных решений нет и ведомство будет ориентироваться на рыночную конъюнктуру.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1110654"
-        }
-      ],
-      "published_at": "2026-08-22T14:14:00+03:00"
-    },
-    {
-      "id": "us-canada-trade-tariffs",
-      "headline": "США ввели пятидесятипроцентные пошлины на канадские товары после провала торговых переговоров",
-      "context": "Пошлины затрагивают импорт на сумму 20 млрд долларов, в ответ Канада пообещала ввести зеркальные меры с 8 сентября.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8906165"
-        }
-      ],
-      "published_at": "2026-08-22T11:09:00+03:00"
-    },
-    {
-      "id": "russian-budget-resources-siluanov",
-      "headline": "Бюджет России полностью обеспечен ресурсами для выполнения всех запланированных расходов",
-      "context": "Министр финансов Антон Силуанов подчеркнул отсутствие проблем с государственным финансированием и отметил участие бизнеса в нацпроектах.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/08/23/1223076-siluanov-ukazal-na"
-        }
-      ],
-      "published_at": "2026-08-23T14:40:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
     "last_trading_day": "2026-08-21"
   }
 }
