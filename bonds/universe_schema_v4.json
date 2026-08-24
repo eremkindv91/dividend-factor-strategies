@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eremkindv91.github.io/dividend-factor-strategies/bonds/universe_schema_v4.json",
+  "title": "Bond Analytics v4 compact universe",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "as_of", "bonds"],
+  "properties": {
+    "schema_version": {"const": "4.0"},
+    "generated_at": {"type": "string"},
+    "as_of": {"type": "object"},
+    "bonds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["secid", "structure_class", "analysis_status", "capabilities", "safe_portfolio_eligible", "opportunity_portfolio_eligible"],
+        "properties": {
+          "secid": {"type": "string", "minLength": 1},
+          "structure_class": {"type": "string"},
+          "analysis_status": {"enum": ["FULL", "PARTIAL", "UNSUPPORTED"]},
+          "maturity_date": {"type": ["string", "null"]},
+          "capabilities": {"type": "object"},
+          "safe_portfolio_eligible": {"type": "boolean"},
+          "opportunity_portfolio_eligible": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

@@ -45,7 +45,7 @@ fi
 python3 scripts/build_instrument_logos.py --universe site/data.json --output-dir "$LOGO_BUILD" $PREVIOUS \
   || echo "[instrument-logos] API недоступен — сохраняем last-good"
 
-cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/app.js site/data.json "$TMP/"
+cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/bond_analytics_v4.js site/app.js site/data.json "$TMP/"
 [ -d site/assets ] && cp -r site/assets "$TMP/"
 if [ -n "$LOGO_LAST_GOOD" ]; then
   [ -f "$LOGO_LAST_GOOD/instrument_logos.js" ] && cp "$LOGO_LAST_GOOD/instrument_logos.js" "$TMP/"
@@ -84,7 +84,11 @@ fi
 [ -f site/dividend_calendar.json ] && cp site/dividend_calendar.json "$TMP/"
 [ -f site/events_calendar.json ] && cp site/events_calendar.json "$TMP/"
 [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"
-[ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"
+if [ -d site/bonds ]; then
+  mkdir -p "$TMP/bonds"
+  cp site/bonds/*.json "$TMP/bonds/"
+  [ -d site/bonds/details ] && cp -R site/bonds/details "$TMP/bonds/details"
+fi
 [ -d site/ml_strategy ] && mkdir -p "$TMP/ml_strategy" && cp -R site/ml_strategy/. "$TMP/ml_strategy/"
 V="$(git rev-parse --short=8 HEAD)"
 python3 - "$TMP/index.html" "$V" <<'PY'
@@ -98,6 +102,7 @@ html = html.replace('"instrument_logos.js"', f'"instrument_logos.js?v={version}"
 html = html.replace('"instrument_identity.js"', f'"instrument_identity.js?v={version}"')
 html = html.replace('"bond_allocator.js"', f'"bond_allocator.js?v={version}"')
 html = html.replace('"bond_retail.js"', f'"bond_retail.js?v={version}"')
+html = html.replace('"bond_analytics_v4.js"', f'"bond_analytics_v4.js?v={version}"')
 html = html.replace('"app.js"', f'"app.js?v={version}"')
 html = html.replace('"styles.css"', f'"styles.css?v={version}"')
 path.write_text(html, encoding="utf-8")

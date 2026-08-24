@@ -245,7 +245,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TMP="$(mktemp -d)"
-          cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/app.js site/data.json "$TMP/"
+          cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/bond_analytics_v4.js site/app.js site/data.json "$TMP/"
           [ -d site/assets ] && cp -r site/assets "$TMP/"
           [ -f site/methodology.json ] && cp site/methodology.json "$TMP/"   # методология (4 раздела, в репо)
           [ -f site/returns.json ] && cp site/returns.json "$TMP/"   # ряд для риск-метрик конструктора
@@ -273,7 +273,11 @@ jobs:
           [ -f site/market_positioning_commentary.json ] && cp site/market_positioning_commentary.json "$TMP/"
           [ -f site/site_status.json ] && cp site/site_status.json "$TMP/"   # P0: Data Health (свежесть блоков)
           [ -f site/_fallback.json ] && cp site/_fallback.json "$TMP/"   # P0: маркер last-good fallback
-          [ -d site/bonds ] && mkdir -p "$TMP/bonds" && cp site/bonds/*.json "$TMP/bonds/"   # скринер облигаций
+          if [ -d site/bonds ]; then
+            mkdir -p "$TMP/bonds"
+            cp site/bonds/*.json "$TMP/bonds/"
+            [ -d site/bonds/details ] && cp -R site/bonds/details "$TMP/bonds/details"
+          fi   # облигации v3 + v4 lazy details
           [ -d site/cbr ] && mkdir -p "$TMP/cbr" && cp site/cbr/*.json "$TMP/cbr/"   # данные банков ЦБ РФ (формы 102/123/135)
           # Daily Market Data Foundation: этот job их не генерирует (отдельный workflow
           # daily_market_data.yml, additive-publish) — orphan-republish иначе стирал бы их с
@@ -298,7 +302,9 @@ jobs:
             if [ -f "$LAST_GOOD/bonds/universe.json" ] \
                && python scripts/pick_fresher_bonds.py "$LAST_GOOD/bonds/universe.json" "$TMP/bonds/universe.json"; then
               echo "[bonds] на gh-pages данные свежее чекаута — сохраняем опубликованные"
-              mkdir -p "$TMP/bonds" && cp "$LAST_GOOD"/bonds/*.json "$TMP/bonds/"
+              rm -rf "$TMP/bonds" && mkdir -p "$TMP/bonds"
+              cp "$LAST_GOOD"/bonds/*.json "$TMP/bonds/"
+              [ -d "$LAST_GOOD/bonds/details" ] && cp -R "$LAST_GOOD/bonds/details" "$TMP/bonds/details"
             fi
             # Двухконтурная «Пила»: marketsaw_imoex/manifest/mcftr генерит market-saw-update.yml
             # (отдельный additive-publish). marketsaw.json (MCFTR) этот job строит сам (выше);
@@ -318,7 +324,7 @@ jobs:
           # cache-bust: версионируем JS/CSS по SHA коммита → браузер тянет согласованный frontend
           # под свежий index.html (иначе CDN/браузер кэшируют их вразнобой → рассинхрон логики)
           V="${GITHUB_SHA:0:8}"
-          sed -i "s|\"instrument_logos\.js\"|\"instrument_logos.js?v=${V}\"|g; s|\"instrument_identity\.js\"|\"instrument_identity.js?v=${V}\"|g; s|\"bond_allocator\.js\"|\"bond_allocator.js?v=${V}\"|g; s|\"bond_retail\.js\"|\"bond_retail.js?v=${V}\"|g; s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
+          sed -i "s|\"instrument_logos\.js\"|\"instrument_logos.js?v=${V}\"|g; s|\"instrument_identity\.js\"|\"instrument_identity.js?v=${V}\"|g; s|\"bond_allocator\.js\"|\"bond_allocator.js?v=${V}\"|g; s|\"bond_retail\.js\"|\"bond_retail.js?v=${V}\"|g; s|\"bond_analytics_v4\.js\"|\"bond_analytics_v4.js?v=${V}\"|g; s|\"app\.js\"|\"app.js?v=${V}\"|g; s|\"styles\.css\"|\"styles.css?v=${V}\"|g" "$TMP/index.html"
           printf '{"version":"%s","generated":"%s"}\n' "$V" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TMP/build.json"   # §6.1: манифест кэша данных (dataURL ?v=)
           touch "$TMP/.nojekyll"
           git -C "$TMP" init -q

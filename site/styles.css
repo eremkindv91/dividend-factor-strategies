@@ -3459,6 +3459,78 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
   border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font: inherit; }
 .bondlab-explain { margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #6E84B3; }
 
+/* Bond Analytics Engine v4 */
+.bav4-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 14px; margin-bottom: 14px;
+  padding: 12px; border: 1px solid var(--line); background: var(--surface-soft); }
+.bav4-controls label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-faint); font-size: .68rem; font-weight: 700; }
+.bav4-controls select, .bav4-controls input[type="search"] { min-height: 38px; padding: 7px 10px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; }
+.bav4-controls .bav4-check { min-height: 38px; flex-direction: row; align-items: center; color: var(--ink-soft); font-size: .76rem; }
+.bav4-check input { width: 17px; height: 17px; }
+.bav4-explorer-controls .bav4-search { flex: 1 1 280px; }
+.bav4-found { margin-left: auto; padding-bottom: 8px; color: var(--ink-faint); font-size: .74rem; }
+.bav4-summary { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-bottom: 14px;
+  border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.bav4-summary > div { min-width: 0; padding: 11px 12px; border-left: 1px solid var(--line); }
+.bav4-summary > div:first-child { border-left: 0; }
+.bav4-summary span, .bav4-summary small { display: block; color: var(--ink-faint); font-size: .66rem; line-height: 1.35; }
+.bav4-summary b { display: block; margin-top: 3px; color: var(--ink); font-size: .86rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bav4-warning { display: flex; gap: 8px 16px; margin-bottom: 12px; padding: 10px 12px; border-left: 3px solid #B67A15;
+  background: var(--warn-fill); color: var(--warn-ink); font-size: .76rem; }
+.bav4-mix { display: flex; min-height: 42px; margin-bottom: 14px; border: 1px solid var(--line); overflow: hidden; }
+.bav4-mix i { flex: 0 0 var(--w); min-width: 42px; display: grid; place-items: center; padding: 6px; border-left: 1px solid #fff;
+  background: #DCE7F5; color: var(--accent-deep); font-style: normal; font-size: .65rem; text-align: center; }
+.bav4-badge { display: inline-flex; align-items: center; min-height: 22px; margin: 2px 3px 2px 0; padding: 2px 7px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--neut-fill); color: var(--neut-ink); font-size: .64rem; font-weight: 750; }
+.bav4-badge.good { border-color: #B9DDCD; background: var(--good-fill); color: var(--good-ink); }
+.bav4-badge.warn { border-color: #E5C88B; background: var(--warn-fill); color: var(--warn-ink); }
+.bav4-details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+.bav4-details summary { cursor: pointer; color: var(--accent-deep); font-size: .76rem; font-weight: 700; }
+.bav4-exclusions { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 8px; color: var(--ink-soft); font-size: .72rem; }
+.bav4-empty { padding: 22px; border: 1px dashed var(--line); background: var(--surface-soft); color: var(--ink-soft); text-align: center; }
+.bav4-empty b { display: block; color: var(--ink); }
+.bav4-empty p { margin: 5px 0 0; }
+.bav4-table td small { display: block; margin-top: 2px; color: var(--ink-faint); font-size: .64rem; }
+.bav4-cards { display: none; }
+.bav4-card { padding: 12px; border: 1px solid var(--line); background: var(--surface); }
+.bav4-card header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.bav4-card .btn { min-height: 34px; padding: 5px 9px; font-size: .7rem; }
+.bav4-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; margin: 10px 0 0; }
+.bav4-card dt { color: var(--ink-faint); font-size: .65rem; }
+.bav4-card dd { margin: 2px 0 0; color: var(--ink); font-size: .8rem; font-weight: 700; }
+.bav4-card p { margin: 8px 0 0; color: var(--ink-soft); font-size: .69rem; }
+.bav4-fallback { display: inline-grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--neut-fill); color: var(--accent-deep); font-size: .62rem; font-weight: 800; }
+.bav4-badges { margin-top: 7px; }
+.bav4-timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 8px 2px 4px; }
+.bav4-timeline > div { position: relative; flex: 1 0 120px; min-width: 120px; padding-top: 18px; }
+.bav4-timeline i { position: absolute; top: 4px; left: 3px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-deep); }
+.bav4-timeline em { position: absolute; top: 8px; left: 13px; right: 0; height: 2px; background: var(--line-strong); }
+.bav4-timeline b, .bav4-timeline span { display: block; font-size: .68rem; }
+.bav4-timeline span { margin-top: 2px; color: var(--ink-faint); }
+.bav4-cashflow-chart { display: flex; align-items: end; gap: 6px; min-height: 140px; padding: 10px 4px 20px; overflow-x: auto;
+  border-bottom: 1px solid var(--line); }
+.bav4-cashflow-chart > div { display: grid; grid-template-rows: 105px auto; align-items: end; min-width: 42px; text-align: center; }
+.bav4-cashflow-chart i { width: 24px; height: var(--h); justify-self: center; background: #2E7D5B; }
+.bav4-cashflow-chart i.projected { border: 1px dashed var(--accent-deep); background: #DCE7F5; }
+.bav4-cashflow-chart span { margin-top: 5px; color: var(--ink-faint); font-size: .58rem; transform: rotate(-35deg); }
+.bav4-scenario-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bav4-scenario-inputs label { display: grid; grid-template-columns: 1fr 84px; gap: 6px 10px; align-items: center;
+  color: var(--ink-soft); font-size: .72rem; }
+.bav4-scenario-inputs input[type="range"] { grid-column: 1; width: 100%; }
+.bav4-scenario-inputs input[type="number"] { grid-column: 2; grid-row: 1 / span 2; width: 84px; min-height: 38px;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; font: inherit; }
+.bav4-scenario-result { display: grid; grid-template-columns: repeat(5, 1fr); margin: 12px 0; border: 1px solid var(--line); }
+.bav4-scenario-result > div { padding: 9px; border-left: 1px solid var(--line); }
+.bav4-scenario-result > div:first-child { border-left: 0; }
+.bav4-scenario-result span { display: block; color: var(--ink-faint); font-size: .62rem; }
+.bav4-scenario-result b { display: block; margin-top: 3px; font-size: .78rem; }
+.bav4-heatmap { display: grid; grid-template-columns: repeat(var(--n), minmax(64px, 1fr)); overflow-x: auto; }
+.bav4-heatmap button { min-height: 54px; border: 1px solid var(--surface); background: #E9F2EE; color: var(--ink); cursor: pointer; }
+.bav4-heatmap button:nth-child(5n+4), .bav4-heatmap button:nth-child(5n+5) { background: #FFF2EA; }
+.bav4-heatmap span, .bav4-heatmap small { display: block; font-size: .68rem; }
+.bav4-heatmap small { margin-top: 2px; color: var(--ink-faint); font-size: .58rem; }
+
 /* ═══════════ Облигации: retail-слой (безопасность, портфель, карточка выпуска) ═══════════ */
 
 /* Под-переключатель внутри «Продвинутой аналитики»: Relative Value / G-кривая / Finder */
@@ -3654,7 +3726,7 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
   .bondlab-cockpit > div:nth-child(3n+1) { border-left: 0; }
   .bondlab-cockpit > div:nth-child(n+4) { border-top: 1px solid var(--line); }
 }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .bonds-hero { padding-top: 0; }
   .bondlab-tabs { width: 100%; }
   .bondlab-tab { padding-inline: 11px; }
@@ -3675,6 +3747,26 @@ main.sections { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px 24
   .bondlab-desktop-table { display: none; }
   .bondlab-mobile-cards { display: grid; gap: 8px; }
   .bondlab-advanced dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bav4-controls { display: grid; grid-template-columns: 1fr 1fr; }
+  .bav4-explorer-controls .bav4-search { grid-column: 1 / -1; }
+  .bav4-found { margin-left: 0; padding: 0; }
+  .bav4-summary { grid-template-columns: 1fr 1fr; }
+  .bav4-summary > div { border-top: 1px solid var(--line); }
+  .bav4-summary > div:nth-child(-n+2) { border-top: 0; }
+  .bav4-summary > div:nth-child(odd) { border-left: 0; }
+  .bav4-table { display: none; }
+  .bav4-cards { display: grid; gap: 8px; }
+  .bav4-scenario-inputs { grid-template-columns: 1fr; }
+  .bav4-scenario-result { grid-template-columns: 1fr 1fr; }
+  .bav4-scenario-result > div { border-top: 1px solid var(--line); }
+  .bav4-scenario-result > div:nth-child(-n+2) { border-top: 0; }
+  .bav4-scenario-result > div:nth-child(odd) { border-left: 0; }
+}
+
+@media (max-width: 390px) {
+  .bav4-controls { grid-template-columns: 1fr; }
+  .bav4-controls label, .bav4-controls select { width: 100%; }
+  .bav4-warning { flex-direction: column; }
 }
 
 /* ═══════ §21 Accessibility — полировка (редизайн, Итерация 7) ═══════ */

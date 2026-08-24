@@ -15,6 +15,7 @@ CLI:
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from datetime import date, datetime
@@ -504,6 +505,74 @@ def check_bonds() -> None:
                 f"  Bond Portfolio Lab v3: universe={len(universe_rows)}, "
                 f"presets={len(preset_map)}, allocations={len(allocations)}, gate=PASS"
             )
+
+    # Bond Analytics v4 is additive. Validate it only when the compact contract exists,
+    # but then require the complete manifest/detail/portfolio set.
+    v4_universe = load("bonds/universe_v4.json")
+    if v4_universe is not None:
+        manifest = load("bonds/analytics_manifest.json")
+        opportunities = load("bonds/portfolio_opportunities.json")
+        safe_v4 = load("bonds/portfolio_safe_v4.json")
+        if any(value is None for value in (manifest, opportunities, safe_v4)):
+            err("Bond Analytics v4: неполный набор root artifacts")
+        rows = v4_universe.get("bonds") or []
+        if v4_universe.get("schema_version") != "4.0" or not rows:
+            err("bonds/universe_v4.json: schema_version не 4.0 или universe пуст")
+        v4_secids = [row.get("secid") for row in rows]
+        if len(v4_secids) != len(set(v4_secids)):
+            err("bonds/universe_v4.json: дубли SECID")
+        details_dir = os.path.join(SITE, "bonds", "details")
+        detail_files = set(os.path.splitext(name)[0] for name in os.listdir(details_dir)) if os.path.isdir(details_dir) else set()
+        if set(v4_secids) != detail_files:
+            err(f"Bond Analytics v4: detail set не совпадает с universe ({len(detail_files)} vs {len(v4_secids)})")
+        if manifest and manifest.get("detail_count") != len(rows):
+            err("bonds/analytics_manifest.json: detail_count не совпадает с universe")
+        forbidden = ("/users/", "/private/tmp/", "github_token", "api_key", "bearer ")
+
+        def inspect(value, path="root"):
+            if isinstance(value, float) and not math.isfinite(value):
+                err(f"Bond Analytics v4: non-finite value at {path}")
+            elif isinstance(value, dict):
+                for key, item in value.items(): inspect(item, f"{path}.{key}")
+            elif isinstance(value, list):
+                for index, item in enumerate(value): inspect(item, f"{path}[{index}]")
+
+        for row in rows:
+            inspect(row, f"universe.{row.get('secid')}")
+            if row.get("analysis_status") not in {"FULL", "PARTIAL", "UNSUPPORTED"}:
+                err(f"bonds/universe_v4.json: {row.get('secid')} — invalid analysis_status")
+            if row.get("structure_class") == "PERPETUAL_RESET" and row.get("maturity_date") is not None:
+                err(f"bonds/universe_v4.json: {row.get('secid')} — perpetual имеет maturity")
+            detail = load(f"bonds/details/{row.get('secid')}.json")
+            if detail is None: continue
+            inspect(detail, f"detail.{row.get('secid')}")
+            serialized = json.dumps(detail, ensure_ascii=False).lower()
+            if any(marker in serialized for marker in forbidden):
+                err(f"bonds/details/{row.get('secid')}.json: local path или secret-like value")
+            caps = detail.get("capabilities") or {}
+            analytics = detail.get("analytics") or {}
+            if caps.get("supports_oas") is not False:
+                err(f"bonds/details/{row.get('secid')}.json: OAS нельзя объявлять поддержанным")
+            if row.get("structure_class") == "PERPETUAL_RESET":
+                if caps.get("supports_ytm") is not False or ((analytics.get("ytm_gross") or {}).get("value")) is not None:
+                    err(f"bonds/details/{row.get('secid')}.json: perpetual содержит maturity YTM")
+        if opportunities:
+            row_map = {row.get("secid"): row for row in rows}
+            allocations = opportunities.get("allocations") or {}
+            if not allocations or opportunities.get("default_key") not in allocations:
+                err("portfolio_opportunities.json: нет allocations/default_key")
+            for allocation_key, allocation in allocations.items():
+                positions = allocation.get("positions") or []
+                for position in positions:
+                    source = row_map.get(position.get("secid")) or {}
+                    if source.get("analysis_status") != "FULL" or not source.get("opportunity_portfolio_eligible"):
+                        err(f"portfolio_opportunities.json[{allocation_key}]: неeligible position {position.get('secid')}")
+                if allocation.get("status") == "INFEASIBLE" and (
+                    positions or allocation.get("invested_rub") != 0
+                    or allocation.get("cash_rub") != allocation.get("budget_rub")
+                ):
+                    err(f"portfolio_opportunities.json[{allocation_key}]: несогласованный INFEASIBLE result")
+        print(f"  Bond Analytics v4: universe={len(rows)}, details={len(detail_files)}")
     print(f"  bonds: {len(bonds)} бумаг, data_date={meta.get('data_date')}")
 
 

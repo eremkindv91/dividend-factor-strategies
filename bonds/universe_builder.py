@@ -563,6 +563,7 @@ def _fetch_enrichment(raw: dict, http_json: Callable[[str], dict], iss: str, tod
     offers = _block_rows(bondization, "offers")
     flows: list[list] = []
     cashflows_12m: list[dict] = []
+    coupon_schedule: list[dict] = []
     future_coupon_count = 0
     for coupon in coupons:
         coupon_date = _iso(coupon.get("coupondate"))
@@ -571,14 +572,36 @@ def _fetch_enrichment(raw: dict, http_json: Callable[[str], dict], iss: str, tod
             continue
         future_coupon_count += 1
         flows.append([coupon_date, amount])
+        coupon_schedule.append({
+            "date": coupon_date,
+            "amount_per_bond_rub": round(amount, 4),
+            "coupon_rate_pct": _num(coupon.get("valueprc")),
+            "source": "MOEX ISS bondization.coupons",
+        })
         if (date.fromisoformat(coupon_date) - today).days <= 366:
             cashflows_12m.append({"date": coupon_date, "amount_per_bond_rub": round(amount, 4)})
     amort_rows = [row for row in amortizations if _iso(row.get("amortdate"))]
+    amortization_schedule: list[dict] = []
     for amort in amort_rows:
         amort_date = _iso(amort.get("amortdate"))
         amount = _num(amort.get("value")) or _num(amort.get("facevalue"))
         if amort_date and amount and date.fromisoformat(amort_date) > today:
             flows.append([amort_date, amount])
+            amortization_schedule.append({
+                "date": amort_date,
+                "amount_per_bond_rub": round(amount, 4),
+                "source": "MOEX ISS bondization.amortizations",
+            })
+    offer_schedule: list[dict] = []
+    for offer in offers:
+        offer_date = _iso(offer.get("offerdate"))
+        if not offer_date or date.fromisoformat(offer_date) <= today:
+            continue
+        offer_schedule.append({
+            "date": offer_date,
+            "price_pct": _num(offer.get("price")) or _num(offer.get("pricepct")),
+            "source": "MOEX ISS bondization.offers",
+        })
     history = http_json(
         f"{iss}/history/engines/stock/markets/bonds/boards/{board}/securities/{secid}.json"
         f"?iss.meta=off&limit={history_limit}&history.columns=TRADEDATE,VALUE"
@@ -589,6 +612,9 @@ def _fetch_enrichment(raw: dict, http_json: Callable[[str], dict], iss: str, tod
         "description": description,
         "emitter_id": description.get("EMITTER_ID"),
         "cashflows": sorted(flows),
+        "coupon_schedule": sorted(coupon_schedule, key=lambda item: item["date"]),
+        "amortization_schedule": sorted(amortization_schedule, key=lambda item: item["date"]),
+        "offer_schedule": sorted(offer_schedule, key=lambda item: item["date"]),
         "cashflows_12m": sorted(cashflows_12m, key=lambda item: item["date"]),
         "future_coupon_count": future_coupon_count,
         "future_amortization_count": sum(
@@ -615,6 +641,7 @@ def build_live_universe(
     as_of: date | None = None,
     fns_lookup: Callable[[str], dict] | None = None,
     sector_sleep: Callable[[float], None] | None = None,
+    include_v4_inputs: bool = False,
 ) -> dict:
     as_of = as_of or date.today()
     config = load_json(config_path)
@@ -762,7 +789,7 @@ def build_live_universe(
     price_dates = [row["source_dates"]["price"] for row in bonds if row["source_dates"].get("price")]
     history_dates = [row["source_dates"]["history"] for row in bonds if row["source_dates"].get("history")]
     checked_at = ratings_meta.get("checked_at")
-    return {
+    result = {
         "schema_version": "3.0",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "build_sha": os.environ.get("GITHUB_SHA", "local")[:40],
@@ -784,3 +811,13 @@ def build_live_universe(
         },
         "bonds": bonds,
     }
+    if include_v4_inputs:
+        result["_v4_inputs"] = {
+            secid: {
+                "coupon_schedule": item.get("coupon_schedule") or [],
+                "amortization_schedule": item.get("amortization_schedule") or [],
+                "offer_schedule": item.get("offer_schedule") or [],
+            }
+            for secid, item in enrichments.items()
+        }
+    return result

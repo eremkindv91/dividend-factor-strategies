@@ -56,6 +56,7 @@ def _persist_verified_issuer_records(universe: dict, path: Path = DEFAULT_ISSUER
 def build_and_publish(
     *, load_board, http_json, iss: str, ratings: dict, ratings_meta: dict, gcurve_rate,
     output_dir: Path = OUT, config_path: Path = DEFAULT_CONFIG,
+    curve_points: list[tuple[float, float]] | None = None,
 ) -> dict:
     universe = build_live_universe(
         load_board=load_board,
@@ -65,7 +66,9 @@ def build_and_publish(
         ratings_meta=ratings_meta,
         gcurve_rate=gcurve_rate,
         config_path=config_path,
+        include_v4_inputs=True,
     )
+    v4_inputs = universe.pop("_v4_inputs", {})
     persisted_issuer_records = _persist_verified_issuer_records(universe)
     gate = quality_gate(universe, config_path)
     validation = {
@@ -167,4 +170,9 @@ def build_and_publish(
         "presets": presets["presets"],
         "allocations": allocations,
     })
+    from .pipeline_v4 import build_v4_artifacts
+    validation["bond_analytics_v4"] = build_v4_artifacts(
+        universe, detail_inputs=v4_inputs, curve_points=curve_points, output_dir=output_dir,
+    )
+    _atomic_json(output_dir / "portfolio_validation.json", validation)
     return validation

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eremkindv91.github.io/dividend-factor-strategies/bonds/bond_detail_schema_v4.json",
+  "title": "Bond Analytics v4 detail",
+  "type": "object",
+  "required": ["schema_version", "secid", "analysis_status", "identity", "structure", "capabilities", "market", "analytics", "cashflows", "scenario_lab", "eligibility", "provenance", "warnings"],
+  "properties": {
+    "schema_version": {"const": "4.0"},
+    "secid": {"type": "string", "minLength": 1},
+    "analysis_status": {"enum": ["FULL", "PARTIAL", "UNSUPPORTED"]},
+    "identity": {"type": "object"},
+    "structure": {
+      "type": "object",
+      "required": ["coupon_model", "principal_model", "optionality", "seniority", "qualified_only"]
+    },
+    "capabilities": {"type": "object"},
+    "market": {"type": "object"},
+    "analytics": {"type": "object"},
+    "cashflows": {"type": "array", "items": {"type": "object"}},
+    "scenario_lab": {"type": "object"},
+    "eligibility": {"type": "object"},
+    "provenance": {"type": "object"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}

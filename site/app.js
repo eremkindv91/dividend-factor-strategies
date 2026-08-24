@@ -5797,7 +5797,9 @@ function loadBonds(cb) {
     fetch(dataURL('bonds/portfolios.json')).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
     ...['universe.json', 'portfolio_presets.json', 'portfolio_validation.json', 'portfolio_last_valid.json'].map((name) =>
       fetch(dataURL('bonds/' + name)).then((r) => r.ok ? r.json() : null).catch(() => null)),
-  ]).then(([screener, chart, portfolios, universe, presets, validation, lastValid]) => {
+    ...['universe_v4.json', 'portfolio_opportunities.json', 'analytics_manifest.json'].map((name) =>
+      fetch(dataURL('bonds/' + name)).then((r) => r.ok ? r.json() : null).catch(() => null)),
+  ]).then(([screener, chart, portfolios, universe, presets, validation, lastValid, v4Universe, opportunities, v4Manifest]) => {
     if (!screener || !screener.bonds || !chart) throw new Error('пустые/битые JSON облигаций');
     if (universe && Array.isArray(universe.bonds) && window.BondRetail) {
       universe = { ...universe, bonds: window.BondRetail.classifyUniverse(universe.bonds) };
@@ -5813,7 +5815,7 @@ function loadBonds(cb) {
     BONDS = {
       meta: screener.meta || {}, bonds: screener.bonds, chart,
       portfolios: (portfolios && portfolios.portfolios) || {},
-      lab: { universe, presets, validation, lastValid },
+      lab: { universe, presets, validation, lastValid, v4Universe, opportunities, v4Manifest },
     };
     cb();
   }).catch((e) => { console.error('[bonds] не загрузились:', e); cb(e); });
@@ -5849,13 +5851,13 @@ function drawBondLab() {
     button.setAttribute('aria-selected', String(active));
   });
   if (BOND_LAB_TAB === 'portfolios') panel.innerHTML = bondPortfolioLabHTML(BONDS.lab);
-  else if (BOND_LAB_TAB === 'screener') panel.innerHTML = bondUniverseScreenerHTML(BONDS.lab && BONDS.lab.universe);
-  else if (BOND_LAB_TAB === 'analytics') {
-    panel.innerHTML = bondAnalyticsHTML(BONDS);
-    if (BOND_ANALYTICS_VIEW === 'curve') loadChartJS((err) => { if (!err && window.Chart) bondsChart(BONDS); });
-    if (BOND_ANALYTICS_VIEW === 'finder') renderFinder();
-  }
+  else if (BOND_LAB_TAB === 'screener' && window.BondAnalyticsV4) {
+    panel.innerHTML = window.BondAnalyticsV4.opportunitiesHTML(BONDS.lab.opportunities, BONDS.lab.v4Universe);
+  } else if (BOND_LAB_TAB === 'analytics' && window.BondAnalyticsV4) {
+    panel.innerHTML = window.BondAnalyticsV4.explorerHTML(BONDS.lab.v4Universe);
+  } else panel.innerHTML = bondsErrorHTML();
   wireBondLabControls();
+  if (window.BondAnalyticsV4) window.BondAnalyticsV4.bind(panel, drawBondLab);
 }
 
 let BOND_SCREEN_QUERY = '';
@@ -6713,10 +6715,26 @@ function openBondDetail(secid) {
   const body = document.getElementById('bond-detail-body');
   if (!dlg || !body) return;
   const row = bondFindRow(secid);
-  body.innerHTML = row
-    ? bondDetailHTML(row)
-    : `<div class="bond-detail"><header class="bond-detail-head"><div><h2 id="bond-detail-title">Выпуск не найден</h2><p class="bond-detail-ids">${esc(secid)}</p></div><div class="bond-detail-head-right"><button type="button" class="bond-detail-close" id="bond-detail-close" aria-label="Закрыть">✕</button></div></header><p class="muted">Бумага отсутствует в текущем универсуме — возможно, данные обновились.</p></div>`;
+  const compact = BONDS && BONDS.lab && BONDS.lab.v4Universe
+    ? (BONDS.lab.v4Universe.bonds || []).find((item) => item.secid === secid) : null;
+  body.innerHTML = '<div class="bond-detail"><p class="muted">Загрузка структуры и расчётов выпуска…</p></div>';
   if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', '');
+  if (compact && window.BondAnalyticsV4) {
+    fetch(dataURL(`bonds/details/${encodeURIComponent(secid)}.json`))
+      .then((response) => { if (!response.ok) throw new Error(`detail ${response.status}`); return response.json(); })
+      .then((detail) => {
+        if (!dlg.open && !dlg.hasAttribute('open')) return;
+        body.innerHTML = window.BondAnalyticsV4.detailHTML(detail, compact);
+        window.BondAnalyticsV4.bindScenario(body);
+      })
+      .catch((error) => {
+        console.warn('[bonds v4] detail fallback:', error);
+        body.innerHTML = row ? bondDetailHTML(row) : `<div class="bond-detail"><h2>Выпуск не найден</h2><p>${esc(secid)}</p></div>`;
+      });
+    return;
+  }
+  body.innerHTML = row ? bondDetailHTML(row)
+    : `<div class="bond-detail"><header class="bond-detail-head"><div><h2 id="bond-detail-title">Выпуск не найден</h2><p class="bond-detail-ids">${esc(secid)}</p></div><button type="button" class="bond-detail-close" id="bond-detail-close" aria-label="Закрыть">✕</button></header></div>`;
 }
 
 function closeBondDetail() {

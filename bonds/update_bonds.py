@@ -556,6 +556,7 @@ def main() -> int:
             ratings=ratings,
             ratings_meta=ratings_meta,
             gcurve_rate=lambda years: gcurve_rate(years, gt, gy),
+            curve_points=[(float(t), float(y)) for t, y in zip(gt, gy)],
         )
         sys.stderr.write(f"[bonds-v3] status={v3_validation.get('status')}\n")
     except Exception as exc:  # noqa: BLE001

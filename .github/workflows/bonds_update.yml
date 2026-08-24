@@ -52,13 +52,13 @@ jobs:
         run: python scripts/validate_site_data.py bonds
 
       - name: Тесты Bond Portfolio Lab
-        run: pytest -q tests/bonds/test_bond_portfolio_lab_v3.py tests/test_bond_portfolio_lab_ui.py
+        run: pytest -q tests/bonds/test_bond_portfolio_lab_v3.py tests/bonds/test_bond_analytics_v4.py tests/test_bond_portfolio_lab_ui.py tests/test_bond_analytics_v4_ui.py
 
       - name: Коммит site/bonds/*.json в ветку
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -- site/bonds/*.json bonds/issuer_master.json
+          git add -- site/bonds/*.json site/bonds/details/*.json bonds/issuer_master.json
           # official_ratings_cache.json намеренно ignored: в commit идут только
           # tracked или новые неигнорируемые state-файлы Bond Finder.
           git ls-files -co --exclude-standard -- 'data/bond_finder/*.json' \
@@ -80,8 +80,10 @@ jobs:
                "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TMP" 2>/dev/null; then
             echo "[bonds] gh-pages ещё нет — additive-publish пропущен (опубликует update.yml)"; exit 0
           fi
+          rm -rf "$TMP/bonds"
           mkdir -p "$TMP/bonds"
           cp site/bonds/*.json "$TMP/bonds/"
+          [ -d site/bonds/details ] && cp -R site/bonds/details "$TMP/bonds/details"
           git -C "$TMP" add bonds
           if git -C "$TMP" diff --cached --quiet; then
             echo "[bonds] на gh-pages без изменений"; rm -rf "$TMP"; exit 0

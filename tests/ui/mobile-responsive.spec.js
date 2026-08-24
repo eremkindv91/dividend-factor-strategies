@@ -46,54 +46,22 @@ test.describe('mobile responsive data surfaces', () => {
     }
   });
 
-  test('bond screener keeps filters compact and table context visible', async ({ page }) => {
+  test('bond explorer keeps filters compact and switches to cards', async ({ page }) => {
     await goto(page, '#bonds');
-    await page.getByRole('tab', { name: 'Найти и сравнить', exact: true }).click();
+    await page.getByRole('tab', { name: 'Все выпуски', exact: true }).click();
 
-    const drawer = page.locator('[data-bond-filter-drawer]');
-    const filters = drawer.locator('.bond-filters');
-    await expect(drawer).not.toHaveAttribute('open', '');
-    await expect(filters).toBeHidden();
-    await drawer.locator('summary').click();
-    await expect(drawer).toHaveAttribute('open', '');
-    await expect(filters).toBeVisible();
+    const controls = page.locator('.bav4-explorer-controls');
+    await expect(controls).toBeVisible();
+    await expect(controls.locator('[data-bav4-control="query"]')).toBeVisible();
+    await expect(controls.locator('[data-bav4-control="structure"]')).toBeVisible();
+    await expect(page.locator('.bav4-table')).toBeHidden();
+    await expect(page.locator('.bav4-cards')).toBeVisible();
+    await expect(page.locator('.bav4-card').first()).toBeVisible();
 
-    await filters.locator('[data-bond-filter="minRating"]').selectOption('A');
-    await expect(drawer).toHaveAttribute('open', '');
-
-    const wrapper = page.locator('.bonds-table-wrap');
-    await expect(wrapper).toHaveAttribute('role', 'region');
-    await expect(wrapper).toHaveAttribute('tabindex', '0');
-    const geometry = await wrapper.evaluate((node) => ({
-      clientWidth: node.clientWidth,
-      scrollWidth: node.scrollWidth,
-      clientHeight: node.clientHeight,
-      scrollHeight: node.scrollHeight,
-    }));
-    expect(geometry.scrollWidth).toBeGreaterThan(geometry.clientWidth);
-    expect(geometry.scrollHeight).toBeGreaterThan(geometry.clientHeight);
-
-    await wrapper.evaluate((node) => node.scrollTo({ left: 240, top: 420 }));
-    const sticky = await wrapper.evaluate((node) => {
-      const bounds = node.getBoundingClientRect();
-      const header = node.querySelector('thead th:first-child').getBoundingClientRect();
-      const identity = node.querySelector('tbody td:first-child').getBoundingClientRect();
-      return {
-        scrollLeft: node.scrollLeft,
-        scrollTop: node.scrollTop,
-        headerTopDelta: Math.abs(header.top - bounds.top),
-        identityLeftDelta: Math.abs(identity.left - bounds.left),
-      };
-    });
-    expect(sticky.scrollLeft).toBeGreaterThan(0);
-    expect(sticky.scrollTop).toBeGreaterThan(0);
-    expect(sticky.headerTopDelta).toBeLessThanOrEqual(2);
-    expect(sticky.identityLeftDelta).toBeLessThanOrEqual(2);
-
-    const sortHeight = await page.locator('.bonds-sort-button').first().evaluate(
-      (node) => node.getBoundingClientRect().height,
+    const controlHeights = await controls.locator('input, select').evaluateAll(
+      (nodes) => nodes.map((node) => node.getBoundingClientRect().height),
     );
-    expect(sortHeight).toBeGreaterThanOrEqual(44);
+    expect(Math.min(...controlHeights)).toBeGreaterThanOrEqual(38);
   });
 
   test('strategy tables keep ticker and header visible while scrolling', async ({ page }) => {
@@ -213,11 +181,12 @@ test.describe('mobile responsive data surfaces', () => {
 test.describe('desktop responsive data surfaces', () => {
   test.skip(({ viewport }) => viewport.width <= 768, 'desktop only');
 
-  test('bond filters remain visible and long tables use the page scroll', async ({ page }) => {
+  test('bond explorer filters and full table remain visible', async ({ page }) => {
     await goto(page, '#bonds');
-    await page.getByRole('tab', { name: 'Найти и сравнить', exact: true }).click();
-    await expect(page.locator('.bond-filter-drawer .bond-filters')).toBeVisible();
-    const maxHeight = await page.locator('.bonds-table-wrap').evaluate(
+    await page.getByRole('tab', { name: 'Все выпуски', exact: true }).click();
+    await expect(page.locator('.bav4-explorer-controls')).toBeVisible();
+    await expect(page.locator('.bav4-table')).toBeVisible();
+    const maxHeight = await page.locator('.bav4-table').evaluate(
       (node) => getComputedStyle(node).maxHeight,
     );
     expect(maxHeight).toBe('none');

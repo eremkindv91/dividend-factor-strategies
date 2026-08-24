@@ -1,0 +1,69 @@
+{
+  "schema_version": "4.0",
+  "default_profile": "balanced",
+  "profiles": {
+    "defensive": {
+      "minimum_corporate_rating": "AA-",
+      "max_issue": 0.10,
+      "max_issuer": 0.12,
+      "max_sector": 0.25,
+      "max_complex_total": 0.15,
+      "max_perpetual": 0.00,
+      "max_subordinated": 0.05,
+      "max_single_structure": 0.45,
+      "max_qualified_only": 0.00,
+      "max_low_liquidity": 0.05,
+      "min_liquid_core": 0.70,
+      "minimum_liquidity_score": 45,
+      "max_duration_years": 5.0
+    },
+    "balanced": {
+      "minimum_corporate_rating": "A-",
+      "max_issue": 0.125,
+      "max_issuer": 0.15,
+      "max_sector": 0.30,
+      "max_complex_total": 0.30,
+      "max_perpetual": 0.15,
+      "max_subordinated": 0.20,
+      "max_single_structure": 0.40,
+      "max_qualified_only": 0.20,
+      "max_low_liquidity": 0.10,
+      "min_liquid_core": 0.50,
+      "minimum_liquidity_score": 30,
+      "max_duration_years": 8.0
+    },
+    "income": {
+      "minimum_corporate_rating": "BBB-",
+      "max_issue": 0.15,
+      "max_issuer": 0.18,
+      "max_sector": 0.35,
+      "max_complex_total": 0.40,
+      "max_perpetual": 0.18,
+      "max_subordinated": 0.25,
+      "max_single_structure": 0.45,
+      "max_qualified_only": 0.20,
+      "max_low_liquidity": 0.15,
+      "min_liquid_core": 0.40,
+      "minimum_liquidity_score": 25,
+      "max_duration_years": 12.0
+    }
+  },
+  "score_weights": {
+    "relative_value": 0.30,
+    "carry": 0.20,
+    "credit_quality": 0.20,
+    "liquidity": 0.15,
+    "rate_risk": 0.05,
+    "structure_risk": 0.07,
+    "data_quality": 0.03
+  },
+  "structure_risk_penalties": {
+    "FIXED_BULLET": 5,
+    "AMORTIZING_FIXED": 12,
+    "PUTTABLE_FIXED": 15,
+    "CALLABLE_FIXED": 20,
+    "FLOATER": 12,
+    "SUBORDINATED": 45,
+    "PERPETUAL_RESET": 60
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "as_of": "2026-08-17",
+  "row": {
+    "secid": "RU000A1039A8",
+    "isin": "RU000A1039A8",
+    "name": "Газпром капитал 001Б-02",
+    "issuer_id": "fixture:gazprom-capital",
+    "issuer_name": "ООО Газпром капитал",
+    "instrument_type": "corp",
+    "sector": "Нефть и газ",
+    "rating": "AA+",
+    "rating_group": "AA",
+    "rating_rank": 19,
+    "face_value_per_bond_rub": 1000000,
+    "lot_size": 1,
+    "clean_price_pct": 91.18,
+    "aci_per_bond_rub": 29000,
+    "dirty_price_per_bond_rub": 940800,
+    "dirty_price_per_lot_rub": 940800,
+    "coupon_pct": 16.42,
+    "qualified_only": true,
+    "median_volume_20d_rub": 11200000,
+    "history_sessions": 30,
+    "data_quality_flags": [],
+    "source_dates": {"price": "2026-08-17", "history": "2026-08-17"}
+  },
+  "terms": {
+    "source": "https://example.invalid/golden-fixture-only",
+    "source_date": "2026-08-17",
+    "verified_at": "2026-08-17",
+    "terms_version": "fixture-v1",
+    "structure": {
+      "coupon_model": {
+        "type": "FIXED_THEN_RESET",
+        "current_rate_pct": 16.42,
+        "reference_index": "KBD_5Y",
+        "contractual_margin_bp": 245,
+        "next_reset_date": "2030-12-13",
+        "formula_confidence": "CONFIRMED"
+      },
+      "principal_model": {"type": "PERPETUAL", "maturity_date": null},
+      "optionality": {
+        "has_call": true,
+        "call_schedule": [{"date": "2030-12-13", "price_pct": 100, "source": "fixture"}],
+        "has_put": false
+      },
+      "seniority": "PERPETUAL_SUBORDINATED",
+      "coupon_deferrable": true,
+      "qualified_only": true,
+      "government_support_mechanism": "2337"
+    }
+  },
+  "detail_input": {
+    "coupon_schedule": [
+      {"date": "2026-12-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2027-06-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2027-12-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2028-06-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2028-12-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2029-06-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2029-12-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2030-06-13", "amount_per_bond_rub": 81875.07},
+      {"date": "2030-12-13", "amount_per_bond_rub": 81875.07}
+    ]
+  }
+}
