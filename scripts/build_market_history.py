@@ -7,6 +7,7 @@ import math
 import os
 import sys
 import time
+import argparse
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -16,6 +17,11 @@ from ta.momentum import RSIIndicator
 from ta.trend import SMAIndicator
 from ta.volatility import AverageTrueRange
 
+try:
+    from scripts.moex_http import MoexHTTP
+except ImportError:  # direct execution: python scripts/build_market_history.py
+    from moex_http import MoexHTTP
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / "site" / "market_history.json"
@@ -23,7 +29,7 @@ ISS = "https://iss.moex.com/iss"
 HEADERS = {"User-Agent": "dividend-factor-strategies/market-history (+https://github.com/eremkindv91/dividend-factor-strategies)"}
 PAGE_SIZE = 100
 YEARS = 6
-SCHEMA = 2
+SCHEMA = 3
 
 INSTRUMENTS = [
     {"id": "MCFTR", "name": "MCFTR", "description": "Индекс полной доходности МосБиржи", "engine": "stock", "market": "index", "board": "RTSI", "decimals": 2},
@@ -38,18 +44,10 @@ def log(message: str) -> None:
     print(f"[market-history] {message}", file=sys.stderr)
 
 
-def _get_json(session: requests.Session, url: str, params: dict) -> dict:
-    last_error: Exception | None = None
-    for attempt in range(3):
-        try:
-            response = session.get(url, params=params, timeout=25)
-            response.raise_for_status()
-            return response.json()
-        except Exception as exc:  # noqa: BLE001
-            last_error = exc
-            if attempt < 2:
-                time.sleep(2**attempt)
-    raise RuntimeError(f"MOEX ISS unavailable: {last_error}")
+def _get_json(client: MoexHTTP | requests.Session, url: str, params: dict) -> dict:
+    if isinstance(client, MoexHTTP):
+        return client.get_json(url, params=params)
+    return MoexHTTP(session=client, logger=log).get_json(url, params=params)
 
 
 def history_url(spec: dict) -> str:
@@ -107,9 +105,8 @@ def aggregate_current_session(payload: dict) -> dict | None:
 
 
 def fetch_current_session(spec: dict, from_date: str,
-                          session: requests.Session | None = None) -> dict | None:
-    session = session or requests.Session()
-    session.headers.update(HEADERS)
+                          session: MoexHTTP | requests.Session | None = None) -> dict | None:
+    session = session or MoexHTTP(user_agent=HEADERS["User-Agent"], logger=log)
     payload = _get_json(
         session,
         candles_url(spec),
@@ -124,9 +121,9 @@ def fetch_current_session(spec: dict, from_date: str,
     return aggregate_current_session(payload)
 
 
-def fetch_history(spec: dict, from_date: str, session: requests.Session | None = None) -> list[dict]:
-    session = session or requests.Session()
-    session.headers.update(HEADERS)
+def fetch_history(spec: dict, from_date: str,
+                  session: MoexHTTP | requests.Session | None = None) -> list[dict]:
+    session = session or MoexHTTP(user_agent=HEADERS["User-Agent"], logger=log)
     rows: list[dict] = []
     start = 0
     while True:
@@ -263,20 +260,61 @@ def load_previous(path: Path) -> dict[str, dict]:
         return {}
 
 
-def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
+def _artifact_date(row: dict | None) -> str:
+    return str((row or {}).get("data_last") or "")[:10]
+
+
+def load_best_previous(output: Path, published: Path | None = None) -> dict[str, tuple[dict, str]]:
+    """Choose the newest valid row; published wins equal dates over tracked bootstrap."""
+    best: dict[str, tuple[dict, str]] = {}
+    for path, label, priority in ((output, "tracked_bootstrap", 0),
+                                  (published, "gh_pages_last_good", 1)):
+        if path is None:
+            continue
+        for key, row in load_previous(path).items():
+            current = best.get(key)
+            candidate = (_artifact_date(row), priority)
+            incumbent = ((_artifact_date(current[0]),
+                          1 if current[1] == "gh_pages_last_good" else 0)
+                         if current else ("", -1))
+            if not current or candidate > incumbent:
+                best[key] = (row, label)
+    return best
+
+
+def _session_lag(data_last: str | None, completed_sessions: list[str]) -> int | None:
+    if not data_last or not completed_sessions:
+        return None
+    return sum(day > data_last for day in completed_sessions)
+
+
+def build(output: Path = DEFAULT_OUT, today: date | None = None,
+          last_good: Path | None = None) -> dict:
     today = today or date.today()
     checked_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     from_date = (today - timedelta(days=YEARS * 366)).isoformat()
-    previous = load_previous(output)
-    session = requests.Session()
-    session.headers.update(HEADERS)
+    previous = load_best_previous(output, last_good)
+    session = MoexHTTP(user_agent=HEADERS["User-Agent"], logger=log)
     instruments = []
     errors = []
     intraday_errors = []
+    completed_sessions: list[str] = []
     for spec in INSTRUMENTS:
         try:
             rows = fetch_history(spec, from_date, session=session)
+            if spec["id"] == "IMOEX" or (not completed_sessions and spec["id"] in {"MCFTR", "RTSI"}):
+                completed_sessions = [row["date"] for row in rows]
             instrument = calculate_instrument(spec, rows, checked_at)
+            old, old_source = previous.get(spec["id"], (None, None))
+            if old and _artifact_date(old) > _artifact_date(instrument):
+                raise RuntimeError(
+                    f"live history {_artifact_date(instrument)} older than {old_source} {_artifact_date(old)}"
+                )
+            instrument.update({
+                "live_fetch_status": "success",
+                "fallback_used": False,
+                "fallback_source": None,
+            })
             try:
                 current = fetch_current_session(
                     spec, (today - timedelta(days=7)).isoformat(), session=session,
@@ -295,11 +333,18 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
             instruments.append(instrument)
             log(f"{spec['id']}: {len(rows)} rows through {rows[-1]['date']}")
         except Exception as exc:  # noqa: BLE001 - preserve per-instrument last good
-            old = previous.get(spec["id"])
+            old, old_source = previous.get(spec["id"], (None, None))
             errors.append({"instrument": spec["id"], "error": str(exc)[:180], "fallback": bool(old)})
             if old:
                 old = dict(old)
-                old["fallback"] = True
+                old.update({
+                    "live_fetch_status": "failed",
+                    "fallback": True,
+                    "fallback_used": True,
+                    "fallback_source": old_source,
+                    "fallback_reason": str(exc)[:180],
+                    "checked_at": checked_at,
+                })
                 instruments.append(old)
             log(f"{spec['id']}: {exc}")
     ids = {row["id"] for row in instruments}
@@ -311,10 +356,26 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
     data_asof = max(data_dates) if data_dates else None
     current_dates = [str((row.get("current_session") or {}).get("date"))
                      for row in instruments if (row.get("current_session") or {}).get("date")]
+    imoex = next(row for row in instruments if row.get("id") == "IMOEX")
+    expected_daily = completed_sessions[-1] if completed_sessions else None
+    for row in instruments:
+        row["lag_trading_sessions"] = _session_lag(row.get("data_last"), completed_sessions)
+    fallback_instruments = [row["id"] for row in instruments if row.get("fallback_used")]
+    fallback_sources = sorted({row.get("fallback_source") for row in instruments
+                               if row.get("fallback_source")})
+    fallback_used = bool(fallback_instruments)
     return {
         "schema": SCHEMA,
         "generated_at": checked_at,
         "data_asof": data_asof,
+        "daily_history_asof": imoex.get("data_last"),
+        "expected_completed_session": expected_daily,
+        "live_fetch_status": imoex.get("live_fetch_status"),
+        "fallback_used": fallback_used,
+        "fallback_source": (fallback_sources[0] if len(fallback_sources) == 1
+                            else "multiple" if fallback_sources else None),
+        "fallback_instruments": fallback_instruments,
+        "lag_trading_sessions": imoex.get("lag_trading_sessions"),
         "source": "MOEX ISS official daily history",
         "history_from": from_date,
         "methodology": "SMA and RSI use the ta library; ranges are observed rolling OHLC extrema; volatility is 20-session close-to-close standard deviation annualized by sqrt(252).",
@@ -325,10 +386,47 @@ def build(output: Path = DEFAULT_OUT, today: date | None = None) -> dict:
     }
 
 
-def main() -> int:
-    output = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUT
+def validate_strict(payload: dict) -> list[str]:
+    errors: list[str] = []
+    instruments = {row.get("id"): row for row in payload.get("instruments") or []}
+    imoex = instruments.get("IMOEX") or {}
+    lag = payload.get("lag_trading_sessions")
+    if imoex.get("live_fetch_status") != "success":
+        if not imoex.get("fallback_used") or lag is None or lag > 1:
+            errors.append("IMOEX daily history source is not live within SLA")
+    elif lag not in (0, 1):
+        errors.append(f"IMOEX daily history lag={lag}")
+    if payload.get("data_asof") != max(
+            (str(row.get("data_last")) for row in instruments.values() if row.get("data_last")),
+            default=None):
+        errors.append("data_asof does not match instrument rows")
+    return errors
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("output", nargs="?", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--last-good", type=Path)
+    parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--validate-only", action="store_true")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    output = args.output
+    if args.validate_only:
+        try:
+            payload = json.loads(output.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            log(f"strict validation failed: {exc}")
+            return 2
+        failures = validate_strict(payload)
+        for failure in failures:
+            log(f"STRICT: {failure}")
+        return 2 if failures else 0
     try:
-        payload = build(output)
+        payload = build(output, last_good=args.last_good)
     except Exception as exc:  # noqa: BLE001
         log(f"STOP, existing file preserved: {exc}")
         return 1
@@ -337,7 +435,10 @@ def main() -> int:
     tmp.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     os.replace(tmp, output)
     log(f"OK -> {output} ({len(payload['instruments'])} instruments, errors={len(payload['errors'])})")
-    return 0
+    failures = validate_strict(payload) if args.strict else []
+    for failure in failures:
+        log(f"STRICT: {failure}")
+    return 2 if failures else 0
 
 
 if __name__ == "__main__":

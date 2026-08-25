@@ -18,6 +18,7 @@ CLI:
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from datetime import date, datetime, timezone
@@ -125,6 +126,124 @@ def check_events_calendar(d) -> str | None:
     return None
 
 
+def _dates_are_strict(rows: list, *, date_index: int = 0) -> tuple[list[str], str | None]:
+    dates = [str(row[date_index])[:10] for row in rows if isinstance(row, list) and len(row) > date_index]
+    if len(dates) != len(rows):
+        return dates, "ряд содержит строки без даты"
+    if len(dates) != len(set(dates)):
+        return dates, "даты ряда не уникальны"
+    if dates != sorted(dates):
+        return dates, "даты ряда не возрастают"
+    return dates, None
+
+
+def check_market_history(d):
+    instruments = {row.get("id"): row for row in d.get("instruments") or [] if isinstance(row, dict)}
+    imoex = instruments.get("IMOEX") or {}
+    rows = imoex.get("series") or []
+    if not rows:
+        return "IMOEX series пуст"
+    dates, error = _dates_are_strict(rows)
+    if error:
+        return f"IMOEX: {error}"
+    actual = dates[-1]
+    if imoex.get("data_last") != actual:
+        return "IMOEX data_last не совпадает с max(series dates)"
+    all_latest = [str(row.get("data_last"))[:10] for row in instruments.values() if row.get("data_last")]
+    if d.get("data_asof") != max(all_latest, default=None):
+        return "data_asof не совпадает с instrument data_last"
+    if d.get("daily_history_asof") not in (None, actual):
+        return "daily_history_asof не совпадает с IMOEX completed history"
+    current = imoex.get("current_session") or {}
+    if current and str(current.get("date") or "") <= actual:
+        return "current_session подменяет или дублирует completed daily row"
+    if imoex.get("fallback_used"):
+        if imoex.get("live_fetch_status") != "failed" or not imoex.get("fallback_source"):
+            return "IMOEX fallback metadata противоречивы"
+        lag = imoex.get("lag_trading_sessions")
+        if lag is None or lag <= 1:
+            return ("degraded", "IMOEX использует валидный last-good в пределах SLA")
+        return f"IMOEX last-good отстаёт на {lag} торговых сессий"
+    if imoex.get("live_fetch_status") not in (None, "success"):
+        return "IMOEX live_fetch_status не подтверждает live ряд"
+    return None
+
+
+def _position_rows(entry: dict) -> tuple[list[str], str | None]:
+    arrays = [entry.get(key) or [] for key in ("dates", "long", "short", "net")]
+    if not arrays[0] or len({len(values) for values in arrays}) != 1:
+        return [], "массивы dates/long/short/net пусты или разной длины"
+    dates = [str(day)[:10] for day in arrays[0]]
+    if dates != sorted(set(dates)):
+        return dates, "даты не уникальны/не возрастают"
+    if any(net != long_value - short_value
+           for long_value, short_value, net in zip(arrays[1], arrays[2], arrays[3])):
+        return dates, "net != long - short"
+    return dates, None
+
+
+def check_futures_positions(d):
+    meta = d.get("meta") or {}
+    imoex = ((d.get("indices") or {}).get("IMOEX") or {})
+    dates, error = _position_rows(imoex)
+    if error:
+        return f"IMOEX: {error}"
+    actual = dates[-1]
+    if (imoex.get("summary") or {}).get("as_of") != actual:
+        return "IMOEX summary.as_of не совпадает с max(dates)"
+    if imoex.get("latest_observation_date") != actual:
+        return "IMOEX latest_observation_date не совпадает с max(dates)"
+    if imoex.get("data_asof") not in (None, actual):
+        return "IMOEX data_asof не совпадает с max(dates)"
+    if meta.get("as_of") and meta.get("as_of") < actual:
+        return "meta.as_of старее IMOEX ряда"
+    if (imoex.get("pagination") or {}).get("complete") is False:
+        return "IMOEX pagination incomplete"
+    entries = list((d.get("tickers") or {}).values()) + list((d.get("indices") or {}).values())
+    failed = sum(row.get("update_status") == "failed" for row in entries)
+    if entries and failed >= max(3, math.ceil(len(entries) * 0.8)):
+        return f"массовый transport failure {failed}/{len(entries)}"
+    if meta.get("calendar_status") == "unavailable":
+        if imoex.get("expected_trading_date") is not None or imoex.get("lag_trading_sessions") is not None:
+            return "calendar unavailable, но expected/lag заявлены"
+    if imoex.get("fallback_used"):
+        return ("degraded", "IMOEX использует валидный cache fallback")
+    return None
+
+
+def check_positioning(d):
+    meta = d.get("meta") or {}
+    analysis = meta.get("analysis_date") or meta.get("as_of")
+    positions, positions_error = load("futures_positions.json")
+    history, history_error = load("market_history.json")
+    if positions_error or history_error:
+        return "не удалось прочитать source artifacts для positioning"
+    index = ((positions.get("indices") or {}).get("IMOEX") or {})
+    position_dates = [str(day)[:10] for day in index.get("dates") or []]
+    instrument = next((row for row in history.get("instruments") or [] if row.get("id") == "IMOEX"), {})
+    price_dates = [str(row[0])[:10] for row in instrument.get("series") or [] if row and row[4] is not None]
+    common = sorted(set(position_dates) & set(price_dates))
+    if not common or analysis != common[-1]:
+        return "analysis_date не равна max(position_dates ∩ price_dates)"
+    if meta.get("position_latest") != max(position_dates, default=None):
+        return "position_latest не совпадает с source"
+    if meta.get("price_latest") not in (None, max(price_dates, default=None)):
+        return "price_latest не совпадает с source"
+    facts = ((d.get("IMOEX") or {}).get("facts") or {})
+    pos_index = position_dates.index(analysis)
+    long_value, short_value = index["long"][pos_index], index["short"][pos_index]
+    if facts.get("long") != long_value or facts.get("short") != short_value \
+            or facts.get("net") != long_value - short_value:
+        return "facts рассчитаны не на analysis_date"
+    if meta.get("status") == "degraded":
+        return ("degraded", "общий срез валиден, один из source использует fallback/lag")
+    return None
+
+
+def is_broken_result(result) -> bool:
+    return isinstance(result, str)
+
+
 # обязательные (broken → block) и опциональные (broken → только пометка)
 REQUIRED = {
     "data.json": check_data,
@@ -132,6 +251,9 @@ REQUIRED = {
     "quality.json": check_quality,
     "dividend_calendar.json": check_dividend_calendar,
     "events_calendar.json": check_events_calendar,
+    "market_history.json": check_market_history,
+    "futures_positions.json": check_futures_positions,
+    "market_positioning_commentary.json": check_positioning,
 }
 OPTIONAL = [
     "marlamov.json",
@@ -153,16 +275,19 @@ def main() -> int:
             results[name] = {"status": "broken", "reason": e, "required": True}
             broken_required.append(name)
             continue
-        reason = checker(obj)
-        results[name] = {"status": "broken" if reason else "ok", "reason": reason, "required": True}
-        if reason:
+        result = checker(obj)
+        degraded = isinstance(result, tuple) and result[0] == "degraded"
+        reason = result[1] if degraded else result
+        status = "degraded" if degraded else "broken" if reason else "ok"
+        results[name] = {"status": status, "reason": reason, "required": True}
+        if is_broken_result(result):
             broken_required.append(name)
     for name in OPTIONAL:
         obj, e = load(name)
         results[name] = {"status": "broken" if e else "ok", "reason": e, "required": False}
 
     for name, r in results.items():
-        tag = "OK " if r["status"] == "ok" else "BROKEN"
+        tag = "OK " if r["status"] == "ok" else "DEGRADED" if r["status"] == "degraded" else "BROKEN"
         req = "" if r["required"] else " (опц.)"
         sys.stdout.write(f"  [{tag}] {name}{req}{(' — ' + r['reason']) if r['reason'] else ''}\n")
 

@@ -36,6 +36,25 @@ jobs:
           python -m pip install --quiet t-tech-investments==1.49.2 \
             --index-url https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple
 
+      - name: P0 — клон текущего gh-pages до всех dependent builders
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_GOOD="$(mktemp -d)"
+          if git clone --depth 1 --branch gh-pages \
+               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$LAST_GOOD" 2>/dev/null; then
+            echo "LAST_GOOD=$LAST_GOOD" >> "$GITHUB_ENV"
+            for f in marketsaw_imoex.json marketsaw_manifest.json marketsaw_mcftr.json market_pe_current.json market_pe_history.json; do
+              [ -f "$LAST_GOOD/$f" ] && cp "$LAST_GOOD/$f" "site/$f" || true
+            done
+            mkdir -p data
+            [ -f "$LAST_GOOD/market_pe_history_cache.json" ] && cp "$LAST_GOOD/market_pe_history_cache.json" data/ || true
+            echo "[last-good] gh-pages загружен до market/FUTOI builders"
+          else
+            echo "[last-good] gh-pages ещё нет (первый деплой) — fallback/rollback недоступны"
+            rm -rf "$LAST_GOOD"
+          fi
+
       - name: Резервное обновление новостей перед полным деплоем
         # Независимый второй триггер: если dedicated news cron задержан/пропущен,
         # основной daily update всё равно пытается собрать свежий дайджест.
@@ -129,42 +148,57 @@ jobs:
       - name: Сборка market_history.json (официальные графики MOEX ISS)
         # OHLC + SMA/RSI/волатильность для drill-down в «Текущем рынке».
         # Скрипт сохраняет last-good по каждому инструменту при частичном сбое ISS.
-        run: python scripts/build_market_history.py || echo "[market-history] пропуск — сохранён предыдущий валидный файл"
+        run: |
+          ARGS=()
+          [ -n "$LAST_GOOD" ] && [ -f "$LAST_GOOD/market_history.json" ] && ARGS+=(--last-good "$LAST_GOOD/market_history.json")
+          python scripts/build_market_history.py "${ARGS[@]}"
 
       - name: Позиции физлиц во фьючерсах (MOEX ISS, весь equity universe)
         # Входит в основной daily pipeline: отдельный workflow оставлен только для ручной
         # диагностики. Сбор инкрементальный, а ошибка одной бумаги не останавливает batch.
         run: |
-          python scripts/build_futures_positions.py --audit
-          python scripts/build_positioning_interpretation.py || echo "[positioning] текст не обновлён — позиции уже сохранены"
+          ARGS=()
+          [ -n "$LAST_GOOD" ] && [ -f "$LAST_GOOD/futures_positions.json" ] && ARGS+=(--last-good "$LAST_GOOD/futures_positions.json")
+          python scripts/build_futures_positions.py --audit "${ARGS[@]}"
+          python scripts/build_positioning_interpretation.py
+
+      - name: Strict MOEX market/FUTOI validation
+        run: |
+          python scripts/build_market_history.py --validate-only --strict
+          python scripts/build_futures_positions.py --validate-only --strict
+          python scripts/check_predeploy_contract.py
+
+      - name: MOEX freshness summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site = Path("site")
+          market = json.loads((site / "market_history.json").read_text())
+          futures = json.loads((site / "futures_positions.json").read_text())
+          positioning = json.loads((site / "market_positioning_commentary.json").read_text())
+          imoex = next(row for row in market["instruments"] if row["id"] == "IMOEX")
+          fut = futures["indices"]["IMOEX"]
+          page = fut.get("pagination") or {}
+          pos = positioning.get("meta") or {}
+          print("MARKET HISTORY")
+          print(f"IMOEX daily_live={imoex.get('live_fetch_status')} daily_asof={imoex.get('data_last')} "
+                f"current_session_asof={market.get('current_session_asof')} "
+                f"fallback_used={imoex.get('fallback_used')} lag={imoex.get('lag_trading_sessions')}")
+          print("FUTOI")
+          print(f"asset=IMOEX pages={page.get('pages_fetched')} remote_max={fut.get('remote_max_date')} "
+                f"artifact_max={fut.get('data_asof')} expected={fut.get('expected_trading_date')} "
+                f"status={fut.get('freshness_status')} source={fut.get('source_status')} "
+                f"fallback={fut.get('fallback_used')}")
+          print("POSITIONING")
+          print(f"position_latest={pos.get('position_latest')} price_latest={pos.get('price_latest')} "
+                f"analysis_date={pos.get('analysis_date')} status={pos.get('status')}")
+          PY
 
       - name: Сборка marlamov.json (форвардная дивдоходность, 2 года + макро-режим)
         # читает site/data.json (создан шагом выше); сбой не блокирует деплой
         run: |
           python scripts/build_forward_yield.py || echo "[fwd] пропуск форвардной доходности"
-
-      - name: P0 — клон текущего gh-pages (last-good для fallback и rollback)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          LAST_GOOD="$(mktemp -d)"
-          if git clone --depth 1 --branch gh-pages \
-               "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$LAST_GOOD" 2>/dev/null; then
-            echo "LAST_GOOD=$LAST_GOOD" >> "$GITHUB_ENV"
-            # IMOEX-контур «Пилы» генерит market-saw-update.yml (не этот job). Восстанавливаем его
-            # файлы из last-good в site/ ДО сборки site_status — иначе блок marketsaw_imoex будет
-            # «unavailable» и overall уедет в broken (файл-то на gh-pages есть, просто не локально).
-            for f in marketsaw_imoex.json marketsaw_manifest.json marketsaw_mcftr.json market_pe_current.json market_pe_history.json; do
-              [ -f "$LAST_GOOD/$f" ] && cp "$LAST_GOOD/$f" "site/$f" || true
-            done
-            # Кэш истории P/E: без него сборка делает ~325 медленных запросов к ISS (полная
-            # история составов индекса и капитализаций). С кэшем дотягивается только хвост.
-            mkdir -p data
-            [ -f "$LAST_GOOD/market_pe_history_cache.json" ] && cp "$LAST_GOOD/market_pe_history_cache.json" data/ || true
-          else
-            echo "[last-good] gh-pages ещё нет (первый деплой) — fallback/rollback недоступны"
-            rm -rf "$LAST_GOOD"
-          fi
 
       - name: Локальные логотипы инструментов из T-Invest
         # Токен используется только во время сборки. В браузер и public artifact он не попадает.

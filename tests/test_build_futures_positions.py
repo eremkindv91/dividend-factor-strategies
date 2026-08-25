@@ -10,6 +10,9 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+import requests
+
+from scripts.moex_http import MoexHTTP, MoexTransportError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,35 +89,38 @@ def test_positions_reads_only_physical_people_and_exact_net(monkeypatch):
 # D: empty response is explicit, not synthetic zeroes.
 def test_empty_moex_response_returns_no_observations(monkeypatch):
     monkeypatch.setattr(pos, "http_json", lambda *_args, **_kwargs: _payload([]))
-    assert pos.positions("SBRF", "2026-08-10") == []
+    with pytest.raises(pos.RemoteEmpty):
+        pos.positions("SBRF", "2026-08-10")
 
 
 # E: timeout is retried and then raised.
 def test_timeout_has_bounded_retries(monkeypatch):
     calls = []
 
-    def fail(*_args, **_kwargs):
-        calls.append(1)
-        raise urllib.error.URLError("timeout")
+    class Session:
+        headers = {}
+        def get(self, *_args, **_kwargs):
+            calls.append(1)
+            raise requests.Timeout("timeout")
 
-    monkeypatch.setattr(pos.urllib.request, "urlopen", fail)
-    monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
-    with pytest.raises(pos.IssError):
-        pos.http_json("https://example.test", tries=3)
+    client = MoexHTTP(session=Session(), attempts=3, sleep=lambda _delay: None, jitter=lambda: 0)
+    with pytest.raises(MoexTransportError):
+        client.get_json("https://example.test")
     assert len(calls) == 3
 
 
 def test_remote_disconnect_has_bounded_retries(monkeypatch):
     calls = []
 
-    def fail(*_args, **_kwargs):
-        calls.append(1)
-        raise http.client.RemoteDisconnected("closed without response")
+    class Session:
+        headers = {}
+        def get(self, *_args, **_kwargs):
+            calls.append(1)
+            raise requests.ConnectionError("closed without response")
 
-    monkeypatch.setattr(pos.urllib.request, "urlopen", fail)
-    monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
-    with pytest.raises(pos.IssError):
-        pos.http_json("https://example.test", tries=3)
+    client = MoexHTTP(session=Session(), attempts=3, sleep=lambda _delay: None, jitter=lambda: 0)
+    with pytest.raises(MoexTransportError):
+        client.get_json("https://example.test")
     assert len(calls) == 3
 
 
@@ -122,14 +128,20 @@ def test_remote_disconnect_has_bounded_retries(monkeypatch):
 def test_http_5xx_is_retried(monkeypatch):
     calls = []
 
-    def fail(request, **_kwargs):
-        calls.append(1)
-        raise urllib.error.HTTPError(request.full_url, 503, "temporary", {}, io.BytesIO())
+    class Response:
+        status_code = 503
+        def raise_for_status(self):
+            raise requests.HTTPError("503", response=self)
 
-    monkeypatch.setattr(pos.urllib.request, "urlopen", fail)
-    monkeypatch.setattr(pos.time, "sleep", lambda *_args: None)
-    with pytest.raises(pos.IssError):
-        pos.http_json("https://example.test", tries=2)
+    class Session:
+        headers = {}
+        def get(self, *_args, **_kwargs):
+            calls.append(1)
+            return Response()
+
+    client = MoexHTTP(session=Session(), attempts=2, sleep=lambda _delay: None, jitter=lambda: 0)
+    with pytest.raises(MoexTransportError):
+        client.get_json("https://example.test")
     assert len(calls) == 2
 
 
@@ -241,6 +253,38 @@ def test_partial_batch_failure_is_isolated(monkeypatch):
     assert payload["meta"]["update_counts"]["failed"] == 1
 
 
+def test_complete_live_short_history_is_not_a_pagination_failure(monkeypatch):
+    incoming = pos.PositionRows(_rows(count=2), diagnostics={
+        "complete": True,
+        "pages_fetched": 1,
+        "raw_rows": 4,
+        "physical_person_rows": 2,
+        "first_source_date": "2026-07-01",
+        "remote_max_date": "2026-07-02",
+        "output_max_date": "2026-07-02",
+    })
+    monkeypatch.setattr(pos, "positions", lambda *_args, **_kwargs: incoming)
+
+    result = pos._build_entry(
+        contract=_contract(), existing=None, trading_dates=TRADING_DATES,
+        now=NOW, full_refresh=True,
+    )
+
+    assert result["source_status"] == "live"
+    assert result["pagination"]["complete"] is True
+    assert result["analysis_ready"] is False
+    assert result["status"] == "unavailable"
+    assert result["update_status"] == "updated"
+
+    imoex = {**result, "asset": "IMOEX", "underlying": "IMOEX"}
+    payload = {
+        "meta": {"schema_version": 3, "calendar_status": "available"},
+        "tickers": {"SBER": result},
+        "indices": {"IMOEX": imoex},
+    }
+    assert pos.strict_failures(payload, now=NOW) == []
+
+
 def test_issuer_mapping_failure_uses_last_good_lineage(monkeypatch):
     old = _entry(_rows(), status="fresh")
     existing = {"tickers": {"SBER": old}, "indices": {}}
@@ -272,6 +316,7 @@ def test_cache_fallback_is_marked_stale(monkeypatch):
     )
     assert entry["status"] == "stale"
     assert entry["source_status"] == "last_good"
+    assert entry["freshness_status"] == "cache_fallback"
     assert entry["latest_observation_date"] == old["latest_observation_date"]
 
 

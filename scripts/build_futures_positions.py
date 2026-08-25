@@ -14,19 +14,21 @@ the complete available history again.
 from __future__ import annotations
 
 import argparse
-import http.client
 import json
 import math
 import os
-import ssl
 import sys
 import tempfile
 import time
-import urllib.error
-import urllib.request
+from urllib.parse import urlencode
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+try:
+    from scripts.moex_http import MoexHTTP, MoexTransportError
+except ImportError:  # direct execution
+    from moex_http import MoexHTTP, MoexTransportError
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site" / "futures_positions.json"
@@ -40,8 +42,8 @@ MIN_POINTS = 30
 Z_WINDOW = 250
 HISTORY_KEEP = 800
 MOSCOW = ZoneInfo("Europe/Moscow")
-TRANSIENT_HTTP = {408, 425, 429, 500, 502, 503, 504}
 USABLE_STATUSES = {"fresh", "delayed_by_exchange", "stale"}
+MAX_PAGES = 200
 INDEX_ASSETS = {
     "IMOEX": "Вечный фьючерс на Индекс МосБиржи",
     "MIX": "Фьючерс на Индекс МосБиржи",
@@ -57,16 +59,20 @@ class ValidationError(RuntimeError):
     """A source or merged series violates the public data contract."""
 
 
-def tls_context() -> ssl.SSLContext:
-    """Use an installed CA bundle when a local Python lacks macOS system roots."""
-    try:
-        import certifi  # type: ignore
-        return ssl.create_default_context(cafile=certifi.where())
-    except ImportError:
-        return ssl.create_default_context()
+class RemoteEmpty(ValidationError):
+    """MOEX answered successfully but published no physical-person rows."""
 
 
-TLS_CONTEXT = tls_context()
+class PaginationIncomplete(ValidationError):
+    """MOEX pagination did not reach a provable terminal page."""
+
+
+class PositionRows(list):
+    """List-compatible result carrying source completeness diagnostics."""
+
+    def __init__(self, rows=(), *, diagnostics: dict | None = None):
+        super().__init__(rows)
+        self.diagnostics = diagnostics or {}
 
 
 def log(message: str) -> None:
@@ -80,24 +86,20 @@ def utc_now(value: datetime | None = None) -> datetime:
     return value.astimezone(timezone.utc)
 
 
-def http_json(url: str, tries: int = 3, timeout: int = 45) -> dict:
-    """Read JSON with bounded retries for temporary transport/server errors."""
-    last: Exception | None = None
-    for attempt in range(tries):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=timeout, context=TLS_CONTEXT) as response:
-                return json.loads(response.read().decode("utf-8-sig"))
-        except urllib.error.HTTPError as exc:
-            last = exc
-            if exc.code not in TRANSIENT_HTTP:
-                raise IssError(f"HTTP {exc.code}: {url}") from exc
-        except (urllib.error.URLError, http.client.HTTPException, ConnectionError,
-                TimeoutError, OSError, json.JSONDecodeError, ValueError) as exc:
-            last = exc
-        if attempt + 1 < tries:
-            time.sleep(0.6 * (2**attempt))
-    raise IssError(f"{url}: {last}")
+_HTTP = MoexHTTP(user_agent=UA, logger=log)
+
+
+def http_json(url: str, tries: int = 4, timeout: int = 45) -> dict:
+    """Compatibility wrapper around the shared persistent MOEX transport."""
+    client = _HTTP
+    if tries != client.attempts or timeout != client.timeout[1]:
+        client = MoexHTTP(
+            user_agent=UA, attempts=tries, read_timeout=timeout, logger=log,
+        )
+    try:
+        return client.get_json(url)
+    except MoexTransportError as exc:
+        raise IssError(str(exc)) from exc
 
 
 def rows_of(payload: dict, block: str) -> list[dict]:
@@ -117,33 +119,104 @@ def parse_iso_day(value: object) -> date | None:
         return None
 
 
-def positions(asset: str, date_to: str, date_from: str = HISTORY_FROM) -> list[dict]:
-    """Return physical-person long/short positions for an underlying asset."""
-    url = (
-        f"{ISS}/{SOURCE_PATH}/{asset}.json?iss.meta=off"
-        f"&from={date_from}&till={date_to}"
-    )
-    payload = http_json(url)
+def _cursor(payload: dict) -> dict | None:
+    rows = rows_of(payload, "open_positions.cursor")
+    if not rows:
+        return None
+    return {str(key).lower(): value for key, value in rows[0].items()}
+
+
+def positions(asset: str, date_to: str, date_from: str = HISTORY_FROM) -> PositionRows:
+    """Return complete physical-person history with explicit pagination diagnostics."""
+    base = f"{ISS}/{SOURCE_PATH}/{asset}.json"
     by_date: dict[str, dict] = {}
-    for row in rows_of(payload, "open_positions"):
-        if row.get("is_fiz") != 1:
-            continue
-        tradedate = str(row.get("tradedate") or "")[:10]
-        long_value = row.get("open_position_long")
-        short_value = row.get("open_position_short")
-        if not parse_iso_day(tradedate) or long_value is None or short_value is None:
-            continue
-        long_value, short_value = int(long_value), int(short_value)
-        by_date[tradedate] = {
-            "d": tradedate,
-            "long": long_value,
-            "short": short_value,
-            "net": long_value - short_value,
-            "gross": long_value + short_value,
-            "persons_long": int(row.get("persons_long") or 0),
-            "persons_short": int(row.get("persons_short") or 0),
-        }
-    return [by_date[key] for key in sorted(by_date)]
+    raw_rows = 0
+    physical_rows = 0
+    pages = 0
+    start = 0
+    seen_page_signatures: set[tuple] = set()
+    first_source_date = None
+    remote_max_date = None
+
+    while pages < MAX_PAGES:
+        params = {"iss.meta": "off", "from": date_from, "till": date_to, "start": start}
+        payload = http_json(f"{base}?{urlencode(params)}")
+        block = payload.get("open_positions")
+        if not isinstance(block, dict):
+            raise PaginationIncomplete("open_positions block missing")
+        columns = block.get("columns") or []
+        required = {"tradedate", "is_fiz", "open_position_long", "open_position_short"}
+        if not required.issubset(set(columns)):
+            raise PaginationIncomplete(
+                "open_positions columns incomplete: " + ",".join(sorted(required - set(columns)))
+            )
+        page_rows = rows_of(payload, "open_positions")
+        pages += 1
+        raw_rows += len(page_rows)
+        signature = tuple(
+            (str(row.get("tradedate") or "")[:10], row.get("is_fiz"),
+             row.get("open_position_long"), row.get("open_position_short"))
+            for row in page_rows
+        )
+        if signature and signature in seen_page_signatures:
+            raise PaginationIncomplete(f"pagination made no progress at start={start}")
+        seen_page_signatures.add(signature)
+
+        source_dates = [str(row.get("tradedate"))[:10] for row in page_rows
+                        if parse_iso_day(row.get("tradedate"))]
+        if source_dates:
+            first_source_date = min(filter(None, [first_source_date, min(source_dates)]))
+            remote_max_date = max(filter(None, [remote_max_date, max(source_dates)]))
+        for row in page_rows:
+            if row.get("is_fiz") != 1:
+                continue
+            physical_rows += 1
+            tradedate = str(row.get("tradedate") or "")[:10]
+            long_value = row.get("open_position_long")
+            short_value = row.get("open_position_short")
+            if not parse_iso_day(tradedate) or long_value is None or short_value is None:
+                continue
+            long_value, short_value = int(long_value), int(short_value)
+            by_date[tradedate] = {
+                "d": tradedate,
+                "long": long_value,
+                "short": short_value,
+                "net": long_value - short_value,
+                "gross": long_value + short_value,
+                "persons_long": int(row.get("persons_long") or 0),
+                "persons_short": int(row.get("persons_short") or 0),
+            }
+
+        cursor = _cursor(payload)
+        if not cursor:
+            break  # The real openpositions endpoint currently returns the requested range in one block.
+        index = int(cursor.get("index") or start)
+        total = int(cursor.get("total") or 0)
+        page_size = int(cursor.get("pagesize") or len(page_rows))
+        if page_size <= 0:
+            raise PaginationIncomplete("cursor page size is zero")
+        next_start = index + page_size
+        if next_start >= total:
+            break
+        if next_start <= start:
+            raise PaginationIncomplete(f"cursor made no progress: {start}->{next_start}")
+        start = next_start
+        time.sleep(PAUSE)
+    else:
+        raise PaginationIncomplete(f"pagination exceeded MAX_PAGES={MAX_PAGES}")
+
+    rows = [by_date[key] for key in sorted(by_date)]
+    if not rows:
+        raise RemoteEmpty("MOEX returned no physical-person observations")
+    return PositionRows(rows, diagnostics={
+        "pages_fetched": pages,
+        "raw_rows": raw_rows,
+        "physical_person_rows": physical_rows,
+        "first_source_date": first_source_date,
+        "remote_max_date": remote_max_date,
+        "output_max_date": rows[-1]["d"],
+        "complete": True,
+    })
 
 
 def validate_rows(rows: list[dict], *, now: datetime) -> None:
@@ -524,22 +597,37 @@ def _series_fields(rows: list[dict]) -> dict:
 
 
 def _fallback_entry(existing: dict | None, contract: dict, reason: str, now: datetime,
-                    *, unavailable: bool = False) -> dict:
+                    *, unavailable: bool = False, failure_status: str = "remote_error",
+                    expected_date: str | None = None,
+                    trading_dates: list[str] | None = None) -> dict:
     entry = dict(existing or {})
+    latest = (entry.get("summary") or {}).get("as_of") or (entry.get("dates") or [None])[-1]
+    fallback_used = bool(entry.get("dates"))
+    _old_status, lag = freshness_status(latest, trading_dates or [])
     entry.update({
         "asset": contract.get("asset") or entry.get("asset"),
         "underlying": contract.get("asset") or entry.get("underlying") or entry.get("asset"),
         "current_futures": contract.get("secid") or entry.get("current_futures") or entry.get("secid"),
         "secid": contract.get("secid") or entry.get("secid"),
         "expiration": contract.get("expiration") or entry.get("expiration"),
-        "status": "unavailable" if unavailable or not entry.get("dates") else "stale",
-        "source_status": "last_good" if entry.get("dates") else "unavailable",
+        "status": "unavailable" if unavailable or not fallback_used else "stale",
+        "source_status": "last_good" if fallback_used else failure_status,
         "update_status": "unavailable" if unavailable else "failed",
+        "freshness_status": "cache_fallback" if fallback_used else (
+            "unavailable" if unavailable else failure_status
+        ),
         "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "latest_observation_date": (entry.get("summary") or {}).get("as_of")
-            or (entry.get("dates") or [None])[-1],
+        "remote_max_date": None,
+        "data_asof": latest,
+        "latest_observation_date": latest,
+        "expected_trading_date": expected_date,
+        "lag_trading_sessions": lag if expected_date else None,
+        "fallback_used": fallback_used,
+        "fallback_reason": reason[:300],
         "reason": reason[:300],
     })
+    if failure_status == "remote_incomplete":
+        entry["pagination"] = {"complete": False, "error": reason[:240]}
     return entry
 
 
@@ -550,16 +638,32 @@ def _build_entry(*, contract: dict, existing: dict | None, trading_dates: list[s
     asset = contract["asset"]
     try:
         incoming = positions(asset, now.astimezone(MOSCOW).date().isoformat(), date_from)
+        pagination = getattr(incoming, "diagnostics", {
+            "pages_fetched": 1, "raw_rows": len(incoming),
+            "physical_person_rows": len(incoming),
+            "first_source_date": incoming[0]["d"] if incoming else None,
+            "remote_max_date": incoming[-1]["d"] if incoming else None,
+            "output_max_date": incoming[-1]["d"] if incoming else None,
+            "complete": True,
+        })
         validate_rows(incoming, now=now)
         merged = merge_rows(previous, incoming)
         validate_rows(merged, now=now)
-        if len(merged) < MIN_POINTS:
-            raise ValidationError(f"only {len(merged)} observations; minimum is {MIN_POINTS}")
     except (IssError, ValidationError, KeyError, TypeError, ValueError) as exc:
-        return _fallback_entry(existing, contract, str(exc), now)
+        failure_status = "remote_empty" if isinstance(exc, RemoteEmpty) else (
+            "remote_incomplete" if isinstance(exc, ValidationError) else "remote_error"
+        )
+        return _fallback_entry(
+            existing, contract, str(exc), now, failure_status=failure_status,
+            expected_date=trading_dates[-1] if trading_dates else None,
+            trading_dates=trading_dates,
+        )
 
     latest = merged[-1]["d"]
     status, lag = freshness_status(latest, trading_dates)
+    freshness = status if trading_dates else "remote_error"
+    legacy_status = status if trading_dates else "stale"
+    analysis_ready = len(merged) >= MIN_POINTS
     old_latest = (existing or {}).get("latest_observation_date") \
         or ((existing or {}).get("summary") or {}).get("as_of")
     entry = {
@@ -579,15 +683,29 @@ def _build_entry(*, contract: dict, existing: dict | None, trading_dates: list[s
         "source": "MOEX ISS openpositions",
         "source_url": f"{ISS}/{SOURCE_PATH}/{asset}.json",
         "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "remote_max_date": pagination.get("remote_max_date"),
+        "data_asof": latest,
         "latest_observation_date": latest,
-        "expected_trading_date": trading_dates[-1],
+        "expected_trading_date": trading_dates[-1] if trading_dates else None,
         "lag_trading_sessions": lag,
-        "status": status,
+        "status": legacy_status if analysis_ready else "unavailable",
+        "freshness_status": freshness,
         "source_status": "live",
         "update_status": "updated" if full_refresh or latest != old_latest else "unchanged",
+        "fallback_used": False,
+        "fallback_reason": None,
+        "analysis_ready": analysis_ready,
+        "history_points": len(merged),
+        "history_points_required": MIN_POINTS,
+        "pagination": pagination,
         "summary": summarize(merged, None, None),
         **_series_fields(merged),
     }
+    if not analysis_ready:
+        entry["reason"] = (
+            f"live source is complete, but only {len(merged)} observations are available; "
+            f"{MIN_POINTS} are required for positioning statistics"
+        )
     if index_prices:
         try:
             multiplier, _spec = contract_multiplier(contract["secid"])
@@ -614,6 +732,25 @@ def load_existing(path: Path = OUT) -> dict:
         return {}
 
 
+def _payload_date(payload: dict) -> str:
+    return str((payload.get("meta") or {}).get("as_of") or "")[:10]
+
+
+def load_best_existing(output: Path, published: Path | None = None) -> tuple[dict, str]:
+    choices = []
+    for path, label, priority in ((output, "tracked_bootstrap", 0),
+                                  (published, "gh_pages_last_good", 1)):
+        if path is None:
+            continue
+        payload = load_existing(path)
+        if payload:
+            choices.append((_payload_date(payload), priority, payload, label))
+    if not choices:
+        return {}, "none"
+    _day, _priority, payload, label = max(choices, key=lambda item: (item[0], item[1]))
+    return payload, label
+
+
 def build(today: datetime | None = None, *, existing: dict | None = None,
           full_refresh: bool = False) -> dict:
     now = utc_now(today)
@@ -622,13 +759,10 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
     try:
         trading_dates = moex_trading_dates(now)
     except IssError as exc:
-        previous_expected = (existing.get("meta") or {}).get("expected_trading_date")
-        if not previous_expected:
-            raise
-        trading_dates = [previous_expected]
+        trading_dates = []
         calendar_error = str(exc)
-        log(f"calendar unavailable; freshness will be stale: {exc}")
-    expected = trading_dates[-1]
+        log(f"calendar unavailable; expected date and lag are unknown: {exc}")
+    expected = trading_dates[-1] if trading_dates else None
 
     catalog_error = ""
     try:
@@ -668,8 +802,8 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
                     "mapping_source": "last_good emitter mapping",
                 }
         log(f"issuer mapping unavailable; using last-good mappings: {exc}")
-    source_error = mapping_error or catalog_error or calendar_error
-    log(f"universe={len(resolved)} expected_date={expected} mode={'full' if full_refresh else 'incremental'}")
+    validation_warning = mapping_error or catalog_error or calendar_error
+    log(f"universe={len(resolved)} expected_date={expected or '-'} mode={'full' if full_refresh else 'incremental'}")
     for error in discovery_errors:
         log(f"mapping_warning={error}")
 
@@ -682,15 +816,16 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
             now=now,
             full_refresh=full_refresh,
         )
-        if source_error and entry.get("status") != "unavailable":
-            if entry.get("status") in {"fresh", "delayed_by_exchange"}:
-                entry["status"] = "stale"
-            source_reason = "contract/calendar/mapping validation unavailable: " + source_error[:240]
-            entry["reason"] = "; ".join(filter(None, [source_reason, entry.get("reason")]))
+        if validation_warning:
+            entry["validation_warning"] = validation_warning[:300]
+            entry["reason"] = "; ".join(filter(None, [
+                "contract/calendar/mapping validation unavailable: " + validation_warning[:240],
+                entry.get("reason"),
+            ]))
         tickers[ticker] = entry
         log(f"{ticker} -> {entry.get('current_futures') or '-'} asset={entry.get('asset') or '-'} "
-            f"latest={entry.get('latest_observation_date') or '-'} expected={expected} "
-            f"status={entry.get('status')} update={entry.get('update_status')}")
+            f"latest={entry.get('latest_observation_date') or '-'} expected={expected or '-'} "
+            f"status={entry.get('freshness_status')} update={entry.get('update_status')}")
         time.sleep(PAUSE)
 
     # Previously supported symbols are explicit when their active contract disappears.
@@ -698,7 +833,7 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
         if ticker not in tickers:
             tickers[ticker] = _fallback_entry(
                 old, {"asset": old.get("asset")}, "active MOEX equity futures not resolved", now,
-                unavailable=True,
+                unavailable=True, expected_date=expected, trading_dates=trading_dates,
             )
 
     indices: dict[str, dict] = {}
@@ -708,7 +843,7 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
         if not contract:
             indices[asset] = _fallback_entry(
                 old, {"asset": asset}, "active MOEX index futures not resolved", now,
-                unavailable=not bool(old),
+                unavailable=not bool(old), expected_date=expected, trading_dates=trading_dates,
             )
             indices[asset]["title"] = title
             continue
@@ -720,11 +855,12 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
             full_refresh=full_refresh,
             index_prices=(asset == "IMOEX"),
         )
-        if source_error and entry.get("status") != "unavailable":
-            if entry.get("status") in {"fresh", "delayed_by_exchange"}:
-                entry["status"] = "stale"
-            source_reason = "contract/calendar/mapping validation unavailable: " + source_error[:240]
-            entry["reason"] = "; ".join(filter(None, [source_reason, entry.get("reason")]))
+        if validation_warning:
+            entry["validation_warning"] = validation_warning[:300]
+            entry["reason"] = "; ".join(filter(None, [
+                "contract/calendar/mapping validation unavailable: " + validation_warning[:240],
+                entry.get("reason"),
+            ]))
         entry["title"] = title
         indices[asset] = entry
 
@@ -732,18 +868,22 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
     counts = {key: sum(entry.get("status") == key for entry in all_entries)
               for key in ("fresh", "delayed_by_exchange", "stale", "unavailable")}
     update_counts = {key: sum(entry.get("update_status") == key for entry in all_entries)
-                     for key in ("updated", "unchanged", "failed")}
+                     for key in ("updated", "unchanged", "failed", "unavailable")}
+    freshness_counts = {key: sum(entry.get("freshness_status") == key for entry in all_entries)
+                        for key in ("fresh", "delayed_by_exchange", "stale", "remote_error",
+                                    "remote_empty", "remote_incomplete", "cache_fallback", "unavailable")}
     successful = [entry for entry in all_entries if entry.get("latest_observation_date")]
     as_of = max((entry["latest_observation_date"] for entry in successful), default=None)
     payload = {
         "meta": {
-            "schema_version": 2,
+            "schema_version": 3,
             "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "source": f"MOEX ISS, {SOURCE_PATH}",
             "client_group": "FIZ — физические лица",
             "as_of": as_of,
             "latest_source_date": as_of,
             "expected_trading_date": expected,
+            "calendar_status": "available" if trading_dates else "unavailable",
             "freshness_policy": "0 sessions=fresh; 1=delayed_by_exchange; >1=stale",
             "unit": "contracts",
             "net_formula": "long_phys - short_phys",
@@ -756,6 +896,7 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
             "tickers_ok": sum(entry.get("status") in USABLE_STATUSES for entry in tickers.values()),
             "indices_ok": sum(entry.get("status") in USABLE_STATUSES for entry in indices.values()),
             "status_counts": counts,
+            "freshness_status_counts": freshness_counts,
             "update_counts": update_counts,
             "mapping_errors": len(discovery_errors),
             "calendar_error": calendar_error or None,
@@ -769,7 +910,7 @@ def build(today: datetime | None = None, *, existing: dict | None = None,
 
 
 def validate_payload(payload: dict, *, now: datetime) -> None:
-    if payload.get("meta", {}).get("schema_version") != 2:
+    if payload.get("meta", {}).get("schema_version") not in {2, 3}:
         raise ValidationError("unexpected schema version")
     for section in ("indices", "tickers"):
         for key, entry in (payload.get(section) or {}).items():
@@ -783,9 +924,41 @@ def validate_payload(payload: dict, *, now: datetime) -> None:
                     raise ValidationError(f"{key}: inconsistent latest date")
                 if entry.get("underlying") != entry.get("asset"):
                     raise ValidationError(f"{key}: underlying mismatch")
+                if entry.get("data_asof") not in (None, latest):
+                    raise ValidationError(f"{key}: data_asof mismatch")
+                pagination = entry.get("pagination") or {}
+                if entry.get("source_status") == "live" and pagination.get("complete") is not True:
+                    raise ValidationError(f"{key}: live pagination not complete")
+            if payload.get("meta", {}).get("calendar_status") == "unavailable":
+                if entry.get("expected_trading_date") is not None or entry.get("lag_trading_sessions") is not None:
+                    raise ValidationError(f"{key}: calendar unavailable but expected/lag asserted")
             for value in _walk_values(entry):
                 if isinstance(value, float) and not math.isfinite(value):
                     raise ValidationError(f"{key}: non-finite value")
+
+
+def strict_failures(payload: dict, *, now: datetime | None = None) -> list[str]:
+    now = utc_now(now)
+    failures: list[str] = []
+    try:
+        validate_payload(payload, now=now)
+    except ValidationError as exc:
+        failures.append(str(exc))
+        return failures
+    entries = list((payload.get("tickers") or {}).values()) + list((payload.get("indices") or {}).values())
+    failed = sum(entry.get("update_status") == "failed" for entry in entries)
+    if entries and failed >= max(3, math.ceil(len(entries) * 0.8)):
+        failures.append(f"mass source failure: {failed}/{len(entries)} assets")
+    incomplete = [entry.get("asset") for entry in entries
+                  if (entry.get("pagination") or {}).get("complete") is False]
+    if incomplete:
+        failures.append("incomplete pagination: " + ",".join(filter(None, incomplete[:8])))
+    imoex = ((payload.get("indices") or {}).get("IMOEX") or {})
+    if imoex.get("source_status") != "live":
+        lag = imoex.get("lag_trading_sessions")
+        if lag is None or lag > 1:
+            failures.append("IMOEX critical source is not live within SLA")
+    return failures
 
 
 def _walk_values(value):
@@ -824,12 +997,25 @@ def print_audit(payload: dict) -> None:
               f"{entry.get('latest_observation_date') or '-'} | "
               f"{entry.get('lag_trading_sessions') if entry.get('lag_trading_sessions') is not None else '-'} | "
               f"{entry.get('status')}")
+    imoex = ((payload.get("indices") or {}).get("IMOEX") or {})
+    pagination = imoex.get("pagination") or {}
+    print("FUTOI IMOEX | "
+          f"pages={pagination.get('pages_fetched', '-')} "
+          f"remote_max={imoex.get('remote_max_date') or '-'} "
+          f"artifact_max={imoex.get('data_asof') or '-'} "
+          f"expected={imoex.get('expected_trading_date') or '-'} "
+          f"freshness={imoex.get('freshness_status') or '-'} "
+          f"source={imoex.get('source_status') or '-'} "
+          f"fallback={str(bool(imoex.get('fallback_used'))).lower()}")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full-refresh", action="store_true", help="ignore local history and rebuild")
     parser.add_argument("--audit", action="store_true", help="print full-universe freshness table")
+    parser.add_argument("--strict", action="store_true", help="fail CI on unhealthy source/completeness")
+    parser.add_argument("--validate-only", action="store_true", help="validate existing output without fetching")
+    parser.add_argument("--last-good", type=Path, help="current published gh-pages artifact")
     parser.add_argument("--output", type=Path, default=OUT, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
@@ -838,7 +1024,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     # Full refresh discards cached observations, but keeps the trusted ticker →
     # ASSETCODE lineage so a rebuild cannot silently switch to a perpetual row.
-    previous = load_existing(args.output)
+    previous, previous_source = load_best_existing(args.output, args.last_good)
+    if args.validate_only:
+        if not previous:
+            print("[POSITIONING] strict validation failed: artifact missing", file=sys.stderr)
+            return 2
+        failures = strict_failures(previous)
+        for failure in failures:
+            print(f"[POSITIONING] STRICT: {failure}", file=sys.stderr)
+        return 2 if failures else 0
+    log(f"last_good_source={previous_source} as_of={_payload_date(previous) or '-'}")
     try:
         payload = build(existing=previous, full_refresh=args.full_refresh)
         atomic_write(payload, args.output)
@@ -853,7 +1048,10 @@ def main(argv: list[str] | None = None) -> int:
     log(f"fresh={counts['fresh']} delayed_by_exchange={counts['delayed_by_exchange']} stale={counts['stale']}")
     if args.audit:
         print_audit(payload)
-    return 0
+    failures = strict_failures(payload) if args.strict else []
+    for failure in failures:
+        print(f"[POSITIONING] STRICT: {failure}", file=sys.stderr)
+    return 2 if failures else 0
 
 
 if __name__ == "__main__":

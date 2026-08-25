@@ -106,7 +106,26 @@ def test_market_history_keeps_one_instrument_last_good_on_partial_iss_failure(tm
 
     cny = next(row for row in payload["instruments"] if row["id"] == "CNYRUB_TOM")
     assert cny["fallback"] is True
+    assert payload["fallback_instruments"] == ["CNYRUB_TOM"]
+    assert payload["fallback_source"] == "tracked_bootstrap"
     assert payload["errors"] == [{"instrument": "CNYRUB_TOM", "error": "ISS timeout", "fallback": True}]
+
+
+def test_strict_allows_recent_valid_last_good_but_rejects_unknown_or_old_fallback():
+    instrument = {
+        "id": "IMOEX", "data_last": "2026-08-24", "live_fetch_status": "failed",
+        "fallback_used": True, "fallback_source": "gh_pages_last_good",
+    }
+    payload = {
+        "data_asof": "2026-08-24", "lag_trading_sessions": 1,
+        "instruments": [instrument],
+    }
+    assert build_market_history.validate_strict(payload) == []
+
+    payload["lag_trading_sessions"] = 2
+    assert "not live within SLA" in build_market_history.validate_strict(payload)[0]
+    payload["lag_trading_sessions"] = None
+    assert "not live within SLA" in build_market_history.validate_strict(payload)[0]
 
 
 def test_build_publishes_current_session_without_changing_completed_close_asof(tmp_path, monkeypatch):
@@ -114,13 +133,13 @@ def test_build_publishes_current_session_without_changing_completed_close_asof(t
     rows = real_mcftr_rows()
     monkeypatch.setattr(build_market_history, "fetch_history", lambda *_args, **_kwargs: rows)
     monkeypatch.setattr(build_market_history, "fetch_current_session", lambda *_args, **_kwargs: {
-        "date": "2026-08-18", "open": 2100.0, "high": 2120.0, "low": 2090.0,
-        "close": 2110.0, "last_candle_at": "2026-08-18 14:50:00",
+        "date": "2026-08-25", "open": 2100.0, "high": 2120.0, "low": 2090.0,
+        "close": 2110.0, "last_candle_at": "2026-08-25 14:50:00",
         "candle_count": 30, "status": "current_session",
     })
 
-    payload = build_market_history.build(output, today=build_market_history.date(2026, 8, 18))
+    payload = build_market_history.build(output, today=build_market_history.date(2026, 8, 25))
 
     assert payload["data_asof"] == rows[-1]["date"]
-    assert payload["current_session_asof"] == "2026-08-18"
-    assert all(row["current_session"]["date"] == "2026-08-18" for row in payload["instruments"])
+    assert payload["current_session_asof"] == "2026-08-25"
+    assert all(row["current_session"]["date"] == "2026-08-25" for row in payload["instruments"])

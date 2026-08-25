@@ -194,15 +194,20 @@ def test_numbers_are_never_accepted_from_the_model():
 
 
 def _index(dates, longs, shorts, **summary):
+    persons_long = [8_000 + i for i in range(len(dates))]
+    persons_short = [6_000 + i * 2 for i in range(len(dates))]
     base = {"as_of": dates[-1], "long": longs[-1], "short": shorts[-1],
             "net": longs[-1] - shorts[-1], "gross": longs[-1] + shorts[-1],
             "net_ratio": 0.16, "percentile": 44.0, "change_5d": 100,
             "long_change_5d": 100, "short_change_5d": 0, "gross_change_5d": 100,
             "net_change_5d_robust_z": 0.3, "gross_change_5d_robust_z": 1.5,
-            "persons_long": 8000, "persons_short": 6000}
+            "persons_long": persons_long[-1], "persons_short": persons_short[-1],
+            "persons_long_change_5d": 5, "persons_short_change_5d": 10}
     base.update(summary)
     return {"status": "ok", "dates": dates, "long": longs, "short": shorts,
-            "net": [a - b for a, b in zip(longs, shorts)], "summary": base}
+            "net": [a - b for a, b in zip(longs, shorts)],
+            "persons_long": persons_long, "persons_short": persons_short,
+            "summary": base}
 
 
 def _series(dates, closes):
@@ -264,27 +269,30 @@ def test_stale_price_pulls_positions_back_to_the_common_date(tmp_path, monkeypat
     assert payload["meta"]["as_of"] == "2026-07-10"
     assert payload["meta"]["position_latest"] == "2026-07-20"
     assert facts["long"] == longs[9], "признаки взяты на общую дату, а не на последнюю"
+    assert facts["persons_long"] == 8_009
+    assert facts["persons_long_change_5d"] == 5
+    assert facts["persons_short_change_5d"] == 10
     # величины, посчитанные для последней точки ряда, к сдвинутой дате не относятся
     assert facts["percentile_1y"] is None and facts["net_change_5d_robust_z"] is None
 
 
 def test_missing_price_keeps_the_flow_regime(tmp_path, monkeypatch):
-    """Нет цены — нет контекста, но разбор потока остаётся."""
+    """Нет общего price slice — публикуется явный unavailable, не произвольный день."""
     dates = [f"2026-07-{d:02d}" for d in range(1, 21)]
     longs = [100_000 + i * 1_000 for i in range(20)]
     _write(tmp_path, monkeypatch, _index(dates, longs, [80_000] * 20), [])
 
     payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
 
-    assert payload["IMOEX"]["price_context"] == "unknown"
-    assert payload["IMOEX"]["flow_regime"] == "long_building"
-    assert payload["IMOEX"]["copy"]["headline"]
+    assert payload["meta"]["status"] == "unavailable"
+    assert payload["meta"]["analysis_date"] is None
 
 
 def test_unavailable_positions_do_not_overwrite_the_artifact(tmp_path, monkeypatch):
     _write(tmp_path, monkeypatch, {"status": "unavailable"}, [])
 
-    assert bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc)) is None
+    payload = bpi.build(datetime(2026, 7, 21, tzinfo=timezone.utc))
+    assert payload["meta"]["status"] == "unavailable"
 
 
 def test_artifact_carries_its_own_audit_trail(tmp_path, monkeypatch):

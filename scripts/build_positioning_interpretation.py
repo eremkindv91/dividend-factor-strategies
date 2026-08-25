@@ -112,11 +112,18 @@ def position_features(index: dict, as_of: str) -> dict | None:
         return None
     last = cut[-1]
     longs, shorts = index.get("long") or [], index.get("short") or []
+    persons_long = index.get("persons_long") or []
+    persons_short = index.get("persons_short") or []
     if last >= len(longs) or last >= len(shorts):
         return None
 
     def at(i: int) -> dict:
-        return {"long": longs[i], "short": shorts[i]}
+        return {
+            "long": longs[i],
+            "short": shorts[i],
+            "persons_long": persons_long[i] if i < len(persons_long) else None,
+            "persons_short": persons_short[i] if i < len(persons_short) else None,
+        }
 
     def change(days: int, key: str) -> int | None:
         if last - days < 0:
@@ -125,13 +132,18 @@ def position_features(index: dict, as_of: str) -> dict | None:
         pick = (lambda r: r["long"] - r["short"]) if key == "net" else \
                (lambda r: r["long"] + r["short"]) if key == "gross" else \
                (lambda r: r[key])
-        return pick(now_) - pick(was)
+        current, previous = pick(now_), pick(was)
+        return current - previous if current is not None and previous is not None else None
 
     long, short = longs[last], shorts[last]
     gross = long + short
     return {
         "as_of": dates[last], "long": long, "short": short, "net": long - short, "gross": gross,
         "net_ratio": round((long - short) / gross, 4) if gross else None,
+        "persons_long": persons_long[last] if last < len(persons_long) else None,
+        "persons_short": persons_short[last] if last < len(persons_short) else None,
+        "persons_long_change_5d": change(5, "persons_long"),
+        "persons_short_change_5d": change(5, "persons_short"),
         "delta_long_5d": change(5, "long"), "delta_short_5d": change(5, "short"),
         "delta_net_5d": change(5, "net"), "delta_gross_5d": change(5, "gross"),
         "delta_net_1d": change(1, "net"), "delta_net_20d": change(20, "net"),
@@ -405,30 +417,49 @@ def build(now: datetime | None = None) -> dict | None:
     now = now or datetime.now(timezone.utc)
     positions = load(POSITIONS)
     index = ((positions or {}).get("indices") or {}).get(INSTRUMENT) or {}
-    if index.get("status") not in {"ok", "fresh", "delayed_by_exchange", "stale"}:
-        log("ряд позиций по индексу недоступен — артефакт не пересобираем")
-        return None
-    summary = index["summary"]
+    summary = index.get("summary") or {}
 
     history = load(HISTORY) or {}
     instrument = next((i for i in (history.get("instruments") or [])
                        if i.get("id") == INSTRUMENT), None)
-    # Дата интерпретации — общий срез: разъезд источников трактуем в пользу более старого,
-    # иначе часть выводов опиралась бы на данные, которых на эту дату ещё не было.
-    prices, price_as_of = price_returns((instrument or {}).get("series") or [], summary["as_of"])
-    as_of = min(d for d in (summary["as_of"], price_as_of) if d) if price_as_of else summary["as_of"]
+    position_dates = [str(day)[:10] for day in (index.get("dates") or []) if day]
+    price_series = (instrument or {}).get("series") or []
+    price_dates = [str(row[0])[:10] for row in price_series if row and row[0] and row[4] is not None]
+    position_latest = max(position_dates, default=None)
+    price_latest = max(price_dates, default=None)
+    common_dates = sorted(set(position_dates) & set(price_dates))
+    if not common_dates:
+        log("нет общего завершённого торгового дня IMOEX и FUTOI")
+        return {
+            "meta": {
+                "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "status": "unavailable",
+                "analysis_date": None,
+                "as_of": None,
+                "position_latest": position_latest,
+                "price_latest": price_latest,
+                "position_fallback_used": bool(index.get("fallback_used")),
+                "price_fallback_used": bool((instrument or {}).get("fallback_used")),
+                "analysis_lag_trading_sessions": None,
+                "source": "MOEX ISS openpositions + IMOEX index daily history",
+                "warning": "No common completed trading date",
+            },
+            INSTRUMENT: {"status": "unavailable", "facts": {}, "copy": {}},
+        }
+    as_of = common_dates[-1]
+    prices, price_as_of = price_returns(price_series, as_of)
 
     # Оба ряда приводятся к одной дате. Если цена отстала, позиции пересчитываются на её
     # дату — иначе «цена против позиционирования» сравнивала бы разные недели.
     position = position_features(index, as_of) or {}
-    if position and position["as_of"] != summary["as_of"]:
+    if position and position["as_of"] != summary.get("as_of"):
         log(f"позиции пересчитаны на дату цены: {position['as_of']} "
-            f"(последние доступные — {summary['as_of']})")
+            f"(последние доступные — {summary.get('as_of')})")
 
     facts = {
-        "long": position.get("long", summary["long"]),
-        "short": position.get("short", summary["short"]),
-        "net": position.get("net", summary["net"]),
+        "long": position.get("long", summary.get("long")),
+        "short": position.get("short", summary.get("short")),
+        "net": position.get("net", summary.get("net")),
         "gross": position.get("gross", summary.get("gross")),
         "delta_long_5d": position.get("delta_long_5d", summary.get("long_change_5d")),
         "delta_short_5d": position.get("delta_short_5d", summary.get("short_change_5d")),
@@ -436,9 +467,14 @@ def build(now: datetime | None = None) -> dict | None:
         "delta_gross_5d": position.get("delta_gross_5d", summary.get("gross_change_5d")),
         "delta_net_1d": position.get("delta_net_1d", summary.get("change_1d")),
         "delta_net_20d": position.get("delta_net_20d", summary.get("change_20d")),
-        "persons_long": summary.get("persons_long"), "persons_short": summary.get("persons_short"),
-        "persons_long_change_5d": summary.get("persons_long_change_5d"),
-        "persons_short_change_5d": summary.get("persons_short_change_5d"),
+        "persons_long": position.get("persons_long", summary.get("persons_long")),
+        "persons_short": position.get("persons_short", summary.get("persons_short")),
+        "persons_long_change_5d": position.get(
+            "persons_long_change_5d", summary.get("persons_long_change_5d")
+        ),
+        "persons_short_change_5d": position.get(
+            "persons_short_change_5d", summary.get("persons_short_change_5d")
+        ),
         "net_ratio": position.get("net_ratio", summary.get("net_ratio")),
         "percentile_1y": summary.get("percentile"),
         "net_change_5d_robust_z": summary.get("net_change_5d_robust_z"),
@@ -447,7 +483,7 @@ def build(now: datetime | None = None) -> dict | None:
         **prices,
     }
 
-    if position and position["as_of"] != summary["as_of"]:
+    if position and position["as_of"] != summary.get("as_of"):
         # Эти величины посчитаны для последней точки ряда и к сдвинутой дате не относятся.
         facts["percentile_1y"] = None
         facts["net_change_5d_robust_z"] = None
@@ -501,15 +537,28 @@ def build(now: datetime | None = None) -> dict | None:
                 reason = f"фолбэк на правила: {why}"
     log(reason)
 
+    later_sessions = sorted({day for day in position_dates + price_dates if day > as_of})
+    position_fallback = bool(index.get("fallback_used") or index.get("source_status") == "last_good")
+    price_fallback = bool((instrument or {}).get("fallback_used"))
+    status = "degraded" if position_fallback or price_fallback or later_sessions else "complete"
     return {
         "meta": {
             "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "status": status,
+            "analysis_date": as_of,
             "as_of": as_of,
-            "position_as_of": position.get("as_of", summary["as_of"]),
-            "position_latest": summary["as_of"], "price_as_of": price_as_of,
-            "position_freshness": index.get("status"),
+            "position_as_of": position.get("as_of", summary.get("as_of")),
+            "position_latest": position_latest,
+            "price_as_of": price_as_of,
+            "price_latest": price_latest,
+            "position_fallback_used": position_fallback,
+            "price_fallback_used": price_fallback,
+            "analysis_lag_trading_sessions": len(later_sessions),
+            "position_freshness": index.get("freshness_status") or index.get("status"),
+            "price_instrument": "IMOEX",
+            "price_source": (instrument or {}).get("source"),
             "engine_version": ENGINE_VERSION, "prompt_version": PROMPT_VERSION,
-            "source": "MOEX ISS openpositions + market_history.json",
+            "source": "MOEX ISS openpositions + IMOEX index daily history",
             "input_hash": input_hash, "llm_cache_key": llm_cache_key,
             "llm_used": llm_used, "fallback_used": not llm_used,
             "provider": provider, "model": model, "llm_note": reason,
