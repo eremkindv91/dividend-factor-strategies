@@ -1,103 +1,241 @@
 {
-  "date": "2026-08-25",
-  "generated_at": "2026-08-25T18:55:46+03:00",
+  "date": "2026-08-26",
+  "generated_at": "2026-08-26T06:37:42+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, азиатские рынки продемонстрировали разнонаправленную динамику, а цены на нефть марки Brent снизились.",
+  "external_backdrop": "Мировые фондовые рынки демонстрируют умеренный рост, в то время как цены на нефть марки Brent резко снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7671.12",
-      "change_pct": "+0.24%",
+      "value": "7677.28",
+      "change_pct": "+0.32%",
       "as_of": "2026-08-25",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26120.98",
-      "change_pct": "+0.54%",
+      "value": "26151.30",
+      "change_pct": "+0.66%",
       "as_of": "2026-08-25",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65528.09",
-      "change_pct": "-0.74%",
-      "as_of": "2026-08-24",
+      "value": "66227.55",
+      "change_pct": "+0.56%",
+      "as_of": "2026-08-26",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25511.10",
-      "change_pct": "-0.02%",
-      "as_of": "2026-08-25",
+      "value": "25716.14",
+      "change_pct": "+0.80%",
+      "as_of": "2026-08-26",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "87.00",
-      "change_pct": "-5.61%",
-      "as_of": "2026-08-25",
+      "value": "85.15",
+      "change_pct": "-3.87%",
+      "as_of": "2026-08-26",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4712.60",
-      "change_pct": "+1.55%",
-      "as_of": "2026-08-25",
+      "value": "4706.10",
+      "change_pct": "+1.47%",
+      "as_of": "2026-08-26",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2117.48",
-      "change_pct": "+2.23%",
-      "as_of": "2026-08-25 18:55:00",
+      "value": "2117.15",
+      "change_pct": "+2.22%",
+      "as_of": "2026-08-25 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "789.75",
-      "change_pct": "+0.81%",
-      "as_of": "2026-08-25 18:55:00",
+      "value": "789.63",
+      "change_pct": "+0.80%",
+      "as_of": "2026-08-25 19:00:12",
       "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "84.15",
-      "change_pct": "-0.37%",
-      "as_of": "2026-08-25 18:55:44",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.47",
-      "change_pct": "-0.20%",
-      "as_of": "2026-08-25 18:55:45",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cia-director-visit-russia",
+      "id": "cia-director-moscow-visit",
       "headline": "Директор ЦРУ Джон Рэтклифф прибыл в Москву для проведения переговоров",
-      "context": "На фоне сообщений о визите американского чиновника индекс Мосбиржи резко ускорил рост и превысил 2100 пунктов.",
+      "context": "Пресс-секретарь президента Дмитрий Песков подтвердил, что визит связан с контактами между спецслужбами.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/25/08/2026/6a8daa5d9a79478a728e756a"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8908327"
         }
       ],
-      "published_at": "2026-08-25T17:19:00+03:00"
+      "published_at": "2026-08-26T06:06:00+03:00"
     },
     {
-      "id": "refineries-drone-attacks",
-      "headline": "Новошахтинский и Афипский нефтеперерабатывающие заводы приостановили работу после атак беспилотников",
-      "context": "На территории Афипского НПЗ произошло возгорание, а Новошахтинский НПЗ временно прекратил технологические процессы.",
-      "category": "corporate",
-      "investment_relevant": false,
+      "id": "us-iran-ceasefire-agreement",
+      "headline": "США и Иран согласовали прекращение огня с гарантией судоходства в Ормузском проливе",
+      "context": "Стороны договорились об организации временного коридора для прохода судов и разминировании вод.",
+      "category": "geopolitics",
       "importance": 5,
+      "investment_relevant": false,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1343935.php"
+        }
+      ],
+      "published_at": "2026-08-25T22:29:00+03:00"
+    },
+    {
+      "id": "wildberries-kotovsk-uav-fire",
+      "headline": "Логистический центр Wildberries в Тамбовской области загорелся после атаки беспилотников",
+      "context": "Площадь пожара на складе в Котовске составила сорок тысяч квадратных метров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8908323"
+        }
+      ],
+      "published_at": "2026-08-26T05:14:00+03:00"
+    },
+    {
+      "id": "brent-crude-price-drop",
+      "headline": "Мировые цены на нефть марки Brent снизились на фоне деэскалации на Ближнем Востоке",
+      "context": "Стоимость октябрьского фьючерса опустилась до 85,15 доллара за баррель.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1111215"
+        }
+      ],
+      "published_at": "2026-08-25T19:09:00+03:00"
+    },
+    {
+      "id": "wheat-export-duty-increase",
+      "headline": "Экспортная пошлина на пшеницу из России повысилась до уровня более тысячи рублей за тонну",
+      "context": "Новые ставки пошлин начали действовать с 26 августа 2026 года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1111241"
+        }
+      ],
+      "published_at": "2026-08-26T00:14:00+03:00"
+    },
+    {
+      "id": "kazanorgsintez-h1-profit-fall",
+      "headline": "Чистая прибыль Казаньоргсинтеза по МСФО в первом полугодии снизилась в два с половиной раза",
+      "context": "Показатель составил 2,9 миллиарда рублей при снижении выручки на 3,8 процента.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1343928.php"
+        }
+      ],
+      "published_at": "2026-08-25T21:59:00+03:00"
+    },
+    {
+      "id": "unicredit-ruble-transfer-commission",
+      "headline": "ЮниКредит Банк повысит комиссию за рублевые переводы в иностранные банки до двух процентов",
+      "context": "Новые тарифы без ограничения максимального размера комиссии вступят в силу с 1 октября 2026 года.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/301299"
+        }
+      ],
+      "published_at": "2026-08-25T19:02:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "mts-q2-net-profit-growth",
+      "headline": "Чистая прибыль группы МТС во втором квартале выросла почти в двадцать четыре раза",
+      "context": "Показатель составил 66,9 миллиарда рублей на фоне роста OIBDA и сокращения расходов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8907646"
+        }
+      ],
+      "published_at": "2026-08-25T10:40:00+03:00"
+    },
+    {
+      "id": "rosatom-delo-group-acquisition",
+      "headline": "Росатом завершит сделку по выкупу контрольного пакета группы Дело за семьдесят семь миллиардов рублей",
+      "context": "Юридическое оформление перехода 51 процента долей Сергея Шишкарева завершится 28 августа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8908024"
+        }
+      ],
+      "published_at": "2026-08-25T16:03:00+03:00"
+    },
+    {
+      "id": "retail-investors-brokerage-accounts-record",
+      "headline": "Чистый приток средств розничных инвесторов на брокерские счета во втором квартале превысил триллион рублей",
+      "context": "Банк России зафиксировал рекордный объем вливаний с начала наблюдений в 2021 году.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1111150"
+        }
+      ],
+      "published_at": "2026-08-25T13:34:00+03:00"
+    },
+    {
+      "id": "ozon-pharm-h1-dividend-profit",
+      "headline": "Озон Фармацевтика рекомендовала дивиденды за первое полугодие и увеличила чистую прибыль почти вдвое",
+      "context": "Выплата составит 0,49 рубля на акцию, чистая прибыль по МСФО достигла 3,2 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8907933"
+        }
+      ],
+      "published_at": "2026-08-25T14:33:00+03:00"
+    },
+    {
+      "id": "novoshakhtinsk-refinery-uav-attack",
+      "headline": "Новошахтинский нефтеперерабатывающий завод приостановил работу после ночной атаки беспилотников",
+      "context": "В результате падения обломков БПЛА в Ростовской области технологические объекты получили повреждения.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -107,40 +245,40 @@
       "published_at": "2026-08-25T10:25:00+03:00"
     },
     {
-      "id": "ozon-pharmaceuticals-dividends",
-      "headline": "Совет директоров Озон Фармацевтики рекомендовал дивиденды за первое полугодие",
-      "context": "Рекомендованная выплата составляет 0,49 рубля на акцию, при этом чистая прибыль компании по МСФО выросла на 90%.",
+      "id": "rosfinmonitoring-sbp-mir-access",
+      "headline": "Росфинмониторинг получит прямой доступ к данным о переводах через Систему быстрых платежей и карты Мир",
+      "context": "Национальная система платежных карт начнет передавать сведения финансовой разведке с 1 сентября.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/08/25/1223455-rosfinmonitoring-poluchit-dostup"
+        }
+      ],
+      "published_at": "2026-08-25T10:00:00+03:00"
+    },
+    {
+      "id": "dom-rf-7m-net-profit-growth",
+      "headline": "Чистая прибыль ДОМ.РФ по МСФО за семь месяцев выросла на сорок четыре процента",
+      "context": "Госкомпания заработала 67 миллиардов рублей, подтвердив прогноз на весь 2026 год.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8907932"
+          "url": "https://www.kommersant.ru/doc/8907665"
         }
       ],
-      "published_at": "2026-08-25T14:33:00+03:00"
+      "published_at": "2026-08-25T11:18:00+03:00"
     },
     {
-      "id": "brokerage-accounts-record-inflow",
-      "headline": "Чистый приток средств розничных инвесторов на брокерские счета превысил один триллион рублей",
-      "context": "По данным Банка России, показатель за второй квартал 2026 года стал рекордным с начала наблюдений в 2021 году.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8907812"
-        }
-      ],
-      "published_at": "2026-08-25T14:07:00+03:00"
-    },
-    {
-      "id": "mts-bank-mts-earnings",
-      "headline": "Чистая прибыль МТС-банка выросла в два раза на фоне роста процентных доходов",
-      "context": "Показатель за первое полугодие 2026 года достиг 7,2 млрд рублей по сравнению с 3,5 млрд рублей годом ранее.",
-      "category": "corporate",
+      "id": "mts-bank-h1-net-profit-growth",
+      "headline": "Чистая прибыль МТС Банка по МСФО за первое полугодие увеличилась в два раза",
+      "context": "Банк заработал 7,2 миллиарда рублей против 3,4 миллиарда рублей годом ранее.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
@@ -149,27 +287,42 @@
           "url": "https://frankmedia.ru/301106"
         }
       ],
-      "published_at": "2026-08-25T10:11:00+03:00"
+      "published_at": "2026-08-25T09:52:00+03:00"
     },
     {
-      "id": "grain-export-duty-moratorium",
-      "headline": "Минсельхоз готовит предложение об обнулении пошлин на экспорт зерна до конца года",
-      "context": "Мораторий прорабатывается из-за сложностей с вывозом сельхозпродукции через порты Азово-Черноморского бассейна.",
-      "category": "cb_policy",
-      "investment_relevant": false,
+      "id": "zaimer-h1-dividend-recommendation",
+      "headline": "Совет директоров Займера рекомендовал выплатить дивиденды в размере четыре целых восемьдесят шесть сотых рубля",
+      "context": "На выплаты планируется направить всю чистую прибыль по МСФО за второй квартал.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/08/25/1223478-vlasti-mogut-obnulit"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8907629"
         }
       ],
-      "published_at": "2026-08-25T09:27:00+03:00"
+      "published_at": "2026-08-25T09:00:00+03:00"
     },
     {
-      "id": "nizhnekamskneftehim-profit-drop",
-      "headline": "Чистая прибыль Нижнекамскнефтехима по МСФО упала в шестнадцать раз в первом полугодии",
-      "context": "Показатель составил 1,64 млрд рублей против 26,4 млрд рублей за аналогичный период прошлого года.",
+      "id": "uralkuz-accounts-suspended-fns",
+      "headline": "Налоговая служба приостановила операции по счетам Уральской кузницы из-за долга",
+      "context": "Сумма задолженности предприятия составила восемьдесят целых сорок семь сотых миллиона рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1343840.php"
+        }
+      ],
+      "published_at": "2026-08-25T17:40:00+03:00"
+    },
+    {
+      "id": "nizhnekamskneftehim-h1-profit-drop",
+      "headline": "Чистая прибыль Нижнекамскнефтехима по МСФО за первое полугодие упала в шестнадцать раз",
+      "context": "Показатель снизился до 1,64 миллиарда рублей, также компания признала убыток от обесценения активов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
@@ -179,166 +332,74 @@
           "url": "https://www.kommersant.ru/doc/8908119"
         }
       ],
-      "published_at": "2026-08-25T17:39:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "cherkizovo-dividend-recommendation",
-      "headline": "Совет директоров Черкизово рекомендовал дивиденды за первое полугодие в размере ста двадцати рублей",
-      "context": "Дивидендная доходность по текущим ценам составляет 3,7%, закрытие реестра акционеров намечено на 11 октября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/24/1223331-cherkizovo-rekomendoval-dividendi"
-        }
-      ],
-      "published_at": "2026-08-24T16:49:00+03:00"
+      "published_at": "2026-08-25T17:03:00+03:00"
     },
     {
-      "id": "critical-infrastructure-state-management",
-      "headline": "Президент Владимир Путин подписал указ о временном госуправлении объектами критической инфраструктуры",
-      "context": "Мера будет применяться точечно в случае невыполнения собственниками требований безопасности при угрозах атак беспилотников.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8907120"
-        }
-      ],
-      "published_at": "2026-08-24T15:17:00+03:00"
-    },
-    {
-      "id": "ozon-warehouses-drone-attacks",
-      "headline": "Акции Ozon и АФК Система обвалились на фоне атак беспилотников на склады",
-      "context": "Логистические центры маркетплейса в Махачкале и Адыгее пострадали от ударов, что привело к пожарам.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/300892"
-        }
-      ],
-      "published_at": "2026-08-24T12:12:00+03:00"
-    },
-    {
-      "id": "minfin-wildberries-support-measures",
-      "headline": "Министерство финансов разработало меры налоговой поддержки для Wildberries и пострадавших селлеров",
-      "context": "Продавцы с ущербом более 5% гового дохода получат двенадцатимесячную отсрочку по уплате налогов и страховых взносов.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/300832"
-        }
-      ],
-      "published_at": "2026-08-24T09:44:00+03:00"
-    },
-    {
-      "id": "banking-sector-profit-july",
-      "headline": "Чистая прибыль российских банков в июле выросла на восемнадцать процентов",
-      "context": "По данным Центробанка, сектор заработал 443 млрд рублей за счет снижения отчислений в резервы.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8907331"
-        }
-      ],
-      "published_at": "2026-08-24T18:59:00+03:00"
-    },
-    {
-      "id": "eurotrans-technical-default",
-      "headline": "Компания Евротранс допустила технический дефолт по зеленым облигациям первой серии",
-      "context": "Сообщение о невыплате обязательств по ценным бумагам опубликовано на фоне общего снижения рынка.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/24/1223306-evrotrans-dopustil"
-        }
-      ],
-      "published_at": "2026-08-24T15:39:00+03:00"
-    },
-    {
-      "id": "cb-qr-code-transition-period",
-      "headline": "Банк России предоставил кредитным организациям полгода на внедрение универсального платежного кода",
-      "context": "Регулятор не будет применять санкции за использование старых QR-кодов до 1 марта 2027 года.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/300907"
-        }
-      ],
-      "published_at": "2026-08-24T14:01:00+03:00"
-    },
-    {
-      "id": "bspb-weak-h1-results",
-      "headline": "Банк Санкт-Петербург завершил первое полугодие со снижением чистой прибыли",
-      "context": "Прибыль составила 16,5 млрд рублей против 24,7 млрд рублей годом ранее на фоне роста операционных расходов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "smart-lab.ru",
-          "url": "https://smart-lab.ru/mobile/topic/1343021/"
-        }
-      ],
-      "published_at": "2026-08-24T01:26:00+03:00"
-    },
-    {
-      "id": "b2b-rts-h1-profit-growth",
-      "headline": "Чистая прибыль B2B-РТС по МСФО выросла более чем на девять процентов",
-      "context": "Показатель за первое полугодие составил 1,99 млрд рублей по сравнению с аналогичным периодом прошлого года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8907335"
-        }
-      ],
-      "published_at": "2026-08-24T19:09:00+03:00"
-    },
-    {
-      "id": "moex-indices-additional-sessions",
-      "headline": "Московская биржа начнет рассчитывать индексы акций во все дополнительные торговые сессии",
-      "context": "Новые правила расчета вступят в силу с 26 сентября и охватят утренние, вечерние и выходные торги.",
+      "id": "delovaya-rossiya-ipo-requirements-cb",
+      "headline": "Деловая Россия обратилась к Центробанку с просьбой смягчить новые требования к проведению IPO",
+      "context": "Предприниматели просят отказаться от обязательного подписания проспекта эмиссии финансовым консультантом.",
       "category": "markets",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1111018"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/25/1223607-delovaya-rossiya-poprosila"
         }
       ],
-      "published_at": "2026-08-24T18:54:00+03:00"
+      "published_at": "2026-08-25T16:55:00+03:00"
+    },
+    {
+      "id": "gazprom-capital-bond-placement-volume",
+      "headline": "Газпром капитал зафиксировал объем размещения облигаций с переменным купоном на уровне шестидесяти миллиардов рублей",
+      "context": "Срок обращения ценных бумаг серии БО-003Р-29 составит три с половиной года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8908078"
+        }
+      ],
+      "published_at": "2026-08-25T16:48:00+03:00"
+    },
+    {
+      "id": "lukoil-nadezhda-field-transfer",
+      "headline": "Участок недр Надежда на Балтике планируют передать дочерней структуре Лукойла до конца года",
+      "context": "Заявку на геологическое изучение этого участка недр подала компания Лукойл-Калининградморнефть.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8907597"
+        }
+      ],
+      "published_at": "2026-08-25T09:57:00+03:00"
+    },
+    {
+      "id": "baltic-leasing-psb-takeover-denial",
+      "headline": "Балтийский лизинг опроверг информацию о переходе компании под контроль Промсвязьбанка",
+      "context": "Руководство компании также раскрыло причины падения стоимости облигаций в середине августа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/301085"
+        }
+      ],
+      "published_at": "2026-08-25T08:35:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-08-24"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-08-25"
   }
 }
