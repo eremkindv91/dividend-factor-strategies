@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-29",
-  "generated_at": "2026-08-29T03:00:38+03:00",
+  "date": "2026-08-30",
+  "generated_at": "2026-08-30T21:06:23+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские индексы закрылись снижением, золото и нефть марки Brent подешевели, в то время как доллар и юань укрепились к рублю.",
+  "external_backdrop": "Американские фондовые индексы, нефть Brent и золото снизились в пятницу, азиатские рынки закрылись ростом.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,415 +20,370 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66131.98",
-      "change_pct": "-0.20%",
-      "as_of": "закрытие 27.08",
+      "value": "66405.56",
+      "change_pct": "+0.41%",
+      "as_of": "закрытие 28.08",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25565.74",
-      "change_pct": "-0.34%",
-      "as_of": "закрытие 27.08",
+      "value": "25584.79",
+      "change_pct": "+0.07%",
+      "as_of": "закрытие 28.08",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.29",
-      "change_pct": "-1.57%",
-      "as_of": "28.08",
+      "value": "88.10",
+      "change_pct": "-1.78%",
+      "as_of": "закрытие 28.08",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4504.10",
-      "change_pct": "-2.29%",
-      "as_of": "28.08",
+      "value": "4529.90",
+      "change_pct": "-1.73%",
+      "as_of": "закрытие 28.08",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
       "value": "2114.93",
       "change_pct": "+1.03%",
-      "as_of": "закрытие 28.08",
+      "as_of": "28.08 19:00",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
       "value": "778.32",
       "change_pct": "+1.45%",
-      "as_of": "закрытие 28.08",
+      "as_of": "28.08 19:00",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "87.04",
       "change_pct": "+0.41%",
-      "as_of": "28.08",
+      "as_of": "28.08 23:55",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.90",
       "change_pct": "+0.68%",
-      "as_of": "28.08",
+      "as_of": "28.08 23:50",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-venezuela-oil-deal",
-      "headline": "Дональд Трамп объявил о заключении крупнейшей нефтяной сделки США с Венесуэлой",
-      "context": "По словам госсекретаря Марко Рубио, соглашение принесет Венесуэле почти 100 миллиардов долларов инвестиций.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/economics/28/08/2026/6a90ec339a7947fb8b3f5311"
-        }
-      ],
-      "published_at": "2026-08-29T01:59:00+03:00"
-    },
-    {
-      "id": "rosneft-earnings-1h-2026",
-      "headline": "Чистая прибыль Роснефти по МСФО в первом полугодии сократилась на 18,4 процента",
-      "context": "Показатель составил 200 миллиардов рублей при выручке 4,29 триллиона рублей.",
+      "id": "sovcomflot-h1-results",
+      "headline": "Совкомфлот отчитался о росте прибыли и дивидендной базы во втором квартале",
+      "context": "Финансовые результаты компании поддержала ситуация в Ормузском проливе.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1111909"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3846"
         }
       ],
-      "published_at": "2026-08-29T00:09:00+03:00"
+      "published_at": "2026-08-30T19:39:00+03:00"
     },
     {
-      "id": "magnit-earnings-1h-2026",
-      "headline": "Чистый убыток Магнита по МСФО в первом полугодии составил 9,5 миллиарда рублей",
-      "context": "Выручка ритейлера выросла на 12,8 процента до 1,88 триллиона рублей на фоне роста финансовых расходов.",
+      "id": "gazprom-h1-results",
+      "headline": "Газпром отчитался о росте прибыли и снижении капитальных затрат в первом полугодии",
+      "context": "Результаты компании по МСФО оказались лучше ожиданий рынка.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/business/16/06/2023/648c696c9a794783bc165763"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3845"
         }
       ],
-      "published_at": "2026-08-28T20:00:00+03:00"
+      "published_at": "2026-08-30T18:52:00+03:00"
     },
     {
-      "id": "sberbank-crypto-collateral",
-      "headline": "Сбербанк планирует принимать биткоин и эфириум в качестве обеспечения по кредитам",
-      "context": "Также банк намерен запустить международные расчеты в цифровых валютах для бизнеса до конца года.",
+      "id": "lukoil-h1-results",
+      "headline": "Лукойл опубликовал финансовые результаты по МСФО за первое полугодие 2026 года",
+      "context": "Отчетность представлена уже без учета показателей иностранных активов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3844"
+        }
+      ],
+      "published_at": "2026-08-30T15:32:00+03:00"
+    },
+    {
+      "id": "gazprom-neft-h1-results",
+      "headline": "Газпромнефть отчиталась о росте дивидендов за первое полугодие 2026 года на 146%",
+      "context": "Компания представила сильные финансовые результаты за второй квартал.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3843"
+        }
+      ],
+      "published_at": "2026-08-30T00:25:00+03:00"
+    },
+    {
+      "id": "t-bank-mortgage-bonds",
+      "headline": "Т-Банк начинает сбор заявок на ипотечные облигации объемом до 12,75 млрд рублей",
+      "context": "Ориентир купонной доходности по старшему траншу выпуска составляет до 16% годовых.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8921805"
+        }
+      ],
+      "published_at": "2026-08-30T17:00:00+03:00"
+    },
+    {
+      "id": "sber-usdt-collateral",
+      "headline": "Сбербанк планирует принимать стейблкоины USDT и Tether в залог по кредитам",
+      "context": "Банк адаптирует продукты под криптозалог по мере вступления в силу закона о криптовалютах.",
       "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/69a19a3b9a794751995a17dd"
-        }
-      ],
-      "published_at": "2026-08-29T00:41:00+03:00"
-    },
-    {
-      "id": "sberbank-spo-announcement",
-      "headline": "Сбербанк анонсировал проведение вторичного публичного предложения акций на российском рынке",
-      "context": "Сделка может состояться в скором времени при условии благоприятной рыночной конъюнктуры.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1345569.php"
-        }
-      ],
-      "published_at": "2026-08-28T23:31:00+03:00"
-    },
-    {
-      "id": "transneft-gazprombank-deal",
-      "headline": "Транснефть приобрела пакет в 7,52 процента акций Газпромбанка за 40 миллиардов рублей",
-      "context": "Сделка была совершена с организацией, конечной контролирующей стороной которой является Российская Федерация.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302121"
-        }
-      ],
-      "published_at": "2026-08-28T20:59:00+03:00"
-    },
-    {
-      "id": "rostov-emergency-shipping",
-      "headline": "В Ростовской области ввели режим чрезвычайной ситуации из-за нарушения судоходства",
-      "context": "Ограничения в Азово-Черноморском бассейне после атак беспилотников привели к остановке работы портов.",
-      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1111867"
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/84760"
         }
       ],
-      "published_at": "2026-08-28T19:09:00+03:00"
+      "published_at": "2026-08-30T14:55:00+03:00"
     },
     {
-      "id": "nis-sanctions-exemption",
-      "headline": "Минфин США продлил специальную операционную лицензию сербской нефтяной компании NIS",
-      "context": "Исключение из санкционного режима для дочерней структуры Газпром нефти продлено до 30 сентября.",
-      "category": "geopolitics",
-      "investment_relevant": true,
+      "id": "us-venezuela-oil-deal",
+      "headline": "Нефтяная сделка США и Венесуэлы предусматривает получение доли в компании Blue Energy Partners",
+      "context": "Компания получит права на 17 венесуэльских месторождений с запасами 65 млрд баррелей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8921609"
+        }
+      ],
+      "published_at": "2026-08-30T07:16:00+03:00"
+    },
+    {
+      "id": "mintrans-overbooking-legalization",
+      "headline": "Минтранс России планирует начать обсуждение законопроекта о легализации овербукинга в сентябре",
+      "context": "Ведомство рассчитывает изменить правила полетов и узаконить практику до конца года.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/28/1224600-minfin-ssha-prodlil-litsenziyu"
+          "url": "https://www.vedomosti.ru/business/news/2026/08/30/1224712-mintrans-uzakonit-overbuking"
         }
       ],
-      "published_at": "2026-08-28T21:15:00+03:00"
+      "published_at": "2026-08-30T09:04:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "gazprom-neft-dividends-1h-2026",
-      "headline": "Совет директоров Газпром нефти рекомендовал дивиденды за первое полугодие в размере 45,21 рубля",
-      "context": "Рекомендованная выплата в 2,6 раза превышает аналогичный показатель прошлого года.",
+      "id": "diesel-export-ban-extended",
+      "headline": "Правительство России продлило запрет на экспорт дизельного топлива производителями до 30 сентября",
+      "context": "Общий запрет на экспорт топлива действует в стране по 31 января 2027 года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/382861"
+        }
+      ],
+      "published_at": "2026-08-29T14:08:00+03:00"
+    },
+    {
+      "id": "transneft-h1-dividends",
+      "headline": "Дивидендная база Транснефти за первое полугодие 2026 года составила 78 рублей на акцию",
+      "context": "Компания отчиталась по МСФО за второй квартал.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3838"
+        }
+      ],
+      "published_at": "2026-08-29T11:28:00+03:00"
+    },
+    {
+      "id": "rosneft-h1-profit-drop",
+      "headline": "Чистая прибыль Роснефти по МСФО в первом полугодии 2026 года сократилась на 18,4%",
+      "context": "Показатель составил 200 млрд руб.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920996"
+          "url": "https://www.kommersant.ru/doc/8921356"
         }
       ],
-      "published_at": "2026-08-28T18:09:00+03:00"
+      "published_at": "2026-08-29T00:18:00+03:00"
     },
     {
-      "id": "gazprom-earnings-1h-2026",
-      "headline": "Чистая прибыль Газпрома по МСФО в первом полугодии снизилась на 12 процентов",
-      "context": "Показатель составил 863,9 миллиарда рублей, при этом чистый долг сохранился на уровне конца 2025 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920982"
-        }
-      ],
-      "published_at": "2026-08-28T17:55:00+03:00"
-    },
-    {
-      "id": "samolet-earnings-1h-2026",
-      "headline": "Девелопер Самолет получил чистый убыток в размере 22,3 миллиарда рублей по МСФО",
-      "context": "Выручка компании за первое полугодие сократилась на 31 процент до 117,4 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920856"
-        }
-      ],
-      "published_at": "2026-08-28T15:40:00+03:00"
-    },
-    {
-      "id": "lukoil-earnings-1h-2026",
-      "headline": "Чистая прибыль Лукойла по МСФО в первом полугодии выросла в полтора раза",
-      "context": "Показатель достиг 430,9 миллиарда рублей на фоне исключения зарубежного сегмента из базы сравнения.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920852"
-        }
-      ],
-      "published_at": "2026-08-28T15:26:00+03:00"
-    },
-    {
-      "id": "mechel-earnings-1h-2026",
-      "headline": "Чистый убыток Мечела по МСФО в первом полугодии составил 41,5 миллиарда рублей",
-      "context": "Показатель EBITDA компании ушел в отрицательную зону и составил минус 6,1 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920825"
-        }
-      ],
-      "published_at": "2026-08-28T15:00:00+03:00"
-    },
-    {
-      "id": "novabev-dividends-1h-2026",
-      "headline": "Совет директоров Новабев Групп рекомендовал дивиденды за первое полугодие в размере 8 рублей",
-      "context": "Общая сумма выплат соответствует 86,8 процента от полугодовой чистой прибыли по МСФО.",
+      "id": "md-medical-h1-results",
+      "headline": "Чистая прибыль МД Медикал по МСФО в первом полугодии выросла на 5,1%",
+      "context": "Выручка компании увеличилась на 28,8% до 24,8 млрд руб.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8921049"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3839"
         }
       ],
-      "published_at": "2026-08-28T19:15:00+03:00"
+      "published_at": "2026-08-29T12:34:00+03:00"
     },
     {
-      "id": "sistema-ozon-repo-structure",
-      "headline": "АФК Система раскрыла структуру сделки с ВТБ по передаче акций Ozon в залог",
-      "context": "Холдинг заключил сложную многоэтапную сделку-аналог репо сроком на три года.",
+      "id": "novabev-h1-profit-drop",
+      "headline": "Чистая прибыль НоваБев Групп по МСФО в первом полугодии снизилась на 38%",
+      "context": "Выручка компании выросла на 7,6% до 74,4 млрд руб.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302007"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3837"
         }
       ],
-      "published_at": "2026-08-28T18:45:00+03:00"
+      "published_at": "2026-08-29T11:18:00+03:00"
     },
     {
-      "id": "medvedev-no-mobilization-plans",
-      "headline": "Дмитрий Медведев заявил об отсутствии планов по проведению новой мобилизации в России",
-      "context": "По его словам, для продолжения боевых действий достаточно граждан, подписывающих контракты.",
+      "id": "digital-ruble-readiness",
+      "headline": "Крупные российские банки полностью готовы к массовому внедрению цифрового рубля с 1 сентября",
+      "context": "Небольшие кредитные организации сталкиваются с проблемой дороговизны технической имплементации.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/382854"
+        }
+      ],
+      "published_at": "2026-08-29T09:55:00+03:00"
+    },
+    {
+      "id": "ruble-share-foreign-trade",
+      "headline": "Доля рублевых расчетов во внешнеторговых операциях России во втором квартале приблизилась к 60%",
+      "context": "Доля валют недружественных стран опустилась до минимальных 11,6%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/382849"
+        }
+      ],
+      "published_at": "2026-08-29T09:45:00+03:00"
+    },
+    {
+      "id": "aksakov-rate-pause",
+      "headline": "Анатолий Аксаков допустил паузу в снижении ключевой ставки на ближайшем заседании ЦБ",
+      "context": "При этом долгосрочный тренд на снижение ставки остается неизменным.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/382844"
+        }
+      ],
+      "published_at": "2026-08-29T09:36:00+03:00"
+    },
+    {
+      "id": "sber-ipo-forecast-2027",
+      "headline": "Сбербанк ожидает волну отложенных первичных публичных размещений акций в 2027 году",
+      "context": "Рынок обычно возобновляет работу после успешных вторичных продаж акций.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8921361"
+        }
+      ],
+      "published_at": "2026-08-29T02:29:00+03:00"
+    },
+    {
+      "id": "germany-merz-sanctions",
+      "headline": "Канцлер Германии Фридрих Мерц планирует ввести новые односторонние санкции против России",
+      "context": "Поводом для ограничений называют инцидент с беспилотником в аэропорту Лейпцига.",
       "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8921021"
+          "url": "https://www.kommersant.ru/doc/8921560"
         }
       ],
-      "published_at": "2026-08-28T18:43:00+03:00"
+      "published_at": "2026-08-29T19:59:00+03:00"
     },
     {
-      "id": "transneft-earnings-1h-2026",
-      "headline": "Чистая прибыль Транснефти по МСФО в первом полугодии снизилась на 3,3 процента",
-      "context": "Показатель составил 148,3 миллиарда рублей на фоне вызовов по защите инфраструктуры.",
+      "id": "lukoil-app-removed",
+      "headline": "Мобильное приложение АЗС Лукойл пропало из магазинов приложений App Store и Google Play",
+      "context": "Причины удаления сервиса в компании не назвали.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920933"
+          "url": "https://www.kommersant.ru/doc/8921549"
         }
       ],
-      "published_at": "2026-08-28T16:57:00+03:00"
+      "published_at": "2026-08-29T18:01:00+03:00"
     },
     {
-      "id": "rushydro-earnings-1h-2026",
-      "headline": "Чистая прибыль Русгидро по МСФО в первом полугодии выросла почти в два раза",
-      "context": "Показатель составил 60,068 миллиарда рублей против аналогичного периода прошлого года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920871"
-        }
-      ],
-      "published_at": "2026-08-28T15:50:00+03:00"
-    },
-    {
-      "id": "cb-mfo-lombard-limits",
-      "headline": "Банк России предложил в два раза увеличить лимит выдачи займов наличными для МФО",
-      "context": "Лимит для микрофинансовых организаций вырастет до 100 тысяч рублей, а для ломбардов — до 200 тысяч рублей.",
-      "category": "cb_policy",
+      "id": "sber-crypto-volume-forecast",
+      "headline": "Сбербанк прогнозирует объем торгов криптовалютами в России на уровне 4 трлн рублей в первый год",
+      "context": "К 2029 году показатель может вырасти до 7,5 трлн рублей в год.",
+      "category": "markets",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8920826"
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/382851"
         }
       ],
-      "published_at": "2026-08-28T15:04:00+03:00"
-    },
-    {
-      "id": "sberbank-rate-forecast-increase",
-      "headline": "Сбербанк повысил прогноз по ключевой ставке ЦБ на конец года до 13,5 процента",
-      "context": "Ранее финансовая организация ожидала снижения показателя до уровня 12-13 процентов.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Телеграм-канал markettwits",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-08-28T11:02:00+03:00"
-    },
-    {
-      "id": "sovcomflot-earnings-1h-2026",
-      "headline": "Совкомфлот получил чистую прибыль в размере 21,4 миллиарда рублей по МСФО",
-      "context": "Компания подтвердила планы по выплате годовых дивидендов на уровне не менее 50 процентов прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Телеграм-канал markettwits",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-08-28T10:03:00+03:00"
-    },
-    {
-      "id": "vtb-wildberries-deal-postponed",
-      "headline": "ВТБ перенес сделку по покупке доли в банке Wildberries на сентябрь",
-      "context": "Объем привлечения по итогам SPO оценивается ближе к нижней границе в 300 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8910238"
-        }
-      ],
-      "published_at": "2026-08-28T09:28:00+03:00"
-    },
-    {
-      "id": "rusal-capacity-conservation",
-      "headline": "Русал планирует временно законсервировать часть сырьевых мощностей по производству глинозема и бокситов",
-      "context": "Предприятия приносят компании около 800 миллионов долларов убытка в год.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8910091"
-        }
-      ],
-      "published_at": "2026-08-28T06:31:00+03:00"
+      "published_at": "2026-08-29T09:48:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "week_ahead",
+    "title": "К новой неделе",
+    "context": "в воскресенье, накануне открытия недели",
     "last_trading_day": "2026-08-28"
   }
 }
