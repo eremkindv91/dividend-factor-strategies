@@ -1,131 +1,161 @@
 {
   "date": "2026-08-31",
-  "generated_at": "2026-08-31T14:10:06+03:00",
+  "generated_at": "2026-08-31T23:48:18+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские индексы, а также нефть марки Brent снижаются, золото демонстрирует рост.",
+  "external_backdrop": "Американские и азиатские фондовые индексы снизились, нефть марки Brent подешевела, в то время как золото продемонстрировало рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7711.76",
-      "change_pct": "-0.25%",
-      "as_of": "28.08",
+      "value": "7686.14",
+      "change_pct": "-0.58%",
+      "as_of": "2026-08-31",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26402.42",
-      "change_pct": "-0.52%",
-      "as_of": "28.08",
+      "value": "26370.89",
+      "change_pct": "-0.64%",
+      "as_of": "2026-08-31",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "66311.93",
-      "change_pct": "-0.14%",
-      "as_of": "31.08",
+      "value": "66131.98",
+      "change_pct": "-0.20%",
+      "as_of": "2026-08-27",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25566.99",
-      "change_pct": "-0.07%",
-      "as_of": "31.08",
+      "value": "25565.74",
+      "change_pct": "-0.34%",
+      "as_of": "2026-08-27",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.67",
-      "change_pct": "-0.72%",
-      "as_of": "31.08",
+      "value": "88.49",
+      "change_pct": "-0.92%",
+      "as_of": "2026-08-31",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4504.60",
-      "change_pct": "+0.59%",
-      "as_of": "31.08",
+      "value": "4498.40",
+      "change_pct": "+0.45%",
+      "as_of": "2026-08-31",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2129.23",
-      "change_pct": "+0.68%",
-      "as_of": "31.08 14:10",
+      "value": "2178.87",
+      "change_pct": "+3.02%",
+      "as_of": "2026-08-31 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "783.58",
-      "change_pct": "+0.68%",
-      "as_of": "31.08 14:10",
+      "value": "794.63",
+      "change_pct": "+2.10%",
+      "as_of": "2026-08-31 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "86.44",
-      "change_pct": "+0.05%",
-      "as_of": "31.08 14:10",
+      "value": "85.84",
+      "change_pct": "-0.31%",
+      "as_of": "2026-08-31 23:48:15",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.85",
-      "change_pct": "-0.01%",
-      "as_of": "31.08 14:10",
+      "value": "12.76",
+      "change_pct": "+0.15%",
+      "as_of": "2026-08-31 19:15:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-monetary-policy-project",
-      "headline": "Банк России опубликовал проект Основных направлений единой государственной ДКП на 2027–2029 годы",
-      "context": "Регулятор сохранил июльский макропрогноз и отметил, что длительная мягкая бюджетная политика увеличивает нейтральную ставку.",
+      "id": "siluanov-bessent-meeting",
+      "headline": "Министры финансов РФ и США провели встречу на полях финансовой G20",
+      "context": "Антон Силуанов и Скотт Бессент обсудили вопросы финансового взаимодействия в Северной Каролине.",
       "category": "cb_policy",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1112256"
+          "url": "https://t.me/interfax_news/364528"
         }
       ],
-      "published_at": "2026-08-31T14:09:00+03:00"
+      "published_at": "2026-08-31T20:24:00+03:00"
     },
     {
-      "id": "segezha-group-rating-downgrade",
-      "headline": "Рейтинговое агентство Эксперт РА понизило кредитные рейтинги облигаций Сегежи Групп до уровня ruB",
-      "context": "Ранее кредитный рейтинг долговых инструментов лесопромышленного холдинга находился на уровне ruBB-.",
+      "id": "polus-1h2026-earnings",
+      "headline": "Чистая прибыль Полюса по МСФО за первое полугодие снизилась в два и восемь десятых раза",
+      "context": "Выручка золотодобытчика выросла на тринадцать и восемь десятых процента до 352,7 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1345955.php"
+          "url": "https://smart-lab.ru/blog/1346301.php"
         }
       ],
-      "published_at": "2026-08-31T10:51:00+03:00"
+      "published_at": "2026-08-31T19:33:00+03:00"
     },
     {
-      "id": "sberbank-profit-forecast-2026",
-      "headline": "Сбербанк прогнозирует рост чистой прибыли по итогам 2026 года на уровне чуть ниже 20%",
-      "context": "Финансовый директор банка Тарас Скворцов сообщил, что прибыль ожидается существенно выше уровня 2025 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1345946.php"
-        }
-      ],
-      "published_at": "2026-08-31T10:33:00+03:00"
-    },
-    {
-      "id": "ormuz-strait-escalation-brent",
-      "headline": "Цены на нефть Brent превысили 91 доллар за баррель из-за эскалации в Ормузском проливе",
-      "context": "США нанесли удары по иранским пусковым установкам на острове Ларак, а КСИР заявил о подрыве супертанкера на минах.",
+      "id": "putin-ukraine-conflict-resolution",
+      "headline": "Президент России Владимир Путин заявил о движении к завершению украинского конфликта",
+      "context": "Заявление прозвучало на встрече с премьер-министром Индии Нарендрой Моди в Бишкеке.",
       "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/08/31/1225077-k-zaversheniyu-konflikta"
+        }
+      ],
+      "published_at": "2026-08-31T18:04:00+03:00"
+    },
+    {
+      "id": "tatneft-1h2026-earnings",
+      "headline": "Чистая прибыль Татнефти по МСФО за первое полугодие выросла втрое",
+      "context": "Показатель достиг 165,5 млрд рублей на фоне роста выручки сегмента переработки и сбыта.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84777"
+        }
+      ],
+      "published_at": "2026-08-31T15:41:00+03:00"
+    },
+    {
+      "id": "sberbank-strategy-dividends",
+      "headline": "Сбербанк представит новую трехлетнюю стратегию и дивидендную политику в ноябре",
+      "context": "Банк планирует сохранить планку дивидендных выплат на уровне пятидесяти процентов от прибыли.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/382896"
+        }
+      ],
+      "published_at": "2026-08-31T07:08:00+03:00"
+    },
+    {
+      "id": "brent-oil-price-us-iran-clash",
+      "headline": "Цены на нефть Brent превысили девяносто один доллар после ударов США по Ирану",
+      "context": "Американские силы атаковали пусковые установки на острове Ларак в Ормузском проливе.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
@@ -137,72 +167,42 @@
       "published_at": "2026-08-31T05:30:00+03:00"
     },
     {
-      "id": "rosneft-pcbu-1h-2026",
-      "headline": "Чистая прибыль Роснефти по РСБУ за первое полугодие снизилась в 3,3 раза",
-      "context": "Показатель составил 16,83 млрд рублей при снижении выручки на 2,4% до 3,89 трлн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1345973.php"
-        }
-      ],
-      "published_at": "2026-08-31T11:17:00+03:00"
-    },
-    {
-      "id": "aeroflot-msfo-1h-2026",
-      "headline": "Скорректированная чистая прибыль Аэрофлота по МСФО в первом полугодии снизилась на 88,4%",
-      "context": "Показатель составил 0,5 млрд рублей, при этом чистый долг группы снизился на 4,5% с начала года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/08/31/1224863-pribil-aeroflota"
-        }
-      ],
-      "published_at": "2026-08-31T11:07:00+03:00"
-    },
-    {
-      "id": "fesco-msfo-1h-2026",
-      "headline": "Чистая прибыль транспортной группы FESCO по МСФО в первом полугодии упала в 19,7 раза",
-      "context": "Показатель снизился до 36 млн рублей по сравнению с 709 млн рублей за аналогичный период прошлого года.",
+      "id": "aeroflot-1h2026-earnings",
+      "headline": "Скорректированная чистая прибыль Аэрофлота по МСФО снизилась на восемьдесят восемь процентов",
+      "context": "Показатель составил полмиллиарда рублей из-за давления растущих расходов на авиакеросин.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922131"
+          "url": "https://www.kommersant.ru/doc/8922105"
         }
       ],
-      "published_at": "2026-08-31T11:06:00+03:00"
+      "published_at": "2026-08-31T10:35:00+03:00"
     },
     {
-      "id": "mkb-msfo-1h-2026",
-      "headline": "Чистая прибыль Московского кредитного банка по МСФО за первое полугодие выросла вдвое",
-      "context": "Показатель достиг 15,6 млрд рублей, однако за второй квартал банк заработал только 1,3 млрд рублей.",
+      "id": "mvideo-seller-influx-july",
+      "headline": "Маркетплейс М.Видео зафиксировал рекордный приток новых продавцов в июле",
+      "context": "К площадке присоединилось более одной тысячи шестисот партнеров на фоне падения трафика конкурентов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302147"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8922110"
         }
       ],
-      "published_at": "2026-08-31T10:05:00+03:00"
+      "published_at": "2026-08-31T10:22:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-08-28"
   }
 }
