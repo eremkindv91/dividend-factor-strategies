@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-31",
-  "generated_at": "2026-08-31T23:48:18+03:00",
+  "date": "2026-09-01",
+  "generated_at": "2026-09-01T10:58:44+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы снизились, нефть марки Brent подешевела, в то время как золото продемонстрировало рост.",
+  "external_backdrop": "Американские индексы закрылись снижением, азиатские рынки снижаются, Brent и золото растут.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,156 +20,263 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66131.98",
-      "change_pct": "-0.20%",
-      "as_of": "2026-08-27",
+      "value": "66215.34",
+      "change_pct": "-0.15%",
+      "as_of": "2026-09-01",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25565.74",
-      "change_pct": "-0.34%",
-      "as_of": "2026-08-27",
+      "value": "25331.08",
+      "change_pct": "-0.92%",
+      "as_of": "2026-09-01",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.49",
-      "change_pct": "-0.92%",
-      "as_of": "2026-08-31",
+      "value": "91.77",
+      "change_pct": "+1.41%",
+      "as_of": "2026-09-01",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4498.40",
-      "change_pct": "+0.45%",
-      "as_of": "2026-08-31",
+      "value": "4469.80",
+      "change_pct": "+0.87%",
+      "as_of": "2026-09-01",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2178.87",
-      "change_pct": "+3.02%",
-      "as_of": "2026-08-31 19:00:11",
+      "value": "2173.66",
+      "change_pct": "-0.24%",
+      "as_of": "2026-09-01 10:58:42",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "794.63",
-      "change_pct": "+2.10%",
-      "as_of": "2026-08-31 19:00:12",
+      "value": "792.72",
+      "change_pct": "-0.24%",
+      "as_of": "2026-09-01 10:58:42",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.84",
-      "change_pct": "-0.31%",
-      "as_of": "2026-08-31 23:48:15",
+      "value": "86.70",
+      "change_pct": "-0.12%",
+      "as_of": "2026-09-01 10:58:43",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.76",
-      "change_pct": "+0.15%",
-      "as_of": "2026-08-31 19:15:02",
+      "value": "12.86",
+      "change_pct": "+0.75%",
+      "as_of": "2026-09-01 10:58:43",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "siluanov-bessent-meeting",
-      "headline": "Министры финансов РФ и США провели встречу на полях финансовой G20",
-      "context": "Антон Силуанов и Скотт Бессент обсудили вопросы финансового взаимодействия в Северной Каролине.",
-      "category": "cb_policy",
+      "id": "pmi-manufacturing-drop",
+      "headline": "Индекс деловой активности в обрабатывающей промышленности РФ в августе снизился до 48,8 пункта",
+      "context": "Показатель опустился ниже пороговой отметки в 50 пунктов впервые за долгое время, зафиксировав резкое снижение активности.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364528"
+          "url": "https://www.interfax.ru/business/1112398"
         }
       ],
-      "published_at": "2026-08-31T20:24:00+03:00"
+      "published_at": "2026-09-01T09:00:00+03:00"
     },
     {
-      "id": "polus-1h2026-earnings",
-      "headline": "Чистая прибыль Полюса по МСФО за первое полугодие снизилась в два и восемь десятых раза",
-      "context": "Выручка золотодобытчика выросла на тринадцать и восемь десятых процента до 352,7 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1346301.php"
-        }
-      ],
-      "published_at": "2026-08-31T19:33:00+03:00"
-    },
-    {
-      "id": "putin-ukraine-conflict-resolution",
-      "headline": "Президент России Владимир Путин заявил о движении к завершению украинского конфликта",
-      "context": "Заявление прозвучало на встрече с премьер-министром Индии Нарендрой Моди в Бишкеке.",
+      "id": "ust-luga-port-attack",
+      "headline": "Атака беспилотников на порт Усть-Луга в Ленинградской области привела к пожару",
+      "context": "Возгорание в портовой зоне было оперативно ликвидировано, пострадавших нет, однако инцидент повлиял на работу инфраструктуры.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/31/1225077-k-zaversheniyu-konflikta"
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/01/1225180-ust-luga-pozhar"
         }
       ],
-      "published_at": "2026-08-31T18:04:00+03:00"
+      "published_at": "2026-09-01T05:28:00+03:00"
     },
     {
-      "id": "tatneft-1h2026-earnings",
-      "headline": "Чистая прибыль Татнефти по МСФО за первое полугодие выросла втрое",
-      "context": "Показатель достиг 165,5 млрд рублей на фоне роста выручки сегмента переработки и сбыта.",
+      "id": "sberbank-crypto-payments",
+      "headline": "Сбербанк запустил трансграничные расчеты в криптовалюте для корпоративных клиентов",
+      "context": "Сервис доступен для участников внешнеэкономической деятельность с комиссией 0,3% и автоматическим валютным контролем.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302398"
+        }
+      ],
+      "published_at": "2026-09-01T07:19:00+03:00"
+    },
+    {
+      "id": "wildberries-payment-delays",
+      "headline": "Продавцы Wildberries столкнулись с задержками выплат из-за DDoS-атак на маркетплейс",
+      "context": "Компания подтвердила временные приостановки операций по отправке средств из-за повышенной нагрузки на систему безопасности.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302217"
+        }
+      ],
+      "published_at": "2026-09-01T09:40:00+03:00"
+    },
+    {
+      "id": "eurotrans-1h-2026-loss",
+      "headline": "Компания ЕвроТранс получила чистый убыток в размере 5,7 миллиарда рублей по МСФО",
+      "context": "Выручка эмитента за первое полугодие снизилась на 28,5% до 76,57 миллиарда рублей против прибыли годом ранее.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1346336.php"
+        }
+      ],
+      "published_at": "2026-08-31T20:45:00+03:00"
+    },
+    {
+      "id": "pik-1h-2026-profit-drop",
+      "headline": "Чистая прибыль девелопера ПИК по МСФО в первом полугодии снизилась в 2,2 раза",
+      "context": "Показатель составил 14,7 миллиарда рублей на фоне снижения выручки на 11,6% до 290,1 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1346367.php"
+        }
+      ],
+      "published_at": "2026-08-31T23:03:00+03:00"
+    },
+    {
+      "id": "digital-ruble-mass-launch",
+      "headline": "В России с 1 сентября стартовал массовый запуск расчетов в цифровых рублях",
+      "context": "Крупнейшие банки и розничные компании открыли инфраструктуру для работы с третьей формой национальной валюты.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1112345"
+        }
+      ],
+      "published_at": "2026-09-01T00:44:00+03:00"
+    },
+    {
+      "id": "siluanov-besent-meeting",
+      "headline": "Министры финансов России и США провели встречу на полях финансовой G20",
+      "context": "Антон Силуанов и Скотт Бессент обсудили вопросы взаимодействия, при этом США назвали урегулирование на Украине условием соглашений.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/08/31/1225125-bessent-s-siluanovim"
+        }
+      ],
+      "published_at": "2026-08-31T18:43:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "tatneft-1h-2026-profit",
+      "headline": "Чистая прибыль Татнефти по МСФО в первом полугодии выросла в три раза",
+      "context": "Показатель достиг 165,5 миллиарда рублей, а выручка группы увеличилась на 15,8% до 881,6 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "if_market_news",
+          "name": "Telegram-канал if_market_news",
           "url": "https://t.me/if_market_news/84777"
         }
       ],
       "published_at": "2026-08-31T15:41:00+03:00"
     },
     {
-      "id": "sberbank-strategy-dividends",
-      "headline": "Сбербанк представит новую трехлетнюю стратегию и дивидендную политику в ноябре",
-      "context": "Банк планирует сохранить планку дивидендных выплат на уровне пятидесяти процентов от прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "cb-draft-monetary-policy",
+      "headline": "Банк России опубликовал проект основных направлений денежно-кредитной политики на 2027–2029 годы",
+      "context": "Регулятор спрогнозировал среднюю ключевую ставку на уровне 14,5–14,6% в 2026 году и допустил ее возвращение к 7,5% в 2029 году.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/382896"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1112256"
         }
       ],
-      "published_at": "2026-08-31T07:08:00+03:00"
+      "published_at": "2026-08-31T14:09:00+03:00"
     },
     {
-      "id": "brent-oil-price-us-iran-clash",
-      "headline": "Цены на нефть Brent превысили девяносто один доллар после ударов США по Ирану",
-      "context": "Американские силы атаковали пусковые установки на острове Ларак в Ормузском проливе.",
-      "category": "markets",
+      "id": "cb-key-rate-cut-space",
+      "headline": "Пространство для снижения ключевой ставки Банка России сузилось еще в июле",
+      "context": "Зампред ЦБ Алексей Заботкин заявил, что инфляционные ожидания остаются высокими, что ограничивает возможности смягчения ДКП.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8921944"
+          "url": "https://www.kommersant.ru/doc/8922556"
         }
       ],
-      "published_at": "2026-08-31T05:30:00+03:00"
+      "published_at": "2026-08-31T16:08:00+03:00"
     },
     {
-      "id": "aeroflot-1h2026-earnings",
-      "headline": "Скорректированная чистая прибыль Аэрофлота по МСФО снизилась на восемьдесят восемь процентов",
-      "context": "Показатель составил полмиллиарда рублей из-за давления растущих расходов на авиакеросин.",
+      "id": "sberbank-2026-profit-forecast",
+      "headline": "Сбербанк ожидает в 2026 году чистую прибыль существенно выше уровня предыдущего года",
+      "context": "Финансовый директор банка сообщил, что темп роста прибыли ожидается на уровне чуть ниже 20%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/31/1224869-ozhidayut-pribil"
+        }
+      ],
+      "published_at": "2026-08-31T11:18:00+03:00"
+    },
+    {
+      "id": "mkb-1h-2026-profit",
+      "headline": "Чистая прибыль Московского кредитного банка по МСФО за полугодие выросла вдвое",
+      "context": "Показатель составил 15,6 миллиарда рублей против 6,9 миллиарда рублей за аналогичный период прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302147"
+        }
+      ],
+      "published_at": "2026-08-31T10:05:00+03:00"
+    },
+    {
+      "id": "aeroflot-1h-2026-profit-drop",
+      "headline": "Скорректированная чистая прибыль Аэрофлота по МСФО в первом полугодии снизилась на 88,4%",
+      "context": "Показатель составил 0,5 миллиарда рублей на фоне давления со стороны растущих расходов на авиакеросин.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -182,27 +289,101 @@
       "published_at": "2026-08-31T10:35:00+03:00"
     },
     {
-      "id": "mvideo-seller-influx-july",
-      "headline": "Маркетплейс М.Видео зафиксировал рекордный приток новых продавцов в июле",
-      "context": "К площадке присоединилось более одной тысячи шестисот партнеров на фоне падения трафика конкурентов.",
+      "id": "automotive-strategy-2035",
+      "headline": "Правительство России утвердило обновленную стратегию развития автомобильной промышленности до 2035 года",
+      "context": "Целевой сценарий предполагает ежегодный выпуск 2,8 миллиона единиц транспорта и достижение 80% технологической независимости.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/auto/news/2026/08/31/1224872-strategiyu-razvitiya-avtoproma"
+        }
+      ],
+      "published_at": "2026-08-31T11:17:00+03:00"
+    },
+    {
+      "id": "5g-frequency-allocation",
+      "headline": "Государственная комиссия по радиочастотам утвердила условия запуска мобильной связи 5G в России",
+      "context": "Операторы «большой четверки» получили полосы в диапазоне 4,63–4,99 ГГц без проведения аукционов.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8922528"
+        }
+      ],
+      "published_at": "2026-08-31T15:20:00+03:00"
+    },
+    {
+      "id": "afk-sistema-ozon-repo",
+      "headline": "АФК Система передала ВТБ в залог акции Ozon в рамках многолетней сделки",
+      "context": "Холдинг раскрыл структуру сложной сделки-аналога репо, где залогом также выступили гарантии дочерних компаний и денежные средства.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/382912"
+        }
+      ],
+      "published_at": "2026-08-31T08:50:00+03:00"
+    },
+    {
+      "id": "vsmpo-avisma-1h-2026-profit",
+      "headline": "Чистая прибыль корпорации ВСМПО-Ависма по МСФО за полугодие выросла в 3,8 раза",
+      "context": "Показатель достиг 9,2 миллиарда рублей против 2,4 миллиарда рублей за аналогичный период прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/08/31/1225038-vsmpo-avisma"
+        }
+      ],
+      "published_at": "2026-08-31T17:21:00+03:00"
+    },
+    {
+      "id": "fesco-1h-2026-profit-drop",
+      "headline": "Чистая прибыль транспортной группы FESCO по МСФО в первом полугодии упала в 19,7 раза",
+      "context": "Показатель снизился до 36 миллионов рублей по сравнению с 709 миллионами рублей годом ранее.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922110"
+          "url": "https://www.kommersant.ru/doc/8922131"
         }
       ],
-      "published_at": "2026-08-31T10:22:00+03:00"
+      "published_at": "2026-08-31T11:06:00+03:00"
+    },
+    {
+      "id": "cb-key-rate-shift-wednesday",
+      "headline": "Банк России перенесет начало действия измененной ключевой ставки с понедельника на среду",
+      "context": "Мера направлена на снижение волатильности ставок денежного рынка и синхронизацию расчетов по аукционам.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302274"
+        }
+      ],
+      "published_at": "2026-08-31T14:31:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-08-28"
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
+    "last_trading_day": "2026-08-31"
   }
 }
