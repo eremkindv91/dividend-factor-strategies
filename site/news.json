@@ -1,115 +1,207 @@
 {
-  "date": "2026-09-01",
-  "generated_at": "2026-09-01T21:26:12+03:00",
+  "date": "2026-09-02",
+  "generated_at": "2026-09-02T10:19:12+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы снизились, в то время как цены на нефть марки Brent выросли.",
+  "external_backdrop": "Мировые фондовые индексы снижаются, в то время как цены на нефть марки Brent и золото демонстрируют умеренный рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7632.15",
-      "change_pct": "-0.70%",
-      "as_of": "2026-09-01",
+      "value": "7631.47",
+      "change_pct": "-0.71%",
+      "as_of": "закрытие 01.09",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26103.40",
-      "change_pct": "-1.01%",
-      "as_of": "2026-09-01",
+      "value": "26099.77",
+      "change_pct": "-1.03%",
+      "as_of": "закрытие 01.09",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "66311.93",
-      "change_pct": "+0.27%",
-      "as_of": "2026-08-31",
+      "value": "64325.64",
+      "change_pct": "-2.85%",
+      "as_of": "02.09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25566.99",
-      "change_pct": "+0.0049%",
-      "as_of": "2026-08-31",
+      "value": "25256.00",
+      "change_pct": "-0.29%",
+      "as_of": "02.09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "94.35",
-      "change_pct": "+4.27%",
-      "as_of": "2026-09-01",
+      "value": "94.96",
+      "change_pct": "+0.33%",
+      "as_of": "02.09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4385.00",
-      "change_pct": "-1.04%",
-      "as_of": "2026-09-01",
+      "value": "4372.50",
+      "change_pct": "+0.56%",
+      "as_of": "02.09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2187.33",
-      "change_pct": "+0.39%",
-      "as_of": "2026-09-01 19:00:11",
+      "value": "2172.16",
+      "change_pct": "-0.69%",
+      "as_of": "02.09 10:19:08",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "794.27",
-      "change_pct": "-0.05%",
-      "as_of": "2026-09-01 19:00:12",
+      "value": "788.75",
+      "change_pct": "-0.69%",
+      "as_of": "02.09 10:19:09",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "87.05",
-      "change_pct": "-0.07%",
-      "as_of": "2026-09-01 21:26:11",
+      "value": "87.08",
+      "change_pct": "+0.02%",
+      "as_of": "02.09 10:19:11",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.93",
-      "change_pct": "+0.03%",
-      "as_of": "2026-09-01 19:15:00",
+      "value": "12.91",
+      "change_pct": "+0.01%",
+      "as_of": "02.09 10:19:12",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-strikes-ormuz",
-      "headline": "США нанесли серию ударов по иранским объектам в районе Ормузского пролива",
-      "context": "Центральное командование ВС США подтвердило проведение военной операции в регионе.",
-      "category": "geopolitics",
+      "id": "minfin-crypto-monitoring",
+      "headline": "Минфин России планирует включить криптовалюты в систему валютного мониторинга экспортеров",
+      "context": "Замминистра финансов Алексей Моисеев заявил, что возвращаться к ненулевым нормативам продажи валютной выручки нет необходимости.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364726"
+          "url": "https://www.interfax.ru/business/1112657"
         }
       ],
-      "published_at": "2026-09-01T19:22:00+03:00"
+      "published_at": "2026-09-02T09:44:00+03:00"
     },
     {
-      "id": "aeroflot-shares-drop",
-      "headline": "Акции Аэрофлота снизились на пять процентов после заявлений о рисках полетов",
-      "context": "Падение котировок произошло на фоне сообщений украинской стороны о воздушных угрозах.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "us-iran-military-strikes",
+      "headline": "США и Иран обменялись массированными ударами на Ближнем Востоке",
+      "context": "Иран атаковал американские базы в Иордании и Бахрейне в ответ на удары США по объектам КСИР.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84826"
+          "name": "Telegram-канал IF News",
+          "url": "https://t.me/if_market_news/84839"
         }
       ],
-      "published_at": "2026-09-01T21:14:00+03:00"
+      "published_at": "2026-09-02T07:34:00+03:00"
     },
     {
-      "id": "cbr-fx-limits-extended",
+      "id": "minfin-nmtp-sheremetyevo-privatization",
+      "headline": "Минфин рассчитывает продать госпакеты НМТП и Шереметьево до конца года",
+      "context": "Замглавы Минфина Алексей Моисеев сообщил, что ведомство сохраняет планы по продаже госдолей в компаниях.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1112656"
+        }
+      ],
+      "published_at": "2026-09-02T09:49:00+03:00"
+    },
+    {
+      "id": "aeroflot-spo-no-rush",
+      "headline": "Минфин не ставит целью продать госпакет Аэрофлота на SPO любой ценой",
+      "context": "Ведомство будет внимательно оценивать динамику рынка и стоимость приобретения акций на баланс ФНБ.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1112660"
+        }
+      ],
+      "published_at": "2026-09-02T09:54:00+03:00"
+    },
+    {
+      "id": "ai-developers-tax-benefits",
+      "headline": "Разработчикам искусственного интеллекта в России готовят масштабные налоговые льготы",
+      "context": "Власти обсуждают снижение страховых взносов до 7,6% и введение инвестиционного налогового вычета.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302718"
+        }
+      ],
+      "published_at": "2026-09-02T09:03:00+03:00"
+    },
+    {
+      "id": "power-of-siberia-2-construction",
+      "headline": "Проект Сила Сибири — 2 переходит к этапу строительства под новым названием",
+      "context": "Министр энергетики Сергей Цивилев сообщил о завершающем этапе подготовки и возможном переименовании в Силу Байкала.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/02/1225549-tsivilev-soobschil-o-zavershayuschem"
+        }
+      ],
+      "published_at": "2026-09-02T08:27:00+03:00"
+    },
+    {
+      "id": "marketplaces-digital-ruble-payments",
+      "headline": "Крупнейшие российские маркетплейсы запустили оплату товаров цифровыми рублями",
+      "context": "Функция оплаты цифровыми рублями стала доступна пользователям Android в приложениях Ozon, Wildberries и Яндекс Маркет.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383233"
+        }
+      ],
+      "published_at": "2026-09-02T06:25:00+03:00"
+    },
+    {
+      "id": "rusagro-state-control-rshb",
+      "headline": "Государство сохранит контроль над группой Русагро под управлением Россельхозбанка",
+      "context": "Глава РСХБ Борис Листов заявил, что планов по продаже перешедшего в собственность РФ пакета акций на данный момент нет.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1112608"
+        }
+      ],
+      "published_at": "2026-09-02T05:04:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "cb-extends-fx-withdrawal-limits",
       "headline": "Банк России продлил ограничения на снятие наличной иностранной валюты до марта 2027 года",
-      "context": "Решение обусловлено действующими против России санкциями на приобретение наличной валюты западных стран.",
+      "context": "Регулятор сохранил лимит в 10 тысяч долларов на снятие средств с валютных счетов, открытых до 9 марта 2022 года.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
@@ -117,321 +209,226 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/302645"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364694"
         }
       ],
-      "published_at": "2026-09-01T17:02:00+03:00"
+      "published_at": "2026-09-01T17:09:00+03:00"
     },
     {
-      "id": "minfin-ofz-auctions-resume",
-      "headline": "Министерство финансов России возобновит аукционы по размещению облигаций федерального займа",
-      "context": "Ведомство проведет аукцион по продаже ОФЗ-ПК серии 29031 в объеме доступных остатков.",
-      "category": "markets",
-      "investment_relevant": true,
+      "id": "minfin-resumes-ofz-auctions",
+      "headline": "Минфин России возобновляет аукционы по размещению ОФЗ после полуторамесячного перерыва",
+      "context": "Ведомство проведет 2 сентября аукцион по продаже ОФЗ-ПК серии 29031 для стабилизации рыночной ситуации.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8923390"
-        },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/302555"
         }
       ],
-      "published_at": "2026-09-01T15:55:00+03:00"
+      "published_at": "2026-09-01T15:59:00+03:00"
     },
     {
-      "id": "germany-closes-consulate-bonn",
-      "headline": "Германия закроет генеральное консульство России в Бонне и Русский дом в Берлине",
+      "id": "acra-downgrades-afk-sistema",
+      "headline": "АКРА понизило кредитный рейтинг АФК Система до уровня A плюс с негативным прогнозом",
+      "context": "Агентство также понизило рейтинги выпусков облигаций корпорации до аналогичного уровня.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383121"
+        }
+      ],
+      "published_at": "2026-09-01T12:09:00+03:00"
+    },
+    {
+      "id": "sberbank-launches-crypto-settlements",
+      "headline": "Сбербанк открыл корпоративным клиентам трансграничные расчеты в криптовалюте",
+      "context": "Инструмент с комиссией 0,3% стал доступен всем клиентам банка, ведущим внешнеэкономическую деятельность.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302398"
+        }
+      ],
+      "published_at": "2026-09-01T07:19:00+03:00"
+    },
+    {
+      "id": "moex-august-trading-volume",
+      "headline": "Общий объем торгов на Московской бирже в августе вырос на 36 процентов",
+      "context": "Совокупный объем торгов на рынках площадки достиг 194,9 трлн рублей против 143,4 трлн рублей годом ранее.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383173"
+        }
+      ],
+      "published_at": "2026-09-01T17:31:00+03:00"
+    },
+    {
+      "id": "sberbank-acquires-delhi-business-centers",
+      "headline": "Сбербанк приобрел два строящихся бизнес-центра в Нью-Дели под российско-индийский хаб",
+      "context": "К 2028 году в башнях Summit Towers планируется открыть центр двустороннего партнерства.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302634"
+        }
+      ],
+      "published_at": "2026-09-01T17:12:00+03:00"
+    },
+    {
+      "id": "alfa-bank-crypto-mining-deal",
+      "headline": "Альфа-банк провел первую сделку финансирования через покупку намайненной криптовалюты",
+      "context": "Контрагентом по краткосрочной сделке выступила промышленная майнинговая компания Интелион дата.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302557"
+        }
+      ],
+      "published_at": "2026-09-01T16:35:00+03:00"
+    },
+    {
+      "id": "unipro-new-dividend-policy",
+      "headline": "Совет директоров Юнипро утвердил новую редакцию дивидендной политики компании",
+      "context": "Размер дивидендных выплат будет определяться на основе чистой прибыли по МСФО.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383159"
+        }
+      ],
+      "published_at": "2026-09-01T16:15:00+03:00"
+    },
+    {
+      "id": "vtb-raises-deposit-rates",
+      "headline": "ВТБ повысил максимальную ставку по полугодовому вкладу до 13,5 процента годовых",
+      "context": "Повышенная ставка рассчитана на новые деньги и превышает средний рыночный уровень.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал IF News",
+          "url": "https://t.me/if_market_news/84809"
+        }
+      ],
+      "published_at": "2026-09-01T14:39:00+03:00"
+    },
+    {
+      "id": "nrd-launches-simplified-broker-transfer",
+      "headline": "Вступил в силу упрощенный механизм перевода ценных бумаг между брокерами",
+      "context": "С 1 сентября инвесторы могут переводить активы на основании одного поручения через сервис Мост.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал IF News",
+          "url": "https://t.me/if_market_news/84804"
+        }
+      ],
+      "published_at": "2026-09-01T13:00:00+03:00"
+    },
+    {
+      "id": "tim-cook-leaves-apple-ceo",
+      "headline": "Тим Кук покинул пост генерального директора Apple после 15 лет работы",
+      "context": "Новым руководителем корпорации стал Джон Тернус, а Кук перешел на должность исполнительного председателя.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383114"
+        }
+      ],
+      "published_at": "2026-09-01T11:47:00+03:00"
+    },
+    {
+      "id": "pik-group-earnings-decline",
+      "headline": "Чистая прибыль группы ПИК за первое полугодие снизилась в два раза",
+      "context": "Финансовые результаты девелопера отразили общую тенденцию охлаждения спроса на рынке жилья.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/01/1225232-pribil-gruppi-pik"
+        }
+      ],
+      "published_at": "2026-09-01T10:59:00+03:00"
+    },
+    {
+      "id": "wildberries-sellers-payment-delays",
+      "headline": "Селлеры Wildberries столкнулись с задержками выплат за проданные товары",
+      "context": "Маркетплейс объяснил задержки временной приостановкой операций в ответ на DDoS-атаки.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302217"
+        }
+      ],
+      "published_at": "2026-09-01T09:40:00+03:00"
+    },
+    {
+      "id": "germany-closes-russian-consulate-bonn",
+      "headline": "Германия объявила о закрытии генконсульства России в Бонне и Русского дома в Берлине",
       "context": "Берлин обвинил Москву в причастности к инциденту с беспилотником в аэропорту Лейпцига.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/09/01/1225467-germaniya-rastorgla"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364713"
+          "name": "Telegram-канал MarketTwits",
+          "url": "https://t.me/markettwits/383182"
         }
       ],
-      "published_at": "2026-09-01T18:50:00+03:00"
+      "published_at": "2026-09-01T18:49:00+03:00"
     },
     {
-      "id": "unipro-new-dividend-policy",
-      "headline": "Совет директоров Юнипро утвердил новую редакцию положения о дивидендной политике компании",
-      "context": "Размер дивидендных выплат теперь будет определяться на основе чистой прибыли по МСФО.",
+      "id": "rwb-pilots-cfa-for-sellers",
+      "headline": "Объединенная компания РВБ провела пилотный выпуск ЦФА для продавцов Wildberries",
+      "context": "Объем привлеченного финансирования в рамках пилотного проекта составил 24,4 млн рублей.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/01/1225382-yunipro-o-dividendnoi-politike"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8923442"
-        }
-      ],
-      "published_at": "2026-09-01T16:17:00+03:00"
-    },
-    {
-      "id": "russia-pmi-manufacturing-august",
-      "headline": "Индекс деловой активности в обрабатывающей промышленности России снизился до сорока восьми пунктов",
-      "context": "Показатель опустился ниже пороговой отметки в пятьдесят пунктов впервые за долгое время.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364604"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/01/1225258-aktivnost-v-obrabativayuschem"
-        }
-      ],
-      "published_at": "2026-09-01T09:00:00+03:00"
-    },
-    {
-      "id": "sberbank-crypto-settlements",
-      "headline": "Сбербанк открыл для корпоративных клиентов трансграничные расчеты в криптовалюте",
-      "context": "Сервис запущен для участников внешнеэкономической деятельности с комиссией в три десятых процента.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/364570"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302398"
-        }
-      ],
-      "published_at": "2026-09-01T04:19:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "siluanov-bessent-g20-meeting",
-      "headline": "Министры финансов России и США провели встречу на полях саммита двадцатки",
-      "context": "Антон Силуанов и Скотт Бессент обсудили вопросы финансового взаимодействия и урегулирования конфликта.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/08/31/1225125-bessent-s-siluanovim"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922704"
-        }
-      ],
-      "published_at": "2026-08-31T18:43:00+03:00"
-    },
-    {
-      "id": "tatneft-msfo-1h-2026",
-      "headline": "Чистая прибыль Татнефти по МСФО за первое полугодие выросла в три раза",
-      "context": "Выручка группы за шесть месяцев увеличилась на пятнадцать и восемь десятых процента.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84777"
-        }
-      ],
-      "published_at": "2026-08-31T15:41:00+03:00"
-    },
-    {
-      "id": "cbr-key-rate-forecast-2026",
-      "headline": "Банк России спрогнозировал среднюю ключевую ставку на уровне четырнадцати процентов в текущем году",
-      "context": "В базовом сценарии регулятор ожидает снижения ставки до десяти-двенадцати процентов в следующем году.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/08/31/1224972-tsb-sprognoziroval"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922543"
-        }
-      ],
-      "published_at": "2026-08-31T15:37:00+03:00"
-    },
-    {
-      "id": "sberbank-profit-growth-forecast",
-      "headline": "Сбербанк прогнозирует рост чистой прибыли по итогам года почти на двадцать процентов",
-      "context": "Финансовый директор банка сообщил об ожиданиях существенного превышения результатов прошлого года.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84769"
-        }
-      ],
-      "published_at": "2026-08-31T11:29:00+03:00"
-    },
-    {
-      "id": "kamaz-msfo-1h-2026",
-      "headline": "Автопроизводитель КАМАЗ сократил чистый убыток по МСФО на двадцать девять процентов",
-      "context": "Убыток за первую половину года составил двадцать один и восемь десятых миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/383022"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922736"
-        }
-      ],
-      "published_at": "2026-08-31T18:31:00+03:00"
-    },
-    {
-      "id": "gkrch-5g-deployment-rules",
-      "headline": "Государственная комиссия по радиочастотам утвердила правила развертывания сетей пятого поколения в России",
-      "context": "Крупнейшие мобильные операторы смогут запускать сети в существующих диапазонах без проведения аукционов.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/302284"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922520"
+          "url": "https://frankmedia.ru/302419"
         }
       ],
-      "published_at": "2026-08-31T15:37:00+03:00"
-    },
-    {
-      "id": "cbr-rate-decision-day-shift",
-      "headline": "Банк России перенесет начало действия решений по ключевой ставке на среду",
-      "context": "Мера направлена на снижение волатильности ставок денежного рынка и синхронизацию расчетов по аукционам.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302274"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922501"
-        }
-      ],
-      "published_at": "2026-08-31T14:31:00+03:00"
-    },
-    {
-      "id": "promomed-msfo-1h-2026",
-      "headline": "Чистая прибыль фармацевтической компании Промомед по МСФО выросла почти в два раза",
-      "context": "За первое полугодие показатель составил два с половиной миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922169"
-        }
-      ],
-      "published_at": "2026-08-31T11:28:00+03:00"
-    },
-    {
-      "id": "fesco-msfo-1h-2026",
-      "headline": "Чистая прибыль транспортной группы FESCO по МСФО сократилась почти в двадцать раз",
-      "context": "За первое полугодие показатель составил тридцать6 миллионов рублей против семисот девяти миллионов годом ранее.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922131"
-        }
-      ],
-      "published_at": "2026-08-31T11:06:00+03:00"
-    },
-    {
-      "id": "aeroflot-msfo-1h-2026",
-      "headline": "Скорректированная чистая прибыль группы Аэрофлот по МСФО снизилась на восемьдесят восемь процентов",
-      "context": "Показатель за первое полугодие составил четыреста семьдесят два миллиона рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8922105"
-        },
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84766"
-        }
-      ],
-      "published_at": "2026-08-31T10:35:00+03:00"
-    },
-    {
-      "id": "mkb-msfo-1h-2026",
-      "headline": "Чистая прибыль Московского кредитного банка за первое полугодие выросла в два раза",
-      "context": "Показатель по МСФО достиг пятнадцати и шести десятых миллиарда рублей благодаря росту основного дохода.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302147"
-        }
-      ],
-      "published_at": "2026-08-31T10:05:00+03:00"
-    },
-    {
-      "id": "arenadata-msfo-1h-2026",
-      "headline": "Группа Аренадата сократила чистый убыток за первое полугодие до трехсот сорока семи миллионов рублей",
-      "context": "Выручка компании выросла на восемьдесят шесть процентов и составила два с половиной миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/84767"
-        }
-      ],
-      "published_at": "2026-08-31T10:00:00+03:00"
+      "published_at": "2026-09-01T11:58:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-08-31"
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
+    "last_trading_day": "2026-09-01"
   }
 }
