@@ -1,357 +1,327 @@
 {
   "date": "2026-09-03",
-  "generated_at": "2026-09-03T12:13:46+03:00",
+  "generated_at": "2026-09-03T21:35:24+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "США закрылись ростом, Азия снижается, Brent и золото дорожают.",
+  "external_backdrop": "Американские фондовые индексы и золото продемонстрировали рост, в то время как азиатские рынки и нефть марки Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7666.60",
-      "change_pct": "+0.46%",
-      "as_of": "2026-09-02",
+      "value": "7755.17",
+      "change_pct": "+1.16%",
+      "as_of": "2026-09-03",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26217.83",
-      "change_pct": "+0.45%",
-      "as_of": "2026-09-02",
+      "value": "26634.26",
+      "change_pct": "+1.59%",
+      "as_of": "2026-09-03",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64214.48",
-      "change_pct": "-0.17%",
-      "as_of": "2026-09-03",
+      "value": "64325.64",
+      "change_pct": "-2.85%",
+      "as_of": "2026-09-02",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25213.31",
-      "change_pct": "-0.39%",
-      "as_of": "2026-09-03",
+      "value": "25311.21",
+      "change_pct": "-0.07%",
+      "as_of": "2026-09-02",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "96.12",
-      "change_pct": "+0.51%",
+      "value": "95.43",
+      "change_pct": "-0.21%",
       "as_of": "2026-09-03",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4481.40",
-      "change_pct": "+2.64%",
+      "value": "4530.50",
+      "change_pct": "+3.76%",
       "as_of": "2026-09-03",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2186.68",
-      "change_pct": "+0.08%",
-      "as_of": "2026-09-03 12:13:43",
+      "value": "2214.76",
+      "change_pct": "+1.36%",
+      "as_of": "2026-09-03 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "791.82",
-      "change_pct": "+0.07%",
-      "as_of": "2026-09-03 12:13:44",
+      "value": "802.99",
+      "change_pct": "+1.49%",
+      "as_of": "2026-09-03 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "87.42",
-      "change_pct": "+0.04%",
-      "as_of": "2026-09-03 12:13:43",
+      "value": "86.92",
+      "change_pct": "-0.05%",
+      "as_of": "2026-09-03 21:35:23",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.97",
-      "change_pct": "+0.01%",
-      "as_of": "2026-09-03 12:13:46",
+      "value": "12.91",
+      "change_pct": "-0.06%",
+      "as_of": "2026-09-03 19:15:01",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minfin-fx-purchases-reduction",
-      "headline": "Минфин с 7 сентября сократит ежедневные покупки валюты и золота до 2,5 миллиардов рублей",
-      "context": "Общий объем операций по бюджетному правилу на период до 6 октября составит 55,6 миллиарда рублей.",
+      "id": "minfin-reduces-fx-purchases",
+      "headline": "Министерство финансов России сократит ежедневные покупки иностранной валюты и золота до двух с половиной миллиардов рублей",
+      "context": "Банк России с учетом зеркалирования операций сократит чистые покупки валюты до 1,92 миллиарда рублей в день.",
       "category": "cb_policy",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": ""
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/383499"
         }
       ],
       "published_at": "2026-09-03T12:00:00+03:00"
     },
     {
-      "id": "putin-deposit-freeze-rumors",
-      "headline": "Владимир Путин назвал вбросами информацию о возможной заморозке банковских вкладов россиян",
-      "context": "Президент заявил на ВЭФ, что никаких подобных решений в России не готовится.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/03/09/2026/6a9935774455e7c2ccb223cd"
-        }
-      ],
-      "published_at": "2026-09-03T12:00:00+03:00"
-    },
-    {
-      "id": "novak-budget-rule-oil-price",
-      "headline": "Правительство обсуждает снижение цены отсечения нефти в бюджетном правиле до 50 долларов за баррель",
-      "context": "Вице-премьер Александр Новак назвал снижение отсечки правильным треком с точки зрения планирования.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1112904"
-        }
-      ],
-      "published_at": "2026-09-03T09:14:00+03:00"
-    },
-    {
-      "id": "sber-record-profit-dividends",
-      "headline": "Сбербанк рассчитывает получить рекордную прибыль и выплатить рекордные дивиденды по итогам 2026 года",
-      "context": "Глава банка Герман Греф подтвердил намерение направить на дивидендные выплаты 50% чистой прибыли.",
+      "id": "magnit-h1-msfo-results",
+      "headline": "Выручка ритейлера Магнит за первое полугодие выросла на двенадцать целых восемь десятых процента до одного триллиона рублей",
+      "context": "Компания зафиксировала чистый убыток в размере 1,9 миллиарда рублей из-за роста финансовых расходов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1112888"
+          "name": "Mozgovik Research",
+          "url": "https://t.me/mozgovikresearch/3861"
         }
       ],
-      "published_at": "2026-09-03T07:49:00+03:00"
+      "published_at": "2026-09-03T10:10:00+03:00"
     },
     {
-      "id": "weekly-deflation-annual-inflation-acceleration",
-      "headline": "Росстат зафиксировал недельную дефляцию на уровне одной сотой процента при ускорении годовой инфляции",
-      "context": "Годовой показатель инфляции в РФ на 31 августа ускорился до 6,32% с 6,23% неделей ранее.",
+      "id": "sberbank-record-dividends-forecast",
+      "headline": "Сбербанк рассчитывает получить рекордную чистую прибыль и выплатить рекордные дивиденды по итогам две тысячи двадцать шестого года",
+      "context": "Глава банка Герман Греф подтвердил намерение направить на дивидендные выплаты пятьдесят процентов чистой прибыли.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/383427"
+        }
+      ],
+      "published_at": "2026-09-03T06:37:00+03:00"
+    },
+    {
+      "id": "eurotrans-technical-defaults",
+      "headline": "Компания Евротранс допустила технические дефолты по четырем выпускам облигаций на общую сумму сто семьдесят миллионов рублей",
+      "context": "Информация о неисполнении обязательств перед владельцами ценных бумаг опубликована на портале раскрытия.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1347742.php"
+        }
+      ],
+      "published_at": "2026-09-03T19:58:00+03:00"
+    },
+    {
+      "id": "rosstat-weekly-deflation-august",
+      "headline": "Росстат зафиксировал недельную дефляцию в России на уровне одной сотой процента в конце августа",
+      "context": "Годовая инфляция при этом ускорилась до 6,32% по оценке Министерства экономического развития.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302880"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/383389"
         }
       ],
-      "published_at": "2026-09-02T19:11:00+03:00"
+      "published_at": "2026-09-02T19:00:00+03:00"
     },
     {
-      "id": "mgkl-bond-and-share-buyback",
-      "headline": "МГКЛ с 7 сентября начнет выкуп собственных облигаций и усилит байбек акций",
-      "context": "Объем программы обратного выкупа ценных бумаг для снижения волатильности составит до 897 миллионов рублей.",
+      "id": "sberbank-wildberries-russ-reserves",
+      "headline": "Сбербанк увеличил резервы по кредитам объединенной компании Wildberries и Russ из-за рисков инфраструктуры",
+      "context": "Финансовый директор банка Тарас Скворцов отметил рост рисков на фоне продолжающихся атак на логистические склады.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1112972"
+        }
+      ],
+      "published_at": "2026-09-03T12:54:00+03:00"
+    },
+    {
+      "id": "moex-perpetual-futures-us-stocks",
+      "headline": "Московская биржа запустит торги двадцатью вечными фьючерсными контрактами на акции крупнейших американских компаний",
+      "context": "Запуск новых инструментов на срочном рынке запланирован в два этапа на восьмое и пятнадцатое сентября.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/03/1225943-20-vechnih-fyuchersov"
+        }
+      ],
+      "published_at": "2026-09-03T11:12:00+03:00"
+    },
+    {
+      "id": "mgkl-bond-buyback-announcement",
+      "headline": "Мосгорломбард объявил о начале выкупа собственных облигаций и ускорении программы обратного выкупа акций",
+      "context": "Операции по поддержке котировок ценных бумаг на бирже стартуют с седьмого сентября две тысячи двадцать шестого года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/03/09/2026/6a992e269a7947c921edaf59"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/383488"
         }
       ],
-      "published_at": "2026-09-03T11:43:00+03:00"
+      "published_at": "2026-09-03T11:10:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "minfin-record-ofz-placement",
+      "headline": "Министерство финансов России после паузы разместило ОФЗ с переменным купоном на рекордный один триллион рублей",
+      "context": "Спрос инвесторов на аукционе превысил предложение почти в одну целую четыре десятых раза и составил один триллион рублей.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924183"
+        }
+      ],
+      "published_at": "2026-09-02T14:41:00+03:00"
     },
     {
-      "id": "x5-market-share-limit-removal",
-      "headline": "Группа X5 попросила отменить ограничение на долю продовольственного рынка в 25 процентов",
-      "context": "Ритейлер направил обращение президенту для обеспечения бесперебойных поставок на фоне атак на инфраструктуру.",
+      "id": "cb-raises-banking-profit-forecast",
+      "headline": "Центробанк повысил прогноз прибыли российского банковского сектора на две тысячи двадцать шестой год до четырех триллионов рублей",
+      "context": "Регулятор пересмотрел ожидания в связи с сохранением чистой процентной маржи на высоком уровне.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23770"
+        }
+      ],
+      "published_at": "2026-09-02T12:29:00+03:00"
+    },
+    {
+      "id": "analysts-raise-inflation-forecast",
+      "headline": "Опрошенные Центробанком аналитики повысили прогноз по инфляции в России на две тысячи двадцать шестой год до шести процентов",
+      "context": "Консенсус-прогноз также предполагает более слабый курс рубля на всем прогнозном горизонте.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/302863"
+        }
+      ],
+      "published_at": "2026-09-02T16:13:00+03:00"
+    },
+    {
+      "id": "minfin-nmtp-privatization-plans",
+      "headline": "Государственный пакет акций Новороссийского морского торгового порта планируется продать до конца две тысячи двадцать шестого года",
+      "context": "Замминистра финансов Алексей Моисеев подтвердил планы по реализации принадлежащего государству пакета.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924650"
+          "url": "https://www.kommersant.ru/doc/8924160"
         }
       ],
-      "published_at": "2026-09-03T07:31:00+03:00"
+      "published_at": "2026-09-02T14:24:00+03:00"
     },
     {
-      "id": "rosatom-kazakhstan-npp-contract",
-      "headline": "Росатом подписал контракт на строительство атомной электростанции Балхаш в Казахстане",
-      "context": "Соглашение предусматривает сооружение двух энергоблоков общей мощностью 2400 МВт.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1112871"
-        }
-      ],
-      "published_at": "2026-09-03T05:34:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "ofz-record-placement-1trln",
-      "headline": "Минфин после полуторамесячной паузы разместил ОФЗ на рекордный один триллион рублей",
-      "context": "Спрос инвесторов на аукционе по новому выпуску с переменным купоном серии 29031 превысил предложение в 1,4 раза.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302809"
-        }
-      ],
-      "published_at": "2026-09-02T14:41:00+03:00"
-    },
-    {
-      "id": "cb-bank-profit-forecast-increase",
-      "headline": "Центробанк повысил прогноз чистой прибыли российских банков в 2026 году до 4,4 триллиона рублей",
-      "context": "Регулятор увеличил ожидания по прибыли на 0,5 триллиона рублей в связи с сохранением высокой маржи.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/09/02/1225676-tsb-povisil-prognoz"
-        }
-      ],
-      "published_at": "2026-09-02T14:01:00+03:00"
-    },
-    {
-      "id": "minfin-atm-cash-limits-rejection",
-      "headline": "Министерство финансов отказалось от планов введения лимитов на внесение наличных через банкоматы",
-      "context": "Ранее обсуждавшееся ограничение в размере 1 миллиона рублей больше не рассматривается ведомством.",
+      "id": "minfin-rejects-atm-cash-limits",
+      "headline": "Министерство финансов России отказалось от планов введения лимитов на внесение наличных денег через банкоматы",
+      "context": "Ранее ведомство обсуждало ограничение на уровне одного миллиона рублей в рамках мер по обелению экономики.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302805"
-        }
-      ],
-      "published_at": "2026-09-02T14:48:00+03:00"
-    },
-    {
-      "id": "grain-export-duty-zeroing",
-      "headline": "Власти обнулят экспортные пошлины на российское зерно до конца 2026 года",
-      "context": "Минэкономразвития одобрило временную отмену пошлин на пшеницу, ячмень и кукурузу до 31 декабря.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/09/02/1225591-eksportnie-poshlini"
-        }
-      ],
-      "published_at": "2026-09-02T11:36:00+03:00"
-    },
-    {
-      "id": "phosagro-floater-placement-volume",
-      "headline": "Фосагро зафиксировало объем размещения нового выпуска облигаций-флоатеров на уровне 40 миллиардов рублей",
-      "context": "Изначально планировавшийся объем размещения ценных бумаг с переменным купоном был увеличен.",
-      "category": "corporate",
-      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/02/1225755-obem-razmescheniya-floatera"
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/84853"
         }
       ],
-      "published_at": "2026-09-02T17:18:00+03:00"
+      "published_at": "2026-09-02T13:25:00+03:00"
     },
     {
-      "id": "seligdar-kyuchus-gold-reserves-increase",
-      "headline": "Селигдар увеличил запасы золота на месторождении Кючус на семь процентов",
-      "context": "Показатель вырос до 188,6 тонны по сравнению с предыдущей оценкой в 175,3 тонны.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-02T13:13:00+03:00"
-    },
-    {
-      "id": "rushydro-ges-liberalization-funding",
-      "headline": "Русгидро планирует привлечь 170 миллиардов рублей за счет либерализации тарифов гидроэлектростанций",
-      "context": "Компания рассчитывает на изменение механизмов ценообразования для финансирования инвестиционной программы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/02/1225572-rusgidro-planiruet-privlech"
-        }
-      ],
-      "published_at": "2026-09-02T11:12:00+03:00"
-    },
-    {
-      "id": "minfin-sheremetyevo-nmtp-privatization-plans",
-      "headline": "Минфин рассчитывает продать государственные пакеты акций Шереметьево и НМТП до конца года",
+      "id": "minfin-sheremetyevo-privatization-plans",
+      "headline": "Министерство финансов России рассчитывает продать государственный пакет акций аэропорта Шереметьево ближе к концу года",
       "context": "Сроки приватизации будут зависеть от завершения необходимых корпоративных процедур.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/02/1225568-plani-prodat-nmtp"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8923860"
         }
       ],
-      "published_at": "2026-09-02T10:16:00+03:00"
+      "published_at": "2026-09-02T10:00:00+03:00"
     },
     {
       "id": "minfin-crypto-monitoring-exporters",
-      "headline": "Минфин планирует включить криптовалюту в периметр мониторинга валютной выручки экспортеров",
-      "context": "Замминистра финансов Алексей Моисеев сообщил, что ведомство готовит соответствующие предложения.",
+      "headline": "Министерство финансов России предложит включить криптовалютные операции в периметр мониторинга валютной выручки экспортеров",
+      "context": "Замминистра финансов Алексей Моисеев отметил, что возврат к обязательной репатриации валюты пока не планируется.",
       "category": "cb_policy",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/302722"
+          "url": "https://t.me/frank_media/23764"
         }
       ],
-      "published_at": "2026-09-02T09:47:00+03:00"
+      "published_at": "2026-09-02T09:50:00+03:00"
     },
     {
-      "id": "corporate-bonds-august-record",
-      "headline": "Размещения корпоративных облигаций в России в августе обновили исторический рекорд",
-      "context": "Заемщики завершили 116 выпусков на общую сумму 875,1 миллиарда рублей, основным драйвером выступили банки.",
-      "category": "markets",
-      "investment_relevant": false,
+      "id": "power-of-siberia-2-final-stage",
+      "headline": "Проект строительства газопровода Сила Сибири два находится на завершающем этапе перехода к строительству",
+      "context": "Об этом на Восточном экономическом форуме сообщил министр энергетики России Сергей Цивилев.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302721"
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/84842"
         }
       ],
-      "published_at": "2026-09-02T09:43:00+03:00"
+      "published_at": "2026-09-02T08:34:00+03:00"
     },
     {
-      "id": "sberbank-o1-properties-bankruptcy-intent",
-      "headline": "Сбербанк намерен обанкротить структуры владельца московских офисов O1 Properties на 70 миллиардов рублей",
-      "context": "Кредитор планирует подать заявления в отношении ряда компаний, на балансе которых находятся крупные бизнес-центры.",
+      "id": "sberbank-o1-properties-bankruptcy",
+      "headline": "Сбербанк намерен инициировать банкротство ряда компаний группы O1 Properties с активами на семьдесят миллиардов рублей",
+      "context": "Кредитор планирует обанкротить структуры, на балансе которых находятся крупные московские бизнес-центры.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -364,9 +334,9 @@
       "published_at": "2026-09-02T06:31:00+03:00"
     },
     {
-      "id": "b2b-rts-dividend-recommendation",
-      "headline": "Совет директоров торговой платформы В2В-РТС рекомендовал дивиденды за первое полугодие",
-      "context": "Рекомендованный размер выплат составляет 4,61 рубля на одну обыкновенную акцию.",
+      "id": "b2b-rts-h1-dividends-recommendation",
+      "headline": "Совет директоров торговой платформы В2В-РТС рекомендовал выплатить дивиденды за первое полугодие две тысячи двадцать шестого года",
+      "context": "Рекомендованный размер выплаты составляет 4,61 рубля на акцию, общая сумма превысит 824 миллиона рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
@@ -381,9 +351,9 @@
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-02"
   }
 }
