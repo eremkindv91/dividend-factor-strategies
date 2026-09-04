@@ -1,100 +1,85 @@
 {
   "date": "2026-09-04",
-  "generated_at": "2026-09-04T10:25:22+03:00",
+  "generated_at": "2026-09-04T12:05:20+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы Nikkei 225 и Hang Seng, а также нефть Brent и золото растут к утру 4 сентября.",
+  "external_backdrop": "Американские и азиатские индексы выросли, золото дорожает, в то время как Brent снижается, а рубль показывает разнонаправленную динамику к доллару и юаню.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7666.60",
-      "change_pct": "+0.46%",
-      "as_of": "2026-09-02",
+      "value": "7747.71",
+      "change_pct": "+1.06%",
+      "as_of": "закрытие 03.09",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26217.83",
-      "change_pct": "+0.45%",
-      "as_of": "2026-09-02",
+      "value": "26584.06",
+      "change_pct": "+1.40%",
+      "as_of": "закрытие 03.09",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "65020.94",
-      "change_pct": "+1.08%",
-      "as_of": "2026-09-04",
+      "change_pct": "+1.26%",
+      "as_of": "04.09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25651.12",
-      "change_pct": "+1.34%",
-      "as_of": "2026-09-04",
+      "value": "25650.87",
+      "change_pct": "+1.74%",
+      "as_of": "04.09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "95.85",
-      "change_pct": "+0.23%",
-      "as_of": "2026-09-04",
+      "value": "95.02",
+      "change_pct": "-0.52%",
+      "as_of": "04.09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4513.70",
-      "change_pct": "+3.38%",
-      "as_of": "2026-09-04",
+      "value": "4523.90",
+      "change_pct": "+0.72%",
+      "as_of": "04.09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2240.84",
-      "change_pct": "+1.18%",
-      "as_of": "2026-09-04 10:25:18",
+      "value": "2258.87",
+      "change_pct": "+1.99%",
+      "as_of": "12:05",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "812.51",
-      "change_pct": "+1.19%",
-      "as_of": "2026-09-04 10:25:02",
+      "value": "818.99",
+      "change_pct": "+1.99%",
+      "as_of": "12:05",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "86.40",
-      "change_pct": "-0.12%",
-      "as_of": "2026-09-04 10:25:02",
+      "value": "86.95",
+      "change_pct": "-0.16%",
+      "as_of": "12:05",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.83",
-      "change_pct": "-0.62%",
-      "as_of": "2026-09-04 10:25:03",
+      "value": "12.91",
+      "change_pct": "+0.03%",
+      "as_of": "12:05",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "uitkoff-kushner-visit-moscow",
-      "headline": "Спецпосланник президента США Стив Уиткофф и Джаред Кушнер посетят Москву и Киев в ближайшие дни",
-      "context": "Визит подтвержден источником ТАСС, на фоне новости индекс Мосбиржи ускорил рост.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8925545"
-        }
-      ],
-      "published_at": "2026-09-04T09:11:00+03:00"
-    },
-    {
-      "id": "eurotrans-bond-defaults",
-      "headline": "Компания Евротранс допустила дефолты по четырем выпускам облигаций на сумму 170,6 миллиона рублей",
-      "context": "Информация о технических дефолтах опубликована на портале SmartLab.",
+      "id": "evrotrans-default",
+      "headline": "Евротранс допустил дефолты по четырем выпускам облигаций на общую сумму 170,6 млн рублей",
+      "context": "Общая сумма неисполненных обязательств по ценным бумагам эмитента составила 170,6 млн рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -107,12 +92,27 @@
       "published_at": "2026-09-03T19:58:00+03:00"
     },
     {
-      "id": "gref-key-rate-forecast",
-      "headline": "Герман Греф спрогнозировал снижение ключевой ставки Банка России до 13–13,5% к концу года",
-      "context": "Глава Сбербанка ожидает снижения ставки шагами по 0,25–0,5 процентного пункта.",
+      "id": "aeroflot-div-2026",
+      "headline": "Совет директоров Аэрофлота готов рекомендовать выплату дивидендов при достижении положительного финансового результата",
+      "context": "Об этом на Восточном экономическом форуме сообщил генеральный директор авиаперевозчика Сергей Александровский.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/04/1226254-gendirektor-aeroflota"
+        }
+      ],
+      "published_at": "2026-09-04T11:15:00+03:00"
+    },
+    {
+      "id": "gref-rate-forecast",
+      "headline": "Герман Греф спрогнозировал снижение ключевой ставки ЦБ до 13–13,5% к концу года",
+      "context": "Президент Сбербанка ожидает, что в 2027 году ставка регулятора может опуститься до 11–11,5%.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -122,39 +122,9 @@
       "published_at": "2026-09-04T09:45:00+03:00"
     },
     {
-      "id": "fas-fuel-price-agreements",
-      "headline": "Федеральная антимонопольная служба подписала соглашения об ограничении цен на топливо с 12 нефтекомпаниями",
-      "context": "Договоренности предусматривают ограничение роста розничных цен на АЗС уровнем не выше инфляции.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/365348"
-        }
-      ],
-      "published_at": "2026-09-04T09:39:00+03:00"
-    },
-    {
-      "id": "fesco-earnings-forecast",
-      "headline": "Транспортная группа FESCO рассчитывает получить чистую прибыль и рост EBITDA по итогам 2026 года",
-      "context": "Об этом сообщил генеральный директор компании Петр Иванов в кулуарах ВЭФ-2026.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/365329"
-        }
-      ],
-      "published_at": "2026-09-04T07:39:00+03:00"
-    },
-    {
-      "id": "us-sanctions-bill-delayed",
-      "headline": "Законопроект о дополнительных санкциях против России может быть заморожен в США до ноябрьских выборов",
-      "context": "Документ сталкивается с растущим сопротивлением в Палате представителей из-за опасений роста цен на нефть.",
+      "id": "us-sanctions-delay",
+      "headline": "Законопроект о санкциях против России могут отложить в США до ноябрьских выборов",
+      "context": "Рассмотрение документа в Палате представителей сталкивается с сопротивлением из-за опасений роста цен на нефть.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
@@ -167,9 +137,9 @@
       "published_at": "2026-09-04T03:32:00+03:00"
     },
     {
-      "id": "oil-gas-revenues-drop",
-      "headline": "Нефтегазовые доходы федерального бюджета России в августе снизились в два раза до 424 миллиардов рублей",
-      "context": "Показатель упал до минимального значения с января текущего года на фоне снижения цен на нефть Urals.",
+      "id": "budget-oil-gas-drop",
+      "headline": "Нефтегазовые доходы федерального бюджета России в августе сократились в два раза",
+      "context": "По данным Минфина, налоговые поступления от добычи и продажи углеводородов упали до 424 млрд рублей.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
@@ -182,71 +152,56 @@
       "published_at": "2026-09-03T22:09:00+03:00"
     },
     {
-      "id": "sochi-oil-depot-fire",
-      "headline": "На нефтебазе в Сочи произошло возгорание в результате ночной атаки беспилотных летательных аппаратов",
-      "context": "По данным оперативного штаба Краснодарского края, под удар попала гражданская инфраструктура.",
+      "id": "us-envoys-visit",
+      "headline": "Спецпосланники США Стив Уиткофф и Джаред Кушнер посетят Москву и Киев в ближайшие дни",
+      "context": "Даты визита американских представителей в Киев уже определены, сообщает источник ТАСС.",
       "category": "geopolitics",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8925472"
+          "url": "https://www.kommersant.ru/doc/8925545"
         }
       ],
-      "published_at": "2026-09-04T04:59:00+03:00"
+      "published_at": "2026-09-04T09:11:00+03:00"
+    },
+    {
+      "id": "fas-fuel-agreements",
+      "headline": "ФАС заключила соглашения с 12 нефтяными компаниями об ограничении роста цен на АЗС",
+      "context": "Договоренности предусматривают ограничение роста стоимости топлива на заправках уровнем не выше инфляции.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8925569"
+        }
+      ],
+      "published_at": "2026-09-04T09:45:00+03:00"
+    },
+    {
+      "id": "fesco-msfo-outlook",
+      "headline": "Транспортная группа FESCO ожидает чистую прибыль и рост EBITDA по итогам 2026 года",
+      "context": "Генеральный директор компании Петр Иванов спрогнозировал положительный финансовый результат по МСФО.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8925524"
+        }
+      ],
+      "published_at": "2026-09-04T08:43:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "putin-key-rate-statement",
-      "headline": "Владимир Путин назвал повышение ключевой ставки Банка России сознательным решением для макроэкономической стабильности",
-      "context": "Президент отметил, что не считает текущую денежно-кредитную политику в стране избыточно жесткой.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924893"
-        }
-      ],
-      "published_at": "2026-09-03T12:02:00+03:00"
-    },
-    {
-      "id": "minfin-fx-purchases-september",
-      "headline": "Минфин России сократит ежедневные покупки валюты и золота в два раза до 2,5 миллиарда рублей",
-      "context": "Общий объем операций в рамках бюджетного правила с 7 сентября по 6 октября составит 55,6 миллиарда рублей.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/303006"
-        }
-      ],
-      "published_at": "2026-09-03T12:00:00+03:00"
-    },
-    {
-      "id": "magnit-msfo-1h-2026",
-      "headline": "Розничная сеть Магнит отчиталась о чистом убытке в 1,9 миллиарда рублей по МСФО за первое полугодие",
-      "context": "Выручка компании выросла на 12,8% до 1,89 триллиона рублей, а чистый долг увеличился на 20% до 518 миллиардов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/mobile/topic/1347436/"
-        }
-      ],
-      "published_at": "2026-09-03T10:10:00+03:00"
-    },
-    {
-      "id": "sber-record-dividends-2026",
-      "headline": "Сбербанк рассчитывает заработать рекордную прибыль и выплатить рекордные дивиденды по итогам 2026 года",
-      "context": "Банк планирует направить на дивиденды 50% от чистой прибыли, сообщил Герман Греф.",
+      "id": "sber-record-dividends",
+      "headline": "Сбербанк рассчитывает на рекордную прибыль и выплату 50% дивидендов в 2026 году",
+      "context": "Глава банка Герман Греф подтвердил намерение направить на дивиденды половину чистой прибыли.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -259,39 +214,174 @@
       "published_at": "2026-09-03T08:06:00+03:00"
     },
     {
-      "id": "aeroflot-mc21-anchor-customer",
-      "headline": "Авиакомпания Аэрофлот стала якорным заказчиком новейших российских пассажирских самолетов МС-21",
-      "context": "Перевозчик законтрактовал 18 воздушных судов и планирует заказать еще 90 машин, сообщил глава Минпромторга.",
+      "id": "minfin-fx-purchases-cut",
+      "headline": "Минфин России с 7 сентября сократит покупку валюты и золота по бюджетному правилу",
+      "context": "Ежедневный объем операций в период по 6 октября составит эквивалент 2,5 млрд рублей.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924968"
+        }
+      ],
+      "published_at": "2026-09-03T13:06:00+03:00"
+    },
+    {
+      "id": "putin-rate-decision",
+      "headline": "Владимир Путин назвал высокую ключевую ставку ЦБ сознательным решением для стабильности",
+      "context": "Президент России заявил, что повышение ставки направлено на поддержание макроэкономической стабильности.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924893"
+        }
+      ],
+      "published_at": "2026-09-03T12:02:00+03:00"
+    },
+    {
+      "id": "putin-deposit-freeze-rumors",
+      "headline": "Президент России назвал глупыми вбросами слухи о возможной заморозке банковских вкладов",
+      "context": "Владимир Путин подчеркнул, что никаких подобных решений властями не готовится.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924901"
+        }
+      ],
+      "published_at": "2026-09-03T12:03:00+03:00"
+    },
+    {
+      "id": "novak-budget-rule-50",
+      "headline": "Правительство обсуждает снижение цены отсечения для бюджетного правила до 50 долларов за баррель",
+      "context": "Вице-премьер Александр Новак назвал снижение параметров отсечки правильным треком для планирования.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924714"
+        }
+      ],
+      "published_at": "2026-09-03T09:18:00+03:00"
+    },
+    {
+      "id": "magnit-msfo-loss",
+      "headline": "Чистый убыток Магнита по МСФО за первое полугодие составил 1,9 млрд рублей",
+      "context": "Выручка ритейлера выросла на 12,8% до 1,89 трлн рублей, но чистые финансовые расходы увеличились на 65%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Smart-Lab",
+          "url": "https://smart-lab.ru/mobile/topic/1347436/"
+        }
+      ],
+      "published_at": "2026-09-03T10:10:00+03:00"
+    },
+    {
+      "id": "sber-wildberries-reserves",
+      "headline": "Сбербанк создал дополнительные резервы по долгам Wildberries из-за атак на склады",
+      "context": "Зампред правления банка Тарас Скворцов сообщил, что резервы составляют значимый процент от суммы долга.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/84897"
+        }
+      ],
+      "published_at": "2026-09-03T12:52:00+03:00"
+    },
+    {
+      "id": "vostok-oil-first-shipment",
+      "headline": "Владимир Путин анонсировал скорую отгрузку первой нефти с проекта Восток Ойл",
+      "context": "На проекте в Красноярском крае готовится к запуску магистральный нефтепровод к новому терминалу.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8925264"
+          "url": "https://www.kommersant.ru/doc/8924764"
         }
       ],
-      "published_at": "2026-09-03T17:49:00+03:00"
+      "published_at": "2026-09-03T10:55:00+03:00"
     },
     {
-      "id": "sber-wildberries-reserves",
-      "headline": "Сбербанк увеличил резервы по долгам объединенной компании Wildberries и Russ из-за атак на логистические объекты",
-      "context": "По долгам маркетплейса Ozon создавать дополнительные резервы банку пока не потребовалось.",
-      "category": "banks",
+      "id": "moex-us-futures",
+      "headline": "Московская биржа запустит в сентябре торги 20 вечными фьючерсами на акции США",
+      "context": "Базовым активом новых однодневных контрактов выступят фиксинги иностранных бумаг.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/303043"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/03/1225943-20-vechnih-fyuchersov"
         }
       ],
-      "published_at": "2026-09-03T15:20:00+03:00"
+      "published_at": "2026-09-03T11:12:00+03:00"
     },
     {
-      "id": "lesta-sale-autumn-2026",
-      "headline": "Министерство финансов планирует продать разработчика игр Леста частному инвестору в сентябре-октябре",
-      "context": "Перешедший в собственность государства актив оценивается как очень дорогой, сообщил замминистра Алексей Моисеев.",
+      "id": "gas-negotiations-china",
+      "headline": "Россия и Китай обсудят условия поставок по Силе Сибири-2 на заседании межправкомиссии",
+      "context": "Вице-премьер Александр Новак сообщил о продолжении переговоров по маршруту и коммерческим условиям.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8925059"
+        }
+      ],
+      "published_at": "2026-09-03T14:37:00+03:00"
+    },
+    {
+      "id": "nra-digital-ruble-banks",
+      "headline": "НРА прогнозирует отток до 10% пассивов из банков из-за цифрового рубля",
+      "context": "Внедрение нового инструмента также может привести к потере банками более 100 млрд рублей комиссий в год.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924569"
+        }
+      ],
+      "published_at": "2026-09-03T00:02:00+03:00"
+    },
+    {
+      "id": "unexecuted-gasoline-contracts",
+      "headline": "Около 60% биржевых контрактов на поставку бензина в России остались неисполненными",
+      "context": "С мая по сентябрь нефтяные компании в среднем исполнили только 41% сделок на Петербургской бирже.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8924608"
+        }
+      ],
+      "published_at": "2026-09-03T02:34:00+03:00"
+    },
+    {
+      "id": "lesta-sale-plans",
+      "headline": "Минфин планирует продать разработчика игры Мир танков Лесту осенью 2026 года",
+      "context": "Замглавы Минфина Алексей Моисеев ожидает, что прямая сделка с инвестором состоится в ближайшие два месяца.",
       "category": "corporate",
       "investment_relevant": false,
       "importance": 4,
@@ -304,79 +394,34 @@
       "published_at": "2026-09-03T13:57:00+03:00"
     },
     {
-      "id": "oil-companies-gasoline-delivery-failure",
-      "headline": "Российские нефтекомпании не исполнили почти 60% биржевых контрактов на поставку бензина с мая",
-      "context": "Наибольший объем неисполненных обязательств на Петербургской бирже накопили Роснефть и Лукойл.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "global-supply-sanctions",
+      "headline": "В цепочках поставок Tesla, Volkswagen и Amazon обнаружили подсанкционные металлургические заводы РФ",
+      "context": "В отчетности компаний о конфликтных полезных ископаемых упомянуты Красцветмет и Уралэлектромедь.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/303215"
+          "url": "https://frankmedia.ru/303108"
         }
       ],
-      "published_at": "2026-09-03T13:21:00+03:00"
+      "published_at": "2026-09-03T16:15:00+03:00"
     },
     {
-      "id": "mgkl-buyback-bonds-shares",
-      "headline": "Группа МГКЛ объявила о начале выкупа собственных облигаций и ускорении байбэка акций с 7 сентября",
-      "context": "На фоне этого заявления акции компании на Московской бирже продемонстрировали рост более чем на 6%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/03/1225961-mgkl-anonsiroval-vikup"
-        }
-      ],
-      "published_at": "2026-09-03T11:22:00+03:00"
-    },
-    {
-      "id": "ventprom-shares-nationalized",
-      "headline": "Суд в Екатеринбурге изъял акции Артемовского машиностроительного завода Вентпром в доход государства",
-      "context": "Предприятие занимается производством промышленных вентиляторов для шахт, тоннелей и метрополитена.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924820"
-        }
-      ],
-      "published_at": "2026-09-03T10:50:00+03:00"
-    },
-    {
-      "id": "banks-digital-ruble-losses",
-      "headline": "Внедрение цифрового рубля может лишить российские банки более 100 миллиардов рублей комиссионных доходов ежегодно",
-      "context": "По оценке НРА, отток пассивов из коммерческих банков за пять лет может составить до 10%.",
+      "id": "isakov-veb-appointment",
+      "headline": "Руководитель центра макроисследований Сбербанка Александр Исаков назначен главным экономистом ВЭБ.РФ",
+      "context": "Новую должность экономист будет совмещать с текущей работой в Сбере.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/302973"
+          "url": "https://frankmedia.ru/302955"
         }
       ],
-      "published_at": "2026-09-03T07:49:00+03:00"
-    },
-    {
-      "id": "developers-revenue-drop-1h-2026",
-      "headline": "Крупные российские застройщики сократили совокупную выручку по МСФО на 12,1% в первом полугодии",
-      "context": "Наибольшее снижение выручки зафиксировано у группы Самолет — показатель упал на 31,3% год к году.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924626"
-        }
-      ],
-      "published_at": "2026-09-03T06:30:00+03:00"
+      "published_at": "2026-09-03T01:18:00+03:00"
     }
   ],
   "today_agenda": [],
