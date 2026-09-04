@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "generated_at": "2026-09-04T19:00:43+00:00",
+    "companies_total": 276,
+    "companies_active": 0,
+    "source_counts": {
+      "smartlab": 32060,
+      "official_ifrs_verified_seed": 200
+    },
+    "source_status_counts": {
+      "SmartLab fallback": 3024,
+      "Conflict": 10,
+      "Official IFRS": 10
+    },
+    "conflicts_count": 18,
+    "reliable_facts": 32243,
+    "manual_review_facts": 17,
+    "average_quality_score": 70.16,
+    "official_ifrs_facts": 200,
+    "official_ifrs_missing_facts": 0,
+    "official_ifrs_role_counts": {
+      "best_value": 200
+    },
+    "official_ifrs_status_counts": {
+      "Official IFRS": 182,
+      "Conflict": 18
+    },
+    "official_ifrs_year_status_counts": {
+      "stale": 140,
+      "newer_than_target": 30,
+      "current_2024": 30
+    },
+    "reports_found_from_disclosure": 50,
+    "last_disclosure_check": "2026-09-04T18:57:48+00:00",
+    "companies_with_official_report_links": 7,
+    "disclosure_errors_count": 10,
+    "smartlab_fields_loaded": 39,
+    "smartlab_companies_loaded": 268,
+    "smartlab_company_year_rows": 3046,
+    "smartlab_fundamental_values_total": 83397,
+    "smartlab_fundamental_values_clean": 82264,
+    "smartlab_fundamental_values_excluded": 84,
+    "smartlab_ratio_values_blocked": 40,
+    "smartlab_values_needs_review": 1133,
+    "smartlab_missing_values": 0,
+    "smartlab_corrected_confirmed": 0,
+    "smartlab_backfilled_values": 310,
+    "smartlab_calculated_values": 19517,
+    "smartlab_backfill_failed": 12532,
+    "smartlab_gap_total_expected_values": 149352,
+    "smartlab_gap_present_in_site": 82264,
+    "smartlab_gap_missing_in_site": 67088,
+    "smartlab_gap_missing_can_be_calculated": 8500,
+    "smartlab_gap_missing_needs_backfill": 36974,
+    "smartlab_facts": 32141,
+    "official_ifrs_processed_facts": 200,
+    "verified_official_facts": 200,
+    "official_report_links_found": 50,
+    "audited_links_ok": 8,
+    "downloaded_audited_reports": 0,
+    "extracted_reports": 0,
+    "conflicts": 18,
+    "disclosure_errors": 10,
+    "data_quality_funnel": {
+      "smartlab_facts": 32141,
+      "official_ifrs_processed_facts": 200,
+      "verified_official_facts": 200,
+      "official_report_links_found": 50,
+      "audited_links_ok": 8,
+      "downloaded_audited_reports": 0,
+      "extracted_reports": 0,
+      "conflicts": 18,
+      "disclosure_errors": 10
+    }
+  },
+  "coverage_status_counts": {
+    "smartlab_only": 268,
+    "candidate": 8
+  },
+  "source_status_counts": {
+    "SmartLab fallback": 3024,
+    "Conflict": 10,
+    "Official IFRS": 10
+  },
+  "official_ifrs_status_counts": {
+    "Official IFRS": 182,
+    "Conflict": 18
+  },
+  "official_ifrs_role_counts": {
+    "best_value": 200
+  },
+  "official_ifrs_year_status_counts": {
+    "stale": 140,
+    "newer_than_target": 30,
+    "current_2024": 30
+  },
+  "quality": {
+    "reliable": 32243,
+    "good": 200,
+    "acceptable": 32060,
+    "manual_review": 17
+  }
+}

@@ -1,0 +1,2066 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-04T00:32:00.400847+00:00",
+  "status": "DEGRADED",
+  "point_in_time_policy": "available_at <= prediction_timestamp",
+  "maximum_sector_index_age_calendar_days": 10,
+  "issuer_exposure_status": "BLOCKED",
+  "issuer_exposure_reason": "No versioned issuer disclosures with published_at and available_at are configured.",
+  "mapped_security_count": 207,
+  "unmapped_security_count": 31,
+  "mapped_security_share": 0.8697478991596639,
+  "unmapped_sectors": [
+    "Здравоохранение",
+    "Конгломерат",
+    "Промышленность"
+  ],
+  "packs": [
+    {
+      "pack_id": "OIL_AND_GAS",
+      "label": "Нефть и газ",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "oil_sector_return_20d",
+        "oil_sector_return_60d",
+        "oil_sector_relative_20d",
+        "oil_sector_volatility_20d",
+        "oil_sector_index_missing",
+        "oil_fx_driver",
+        "oil_fx_driver_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXOG",
+        "MOEX_USDRUB"
+      ],
+      "blocked_sources": [
+        "BRENT_URALS_AUDITED"
+      ],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный индекс MOEX нефти и газа и валютный фактор обновляются ежедневно; Brent/Urals пока не подключён.",
+      "ablation_reason": "Не пройдены фиксированные gates: relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 271,
+        "sector_oos_tickers": 12,
+        "sector_oos_dates": 24,
+        "base_rank_ic": -0.02642773892773893,
+        "candidate_rank_ic": -0.025932400932400918,
+        "rank_ic_improvement": 0.0004953379953380119,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": 0.014760147601476037,
+        "top_bottom_spread": 0.02326616463026065,
+        "global_rank_ic_change": 0.024171489599119793,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.19652173913043475,
+        "timing_candidate_rank_ic": 0.20173913043478262,
+        "timing_rank_ic_improvement": 0.39826086956521733,
+        "timing_hit_rate_change": 0.16666666666666669,
+        "timing_top_bottom_spread": 0.004943553273445991,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.138177,
+        "candidate_sharpe_after_costs": -0.666441,
+        "failed_gates": [
+          "relative_after_cost_portfolio"
+        ]
+      }
+    },
+    {
+      "pack_id": "STEEL_AND_FERROUS_METALS",
+      "label": "Сталь и чёрная металлургия",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "steel_sector_return_20d",
+        "steel_sector_return_60d",
+        "steel_sector_relative_20d",
+        "steel_sector_volatility_20d",
+        "steel_sector_index_missing",
+        "steel_fx_driver",
+        "steel_fx_driver_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXMM",
+        "MOEX_USDRUB"
+      ],
+      "blocked_sources": [
+        "STEEL_INPUTS_AUDITED"
+      ],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный индекс MOEX металлов и валютный фактор обновляются ежедневно; цены сырья пока не подключены.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 261,
+        "sector_oos_tickers": 16,
+        "sector_oos_dates": 24,
+        "base_rank_ic": 0.056727994227994204,
+        "candidate_rank_ic": 0.06301684426684424,
+        "rank_ic_improvement": 0.00628885003885004,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.04214559386973182,
+        "top_bottom_spread": -0.02525374888043361,
+        "global_rank_ic_change": -0.014235419638676926,
+        "timing_dates": 24,
+        "timing_base_rank_ic": 0.22434782608695653,
+        "timing_candidate_rank_ic": -0.22869565217391302,
+        "timing_rank_ic_improvement": -0.45304347826086955,
+        "timing_hit_rate_change": -0.20833333333333337,
+        "timing_top_bottom_spread": 0.026686939887449763,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.154749,
+        "candidate_sharpe_after_costs": -0.733202,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "hit_rate_change",
+          "relative_after_cost_portfolio"
+        ]
+      }
+    },
+    {
+      "pack_id": "BANKS_AND_FINANCIALS",
+      "label": "Банки",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "bank_sector_return_20d",
+        "bank_sector_return_60d",
+        "bank_sector_relative_20d",
+        "bank_sector_volatility_20d",
+        "bank_sector_index_missing",
+        "bank_key_rate_level",
+        "bank_key_rate_change_60d",
+        "bank_rgbi_driver",
+        "bank_macro_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXFN",
+        "CBR_KEY_RATE",
+        "MOEX_RGBI"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный индекс MOEX финансов, ключевая ставка и рынок ОФЗ обновляются автоматически.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 149,
+        "sector_oos_tickers": 7,
+        "sector_oos_dates": 24,
+        "base_rank_ic": -0.056845238095238095,
+        "candidate_rank_ic": -0.04136904761904762,
+        "rank_ic_improvement": 0.015476190476190477,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": 0.03355704697986578,
+        "top_bottom_spread": 0.008481839533260252,
+        "global_rank_ic_change": 0.01454352257535231,
+        "timing_dates": 24,
+        "timing_base_rank_ic": 0.20173913043478262,
+        "timing_candidate_rank_ic": -0.1660869565217391,
+        "timing_rank_ic_improvement": -0.36782608695652175,
+        "timing_hit_rate_change": -0.08333333333333337,
+        "timing_top_bottom_spread": -0.05022883222334789,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.138639,
+        "candidate_sharpe_after_costs": -0.738725,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "hit_rate_change",
+          "positive_top_bottom_spread",
+          "relative_after_cost_portfolio"
+        ]
+      }
+    },
+    {
+      "pack_id": "REAL_ESTATE_DEVELOPERS",
+      "label": "Девелоперы",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "developer_sector_return_20d",
+        "developer_sector_return_60d",
+        "developer_sector_relative_20d",
+        "developer_sector_volatility_20d",
+        "developer_sector_index_missing",
+        "developer_key_rate_level",
+        "developer_key_rate_change_60d",
+        "developer_rgbi_driver",
+        "developer_macro_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXRE",
+        "CBR_KEY_RATE",
+        "MOEX_RGBI"
+      ],
+      "blocked_sources": [
+        "CBR_MORTGAGE_VINTAGES"
+      ],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный индекс MOEX строительства и факторы ставки обновляются автоматически; ипотечные vintages пока не подключены.",
+      "ablation_reason": "Не пройдены фиксированные gates: sector_oos_evidence.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 51,
+        "sector_oos_tickers": 3,
+        "sector_oos_dates": 4,
+        "base_rank_ic": 0.125,
+        "candidate_rank_ic": 0.125,
+        "rank_ic_improvement": 0.0,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": 0.05882352941176472,
+        "top_bottom_spread": 0.03661406356676972,
+        "global_rank_ic_change": 0.0074076806931134415,
+        "timing_dates": 24,
+        "timing_base_rank_ic": 0.11913043478260868,
+        "timing_candidate_rank_ic": 0.46956521739130425,
+        "timing_rank_ic_improvement": 0.35043478260869554,
+        "timing_hit_rate_change": 0.125,
+        "timing_top_bottom_spread": 0.11014993962922628,
+        "after_costs_gate": "PASS",
+        "candidate_excess_after_costs": -0.124657,
+        "candidate_sharpe_after_costs": -0.649242,
+        "failed_gates": [
+          "sector_oos_evidence"
+        ]
+      }
+    },
+    {
+      "pack_id": "ELECTRIC_UTILITIES",
+      "label": "Электроэнергетика",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "utilities_sector_return_20d",
+        "utilities_sector_return_60d",
+        "utilities_sector_relative_20d",
+        "utilities_sector_volatility_20d",
+        "utilities_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXEU"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: positive_top_bottom_spread.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 98,
+        "sector_oos_tickers": 11,
+        "sector_oos_dates": 22,
+        "base_rank_ic": 0.009090909090909066,
+        "candidate_rank_ic": -0.014935064935064933,
+        "rank_ic_improvement": -0.024025974025974,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": 0.04081632653061229,
+        "top_bottom_spread": 0.014696859639279369,
+        "global_rank_ic_change": 0.006139366243589267,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.41826086956521735,
+        "timing_candidate_rank_ic": 0.015652173913043476,
+        "timing_rank_ic_improvement": 0.4339130434782608,
+        "timing_hit_rate_change": 0.08333333333333331,
+        "timing_top_bottom_spread": -0.03485078396121527,
+        "after_costs_gate": "PASS",
+        "candidate_excess_after_costs": -0.102561,
+        "candidate_sharpe_after_costs": -0.530232,
+        "failed_gates": [
+          "positive_top_bottom_spread"
+        ]
+      }
+    },
+    {
+      "pack_id": "CONSUMER_SECTOR",
+      "label": "Потребительский сектор",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "consumer_sector_return_20d",
+        "consumer_sector_return_60d",
+        "consumer_sector_relative_20d",
+        "consumer_sector_volatility_20d",
+        "consumer_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXCN"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 91,
+        "sector_oos_tickers": 8,
+        "sector_oos_dates": 22,
+        "base_rank_ic": -0.03181818181818181,
+        "candidate_rank_ic": -0.03181818181818181,
+        "rank_ic_improvement": 0.0,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.01098901098901095,
+        "top_bottom_spread": 0.022070653407263722,
+        "global_rank_ic_change": 0.0011040131879589896,
+        "timing_dates": 24,
+        "timing_base_rank_ic": 0.09826086956521737,
+        "timing_candidate_rank_ic": 0.06782608695652173,
+        "timing_rank_ic_improvement": -0.030434782608695643,
+        "timing_hit_rate_change": 0.0,
+        "timing_top_bottom_spread": -0.011651362619460377,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.140153,
+        "candidate_sharpe_after_costs": -0.717345,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "positive_top_bottom_spread",
+          "relative_after_cost_portfolio"
+        ]
+      }
+    },
+    {
+      "pack_id": "INFORMATION_TECHNOLOGY",
+      "label": "Информационные технологии",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "it_sector_return_20d",
+        "it_sector_return_60d",
+        "it_sector_relative_20d",
+        "it_sector_volatility_20d",
+        "it_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXIT"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 181,
+        "sector_oos_tickers": 11,
+        "sector_oos_dates": 24,
+        "base_rank_ic": 0.005357142857142856,
+        "candidate_rank_ic": 0.012400793650793643,
+        "rank_ic_improvement": 0.007043650793650787,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.04972375690607733,
+        "top_bottom_spread": -0.009735325560889579,
+        "global_rank_ic_change": -0.01508027224652848,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.18,
+        "timing_candidate_rank_ic": -0.4556521739130434,
+        "timing_rank_ic_improvement": -0.2756521739130434,
+        "timing_hit_rate_change": -0.3333333333333333,
+        "timing_top_bottom_spread": -0.03300425437385983,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.158228,
+        "candidate_sharpe_after_costs": -0.772825,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "hit_rate_change",
+          "positive_top_bottom_spread",
+          "relative_after_cost_portfolio"
+        ]
+      }
+    },
+    {
+      "pack_id": "TELECOMMUNICATIONS",
+      "label": "Телекоммуникации",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "telecom_sector_return_20d",
+        "telecom_sector_return_60d",
+        "telecom_sector_relative_20d",
+        "telecom_sector_volatility_20d",
+        "telecom_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXTL"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [
+        "MOEX_MOEXTL"
+      ],
+      "latest_sector_index_at": "2026-03-19",
+      "sector_index_age_days": 168,
+      "latest_available_at": "2026-03-19",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: source_freshness, sector_oos_evidence.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 51,
+        "sector_oos_tickers": 3,
+        "sector_oos_dates": 3,
+        "base_rank_ic": 0.16666666666666666,
+        "candidate_rank_ic": 0.16666666666666666,
+        "rank_ic_improvement": 0.0,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.05882352941176472,
+        "top_bottom_spread": 0.013319240924207665,
+        "global_rank_ic_change": 0.0003035587533863557,
+        "timing_dates": 24,
+        "timing_base_rank_ic": 0.004347826086956522,
+        "timing_candidate_rank_ic": 0.16869565217391302,
+        "timing_rank_ic_improvement": 0.1643478260869565,
+        "timing_hit_rate_change": 0.2916666666666667,
+        "timing_top_bottom_spread": 0.02416593289128493,
+        "after_costs_gate": "PASS",
+        "candidate_excess_after_costs": -0.119796,
+        "candidate_sharpe_after_costs": -0.624405,
+        "failed_gates": [
+          "source_freshness",
+          "sector_oos_evidence"
+        ]
+      }
+    },
+    {
+      "pack_id": "TRANSPORT",
+      "label": "Транспорт",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "transport_sector_return_20d",
+        "transport_sector_return_60d",
+        "transport_sector_relative_20d",
+        "transport_sector_volatility_20d",
+        "transport_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXTN"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 88,
+        "sector_oos_tickers": 6,
+        "sector_oos_dates": 23,
+        "base_rank_ic": -0.043478260869565216,
+        "candidate_rank_ic": -0.06086956521739131,
+        "rank_ic_improvement": -0.01739130434782609,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": 0.07954545454545459,
+        "top_bottom_spread": -0.001654215506472673,
+        "global_rank_ic_change": 0.008294178162117055,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.14869565217391303,
+        "timing_candidate_rank_ic": -0.020869565217391303,
+        "timing_rank_ic_improvement": 0.12782608695652173,
+        "timing_hit_rate_change": 0.0,
+        "timing_top_bottom_spread": -0.022352784676991547,
+        "after_costs_gate": "PASS",
+        "candidate_excess_after_costs": -0.130607,
+        "candidate_sharpe_after_costs": -0.669356,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "positive_top_bottom_spread"
+        ]
+      }
+    },
+    {
+      "pack_id": "CHEMICALS_AND_PETROCHEMICALS",
+      "label": "Химия и нефтехимия",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "chemicals_sector_return_20d",
+        "chemicals_sector_return_60d",
+        "chemicals_sector_relative_20d",
+        "chemicals_sector_volatility_20d",
+        "chemicals_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXCH"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: sector_oos_evidence, rank_ic_improvement, hit_rate_change, positive_top_bottom_spread.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 45,
+        "sector_oos_tickers": 2,
+        "sector_oos_dates": 0,
+        "base_rank_ic": null,
+        "candidate_rank_ic": null,
+        "rank_ic_improvement": 0.0,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.022222222222222254,
+        "top_bottom_spread": null,
+        "global_rank_ic_change": -0.0017293114888202385,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.2817391304347826,
+        "timing_candidate_rank_ic": -0.45739130434782604,
+        "timing_rank_ic_improvement": -0.17565217391304344,
+        "timing_hit_rate_change": -0.20833333333333337,
+        "timing_top_bottom_spread": -0.05947497995906853,
+        "after_costs_gate": "PASS",
+        "candidate_excess_after_costs": -0.135483,
+        "candidate_sharpe_after_costs": -0.685538,
+        "failed_gates": [
+          "sector_oos_evidence",
+          "rank_ic_improvement",
+          "hit_rate_change",
+          "positive_top_bottom_spread"
+        ]
+      }
+    },
+    {
+      "pack_id": "FINANCIAL_SERVICES",
+      "label": "Финансовые сервисы",
+      "feature_role": "sector_timing",
+      "enabled": true,
+      "status": "RESEARCH_ONLY",
+      "ablation_status": "RESEARCH_ONLY",
+      "features": [
+        "finance_sector_return_20d",
+        "finance_sector_return_60d",
+        "finance_sector_relative_20d",
+        "finance_sector_volatility_20d",
+        "finance_sector_index_missing"
+      ],
+      "approved_sources": [
+        "MOEX_IMOEX",
+        "MOEX_MOEXFN"
+      ],
+      "blocked_sources": [],
+      "unavailable_sources": [],
+      "stale_sources": [],
+      "latest_sector_index_at": "2026-09-03",
+      "sector_index_age_days": 0,
+      "latest_available_at": "2026-09-03",
+      "reason": "Официальный отраслевой индекс MOEX обновляется ежедневно и проходит отдельную OOS-проверку.",
+      "ablation_reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "used_in_production": false,
+      "evaluation": {
+        "scope": "sector_timing",
+        "feature_role": "sector_timing",
+        "reference_model": "core_plus_sector_id",
+        "base_n": 1435,
+        "candidate_n": 1435,
+        "sector_oos_rows": 93,
+        "sector_oos_tickers": 7,
+        "sector_oos_dates": 23,
+        "base_rank_ic": 0.05217391304347826,
+        "candidate_rank_ic": 0.05217391304347826,
+        "rank_ic_improvement": 0.0,
+        "rank_ic_minimum": 0.05,
+        "hit_rate_change": -0.032258064516129004,
+        "top_bottom_spread": 0.041427904561120846,
+        "global_rank_ic_change": 0.0006240191071739676,
+        "timing_dates": 24,
+        "timing_base_rank_ic": -0.2052173913043478,
+        "timing_candidate_rank_ic": -0.36,
+        "timing_rank_ic_improvement": -0.1547826086956522,
+        "timing_hit_rate_change": 0.0,
+        "timing_top_bottom_spread": -0.0444157545016534,
+        "after_costs_gate": "FAIL",
+        "candidate_excess_after_costs": -0.1788,
+        "candidate_sharpe_after_costs": -0.98307,
+        "failed_gates": [
+          "rank_ic_improvement",
+          "positive_top_bottom_spread",
+          "relative_after_cost_portfolio"
+        ]
+      }
+    }
+  ],
+  "approved_feature_columns": [],
+  "ablation": [
+    {
+      "pack_id": "OIL_AND_GAS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": -0.02642773892773893,
+      "candidate_spearman_ic": -0.025932400932400918,
+      "spearman_ic_improvement": 0.0004953379953380119,
+      "hit_rate_change": 0.014760147601476037,
+      "candidate_top_bottom_spread": 0.02326616463026065,
+      "sector_oos_rows": 271,
+      "sector_oos_tickers": 12,
+      "sector_oos_dates": 24,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.04125188472946089,
+      "global_candidate_spearman_ic": 0.06542337432858068,
+      "global_spearman_ic_change": 0.024171489599119793,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.19652173913043475,
+      "timing_candidate_spearman_ic": 0.20173913043478262,
+      "timing_spearman_ic_improvement": 0.39826086956521733,
+      "timing_hit_rate_change": 0.16666666666666669,
+      "timing_candidate_top_bottom_spread": 0.004943553273445991,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.137405,
+        "annualized_volatility": 0.205565,
+        "sharpe_after_costs": -0.617456,
+        "sortino_after_costs": -1.461157,
+        "max_drawdown": -0.357642,
+        "cumulative_return_after_costs": -0.245381,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.123193,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.14644,
+        "annualized_volatility": 0.205824,
+        "sharpe_after_costs": -0.666441,
+        "sortino_after_costs": -1.451992,
+        "max_drawdown": -0.377366,
+        "cumulative_return_after_costs": -0.260365,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.138177,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 271,
+          "tickers": 12,
+          "dates": 24,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "PASS",
+          "scope": "sector_timing",
+          "actual": 0.39826086956521733,
+          "candidate_ic": 0.20173913043478262,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.16666666666666669,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "PASS",
+          "actual": 0.004943553273445991,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.123193,
+          "candidate_excess": -0.138177,
+          "base_sharpe": -0.617456,
+          "candidate_sharpe": -0.666441
+        }
+      },
+      "failed_gates": [
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "STEEL_AND_FERROUS_METALS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.056727994227994204,
+      "candidate_spearman_ic": 0.06301684426684424,
+      "spearman_ic_improvement": 0.00628885003885004,
+      "hit_rate_change": -0.04214559386973182,
+      "candidate_top_bottom_spread": -0.02525374888043361,
+      "sector_oos_rows": 261,
+      "sector_oos_tickers": 16,
+      "sector_oos_dates": 24,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.04497594648860724,
+      "global_candidate_spearman_ic": 0.030740526849930314,
+      "global_spearman_ic_change": -0.014235419638676926,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": 0.22434782608695653,
+      "timing_candidate_spearman_ic": -0.22869565217391302,
+      "timing_spearman_ic_improvement": -0.45304347826086955,
+      "timing_hit_rate_change": -0.20833333333333337,
+      "timing_candidate_top_bottom_spread": 0.026686939887449763,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.151252,
+        "annualized_volatility": 0.198783,
+        "sharpe_after_costs": -0.725119,
+        "sortino_after_costs": -1.820401,
+        "max_drawdown": -0.36971,
+        "cumulative_return_after_costs": -0.268288,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.146099,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.156534,
+        "annualized_volatility": 0.203745,
+        "sharpe_after_costs": -0.733202,
+        "sortino_after_costs": -1.65728,
+        "max_drawdown": -0.384586,
+        "cumulative_return_after_costs": -0.276937,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.154749,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 261,
+          "tickers": 16,
+          "dates": 24,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.45304347826086955,
+          "candidate_ic": -0.22869565217391302,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "FAIL",
+          "actual": -0.20833333333333337,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "PASS",
+          "actual": 0.026686939887449763,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.146099,
+          "candidate_excess": -0.154749,
+          "base_sharpe": -0.725119,
+          "candidate_sharpe": -0.733202
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "hit_rate_change",
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "BANKS_AND_FINANCIALS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": -0.056845238095238095,
+      "candidate_spearman_ic": -0.04136904761904762,
+      "spearman_ic_improvement": 0.015476190476190477,
+      "hit_rate_change": 0.03355704697986578,
+      "candidate_top_bottom_spread": 0.008481839533260252,
+      "sector_oos_rows": 149,
+      "sector_oos_tickers": 7,
+      "sector_oos_dates": 24,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.05110817361314186,
+      "global_candidate_spearman_ic": 0.06565169618849417,
+      "global_spearman_ic_change": 0.01454352257535231,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": 0.20173913043478262,
+      "timing_candidate_spearman_ic": -0.1660869565217391,
+      "timing_spearman_ic_improvement": -0.36782608695652175,
+      "timing_hit_rate_change": -0.08333333333333337,
+      "timing_candidate_top_bottom_spread": -0.05022883222334789,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.132041,
+        "annualized_volatility": 0.199147,
+        "sharpe_after_costs": -0.612672,
+        "sortino_after_costs": -1.392324,
+        "max_drawdown": -0.359519,
+        "cumulative_return_after_costs": -0.236419,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.11423,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.14672,
+        "annualized_volatility": 0.190119,
+        "sharpe_after_costs": -0.738725,
+        "sortino_after_costs": -1.643376,
+        "max_drawdown": -0.369577,
+        "cumulative_return_after_costs": -0.260827,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.138639,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 149,
+          "tickers": 7,
+          "dates": 24,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.36782608695652175,
+          "candidate_ic": -0.1660869565217391,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "FAIL",
+          "actual": -0.08333333333333337,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.05022883222334789,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.11423,
+          "candidate_excess": -0.138639,
+          "base_sharpe": -0.612672,
+          "candidate_sharpe": -0.738725
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "hit_rate_change",
+        "positive_top_bottom_spread",
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "REAL_ESTATE_DEVELOPERS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.125,
+      "candidate_spearman_ic": 0.125,
+      "spearman_ic_improvement": 0.0,
+      "hit_rate_change": 0.05882352941176472,
+      "candidate_top_bottom_spread": 0.03661406356676972,
+      "sector_oos_rows": 51,
+      "sector_oos_tickers": 3,
+      "sector_oos_dates": 4,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.0434656857511671,
+      "global_candidate_spearman_ic": 0.05087336644428054,
+      "global_spearman_ic_change": 0.0074076806931134415,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": 0.11913043478260868,
+      "timing_candidate_spearman_ic": 0.46956521739130425,
+      "timing_spearman_ic_improvement": 0.35043478260869554,
+      "timing_hit_rate_change": 0.125,
+      "timing_candidate_top_bottom_spread": 0.11014993962922628,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: sector_oos_evidence.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.146474,
+        "annualized_volatility": 0.19801,
+        "sharpe_after_costs": -0.700818,
+        "sortino_after_costs": -1.629477,
+        "max_drawdown": -0.365813,
+        "cumulative_return_after_costs": -0.260422,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.138233,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.138284,
+        "annualized_volatility": 0.198928,
+        "sharpe_after_costs": -0.649242,
+        "sortino_after_costs": -1.633181,
+        "max_drawdown": -0.357733,
+        "cumulative_return_after_costs": -0.246846,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.124657,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "PASS",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "FAIL",
+          "rows": 51,
+          "tickers": 3,
+          "dates": 4,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "PASS",
+          "scope": "sector_timing",
+          "actual": 0.35043478260869554,
+          "candidate_ic": 0.46956521739130425,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.125,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "PASS",
+          "actual": 0.11014993962922628,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "PASS",
+          "base_excess": -0.138233,
+          "candidate_excess": -0.124657,
+          "base_sharpe": -0.700818,
+          "candidate_sharpe": -0.649242
+        }
+      },
+      "failed_gates": [
+        "sector_oos_evidence"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "ELECTRIC_UTILITIES",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.009090909090909066,
+      "candidate_spearman_ic": -0.014935064935064933,
+      "spearman_ic_improvement": -0.024025974025974,
+      "hit_rate_change": 0.04081632653061229,
+      "candidate_top_bottom_spread": 0.014696859639279369,
+      "sector_oos_rows": 98,
+      "sector_oos_tickers": 11,
+      "sector_oos_dates": 22,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.03846662118693174,
+      "global_candidate_spearman_ic": 0.04460598743052101,
+      "global_spearman_ic_change": 0.006139366243589267,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.41826086956521735,
+      "timing_candidate_spearman_ic": 0.015652173913043476,
+      "timing_spearman_ic_improvement": 0.4339130434782608,
+      "timing_hit_rate_change": 0.08333333333333331,
+      "timing_candidate_top_bottom_spread": -0.03485078396121527,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: positive_top_bottom_spread.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.140043,
+        "annualized_volatility": 0.20731,
+        "sharpe_after_costs": -0.62474,
+        "sortino_after_costs": -1.266232,
+        "max_drawdown": -0.36562,
+        "cumulative_return_after_costs": -0.249772,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.127583,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.125103,
+        "annualized_volatility": 0.211025,
+        "sharpe_after_costs": -0.530232,
+        "sortino_after_costs": -1.263978,
+        "max_drawdown": -0.357148,
+        "cumulative_return_after_costs": -0.224749,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.102561,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "PASS",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 98,
+          "tickers": 11,
+          "dates": 22,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "PASS",
+          "scope": "sector_timing",
+          "actual": 0.4339130434782608,
+          "candidate_ic": 0.015652173913043476,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.08333333333333331,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.03485078396121527,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "PASS",
+          "base_excess": -0.127583,
+          "candidate_excess": -0.102561,
+          "base_sharpe": -0.62474,
+          "candidate_sharpe": -0.530232
+        }
+      },
+      "failed_gates": [
+        "positive_top_bottom_spread"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "CONSUMER_SECTOR",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": -0.03181818181818181,
+      "candidate_spearman_ic": -0.03181818181818181,
+      "spearman_ic_improvement": 0.0,
+      "hit_rate_change": -0.01098901098901095,
+      "candidate_top_bottom_spread": 0.022070653407263722,
+      "sector_oos_rows": 91,
+      "sector_oos_tickers": 8,
+      "sector_oos_dates": 22,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.048326434959884285,
+      "global_candidate_spearman_ic": 0.049430448147843274,
+      "global_spearman_ic_change": 0.0011040131879589896,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": 0.09826086956521737,
+      "timing_candidate_spearman_ic": 0.06782608695652173,
+      "timing_spearman_ic_improvement": -0.030434782608695643,
+      "timing_hit_rate_change": 0.0,
+      "timing_candidate_top_bottom_spread": -0.011651362619460377,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.144647,
+        "annualized_volatility": 0.197476,
+        "sharpe_after_costs": -0.692415,
+        "sortino_after_costs": -1.764427,
+        "max_drawdown": -0.36402,
+        "cumulative_return_after_costs": -0.257403,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.135214,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.147638,
+        "annualized_volatility": 0.195841,
+        "sharpe_after_costs": -0.717345,
+        "sortino_after_costs": -1.800895,
+        "max_drawdown": -0.366021,
+        "cumulative_return_after_costs": -0.262341,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.140153,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 91,
+          "tickers": 8,
+          "dates": 22,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.030434782608695643,
+          "candidate_ic": 0.06782608695652173,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.0,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.011651362619460377,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.135214,
+          "candidate_excess": -0.140153,
+          "base_sharpe": -0.692415,
+          "candidate_sharpe": -0.717345
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "positive_top_bottom_spread",
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "INFORMATION_TECHNOLOGY",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.005357142857142856,
+      "candidate_spearman_ic": 0.012400793650793643,
+      "spearman_ic_improvement": 0.007043650793650787,
+      "hit_rate_change": -0.04972375690607733,
+      "candidate_top_bottom_spread": -0.009735325560889579,
+      "sector_oos_rows": 181,
+      "sector_oos_tickers": 11,
+      "sector_oos_dates": 24,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.043500008751309195,
+      "global_candidate_spearman_ic": 0.028419736504780715,
+      "global_spearman_ic_change": -0.01508027224652848,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.18,
+      "timing_candidate_spearman_ic": -0.4556521739130434,
+      "timing_spearman_ic_improvement": -0.2756521739130434,
+      "timing_hit_rate_change": -0.3333333333333333,
+      "timing_candidate_top_bottom_spread": -0.03300425437385983,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, hit_rate_change, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.137136,
+        "annualized_volatility": 0.197485,
+        "sharpe_after_costs": -0.648762,
+        "sortino_after_costs": -1.624008,
+        "max_drawdown": -0.352728,
+        "cumulative_return_after_costs": -0.244933,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.122745,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.158667,
+        "annualized_volatility": 0.197866,
+        "sharpe_after_costs": -0.772825,
+        "sortino_after_costs": -1.70704,
+        "max_drawdown": -0.385071,
+        "cumulative_return_after_costs": -0.280416,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.158228,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 181,
+          "tickers": 11,
+          "dates": 24,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.2756521739130434,
+          "candidate_ic": -0.4556521739130434,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "FAIL",
+          "actual": -0.3333333333333333,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.03300425437385983,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.122745,
+          "candidate_excess": -0.158228,
+          "base_sharpe": -0.648762,
+          "candidate_sharpe": -0.772825
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "hit_rate_change",
+        "positive_top_bottom_spread",
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "TELECOMMUNICATIONS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.16666666666666666,
+      "candidate_spearman_ic": 0.16666666666666666,
+      "spearman_ic_improvement": 0.0,
+      "hit_rate_change": -0.05882352941176472,
+      "candidate_top_bottom_spread": 0.013319240924207665,
+      "sector_oos_rows": 51,
+      "sector_oos_tickers": 3,
+      "sector_oos_dates": 3,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.042746872300368326,
+      "global_candidate_spearman_ic": 0.04305043105375468,
+      "global_spearman_ic_change": 0.0003035587533863557,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": 0.004347826086956522,
+      "timing_candidate_spearman_ic": 0.16869565217391302,
+      "timing_spearman_ic_improvement": 0.1643478260869565,
+      "timing_hit_rate_change": 0.2916666666666667,
+      "timing_candidate_top_bottom_spread": 0.02416593289128493,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: source_freshness, sector_oos_evidence.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.139727,
+        "annualized_volatility": 0.203073,
+        "sharpe_after_costs": -0.640197,
+        "sortino_after_costs": -1.575006,
+        "max_drawdown": -0.359118,
+        "cumulative_return_after_costs": -0.249246,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.127058,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.135369,
+        "annualized_volatility": 0.200924,
+        "sharpe_after_costs": -0.624405,
+        "sortino_after_costs": -1.57177,
+        "max_drawdown": -0.352654,
+        "cumulative_return_after_costs": -0.241985,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.119796,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "PASS",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "FAIL",
+          "stale_sources": [
+            "MOEX_MOEXTL"
+          ],
+          "latest_sector_index_at": "2026-03-19",
+          "sector_index_age_days": 168
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "FAIL",
+          "rows": 51,
+          "tickers": 3,
+          "dates": 3,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "PASS",
+          "scope": "sector_timing",
+          "actual": 0.1643478260869565,
+          "candidate_ic": 0.16869565217391302,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.2916666666666667,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "PASS",
+          "actual": 0.02416593289128493,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "PASS",
+          "base_excess": -0.127058,
+          "candidate_excess": -0.119796,
+          "base_sharpe": -0.640197,
+          "candidate_sharpe": -0.624405
+        }
+      },
+      "failed_gates": [
+        "source_freshness",
+        "sector_oos_evidence"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "TRANSPORT",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": -0.043478260869565216,
+      "candidate_spearman_ic": -0.06086956521739131,
+      "spearman_ic_improvement": -0.01739130434782609,
+      "hit_rate_change": 0.07954545454545459,
+      "candidate_top_bottom_spread": -0.001654215506472673,
+      "sector_oos_rows": 88,
+      "sector_oos_tickers": 6,
+      "sector_oos_dates": 23,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.04577456538176196,
+      "global_candidate_spearman_ic": 0.054068743543879014,
+      "global_spearman_ic_change": 0.008294178162117055,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.14869565217391303,
+      "timing_candidate_spearman_ic": -0.020869565217391303,
+      "timing_spearman_ic_improvement": 0.12782608695652173,
+      "timing_hit_rate_change": 0.0,
+      "timing_candidate_top_bottom_spread": -0.022352784676991547,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.145115,
+        "annualized_volatility": 0.201235,
+        "sharpe_after_costs": -0.678868,
+        "sortino_after_costs": -1.528561,
+        "max_drawdown": -0.36753,
+        "cumulative_return_after_costs": -0.258176,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.135988,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.141865,
+        "annualized_volatility": 0.199096,
+        "sharpe_after_costs": -0.669356,
+        "sortino_after_costs": -1.654185,
+        "max_drawdown": -0.357829,
+        "cumulative_return_after_costs": -0.252795,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.130607,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "PASS",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 88,
+          "tickers": 6,
+          "dates": 23,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": 0.12782608695652173,
+          "candidate_ic": -0.020869565217391303,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.0,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.022352784676991547,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "PASS",
+          "base_excess": -0.135988,
+          "candidate_excess": -0.130607,
+          "base_sharpe": -0.678868,
+          "candidate_sharpe": -0.669356
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "positive_top_bottom_spread"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "CHEMICALS_AND_PETROCHEMICALS",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": null,
+      "candidate_spearman_ic": null,
+      "spearman_ic_improvement": 0.0,
+      "hit_rate_change": -0.022222222222222254,
+      "candidate_top_bottom_spread": null,
+      "sector_oos_rows": 45,
+      "sector_oos_tickers": 2,
+      "sector_oos_dates": 0,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.04394804329457431,
+      "global_candidate_spearman_ic": 0.04221873180575407,
+      "global_spearman_ic_change": -0.0017293114888202385,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.2817391304347826,
+      "timing_candidate_spearman_ic": -0.45739130434782604,
+      "timing_spearman_ic_improvement": -0.17565217391304344,
+      "timing_hit_rate_change": -0.20833333333333337,
+      "timing_candidate_top_bottom_spread": -0.05947497995906853,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: sector_oos_evidence, rank_ic_improvement, hit_rate_change, positive_top_bottom_spread.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.145952,
+        "annualized_volatility": 0.200205,
+        "sharpe_after_costs": -0.687994,
+        "sortino_after_costs": -1.623336,
+        "max_drawdown": -0.367074,
+        "cumulative_return_after_costs": -0.25956,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.137372,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.144809,
+        "annualized_volatility": 0.199262,
+        "sharpe_after_costs": -0.685538,
+        "sortino_after_costs": -1.607499,
+        "max_drawdown": -0.365459,
+        "cumulative_return_after_costs": -0.257672,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.135483,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.333333,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "PASS",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "FAIL",
+          "rows": 45,
+          "tickers": 2,
+          "dates": 0,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.17565217391304344,
+          "candidate_ic": -0.45739130434782604,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "FAIL",
+          "actual": -0.20833333333333337,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.05947497995906853,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "PASS",
+          "base_excess": -0.137372,
+          "candidate_excess": -0.135483,
+          "base_sharpe": -0.687994,
+          "candidate_sharpe": -0.685538
+        }
+      },
+      "failed_gates": [
+        "sector_oos_evidence",
+        "rank_ic_improvement",
+        "hit_rate_change",
+        "positive_top_bottom_spread"
+      ],
+      "used_in_production": false
+    },
+    {
+      "pack_id": "FINANCIAL_SERVICES",
+      "status": "RESEARCH_ONLY",
+      "feature_role": "sector_timing",
+      "evaluation_scope": "sector_timing",
+      "reference_model": "core_plus_sector_id",
+      "base_n": 1435,
+      "candidate_n": 1435,
+      "base_spearman_ic": 0.05217391304347826,
+      "candidate_spearman_ic": 0.05217391304347826,
+      "spearman_ic_improvement": 0.0,
+      "hit_rate_change": -0.032258064516129004,
+      "candidate_top_bottom_spread": 0.041427904561120846,
+      "sector_oos_rows": 93,
+      "sector_oos_tickers": 7,
+      "sector_oos_dates": 23,
+      "sector_same_rows": true,
+      "minimum_sector_oos_rows": 60,
+      "minimum_sector_tickers": 3,
+      "minimum_sector_dates": 3,
+      "global_base_spearman_ic": 0.04195910015749514,
+      "global_candidate_spearman_ic": 0.04258311926466911,
+      "global_spearman_ic_change": 0.0006240191071739676,
+      "timing_dates": 24,
+      "timing_base_spearman_ic": -0.2052173913043478,
+      "timing_candidate_spearman_ic": -0.36,
+      "timing_spearman_ic_improvement": -0.1547826086956522,
+      "timing_hit_rate_change": 0.0,
+      "timing_candidate_top_bottom_spread": -0.0444157545016534,
+      "minimum_timing_dates": 12,
+      "minimum_timing_ic": 0.0,
+      "minimum_timing_ic_improvement": 0.05,
+      "same_folds": true,
+      "issuer_exposure_variant": "BLOCKED",
+      "reason": "Не пройдены фиксированные gates: rank_ic_improvement, positive_top_bottom_spread, relative_after_cost_portfolio.",
+      "base_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.161006,
+        "annualized_volatility": 0.187494,
+        "sharpe_after_costs": -0.840063,
+        "sortino_after_costs": -2.014717,
+        "max_drawdown": -0.363346,
+        "cumulative_return_after_costs": -0.284222,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.162033,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "candidate_after_costs": {
+        "periods": 24,
+        "cagr_after_costs": -0.171382,
+        "annualized_volatility": 0.174815,
+        "sharpe_after_costs": -0.98307,
+        "sortino_after_costs": -2.088244,
+        "max_drawdown": -0.365361,
+        "cumulative_return_after_costs": -0.300989,
+        "benchmark_cumulative_return": -0.122188,
+        "excess_cumulative_return": -0.1788,
+        "average_turnover": 0.4,
+        "positive_period_ratio": 0.375,
+        "cost_assumption_bps_one_way": 30.0,
+        "turnover_cap": 0.4
+      },
+      "after_costs_gate": "FAIL",
+      "promotion_gates": {
+        "source_availability": {
+          "status": "PASS",
+          "unavailable_sources": []
+        },
+        "source_freshness": {
+          "status": "PASS",
+          "stale_sources": [],
+          "latest_sector_index_at": "2026-09-03",
+          "sector_index_age_days": 0
+        },
+        "identical_test_rows": {
+          "status": "PASS",
+          "base_n": 1435,
+          "candidate_n": 1435
+        },
+        "sector_oos_evidence": {
+          "status": "PASS",
+          "rows": 93,
+          "tickers": 7,
+          "dates": 23,
+          "minimum_rows": 60,
+          "minimum_tickers": 3,
+          "minimum_dates": 3,
+          "timing_dates": 24,
+          "minimum_timing_dates": 12
+        },
+        "rank_ic_improvement": {
+          "status": "FAIL",
+          "scope": "sector_timing",
+          "actual": -0.1547826086956522,
+          "candidate_ic": -0.36,
+          "minimum": 0.05
+        },
+        "hit_rate_change": {
+          "status": "PASS",
+          "actual": 0.0,
+          "minimum": 0.0
+        },
+        "positive_top_bottom_spread": {
+          "status": "FAIL",
+          "actual": -0.0444157545016534,
+          "required": true
+        },
+        "relative_after_cost_portfolio": {
+          "status": "FAIL",
+          "base_excess": -0.162033,
+          "candidate_excess": -0.1788,
+          "base_sharpe": -0.840063,
+          "candidate_sharpe": -0.98307
+        }
+      },
+      "failed_gates": [
+        "rank_ic_improvement",
+        "positive_top_bottom_spread",
+        "relative_after_cost_portfolio"
+      ],
+      "used_in_production": false
+    }
+  ],
+  "evaluated_pack_count": 11,
+  "production_pack_count": 0
+}

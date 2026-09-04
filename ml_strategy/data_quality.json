@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-04T00:32:00+00:00",
+  "data_as_of": "2026-09-03",
+  "status": "DEGRADED",
+  "production_data": "real_sources_only",
+  "checks": [
+    {
+      "name": "price_series",
+      "status": "PASS",
+      "value": 238,
+      "minimum": 12,
+      "source": "MOEX ISS"
+    },
+    {
+      "name": "history_depth",
+      "status": "PASS",
+      "value": 237,
+      "minimum": 12
+    },
+    {
+      "name": "benchmark_history",
+      "status": "PASS",
+      "value": 5889,
+      "minimum": 252,
+      "source": "MOEX ISS / MCFTR"
+    },
+    {
+      "name": "latest_investable_cross_section",
+      "status": "PASS",
+      "value": 60,
+      "minimum": 12
+    },
+    {
+      "name": "staleness",
+      "status": "PASS",
+      "value_calendar_days": 1,
+      "maximum": 7
+    },
+    {
+      "name": "official_dividend_coverage",
+      "status": "DEGRADED",
+      "series_with_records": 0,
+      "universe_series": 238,
+      "source": "MOEX ISS"
+    },
+    {
+      "name": "macro_market_features",
+      "status": "PASS",
+      "available": [
+        "IMOEX",
+        "KEY_RATE",
+        "MOEXCH",
+        "MOEXCN",
+        "MOEXEU",
+        "MOEXFN",
+        "MOEXIT",
+        "MOEXMM",
+        "MOEXOG",
+        "MOEXRE",
+        "MOEXTL",
+        "MOEXTN",
+        "RGBI",
+        "USDRUB"
+      ],
+      "required": [
+        "IMOEX",
+        "RGBI",
+        "USDRUB",
+        "KEY_RATE"
+      ]
+    },
+    {
+      "name": "unresolved_extreme_moves",
+      "status": "DEGRADED",
+      "excluded_observations": 8,
+      "threshold": 0.6
+    },
+    {
+      "name": "historical_membership",
+      "status": "DEGRADED",
+      "reason": "Universe membership is reconstructed from actual trading availability, but the security master is not yet a complete historical listing/delisting database."
+    }
+  ],
+  "sources": [
+    {
+      "name": "MOEX ISS equity candles",
+      "url": "https://iss.moex.com/",
+      "as_of": "2026-09-03"
+    },
+    {
+      "name": "MOEX ISS MCFTR",
+      "url": "https://iss.moex.com/",
+      "as_of": "2026-09-03"
+    },
+    {
+      "name": "MOEX ISS dividends",
+      "url": "https://iss.moex.com/",
+      "cached_records": 0
+    }
+  ]
+}

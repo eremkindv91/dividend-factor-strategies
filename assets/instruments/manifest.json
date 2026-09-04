@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-31",
+  "assets": [
+    {
+      "secid": "T",
+      "type": "equity",
+      "name": "Т-Технологии",
+      "logo_path": "assets/instruments/t.svg",
+      "logo_source": "https://www.tbank.ru/about/brand/",
+      "logo_status": "official",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "IMOEX",
+      "type": "index",
+      "name": "Индекс МосБиржи",
+      "logo_path": "assets/instruments/index-imoex.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "MCFTR",
+      "type": "index",
+      "name": "Индекс полной доходности МосБиржи",
+      "logo_path": "assets/instruments/index-mcftr.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "RTSI",
+      "type": "index",
+      "name": "Индекс РТС",
+      "logo_path": "assets/instruments/index-rtsi.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "RGBI",
+      "type": "index",
+      "name": "Индекс государственных облигаций",
+      "logo_path": "assets/instruments/index-rgbi.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "RVI",
+      "type": "index",
+      "name": "Индекс волатильности",
+      "logo_path": "assets/instruments/index-rvi.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "MOEXBC",
+      "type": "index",
+      "name": "Индекс широкого рынка",
+      "logo_path": "assets/instruments/index-moexbc.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "EQMX",
+      "type": "fund",
+      "name": "БПИФ на индекс МосБиржи",
+      "logo_path": "assets/instruments/fund-eqmx.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    },
+    {
+      "secid": "DIVD",
+      "type": "fund",
+      "name": "БПИФ дивидендных акций РФ",
+      "logo_path": "assets/instruments/fund-divd.svg",
+      "logo_source": "project-generated",
+      "logo_status": "generated",
+      "updated_at": "2026-07-31"
+    }
+  ],
+  "generic_assets": {
+    "bond": "assets/instruments/type-bond.svg",
+    "currency": "assets/instruments/type-currency.svg",
+    "commodity": "assets/instruments/type-commodity.svg"
+  },
+  "lineage": {
+    "TCS": "T",
+    "TCSG": "T",
+    "YNDX": "YDEX",
+    "FIVE": "X5"
+  },
+  "shared_issuer_assets": {
+    "BANEP": "BANE",
+    "BSPBP": "BSPB",
+    "CNTLP": "CNTL",
+    "DZRDP": "DZRD",
+    "IGSTP": "IGST",
+    "JNOSP": "JNOS",
+    "KAZTP": "KAZT",
+    "KCHEP": "KCHE",
+    "KGKCP": "KGKC",
+    "KRKNP": "KRKN",
+    "KROTP": "KROT",
+    "KRSBP": "KRSB",
+    "KZOSP": "KZOS",
+    "LNZLP": "LNZL",
+    "LSNGP": "LSNG",
+    "MAGEP": "MAGE",
+    "MFGSP": "MFGS",
+    "MGTSP": "MGTS",
+    "MISBP": "MISB",
+    "MTLRP": "MTLR",
+    "NKNCP": "NKNC",
+    "NNSBP": "NNSB",
+    "PMSBP": "PMSB",
+    "RTKMP": "RTKM",
+    "RTSBP": "RTSB",
+    "SAGOP": "SAGO",
+    "SAREP": "SARE",
+    "SBERP": "SBER",
+    "SNGSP": "SNGS",
+    "TATNP": "TATN",
+    "TGKBP": "TGKB",
+    "TORSP": "TORS",
+    "TRNFP": "TRNF",
+    "VGSBP": "VGSB",
+    "VJGZP": "VJGZ",
+    "VRSBP": "VRSB",
+    "VSYDP": "VSYD",
+    "WTCMP": "WTCM",
+    "YKENP": "YKEN",
+    "YRSBP": "YRSB"
+  }
+}

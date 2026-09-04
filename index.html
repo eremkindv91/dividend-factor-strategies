@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- CSP (редизайн, Итерация 7, §6.4). Отклонения от идеала 'self'-only задокументированы в docs/redesign/COMPONENTS.md:
+       script-src допускает jsdelivr/unpkg — оттуда on-demand грузятся Chart.js и LightweightCharts (графики);
+       style-src допускает 'unsafe-inline' — в шаблонах ~44 динамических inline-стиля (ширины баров, цвета). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://iss.moex.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'self'; object-src 'none'; form-action 'none'">
+  <title>Рынок РФ: дивиденды, акции, облигации, фаза рынка</title>
+  <meta name="description" content="Аналитический дашборд по рынку РФ: прогноз дивидендов (ML), фаза рынка по MCFTR, скринер облигаций, факторные портфели. Данные MOEX ISS / SmartLab. Не ИИР.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css?v=05bc4df5">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Навигация">
+      <div class="app-brand">
+        <span class="app-brand-mark" aria-hidden="true">РФ</span>
+        <span class="app-brand-text">Аналитика<br>рынка РФ</span>
+      </div>
+      <nav class="app-nav" id="app-nav" aria-label="Разделы сайта"></nav>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <button class="app-nav-toggle" id="app-nav-toggle" type="button" aria-label="Свернуть меню" aria-expanded="true"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+        <div class="app-topbar-head">
+          <h1 class="app-topbar-title" id="topbar-title">Обзор</h1>
+          <span class="app-topbar-sub" id="topbar-sub">Состояние рынка РФ, события и портфель</span>
+        </div>
+        <div class="app-topbar-meta">
+          <details class="tax-profile tax-profile-global" id="tax-profile">
+            <summary>НДФЛ <b id="tax-profile-current">13%</b></summary>
+            <div class="tax-profile-popover">
+              <span class="tax-profile-lbl">Налог на дивиденды</span>
+              <div class="tax-profile-opts" role="group" aria-label="Ставка НДФЛ на дивиденды" id="tax-profile-opts"></div>
+              <span class="tax-profile-note muted">Применяется к доходности «на руки» в акциях, портфеле и X-Ray. Серверные расчёты облигаций не меняет.</span>
+            </div>
+          </details>
+          <div class="data-status" id="data-status"><span class="muted">Загрузка данных…</span></div>
+          <span class="app-nir" title="Не индивидуальная инвестиционная рекомендация">Не ИИР</span>
+        </div>
+      </header>
+      <div id="banner"></div>
+
+      <main class="sections">
+      <!-- ─────────── НОВОСТИ ─────────── -->
+
+
+      <!-- ─────────── ТЕКУЩИЙ РЫНОК ─────────── -->
+      <section class="app-section" data-section="market">
+        <p class="section-intro">Где сейчас рынок, что будет дальше и что из этого касается вашего портфеля. Индикаторы контекста, не прогноз.</p>
+
+
+        <!-- Вкладки раздела: «Новости» перестали быть отдельным пунктом меню — они
+             отвечают на вопрос «что произошло» внутри «Обзора», а не рядом с ним.
+             Названия — «Сводка» и «Новости»: «Обзор» внутри «Обзора» было бы тавтологией. -->
+        <div class="section-subtabs" role="tablist" aria-label="Разделы обзора">
+          <button type="button" role="tab" data-subtab="market:summary" id="tab-market-summary"
+            aria-controls="market-summary-panel" aria-selected="true" class="active">Сводка</button>
+          <button type="button" role="tab" data-subtab="market:news" id="tab-market-news"
+            aria-controls="market-news-panel" aria-selected="false" tabindex="-1">Новости</button>
+        </div>
+
+        <div class="section-panel" id="market-summary-panel" role="tabpanel"
+          aria-labelledby="tab-market-summary">
+        <div class="market-pulse" id="market-pulse">
+          <div class="pulse-loading muted">Загрузка рыночного пульса...</div>
+        </div>
+
+        <!-- Что впереди: единая лента событий + вердикт по портфелю (фильтр по МСК) -->
+        <div class="events-today" id="events-today">
+          <div class="pulse-loading muted">Загрузка событий…</div>
+        </div>
+
+        <button class="news-teaser" id="news-teaser" type="button" data-open-subtab="market:news">
+          <span class="news-teaser-copy">
+            <span class="news-teaser-kicker">Новости рынка</span>
+            <b id="news-teaser-title">Последние события и утренний брифинг</b>
+            <span class="muted" id="news-teaser-meta">Загрузятся только при открытии вкладки</span>
+          </span>
+          <span class="news-teaser-action" aria-hidden="true">Открыть →</span>
+        </button>
+
+        <section class="market-instruments" aria-labelledby="market-instruments-title">
+          <div class="market-instruments-head">
+            <div>
+              <h2 id="market-instruments-title">Рынок в графиках</h2>
+              <span class="muted">Индексы и валюты MOEX · уровни, тренд, RSI и волатильность</span>
+            </div>
+            <span class="muted" id="market-instruments-asof"></span>
+          </div>
+          <div class="market-instrument-grid" id="market-instrument-grid">
+            <div class="pulse-loading muted">Загрузка истории MOEX...</div>
+          </div>
+        </section>
+
+        <!-- open: макро — то, от чего зависит выбор «акции или вклад». Держать за кликом
+             нельзя. Раньше блок назывался «охват данных» и содержал служебную телеметрию
+             (свежесть цен, доля вердиктов good, счётчик бумаг) — она убрана. -->
+        <details class="mapwrap market-indicators-details" open>
+          <summary>Макро и режим рынка <span class="muted">(ключевая ставка ЦБ, инфляция, импульс, дивидендный спред)</span></summary>
+          <div class="macro-cbr" id="macro-cbr">
+            <div class="pulse-loading muted">Загрузка макроданных ЦБ...</div>
+          </div>
+          <div class="kpi-grid" id="market-kpi"></div>
+          <div class="market-signals" id="market-signals">
+            <div class="pulse-loading muted">Загрузка ежедневных сигналов...</div>
+          </div>
+        </details>
+
+        <details class="mapwrap saw-wrap" id="marketsaw" hidden>
+          <summary>Помощник фазы рынка подробно <span class="muted">(волны MCFTR/IMOEX, зигзаг, историческое распределение)</span></summary>
+          <div class="saw-body" id="saw-body">
+            <div class="saw-loading muted">Загрузим индекс MCFTR и рассчитаем текущую фазу рынка…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap dividend-calendar-wrap" id="dividend-calendar">
+          <summary>
+            <span>Дивидендный календарь РФ</span>
+            <span class="dividend-calendar-summary muted" id="dividend-calendar-summary">Загрузка официальных событий…</span>
+          </summary>
+          <div class="dividend-calendar-body" id="dividend-calendar-body" aria-live="polite">
+            <div class="pulse-loading muted">Загрузка дивидендного календаря…</div>
+          </div>
+        </details>
+
+        <!-- P/E перенесён в САМЫЙ НИЗ вкладки: это оценочный ориентир с большим
+             дисклеймером и ручной сверкой, он не должен стоять выше фазы рынка и
+             событий, по которым инвестор принимает решения сегодня. -->
+        <div class="market-pe" id="market-pe-card" aria-live="polite"></div>
+
+        <!-- Блок «Внешний ориентир: настроение рынка» (Альфа-Инвестиции) УДАЛЁН 2026-07-25:
+             источник закрыл автоматический доступ (WAF отдаёт 403 на все страницы статей и даже
+             на /robots.txt), последнее значение было от 17.07.2026. Обходить защиту от ботов не
+             будем. Собственные индикаторы на данных MOEX («Рыночное напряжение», фаза MCFTR)
+             покрывают ту же задачу и остаются на месте. -->
+
+        </div>
+
+        <div class="section-panel" id="market-news-panel" role="tabpanel"
+          aria-labelledby="tab-market-news" hidden>
+          <div class="news-body" id="news-body">
+          <div class="news-loading muted">Загрузка новостного блока…</div>
+        </div>
+        </div>
+</section>
+
+      <!-- ─────────── МОЙ ПОРТФЕЛЬ ─────────── -->
+      <section class="app-section" data-section="my-portfolio" hidden>
+        <p class="section-intro">Portfolio X-Ray — риск/перформанс-терминал: сравнение с MCFTR, alpha/beta, VaR/CVaR, вклад бумаг в риск, дивидендный стресс-тест, bootstrap-устойчивость, сценарный ребаланс и investment-memo. Расчёт месячный, локальный (данные остаются в браузере). Диагностика, не индивидуальная инвестиционная рекомендация.</p>
+        <div class="my-portfolio" id="my-portfolio">
+          <div class="mp-editor">
+            <div class="mp-input-wrap">
+              <div class="mp-editor-head">
+                <label for="mp-input">Позиции</label>
+                <span>Формат строки: тикер; количество; средняя цена</span>
+              </div>
+              <div class="mp-addform">
+                <div class="mp-search-wrap">
+                  <input type="text" class="mp-search" id="mp-ticker-search" autocomplete="off" placeholder="Поиск бумаги: тикер или название (напр. Сургут ап, Т-Банк)…">
+                  <div class="mp-suggest" id="mp-suggest"></div>
+                </div>
+                <input type="number" class="mp-qty" id="mp-add-qty" min="0" step="1" inputmode="numeric" placeholder="Кол-во акций" title="Количество акций (не лотов)">
+                <input type="number" class="mp-qty" id="mp-add-price" min="0" step="0.01" inputmode="decimal" placeholder="Цена покупки, ₽">
+                <button class="btn" id="mp-add-btn" type="button">Добавить</button>
+              </div>
+              <div class="mp-add-hint muted">Количество = число акций, не лотов. Дубликат тикера объединяется по средневзвешенной цене.</div>
+              <details class="mp-manual"><summary>Расширенный ручной ввод списком</summary>
+                <div class="mp-editor-head"><span>Формат строки: тикер; количество; средняя цена</span></div>
+                <textarea id="mp-input" spellcheck="false" placeholder="SBER; 100; 310&#10;LKOH; 5; 6800&#10;MOEX; 50; 210"></textarea>
+              </details>
+            </div>
+            <div class="mp-actions">
+              <button class="btn" id="mp-save">Посчитать</button>
+              <button class="btn btn-secondary" id="mp-sample">Пример</button>
+              <label class="btn btn-secondary mp-import-label">Импорт CSV<input type="file" id="mp-import" accept=".csv,.txt"></label>
+              <button class="btn btn-secondary" id="mp-clear">Очистить</button>
+            </div>
+          </div>
+          <div id="mp-out">
+            <div class="mp-empty mp-empty-rich">
+              <b>Портфель пока пуст</b>
+              <span>Вставь позиции строками или загрузи пример.</span>
+              <code>SBER; 100; 310</code>
+              <em>Расчёт локальный: файл не отправляется на сервер.</em>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────── АКЦИИ ─────────── -->
+      <section class="app-section" data-section="stocks" hidden>
+        <p class="section-intro">Акции: ML-модель оценивает вероятность выплаты и размер ближайшего дивиденда. Цены MOEX обновляются ежедневно; фундаментальные данные и сама модель — реже.</p>
+
+        <!-- «Банки РФ» — отраслевой срез акций, а не самостоятельный раздел. Первая вкладка
+             называется «Скринер», а не «Акции»: пользователь уже внутри «Акций». -->
+        <div class="section-subtabs" role="tablist" aria-label="Разделы акций">
+          <button type="button" role="tab" data-subtab="stocks:screener" id="tab-stocks-screener"
+            aria-controls="stocks-screener-panel" aria-selected="true" class="active">Скринер</button>
+          <button type="button" role="tab" data-subtab="stocks:banks" id="tab-stocks-banks"
+            aria-controls="stocks-banks-panel" aria-selected="false" tabindex="-1">Банки РФ</button>
+        </div>
+
+        <div class="section-panel" id="stocks-screener-panel" role="tabpanel"
+          aria-labelledby="tab-stocks-screener">
+<div class="dates" id="dates"></div>
+
+        <div class="controls" id="controls" hidden>
+          <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
+          <select id="sector"><option value="">Все отрасли</option></select>
+          <select id="statusFilter">
+            <option value="rankable" selected>Основной рейтинг</option>
+            <option value="review">Требуют проверки</option>
+            <option value="insufficient_data">Неполные данные</option>
+            <option value="">Все статусы</option>
+          </select>
+          <span class="spacer"></span>
+          <span class="count" id="count"></span>
+          <button class="btn" id="csv">Экспорт CSV</button>
+        </div>
+
+        <div class="stock-toolbar">
+          <div class="stock-chips" id="stock-chips" role="group" aria-label="Быстрые фильтры"></div>
+          <div class="stock-view-toggle" id="stock-view-toggle" role="group" aria-label="Вид списка">
+            <button class="stock-view-btn" type="button" data-view="table" aria-pressed="true" title="Таблица">Таблица</button>
+            <button class="stock-view-btn" type="button" data-view="cards" aria-pressed="false" title="Карточки">Карточки</button>
+            <button class="stock-view-btn" type="button" data-view="map" aria-pressed="false" title="Карта рынка">Карта</button>
+          </div>
+        </div>
+
+        <div class="ranks" id="ranks" hidden>
+          <span class="ranks-lbl" data-tooltip="Основной рейтинг автоматически исключает строки с экстремальной доходностью, payout выше 100%, старой ценой или неполными данными.">Рейтинг ↓</span>
+        </div>
+        <div class="stock-quality-gate" id="stock-quality-gate" aria-live="polite"></div>
+
+        <details class="mapwrap" id="mapwrap" hidden>
+          <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>
+          <div id="map"></div>
+        </details>
+
+        <div id="app">
+          <div class="loading">Загрузка данных…</div>
+        </div>
+
+        </div>
+
+        <div class="section-panel" id="stocks-banks-panel" role="tabpanel"
+          aria-labelledby="tab-stocks-banks" hidden>
+
+        <div class="section-hero cbr-hero">
+          <div>
+            <span class="section-kicker">Банки РФ</span>
+            <h2>Дорого или дёшево — и на чём это держится</h2>
+            <p>Оценка публичных банков через модель остаточного дохода, а рядом — то, на чём стоит любая
+              оценка банка: достаточность капитала, дивидендная способность и отчётность ЦБ по формам
+              102/123/135.</p>
+          </div>
+          <div class="section-tags" aria-label="Ограничения данных">
+            <span>Не ИИР</span>
+            <span>Цена акции в рублях не публикуется</span>
+            <span>Каждая цифра с датой</span>
+          </div>
+        </div>
+
+        <!-- Порядок блоков = порядок вопросов инвестора: сначала «дорого или дёшево», затем
+             «на чём это держится», и только потом помесячная отчётность. Оценка раскрыта
+             по умолчанию: свёрнутая, она читалась как отсутствующая. -->
+        <details class="mapwrap riv-wrap" id="banks-fair-value" open>
+          <summary>Дорого или дёшево: оценка по модели остаточного дохода <span class="muted">(база — бухгалтерский капитал группы · справедливая цена акции в рублях НЕ публикуется, объяснение внутри)</span></summary>
+          <div class="riv-body" id="riv-body">
+            <div class="riv-loading muted">Загрузка фундаментальной оценки…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap bval-wrap" id="banks-valuation">
+          <summary>Капитал, нормативы и дивидендная способность <span class="muted">(P/капитал ЦБ — база формы 123, регуляторный капитал · диагностика, а НЕ оценка стоимости · банк ↔ карта ↔ история связаны)</span></summary>
+          <div class="bval-body" id="bval-body">
+            <div class="bval-loading muted">Загрузка данных по капиталу банков…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap bcr-wrap" id="banks-credit">
+          <summary>Кредитный портфель: из чего сложен <span class="muted">(форма 101 ЦБ, помесячно · РСБУ отдельного банка, НЕ МСФО группы · резервы и покрытие не публикуются)</span></summary>
+          <div class="bcr-body" id="bcr-body">
+            <div class="bcr-loading muted">Загрузка кредитных портфелей…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap cbr-ts-wrap" id="cbr-timeseries">
+          <summary>Историческая отчётность <span class="muted">(прибыль Ф.102 · капитал Ф.123 · нормативы Ф.135 по месяцам)</span></summary>
+          <div class="cbr-body" id="cbr-body">
+            <div class="cbr-loading muted">Загрузка данных ЦБ РФ…</div>
+          </div>
+        </details>
+
+        </div>
+</section>
+
+      <!-- ─────────── СТРАТЕГИИ ─────────── -->
+      <section class="app-section" data-section="strategies" hidden>
+        <p class="section-intro">Стратегии: портфельные и сценарные инструменты поверх данных по акциям. Это исследовательские расчёты, а не готовые рекомендации.</p>
+
+        <div class="strategy-mode-tabs" role="tablist" aria-label="Тип стратегии">
+          <button type="button" class="strategy-mode active" data-strategy="quality" role="tab" aria-selected="true">RU Quality</button>
+          <button type="button" class="strategy-mode" data-strategy="momentum" role="tab" aria-selected="false">Momentum</button>
+          <button type="button" class="strategy-mode" data-strategy="marlamov" role="tab" aria-selected="false">Дивидендная переоценка</button>
+          <button type="button" class="strategy-mode" data-strategy="optmv" role="tab" aria-selected="false">Оптимизаторы</button>
+          <button type="button" class="strategy-mode" data-strategy="ml" role="tab" aria-selected="false">ML-оптимизатор</button>
+        </div>
+
+        <details class="mapwrap pfwrap" id="pf" hidden>
+          <summary>Конструктор портфеля <span class="muted">(собрать корзину по фактору)</span></summary>
+          <div class="pf-body">
+            <div class="pf-controls">
+              <label>Метод формирования корзины<select id="pf-method">
+                <option value="quality">RU Quality · секторные модели</option>
+                <option value="momentum">Momentum (WML 12–1)</option>
+                <option value="marlamov">Дивидендная переоценка (Марламов)</option>
+                <option value="optmv">Оптимум: мин. риск</option>
+                <option value="optms">Оптимум: макс-Шарп (quality-тилт)</option>
+                <option value="optrp">Оптимум: risk-parity</option>
+                <option value="optiv">Оптимум: inverse-vol</option>
+              </select></label>
+              <label>Бумаг<select id="pf-n"><option>10</option><option selected>15</option><option>20</option></select></label>
+              <label>Взвешивание<select id="pf-weight">
+                <option value="factor_tilt">Капитализация × Quality</option>
+                <option value="equal">Равные доли</option>
+                <option value="score">По фактору</option>
+                <option value="mcap">По капитализации</option>
+                <option value="invvol">Обратная волатильность</option>
+              </select></label>
+              <label>Макс/бумагу %<input type="number" id="pf-cap" value="20" min="5" max="100" step="5"></label>
+              <label>Секторный кап %<input type="number" id="pf-seccap" value="40" min="10" max="100" step="10"></label>
+              <label>Капитал ₽<input type="number" id="pf-capital" value="1000000" min="0" step="100000"></label>
+              <button class="btn" id="pf-gen">Сгенерировать</button>
+            </div>
+            <div id="pf-out"></div>
+          </div>
+        </details>
+
+        <section class="quality-panel" id="quality-panel" hidden aria-labelledby="quality-title">
+          <div class="quality-head">
+            <div>
+              <span class="quality-kicker">Независимая факторная модель</span>
+              <h2 id="quality-title">RU Quality</h2>
+              <p>Сравнивает эмитентов по финансово сопоставимым метрикам: корпоративная модель, отдельная модель банков по формам ЦБ и IT-модель по марже, денежному потоку и долговой нагрузке.</p>
+            </div>
+            <span class="quality-method-badge" data-tooltip="Независимая исследовательская модель. Секторные формулы не являются индексом или продуктом MSCI/Barra.">Sector v2</span>
+          </div>
+          <div class="quality-kpis" id="quality-kpis"><span class="muted">Загрузка RU Quality…</span></div>
+          <div class="quality-notice" id="quality-notice" hidden></div>
+
+          <div class="quality-controls">
+            <div class="quality-mode" aria-label="Режим модели">
+              <button type="button" class="active" aria-pressed="true">Core</button>
+            </div>
+            <label class="quality-toggle"><input type="checkbox" id="quality-sector-neutral" checked> Сравнивать внутри сектора</label>
+            <label>Покрытие<select id="quality-min-coverage"><option value="0.67" selected>2 из 3 своей модели</option><option value="1">Все 3 своей модели</option></select></label>
+            <label class="quality-toggle quality-research-toggle" data-tooltip="Включает компании без подтверждённой даты публикации. Подходит только для live research, не для point-in-time backtest."><input type="checkbox" id="quality-allow-low"> Live preview</label>
+            <button type="button" class="btn" id="quality-build">Сформировать</button>
+          </div>
+          <div class="quality-filter-status" id="quality-filter-status" aria-live="polite"></div>
+          <details class="quality-advanced">
+            <summary>Настройки отбора</summary>
+            <div class="quality-advanced-grid">
+              <label>Мин. ADV, млн ₽<input type="number" id="quality-min-adv" value="10" min="0" step="5"></label>
+              <label>Макс. эмитент, %<input type="number" id="quality-max-issuer" value="20" min="5" max="100" step="5"></label>
+            </div>
+          </details>
+
+          <div class="quality-data-strip" id="quality-data-strip"></div>
+          <div class="quality-screener-toolbar">
+            <label>Модель<select id="quality-model"><option value="">Все</option><option value="industrial_core">Компании</option><option value="bank_quality">Банки · ЦБ</option><option value="it_quality">IT</option></select></label>
+            <label>Сектор<select id="quality-sector"><option value="">Все</option></select></label>
+            <label>Статус<select id="quality-status"><option value="">Все</option><option value="eligible">Eligible</option><option value="low_confidence_review">Нужна проверка</option><option value="excluded">Исключены</option></select></label>
+            <label>Сортировка<select id="quality-sort"><option value="sector_rank_pct">Quality внутри сектора</option><option value="quality_rank_pct">Абсолютный Quality</option><option value="coverage_ratio">Покрытие</option><option value="adv_rub">Ликвидность</option></select></label>
+          </div>
+          <div class="quality-table-wrap" id="quality-table"><span class="muted">Загрузка screener…</span></div>
+          <div class="quality-backtest-state">
+            <b>Исторический backtest</b>
+            <span>Полный point-in-time backtest пока не рассчитан: нет полной истории дат публикации и всех секторных факторов на каждую дату ребаланса.</span>
+          </div>
+        </section>
+
+        <section class="momentum-panel" id="momentum-panel" hidden aria-labelledby="momentum-title">
+          <div class="momentum-head">
+            <div><span class="mls-kicker">Исследовательский фактор · MOEX ISS · WML 12–1</span><h2 id="momentum-title">Momentum</h2></div>
+            <span class="strategy-research-badge">Исследовательский сигнал</span>
+          </div>
+          <div id="momentum-content" aria-live="polite"><div class="mls-loading">Расчёт календаря и состава…</div></div>
+        </section>
+
+        <dialog class="quality-drawer" id="quality-drawer">
+          <div class="quality-drawer-head"><div id="quality-drawer-title"></div><button type="button" id="quality-drawer-close" aria-label="Закрыть">×</button></div>
+          <div id="quality-drawer-body"></div>
+        </dialog>
+
+        <details class="mapwrap ml-wrap" id="marlamov" hidden>
+          <summary>Форвардная доходность <span class="muted">(2 года, очищенная база · Spread к RFR · режим рынка)</span></summary>
+          <div class="ml-body" id="ml-body">
+            <div class="ml-loading muted">Посчитаем 2-летнюю форвардную дивдоходность…</div>
+          </div>
+        </details>
+
+        <section class="mls-panel" id="ml-strategy-panel" hidden aria-labelledby="mls-title">
+          <div class="mls-head">
+            <div>
+              <span class="mls-kicker">Point-in-time · MOEX ISS · Банк России · MCFTR</span>
+              <h2 id="mls-title">ML-оптимизатор</h2>
+              <p>Модельный портфель с purged walk-forward проверкой, отраслевыми драйверами, ограничениями ликвидности, лотности и издержек. В production попадают только признаки, прошедшие одинаковый out-of-sample тест.</p>
+            </div>
+            <span class="mls-state" id="mls-state">Загрузка</span>
+          </div>
+          <div id="mls-content" aria-live="polite"><div class="mls-loading">Загрузка ML snapshot…</div></div>
+        </section>
+      </section>
+
+      <!-- ─────────── ОБЛИГАЦИИ ─────────── -->
+      <section class="app-section" data-section="bonds" hidden>
+        <div class="section-hero bonds-hero">
+          <div>
+            <span class="section-kicker">Bond Portfolio Lab</span>
+            <h2>Облигации без скрытых допущений</h2>
+            <p>Рублёвые ОФЗ и корпоративные выпуски MOEX: dirty price, лоты, cash-flow duration, официальные рейтинги и ограничения ликвидности.</p>
+          </div>
+          <div class="section-tags" aria-label="Принципы расчёта">
+            <span>Реальные данные</span><span>После издержек</span><span>Не ИИР</span>
+          </div>
+        </div>
+
+        <div class="bondlab-workspace" id="bondlab-workspace">
+          <div class="bondlab-tabs" role="tablist" aria-label="Разделы облигаций">
+            <button type="button" class="bondlab-tab active" data-bondlab-tab="portfolios" role="tab" aria-controls="bondlab-panel" aria-selected="true">Собрать портфель</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="screener" role="tab" aria-controls="bondlab-panel" aria-selected="false">Найти и сравнить</button>
+            <button type="button" class="bondlab-tab" data-bondlab-tab="analytics" role="tab" aria-controls="bondlab-panel" aria-selected="false">Продвинутая аналитика</button>
+          </div>
+          <div class="bondlab-panel" id="bondlab-panel" role="tabpanel" aria-live="polite">
+            <div class="bonds-loading muted">Загрузка Bond Portfolio Lab…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────── БАНКИ РФ / ЦБ РФ ─────────── -->
+
+
+      <!-- ─────────── МЕТОДОЛОГИЯ ─────────── -->
+      <section class="app-section" data-section="methodology" hidden>
+        <p class="section-intro">Методология, источники данных и ограничения по каждому разделу. Все расчёты модельные; это не индивидуальная инвестиционная рекомендация.</p>
+
+        <details class="mapwrap coverage-wrap" id="data-coverage" hidden open>
+          <summary>Качество данных <span class="muted">(SmartLab baseline · official reports · verified layer)</span></summary>
+          <div class="coverage-body" id="coverage-body">
+            <div class="muted" style="padding:10px 2px">Загрузка покрытия данных…</div>
+          </div>
+        </details>
+
+        <details class="mapwrap method-wrap" id="methodology" hidden open>
+          <summary>Допущения и ограничения по разделам <span class="muted">(Акции · Облигации · Стратегии · Рынок)</span></summary>
+          <div class="method-body" id="method-body">
+            <div class="muted" style="padding:10px 2px">Загрузка методологии…</div>
+          </div>
+        </details>
+
+        <div class="method" id="method" hidden>
+          <h3>Модель акций — детали · данные · дисклеймер</h3>
+          <ul>
+            <li><b>Источник прогноза</b> — двухэтапная ML-модель магистерской ВКР (НИУ ВШЭ). Stage&nbsp;1: классификация факта выплаты в следующем году (калиброванный изотонической регрессией ансамбль top-3 — CatBoost/XGBoost/LightGBM, walk-forward OOF, ROC-AUC&nbsp;≈&nbsp;<span id="auc"></span>). Stage&nbsp;2: регрессия размера дивиденда.</li>
+            <li><b>Риск невыплаты</b> = 1&nbsp;−&nbsp;P(выплата). <b>Устойчивость</b> = 0,6·P&nbsp;+&nbsp;0,4·(серия лет выплат&nbsp;/&nbsp;макс.). Лейбла «снижения на&nbsp;X%» в модели нет.</li>
+            <li><b>Дивидендная доходность</b> на дату пересчёта цены: <b>ожидаемая</b> = P&nbsp;·&nbsp;прогнозный дивиденд&nbsp;/&nbsp;цена; <b>при выплате</b> = прогнозный дивиденд&nbsp;/&nbsp;цена. Цена — spot (закрытие), MOEX&nbsp;ISS.</li>
+            <li><b>Payout</b> — последний известный факт (год указан), не прогноз.</li>
+            <li><b>SHAP</b> в карточке показывает, что реально влияет на вероятность выплаты: вклад признаков усреднён по моделям ансамбля (top-3) и нормирован построчно. Направление и значимость факторов точны, абсолютные величины приближённые (калибровка вероятности монотонна).</li>
+            <li><b>Две даты:</b> прогноз модели заморожен на дату прогона ВКР; ежедневно обновляется только рыночная цена и дивидендная доходность.</li>
+          </ul>
+          <div class="disc" id="disclaimer"></div>
+          <p class="attrib" id="attrib"></p>
+        </div>
+      </section>
+
+      <!-- ─────────── ТАРИФЫ / О СЕРВИСЕ (P5) ─────────── -->
+
+      </main>
+    </div>
+  </div>
+
+  <nav class="app-bottomnav" id="app-bottomnav" aria-label="Разделы (мобильная навигация)"></nav>
+  <div class="app-more-sheet" id="app-more-sheet" hidden>
+    <div class="app-more-panel">
+      <div class="app-more-title">Дополнительно</div>
+      <div class="app-more-nav" id="app-more-nav"></div>
+    </div>
+  </div>
+
+  <!-- Модалки живут в КОНЦЕ body, а не внутри секций: роутер скрывает неактивные
+       секции через display:none, и вложенный <dialog> открывался бы нулевого размера
+       (проверено: showModal() давал :modal, но бокс 0×0). -->
+        <!-- Динамика инфляции: открывается кликом по карточке «Инфляция, г/г».
+       Нативный <dialog> даёт фокус-трап, Escape и backdrop без своего кода. -->
+  <dialog class="market-chart-dialog infl-dialog" id="infl-dialog" aria-labelledby="infl-title">
+    <div class="market-chart-shell">
+      <header class="market-chart-head">
+        <div>
+          <h2 id="infl-title">Динамика инфляции</h2>
+          <p class="muted">Официальный ИПЦ Росстата и инфляционные ожидания населения</p>
+        </div>
+        <button type="button" class="market-chart-close" id="infl-close" aria-label="Закрыть">✕</button>
+      </header>
+      <div id="infl-body"></div>
+    </div>
+  </dialog>
+
+  <dialog class="bond-detail-dialog" id="bond-detail-dialog" aria-labelledby="bond-detail-title">
+    <div class="bond-detail-shell">
+      <div id="bond-detail-body"></div>
+    </div>
+  </dialog>
+
+  <script src="instrument_logos.js?v=05bc4df5" defer></script>
+  <script src="instrument_identity.js?v=05bc4df5" defer></script>
+  <script src="bond_allocator.js?v=05bc4df5" defer></script>
+  <script src="bond_retail.js?v=05bc4df5" defer></script>
+  <script src="app.js?v=05bc4df5" defer></script>
+  <!-- Диалог графика рынка живёт вне секций-вкладок: showModal() у элемента внутри
+       скрытой секции не показывает ничего — display:none на предке гасит и top layer. -->
+  <dialog class="market-chart-dialog" id="market-chart-dialog" aria-labelledby="market-chart-title">
+  <div class="market-chart-shell">
+  <header class="market-chart-head">
+  <div>
+  <h2 id="market-chart-title">Рынок</h2>
+  <div class="market-chart-sub" id="market-chart-sub"></div>
+  </div>
+  <button type="button" class="market-chart-close" id="market-chart-close" aria-label="Закрыть график" title="Закрыть">×</button>
+  </header>
+  <div class="market-chart-tabs" id="market-chart-tabs" aria-label="Инструмент"></div>
+  <div class="market-chart-toolbar">
+  <div class="market-chart-view">
+  <div class="market-periods" id="market-chart-periods" aria-label="Период графика">
+  <button type="button" data-period="1d">1Д</button>
+  <button type="button" data-period="22">1М</button>
+  <button type="button" data-period="63">3М</button>
+  <button type="button" data-period="252" class="active">1Г</button>
+  <button type="button" data-period="756">3Г</button>
+  <button type="button" data-period="1260">5Л</button>
+  </div>
+  <span class="market-chart-mode" id="market-chart-mode">Свечи OHLC</span>
+  <button type="button" class="market-pf-toggle" id="market-pf-toggle" aria-pressed="false" hidden>Профиль объёма</button>
+  <button type="button" class="chart-fs-toggle" aria-pressed="false"
+  title="Развернуть график" aria-label="Развернуть график на весь экран">
+  <span class="chart-fs-icon" aria-hidden="true"></span><span class="chart-fs-label">Развернуть</span></button>
+  </div>
+  <div class="market-overlays" id="market-chart-overlays">
+  <label><input type="checkbox" value="sma20" checked><span class="ma-swatch ma20"></span>SMA20</label>
+  <label><input type="checkbox" value="sma50" checked><span class="ma-swatch ma50"></span>SMA50</label>
+  <label><input type="checkbox" value="sma200"><span class="ma-swatch ma200"></span>SMA200</label>
+  <label class="market-pos-toggle"><input type="checkbox" value="fizpos" checked><span class="ma-swatch mapos"></span>Позиции физлиц</label>
+  </div>
+  </div>
+  <div class="market-chart-ohlc" id="market-chart-ohlc"></div>
+  <!-- Полотно и слой профиля лежат в общей обёртке с position: relative — полосы
+       позиционируются по координатам графика и обязаны разделять с ним систему отсчёта. -->
+  <div class="market-chart-plot">
+  <div class="market-chart-canvas" id="market-chart-canvas"></div>
+  <div class="market-volume-profile" id="market-volume-profile" aria-hidden="true" hidden></div>
+  </div>
+  <div class="market-pos-note" id="market-pos-note" aria-live="polite"></div>
+  <div class="market-analytics" id="market-chart-levels"></div>
+  <div class="market-pf-note muted" id="market-pf-note" aria-live="polite"></div>
+  <footer class="market-chart-foot">
+  <span>Технические ориентиры рассчитаны по фактическим дневным OHLC и не являются прогнозом.</span>
+  <a id="market-chart-source" href="https://iss.moex.com/" target="_blank" rel="noopener noreferrer">MOEX ISS</a>
+  </footer>
+  </div>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-04T00:32:00.400847+00:00",
+  "registry_version": "2026-08-18",
+  "sources": [
+    {
+      "series_id": "MOEX_IMOEX",
+      "label": "Индекс МосБиржи",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/IMOEX",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXOG",
+      "label": "Индекс МосБиржи нефти и газа",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXOG",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXMM",
+      "label": "Индекс МосБиржи металлов и добычи",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXMM",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXFN",
+      "label": "Индекс МосБиржи финансов",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXFN",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXRE",
+      "label": "Индекс МосБиржи строительства",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXRE",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXEU",
+      "label": "Индекс МосБиржи электроэнергетики",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXEU",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXCN",
+      "label": "Индекс МосБиржи потребительского сектора",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXCN",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXIT",
+      "label": "Индекс МосБиржи информационных технологий",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXIT",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXTL",
+      "label": "Индекс МосБиржи телекоммуникаций",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXTL",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXTN",
+      "label": "Индекс МосБиржи транспорта",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXTN",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_MOEXCH",
+      "label": "Индекс МосБиржи химии и нефтехимии",
+      "provider": "MOEX ISS",
+      "source_url": "https://www.moex.com/ru/index/MOEXCH",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_USDRUB",
+      "label": "USD/RUB",
+      "provider": "MOEX ISS",
+      "source_url": "https://iss.moex.com/",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "MOEX_RGBI",
+      "label": "RGBI",
+      "provider": "MOEX ISS",
+      "source_url": "https://iss.moex.com/",
+      "status": "APPROVED",
+      "revision_policy": "append_only_market_close",
+      "reason": null
+    },
+    {
+      "series_id": "CBR_KEY_RATE",
+      "label": "Ключевая ставка Банка России",
+      "provider": "Банк России",
+      "source_url": "https://www.cbr.ru/hd_base/KeyRate/",
+      "status": "APPROVED",
+      "revision_policy": "effective_date_vintage",
+      "reason": null
+    },
+    {
+      "series_id": "BRENT_URALS_AUDITED",
+      "label": "Brent/Urals audited history",
+      "provider": null,
+      "source_url": null,
+      "status": "BLOCKED",
+      "revision_policy": "not_configured",
+      "reason": "No stable licensed or official point-in-time history is configured."
+    },
+    {
+      "series_id": "STEEL_INPUTS_AUDITED",
+      "label": "Steel, iron ore and coking coal audited history",
+      "provider": null,
+      "source_url": null,
+      "status": "BLOCKED",
+      "revision_policy": "not_configured",
+      "reason": "No stable licensed point-in-time commodity history is configured."
+    },
+    {
+      "series_id": "CBR_MORTGAGE_VINTAGES",
+      "label": "Ипотечная выдача и ставки с vintages",
+      "provider": "Банк России",
+      "source_url": "https://www.cbr.ru/statistics/bank_sector/mortgage/",
+      "status": "BLOCKED",
+      "revision_policy": "vintage_store_required",
+      "reason": "Publication-aware vintage ingestion is not configured yet."
+    }
+  ]
+}
