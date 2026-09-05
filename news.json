@@ -1,48 +1,48 @@
 {
-  "date": "2026-09-04",
-  "generated_at": "2026-09-04T21:56:46+03:00",
+  "date": "2026-09-05",
+  "generated_at": "2026-09-05T14:18:58+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись снижением, в то время как цены на нефть марки Brent выросли.",
+  "external_backdrop": "Американские фондовые индексы закрылись снижением, азиатские рынки выросли, нефть марки Brent подорожала.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7718.17",
+      "value": "7718.60",
       "change_pct": "-0.38%",
       "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26501.27",
-      "change_pct": "-0.31%",
+      "value": "26506.99",
+      "change_pct": "-0.29%",
       "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64214.48",
-      "change_pct": "-0.17%",
-      "as_of": "2026-09-03",
+      "value": "65020.94",
+      "change_pct": "+1.26%",
+      "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25213.31",
-      "change_pct": "-0.39%",
-      "as_of": "2026-09-03",
+      "value": "25650.87",
+      "change_pct": "+1.74%",
+      "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "96.47",
-      "change_pct": "+0.99%",
+      "value": "96.28",
+      "change_pct": "+0.80%",
       "as_of": "2026-09-04",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4471.80",
-      "change_pct": "-0.44%",
+      "value": "4429.80",
+      "change_pct": "-1.38%",
       "as_of": "2026-09-04",
       "group": "commodity"
     },
@@ -63,56 +63,156 @@
     {
       "name": "USD/RUB",
       "value": "86.01",
-      "change_pct": "-0.15%",
-      "as_of": "2026-09-04 21:56:44",
+      "change_pct": "-1.04%",
+      "as_of": "2026-09-04 23:54:58",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.78",
-      "change_pct": "-0.02%",
-      "as_of": "2026-09-04 19:15:00",
+      "change_pct": "-0.96%",
+      "as_of": "2026-09-04 23:50:03",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "uithoff-kushner-visit",
-      "headline": "Спецпосланники президента США Стив Уиткофф и Джаред Кушнер летят в Москву с предложением о прекращении конфликта",
-      "context": "Трамп раскрыл цель визита своих посланников, которые посетят Москву и Киев в эти выходные.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/04/09/2026/6a9b13b99d6fcbdc13273208"
-        }
-      ],
-      "published_at": "2026-09-04T21:54:00+03:00"
-    },
-    {
-      "id": "pik-delimiting-board",
-      "headline": "Совет директоров застройщика ПИК рассмотрит вопрос о делистинге акций с Московской биржи",
-      "context": "Мажоритарный акционер АО «Недвижимые активы» направил оферту на выкуп акций по цене 551,4 рубля за бумагу.",
+      "id": "pik-delisting-oferta",
+      "headline": "Совет директоров группы ПИК седьмого сентября рассмотрит вопрос о делистинге акций с Московской биржи",
+      "context": "Мажоритарный акционер «Недвижимые активы» направил оферту на выкуп акций миноритариев по цене 551,4 рубля за бумагу.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113284"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1348148.php"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/04/1226539-sovet-direktorov-pik"
         }
       ],
-      "published_at": "2026-09-04T20:24:00+03:00"
+      "published_at": "2026-09-04T19:32:00+03:00"
     },
     {
-      "id": "trump-fed-rate-cut",
-      "headline": "Дональд Трамп потребовал от ФРС снизить процентную ставку под угрозой прекращения торговли с рядом стран",
-      "context": "Президент США заявил, что сильная экономика требует самой низкой процентной ставки в мире.",
-      "category": "cb_policy",
+      "id": "uitkoff-kushner-pribili-moskva",
+      "headline": "Спецпосланники президента США Стив Уиткофф и Джаред Кушнер прибыли в Москву для переговоров",
+      "context": "В аэропорту Внуково американскую делегацию встретил глава РФПИ Кирилл Дмитриев.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1113339"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8937219"
+        }
+      ],
+      "published_at": "2026-09-05T11:49:00+03:00"
+    },
+    {
+      "id": "ukraina-prikaz-tishina",
+      "headline": "Украинские СМИ сообщили о получении военными приказа о прекращении огня с пятого по восьмое сентября",
+      "context": "Официального подтверждения режима прекращения огня со стороны России или Украины не поступало.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1348194.php"
+        }
+      ],
+      "published_at": "2026-09-04T23:31:00+03:00"
+    },
+    {
+      "id": "usa-prekraschenie-udarov-stolitsi",
+      "headline": "США попросили Россию и Украину приостановить атаки на столицы на время визита спецпосланников",
+      "context": "По данным источников, американская сторона обратилась с просьбой не наносить удары по Москве и Киеву.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8936894"
+        }
+      ],
+      "published_at": "2026-09-04T22:30:00+03:00"
+    },
+    {
+      "id": "tramp-poslanniki-moskva-kiev",
+      "headline": "Дональд Трамп заявил о направлении спецпосланников в Москву и Киев с предложением о завершении конфликта",
+      "context": "По словам президента США, Стив Уиткофф и Джаред Кушнер везут предложение о прекращении военных действий.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1113294"
+        }
+      ],
+      "published_at": "2026-09-04T22:09:00+03:00"
+    },
+    {
+      "id": "eurotrans-teh-defolti",
+      "headline": "Компания Евротранс допустила технические дефолты по трем выпускам облигаций на общую сумму 126,9 миллиона рублей",
+      "context": "Информация о невыплате купонов по долговым обязательствам опубликована на специализированных ресурсах.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1348162.php"
+        }
+      ],
+      "published_at": "2026-09-04T19:59:00+03:00"
+    },
+    {
+      "id": "neft-export-avgust-minimum",
+      "headline": "Морской экспорт российской нефти в августе снизился до минимального уровня с марта текущего года",
+      "context": "Объем морских отгрузок сократился на 12% по сравнению с июлем и составил 3,83 миллиона баррелей в сутки.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8936848"
+        }
+      ],
+      "published_at": "2026-09-04T19:13:00+03:00"
+    },
+    {
+      "id": "nikiforov-finiko-obvinenie",
+      "headline": "Бывший министр связи Николай Никифоров стал фигурантом уголовного дела о финансовой пирамиде Finiko",
+      "context": "Экс-чиновнику предъявлено заочное обвинение в организации деятельности пирамиды, ущерб от которой оценивается в 5 миллиардов рублей.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8936840"
+        }
+      ],
+      "published_at": "2026-09-04T19:02:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "tramp-frs-stavka-ugroza",
+      "headline": "Дональд Трамп потребовал от ФРС снизить ставку под угрозой прекращения торговли с дефицитными странами",
+      "context": "Президент США заявил, что сильная экономика требует самых низких процентных ставок в мире.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
@@ -122,253 +222,191 @@
       "published_at": "2026-09-04T18:19:00+03:00"
     },
     {
-      "id": "rusal-no-dividends",
-      "headline": "Акционеры Русала одобрили решение не выплачивать дивиденды по итогам первого полугодия 2026 года",
-      "context": "Решение о невыплате дивидендов было принято на общем собрании акционеров компании.",
+      "id": "rusal-nevyplata-dividendov",
+      "headline": "Акционеры Русала на внеочередном собрании одобрили решение не выплачивать дивиденды за первое полугодие",
+      "context": "Решение принято на фоне планов компании по диверсификации бизнеса и реализации инвестиционных проектов.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/383708"
+          "url": "https://t.me/markettwits/383709"
         }
       ],
       "published_at": "2026-09-04T17:58:00+03:00"
     },
     {
-      "id": "coal-market-recovery",
-      "headline": "Мировые котировки угля обновляют многолетние максимумы на фоне нестабильности предложения",
-      "context": "Пребывающий в кризисе с 2024 года рынок демонстрирует первые признаки восстановления, стимулируя российский экспорт.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8925431"
-        }
-      ],
-      "published_at": "2026-09-04T09:01:00+03:00"
-    },
-    {
-      "id": "glorax-share-buyback",
-      "headline": "Совет директоров GloraX выставил оферту несогласным с реорганизацией акционерам по цене 44,57 рубля за акцию",
-      "context": "Решение об установлении цены выкупа принято советом директоров девелопера.",
+      "id": "aeroflot-dividendy-2026",
+      "headline": "Совет директоров Аэрофлота готов рекомендовать выплату дивидендов за 2026 год при положительном финрезультате",
+      "context": "Об этом заявил генеральный директор авиаперевозчика Сергей Александровский в кулуарах Восточного экономического форума.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/04/1226509-gloraksa-tsenu-vikupa"
+          "url": "https://www.vedomosti.ru/business/news/2026/09/04/1226254-gendirektor-aeroflota"
         }
       ],
-      "published_at": "2026-09-04T18:08:00+03:00"
+      "published_at": "2026-09-04T11:15:00+03:00"
     },
     {
-      "id": "sberbank-app-glitch",
-      "headline": "В работе мобильного приложения Сбербанка произошел кратковременный технологический сбой",
-      "context": "Представители банка сообщили, что неполадки продолжались около пяти минут и были оперативно устранены.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/303314"
-        }
-      ],
-      "published_at": "2026-09-04T11:27:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "cb-fx-purchases-cut",
-      "headline": "Банк России с 7 сентября сократит ежедневные покупки валюты по бюджетному правилу до 1,92 млрд рублей",
-      "context": "Объем операций снизится с прежних 5,92 млрд рублей в день на фоне сокращения закупок Минфина.",
+      "id": "gref-stavka-prognoz",
+      "headline": "Герман Греф спрогнозировал снижение ключевой ставки Банка России до тринадцати процентов к концу года",
+      "context": "Глава Сбербанка ожидает, что регулятор будет снижать ставку шагами по 0,25–0,5 процентного пункта.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/84892"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8925571"
         }
       ],
-      "published_at": "2026-09-03T12:03:00+03:00"
+      "published_at": "2026-09-04T09:45:00+03:00"
     },
     {
-      "id": "putin-far-east-regime",
-      "headline": "Владимир Путин объявил о запуске единого преференциального режима на Дальнем Востоке и в Арктике с 2027 года",
-      "context": "Новый режим заменит действующие льготы и позволит инвесторам самостоятельно выбирать необходимый набор преференций.",
+      "id": "neftyaniki-dempfer-avgust",
+      "headline": "Выплаты российским нефтяным компаниям по топливному демпферу за август составят двести восемьдесят миллиардов рублей",
+      "context": "Из федерального бюджета будет направлено 100 миллиардов рублей по бензину и 180 миллиардов рублей по дизельному топливу.",
       "category": "macro",
       "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924725"
-        }
-      ],
-      "published_at": "2026-09-03T09:24:00+03:00"
-    },
-    {
-      "id": "sberbank-record-dividends",
-      "headline": "Сбербанк рассчитывает выплатить рекордные дивиденды в размере 50% от чистой прибыли по итогам года",
-      "context": "Герман Греф заявил на ВЭФ, что кредитная организация планирует заработать в текущем году больше, чем в 2025-м.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924687"
-        }
-      ],
-      "published_at": "2026-09-03T08:40:00+03:00"
-    },
-    {
-      "id": "el5-energy-q2-loss",
-      "headline": "ЭЛ5 Энерго зафиксировала чистый убыток в размере 0,88 млрд рублей во втором квартале 2026 года",
-      "context": "Рост операционных расходов на 110,7% нивелировал увеличение выручки компании на 84,9%.",
-      "category": "corporate",
-      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3862"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1113272"
         }
       ],
-      "published_at": "2026-09-03T13:21:00+03:00"
+      "published_at": "2026-09-04T18:14:00+03:00"
     },
     {
-      "id": "sberbank-wildberries-reserves",
-      "headline": "Сбербанк создал дополнительные резервы по долгам объединенной компании Wildberries и Russ из-за рисков",
-      "context": "Финансовый директор банка Тарас Скворцов отметил рост запросов от продавцов маркетплейсов на реструктуризацию кредитов.",
+      "id": "tkb-komplaens-oae-hongkong",
+      "headline": "Транскапиталбанк зафиксировал ужесточение комплаенс-процедур при расчетах через банки ОАЭ и Гонконга",
+      "context": "Наблюдается рост числа отказов в проведении платежей и дополнительные требования к раскрытию бенефициаров.",
       "category": "banks",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/303043"
+          "url": "https://frankmedia.ru/303477"
         }
       ],
-      "published_at": "2026-09-03T12:52:00+03:00"
+      "published_at": "2026-09-04T17:43:00+03:00"
     },
     {
-      "id": "lesta-privatization-plans",
-      "headline": "Минфин рассчитывает продать разработчика игры Мир танков компанию Леста частному инвестору осенью",
-      "context": "Замминистра финансов Алексей Моисеев сообщил, что актив оценивается очень дорого, а сделка планируется в сентябре-октябре.",
+      "id": "raspadskaya-prodazha-mezhegeyugol",
+      "headline": "Угольная компания Распадская продала свой добывающий актив Межегейуголь в Республике Тыва",
+      "context": "Сделка по продаже стопроцентной доли в предприятии подтверждена представителями компании.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/303016"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/04/1226466-raspadskaya-prodala"
         }
       ],
-      "published_at": "2026-09-03T12:35:00+03:00"
+      "published_at": "2026-09-04T16:34:00+03:00"
     },
     {
-      "id": "moex-us-shares-futures",
-      "headline": "Московская биржа начнет торги вечными фьючерсными контрактами на акции крупных американских компаний",
-      "context": "В сентябре на срочном рынке будут запущены 20 однодневных контрактов с расчетом на основе собственных фиксингов биржи.",
+      "id": "glorax-vykup-reorganizacia",
+      "headline": "Совет директоров девелопера GloraX утвердил цену выкупа акций у несогласных с реорганизацией акционеров",
+      "context": "Цена выкупа установлена на уровне 44,57 рубля за одну обыкновенную акцию компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1348104.php"
+        }
+      ],
+      "published_at": "2026-09-04T16:33:00+03:00"
+    },
+    {
+      "id": "minselhoz-moratoriy-bankrotstvo",
+      "headline": "Министерство сельского хозяйства прорабатывает введение моратория на банкротство аграриев до конца сезона",
+      "context": "Мера направлена на поддержку финансовой устойчивости хозяйств в условиях временных сложностей с реализацией зерна.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1113247"
+        }
+      ],
+      "published_at": "2026-09-04T15:19:00+03:00"
+    },
+    {
+      "id": "fizlica-vlozhenia-mosbirzha",
+      "headline": "Частные инвесторы увеличили вложения в акции на Московской бирже в августе в три с половиной раза",
+      "context": "Общий объем чистых покупок акций физическими лицами за месяц составил 30,5 миллиарда рублей.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8936518"
+        }
+      ],
+      "published_at": "2026-09-04T12:37:00+03:00"
+    },
+    {
+      "id": "norvegia-sund-trezheris",
+      "headline": "Крупнейший в мире суверенный фонд Норвегии планирует сократить вложения в государственные облигации США",
+      "context": "Управляющая компания фонда предложила снизить долю американских гособлигаций в своем портфеле с 70% до 50%.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8925647"
+        }
+      ],
+      "published_at": "2026-09-04T11:14:00+03:00"
+    },
+    {
+      "id": "mosbirzha-baza-rascheta-indeksov",
+      "headline": "Московская биржа утвердила новые базы расчета индексов с вступлением в силу восемнадцатого сентября",
+      "context": "Изменения коснутся акций компаний Лента, Мосэнерго, ДВМП, ЕвроТранс, ВТБ, Займер и других эмитентов.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924891"
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/383639"
         }
       ],
-      "published_at": "2026-09-03T12:33:00+03:00"
+      "published_at": "2026-09-04T10:08:00+03:00"
     },
     {
-      "id": "putin-marketplaces-procurement",
-      "headline": "Владимир Путин разрешил образовательным учреждениям проводить часть государственных закупок напрямую через маркетплейсы",
-      "context": "Эксперимент по закупкам без проведения тендерных процедур стартует во всех регионах России с 1 октября.",
+      "id": "fas-soglashenia-toplivo-neftyaniki",
+      "headline": "Федеральная антимонопольная служба подписала соглашения о стабилизации цен на топливо с двенадцатью нефтяными компаниями",
+      "context": "Договоренности предусматривают ограничение роста розничных цен на автозаправочных станциях уровнем инфляции.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302984"
-        }
-      ],
-      "published_at": "2026-09-03T10:55:00+03:00"
-    },
-    {
-      "id": "magnit-h1-loss",
-      "headline": "Магнит отчитался о росте выручки на 12,8% и чистом убытке в первом полугодии 2026 года",
-      "context": "Чистый убыток ритейлера составил 1,9 млрд рублей против прибыли годом ранее на фоне роста финансовых расходов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3861"
-        }
-      ],
-      "published_at": "2026-09-03T10:10:00+03:00"
-    },
-    {
-      "id": "prof-molchanov-norway-arrest",
-      "headline": "Власти Норвегии арестовали российское научно-исследовательское судно Профессор Молчанов по иску Нафтогаза",
-      "context": "Арест произведен на Шпицбергене в рамках спора о взыскании средств за утерянные крымские активы украинской компании.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/84876"
-        }
-      ],
-      "published_at": "2026-09-03T08:06:00+03:00"
-    },
-    {
-      "id": "digital-ruble-banks-losses",
-      "headline": "Внедрение цифрового рубля может лишить российские банки более 100 млрд рублей комиссионных доходов ежегодно",
-      "context": "По оценке НРА, кредитные организации также рискуют потерять до 10% пассивов в течение пяти лет.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/302973"
-        }
-      ],
-      "published_at": "2026-09-03T07:52:00+03:00"
-    },
-    {
-      "id": "developers-revenue-decline",
-      "headline": "Суммарная выручка крупных российских застройщиков по МСФО сократилась на 12,1% в первом полугодии",
-      "context": "Наибольшее снижение показателей зафиксировано у группы Самолет, чья выручка упала на 31,3%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8924626"
+          "url": "https://www.kommersant.ru/doc/8925569"
         }
       ],
-      "published_at": "2026-09-03T06:30:00+03:00"
+      "published_at": "2026-09-04T09:39:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-09-03"
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-09-04"
   }
 }
