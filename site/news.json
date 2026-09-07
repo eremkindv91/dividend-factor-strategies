@@ -1,181 +1,176 @@
 {
-  "date": "2026-09-06",
-  "generated_at": "2026-09-06T20:09:39+03:00",
+  "date": "2026-09-07",
+  "generated_at": "2026-09-07T10:32:27+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись снижением, азиатские рынки растут, нефть марки Brent торгуется выше 96 долларов за баррель.",
+  "external_backdrop": "Мировые фондовые индексы демонстрируют разнонаправленную динамику, в то время как золото дорожает, а нефть Brent торгуется стабильно.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7718.60",
       "change_pct": "-0.38%",
-      "as_of": "закрытие 04.09",
+      "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "26506.99",
       "change_pct": "-0.29%",
-      "as_of": "закрытие 04.09",
+      "as_of": "2026-09-04",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65020.94",
-      "change_pct": "+1.26%",
-      "as_of": "закрытие 04.09",
+      "value": "66399.84",
+      "change_pct": "+2.12%",
+      "as_of": "2026-09-07",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25650.87",
-      "change_pct": "+1.74%",
-      "as_of": "закрытие 04.09",
+      "value": "25447.12",
+      "change_pct": "-0.79%",
+      "as_of": "2026-09-07",
       "group": "global_equity"
     },
     {
       "name": "Brent",
       "value": "96.28",
-      "change_pct": "+0.80%",
-      "as_of": "закрытие 04.09",
+      "change_pct": "+0.00%",
+      "as_of": "2026-09-07",
       "group": "commodity"
     },
     {
       "name": "Золото",
       "value": "4476.60",
-      "change_pct": "-0.34%",
-      "as_of": "закрытие 04.09",
+      "change_pct": "+1.06%",
+      "as_of": "2026-09-07",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2253.41",
-      "change_pct": "+1.75%",
-      "as_of": "закрытие 04.09",
+      "value": "2241.97",
+      "change_pct": "-0.51%",
+      "as_of": "2026-09-07 10:32:24",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "819.85",
-      "change_pct": "+2.10%",
-      "as_of": "закрытие 04.09",
+      "value": "815.67",
+      "change_pct": "-0.51%",
+      "as_of": "2026-09-07 10:32:25",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "86.01",
-      "change_pct": "-1.04%",
-      "as_of": "закрытие 04.09",
+      "value": "86.08",
+      "change_pct": "+0.03%",
+      "as_of": "2026-09-07 10:32:24",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.78",
-      "change_pct": "-0.96%",
-      "as_of": "закрытие 04.09",
+      "value": "12.80",
+      "change_pct": "-0.01%",
+      "as_of": "2026-09-07 10:32:27",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "opec-plus-extends-september-quotas",
-      "headline": "Семерка стран ОПЕК+ приняла решение продлить сентябрьские квоты по добыче нефти на октябрь",
-      "context": "Министры сохранили текущие объемы ограничений без введения новых сокращений.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113489"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/06/1226692"
-        }
-      ],
-      "published_at": "2026-09-06T14:44:00+03:00"
-    },
-    {
-      "id": "putin-meeting-witkoff-kushner-kremlin",
-      "headline": "Владимир Путин провел трехчасовые переговоры со спецпосланниками США Стивом Уиткоффом и Джаредом Кушнером",
-      "context": "Стороны обсудили урегулирование украинского конфликта, экономическую тематику и крупные совместные проекты.",
+      "id": "iran-ormuz-closure",
+      "headline": "Власти Ирана заявили о полном перекрытии Ормузского пролива для судоходства",
+      "context": "Решение принято на фоне обострения конфликта с США и взаимных угроз нанесения ударов по танкерам.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8937391"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1113428"
+          "url": "https://www.kommersant.ru/doc/8937696"
         }
       ],
-      "published_at": "2026-09-06T00:44:00+03:00"
+      "published_at": "2026-09-07T01:31:00+03:00"
     },
     {
-      "id": "vostok-oil-project-commissioned",
-      "headline": "Роснефть ввела в эксплуатацию проект Восток Ойл и начала отгрузку первой нефти",
-      "context": "Президент Владимир Путин дал старт работе магистрального нефтепровода к терминалу Бухта Север.",
+      "id": "us-ru-ua-talks",
+      "headline": "Спецпосланники президента США обсудили в Москве и Киеве новые инициативы по урегулированию",
+      "context": "Джаред Кушнер выразил надежду на скорое возвращение к трехстороннему формату переговоров по российско-украинскому конфликту.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8937629"
+        }
+      ],
+      "published_at": "2026-09-06T19:57:00+03:00"
+    },
+    {
+      "id": "opec-limits-october",
+      "headline": "Страны ОПЕК+ приняли решение сохранить сентябрьские квоты на добычу нефти в октябре",
+      "context": "Решение прервало серию плановых повышений предельного уровня добычи нефти на 188 тысяч баррелей в сутки в месяц.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8937524"
+        }
+      ],
+      "published_at": "2026-09-06T15:10:00+03:00"
+    },
+    {
+      "id": "mvideo-credit-line",
+      "headline": "Компания М.видео привлекла кредитную линию на семнадцать с половиной миллиардов рублей",
+      "context": "Финансирование привлечено в августе со сроком погашения в сентябре две тысячи тридцать третьего года.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113400"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/05/1226615"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1348525.php"
         }
       ],
-      "published_at": "2026-09-05T18:39:00+03:00"
+      "published_at": "2026-09-07T07:40:00+03:00"
     },
     {
-      "id": "us-iran-tanker-strikes-escalation",
-      "headline": "Вооруженные силы США нанесли удары по трем иранским нефтяным танкерам в Персидском заливе",
-      "context": "Атака последовала за запуском баллистических ракет со стороны КСИР по американским военным кораблям.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1113386"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8937335"
-        }
-      ],
-      "published_at": "2026-09-05T17:19:00+03:00"
-    },
-    {
-      "id": "witkoff-kushner-arrive-kyiv-negotiations",
-      "headline": "Спецпосланники США Стив Уиткофф и Джаред Кушнер прибыли в Киев для переговоров с Зеленским",
-      "context": "Американская делегация стремится достичь существенного прогресса в урегулировании конфликта до зимы.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "aeroflot-fleet-plans",
+      "headline": "Аэрофлот получит сто восемь самолетов МС-21 до конца две тысячи тридцать второго года",
+      "context": "При этом авиакомпания считает невозможной ремоторизацию самолетов Superjet 100 без государственной поддержки.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8937490"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/06/09/2026/6a9d8af61c191648fec8afc1"
+          "url": "https://www.kommersant.ru/doc/8937700"
         }
       ],
-      "published_at": "2026-09-06T18:52:00+03:00"
+      "published_at": "2026-09-07T02:46:00+03:00"
     },
     {
-      "id": "china-capital-injection-state-banks",
-      "headline": "Министерство финансов Китая вложит 54 миллиарда долларов в крупнейшие государственные банки",
+      "id": "ru-companies-dividends-1h",
+      "headline": "Обещанные дивиденды крупнейших российских компаний за первое полугодие выросли до пятисот миллиардов рублей",
+      "context": "Это на 46% больше показателя аналогичного периода прошлого года, три четверти выплат обеспечат нефтегазовые компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8937662"
+        }
+      ],
+      "published_at": "2026-09-07T02:17:00+03:00"
+    },
+    {
+      "id": "china-banks-recapitalization",
+      "headline": "Министерство финансов Китая вложит пятьдесят четыре миллиарда долларов в крупнейшие госбанки",
       "context": "Инициатива направлена на укрепление капитала в банковском и страховом секторах страны.",
-      "category": "macro",
+      "category": "banks",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
@@ -187,141 +182,27 @@
       "published_at": "2026-09-06T17:12:00+03:00"
     },
     {
-      "id": "rosneft-stable-fuel-supplies-sechin",
-      "headline": "Глава Роснефти Игорь Сечин пообещал поддерживать стабильные поставки моторного топлива на АЗС",
-      "context": "Руководитель компании объяснил очереди на заправках в регионах техническими проблемами у других сетей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
+      "id": "basis-acquires-proto",
+      "headline": "Разработчик программного обеспечения Базис приобрел семьдесят процентов компании Прото",
+      "context": "Сделка позволит сократить сроки внедрения платформы для мониторинга IT-систем по сравнению с разработкой с нуля.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 3,
       "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113485"
-        },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8937513"
+          "url": "https://www.kommersant.ru/doc/8937674"
         }
       ],
-      "published_at": "2026-09-06T14:24:00+03:00"
-    },
-    {
-      "id": "s7-investment-murmansk-shipyard",
-      "headline": "Группа S7 инвестирует более двух миллиардов рублей в развитие Мурманского судоремонтного завода",
-      "context": "Средства будут направлены в дочернее предприятие Космического центра Морской старт.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113491"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/06/1226712"
-        }
-      ],
-      "published_at": "2026-09-06T15:24:00+03:00"
+      "published_at": "2026-09-07T00:00:00+03:00"
     }
   ],
-  "yesterday": [
-    {
-      "id": "pik-delisting-moscow-exchange",
-      "headline": "Девелопер ПИК готовится к делистингу своих акций с Московской биржи",
-      "context": "Об этом стало известно из материалов финансового дайджеста за четвертое сентября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T18:00:00+03:00"
-    },
-    {
-      "id": "moex-new-index-calculation-base",
-      "headline": "Московская биржа перейдет на новые базы расчета индексов акций с 18 сентября",
-      "context": "Изменения затронут основные бенчмарки российского фондового рынка.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T17:30:00+03:00"
-    },
-    {
-      "id": "private-investors-august-inflows",
-      "headline": "Частные инвесторы вложили в ценные бумаги на Мосбирже рекордные 212,5 миллиарда рублей в августе",
-      "context": "Приток средств физических лиц остается ключевым драйвером российского рынка.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T16:00:00+03:00"
-    },
-    {
-      "id": "cbr-cash-demand-increase",
-      "headline": "Банк России зафиксировал снижение доли безналичных расчетов из-за роста спроса на наличные",
-      "context": "Регулятор отметил изменение потребительских предпочтений граждан в пользу бумажных денег.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T15:00:00+03:00"
-    },
-    {
-      "id": "sberbank-app-glitch-september",
-      "headline": "В работе мобильного приложения Сбербанка в пятницу произошел технический сбой",
-      "context": "Пользователи сообщали о временных трудностях с доступом к сервисам банка четвертого сентября.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T14:00:00+03:00"
-    },
-    {
-      "id": "kazakhstan-rate-cut-september",
-      "headline": "Национальный банк Казахстана снизил базовую ставку до 16,25% годовых",
-      "context": "Решение принято на фоне замедления инфляционных процессов в республике.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23823"
-        }
-      ],
-      "published_at": "2026-09-04T12:00:00+03:00"
-    }
-  ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-09-04"
   }
 }
