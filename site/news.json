@@ -1,100 +1,130 @@
 {
   "date": "2026-09-08",
-  "generated_at": "2026-09-08T12:08:12+03:00",
+  "generated_at": "2026-09-08T21:35:37+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы снижаются, в то время как цены на нефть марки Brent выросли более чем на 3%.",
+  "external_backdrop": "Мировые фондовые индексы закрылись разнонаправленно, в то время как цены на нефть марки Brent выросли на фоне эскалации на Ближнем Востоке.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7718.60",
+      "value": "7689.21",
       "change_pct": "-0.38%",
-      "as_of": "2026-09-04",
+      "as_of": "2026-09-08",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26506.99",
-      "change_pct": "-0.29%",
-      "as_of": "2026-09-04",
+      "value": "26460.20",
+      "change_pct": "-0.18%",
+      "as_of": "2026-09-08",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65269.33",
-      "change_pct": "-1.70%",
-      "as_of": "2026-09-08",
+      "value": "66399.84",
+      "change_pct": "+2.12%",
+      "as_of": "2026-09-07",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25317.18",
-      "change_pct": "-0.38%",
-      "as_of": "2026-09-08",
+      "value": "25413.12",
+      "change_pct": "-0.93%",
+      "as_of": "2026-09-07",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "99.32",
-      "change_pct": "+3.16%",
+      "value": "97.95",
+      "change_pct": "+1.73%",
       "as_of": "2026-09-08",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4438.20",
-      "change_pct": "+0.19%",
+      "value": "4430.40",
+      "change_pct": "+0.01%",
       "as_of": "2026-09-08",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2282.44",
-      "change_pct": "+0.74%",
-      "as_of": "2026-09-08 12:08:10",
+      "value": "2274.08",
+      "change_pct": "+0.37%",
+      "as_of": "2026-09-08 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "834.22",
-      "change_pct": "+0.74%",
-      "as_of": "2026-09-08 12:08:10",
+      "value": "828.45",
+      "change_pct": "+0.04%",
+      "as_of": "2026-09-08 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "86.78",
-      "change_pct": "-0.02%",
-      "as_of": "2026-09-08 12:07:45",
+      "value": "86.48",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-08 21:35:35",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.90",
-      "change_pct": "+0.04%",
-      "as_of": "2026-09-08 12:08:12",
+      "value": "12.76",
+      "change_pct": "-0.09%",
+      "as_of": "2026-09-08 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "saudi-aramco-attacks",
-      "headline": "Йеменские хуситы атаковали энергетические объекты компании Saudi Aramco в Саудовской Аравии",
-      "context": "Нападение привело к росту мировых цен на нефть марки Brent выше 99 долларов за баррель.",
+      "id": "putin-trump-call",
+      "headline": "Путин и Трамп провели телефонный разговор по итогам визитов переговорщиков в Москву и Киев",
+      "context": "Лидеры обсудили урегулирование на Украине и позитивно оценили усилия Уиткоффа и Кушнера.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8939219"
+        }
+      ],
+      "published_at": "2026-09-08T17:19:00+03:00"
+    },
+    {
+      "id": "martyshov-arrested",
+      "headline": "Суд отправил под арест председателя совета директоров Евротранса Игоря Мартышова",
+      "context": "Мещанский районный суд Москвы заключил его под стражу по делу о хищении топлива подмосковной полиции.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1113874"
+        }
+      ],
+      "published_at": "2026-09-08T16:09:00+03:00"
+    },
+    {
+      "id": "houthis-attack-aramco",
+      "headline": "Йеменские хуситы объявили об атаке на объекты саудовской нефтяной компании Saudi Aramco",
+      "context": "Атака в Джазане привела к росту цен на нефть марки Brent выше 99 долларов за баррель.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1113788"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8938940"
         }
       ],
-      "published_at": "2026-09-08T10:04:00+03:00"
+      "published_at": "2026-09-08T13:48:00+03:00"
     },
     {
-      "id": "pik-delisting",
+      "id": "pik-delisting-approved",
       "headline": "Совет директоров девелопера ПИК одобрил делистинг акций с Московской биржи",
-      "context": "Выкуп акций у миноритарных акционеров будет осуществляться по цене 551,4 рубля за бумагу.",
+      "context": "Цена выкупа акций у миноритарных акционеров определена на уровне 551,4 рубля за бумагу.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -107,24 +137,24 @@
       "published_at": "2026-09-07T19:13:00+03:00"
     },
     {
-      "id": "retail-loans-august",
-      "headline": "Объем выдачи розничных кредитов в России достиг одного триллиона рублей в августе",
-      "context": "Показатель вырос на 3,2% по сравнению с июлем, а лидером роста стало автокредитование.",
-      "category": "macro",
+      "id": "solidcore-buyback",
+      "headline": "Solidcore объявила о выкупе собственных акций на сумму до 1,2 миллиарда долларов",
+      "context": "Компания предлагает выкупить бумаги по цене 11,66 доллара в период с 9 сентября по 12 октября.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8938752"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/384065"
         }
       ],
-      "published_at": "2026-09-08T11:00:00+03:00"
+      "published_at": "2026-09-08T15:37:00+03:00"
     },
     {
-      "id": "arctic-spg-hanwha-claim",
-      "headline": "Проект Арктик СПГ два требует один миллиард долларов от Hanwha Ocean",
-      "context": "Оператор проекта подал иск в Сингапурский международный арбитражный центр из-за расторжения контрактов на строительство газовозов.",
+      "id": "arctic-spg-lawsuit",
+      "headline": "Арктик СПГ 2 потребовал от южнокорейской Hanwha Ocean возместить один миллиард долларов",
+      "context": "Иск подан в Сингапурский международный арбитражный центр из-за разрыва контрактов на поставку газовозов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -137,24 +167,9 @@
       "published_at": "2026-09-08T09:19:00+03:00"
     },
     {
-      "id": "wildberries-payout-delays",
-      "headline": "Продавцы Wildberries пожаловались правительству на массовые задержки выплат за товары",
-      "context": "Союз продавцов маркетплейсов оценивает объем задержанных средств примерно в 20 миллиардов рублей.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/303775"
-        }
-      ],
-      "published_at": "2026-09-08T09:12:00+03:00"
-    },
-    {
-      "id": "unprofitable-banks",
-      "headline": "Около четверти кредитных организаций в России стали убыточными к августу",
-      "context": "Число убыточных организаций выросло на 87% с начала года и достигло 86 участников рынка.",
+      "id": "unprofitable-banks-grow",
+      "headline": "Около четверти кредистных организаций в России стали убыточными по итогам второго квартала",
+      "context": "Число убыточных игроков выросло почти в два раза с начала года и достигло 86 организаций.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
@@ -167,73 +182,73 @@
       "published_at": "2026-09-08T07:58:00+03:00"
     },
     {
-      "id": "sovereign-ai-models",
-      "headline": "Российский бизнес могут обязать использовать исключительно отечественные модели искусственного интеллекта",
-      "context": "Проект постановления правительства предлагает выбирать суверенные модели, если они не дороже зарубежных более чем в полтора раза.",
-      "category": "tech",
-      "investment_relevant": true,
+      "id": "rosstat-investments-drop",
+      "headline": "Росстат зафиксировал падение инвестиций в основной капитал в России на 9,9 процента",
+      "context": "Сокращение капитальных вложений в первом полугодии продолжается уже пятый квартал подряд.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8938534"
+          "url": "https://www.kommersant.ru/doc/8938568"
         }
       ],
-      "published_at": "2026-09-08T02:53:00+03:00"
-    },
-    {
-      "id": "mgkl-revenue-growth",
-      "headline": "Выручка группы МГКЛ за восемь месяцев выросла в два с половиной раза",
-      "context": "Прогнозный показатель выручки за январь-август 2026 года составил 34,3 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/08/1227105"
-        }
-      ],
-      "published_at": "2026-09-08T10:01:00+03:00"
+      "published_at": "2026-09-08T02:55:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "eurotrans-default-arrests",
-      "headline": "Компания ЕвроТранс допустила дефолт по облигациям на фоне ареста руководства",
-      "context": "Председатель совета директоров Игорь Мартынов и топ-менеджеры задержаны по делу о хищении топлива подмосковного главка МВД.",
+      "id": "analysts-expect-rate-hold",
+      "headline": "Большинство опрошенных аналитиков ожидают сохранения ключевой ставки ЦБ на уровне 14 процентов",
+      "context": "Эксперты сходятся во мнении, что Банк России сохранит ставку или снизит её на 25 базисных пунктов.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303587"
+        }
+      ],
+      "published_at": "2026-09-07T17:38:00+03:00"
+    },
+    {
+      "id": "eurotrans-execs-detained",
+      "headline": "Председатель совета директоров Евротранса и топ-менеджеры задержаны по делу о хищении топлива",
+      "context": "МВД России возбудило уголовное дело по факту присвоения моторного топлива подмосковного главка полиции.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113671"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303642"
         }
       ],
-      "published_at": "2026-09-07T15:39:00+03:00"
+      "published_at": "2026-09-07T15:26:00+03:00"
     },
     {
-      "id": "dividends-growth-1h2026",
-      "headline": "Обещанные дивиденды крупнейших российских компаний за полугодие выросли на сорок шесть процентов",
-      "context": "Общая сумма выплат составила почти 500 миллиардов рублей, три четверти которых обеспечат нефтегазовые компании.",
-      "category": "markets",
+      "id": "eurotrans-default",
+      "headline": "ЕвроТранс допустил фактический дефолт по всему массиву публичного долга на 36 миллиардов рублей",
+      "context": "Компания не исполнила обязательства по выплате купонов по всем десяти выпускам биржевых облигаций.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8937662"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303601"
         }
       ],
-      "published_at": "2026-09-07T02:17:00+03:00"
+      "published_at": "2026-09-07T12:05:00+03:00"
     },
     {
       "id": "hong-kong-gold-imports",
-      "headline": "Импорт российского золота в Гонконг вырос почти в три раза с начала года",
-      "context": "Объем поставок за первые семь месяцев 2026 года достиг рекордных 100 тонн металла.",
-      "category": "macro",
-      "investment_relevant": true,
+      "headline": "Гонконг почти втрое нарастил импорт российского золота за семь месяцев 2026 года",
+      "context": "Объем поставок практически достиг рекордных 100 тонн на фоне переориентации экспорта из-за санкций.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
@@ -244,25 +259,70 @@
       "published_at": "2026-09-07T16:54:00+03:00"
     },
     {
-      "id": "inter-rao-eu-court",
-      "headline": "Суд Европейского союза защитил дочернюю структуру Интер РАО от заморозки активов",
-      "context": "Суд постановил, что литовские власти не предоставили достаточных оснований для блокировки средств Inter RAO Lietuva.",
+      "id": "nwb-grows",
+      "headline": "Объем Фонда национального благосостояния России в августе вырос на 3,8 процента",
+      "context": "По состоянию на конец месяца объем ликвидных средств фонда составил 13,19 триллиона рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303684"
+        }
+      ],
+      "published_at": "2026-09-07T16:44:00+03:00"
+    },
+    {
+      "id": "sibur-dividend-recommendation",
+      "headline": "Совет директоров СИБУРа рекомендовал выплатить дивиденды за первое полугодие 2026 года",
+      "context": "Рекомендованный размер выплат составляет 11,4 рубля на одну обыкновенную акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8938193"
+        }
+      ],
+      "published_at": "2026-09-07T15:28:00+03:00"
+    },
+    {
+      "id": "kazakhstan-binance-hub",
+      "headline": "Нацбанк Казахстана подписал меморандум с Binance о создании регионального расчетного хаба",
+      "context": "Через новую структуру планируется проводить международные платежи и переводы, включая расчеты с ЦФА.",
       "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303633"
+        }
+      ],
+      "published_at": "2026-09-07T14:53:00+03:00"
+    },
+    {
+      "id": "eu-court-protects-assets",
+      "headline": "Суд Европейского союза защитил российские компании от произвольной заморозки активов в Европе",
+      "context": "Суд постановил, что литовские власти не привели достаточных оснований для блокировки активов дочки Интер РАО.",
+      "category": "geopolitics",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/303589"
+          "url": "https://frankmedia.ru/303602"
         }
       ],
-      "published_at": "2026-09-07T11:20:00+03:00"
+      "published_at": "2026-09-07T11:21:00+03:00"
     },
     {
-      "id": "marketplace-state-procurement",
-      "headline": "Правительство России определит перечень маркетплейсов для участия в государственных закупках",
-      "context": "Министерство экономического развития составит список площадок, соответствующих требованиям к электронным операторам.",
-      "category": "markets",
+      "id": "minek-marketplace-list",
+      "headline": "Министерство экономического развития составит список маркетплейсов для допуска к государственным закупкам",
+      "context": "Площадки должны будут соответствовать требованиям законодательства о закупках и иметь развитую логистику.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
@@ -274,72 +334,27 @@
       "published_at": "2026-09-07T11:01:00+03:00"
     },
     {
-      "id": "mvideo-new-credit",
-      "headline": "Ритейлер МВидео привлек новый кредит на семнадцать миллиардов рублей для реструктуризации",
-      "context": "Финансирование привлечено на фоне продолжающегося процесса реструктуризации долговых обязательств компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-07T09:44:00+03:00"
-    },
-    {
-      "id": "market-mortgage-demand",
-      "headline": "Российские банки ожидают кратного роста спроса на рыночную ипотеку в текущем году",
-      "context": "По оценкам ВТБ и Совкомбанка, объем выдач без льготных программ может составить до 2,4 триллиона рублей.",
-      "category": "banks",
+      "id": "half-year-dividends-grow",
+      "headline": "Российские инвесторы могут получить почти 500 миллиардов рублей дивидендов за первое полугодие",
+      "context": "Три четверти всех выплат обеспечат компании Газпром нефть, НОВАТЭК и Татнефть.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/303356"
+          "url": "https://frankmedia.ru/303538"
         }
       ],
-      "published_at": "2026-09-07T07:00:00+03:00"
+      "published_at": "2026-09-07T07:50:00+03:00"
     },
     {
-      "id": "sibur-dividends-1h2026",
-      "headline": "Совет директоров СИБУРа рекомендовал выплатить дивиденды за первое полугодие",
-      "context": "Рекомендованный размер выплат составляет 11,4 рубля на одну обыкновенную акцию.",
+      "id": "basis-buys-proto",
+      "headline": "Разработчик программного обеспечения Базис приобрел 70 процентов компании Proto",
+      "context": "Proto занимается разработкой платформы для наблюдаемости и анализа сложных IT-систем.",
       "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8938193"
-        }
-      ],
-      "published_at": "2026-09-07T15:28:00+03:00"
-    },
-    {
-      "id": "fnb-growth-august",
-      "headline": "Объем Фонда национального благосостояния России вырос на четыреста seventy миллиардов рублей",
-      "context": "По итогам августа 2026 года совокупный объем фонда достиг 13,2 триллиона рублей.",
-      "category": "macro",
       "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1113682"
-        }
-      ],
-      "published_at": "2026-09-07T16:34:00+03:00"
-    },
-    {
-      "id": "basis-acquires-proto",
-      "headline": "Российский разработчик программного обеспечения Базис приобрел контрольную долю в компании Прото",
-      "context": "Покупка 70% долей позволит сократить сроки внедрения платформы для мониторинга IT-систем.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -347,13 +362,28 @@
         }
       ],
       "published_at": "2026-09-07T00:00:00+03:00"
+    },
+    {
+      "id": "minpromtorg-uzga-lawsuit",
+      "headline": "Министерство промышленности и торговли подало иски к Уральскому заводу гражданской авиации",
+      "context": "Общая сумма исковых требований ведомства в Арбитражного суде Москвы составляет 4,8 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8937954"
+        }
+      ],
+      "published_at": "2026-09-07T11:58:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-07"
   }
 }
