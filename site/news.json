@@ -1,8 +1,8 @@
 {
   "date": "2026-09-09",
-  "generated_at": "2026-09-09T10:34:32+03:00",
+  "generated_at": "2026-09-09T12:13:49+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы снизились, в то время как цены на нефть марки Brent превысили 100 долларов за баррель на фоне эскалации конфликта США и Ирана.",
+  "external_backdrop": "Мировые фондовые индексы снизились, в то время как цены на нефть Brent превысили 100 долларов за баррель на фоне эскалации на Ближнем Востоке.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,75 +27,60 @@
     },
     {
       "name": "Hang Seng",
-      "value": "25252.53",
-      "change_pct": "-0.26%",
+      "value": "25274.96",
+      "change_pct": "-0.17%",
       "as_of": "2026-09-09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "100.00",
-      "change_pct": "+2.12%",
+      "value": "100.19",
+      "change_pct": "+2.32%",
       "as_of": "2026-09-09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4448.80",
-      "change_pct": "+1.25%",
+      "value": "4445.70",
+      "change_pct": "+1.18%",
       "as_of": "2026-09-09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2270.30",
-      "change_pct": "-0.17%",
-      "as_of": "2026-09-09 10:34:29",
+      "value": "2273.32",
+      "change_pct": "-0.03%",
+      "as_of": "2026-09-09 12:13:46",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "827.08",
-      "change_pct": "-0.17%",
-      "as_of": "2026-09-09 10:34:30",
+      "value": "828.17",
+      "change_pct": "-0.03%",
+      "as_of": "2026-09-09 12:13:47",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.96",
-      "change_pct": "+0.02%",
-      "as_of": "2026-09-09 10:34:30",
+      "value": "85.55",
+      "change_pct": "+0.06%",
+      "as_of": "2026-09-09 12:13:43",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.78",
-      "change_pct": "+0.17%",
-      "as_of": "2026-09-09 10:34:31",
+      "value": "12.73",
+      "change_pct": "-0.24%",
+      "as_of": "2026-09-09 12:13:48",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-iran-military-escalation",
-      "headline": "США и Иран обменялись ракетными ударами по нефтяным танкерам и военным базам",
-      "context": "Американские силы уничтожили пять иранских танкеров, в ответ КСИР атаковал эсминцы США и базы в Иордании.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8939502"
-        }
-      ],
-      "published_at": "2026-09-09T04:32:00+03:00"
-    },
-    {
-      "id": "sberbank-8m-results",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за восемь месяцев 2026 года выросла на 19%",
-      "context": "В августе банк заработал 169,1 млрд рублей чистой прибыли, увеличив показатель на 14,2% в годовом выражении.",
-      "category": "corporate",
+      "id": "sberbank-ras-8m-results",
+      "headline": "Чистая прибыль Сбербанка по РСБУ за восемь месяцев выросла на девятнадцать процентов",
+      "context": "За январь-август 2026 года чистая прибыль банка достигла 1 332,7 млрд рублей, а в августе увеличилась на 14,2% до 169,1 млрд рублей.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
@@ -104,89 +89,119 @@
           "url": "https://www.vedomosti.ru/investments/news/2026/09/09/1227414-pribil-sberbanka"
         }
       ],
-      "published_at": "2026-09-09T10:16:00+03:00"
+      "published_at": "2026-09-09T09:50:00+03:00"
+    },
+    {
+      "id": "us-iran-tanker-conflict",
+      "headline": "Военные США уничтожили пять иранских танкеров в ответ на обстрел своего корабля",
+      "context": "Центральное командование ВС США сообщило об уничтожении пяти иранских нефтяных танкеров в Оманском заливе и у острова Харк.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1113956"
+        }
+      ],
+      "published_at": "2026-09-09T04:32:00+03:00"
+    },
+    {
+      "id": "federal-budget-deficit-8m",
+      "headline": "Дефицит федерального бюджета России с начала года составил почти шесть триллионов рублей",
+      "context": "По данным Минфина, за январь-август 2026 года дефицит бюджета составил 5,795 трлн рублей, увеличившись в 1,5 раза год к году.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/07/09/2026/6a9ea8e1a240d3be76afc0e7"
+        }
+      ],
+      "published_at": "2026-09-09T11:03:00+03:00"
+    },
+    {
+      "id": "fns-digital-ruble-tracking",
+      "headline": "Налоговая служба получит доступ к техническим данным устройств при операциях с цифровым рублем",
+      "context": "С 1 июля 2027 года ФНС сможет запрашивать IP- и MAC-адреса, номера телефонов и параметры SIM-карт участников транзакций.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303925"
+        }
+      ],
+      "published_at": "2026-09-09T09:29:00+03:00"
     },
     {
       "id": "nebius-palantir-partnership",
-      "headline": "Nebius Group Аркадия Воложа заключила стратегическое партнерство с американской Palantir",
-      "context": "Компания предоставит свои облачные мощности для обучения и запуска ИИ-моделей подрядчика армии США.",
-      "category": "corporate",
+      "headline": "Компания Nebius Аркадия Воложа стала стратегическим партнером американского оборонного подрядчика Palantir",
+      "context": "Nebius предоставит Palantir доступ к своей вычислительной инфраструктуре и облачной платформе для обучения ИИ-моделей.",
+      "category": "tech",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://t.me/frank_media/23859"
+          "url": "https://frankmedia.ru/303914"
         }
       ],
-      "published_at": "2026-09-09T09:44:00+03:00"
+      "published_at": "2026-09-09T09:27:00+03:00"
     },
     {
-      "id": "russian-steel-consumption-decline",
-      "headline": "Потребление стали в России в 2026 году может сократиться на 4–11%",
-      "context": "Снижение спроса вызвано спадом в жилищном и коммерческом строительстве на фоне высокой ключевой ставки.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/384144"
-        }
-      ],
-      "published_at": "2026-09-09T08:55:00+03:00"
-    },
-    {
-      "id": "mvideo-eldorado-drop",
-      "headline": "Сеть М.видео-Эльдорадо выпала из топ-10 крупнейших ритейлеров России",
-      "context": "Падение позиций произошло на фоне сокращения выручки компании на 40% во втором квартале 2026 года.",
+      "id": "mvideo-eldorado-drop-top10",
+      "headline": "Сеть М.Видео-Эльдорадо выбыла из десятки крупнейших ритейлеров России из-за падения выручки",
+      "context": "Выручка компании во втором квартале 2026 года сократилась на 40%, что привело к потере позиций в рейтинге.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1349420.php"
+          "url": "https://smart-lab.ru/company/mozgovik/blog/1349420.php"
         }
       ],
       "published_at": "2026-09-09T08:14:00+03:00"
     },
     {
-      "id": "us-canada-trade-restrictions",
-      "headline": "Дональд Трамп запретил импорт ряда товаров из Канады и ограничил госзакупки",
-      "context": "Под запрет попали мотоциклы, молочная продукция и алкоголь, а канадские товары исключены из госзакупок на 50 млрд долларов.",
-      "category": "macro",
+      "id": "us-canada-trade-war",
+      "headline": "Дональд Трамп запретил импорт молочной продукции и мотоциклов из Канады в США",
+      "context": "Президент США подписал указы о запрете импорта ряда канадских товаров и исключении продукции Канады из госзакупок на 50 млрд долларов.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8939504"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1113966"
         }
       ],
-      "published_at": "2026-09-09T05:53:00+03:00"
+      "published_at": "2026-09-09T04:39:00+03:00"
+    },
+    {
+      "id": "fns-nominee-taxpayer-registry",
+      "headline": "Федеральная налоговая служба создаст реестр подставных налогоплательщиков для борьбы с уклонением",
+      "context": "ФНС совместно с МВД до 1 февраля 2027 года разработает реестр граждан, на которых оформляются фиктивные ИП и ООО.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303913"
+        }
+      ],
+      "published_at": "2026-09-09T08:52:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "pik-delisting-announcement",
-      "headline": "Московская биржа полностью прекратит торги акциями застройщика ПИК с 20 октября",
-      "context": "Решение связано с планируемым выкупом ценных бумаг мажоритарным акционером, который не видит преимуществ в публичном статусе.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/08/1227328-mosbirzha-ostanovit-torgi"
-        }
-      ],
-      "published_at": "2026-09-08T18:57:00+03:00"
-    },
-    {
-      "id": "putin-tramp-call",
-      "headline": "Владимир Путин и Дональд Трамп провели часовой телефонный разговор по Украине",
-      "context": "Лидеры обсудили итоги поездок американских переговорщиков в Москву и Киев, а также перспективы экономического сотрудничества.",
+      "id": "putin-tramp-phone-call",
+      "headline": "Владимир Путин и Дональд Трамп провели часовой телефонный разговор по урегулированию на Украине",
+      "context": "Лидеры обсудили итоги визитов американских переговорщиков Стива Уиткоффа и Джареда Кушнера в Москву и Киев.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
@@ -196,27 +211,42 @@
           "url": "https://www.kommersant.ru/doc/8939219"
         }
       ],
-      "published_at": "2026-09-08T17:19:00+03:00"
+      "published_at": "2026-09-08T17:16:00+03:00"
     },
     {
-      "id": "solidcore-buyback",
-      "headline": "Компания Solidcore объявила о выкупе собственных акций на сумму 1,2 миллиарда долларов",
-      "context": "Выкуп ценных бумаг по цене 11,66 доллара за акцию планируется провести в период с 9 сентября по 12 октября.",
+      "id": "pik-delisting-moscx",
+      "headline": "Московская биржа полностью прекратит торги акциями застройщика ПИК с двадцатого октября",
+      "context": "Решение принято в связи с планируемым выкупом ценных бумаг девелопера, последний день торгов в стакане Т+1 — 15 октября.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/08/1227328-mosbirzha-ostanovit-torgi"
+        }
+      ],
+      "published_at": "2026-09-08T16:37:00+03:00"
+    },
+    {
+      "id": "solidcore-buyback-program",
+      "headline": "Компания Solidcore объявила программу обратного выкупа акций на один миллиард долларов",
+      "context": "Эмитент предлагает выкупить акции по цене 11,66 доллара за штуку в период с 9 сентября по 12 октября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "MarketTwits",
           "url": "https://t.me/markettwits/384065"
         }
       ],
       "published_at": "2026-09-08T15:37:00+03:00"
     },
     {
-      "id": "eurotrans-chairman-arrest",
-      "headline": "Суд арестовал председателя совета директоров компании Евротранс Игоря Мартышова",
-      "context": "Руководитель арестован на два месяца по уголовному делу о хищении моторного топлива у подмосковной полиции.",
+      "id": "eurotrans-chairman-arrested",
+      "headline": "Суд арестовал председателя совета директоров компании Евротранс по делу о хищении топлива",
+      "context": "Мещанский суд Москвы заключил под стражу Игоря Мартышова по обвинению в хищении моторного топлива подмосковной полиции.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -229,86 +259,41 @@
       "published_at": "2026-09-08T15:32:00+03:00"
     },
     {
-      "id": "ofz-auctions-announcement",
-      "headline": "Минфин России проведет аукционы по размещению двух выпусков ОФЗ с постоянным купоном",
-      "context": "К размещению 9 сентября предложены выпуски серии 26218 с погашением в 2031 году и серии 26230 с погашением в 2039 году.",
+      "id": "minfin-ofz-auctions",
+      "headline": "Министерство финансов России проведет аукционы по размещению двух выпусков облигаций федерального займа",
+      "context": "На аукционах 9 сентября будут предложены выпуски ОФЗ-ПД серии 26218 и серии 26230 в объемах доступных остатков.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8939350"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1113872"
         }
       ],
-      "published_at": "2026-09-08T15:59:00+03:00"
+      "published_at": "2026-09-08T15:49:00+03:00"
     },
     {
-      "id": "ozon-bank-auto-loans",
-      "headline": "Ozon Банк запустил выдачу автокредитов на покупку машин на маркетплейсе",
-      "context": "Продукт запущен в тестовом режиме с лимитом до 5 миллионов рублей на срок до восьми лет.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23852"
-        }
-      ],
-      "published_at": "2026-09-08T12:44:00+03:00"
-    },
-    {
-      "id": "hungary-expels-russian-diplomats",
-      "headline": "Власти Венгрии приняли решение выслать десять сотрудников российского посольства",
-      "context": "Дипломатов обвинили в недопустимой деятельности, МИД России пообещал жесткий и болезненный ответ.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8938852"
-        }
-      ],
-      "published_at": "2026-09-08T12:18:00+03:00"
-    },
-    {
-      "id": "alrosa-diamond-cycle",
-      "headline": "Алроса заявила о зарождении нового цикла роста мировых цен на алмазы и бриллианты",
-      "context": "Спрос на ювелирную продукцию превышает допандемийные уровни на фоне сильных продаж в США, Индии, ЕС и Японии.",
+      "id": "rosseti-sibir-offer-price",
+      "headline": "Россети Сибирь определили цену выкупа акций в рамках обязательного предложения",
+      "context": "Цена оферты составила 0,5253 рубля за обыкновенную акцию и 0,1208 рубля за привилегированную акцию.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/384022"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/384039"
         }
       ],
-      "published_at": "2026-09-08T11:03:00+03:00"
+      "published_at": "2026-09-08T12:53:00+03:00"
     },
     {
-      "id": "wildberries-payment-delays",
-      "headline": "Продавцы Wildberries пожаловались правительству на массовые задержки выплат за проданные товары",
-      "context": "Союз продавцов маркетплейсов оценил объем задержанных средств в 20 миллиардов рублей и попросил привлечь ФАС и ФНС.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23844"
-        }
-      ],
-      "published_at": "2026-09-08T09:21:00+03:00"
-    },
-    {
-      "id": "unprofitable-banks",
+      "id": "unprofitable-banks-russia",
       "headline": "Около четверти кредитных организаций в России стали убыточными по итогам второго квартала",
-      "context": "Число убыточных игроков выросло с начала года на 87% до 86 организаций, в основном за счет небольших банков.",
+      "context": "Число убыточных кредитных организаций к августу выросло до 86, увеличившись почти в два раза с начала года.",
       "category": "banks",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
@@ -319,9 +304,24 @@
       "published_at": "2026-09-08T07:58:00+03:00"
     },
     {
-      "id": "rosstat-investment-drop",
-      "headline": "Росстат зафиксировал сокращение инвестиций в основной капитал в России на 9,9%",
-      "context": "Падение капитальных вложений в годовом выражении продолжается уже пятый квартал подряд.",
+      "id": "wildberries-payment-delays",
+      "headline": "Продавцы Wildberries пожаловались в правительство на массовые задержки выплат за реализованные товары",
+      "context": "Союз продавцов маркетплейсов оценивает объем задержанных средств за конец июля примерно в 20 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8938530"
+        }
+      ],
+      "published_at": "2026-09-08T06:31:00+03:00"
+    },
+    {
+      "id": "rosstat-h1-investment-decline",
+      "headline": "Росстат зафиксировал падение инвестиций в основной капитал на десять процентов в первом полугодии",
+      "context": "В первом полугодии инвестиции в основной капитал сократились на 9,9% год к году, падение продолжается пятый квартал.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
@@ -334,11 +334,11 @@
       "published_at": "2026-09-08T02:55:00+03:00"
     },
     {
-      "id": "sovereign-ai-requirement",
-      "headline": "Правительство России обсуждает обязательное использование бизнесом отечественных моделей искусственного интеллекта",
-      "context": "Проект постановления обяжет компании выбирать суверенные ИИ-модели, если они не дороже зарубежных более чем в полтора раза.",
+      "id": "sovereign-ai-model-mandate",
+      "headline": "Российский бизнес могут обязать использовать отечественные суверенные модели искусственного интеллекта",
+      "context": "В правительстве подготовлен проект постановления, обязывающий выбирать полностью российские ИИ-модели перед национальными.",
       "category": "tech",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
@@ -347,52 +347,39 @@
         }
       ],
       "published_at": "2026-09-08T02:53:00+03:00"
+    },
+    {
+      "id": "ozon-bank-auto-loans",
+      "headline": "Ozon Банк запустил пилотный проект по выдаче автокредитов на покупку машин на маркетплейсе",
+      "context": "Банк начал тестировать выдачу автокредитов до 5 млн рублей на срок до восьми лет с первоначальным взносом от 20%.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/303842"
+        }
+      ],
+      "published_at": "2026-09-08T12:55:00+03:00"
+    },
+    {
+      "id": "mutual-funds-august-inflows",
+      "headline": "Чистый приток средств в розничные паевые инвестиционные фонды в августе превысил восемьдесят семь миллиардов рублей",
+      "context": "После спада в июле рынок коллективных инвестиций восстановился, наибольшим спросом пользовались фонды денежного рынка.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8938532"
+        }
+      ],
+      "published_at": "2026-09-08T07:01:00+03:00"
     }
   ],
-  "today_agenda": [
-    {
-      "time": "04:30",
-      "event": "Публикация данных по потребительской инфляции (CPI) в Китае за август",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "09:50",
-      "event": "Публикация финансовых результатов Сбербанка по РСБУ за 8 месяцев 2026 года",
-      "ticker": "SBER",
-      "type": "earnings",
-      "importance": 5
-    },
-    {
-      "time": "-",
-      "event": "Заседание совета директоров Яндекса по вопросу дивидендов",
-      "ticker": "YDEX",
-      "type": "dividend_cutoff",
-      "importance": 5
-    },
-    {
-      "time": "-",
-      "event": "Аукционы Минфина РФ по размещению ОФЗ серий 26218 и 26230",
-      "ticker": "",
-      "type": "ofz_auction",
-      "importance": 4
-    },
-    {
-      "time": "20:00",
-      "event": "Выступление главы Европейского центрального банка Кристин Лагард",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    },
-    {
-      "time": "23:30",
-      "event": "Публикация данных по запасам нефти в США от API",
-      "ticker": "",
-      "type": "macro",
-      "importance": 3
-    }
-  ],
+  "today_agenda": [],
   "briefing": {
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
