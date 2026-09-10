@@ -1,346 +1,382 @@
 {
   "date": "2026-09-10",
-  "generated_at": "2026-09-10T12:14:07+03:00",
+  "generated_at": "2026-09-10T21:22:48+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись снижением, азиатские рынки торгуются разнонаправленно, нефть Brent и золото растут.",
+  "external_backdrop": "Мировые фондовые индексы и золото снизились, в то время как цены на нефть Brent продемонстрировали резкий рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7636.36",
-      "change_pct": "-0.48%",
-      "as_of": "2026-09-09",
+      "value": "7593.00",
+      "change_pct": "-0.57%",
+      "as_of": "2026-09-10",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26253.34",
-      "change_pct": "-0.64%",
-      "as_of": "2026-09-09",
+      "value": "26097.52",
+      "change_pct": "-0.59%",
+      "as_of": "2026-09-10",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65270.95",
-      "change_pct": "+0.20%",
-      "as_of": "2026-09-10",
+      "value": "65142.78",
+      "change_pct": "-0.19%",
+      "as_of": "2026-09-09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24954.47",
-      "change_pct": "-1.27%",
-      "as_of": "2026-09-10",
+      "value": "25274.96",
+      "change_pct": "-0.17%",
+      "as_of": "2026-09-09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "102.18",
-      "change_pct": "+0.96%",
+      "value": "108.03",
+      "change_pct": "+6.74%",
       "as_of": "2026-09-10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4437.00",
-      "change_pct": "+0.48%",
+      "value": "4383.50",
+      "change_pct": "-0.74%",
       "as_of": "2026-09-10",
       "group": "commodity"
+    },
+    {
+      "name": "RTS",
+      "value": "862.31",
+      "change_pct": "+3.32%",
+      "as_of": "2026-09-10 19:00:12",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "84.26",
+      "change_pct": "-0.14%",
+      "as_of": "2026-09-10 21:22:46",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.53",
+      "change_pct": "+0.08%",
+      "as_of": "2026-09-10 19:15:02",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "lukoil-komandirshor-production",
-      "headline": "ЛУКОЙЛ начал промышленную эксплуатацию Командиршорской группы месторождений в НАО",
-      "context": "Ввод установки подготовки нефти мощностью более 800 тысяч тонн позволил приступить к добыче.",
-      "category": "corporate",
+      "id": "imoex-above-2300",
+      "headline": "Индекс Мосбиржи превысил 2300 пунктов на фоне раллирующей нефти Brent",
+      "context": "Российский рынок акций ускорил восстановление благодаря росту цен на энергоносители и новостям о переговорах.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1114171"
+          "url": "https://www.interfax.ru/business/1115355"
         }
       ],
-      "published_at": "2026-09-09T21:19:00+03:00"
+      "published_at": "2026-09-10T19:24:00+03:00"
     },
     {
-      "id": "siluanov-budget-rule-price",
-      "headline": "Минфин рассматривает снижение цены отсечения в бюджетном правиле до 50 долларов за баррель",
-      "context": "Министр финансов Антон Силуанов назвал этот вариант базовым и единственным обсуждаемым.",
+      "id": "ecb-rate-hike",
+      "headline": "Европейский центральный банк повысил все три ключевые процентные ставки на 25 базисных пунктов",
+      "context": "Регулятор увеличил ставку по депозитам до 2,5%, по основным операциям рефинансирования — до 2,65%.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1114153"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304161"
         }
       ],
-      "published_at": "2026-09-09T20:14:00+03:00"
+      "published_at": "2026-09-10T15:15:00+03:00"
     },
     {
-      "id": "eurotrans-shares-crash",
-      "headline": "Акции Евротранса упали еще на 12% на фоне арестов топ-менеджеров компании",
-      "context": "Котировки снижаются с начала недели после отправки под арест руководства по делу о хищении топлива.",
+      "id": "houthis-capture-moha",
+      "headline": "Йеменские хуситы захватили стратегический порт Моха и подошли к Баб-эль-Мандебскому проливу",
+      "context": "Наступление группировки привело к резкому сокращению судоходства в регионе и росту цен на нефть.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Reuters",
+          "url": "https://t.me/if_market_news/85074"
+        }
+      ],
+      "published_at": "2026-09-10T15:39:00+03:00"
+    },
+    {
+      "id": "opec-cuts-demand-forecast",
+      "headline": "ОПЕК снизила прогноз роста мирового спроса на нефть в 2026 году",
+      "context": "Аналитики организации понижают свои ожидания пятый месяц подряд, теперь прогнозируется рост на 0,38 млн баррелей в сутки.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1115305"
+        }
+      ],
+      "published_at": "2026-09-10T15:14:00+03:00"
+    },
+    {
+      "id": "business-price-expectations-rise",
+      "headline": "Ценовые ожидания российских предприятий в сентябре выросли третий месяц подряд",
+      "context": "Данные оперативного мониторинга Банка России фиксируют рост показателя с 20,5 до 22,7 пункта.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1115310"
+        }
+      ],
+      "published_at": "2026-09-10T15:29:00+03:00"
+    },
+    {
+      "id": "fns-increases-tax-claims",
+      "headline": "ФНС резко увеличила сумму налоговых доначислений крупному бизнесу в первом полугодии",
+      "context": "Сумма доначислений крупнейшим налогоплательщикам выросла почти втрое и достигла 16,3 млрд рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23875"
+        }
+      ],
+      "published_at": "2026-09-10T07:43:00+03:00"
+    },
+    {
+      "id": "veb-floater-placement",
+      "headline": "ВЭБ.РФ разместил выпуск 3,5-летних облигаций-флоатеров объемом 90 миллиардов рублей",
+      "context": "Финальный спред по купону серии ПБО-002Р-61 с привязкой к ставке RUONIA составил 185 базисных пунктов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/10/1227747-aktsii-evrotransa"
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/10/1227966-vebrf-obligatsii"
         }
       ],
-      "published_at": "2026-09-10T10:51:00+03:00"
+      "published_at": "2026-09-10T20:15:00+03:00"
     },
     {
-      "id": "domrf-acquires-meteor-lift",
-      "headline": "Госкомпания Дом.РФ приобрела лифтовой бизнес Meteor Lift у холдинга S8 Capital",
-      "context": "Аналитики оценивают сумму сделки по покупке завода и сервисной компании в 8–9 миллиардов рублей.",
+      "id": "bending-spoons-buys-miro",
+      "headline": "Итальянская компания Bending Spoons договорилась о покупке сервиса Miro за 1,355 миллиарда долларов",
+      "context": "Сделка по приобретению платформы для совместной работы, основанной россиянами, закроется в четвертом квартале.",
       "category": "corporate",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8940565"
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23885"
         }
       ],
-      "published_at": "2026-09-10T10:24:00+03:00"
-    },
-    {
-      "id": "rspp-alternative-crossborder-channels",
-      "headline": "До 70% трансграничных операций России реализуются через альтернативные каналы в обход банков",
-      "context": "Такие оценки экспертов Российского союза промышленников и предпринимателей приводит РСПП.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1349930.php"
-        }
-      ],
-      "published_at": "2026-09-10T10:17:00+03:00"
-    },
-    {
-      "id": "oak-india-il114-agreement",
-      "headline": "Объединенная авиастроительная корпорация подписала соглашения на поставку 105 самолетов в Индию",
-      "context": "Рамочные соглашения на поставку Ил-114-300 были подписаны на выставке Иннопром.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1114230"
-        }
-      ],
-      "published_at": "2026-09-10T08:54:00+03:00"
-    },
-    {
-      "id": "europlan-net-profit-forecast",
-      "headline": "Европлан прогнозирует рост чистой прибыли на 40% до 7 миллиардов рублей по итогам года",
-      "context": "Компания опережает рынок автолизинга по темпам роста и планирует развивать лизинг оборудования.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8940105"
-        }
-      ],
-      "published_at": "2026-09-10T00:05:00+03:00"
-    },
-    {
-      "id": "weekly-inflation-rosstat",
-      "headline": "Инфляция в России за неделю составила 0.05% после дефляции на предыдущей неделе",
-      "context": "Годовая инфляция на 7 сентября замедлилась до 6.29% по сравнению с 6.32% на конец августа.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1349755.php"
-        }
-      ],
-      "published_at": "2026-09-09T19:00:00+03:00"
+      "published_at": "2026-09-10T19:17:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "arctic-lng2-record-production",
-      "headline": "Проект Арктик СПГ 2 нарастил добычу газа в июле и августе до рекордных объемов",
-      "context": "Добыча достигла 27 миллионов кубометров в сутки благодаря расширению флота обслуживающих танкеров.",
+      "id": "sberbank-8m-profit-up",
+      "headline": "Чистая прибыль Сбербанка по РСБУ за восемь месяцев выросла на 19 процентов",
+      "context": "Показатель достиг 1,33 триллиона рублей, при этом чистая прибыль за август составила 169,1 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/85046"
-        }
-      ],
-      "published_at": "2026-09-09T17:01:00+03:00"
-    },
-    {
-      "id": "minfin-ofz-auctions-results",
-      "headline": "Минфин России разместил два выпуска ОФЗ с постоянным купоном после двухмесячного перерыва",
-      "context": "Ведомство разместило ОФЗ 26218 на 51.49 миллиарда рублей и ОФЗ 26230 на 35.21 миллиарда рублей.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/384212"
-        }
-      ],
-      "published_at": "2026-09-09T16:33:00+03:00"
-    },
-    {
-      "id": "federal-budget-deficit-8m",
-      "headline": "Дефицит федерального бюджета России за январь-август составил 5.8 триллиона рублей",
-      "context": "Расходы бюджета за восемь месяцев достигли 31.72 триллиона рублей при доходах в 25.93 триллиона рублей.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/85038"
-        }
-      ],
-      "published_at": "2026-09-09T11:16:00+03:00"
-    },
-    {
-      "id": "sberbank-8m-net-profit",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за восемь месяцев выросла на 19% до 1.33 триллиона рублей",
-      "context": "В августе банк заработал 169.1 миллиарда рублей чистой прибыли, увеличив показатель на 14.2% год к году.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram-канал frank_media",
+          "name": "Frank Media",
           "url": "https://t.me/frank_media/23860"
         }
       ],
       "published_at": "2026-09-09T10:02:00+03:00"
     },
     {
-      "id": "oak-yak130m-export-contract",
-      "headline": "Объединенная авиастроительная корпорация заключила первый экспортный контракт на поставку самолетов Як-130М",
-      "context": "О подписании контракта на модернизированные учебно-боевые самолеты сообщила пресс-служба ОАК.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
+      "id": "budget-deficit-8m",
+      "headline": "Дефицит федерального бюджета России за восемь месяцев составил 5,8 триллиона рублей",
+      "context": "Ненефтегазовые доходы выросли на 18,1% год к году, в то время как нефтегазовые снизились на 16,7%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/384238"
+          "name": "Интерфакс-Маркет",
+          "url": "https://t.me/if_market_news/85038"
         }
       ],
-      "published_at": "2026-09-09T18:48:00+03:00"
+      "published_at": "2026-09-09T11:16:00+03:00"
     },
     {
-      "id": "sovcombank-abb-transaction",
-      "headline": "На внебиржевом рынке завершилась сделка по продаже 1.3% акций Совкомбанка",
-      "context": "Продавцом выступил один из действующих акционеров, основную часть книги заявок закрыли институциональные инвесторы.",
-      "category": "corporate",
+      "id": "minfin-ofz-auctions-success",
+      "headline": "Минфин России успешно разместил два выпуска ОФЗ общим объемом более 86 миллиардов рублей",
+      "context": "Ведомство разместило ОФЗ 26218 на 51,49 млрд рублей и ОФЗ 26230 на 35,21 млрд рублей.",
+      "category": "markets",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/384211"
+          "name": "Интерфакс-Маркет",
+          "url": "https://t.me/if_market_news/85042"
         }
       ],
-      "published_at": "2026-09-09T16:32:00+03:00"
-    },
-    {
-      "id": "polus-bond-program-increase",
-      "headline": "Полюс увеличил объем программы биржевых облигаций серии 001Р до 1 триллиона рублей",
-      "context": "Золотодобывающая компания зарегистрировала изменения в программу на Московской бирже.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/09/1227457-polyus-uvelichil-obem"
-        }
-      ],
-      "published_at": "2026-09-09T12:00:00+03:00"
-    },
-    {
-      "id": "eurotrans-managers-arrested",
-      "headline": "Три топ-менеджера компании Евротранс арестованы по делу о хищении топлива у МВД",
-      "context": "Суд отправил под стражу генерального директора Олега Алексеенкова и двух его заместителей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/85039"
-        }
-      ],
-      "published_at": "2026-09-09T11:25:00+03:00"
+      "published_at": "2026-09-09T14:25:00+03:00"
     },
     {
       "id": "fns-digital-ruble-tracking",
-      "headline": "Федеральная налоговая служба получит право отслеживать устройства пользователей цифрового рубля",
-      "context": "С июля 2027 года в выписки для налоговой войдут IP- и MAC-адреса, а также номера телефонов.",
+      "headline": "Федеральная налоговая служба получит доступ к техническим данным устройств при операциях с цифровым рублем",
+      "context": "С 1 июля 2027 года ведомство сможет запрашивать IP- и MAC-адреса, номера телефонов и параметры SIM-карт.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал frank_media",
+          "name": "Frank Media",
           "url": "https://t.me/frank_media/23861"
         }
       ],
       "published_at": "2026-09-09T10:04:00+03:00"
     },
     {
-      "id": "fns-proxy-taxpayers-registry",
-      "headline": "Федеральная налоговая служба создаст реестр подставных налогоплательщиков по поручению правительства",
-      "context": "Мера направлена на борьбу с уклонением от налогов через оформление бизнеса на подставных лиц.",
-      "category": "cb_policy",
+      "id": "pik-delisting-announcement",
+      "headline": "Московская биржа с 20 октября полностью остановит торги акциями застройщика ПИК",
+      "context": "Решение торговой площадки приведет к прекращению обращения бумаг крупнейшего девелопера.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23855"
+        }
+      ],
+      "published_at": "2026-09-09T07:01:00+03:00"
+    },
+    {
+      "id": "eurotrans-ceo-arrested",
+      "headline": "Акции компании Евротранс резко подешевели на фоне ареста генерального директора Олега Алексеенкова",
+      "context": "Топ-менеджер и его заместители отправлены под стражу по уголовному делу о хищении топлива у МВД.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8939857"
+        }
+      ],
+      "published_at": "2026-09-09T13:11:00+03:00"
+    },
+    {
+      "id": "sovcombank-abb-sale",
+      "headline": "Совкомбанк объявил о завершении сделки по продаже 1,3 процента акций в формате ABB",
+      "context": "Продавцом выступил один из действующих акционеров, основную часть книги заявок закрыли институциональные инвесторы.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/384211"
+        }
+      ],
+      "published_at": "2026-09-09T16:32:00+03:00"
+    },
+    {
+      "id": "arctic-lng-record-production",
+      "headline": "Проект Арктик СПГ 2 нарастил добычу газа в июле и августе до рекордных объемов",
+      "context": "Добыча на подсанкционном проекте достигла 27 млн кубометров в сутки благодаря расширению флота танкеров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс-Маркет",
+          "url": "https://t.me/if_market_news/85046"
+        }
+      ],
+      "published_at": "2026-09-09T17:01:00+03:00"
+    },
+    {
+      "id": "center-rezerv-default",
+      "headline": "Компания Центр-резерв допустила дефолт и кросс-дефолты по своим облигационным выпускам",
+      "context": "Эмитент не смог исполнить обязательства перед владельцами долговых ценных бумаг.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/09/1227551-defolt-i-kross-defolti"
+        }
+      ],
+      "published_at": "2026-09-09T15:47:00+03:00"
+    },
+    {
+      "id": "budget-surplus-august",
+      "headline": "Бюджет России вышел в профицит в августе благодаря рекордным дивидендам госкомпаний",
+      "context": "Профицит за месяц составил 660 млрд рублей на фоне поступления дивидендов в размере 691 млрд рублей.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал frank_media",
-          "url": "https://t.me/frank_media/23858"
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23866"
         }
       ],
-      "published_at": "2026-09-09T08:59:00+03:00"
+      "published_at": "2026-09-09T16:17:00+03:00"
     },
     {
-      "id": "mts-qr-payments-peru-bolivia",
-      "headline": "МТС запустила оплату по QR-кодам для российских карт в Перу и Боливии",
-      "context": "Списание средств происходит в рублях без комиссии с конвертацией в местную валюту.",
-      "category": "corporate",
+      "id": "nebius-palantir-partnership",
+      "headline": "Компания Nebius Аркадия Воложа станет стратегическим партнером американского разработчика Palantir",
+      "context": "Nebius предоставит Palantir доступ к своей вычислительной инфраструктуре для тренировки ИИ-моделей.",
+      "category": "tech",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал frank_media",
-          "url": "https://t.me/frank_media/23863"
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23859"
         }
       ],
-      "published_at": "2026-09-09T12:36:00+03:00"
+      "published_at": "2026-09-09T09:44:00+03:00"
+    },
+    {
+      "id": "russia-vietnam-agreements",
+      "headline": "Россия и Вьетнам договорились расширять кооперацию в нефтегазовом секторе и перейти на нацвалюты",
+      "context": "Владимир Путин и То Лам утвердили пакет соглашений по итогам переговоров в Кремле.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/384238"
+        }
+      ],
+      "published_at": "2026-09-09T18:38:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-09"
   }
 }
