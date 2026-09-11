@@ -1,0 +1,1 @@
+{"schema":2,"generated_at":"2026-09-11T11:17:52+00:00","default_index":"MCFTR","indices":{"MCFTR":{"file":"marketsaw_mcftr.json","available":true,"source_as_of":"2026-09-10","freshness_status":"fresh","fallback":false},"IMOEX":{"file":"marketsaw_imoex.json","available":true,"source_as_of":"2026-09-10","freshness_status":"fresh","fallback":false}}}
