@@ -1,388 +1,400 @@
 {
   "date": "2026-09-11",
-  "generated_at": "2026-09-11T12:10:29+03:00",
+  "generated_at": "2026-09-11T21:26:32+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и цены на нефть марки Brent снижаются.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent снизились на 2,85%, а золото подорожало на 0,63%.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7591.70",
-      "change_pct": "-0.58%",
-      "as_of": "2026-09-10",
+      "value": "7667.32",
+      "change_pct": "+1.00%",
+      "as_of": "2026-09-11",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26081.72",
-      "change_pct": "-0.65%",
-      "as_of": "2026-09-10",
+      "value": "26375.04",
+      "change_pct": "+1.12%",
+      "as_of": "2026-09-11",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64011.34",
-      "change_pct": "-1.93%",
-      "as_of": "2026-09-11",
+      "value": "65270.95",
+      "change_pct": "+0.20%",
+      "as_of": "2026-09-10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24805.63",
-      "change_pct": "-0.60%",
-      "as_of": "2026-09-11",
+      "value": "24954.47",
+      "change_pct": "-1.27%",
+      "as_of": "2026-09-10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "104.24",
-      "change_pct": "-3.15%",
+      "value": "104.56",
+      "change_pct": "-2.85%",
       "as_of": "2026-09-11",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4390.30",
-      "change_pct": "+0.59%",
+      "value": "4392.00",
+      "change_pct": "+0.63%",
       "as_of": "2026-09-11",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2291.56",
-      "change_pct": "-0.75%",
-      "as_of": "2026-09-11 12:10:26",
+      "value": "2281.04",
+      "change_pct": "-1.21%",
+      "as_of": "2026-09-11 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "855.79",
-      "change_pct": "-0.76%",
-      "as_of": "2026-09-11 12:10:27",
+      "value": "852.84",
+      "change_pct": "-1.10%",
+      "as_of": "2026-09-11 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.42",
-      "change_pct": "-0.04%",
-      "as_of": "2026-09-11 12:10:26",
+      "value": "84.16",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-11 21:26:30",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.53",
-      "change_pct": "+0.03%",
-      "as_of": "2026-09-11 12:10:28",
+      "value": "12.51",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-11 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "houthi-control-bab-el-mandeb",
-      "headline": "Йеменские хуситы взяли под полный контроль Баб-эль-Мандебский пролив",
-      "context": "Это привело к существенному сокращению движения судов через пролив и росту мировых цен на нефть марки Brent.",
+      "id": "cbr-keeps-rate-at-14",
+      "headline": "Банк России сохранил ключевую ставку на уровне четырнадцати процентов годовых",
+      "context": "Регулятор прервал цикл снижения ставки, отметив существенное усиление устойчивого ценового давления в последние месяцы.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8941162"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304340"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1115512"
+        }
+      ],
+      "published_at": "2026-09-11T13:30:00+03:00"
+    },
+    {
+      "id": "nabiullina-on-rate-space",
+      "headline": "Эльвира Набиуллина заявила о сокращении пространства для снижения ключевой ставки в текущем году",
+      "context": "Глава ЦБ отметила, что ускорение роста цен летом было вызвано в основном ситуацией на рынке топлива.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8952774"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304453"
+        }
+      ],
+      "published_at": "2026-09-11T15:13:00+03:00"
+    },
+    {
+      "id": "houthis-control-bab-el-mandeb",
+      "headline": "Йеменские хуситы установили полный контроль над Баб-эль-Мандебским проливом и западным побережьем страны",
+      "context": "Группировка заявила о захвате шести районов и блокаде судов, связанных с Саудовской Аравией.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "AFP",
-          "url": ""
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1115359"
-        }
-      ],
-      "published_at": "2026-09-11T11:13:00+03:00"
-    },
-    {
-      "id": "putin-green-light-rate-pause",
-      "headline": "Владимир Путин одобрил паузу в снижении ключевой ставки Банком России",
-      "context": "По данным Bloomberg, Кремль больше не настаивает на определенном решении регулятора перед заседанием 11 сентября.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-11T07:43:00+03:00"
-    },
-    {
-      "id": "ozon-shares-drop-drone-attack",
-      "headline": "Акции Ozon упали на 5% после атаки беспилотников на логистический центр в Саратове",
-      "context": "Маркетплейс временно приостановил прием и доставку заказов в Саратове и области.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8941535"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/11/1228041"
+          "url": "https://www.kommersant.ru/doc/8952940"
         }
       ],
-      "published_at": "2026-09-11T10:36:00+03:00"
+      "published_at": "2026-09-11T18:20:00+03:00"
     },
     {
-      "id": "sberbank-corporate-risk-cost-gref",
-      "headline": "Сбербанк не считает критичным рост стоимости риска по корпоративным кредитам",
-      "context": "Глава банка Герман Греф заявил, что ситуация остается в рамках прогнозов, несмотря на длительный период высокой ставки.",
+      "id": "ozon-warehouse-uav-attack",
+      "headline": "Логистический центр компании Ozon в Саратове подвергся атаке беспилотных летательных аппаратов",
+      "context": "На объекте произошел пожар, маркетплейс временно приостановил прием и доставку заказов в регионе.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1115453"
-        }
-      ],
-      "published_at": "2026-09-11T10:19:00+03:00"
-    },
-    {
-      "id": "russia-officially-launches-5g",
-      "headline": "Минцифры объявило об официальном коммерческом запуске сетей 5G в 16 городах России",
-      "context": "Операторы «большой четверки» запустили технологию на действующих частотах LTE.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8941456"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1115440"
+          "url": "https://www.kommersant.ru/doc/8941361"
         }
       ],
-      "published_at": "2026-09-11T09:22:00+03:00"
+      "published_at": "2026-09-11T04:52:00+03:00"
     },
     {
       "id": "vtb-accelerates-rosgosstrakh-sale",
-      "headline": "ВТБ ускорит продажу страховой компании «Росгосстрах» из-за новых требований Банка России",
-      "context": "Сделку планируют закрыть в 2026 году, чтобы уложиться в новый лимит на иммобилизованные активы.",
-      "category": "corporate",
+      "headline": "Банк ВТБ планирует ускорить продажу страховой компании Росгосстрах до конца текущего года",
+      "context": "Сделка необходима для соблюдения нового регуляторного лимита Банка России на иммобилизованные активы.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8952953"
+        },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/304021"
         }
       ],
-      "published_at": "2026-09-11T09:00:00+03:00"
+      "published_at": "2026-09-11T18:44:00+03:00"
     },
     {
-      "id": "iea-cuts-global-oil-demand-forecast",
-      "headline": "МЭА ухудшило прогноз мирового спроса на нефть в 2026 году на 2,5 млн баррелей в сутки",
-      "context": "Агентство сравнило масштаб падения спроса с крупнейшими экономическими кризисами за последние 60 лет.",
-      "category": "macro",
+      "id": "expobank-buys-sdm-bank",
+      "headline": "Экспобанк приобрел контрольный пакет акций СДМ-банка у его сооснователя Анатолия Ландсмана",
+      "context": "В результате сделки доля Экспобанка в капитале кредитной организации выросла до 86%.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304498"
+        }
+      ],
+      "published_at": "2026-09-11T17:55:00+03:00"
+    },
+    {
+      "id": "cbr-recapitalizes-rnpk",
+      "headline": "Банк России принял решение докапитализировать Российскую национальную перестраховочную компанию на 165 миллиардов рублей",
+      "context": "Решение принято на фоне участившихся атак беспилотников для обеспечения перестрахования ключевых отраслей.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8941628"
+          "url": "https://www.kommersant.ru/doc/8952843"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304467"
         }
       ],
-      "published_at": "2026-09-11T12:03:00+03:00"
+      "published_at": "2026-09-11T17:50:00+03:00"
+    },
+    {
+      "id": "diasoft-approves-dividends",
+      "headline": "Акционеры компании Диасофт утвердили выплату дивидендов за первое полугодие в размере шестнадцати рублей на акцию",
+      "context": "Реестр акционеров для получения выплат закроется 21 сентября 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/11/1228125-diasoft-dividendov"
+        }
+      ],
+      "published_at": "2026-09-11T12:48:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "ecb-raises-interest-rates",
-      "headline": "Европейский центральный банк повысил основные процентные ставки на 25 базисных пунктов",
-      "context": "Базовая ставка рефинансирования увеличена до 2,65%, а ставка по депозитам — до 2,5%.",
-      "category": "cb_policy",
-      "investment_relevant": false,
+      "id": "sberbank-8m-results",
+      "headline": "Чистая прибыль Сбербанка по РПБУ за восемь месяцев выросла на девятнадцать процентов",
+      "context": "Показатель достиг 1,33 трлн рублей при рентабельности капитала на уровне 22,9%.",
+      "category": "corporate",
       "importance": 5,
+      "investment_relevant": true,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://t.me/mozgovikresearch/3874"
+        }
+      ],
+      "published_at": "2026-09-10T12:15:00+03:00"
+    },
+    {
+      "id": "fns-increases-tax-claims",
+      "headline": "Федеральная налоговая служба увеличила сумму доначислений крупному бизнесу почти в три раза",
+      "context": "Общая сумма требований за первое полугодие выросла до 16,3 млрд рублей на фоне автоматизации контроля.",
+      "category": "macro",
+      "importance": 4,
+      "investment_relevant": false,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304107"
+        },
+        {
+          "name": "Известия",
+          "url": "https://t.me/frank_media/23875"
+        }
+      ],
+      "published_at": "2026-09-10T07:40:00+03:00"
+    },
+    {
+      "id": "cross-border-payments-bypass-banks",
+      "headline": "Доля трансграничных операций России через альтернативные каналы в обход банков достигла семидесяти процентов",
+      "context": "По данным РСПП, это связано с ужесточением комплаенса и снижением доли SWIFT в расчетах.",
+      "category": "macro",
+      "importance": 4,
+      "investment_relevant": false,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304146"
+        },
+        {
+          "name": "РСПП",
+          "url": "https://t.me/frank_media/23880"
+        }
+      ],
+      "published_at": "2026-09-10T13:02:00+03:00"
+    },
+    {
+      "id": "ecb-raises-rates",
+      "headline": "Европейский центральный банк повысил базовую процентную ставку на двадцать пять базисных пунктов",
+      "context": "Ставка рефинансирования выросла до 2,65%, а ставка по депозитам увеличилась до 2,5%.",
+      "category": "cb_policy",
+      "importance": 4,
+      "investment_relevant": false,
       "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8941011"
         },
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/09/10/1227896"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304161"
         }
       ],
       "published_at": "2026-09-10T15:15:00+03:00"
     },
     {
-      "id": "russian-companies-price-expectations-rise",
-      "headline": "Ценовые ожидания российских предприятий в сентябре выросли третий месяц подряд",
-      "context": "По данным мониторинга Банка России, баланс ожиданий бизнеса на ближайшие три месяца увеличился до 22,7 пункта.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "tbank-ai-trading",
+      "headline": "Т-Банк предоставил клиентам возможность совершать биржевые сделки с помощью внешних ИИ-агентов",
+      "context": "Инвесторы могут подключать брокерские счета к нейросетям для автоматического анализа рынка и выставления заявок.",
+      "category": "tech",
       "importance": 4,
+      "investment_relevant": true,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1115310"
+          "name": "Т-Банк",
+          "url": "https://t.me/if_market_news/85080"
         }
       ],
-      "published_at": "2026-09-10T15:29:00+03:00"
+      "published_at": "2026-09-10T18:01:00+03:00"
     },
     {
-      "id": "opec-lowers-global-oil-demand-growth-forecast",
-      "headline": "ОПЕК снизила прогноз роста мирового спроса на нефть в 2026 году",
-      "context": "Организация ожидает увеличения спроса на 380 тысяч баррелей в сутки вместо прежних 580 тысяч.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "cbr-unclaimed-insurance-payments",
+      "headline": "Банк России предложил направлять невостребованные выплаты по страхованию жизни на специальный счет",
+      "context": "Механизм аналогичен работе с невостребованными банковскими вкладами и предполагает передачу средств через два месяца.",
+      "category": "cb_policy",
       "importance": 4,
+      "investment_relevant": false,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8941019"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304144"
         },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1115305"
+          "url": "https://t.me/frank_media/23879"
         }
       ],
-      "published_at": "2026-09-10T15:14:00+03:00"
+      "published_at": "2026-09-10T12:47:00+03:00"
     },
     {
-      "id": "rspp-cross-border-transactions-bypass-banks",
-      "headline": "До 70% трансграничных операций России осуществляются через альтернативные каналы в обход банков",
-      "context": "По оценкам РСПП, доля SWIFT в расчетах снизилась до 48–52% из-за ужесточения комплаенса.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304146"
-        }
-      ],
-      "published_at": "2026-09-10T13:02:00+03:00"
-    },
-    {
-      "id": "sberbank-8m-net-profit-up",
-      "headline": "Чистая прибыль Сбербанка по РПБУ за восемь месяцев 2026 года выросла на 19%",
-      "context": "Показатель достиг 1,33 трлн рублей, при этом чистая прибыль за август составила 169,1 млрд рублей.",
+      "id": "domrf-buys-meteor-lift",
+      "headline": "Госкомпания Дом.РФ приобрела у холдинга S8 Capital завод по производству лифтов Meteor Lift",
+      "context": "Сумма сделки по покупке завода и АО «Лифт Коннект» оценивается аналитиками в 8–9 млрд рублей.",
       "category": "corporate",
-      "investment_relevant": true,
       "importance": 4,
-      "sources": [
-        {
-          "name": "smart-lab.ru",
-          "url": "https://smart-lab.ru/mobile/topic/1349835/"
-        }
-      ],
-      "published_at": "2026-09-10T12:15:00+03:00"
-    },
-    {
-      "id": "russian-oil-prices-surge-china-demand",
-      "headline": "Цены на российскую нефть стремительно растут на фоне высокого спроса со стороны Китая",
-      "context": "Китайские НПЗ активно скупают спотовые партии сорта ESPO из-за перебоев с поставками с Ближнего Востока.",
-      "category": "markets",
       "investment_relevant": false,
-      "importance": 4,
       "sources": [
         {
-          "name": "Bloomberg",
-          "url": ""
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8940565"
         }
       ],
-      "published_at": "2026-09-10T10:26:00+03:00"
+      "published_at": "2026-09-10T10:24:00+03:00"
     },
     {
-      "id": "fns-increases-tax-assessments-triple",
-      "headline": "ФНС увеличила сумму доначислений крупному бизнесу в первом полугодии почти в три раза",
-      "context": "Общая сумма доначислений крупнейшим налогоплательщикам достигла 16,3 млрд рублей против 5,8 млрд рублей годом ранее.",
+      "id": "ru-trade-surplus-grows",
+      "headline": "Профицит внешней торговли России за первые семь месяцев года увеличился до восьмидесяти девяти миллиардов долларов",
+      "context": "По данным ФТС, экспорт вырос на 12,4% до 263,4 млрд долларов, а импорт увеличился на 12%.",
       "category": "macro",
-      "investment_relevant": false,
       "importance": 4,
+      "investment_relevant": false,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304107"
-        }
-      ],
-      "published_at": "2026-09-10T07:40:00+03:00"
-    },
-    {
-      "id": "russia-international-reserves-decrease",
-      "headline": "Международные резервы России сократились на 20,7 млрд долларов за неделю",
-      "context": "По данным Банка России, на 4 сентября объем резервов составил 753,5 млрд долларов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
+          "name": "ФТС",
+          "url": "https://t.me/markettwits/384356"
+        },
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/09/10/1227887"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1115321"
+          "url": "https://www.vedomosti.ru/economics/news/2026/09/10/1227913-profitsit-vneshnei-torgovli"
         }
       ],
-      "published_at": "2026-09-10T16:14:00+03:00"
+      "published_at": "2026-09-10T17:01:00+03:00"
     },
     {
-      "id": "us-ppi-inflation-august-above-expectations",
-      "headline": "Промышленная инфляция в США в августе выросла сильнее ожиданий",
-      "context": "Аналитики в среднем ожидали роста показателя на 5,1% после 4,8% в июле.",
+      "id": "business-climate-indicator-drops",
+      "headline": "Сводный индикатор бизнес-климата Банка России в третьем квартале опустился до отрицательных значений",
+      "context": "Показатель снизился до минус 2,7 пункта на фоне негативных оценок текущего спроса и объемов производства.",
       "category": "macro",
+      "importance": 4,
       "investment_relevant": false,
-      "importance": 3,
       "sources": [
         {
-          "name": "markettwits",
-          "url": ""
+          "name": "Банк России",
+          "url": "https://t.me/if_market_news/85081"
         }
       ],
-      "published_at": "2026-09-10T15:30:00+03:00"
+      "published_at": "2026-09-10T18:34:00+03:00"
     },
     {
-      "id": "turkey-central-bank-keeps-rate-at-37",
-      "headline": "Центральный банк Турции сохранил ключевую процентную ставку на уровне 37% годовых",
-      "context": "Регулятор отметил замедление базовой инфляции, но указал на сохраняющиеся риски ее повышения.",
-      "category": "cb_policy",
+      "id": "opec-cuts-demand-forecast",
+      "headline": "Организация стран-экспортеров нефти снизила прогноз роста мирового спроса на нефть в текущем году",
+      "context": "ОПЕК понизила оценку роста спроса до 380 тысяч баррелей в сутки по сравнению с предыдущим прогнозом.",
+      "category": "macro",
+      "importance": 4,
       "investment_relevant": false,
-      "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304130"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1115295"
+          "name": "ОПЕК",
+          "url": "https://t.me/markettwits/384332"
         }
       ],
-      "published_at": "2026-09-10T14:01:00+03:00"
+      "published_at": "2026-09-10T15:03:00+03:00"
     },
     {
-      "id": "uac-agreements-il114-india",
-      "headline": "ОАК подписала соглашения о поставке 85 самолетов Ил-114-300 индийским авиакомпаниям",
-      "context": "Документы были подписаны на полях международной промышленной выставки «Иннопром».",
+      "id": "europlan-profit-forecast",
+      "headline": "Лизинговая компания Европлан прогнозирует рост чистой прибыли на сорок процентов по итогам года",
+      "context": "Глава компании Илья Ноготков ожидает чистую прибыль в размере 7 млрд рублей в 2026 году.",
       "category": "corporate",
-      "investment_relevant": true,
       "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8940489"
-        }
-      ],
-      "published_at": "2026-09-10T09:13:00+03:00"
-    },
-    {
-      "id": "europlan-expects-7-billion-net-profit",
-      "headline": "Лизинговая компания «Европлан» ожидает чистую прибыль в 7 млрд рублей по итогам года",
-      "context": "Глава компании Илья Ноготков заявил, что это обеспечит рост показателя на 40% год к году.",
-      "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -394,9 +406,9 @@
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-10"
   }
 }
