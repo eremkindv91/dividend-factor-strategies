@@ -1,208 +1,236 @@
 {
   "date": "2026-09-14",
-  "generated_at": "2026-09-14T13:08:39+03:00",
+  "generated_at": "2026-09-14T22:51:35+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом, на азиатских рынках наблюдается разнонаправленная динамика, нефть марки Brent дорожает",
+  "external_backdrop": "Американские и азиатские индексы, а также золото снизились, в то время как нефть Brent подорожала.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7656.98",
-      "change_pct": "+0.86%",
-      "as_of": "2026-09-11",
+      "value": "7626.26",
+      "change_pct": "-0.40%",
+      "as_of": "14.09.2026",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26333.04",
-      "change_pct": "+0.96%",
-      "as_of": "2026-09-11",
+      "value": "26228.98",
+      "change_pct": "-0.40%",
+      "as_of": "14.09.2026",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63492.99",
-      "change_pct": "-0.81%",
-      "as_of": "2026-09-14",
+      "value": "64011.34",
+      "change_pct": "-1.93%",
+      "as_of": "11.09.2026",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24917.60",
-      "change_pct": "+0.45%",
-      "as_of": "2026-09-14",
+      "value": "24805.63",
+      "change_pct": "-0.60%",
+      "as_of": "11.09.2026",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "107.42",
-      "change_pct": "+2.69%",
-      "as_of": "2026-09-14",
+      "value": "105.79",
+      "change_pct": "+1.13%",
+      "as_of": "14.09.2026",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4326.00",
-      "change_pct": "-0.92%",
-      "as_of": "2026-09-14",
+      "value": "4332.00",
+      "change_pct": "-1.74%",
+      "as_of": "14.09.2026",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2317.13",
-      "change_pct": "+1.58%",
-      "as_of": "2026-09-14 13:08:34",
+      "value": "2361.08",
+      "change_pct": "+3.51%",
+      "as_of": "14.09.2026 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "866.36",
-      "change_pct": "+1.59%",
-      "as_of": "2026-09-14 13:08:36",
+      "value": "881.93",
+      "change_pct": "+3.41%",
+      "as_of": "14.09.2026 19:00:11",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.58",
-      "change_pct": "+0.32%",
-      "as_of": "2026-09-14 13:08:36",
+      "value": "84.92",
+      "change_pct": "+0.15%",
+      "as_of": "14.09.2026 22:51:33",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.53",
-      "change_pct": "+0.13%",
-      "as_of": "2026-09-14 13:08:39",
+      "value": "12.57",
+      "change_pct": "-0.05%",
+      "as_of": "14.09.2026 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cbr-rate-hold-14",
-      "headline": "Банк России сохранил ключевую ставку на уровне четырнадцати процентов на заседании в пятницу",
-      "context": "Регулятор выбрал паузу в цикле снижения ставки на фоне усиления ценового давления.",
-      "category": "cb_policy",
+      "id": "trump-energy-truce-claim",
+      "headline": "Дональд Трамп заявил о согласии России и Украины прекратить взаимные удары по энергетическим объектам",
+      "context": "Заявление президента США привело к ускорению роста индекса Мосбиржи до 4%, хотя официального подтверждения сторон не поступало.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8954609"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/14/1228763"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/367211"
+        }
+      ],
+      "published_at": "2026-09-14T18:11:00+03:00"
+    },
+    {
+      "id": "vtb-us-sanctions-iran",
+      "headline": "Минфин США ввел дополнительные санкции против банка ВТБ за помощь Ирану в обходе ограничений",
+      "context": "Управление по контролю за иностранными активами (OFAC) добавило ВТБ в санкционные списки, связанные с Ираном.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1351068.php"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/04/09/2026/6a9a30569a7947300ebfe99e"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/367255"
         }
       ],
-      "published_at": "2026-09-14T09:03:00+03:00"
+      "published_at": "2026-09-14T22:02:00+03:00"
     },
     {
-      "id": "mosbirzha-start-9am",
-      "headline": "Московская биржа перенесла время начала основной торговой сессии на девять часов утра",
-      "context": "Изменения коснулись фондового, срочного, валютного рынков и рынка драгоценных металлов.",
+      "id": "imoex-growth-truce-news",
+      "headline": "Российский рынок акций уверенно вырос по итогам торгов на фоне заявлений об энергетическом перемирии",
+      "context": "Индекс Мосбиржи закрылся ростом на 3,51% до 2361,08 пункта, обновив трехмесячный пик.",
       "category": "markets",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1115919"
+          "url": "https://t.me/interfax_news/367227"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/14/1228774"
         }
       ],
-      "published_at": "2026-09-14T07:04:00+03:00"
+      "published_at": "2026-09-14T19:08:00+03:00"
     },
     {
-      "id": "saudi-pipeline-accident",
-      "headline": "Авария на саудовском нефтепроводе Восток-Запад угрожает сокращением мировых поставок нефти на четыре процента",
-      "context": "Остановка прокачки из-за атак беспилотников привела к росту стоимости ноябрьского фьючерса Brent выше 107 долларов за баррель.",
-      "category": "macro",
-      "investment_relevant": true,
+      "id": "saudi-pipeline-shutdown",
+      "headline": "Авария на саудовском нефтепроводе Восток-Запад грозит сокращением мировых поставок нефти на четыре процента",
+      "context": "Трубопровод остановлен на несколько недель для ремонта после атак беспилотников, что вызвало резкий рост цен на Brent.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/13/1228457"
+        },
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8953825"
         }
       ],
-      "published_at": "2026-09-13T18:26:00+03:00"
+      "published_at": "2026-09-13T19:06:00+03:00"
     },
     {
-      "id": "eurotrans-discrete-auction",
-      "headline": "Московская биржа запустила дискретный аукцион по акциям Евротранса из-за резкого роста котировок",
-      "context": "Бумаги компании подорожали более чем на 17% в отсутствие значимых корпоративных новостей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/14/1228590-diskretnii-auktsion-evrotransa"
-        }
-      ],
-      "published_at": "2026-09-14T11:20:00+03:00"
-    },
-    {
-      "id": "sng-debt-to-russia",
-      "headline": "Задолженность компаний из стран СНГ перед российским бизнесом достигла рекордных девятисот шестидесяти семи миллиардов рублей",
-      "context": "Основными должниками стали контрагенты из Казахстана и Белоруссии, а рост долга связывают с удлинением платежных цепочек.",
-      "category": "macro",
+      "id": "belgium-court-bcs-assets",
+      "headline": "Государственный совет Бельгии отменил решение об отказе БКС-банку в разблокировке активов в Euroclear",
+      "context": "Суд признал незаконным делегирование полномочий главе казначейства, однако не обязал бельгийские власти разморозить активы.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/304565"
+          "url": "https://frankmedia.ru/304675"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/radio/14/09/2026/6aa82ad79a794707ec6791c6"
         }
       ],
-      "published_at": "2026-09-14T09:03:00+03:00"
+      "published_at": "2026-09-14T18:31:00+03:00"
     },
     {
-      "id": "ozon-pharma-h1-results",
-      "headline": "Озон Фармацевтика увеличила чистую прибыль по МСФО в первом полугодии на девяносто процентов",
-      "context": "Выручка компании выросла на 12% до 14,8 млрд рублей, а скорректированная EBITDA увеличилась на 33%.",
+      "id": "samolet-shares-drop",
+      "headline": "Акции девелопера Самолет упали почти на десять процентов на торгах Московской биржи",
+      "context": "Снижение произошло на фоне сообщений о вынесении предостережения из-за отставания от графика строительства ЖК Пятницкие луга.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram",
-          "url": "https://t.me/mozgovikresearch/3880"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/radio/14/09/2026/6aa82c0f9a794707ec6791cb"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/14/1228728"
         }
       ],
-      "published_at": "2026-09-14T08:49:00+03:00"
+      "published_at": "2026-09-14T17:48:00+03:00"
     },
     {
-      "id": "cbr-bondholders-protection",
-      "headline": "Банк России планирует реформировать систему защиты прав владельцев облигаций на фоне роста дефолтов",
-      "context": "Регулятор предлагает расширить случаи обязательного сопровождения выпусков представителями владельцев облигаций.",
-      "category": "cb_policy",
+      "id": "eurotrans-default-retail-ownership",
+      "headline": "Банк России сообщил о преобладании физических лиц среди владельцев дефолтных облигаций компании ЕвроТранс",
+      "context": "По данным регулятора, розничным инвесторам принадлежит более 90% выпусков долговых бумаг эмитента.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8953823"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116091"
         }
       ],
-      "published_at": "2026-09-14T02:22:00+03:00"
+      "published_at": "2026-09-14T21:34:00+03:00"
     },
     {
-      "id": "trump-calls-to-stop-refinery-attacks",
-      "headline": "Дональд Трамп потребовал от властей Украины прекратить удары по российским нефтеперерабатывающим заводам",
-      "context": "Президент США заявил, что атаки на топливную инфраструктуру создают дефицит дизеля на мировом рынке.",
-      "category": "geopolitics",
-      "investment_relevant": true,
+      "id": "gold-most-profitable-asset",
+      "headline": "Банк России назвал золото самым доходным инструментом на отечественном финансовом рынке в августе",
+      "context": "Доходность драгоценного металла за месяц составила 17,4% на фоне роста мировых цен.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8953737"
+          "url": "https://www.kommersant.ru/doc/8954710"
         }
       ],
-      "published_at": "2026-09-13T17:05:00+03:00"
+      "published_at": "2026-09-14T20:21:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-11"
   }
 }
