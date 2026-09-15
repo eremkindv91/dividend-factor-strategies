@@ -1,0 +1,374 @@
+{
+  "date": "2026-09-15",
+  "generated_at": "2026-09-15T22:38:41+03:00",
+  "session_open": "10:00 MSK",
+  "external_backdrop": "Американские фондовые индексы снизились, в то время как цены на нефть марки Brent выросли.",
+  "market_snapshot": [
+    {
+      "name": "S&P 500",
+      "value": "7578.68",
+      "change_pct": "-0.54%",
+      "as_of": "2026-09-15",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nasdaq",
+      "value": "25949.41",
+      "change_pct": "-0.91%",
+      "as_of": "2026-09-15",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "63492.99",
+      "change_pct": "-0.81%",
+      "as_of": "2026-09-14",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "24917.60",
+      "change_pct": "+0.45%",
+      "as_of": "2026-09-14",
+      "group": "global_equity"
+    },
+    {
+      "name": "Brent",
+      "value": "108.46",
+      "change_pct": "+2.63%",
+      "as_of": "2026-09-15",
+      "group": "commodity"
+    },
+    {
+      "name": "Золото",
+      "value": "4341.10",
+      "change_pct": "-0.25%",
+      "as_of": "2026-09-15",
+      "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2337.10",
+      "change_pct": "-1.02%",
+      "as_of": "2026-09-15 19:00:12",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "874.02",
+      "change_pct": "-0.90%",
+      "as_of": "2026-09-15 19:00:12",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "84.51",
+      "change_pct": "-0.12%",
+      "as_of": "2026-09-15 22:38:40",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.57",
+      "change_pct": "+0.02%",
+      "as_of": "2026-09-15 19:15:01",
+      "group": "fx"
+    }
+  ],
+  "overnight": [
+    {
+      "id": "global-fuel-crisis",
+      "headline": "Руководители крупнейших нефтяных компаний заявили о начале глобального топливного кризиса",
+      "context": "Длительная блокировка Ормузского пролива и атака на нефтепровод в Саудовской Аравии привели к серьезным перебоям в поставках.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8955433"
+        }
+      ],
+      "published_at": "2026-09-15T17:00:00+03:00"
+    },
+    {
+      "id": "yandex-dividends",
+      "headline": "Акционеры Яндекса утвердили дивиденды за первое полугодие в размере 110 рублей на акцию",
+      "context": "Рекомендация совета директоров одобрена, купить акции под дивиденды можно до 21 сентября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/15/1228886-yandeksa-dividendi"
+        }
+      ],
+      "published_at": "2026-09-15T12:02:00+03:00"
+    },
+    {
+      "id": "vtb-sanctions-iran",
+      "headline": "США расширили санкции против ВТБ за содействие Ирану в обходе ограничений",
+      "context": "Американский Минфин включил российский банк в санкционную программу по Ирану.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304710"
+        }
+      ],
+      "published_at": "2026-09-15T04:51:00+03:00"
+    },
+    {
+      "id": "us-clarity-act-blocked",
+      "headline": "Сенат США заблокировал законопроект о регулировании криптовалют CLARITY Act",
+      "context": "Законопроект не набрал необходимых 60 голосов для перехода на следующий этап рассмотрения.",
+      "category": "geopolitics",
+      "importance": 4,
+      "investment_relevant": false,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/384929"
+        }
+      ],
+      "published_at": "2026-09-15T21:43:00+03:00"
+    },
+    {
+      "id": "cb-liquidity-deficit-forecast",
+      "headline": "Банк России повысил прогноз структурного дефицита ликвидности банков на 2026 год",
+      "context": "Прогноз увеличен до 4,0–5,2 трлн рублей из-за роста спроса на наличные деньги.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/384907"
+        }
+      ],
+      "published_at": "2026-09-15T18:17:00+03:00"
+    },
+    {
+      "id": "eurotrans-default-retail",
+      "headline": "Физические лица владеют более 90% дефолтных облигаций компании ЕвроТранс",
+      "context": "На ценные бумаги эмитента пришлось 72% невыплаченного объема дефолтов в августе.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85184"
+        }
+      ],
+      "published_at": "2026-09-15T09:58:00+03:00"
+    },
+    {
+      "id": "sberbank-dividends-capital",
+      "headline": "Регуляторные требования Банка России могут повлиять на дивиденды Сбербанка",
+      "context": "Новые требования к достаточности капитала могут в перспективе ограничить направление 50% чистой прибыли на выплаты.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/384776"
+        }
+      ],
+      "published_at": "2026-09-15T07:36:00+03:00"
+    },
+    {
+      "id": "ozon-warehouse-taganrog",
+      "headline": "Складской хаб логистического партнера Ozon поврежден при ракетной атаке на Таганрог",
+      "context": "В блоке здания произошел пожар, товары перенаправлены на другие объекты.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/384765"
+        }
+      ],
+      "published_at": "2026-09-15T06:34:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "belgian-court-bcs",
+      "headline": "Госсовет Бельгии отменил отказ БКС-банку по разблокировке активов в Euroclear",
+      "context": "Суд признал незаконным делегирование полномочий министра финансов главе казначейства.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Telegram-канал frank_media",
+          "url": "https://t.me/frank_media/23920"
+        }
+      ],
+      "published_at": "2026-09-14T18:37:00+03:00"
+    },
+    {
+      "id": "trump-energy-truce",
+      "headline": "Трамп заявил о согласии России и Украины прекратить удары по энергообъектам",
+      "context": "Заявление президента США вызвало рост российского фондового рынка на 4%.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85165"
+        }
+      ],
+      "published_at": "2026-09-14T18:06:00+03:00"
+    },
+    {
+      "id": "cb-rate-decision",
+      "headline": "Банк России сохранил ключевую ставку на уровне 14% годовых",
+      "context": "Регулятор сделал паузу в цикле снижения ставки на фоне усиления ценового давления.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Telegram-канал mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3881"
+        }
+      ],
+      "published_at": "2026-09-14T09:03:00+03:00"
+    },
+    {
+      "id": "sollers-loss",
+      "headline": "Чистый убыток Соллерса по МСФО составил 2,69 млрд рублей в первом полугодии",
+      "context": "Выручка автопроизводителя выросла на 29,3% до 32,99 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3882"
+        }
+      ],
+      "published_at": "2026-09-14T18:05:00+03:00"
+    },
+    {
+      "id": "cb-risk-add-ons",
+      "headline": "Центробанк введет надбавки к коэффициентам риска по секьюритизированным облигациям",
+      "context": "С 15 октября надбавка по вложениям банков в облигации под потребительские кредиты составит 250%.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8954520"
+        }
+      ],
+      "published_at": "2026-09-14T17:35:00+03:00"
+    },
+    {
+      "id": "samolet-shares-drop",
+      "headline": "Акции девелопера Самолет упали на 9% на фоне отставания от графиков строительства",
+      "context": "Компания получила предостережение из-за задержки ввода в эксплуатацию ЖК Пятницкие луга.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85162"
+        }
+      ],
+      "published_at": "2026-09-14T17:24:00+03:00"
+    },
+    {
+      "id": "cb-iis-coupons",
+      "headline": "Центробанк предложил разрешить вывод купонов по облигациям с ИИС",
+      "context": "Регулятор также выступает за возможность вывода доходов от паев инвестиционных фондов.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/14/1228700-vivod-s-iis-kuponov"
+        }
+      ],
+      "published_at": "2026-09-14T17:12:00+03:00"
+    },
+    {
+      "id": "vostok-oil",
+      "headline": "Роснефть отгрузила вторую партию арктической нефти с проекта Восток Ойл",
+      "context": "Танкер со 100 тыс. тонн сырья направляется из терминала Бухта Север в Мурманск.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85154"
+        }
+      ],
+      "published_at": "2026-09-14T13:34:00+03:00"
+    },
+    {
+      "id": "ozon-pharm-earnings",
+      "headline": "Чистая прибыль Озон Фармацевтики по МСФО выросла на 90% в первом полугодии",
+      "context": "Выручка компании увеличилась на 12% до 14,8 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3880"
+        }
+      ],
+      "published_at": "2026-09-14T08:49:00+03:00"
+    },
+    {
+      "id": "moex-early-open",
+      "headline": "Московская биржа перенесла начало основной торговой сессии на 9:00 МСК",
+      "context": "Изменения коснулись фондового, срочного, валютного и рынка драгоценных металлов.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85144"
+        }
+      ],
+      "published_at": "2026-09-14T08:05:00+03:00"
+    },
+    {
+      "id": "cb-bondholder-protection",
+      "headline": "Банк России увеличит минимальный капитал представителей держателей облигаций",
+      "context": "Регулятор предлагает повысить требования к капиталу институтов коллективной защиты до 10 млн рублей.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8953823"
+        }
+      ],
+      "published_at": "2026-09-14T02:22:00+03:00"
+    }
+  ],
+  "today_agenda": [],
+  "briefing": {
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
+    "last_trading_day": "2026-09-14"
+  }
+}
