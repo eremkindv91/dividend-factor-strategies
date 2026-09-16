@@ -1,128 +1,143 @@
 {
   "date": "2026-09-16",
-  "generated_at": "2026-09-16T10:54:32+03:00",
+  "generated_at": "2026-09-16T12:33:03+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские индексы растут, в то время как американские рынки закрылись снижением, а цены на нефть Brent корректируются вниз.",
+  "external_backdrop": "Американские фондовые индексы закрылись в минусе, азиатские рынки демонстрируют умеренный рост, а нефть марки Brent торгуется в районе 108 долларов за баррель.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7585.73",
       "change_pct": "-0.45%",
-      "as_of": "закрытие 15.09",
+      "as_of": "2026-09-15",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25981.57",
       "change_pct": "-0.78%",
-      "as_of": "закрытие 15.09",
+      "as_of": "2026-09-15",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "63923.00",
       "change_pct": "+0.69%",
-      "as_of": "16.09",
+      "as_of": "2026-09-16",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24719.85",
-      "change_pct": "+0.21%",
-      "as_of": "16.09",
+      "value": "24713.78",
+      "change_pct": "+0.19%",
+      "as_of": "2026-09-16",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "107.46",
-      "change_pct": "-1.19%",
-      "as_of": "16.09",
+      "value": "108.36",
+      "change_pct": "-0.36%",
+      "as_of": "2026-09-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4376.20",
-      "change_pct": "+1.00%",
-      "as_of": "16.09",
+      "value": "4369.90",
+      "change_pct": "+0.86%",
+      "as_of": "2026-09-16",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2332.65",
-      "change_pct": "-0.19%",
-      "as_of": "10:54",
+      "value": "2327.07",
+      "change_pct": "-0.43%",
+      "as_of": "2026-09-16 12:32:59",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "872.42",
-      "change_pct": "-0.18%",
-      "as_of": "10:54",
+      "value": "870.28",
+      "change_pct": "-0.43%",
+      "as_of": "2026-09-16 12:33:00",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.52",
-      "change_pct": "-0.01%",
-      "as_of": "10:54",
+      "value": "84.58",
+      "change_pct": "+0.26%",
+      "as_of": "2026-09-16 12:33:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.53",
-      "change_pct": "-0.31%",
-      "as_of": "10:54",
+      "value": "12.54",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-16 12:33:03",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "clarity-act-blocked",
-      "headline": "Сенат США заблокировал законопроект о регулировании криптовалютного рынка CLARITY Act",
-      "context": "Инициатива не набрала необходимые 60 голосов из-за возражений демократов и споров вокруг статуса стейблкоинов.",
-      "category": "markets",
-      "investment_relevant": true,
+      "id": "tremasov-rate-cut-conditions",
+      "headline": "Банк России возобновит снижение ключевой ставки после устойчивого разворота инфляции вниз",
+      "context": "Советник председателя ЦБ Кирилл Тремасов отметил, что устойчивая инфляция переместилась из диапазона 4–5% в 5–6%.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304899"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116365"
         }
       ],
-      "published_at": "2026-09-16T09:43:00+03:00"
+      "published_at": "2026-09-16T11:19:00+03:00"
     },
     {
-      "id": "mts-dividend-policy",
-      "headline": "МТС утвердила новую дивидендную политику с привязкой выплат к операционной прибыли",
-      "context": "Компания планирует направлять на возврат капитала до 20% OIBDA, но не менее 70 млрд рублей ежегодно в 2027–2028 годах.",
+      "id": "mts-dividend-policy-oibda",
+      "headline": "МТС первой из российских телекомов привязала дивиденды к операционной прибыли OIBDA",
+      "context": "В 2027–2028 годах компания направит на возврат капитала акционерам до 20% OIBDA, но не меньше 70 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/16/09/2026/6aa97b899a7947647aba441c"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229183-aktsii-mts"
         }
       ],
-      "published_at": "2026-09-16T09:25:00+03:00"
+      "published_at": "2026-09-16T09:54:00+03:00"
     },
     {
       "id": "diesel-export-ban-extension",
-      "headline": "Правительство России продлит запрет на экспорт дизельного топлива до конца октября",
-      "context": "Решение принято для обеспечения стабильности поставок на внутренний рынок на фоне переноса ремонтов на НПЗ.",
+      "headline": "Правительство России продлит запрет на экспорт дизельного топлива до ноября 2026 года",
+      "context": "Решение принято на совещании у вице-премьера Александра Новака для обеспечения стабильности внутреннего рынка.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": ""
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8955783"
         }
       ],
-      "published_at": "2026-09-15T22:30:00+03:00"
+      "published_at": "2026-09-16T08:47:00+03:00"
     },
     {
-      "id": "rosseti-revenue-forecast",
+      "id": "moex-crypto-futures",
+      "headline": "Московская биржа запустит торги вечными фьючерсами на индексы пяти криптовалют",
+      "context": "Торги стартуют 22 сентября 2026 года и будут доступны только квалифицированным инвесторам.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8955910"
+        }
+      ],
+      "published_at": "2026-09-16T11:02:00+03:00"
+    },
+    {
+      "id": "rosseti-record-revenue-2026",
       "headline": "Россети прогнозируют рекордную выручку свыше двух триллионов рублей по итогам года",
       "context": "Инвестиционная программа компании в 2026 году вырастет на треть и составит около 1 трлн рублей.",
       "category": "corporate",
@@ -137,39 +152,24 @@
       "published_at": "2026-09-16T10:49:00+03:00"
     },
     {
-      "id": "eu-losses-ormuz",
-      "headline": "Евросоюз потерял девяносто миллиардов евро из-за конфликта вокруг Ирана и блокады Ормузского пролива",
-      "context": "Об этом заявила председатель Еврокомиссии Урсула фон дер Ляйен в своей ежегодной программной речи.",
-      "category": "macro",
+      "id": "us-senate-blocks-clarity-act",
+      "headline": "Сенат США заблокировал законопроект о регулировании криптовалют CLARITY Act",
+      "context": "Инициатива не набрала необходимых 60 голосов на процедурном голосовании из-за возражений демократов.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": ""
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304934"
         }
       ],
-      "published_at": "2026-09-16T10:40:00+03:00"
+      "published_at": "2026-09-16T09:43:00+03:00"
     },
     {
-      "id": "moex-crypto-futures",
-      "headline": "Московская биржа запустит вечные фьючерсы на индексы криптовалют для квалифицированных инвесторов",
-      "context": "Торги расчетными однодневными контрактами на биткоин, эфир, солану, рипл и трон начнутся 22 сентября.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/16/09/2026/6aaa2da09a7947baf4d119d9"
-        }
-      ],
-      "published_at": "2026-09-16T10:16:00+03:00"
-    },
-    {
-      "id": "bspb-financial-results",
-      "headline": "Чистая прибыль Банка Санкт-Петербург по РСБУ за восемь месяцев снизилась на треть",
-      "context": "Показатель составил 21,1 млрд рублей против аналогичного периода прошлого года, при этом чистая прибыль за август выросла на 22,8%.",
+      "id": "bspb-8m-2026-results",
+      "headline": "Чистая прибыль Банка Санкт-Петербург за восемь месяцев снизилась на треть",
+      "context": "Показатель по РСБУ составил 21,1 млрд рублей, при этом прибыль за август выросла на 22,8%.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -182,56 +182,41 @@
       "published_at": "2026-09-16T09:37:00+03:00"
     },
     {
-      "id": "us-sanctions-bill-progress",
-      "headline": "Палата представителей США одобрила начало рассмотрения законопроекта о новых антироссийских санкциях",
-      "context": "Документ предусматривает введение пошлин до 100% для ключевых покупателей российской нефти и ограничения против теневого флота.",
-      "category": "geopolitics",
+      "id": "russia-current-account-surplus",
+      "headline": "Профицит счета текущих операций России вырос в полтора раза за семь месяцев",
+      "context": "Показатель достиг 33,9 млрд долларов против 21,5 млрд долларов за аналогичный период прошлого года.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8955712"
+          "url": "https://www.kommersant.ru/doc/8955667"
         }
       ],
-      "published_at": "2026-09-16T04:09:00+03:00"
+      "published_at": "2026-09-16T02:08:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "business-price-expectations",
-      "headline": "Ценовые ожидания российского бизнеса в сентябре выросли третий месяц подряд",
-      "context": "По данным Банка России, средний ожидаемый предприятиями прирост цен на ближайшие три месяца увеличился до 7%.",
-      "category": "macro",
+      "id": "cb-raises-liquidity-deficit-forecast",
+      "headline": "Банк России резко повысил прогноз структурного дефицита ликвидности банковского сектора",
+      "context": "Прогноз на конец 2026 года увеличен до 4,0–5,2 трлн рублей из-за роста спроса на наличные.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": ""
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116262"
         }
       ],
-      "published_at": "2026-09-15T16:06:00+03:00"
+      "published_at": "2026-09-15T18:34:00+03:00"
     },
     {
-      "id": "regional-ipo-legislation",
-      "headline": "Минфин готовит изменения в законодательство для вывода региональных компаний на IPO",
-      "context": "Поправки в закон о приватизации позволят субъектам РФ продавать свои доли в предприятиях через биржу.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8955310"
-        }
-      ],
-      "published_at": "2026-09-15T14:52:00+03:00"
-    },
-    {
-      "id": "yand-div-approved",
+      "id": "yandex-approves-h1-dividends",
       "headline": "Акционеры Яндекса утвердили первые дивиденды в размере 110 рублей на акцию",
-      "context": "Выплаты будут произведены по итогам первого полугодия 2026 года, закрытие реестра запланировано на 21 сентября.",
+      "context": "Рекомендация совета директоров по выплатам за первое полугодие 2026 года была полностью одобрена.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -244,25 +229,10 @@
       "published_at": "2026-09-15T12:19:00+03:00"
     },
     {
-      "id": "sber-securitization",
-      "headline": "Сбербанк секьюритизирует портфель потребительских кредитов на рекордные 80 миллиардов рублей",
-      "context": "Банк начал сбор заявок на шестой выпуск облигаций с залоговым обеспечением потребительскими займами.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8954697"
-        }
-      ],
-      "published_at": "2026-09-15T11:00:00+03:00"
-    },
-    {
-      "id": "vtb-sanctions-iran",
+      "id": "us-expands-vtb-sanctions",
       "headline": "США расширили блокирующие санкции против ВТБ за содействие Ирану в обходе ограничений",
-      "context": "Минфин США обвинил банк в установлении корреспондентских отношений с подсанкционными иранскими финансовыми организациями.",
-      "category": "banks",
+      "context": "Минфин США обвинил банк в установлении корреспондентских отношений с подсанкционными иранскими банками.",
+      "category": "geopolitics",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
@@ -274,84 +244,99 @@
       "published_at": "2026-09-15T04:51:00+03:00"
     },
     {
-      "id": "liquidity-deficit-forecast",
-      "headline": "Банк России резко повысил прогноз структурного дефицита ликвидности банковского сектора",
-      "context": "Прогноз на 2026 год увеличен до 4,0–5,2 трлн рублей из-за роста спроса на наличные деньги.",
-      "category": "cb_policy",
+      "id": "vk-redeems-15bn-bonds",
+      "headline": "Компания VK полностью погасила выпуск облигаций объемом 15 миллиардов рублей",
+      "context": "Погашение выпуска серии 001P-01 направлено на последовательное снижение долговой нагрузки группы.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1116262"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/15/1229017-vk-pogasila-obligatsii"
         }
       ],
-      "published_at": "2026-09-15T18:34:00+03:00"
+      "published_at": "2026-09-15T16:28:00+03:00"
     },
     {
-      "id": "mts-fas-agreement",
-      "headline": "МТС построит сети связи в малых населенных пунктах по соглашению с ФАС",
-      "context": "Оператор создаст инфраструктуру связи в 370 поселениях в рамках урегулирования антимонопольного спора.",
+      "id": "business-price-expectations-rise",
+      "headline": "Ценовые ожидания российского бизнеса в сентябре выросли третий месяц подряд",
+      "context": "Наиболее заметный рост зафиксирован в электроэнергетике и водоснабжении перед индексацией тарифов ЖКХ.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116237"
+        }
+      ],
+      "published_at": "2026-09-15T16:19:00+03:00"
+    },
+    {
+      "id": "minfin-regional-ipo-amendments",
+      "headline": "Минфин готовит поправки для вывода региональных компаний с госучастием на IPO",
+      "context": "Изменения в закон о приватизации позволят субъектам РФ продавать свои доли через биржу.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8955310"
+        }
+      ],
+      "published_at": "2026-09-15T14:52:00+03:00"
+    },
+    {
+      "id": "us-belarus-unfreeze-assets",
+      "headline": "США призвали Citibank разморозить и вернуть Белоруссии 44 миллиона долларов",
+      "context": "Спецпосланник США Джон Коул сообщил о согласии Вашингтона вернуть застрявшие средства.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8955189"
+        }
+      ],
+      "published_at": "2026-09-15T13:23:00+03:00"
+    },
+    {
+      "id": "sberbank-securitizes-consumer-loans",
+      "headline": "Сбербанк открыл сбор заявок на выпуск облигаций под залог потребкредитов на 80 миллиардов рублей",
+      "context": "Это шестой выпуск СФО СБ Секьюритизация, объем старших траншей для инвесторов составит до 66,8 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8955011"
+          "url": "https://www.kommersant.ru/doc/8954697"
         }
       ],
-      "published_at": "2026-09-15T11:08:00+03:00"
+      "published_at": "2026-09-15T11:00:00+03:00"
     },
     {
-      "id": "platform-economy-regulation",
-      "headline": "Минэкономразвития подготовило второй пакет поправок для жесткого регулирования работы маркетплейсов",
-      "context": "Законопроект ограничивает сроки расчетов с партнерами и запрещает дискриминационные условия для продавцов.",
-      "category": "macro",
-      "investment_relevant": true,
+      "id": "russian-equity-risk-premium-max",
+      "headline": "Премия за риск инвестирования в российские акции выросла вдвое за полгода",
+      "context": "Показатель достиг 15% против 8% в январе, отражая отсутствие прогресса в геополитике.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/304750"
+          "url": "https://frankmedia.ru/304719"
         }
       ],
-      "published_at": "2026-09-15T11:01:00+03:00"
+      "published_at": "2026-09-15T08:05:00+03:00"
     },
     {
-      "id": "belgian-court-bcs",
-      "headline": "Суд Бельгии признал незаконным отказ в разблокировке активов БКС Банка в Euroclear",
-      "context": "Бельгийские власти будут обязаны повторно рассмотреть заявление банка о разблокировке замороженных средств.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/15/1228859-otkaz-v-razblokirovke"
-        }
-      ],
-      "published_at": "2026-09-15T10:40:00+03:00"
-    },
-    {
-      "id": "eurotrans-bond-defaults",
-      "headline": "Физические лица владеют более девяноста процентами дефолтных облигаций компании ЕвроТранс",
-      "context": "По данным ЦБ, на этого эмитента пришлось 72% от общего объема невыплаченного долга в августе.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-15T09:42:00+03:00"
-    },
-    {
-      "id": "russian-oil-margins",
-      "headline": "Маржинальность российских нефтяных компаний в третьем квартале может стать рекордной в году",
-      "context": "Рост показателей ожидается за счет высокой эффективности переработки и увеличения демпферных выплат.",
+      "id": "vink-margins-q3-2026",
+      "headline": "Маржа российских нефтяных компаний в третьем квартале может стать максимальной в году",
+      "context": "Рост показателей ожидается за счет высокой маржинальности переработки и увеличения демпферных выплат.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -364,19 +349,34 @@
       "published_at": "2026-09-15T08:01:00+03:00"
     },
     {
-      "id": "ozon-warehouse-damage",
-      "headline": "Склад Ozon в Таганроге получил повреждения в результате ночной ракетной атаки",
-      "context": "Компания эвакуировала хаб доставки логистического партнера, в блоке здания произошел пожар, пострадавших нет.",
+      "id": "ozon-warehouse-damaged-taganrog",
+      "headline": "Складской хаб партнера Ozon в Таганроге получил повреждения при ракетной атаке",
+      "context": "В результате инцидента произошел пожар, сотрудники были эвакуированы, пострадавших нет.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8954846"
+          "url": "https://www.kommersant.ru/doc/8954811"
         }
       ],
-      "published_at": "2026-09-15T07:57:00+03:00"
+      "published_at": "2026-09-15T05:58:00+03:00"
+    },
+    {
+      "id": "us-house-advances-russia-sanctions",
+      "headline": "В Палате представителей США одобрили рассмотрение законопроекта об ужесточении санкций против России",
+      "context": "Документ предусматривает вторичные пошлины до 100% для покупателей российских энергоресурсов.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8954810"
+        }
+      ],
+      "published_at": "2026-09-15T05:37:00+03:00"
     }
   ],
   "today_agenda": [],
