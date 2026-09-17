@@ -1,123 +1,85 @@
 {
   "date": "2026-09-17",
-  "generated_at": "2026-09-17T10:58:40+03:00",
+  "generated_at": "2026-09-17T12:40:42+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые рынки демонстрируют разнонаправленную динамику, в то время как цены на нефть марки Brent снижаются.",
+  "external_backdrop": "США закрылись снижением после заседания ФРС, Азия торгуется разнонаправленно, нефть Brent и золото дешевеют.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7551.81",
       "change_pct": "-0.45%",
-      "as_of": "закрытие 16.09",
+      "as_of": "2026-09-16",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25978.43",
       "change_pct": "-0.01%",
-      "as_of": "закрытие 16.09",
+      "as_of": "2026-09-16",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "64136.25",
       "change_pct": "+0.33%",
-      "as_of": "17.09",
+      "as_of": "2026-09-17",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24601.41",
-      "change_pct": "-0.45%",
-      "as_of": "17.09",
+      "value": "24604.29",
+      "change_pct": "-0.44%",
+      "as_of": "2026-09-17",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "104.60",
-      "change_pct": "-1.16%",
-      "as_of": "17.09",
+      "value": "104.94",
+      "change_pct": "-0.84%",
+      "as_of": "2026-09-17",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4372.50",
-      "change_pct": "-0.34%",
-      "as_of": "17.09",
+      "value": "4345.10",
+      "change_pct": "-0.97%",
+      "as_of": "2026-09-17",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2256.53",
-      "change_pct": "-1.24%",
-      "as_of": "10:57",
+      "value": "2264.74",
+      "change_pct": "-0.88%",
+      "as_of": "2026-09-17 12:40:23",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "844.55",
-      "change_pct": "-1.23%",
-      "as_of": "10:56",
+      "value": "848.04",
+      "change_pct": "-0.83%",
+      "as_of": "2026-09-17 12:37:46",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.64",
-      "change_pct": "-0.08%",
-      "as_of": "10:56",
+      "value": "84.85",
+      "change_pct": "+0.14%",
+      "as_of": "2026-09-17 12:39:16",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.55",
-      "change_pct": "-0.21%",
-      "as_of": "10:56",
+      "value": "12.59",
+      "change_pct": "+0.11%",
+      "as_of": "2026-09-17 12:37:46",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-sanctions-bill",
-      "headline": "Палата представителей США одобрила законопроект об ужесточении санкций против России",
-      "context": "Документ предусматривает ограничения против российских банков, энергетики, «теневого флота» и пошлины для покупателей нефти и газа.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Reuters",
-          "url": ""
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305124"
-        }
-      ],
-      "published_at": "2026-09-17T04:57:00+03:00"
-    },
-    {
-      "id": "sberbank-samolet-management",
-      "headline": "Сбербанк может получить в управление часть бизнеса девелоперской группы Самолет",
-      "context": "Обсуждается вхождение банка в капитал дочерних структур застройщика в рамках реструктуризации долгов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956629"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305135"
-        }
-      ],
-      "published_at": "2026-09-17T06:01:00+03:00"
-    },
-    {
-      "id": "fed-rate-hike",
-      "headline": "Федеральная резервная система США повысила ключевую ставку до четырех процентов годовых",
-      "context": "Решение о повышении на 25 базисных пунктов было принято единогласно на фоне сохраняющейся повышенной инфляции.",
+      "id": "feds-rate-hike",
+      "headline": "Федеральная резервная система США повысила ключевую ставку до диапазона 3,75–4% годовых",
+      "context": "Решение о повышении ставки на 25 базисных пунктов было принято единогласно на фоне сохраняющейся повышенной инфляции.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
@@ -130,79 +92,101 @@
       "published_at": "2026-09-16T21:00:00+03:00"
     },
     {
-      "id": "yaroslavl-npz-attack",
-      "headline": "Нефтеперерабатывающий завод в Ярославской области получил повреждения при атаке беспилотников",
-      "context": "Возникший после налета пожар был полностью потушен, пострадавших нет.",
+      "id": "us-sanctions-bill-approved",
+      "headline": "Палата представителей США одобрила законопроект о расширении санкций против России и Ирана",
+      "context": "Документ предусматривает ограничения против российских банков, энергетики и теневого флота, а также пошлины для покупателей нефти и газа.",
       "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305124"
+        }
+      ],
+      "published_at": "2026-09-17T04:57:00+03:00"
+    },
+    {
+      "id": "sberbank-samolet-management",
+      "headline": "Сбербанк может получить в управление часть бизнеса девелоперской группы Самолет",
+      "context": "Передача проектов в рамках реструктуризации долгов обсуждается на фоне высокой долговой нагрузки застройщика.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956629"
+        }
+      ],
+      "published_at": "2026-09-17T06:01:00+03:00"
+    },
+    {
+      "id": "yaroslavl-refinery-damaged",
+      "headline": "Нефтеперерабатывающий завод в Ярославской области получил повреждения в результате атаки беспилотников",
+      "context": "Возникший после налета БПЛА пожар на территории предприятия был полностью потушен силами спасателей.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8956641"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/367714"
         }
       ],
       "published_at": "2026-09-17T06:53:00+03:00"
     },
     {
-      "id": "zarubezhneft-ruskhim-deal",
-      "headline": "Структура Зарубежнефти приобрела у Русхима компанию с лицензией на Коровинское месторождение газа",
-      "context": "Сделка по покупке активов в Ненецком автономном округе могла пройти по цене ниже рыночной.",
-      "category": "corporate",
+      "id": "outflow-to-foreign-brokers",
+      "headline": "Переводы российских инвесторов зарубежным брокерам в первом полугодии выросли на 27%",
+      "context": "По данным Банка России, за первые шесть месяцев 2026 года граждане вывели за границу 225 миллиардов рублей.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956566"
-        }
-      ],
-      "published_at": "2026-09-17T02:14:00+03:00"
-    },
-    {
-      "id": "weekly-inflation-slowdown",
-      "headline": "Недельная инфляция в России замедлилась до двух сотых процента при годовой в шесть процентов",
-      "context": "С начала года потребительские цены выросли на 4,74%, а годовой показатель снизился до 6,27%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Росстат",
-          "url": ""
-        },
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1352313.php"
+          "url": "https://smart-lab.ru/blog/1352447.php"
         }
       ],
-      "published_at": "2026-09-16T19:00:00+03:00"
+      "published_at": "2026-09-17T08:34:00+03:00"
     },
     {
-      "id": "sber-crypto-exchange",
-      "headline": "Сбербанк планирует запустить сервис для обмена криптовалюты на российские рубли",
-      "context": "Запуск планируется на фоне технологической готовности инфраструктуры к операциям с цифровыми активами.",
-      "category": "banks",
+      "id": "mvideo-board-meeting",
+      "headline": "Совет директоров М.Видео определит цену размещения акций дополнительной эмиссии",
+      "context": "Заседание по установлению цены акций допэмиссии по закрытой подписке запланировано на 17 сентября.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/09/16/1229440-sber-planiruet-zapustit"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1352502.php"
         }
       ],
-      "published_at": "2026-09-16T19:16:00+03:00"
+      "published_at": "2026-09-17T10:01:00+03:00"
+    },
+    {
+      "id": "ozon-logistics-platform",
+      "headline": "Маркетплейс Ozon запустил онлайн-платформу для поиска и аренды складских помещений",
+      "context": "Сервис позволяет арендодателям и застройщикам предлагать логистические объекты площадью от 5 тысяч квадратных метров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/17/1229007-ozon-zapustil-platformu"
+        }
+      ],
+      "published_at": "2026-09-17T11:00:00+03:00"
     }
   ],
   "yesterday": [
     {
       "id": "mts-dividend-policy",
-      "headline": "МТС утвердила новую дивидендную политику на годы вперед и планирует выплаты в январе",
-      "context": "Акции компании упали более чем на 5% после привязки выплат к операционному доходу и отказа от байбэка на первом этапе.",
+      "headline": "Компания МТС утвердила новую дивидендную политику на 2027–2028 годы",
+      "context": "Акции оператора снизились более чем на 5% на фоне привязки выплат к операционному доходу OIBDA.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -210,59 +194,17 @@
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229176-mts-utverdila-novuyu"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956444"
         }
       ],
       "published_at": "2026-09-16T09:54:00+03:00"
     },
     {
-      "id": "alfa-bank-dividends",
-      "headline": "Совет директоров Альфа-банка рекомендовал выплатить дивиденды на двадцать миллиардов рублей",
-      "context": "Выплаты планируется осуществить из нераспределенной прибыли прошлых лет в размере 342,41 рубля на одну акцию.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956228"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23945"
-        }
-      ],
-      "published_at": "2026-09-16T15:25:00+03:00"
-    },
-    {
-      "id": "eurotrans-default-warning",
-      "headline": "Глава набсовета Московской биржи предупредил о рисках дефолта Евротранса для долгового рынка",
-      "context": "Сергей Швецов заявил, что отсутствие парламентского расследования по этому делу может подорвать доверие частных инвесторов к облигациям.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304983"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956189"
-        }
-      ],
-      "published_at": "2026-09-16T13:44:00+03:00"
-    },
-    {
-      "id": "cbr-rate-inflation-comments",
-      "headline": "Банк России возобновит снижение ключевой ставки только после устойчивого разворота инфляции вниз",
-      "context": "Советник председателя ЦБ Кирилл Тремасов отметил смещение устойчивой инфляции в диапазон 5–6% и влияние тарифов ЖКХ.",
+      "id": "cbr-inflation-rate-comments",
+      "headline": "Центробанк сможет возобновить снижение ключевой ставки только после разворота инфляции вниз",
+      "context": "Советник председателя ЦБ Кирилл Тремасов отметил, что устойчивая инфляция переместилась в диапазон 5–6%.",
       "category": "cb_policy",
-      "importance": 5,
       "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
@@ -272,62 +214,69 @@
       "published_at": "2026-09-16T11:29:00+03:00"
     },
     {
-      "id": "ofz-auctions-placement",
-      "headline": "Министерство финансов России разместило облигации федерального займа с доходностью до шестнадцати процентов",
-      "context": "Ведомство привлекло 113,1 миллиарда рублей в чистых ценах на двух аукционах при устойчивом спросе.",
+      "id": "eurotrans-default-warning",
+      "headline": "Председатель наблюдательного совета Московской биржи назвал дело Евротранса угрозой для рынка",
+      "context": "Сергей Швецов предупредил, что дефолт компании без парламентского расследования может негативно повлиять на рынок облигаций и ЦФА.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/304983"
+        }
+      ],
+      "published_at": "2026-09-16T13:44:00+03:00"
+    },
+    {
+      "id": "alfa-bank-dividends",
+      "headline": "Совет директоров Альфа-банка рекомендовал выплатить дивиденды на сумму 20,4 миллиарда рублей",
+      "context": "Выплаты планируется осуществить из нераспределенной прибыли прошлых лет в размере 342,41 рубля на одну акцию.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956228"
+        }
+      ],
+      "published_at": "2026-09-16T15:25:00+03:00"
+    },
+    {
+      "id": "cbr-balance-of-payments",
+      "headline": "Профицит счета текущих операций России вырос в 1,6 раза за семь месяцев",
+      "context": "По данным Банка России, показатель достиг 33,9 миллиарда долларов против 21,5 миллиарда долларов годом ранее.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956493"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305064"
+          "url": "https://www.kommersant.ru/doc/8955667"
         }
       ],
-      "published_at": "2026-09-16T14:11:00+03:00"
+      "published_at": "2026-09-16T02:08:00+03:00"
     },
     {
       "id": "diesel-export-ban-extension",
-      "headline": "Правительство России продлило временный запрет на экспорт дизельного топлива до ноября",
-      "context": "Ограничения сохраняются для обеспечения стабильных поставок нефтепродуктов и удовлетворения спроса на внутреннем рынке.",
+      "headline": "Правительство России приняло решение продлить запрет на экспорт дизельного топлива до ноября",
+      "context": "Ограничения продлены для обеспечения стабильных поставок нефтепродуктов на внутренний рынок.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
-        {
-          "name": "Ведомости",
-          "url": ""
-        },
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8955783"
         }
       ],
-      "published_at": "2026-09-16T08:27:00+03:00"
-    },
-    {
-      "id": "gazprom-kazakhstan-gas",
-      "headline": "Казахстан увеличит закупки природного газа у Газпрома до одиннадцати миллиардов кубометров",
-      "context": "Стороны подписали дополнительное соглашение к контракту, увеличивающее поставки по сравнению с прошлым годом.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/16/1229237-kazahstan-i-gazprom"
-        }
-      ],
-      "published_at": "2026-09-16T12:25:00+03:00"
+      "published_at": "2026-09-16T08:47:00+03:00"
     },
     {
       "id": "rosseti-revenue-forecast",
-      "headline": "Россети прогнозируют достижение рекордной выручки в два триллиона рублей по итогам года",
-      "context": "Инвестиционная программа электросетевого холдинга в текущем году может вырасти на треть до одного триллиона рублей.",
+      "headline": "Компания Россети ожидает рекордную выручку в размере двух триллионов рублей в 2026 году",
+      "context": "Глава холдинга Андрей Рюмин представил прогноз по финансовым показателям и инвестиционной программе премьер-министру.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -340,48 +289,10 @@
       "published_at": "2026-09-16T11:12:00+03:00"
     },
     {
-      "id": "crypto-futures-moex",
-      "headline": "Московская биржа запустит торги вечными фьючерсами на индексы пяти криптовалют для квалифицированных инвесторов",
-      "context": "Площадка также заявила о технологической готовности к запуску прямых торгов цифровыми валютами к началу декабря.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8955910"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229186-fyuchersami-kriptovalyut"
-        }
-      ],
-      "published_at": "2026-09-16T10:02:00+03:00"
-    },
-    {
-      "id": "mining-infrastructure-ban",
-      "headline": "Федеральная антимонопольная служба предложила запретить производителям электроэнергии управлять инфраструктурой для майнинга",
-      "context": "Ведомство разработало законопроект, который ограничит совмещение генерации и операторских функций в майнинге.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956318"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1116451"
-        }
-      ],
-      "published_at": "2026-09-16T16:19:00+03:00"
-    },
-    {
       "id": "t-bank-bond-placement",
-      "headline": "Т-Банк начал сбор заявок на выпуск облигаций объемом тридцать миллиардов рублей",
-      "context": "Выпуск обеспечен портфелем потребительских кредитов и получил наивысший ожидаемый рейтинг от агентства АКРА.",
-      "category": "banks",
+      "headline": "Т-Банк начал сбор заявок на выпуск облигаций объемом 30 миллиардов рублей",
+      "context": "Выпуск обеспечен портфелем потребительских кредитов и имеет ожидаемую эффективную доходность до 17,79% годовых.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
@@ -393,23 +304,64 @@
       "published_at": "2026-09-16T12:00:00+03:00"
     },
     {
-      "id": "microelectronics-strategy",
-      "headline": "Правительство и бизнес разрабатывают новую стратегию поддержки отечественной микроэлектронной отрасли",
-      "context": "Среди предложений — введение обязательных квот на российские компоненты в госзакупках и механизм офтейк-контрактов.",
+      "id": "kazakhstan-gas-purchase-from-gazprom",
+      "headline": "Казахстан планирует закупить у Газпрома одиннадцать миллиардов кубометров газа в 2026 году",
+      "context": "Стороны подписали дополнительное соглашение к контракту на поставку энергоресурсов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/16/1229237-kazahstan-i-gazprom"
+        }
+      ],
+      "published_at": "2026-09-16T12:25:00+03:00"
+    },
+    {
+      "id": "fas-mining-infrastructure-ban",
+      "headline": "Федеральная антимонопольная служба предложила запретить энергокомпаниям управлять объектами майнинга криптовалют",
+      "context": "Ведомство разработало законопроект, который ограничит функции оператора майнинговой инфраструктуры для всех субъектов электроэнергетики.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8955669"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/304898"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/technology/news/2026/09/16/1229360-zapretit-energetikam"
         }
       ],
-      "published_at": "2026-09-16T02:11:00+03:00"
+      "published_at": "2026-09-16T16:54:00+03:00"
+    },
+    {
+      "id": "ofz-auction-results",
+      "headline": "Министерство финансов России разместило облигации федерального займа на сумму 139,6 миллиарда рублей",
+      "context": "Ведомство провело два аукциона по размещению ОФЗ серий 26252 и 26238 с доходностью до 16,3% годовых.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956493"
+        }
+      ],
+      "published_at": "2026-09-16T19:44:00+03:00"
+    },
+    {
+      "id": "afk-sistema-robotics-acquisition",
+      "headline": "Корпорация робототехники из структуры АФК Система приобрела контрольную долю в Фотомеханике",
+      "context": "Компания выкупила 51% акций производителя решений для автоматизации складских комплексов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956273"
+        }
+      ],
+      "published_at": "2026-09-16T16:19:00+03:00"
     }
   ],
   "today_agenda": [],
