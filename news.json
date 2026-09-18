@@ -1,0 +1,389 @@
+{
+  "date": "2026-09-18",
+  "generated_at": "2026-09-18T21:59:06+03:00",
+  "session_open": "10:00 MSK",
+  "external_backdrop": "Американские и японские индексы закрылись ростом, в то время как нефть марки Brent снизилась на 5,75%.",
+  "market_snapshot": [
+    {
+      "name": "S&P 500",
+      "value": "7642.90",
+      "change_pct": "+0.07%",
+      "as_of": "закрытие 18.09",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nasdaq",
+      "value": "26464.71",
+      "change_pct": "+0.18%",
+      "as_of": "закрытие 18.09",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "64136.25",
+      "change_pct": "+0.33%",
+      "as_of": "закрытие 17.09",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "24604.29",
+      "change_pct": "-0.44%",
+      "as_of": "закрытие 17.09",
+      "group": "global_equity"
+    },
+    {
+      "name": "Brent",
+      "value": "98.79",
+      "change_pct": "-5.75%",
+      "as_of": "21:59 18.09",
+      "group": "commodity"
+    },
+    {
+      "name": "Золото",
+      "value": "4421.40",
+      "change_pct": "+0.49%",
+      "as_of": "21:59 18.09",
+      "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2278.06",
+      "change_pct": "+1.30%",
+      "as_of": "19:00 18.09",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "852.33",
+      "change_pct": "+1.67%",
+      "as_of": "19:00 18.09",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "84.72",
+      "change_pct": "+0.03%",
+      "as_of": "21:59 18.09",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.58",
+      "change_pct": "+0.06%",
+      "as_of": "19:15 18.09",
+      "group": "fx"
+    }
+  ],
+  "overnight": [
+    {
+      "id": "aeroflot-rostec-mc21-contract",
+      "headline": "Аэрофлот и Ростех подписали контракт на поставку девяноста самолетов МС-21",
+      "context": "Поставки первой партии из 18 воздушных судов начнутся в 2027 году, а серийный выпуск планируется нарастить до 36 бортов в год.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116917"
+        }
+      ],
+      "published_at": "2026-09-18T16:14:00+03:00"
+    },
+    {
+      "id": "saudi-aramco-europe-crude-halt",
+      "headline": "Саудовская Аравия приостановила поставки нефти европейским нефтеперерабатывающим заводам на октябрь",
+      "context": "Решение Saudi Aramco связано с атакой беспилотников на ключевой нефтепровод Восток-Запад.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116907"
+        }
+      ],
+      "published_at": "2026-09-18T15:29:00+03:00"
+    },
+    {
+      "id": "foreign-assets-temporary-management",
+      "headline": "Президент Владимир Путин передал российские активы Nestle и Auchan во временное управление",
+      "context": "Временным управляющим назначена компания Л.Е.В. Менеджмент, а Песков объяснил решение принадлежностью активов к недружественным странам.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8968569"
+        }
+      ],
+      "published_at": "2026-09-18T13:09:00+03:00"
+    },
+    {
+      "id": "cbr-crypto-banking-limits",
+      "headline": "Банк России введет новые нормативы для ограничения рисков вложений банков в криптовалюты",
+      "context": "Нормативы будут учитывать как прямые вложения кредитных организаций, так и инвестиции клиентов в привязанные к цифровым валютам инструменты.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8963321"
+        }
+      ],
+      "published_at": "2026-09-18T14:09:00+03:00"
+    },
+    {
+      "id": "lukoil-us-license-extension",
+      "headline": "Минфин США продлил лицензию на переговоры о продаже зарубежных активов Лукойла до двадцать второго октября",
+      "context": "Решение опубликовано Управлением по контролю за иностранными активами США.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8969977"
+        }
+      ],
+      "published_at": "2026-09-18T17:31:00+03:00"
+    },
+    {
+      "id": "boj-rate-hike-1995-high",
+      "headline": "Банк Японии повысил ключевую процентную ставку до одного целого двадцати пяти сотых процента",
+      "context": "Показатель достиг максимального значения с 1995 года.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8957523"
+        }
+      ],
+      "published_at": "2026-09-18T07:53:00+03:00"
+    },
+    {
+      "id": "warren-buffett-berkshire-stepping-down",
+      "headline": "Уоррен Баффет покинул пост председателя совета директоров инвестиционной компании Berkshire Hathaway",
+      "context": "Пост председателя займет его сын Говард Баффет, а сам 96-летний инвестор станет почетным председателем.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116886"
+        }
+      ],
+      "published_at": "2026-09-18T13:59:00+03:00"
+    },
+    {
+      "id": "spb-exchange-trading-session-extension",
+      "headline": "СПБ Биржа продлит основную торговую сессию на один час с двадцать четвертого сентября",
+      "context": "Торги будут начинаться в 9:00 мск вместо 10:00 мск, при этом общее время проведения сессии останется прежним.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1116899"
+        }
+      ],
+      "published_at": "2026-09-18T14:54:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "sberbank-samolet-management-talks",
+      "headline": "Сбербанк может получить в управление часть девелоперского бизнеса группы Самолет",
+      "context": "Передача проектов или вхождение банка в капитал дочерних структур обсуждается в рамках реструктуризации займов застройщика.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305135"
+        }
+      ],
+      "published_at": "2026-09-17T08:10:00+03:00"
+    },
+    {
+      "id": "us-house-approves-russia-sanctions",
+      "headline": "Палата представителей США одобрила законопроект о расширении санкций против России",
+      "context": "Документ предусматривает ограничения против российских банков, энергетики и теневого флота, а также пошлины для покупателей нефти и газа.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305124"
+        }
+      ],
+      "published_at": "2026-09-17T04:57:00+03:00"
+    },
+    {
+      "id": "cbr-sber-vtb-deposit-rates",
+      "headline": "Сбербанк и ВТБ повысили процентные ставки по вкладам физических лиц",
+      "context": "В Сбербанке максимальная ставка на шесть и семь месяцев выросла до 13,5% годовых, в ВТБ на полтора года — до 13,7%.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305184"
+        }
+      ],
+      "published_at": "2026-09-17T13:21:00+03:00"
+    },
+    {
+      "id": "cbr-eu-court-third-lawsuit",
+      "headline": "Банк России подал третий иск в Суд Европейского союза для оспаривания ограничений",
+      "context": "Регулятор оспаривает норму двадцать первого пакета санкций, позволяющую европейским судам запрещать исполнение решений российских судов.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305279"
+        }
+      ],
+      "published_at": "2026-09-17T16:27:00+03:00"
+    },
+    {
+      "id": "moex-eurotrans-listing-downgrade",
+      "headline": "Московская биржа переведет акции компании Евротранс в третий уровень листинга",
+      "context": "Решение вступит в силу с 18 августа после рекомендаций экспертного совета по листингу.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8957204"
+        }
+      ],
+      "published_at": "2026-09-17T16:35:00+03:00"
+    },
+    {
+      "id": "cbr-eurotrans-default-investigation",
+      "headline": "Банк России проверяет дефолт компании Евротранс на признаки инсайдерской торговли и манипулирования",
+      "context": "Зампред ЦБ Михаил Мамута сообщил о подготовке предложений по повышению прозрачности эмитентов для инвесторов.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305290"
+        }
+      ],
+      "published_at": "2026-09-17T17:23:00+03:00"
+    },
+    {
+      "id": "minek-pre-bankruptcy-sanation-launch",
+      "headline": "Минэкономразвития предложило перенести запуск механизма добанкротной санации на первое января две тысячи двадцать седьмого года",
+      "context": "Механизм предусматривает добровольную реструктуризацию долгов жизнеспособных компаний для предотвращения их банкротства.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305132"
+        }
+      ],
+      "published_at": "2026-09-17T08:00:00+03:00"
+    },
+    {
+      "id": "government-mortgage-programs-funding",
+      "headline": "Правительство России выделит сто пятьдесят семь миллиардов рублей на льготные ипотечные программы",
+      "context": "Средства из резервного фонда будут направлены Дом.рф для возмещения банкам недополученных доходов по кредитам.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305357"
+        }
+      ],
+      "published_at": "2026-09-17T18:53:00+03:00"
+    },
+    {
+      "id": "raiffeisen-shares-drop-sanctions-allegations",
+      "headline": "Акции Raiffeisen Bank International упали на девять процентов после обвинений в обходе санкций",
+      "context": "Grizzly Research опубликовала доклад о проведении через российскую дочку операций с подсанкционными товарами на сумму более одного миллиарда долларов.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305191"
+        }
+      ],
+      "published_at": "2026-09-17T14:53:00+03:00"
+    },
+    {
+      "id": "vtb-shares-historical-minimum",
+      "headline": "Акции банка ВТБ обновили исторический минимум на торгах Московской биржи",
+      "context": "Котировки опустились на 1,9% к закрытию предыдущего дня, достигнув значения 49,435 рубля за штуку.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8957088"
+        }
+      ],
+      "published_at": "2026-09-17T15:02:00+03:00"
+    },
+    {
+      "id": "ozon-logistics-platform-launch",
+      "headline": "Маркетплейс Ozon запустил онлайн-платформу для аренды и строительства логистических объектов",
+      "context": "Компания рассматривает предложения по аренде площадей от 5 тысяч квадратных метров и строительству до 85 тысяч квадратных метров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956895"
+        }
+      ],
+      "published_at": "2026-09-17T11:59:00+03:00"
+    },
+    {
+      "id": "dns-marketplace-beta-testing",
+      "headline": "Ритейлер DNS запустил в тестовом режиме маркетплейс для сторонних продавцов",
+      "context": "Площадка DNS Селлер работает по модели поставок на склады компании в семи городах России.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305174"
+        }
+      ],
+      "published_at": "2026-09-17T12:53:00+03:00"
+    }
+  ],
+  "today_agenda": [],
+  "briefing": {
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
+    "last_trading_day": "2026-09-17"
+  }
+}
