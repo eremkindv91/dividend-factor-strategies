@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-18T00:47:35+00:00",
-  "data_as_of": "2026-09-17",
+  "generated_at": "2026-09-19T00:41:24+00:00",
+  "data_as_of": "2026-09-18",
   "status": "DEGRADED",
   "production_data": "real_sources_only",
   "checks": [
@@ -21,7 +21,7 @@
     {
       "name": "benchmark_history",
       "status": "PASS",
-      "value": 5899,
+      "value": 5900,
       "minimum": 252,
       "source": "MOEX ISS / MCFTR"
     },
@@ -86,12 +86,12 @@
     {
       "name": "MOEX ISS equity candles",
       "url": "https://iss.moex.com/",
-      "as_of": "2026-09-17"
+      "as_of": "2026-09-18"
     },
     {
       "name": "MOEX ISS MCFTR",
       "url": "https://iss.moex.com/",
-      "as_of": "2026-09-17"
+      "as_of": "2026-09-18"
     },
     {
       "name": "MOEX ISS dividends",
