@@ -1,419 +1,374 @@
 {
-  "date": "2026-09-18",
-  "generated_at": "2026-09-18T21:23:11+03:00",
+  "date": "2026-09-20",
+  "generated_at": "2026-09-20T20:32:30+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись разнонаправленно, азиатские рынки продемонстрировали смешанную динамику на фоне снижения цен на нефть Brent",
+  "external_backdrop": "Мировые фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent снизились более чем на 5%.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7635.67",
-      "change_pct": "-0.03%",
-      "as_of": "2026-09-18",
+      "value": "7650.50",
+      "change_pct": "+0.17%",
+      "as_of": "закрытие 18.09",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26429.43",
-      "change_pct": "+0.04%",
-      "as_of": "2026-09-18",
+      "value": "26522.54",
+      "change_pct": "+0.39%",
+      "as_of": "закрытие 18.09",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64136.25",
-      "change_pct": "+0.33%",
-      "as_of": "2026-09-17",
+      "value": "65018.95",
+      "change_pct": "+1.38%",
+      "as_of": "закрытие 18.09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24604.29",
-      "change_pct": "-0.44%",
-      "as_of": "2026-09-17",
+      "value": "24750.78",
+      "change_pct": "+0.60%",
+      "as_of": "закрытие 18.09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "98.93",
-      "change_pct": "-5.62%",
-      "as_of": "2026-09-18",
+      "value": "99.29",
+      "change_pct": "-5.28%",
+      "as_of": "закрытие 18.09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4429.50",
-      "change_pct": "+0.68%",
-      "as_of": "2026-09-18",
+      "value": "4424.90",
+      "change_pct": "+0.57%",
+      "as_of": "закрытие 18.09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2278.06",
-      "change_pct": "+1.30%",
-      "as_of": "2026-09-18 19:00:13",
+      "value": "2262.13",
+      "change_pct": "-0.70%",
+      "as_of": "19.09 10:42:10",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
       "value": "852.33",
       "change_pct": "+1.67%",
-      "as_of": "2026-09-18 19:00:12",
+      "as_of": "18.09 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "84.72",
-      "change_pct": "+0.03%",
-      "as_of": "2026-09-18 21:23:09",
+      "change_pct": "-0.11%",
+      "as_of": "18.09 23:55:00",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.58",
       "change_pct": "+0.06%",
-      "as_of": "2026-09-18 19:15:01",
+      "as_of": "18.09 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "auchan-nestle-lemana-pro-external-management",
-      "headline": "Активы Auchan Nestle и Лемана ПРО в России переданы во временное управление",
-      "context": "Президент Владимир Путин подписал указ о передаче долей недружественных компаний структуре Л.Е.В. Менеджмент.",
+      "id": "moscow-refinery-damaged",
+      "headline": "Московский нефтеперерабатывающий завод получил повреждения в результате массированной атаки беспилотников",
+      "context": "Мэр Москвы сообщил о повреждении одного из объектов завода, основная производственная площадка существенно не затронута.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957443"
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/85325"
         }
       ],
-      "published_at": "2026-09-17T22:30:00+03:00"
+      "published_at": "2026-09-20T14:23:00+03:00"
     },
     {
-      "id": "aeroflot-rosteh-contract-ms21",
-      "headline": "Аэрофлот и Ростех подписали контракт на поставку девяноста самолетов МС-21",
-      "context": "Поставки первой партии воздушных судов по новому соглашению начнутся в 2029 году.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/18/1230015-aeroflot-rosteh-podpisali-kontrakt"
-        }
-      ],
-      "published_at": "2026-09-18T16:34:00+03:00"
-    },
-    {
-      "id": "saudi-arabia-oil-to-europe-halt",
-      "headline": "Саудовская Аравия приостановила поставки сырой нефти европейским НПЗ на октябрь",
-      "context": "Решение Saudi Aramco связано с последствиями атаки беспилотников на нефтепровод Восток-Запад.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8969893"
-        }
-      ],
-      "published_at": "2026-09-18T16:12:00+03:00"
-    },
-    {
-      "id": "ozon-stress-test-losses-reduction",
-      "headline": "Аналитики оценили сокращение убытков Ozon в семнадцать раз при стрессовом сценарии",
-      "context": "Даже при потере половины логистических мощностей маркетплейс выйдет на чистую прибыль к 2028 году.",
-      "category": "corporate",
+      "id": "stablecoin-mechanism-development",
+      "headline": "Минфин и Банк России прорабатывают механизм работы и круг операций российского стейблкоина",
+      "context": "Заместитель министра финансов сообщил, что задача состоит в оценке востребованности и рисков инструмента.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305582"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385498"
         }
       ],
-      "published_at": "2026-09-18T17:53:00+03:00"
+      "published_at": "2026-09-20T20:28:00+03:00"
     },
     {
-      "id": "us-russia-business-deals-considered",
-      "headline": "Администрация США рассматривает возможность заключения бизнес-сделок с Россией до завершения конфликта",
-      "context": "Новый подход призван продемонстрировать готовность Вашингтона к перезагрузке отношений.",
+      "id": "trump-iran-meeting-un",
+      "headline": "Дональд Трамп допустил встречу с президентом Ирана на Генеральной ассамблее ООН",
+      "context": "Президент США заявил, что находится в процессе принятия решений по Ирану, прогнозируя важные события в ближайшем будущем.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957486"
+          "url": "https://www.kommersant.ru/doc/8970936"
         }
       ],
-      "published_at": "2026-09-18T02:54:00+03:00"
+      "published_at": "2026-09-20T17:57:00+03:00"
     },
     {
-      "id": "bank-of-japan-rate-hike",
-      "headline": "Банк Японии повысил ключевую процентную ставку до максимума с девяносто пятого года",
-      "context": "Регулятор увеличил ставку на 0,25 процентного пункта, установив ее на уровне 1,25%.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957523"
-        }
-      ],
-      "published_at": "2026-09-18T07:53:00+03:00"
-    },
-    {
-      "id": "ingosstrakh-payouts-ozon-sellers",
-      "headline": "Ингосстрах выплатил продавцам Ozon более восьми миллиардов рублей после атак беспилотников",
-      "context": "Первая волна страховых выплат компенсировала ущерб около 90 тысяч селлеров маркетплейса.",
+      "id": "ozon-wildberries-lawsuits-surge",
+      "headline": "Число судебных исков к маркетплейсам Ozon и Wildberries выросло в полтора-два раза",
+      "context": "Рост числа обращений может быть связан с потерями продавцов из-за атак на логистическую инфраструктуру.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957434"
+          "url": "https://www.kommersant.ru/doc/8970918"
         }
       ],
-      "published_at": "2026-09-18T09:00:00+03:00"
+      "published_at": "2026-09-20T17:34:00+03:00"
     },
     {
-      "id": "warren-buffett-steps-down-berkshire",
-      "headline": "Уоррен Баффетт покинул пост председателя совета директоров инвестиционной империи Berkshire Hathaway",
-      "context": "Его место во главе компании займет его сын Говард Баффетт.",
-      "category": "corporate",
+      "id": "ukraine-steel-industry-destroyed",
+      "headline": "Металлургическая промышленность Украины практически полностью уничтожена после ударов по инфраструктуре",
+      "context": "В компании Метинвест заявили о выходе из строя трех ключевых заводов, обеспечивавших 90% выпуска стали.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/18/1229933-baffett-pokidaet-post"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385483"
         }
       ],
-      "published_at": "2026-09-18T13:57:00+03:00"
+      "published_at": "2026-09-20T17:24:00+03:00"
+    },
+    {
+      "id": "china-lpr-unchanged",
+      "headline": "Народный банк Китая сохранил базовые процентные ставки LPR без изменений шестнадцатый месяц подряд",
+      "context": "Ставка по годовым кредитам осталась на уровне 3%, по пятилетним — 3,5%.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385471"
+        }
+      ],
+      "published_at": "2026-09-20T09:54:00+03:00"
+    },
+    {
+      "id": "zetachain-solana-migration-vote",
+      "headline": "Сообщество ZetaChain большинством голосов поддержало предложение о переносе токена на блокчейн Solana",
+      "context": "В случае одобрения ZETA станет нативным токеном стандарта SPL с конвертацией один к одному.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385497"
+        }
+      ],
+      "published_at": "2026-09-20T20:21:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "sberbank-samolet-management-talks",
-      "headline": "Сбербанк может получить в управление часть бизнеса девелоперской группы Самолет",
-      "context": "Это может произойти в рамках реструктуризации займов компании перед кредитором.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "medvedev-foreign-assets-seizure",
+      "headline": "Дмитрий Медведев предложил принудительно изымать иностранные активы в ответ на санкции",
+      "context": "Заместитель председателя Совета безопасности РФ прокомментировал передачу активов Nestle и Auchan во временное управление.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956629"
+          "url": "https://www.kommersant.ru/doc/8970495"
         }
       ],
-      "published_at": "2026-09-17T06:01:00+03:00"
+      "published_at": "2026-09-19T11:45:00+03:00"
     },
     {
-      "id": "us-house-approves-sanctions-bill",
-      "headline": "Палата представителей США одобрила законопроект о расширении санкций против России",
-      "context": "Документ предусматривает ограничения против российских банков, энергетики и теневого флота.",
+      "id": "trump-signs-hellish-sanctions",
+      "headline": "Дональд Трамп подписал закон об ужесточении санкций против России и Ирана",
+      "context": "Документ позволяет вводить пошлины до 100% на товары из стран, закупающих российские энергоресурсы, и санкции против теневого флота.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305124"
+          "name": "InvestFuture",
+          "url": "https://t.me/if_market_news/85318"
         }
       ],
-      "published_at": "2026-09-17T05:01:00+03:00"
+      "published_at": "2026-09-19T00:49:00+03:00"
     },
     {
-      "id": "eurotrans-shares-listing-downgrade",
-      "headline": "Московская биржа переведет акции компании Евротранс в третий уровень листинга",
-      "context": "Решение о переводе из первого уровня листинга вступит в силу с 18 сентября.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957204"
-        }
-      ],
-      "published_at": "2026-09-17T16:35:00+03:00"
-    },
-    {
-      "id": "cb-analyzes-eurotrans-default",
-      "headline": "Банк России проверяет дефолт Евротранса на признаки инсайда и манипулирования",
-      "context": "Регулятор готовит предложения по повышению прозрачности и улучшению информирования со стороны эмитентов.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305290"
-        }
-      ],
-      "published_at": "2026-09-17T17:23:00+03:00"
-    },
-    {
-      "id": "sberbank-vtb-raise-deposit-rates",
-      "headline": "Сбербанк и ВТБ повысили процентные ставки по ряду розничных вкладов",
-      "context": "В Сбербанке максимальная ставка по вкладам на шесть и семь месяцев выросла до 13,5% годовых.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305184"
-        }
-      ],
-      "published_at": "2026-09-17T13:21:00+03:00"
-    },
-    {
-      "id": "raiffeisen-shares-drop-sanctions-accusations",
-      "headline": "Акции Raiffeisen Bank International упали на девять процентов после обвинений",
-      "context": "Аналитики Grizzly Research обвинили банк в содействии обходу ограничений через российскую дочку.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305191"
-        }
-      ],
-      "published_at": "2026-09-17T14:53:00+03:00"
-    },
-    {
-      "id": "vtb-shares-historical-minimum",
-      "headline": "Акции ВТБ обновили исторический минимум на торгах Московской биржи",
-      "context": "Котировки банка опускались до 49,435 рублей за штуку.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8957102"
-        }
-      ],
-      "published_at": "2026-09-17T15:02:00+03:00"
-    },
-    {
-      "id": "mts-dividend-policy-approved",
-      "headline": "Совет директоров МТС утвердил положение о дивидендной политике компании",
-      "context": "Менеджмент компании провел звонок с инвесторами для разъяснения параметров политики на 2027-2028 годы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "smart-lab.ru",
-          "url": "https://smart-lab.ru/mobile/topic/1352336/"
-        }
-      ],
-      "published_at": "2026-09-17T10:37:00+03:00"
-    },
-    {
-      "id": "minfin-centralized-procurement-expansion",
-      "headline": "Минфин предложил подключить к централизованным госзакупкам еще двадцать одно ведомство",
-      "context": "Речь идет о концентрации закупочных функций в Центре по обеспечению деятельности Казначейства.",
-      "category": "macro",
+      "id": "iran-sends-conditions-to-us",
+      "headline": "Иран передал США через катарских посредников условия для прекращения войны",
+      "context": "Секретарь Высшего совета национальной безопасности Ирана сообщил о продолжающихся консультациях.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956515"
+          "url": "https://www.kommersant.ru/doc/8970626"
         }
       ],
-      "published_at": "2026-09-17T02:15:00+03:00"
+      "published_at": "2026-09-19T20:01:00+03:00"
     },
     {
-      "id": "prebankruptcy-sanation-launch-earlier",
-      "headline": "Минэкономразвития предлагает перенести запуск добанкротной санации на начало следующего года",
-      "context": "Механизм предусматривает добровольную реструктуризацию долгов жизнеспособных компаний.",
+      "id": "government-budget-forecast-rules",
+      "headline": "Правительство России скорректировало правила разработки долгосрочного бюджетного прогноза",
+      "context": "Изменения в постановление правительства, касающиеся планирования на 12 и более лет, внесены Минфином.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/305132"
+          "url": "https://frankmedia.ru/305669"
         }
       ],
-      "published_at": "2026-09-17T08:00:00+03:00"
+      "published_at": "2026-09-19T17:51:00+03:00"
     },
     {
-      "id": "cb-lawsuit-eu-court-recognition",
-      "headline": "Банк России оспорил в суде Евросоюза ограничения на признание судебных решений",
-      "context": "Регулятор подал иск против нормы, позволяющей европейским судам блокировать разбирательства в РФ.",
+      "id": "jpmorgan-stops-oil-forecasts",
+      "headline": "JPMorgan прекратил прогнозировать цены на нефть из-за неопределенности сроков войны",
+      "context": "Аналитики банка отметили, что предположение о временном характере перебоев с поставками сырья становится трудно поддерживать.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305664"
+        }
+      ],
+      "published_at": "2026-09-19T14:37:00+03:00"
+    },
+    {
+      "id": "putin-max-messenger-payment",
+      "headline": "Владимир Путин поручил рассмотреть использование цифровой платформы Макс для оплаты проезда",
+      "context": "Правительству поручено изучить возможность интеграции Единой биометрической системы и платформы Макс в общественном транспорте.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8970536"
+        }
+      ],
+      "published_at": "2026-09-19T13:38:00+03:00"
+    },
+    {
+      "id": "cb-crypto-limits-banks",
+      "headline": "Банк России планирует ограничить вложения коммерческих банков в криптовалюты одним процентом капитала",
+      "context": "Регулятор намерен ввести лимиты для снижения рисков финансовой системы.",
       "category": "cb_policy",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/09/17/1229661-tsb-osporit"
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/23987"
         }
       ],
-      "published_at": "2026-09-17T16:04:00+03:00"
+      "published_at": "2026-09-19T10:01:00+03:00"
     },
     {
-      "id": "selectel-acquires-stack-group",
-      "headline": "Облачный провайдер Selectel приобрел сто процентов компании Стек Групп",
-      "context": "Сделка направлена на укрепление позиций провайдера на рынке приватных облачных решений.",
+      "id": "lukoil-caspian-project-suspended",
+      "headline": "Проект поиска нефти Лукойла на Каспии приостановлен без решения о выходе",
+      "context": "Об этом сообщили в казахстанской государственной компании Казмунайгаз.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "t.me/markettwits",
-          "url": "https://t.me/markettwits/385201"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385421"
         }
       ],
-      "published_at": "2026-09-17T14:11:00+03:00"
+      "published_at": "2026-09-19T09:47:00+03:00"
     },
     {
-      "id": "ozon-warehouse-rent-platform",
-      "headline": "Ozon запустил онлайн-платформу для долгосрочной аренды и строительства логистических объектов",
-      "context": "Маркетплейс рассматривает предложения по аренде площадей от 5 тысяч квадратных метров.",
+      "id": "oleg-pay-mixit-arrested",
+      "headline": "Суд отправил генерального директора косметического бренда Mixit Олега Пая под домашний арест",
+      "context": "Руководитель компании обвиняется по уголовному делу о мошенничестве.",
       "category": "corporate",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8956895"
+          "url": "https://www.kommersant.ru/doc/8970569"
         }
       ],
-      "published_at": "2026-09-17T11:59:00+03:00"
+      "published_at": "2026-09-19T15:46:00+03:00"
     },
     {
-      "id": "dns-marketplace-test-launch",
-      "headline": "Торговая сеть DNS запустила работу собственного маркетплейса в тестовом режиме",
-      "context": "Партнерам предлагается модель продаж со склада компании в семи городах России.",
+      "id": "dmitriev-nord-stream-afd",
+      "headline": "Кирилл Дмитриев допустил совместную работу с партией АдГ по восстановлению Северного потока",
+      "context": "Спецпредставитель президента РФ заявил, что возвращение доступа к газопроводу позволит снизить цены на электроэнергию в Германии.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/385429"
+        }
+      ],
+      "published_at": "2026-09-19T10:34:00+03:00"
+    },
+    {
+      "id": "spb-exchange-opening-time",
+      "headline": "СПБ биржа с 24 сентября начнет открывать торговую сессию с 9 утра",
+      "context": "Изменение времени начала торгов содержится в сводке финансовых новостей.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/305174"
+          "url": "https://t.me/frank_media/23987"
         }
       ],
-      "published_at": "2026-09-17T12:53:00+03:00"
+      "published_at": "2026-09-19T10:01:00+03:00"
+    },
+    {
+      "id": "us-denmark-greenland-agreement",
+      "headline": "США и Дания заключили соглашение о переходе контроля за безопасностью Гренландии",
+      "context": "Договоренность позволит Вашингтону бессрочно увеличить военное присутствие в Арктическом регионе.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8970413"
+        }
+      ],
+      "published_at": "2026-09-19T00:55:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-09-17"
+    "kind": "week_ahead",
+    "title": "К новой неделе",
+    "context": "в воскресенье, накануне открытия недели",
+    "last_trading_day": "2026-09-18"
   }
 }
