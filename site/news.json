@@ -1,208 +1,208 @@
 {
   "date": "2026-09-21",
-  "generated_at": "2026-09-21T11:11:53+03:00",
+  "generated_at": "2026-09-21T22:59:15+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent и золото снижаются.",
+  "external_backdrop": "Американские индексы закрылись ростом, в то время как котировки нефти Brent и золота снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7650.50",
-      "change_pct": "+0.17%",
-      "as_of": "закрытие 18.09",
+      "value": "7765.68",
+      "change_pct": "+1.51%",
+      "as_of": "2026-09-21",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26522.54",
-      "change_pct": "+0.39%",
-      "as_of": "закрытие 18.09",
+      "value": "27121.90",
+      "change_pct": "+2.26%",
+      "as_of": "2026-09-21",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "65018.95",
       "change_pct": "+1.38%",
-      "as_of": "закрытие 18.09",
+      "as_of": "2026-09-18",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25007.14",
-      "change_pct": "+1.04%",
-      "as_of": "21.09",
+      "value": "24750.78",
+      "change_pct": "+0.60%",
+      "as_of": "2026-09-18",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "97.61",
-      "change_pct": "-6.03%",
-      "as_of": "21.09",
+      "value": "96.11",
+      "change_pct": "-7.47%",
+      "as_of": "2026-09-21",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4383.70",
-      "change_pct": "-0.93%",
-      "as_of": "21.09",
+      "value": "4384.80",
+      "change_pct": "-0.91%",
+      "as_of": "2026-09-21",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2267.70",
-      "change_pct": "-0.45%",
-      "as_of": "11:11",
+      "value": "2257.98",
+      "change_pct": "-0.88%",
+      "as_of": "2026-09-21 19:00:13",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "848.45",
-      "change_pct": "-0.46%",
-      "as_of": "11:11",
+      "value": "845.84",
+      "change_pct": "-0.76%",
+      "as_of": "2026-09-21 19:00:12",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.62",
-      "change_pct": "-0.06%",
-      "as_of": "11:11",
+      "value": "84.15",
+      "change_pct": "-0.09%",
+      "as_of": "2026-09-21 22:59:13",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.57",
-      "change_pct": "-0.11%",
-      "as_of": "11:11",
+      "value": "12.49",
+      "change_pct": "-0.07%",
+      "as_of": "2026-09-21 19:15:01",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ru-crypto-legal-framework",
-      "headline": "Российская криптоиндустрия начнет функционировать в легальном поле до конца 2026 года",
-      "context": "До конца октября планируется принять 27 актов подзаконного регулирования закона о криптовалютах",
-      "category": "cb_policy",
+      "id": "russia-zeroes-grain-export-duties",
+      "headline": "Правительство России обнулило пошлины на экспорт зерновых до конца 2026 года",
+      "context": "Решение приостанавливает взимание экспортных пошлин на пшеницу, меслин, ячмень и кукурузу.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/385553"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117562"
         }
       ],
-      "published_at": "2026-09-21T10:16:00+03:00"
+      "published_at": "2026-09-21T20:44:00+03:00"
+    },
+    {
+      "id": "budget-rule-price-cut-to-50",
+      "headline": "Минфин России сформировал трехлетний бюджет исходя из цены отсечения нефти в 50 долларов за баррель",
+      "context": "Снижение цены отсечения в бюджетном правиле планируется установить на весь период 2027–2029 годов.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117509"
+        }
+      ],
+      "published_at": "2026-09-21T15:59:00+03:00"
     },
     {
       "id": "headhunter-dividends-approved",
-      "headline": "Акционеры Хэдхантера одобрили дивиденды за первое полугодие в размере 200 рублей на акцию",
-      "context": "Дивидендная отсечка по ценным бумагам компании запланирована на 28 сентября 2026 года",
+      "headline": "Акционеры Хэдхантер одобрили выплату дивидендов в размере 200 рублей на акцию",
+      "context": "Дивидендная отсечка по итогам первого полугодия 2026 года запланирована на 28 сентября.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/385529"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971425"
         }
       ],
-      "published_at": "2026-09-21T08:01:00+03:00"
+      "published_at": "2026-09-21T12:51:00+03:00"
     },
     {
-      "id": "oak-positive-financial-result",
-      "headline": "Объединенная авиастроительная корпорация планирует завершить 2026 год с положительным финансовым результатом",
-      "context": "Корпорация намерена нарастить объемы производства самолетов на 25–30% в текущем году",
+      "id": "mvideo-capital-increase-price",
+      "headline": "Совет директоров М.Видео определил цену допэмиссии акций на уровне 49.90 рубля",
+      "context": "Компания планирует разместить 500 млн акций по закрытой подписке для финансирования новой стратегии.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305778"
+        }
+      ],
+      "published_at": "2026-09-21T12:02:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-extension-and-exemptions",
+      "headline": "Евросоюз согласовал продление санкций против России на три года и снятие ограничений с Усманова и Фридмана",
+      "context": "Постпреды стран ЕС договорились о продлении мер сразу на три года вместо обычных шести месяцев.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/18/09/2026/6aad383960bda047e863e00e"
+        }
+      ],
+      "published_at": "2026-09-21T20:39:00+03:00"
+    },
+    {
+      "id": "rusal-aluminum-pricing-formula",
+      "headline": "Русал предложил изменить формулу расчета цен на первичный алюминий для внутреннего рынка",
+      "context": "Новая формула будет базироваться на котировках LME и SHFE, однако она еще не согласована с ФАС.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/385557"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971754"
         }
       ],
-      "published_at": "2026-09-21T10:50:00+03:00"
+      "published_at": "2026-09-21T18:34:00+03:00"
     },
     {
-      "id": "yandex-alice-ai-foundation",
-      "headline": "Яндекс разработал собственную суверенную большую языковую модель Alice AI Foundation LLM",
-      "context": "Модель обучена с нуля без использования сторонних иностранных компонентов",
-      "category": "tech",
+      "id": "ozon-pharmaceutics-dividends-approved",
+      "headline": "Акционеры Озон Фармацевтики утвердили дивиденды за первое полугодие в размере 0.49 рубля на акцию",
+      "context": "Всего на выплаты по итогам полугодия будет направлено 572.2 млн рублей с отсечкой 29 сентября.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305703"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971497"
         }
       ],
-      "published_at": "2026-09-21T08:37:00+03:00"
+      "published_at": "2026-09-21T14:04:00+03:00"
     },
     {
-      "id": "cb-limits-bank-crypto-investments",
-      "headline": "Банк России ограничит вложения кредитных организаций в криптовалюты одним процентом от капитала",
-      "context": "Для таких активов регулятор планирует ввести повышенный коэффициент риска на уровне 1250%",
+      "id": "russian-crypto-industry-legalization",
+      "headline": "Легальная российская криптоиндустрия может начать работу до конца 2026 года",
+      "context": "Банк России ведет неформальные консультации с банками, брокерами и криптообменниками о допуске к рынку.",
       "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1353545.php"
-        }
-      ],
-      "published_at": "2026-09-21T07:54:00+03:00"
-    },
-    {
-      "id": "united-russia-constitutional-majority",
-      "headline": "Партия Единая Россия сохраняет конституционное большинство в Государственной думе девятого созыва",
-      "context": "По предварительным данным ЦИК после обработки более 95% протоколов партия получает крупнейшую фракцию в своей истории",
-      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1117346"
+          "url": "https://www.interfax.ru/business/1117409"
         }
       ],
-      "published_at": "2026-09-21T06:59:00+03:00"
-    },
-    {
-      "id": "saudi-arabia-exits-mbridge",
-      "headline": "Саудовская Аравия вышла из проекта трансграничной платежной системы mBridge под руководством Китая",
-      "context": "Выход королевства из проекта цифровой валюты связывают с давлением со стороны США",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971101"
-        }
-      ],
-      "published_at": "2026-09-21T03:48:00+03:00"
-    },
-    {
-      "id": "gazpromneft-fuel-limits-moscow",
-      "headline": "На автозаправочных станциях Газпромнефти в Москве ввели ограничения на продажу бензина",
-      "context": "Решение принято после повреждения объекта на территории Московского нефтеперерабатывающего завода в результате атаки беспилотников",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/385490"
-        }
-      ],
-      "published_at": "2026-09-20T18:38:00+03:00"
+      "published_at": "2026-09-21T11:09:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-09-18"
   }
 }
