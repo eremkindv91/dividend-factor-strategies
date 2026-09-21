@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-20",
-  "generated_at": "2026-09-20T20:32:30+03:00",
+  "date": "2026-09-21",
+  "generated_at": "2026-09-21T11:11:53+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent снизились более чем на 5%.",
+  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, в то время как цены на нефть марки Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,348 +27,182 @@
     },
     {
       "name": "Hang Seng",
-      "value": "24750.78",
-      "change_pct": "+0.60%",
-      "as_of": "закрытие 18.09",
+      "value": "25007.14",
+      "change_pct": "+1.04%",
+      "as_of": "21.09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "99.29",
-      "change_pct": "-5.28%",
-      "as_of": "закрытие 18.09",
+      "value": "97.61",
+      "change_pct": "-6.03%",
+      "as_of": "21.09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4424.90",
-      "change_pct": "+0.57%",
-      "as_of": "закрытие 18.09",
+      "value": "4383.70",
+      "change_pct": "-0.93%",
+      "as_of": "21.09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2262.13",
-      "change_pct": "-0.70%",
-      "as_of": "19.09 10:42:10",
+      "value": "2267.70",
+      "change_pct": "-0.45%",
+      "as_of": "11:11",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "852.33",
-      "change_pct": "+1.67%",
-      "as_of": "18.09 19:00:12",
+      "value": "848.45",
+      "change_pct": "-0.46%",
+      "as_of": "11:11",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.72",
-      "change_pct": "-0.11%",
-      "as_of": "18.09 23:55:00",
+      "value": "84.62",
+      "change_pct": "-0.06%",
+      "as_of": "11:11",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.58",
-      "change_pct": "+0.06%",
-      "as_of": "18.09 23:50:02",
+      "value": "12.57",
+      "change_pct": "-0.11%",
+      "as_of": "11:11",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "moscow-refinery-damaged",
-      "headline": "Московский нефтеперерабатывающий завод получил повреждения в результате массированной атаки беспилотников",
-      "context": "Мэр Москвы сообщил о повреждении одного из объектов завода, основная производственная площадка существенно не затронута.",
+      "id": "ru-crypto-legal-framework",
+      "headline": "Российская криптоиндустрия начнет функционировать в легальном поле до конца 2026 года",
+      "context": "До конца октября планируется принять 27 актов подзаконного регулирования закона о криптовалютах",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/385553"
+        }
+      ],
+      "published_at": "2026-09-21T10:16:00+03:00"
+    },
+    {
+      "id": "headhunter-dividends-approved",
+      "headline": "Акционеры Хэдхантера одобрили дивиденды за первое полугодие в размере 200 рублей на акцию",
+      "context": "Дивидендная отсечка по ценным бумагам компании запланирована на 28 сентября 2026 года",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "InvestFuture",
-          "url": "https://t.me/if_market_news/85325"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/385529"
         }
       ],
-      "published_at": "2026-09-20T14:23:00+03:00"
+      "published_at": "2026-09-21T08:01:00+03:00"
     },
     {
-      "id": "stablecoin-mechanism-development",
-      "headline": "Минфин и Банк России прорабатывают механизм работы и круг операций российского стейблкоина",
-      "context": "Заместитель министра финансов сообщил, что задача состоит в оценке востребованности и рисков инструмента.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385498"
-        }
-      ],
-      "published_at": "2026-09-20T20:28:00+03:00"
-    },
-    {
-      "id": "trump-iran-meeting-un",
-      "headline": "Дональд Трамп допустил встречу с президентом Ирана на Генеральной ассамблее ООН",
-      "context": "Президент США заявил, что находится в процессе принятия решений по Ирану, прогнозируя важные события в ближайшем будущем.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970936"
-        }
-      ],
-      "published_at": "2026-09-20T17:57:00+03:00"
-    },
-    {
-      "id": "ozon-wildberries-lawsuits-surge",
-      "headline": "Число судебных исков к маркетплейсам Ozon и Wildberries выросло в полтора-два раза",
-      "context": "Рост числа обращений может быть связан с потерями продавцов из-за атак на логистическую инфраструктуру.",
+      "id": "oak-positive-financial-result",
+      "headline": "Объединенная авиастроительная корпорация планирует завершить 2026 год с положительным финансовым результатом",
+      "context": "Корпорация намерена нарастить объемы производства самолетов на 25–30% в текущем году",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970918"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/385557"
         }
       ],
-      "published_at": "2026-09-20T17:34:00+03:00"
+      "published_at": "2026-09-21T10:50:00+03:00"
     },
     {
-      "id": "ukraine-steel-industry-destroyed",
-      "headline": "Металлургическая промышленность Украины практически полностью уничтожена после ударов по инфраструктуре",
-      "context": "В компании Метинвест заявили о выходе из строя трех ключевых заводов, обеспечивавших 90% выпуска стали.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385483"
-        }
-      ],
-      "published_at": "2026-09-20T17:24:00+03:00"
-    },
-    {
-      "id": "china-lpr-unchanged",
-      "headline": "Народный банк Китая сохранил базовые процентные ставки LPR без изменений шестнадцатый месяц подряд",
-      "context": "Ставка по годовым кредитам осталась на уровне 3%, по пятилетним — 3,5%.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385471"
-        }
-      ],
-      "published_at": "2026-09-20T09:54:00+03:00"
-    },
-    {
-      "id": "zetachain-solana-migration-vote",
-      "headline": "Сообщество ZetaChain большинством голосов поддержало предложение о переносе токена на блокчейн Solana",
-      "context": "В случае одобрения ZETA станет нативным токеном стандарта SPL с конвертацией один к одному.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385497"
-        }
-      ],
-      "published_at": "2026-09-20T20:21:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "medvedev-foreign-assets-seizure",
-      "headline": "Дмитрий Медведев предложил принудительно изымать иностранные активы в ответ на санкции",
-      "context": "Заместитель председателя Совета безопасности РФ прокомментировал передачу активов Nestle и Auchan во временное управление.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970495"
-        }
-      ],
-      "published_at": "2026-09-19T11:45:00+03:00"
-    },
-    {
-      "id": "trump-signs-hellish-sanctions",
-      "headline": "Дональд Трамп подписал закон об ужесточении санкций против России и Ирана",
-      "context": "Документ позволяет вводить пошлины до 100% на товары из стран, закупающих российские энергоресурсы, и санкции против теневого флота.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "InvestFuture",
-          "url": "https://t.me/if_market_news/85318"
-        }
-      ],
-      "published_at": "2026-09-19T00:49:00+03:00"
-    },
-    {
-      "id": "iran-sends-conditions-to-us",
-      "headline": "Иран передал США через катарских посредников условия для прекращения войны",
-      "context": "Секретарь Высшего совета национальной безопасности Ирана сообщил о продолжающихся консультациях.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970626"
-        }
-      ],
-      "published_at": "2026-09-19T20:01:00+03:00"
-    },
-    {
-      "id": "government-budget-forecast-rules",
-      "headline": "Правительство России скорректировало правила разработки долгосрочного бюджетного прогноза",
-      "context": "Изменения в постановление правительства, касающиеся планирования на 12 и более лет, внесены Минфином.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305669"
-        }
-      ],
-      "published_at": "2026-09-19T17:51:00+03:00"
-    },
-    {
-      "id": "jpmorgan-stops-oil-forecasts",
-      "headline": "JPMorgan прекратил прогнозировать цены на нефть из-за неопределенности сроков войны",
-      "context": "Аналитики банка отметили, что предположение о временном характере перебоев с поставками сырья становится трудно поддерживать.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305664"
-        }
-      ],
-      "published_at": "2026-09-19T14:37:00+03:00"
-    },
-    {
-      "id": "putin-max-messenger-payment",
-      "headline": "Владимир Путин поручил рассмотреть использование цифровой платформы Макс для оплаты проезда",
-      "context": "Правительству поручено изучить возможность интеграции Единой биометрической системы и платформы Макс в общественном транспорте.",
+      "id": "yandex-alice-ai-foundation",
+      "headline": "Яндекс разработал собственную суверенную большую языковую модель Alice AI Foundation LLM",
+      "context": "Модель обучена с нуля без использования сторонних иностранных компонентов",
       "category": "tech",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970536"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305703"
         }
       ],
-      "published_at": "2026-09-19T13:38:00+03:00"
+      "published_at": "2026-09-21T08:37:00+03:00"
     },
     {
-      "id": "cb-crypto-limits-banks",
-      "headline": "Банк России планирует ограничить вложения коммерческих банков в криптовалюты одним процентом капитала",
-      "context": "Регулятор намерен ввести лимиты для снижения рисков финансовой системы.",
+      "id": "cb-limits-bank-crypto-investments",
+      "headline": "Банк России ограничит вложения кредитных организаций в криптовалюты одним процентом от капитала",
+      "context": "Для таких активов регулятор планирует ввести повышенный коэффициент риска на уровне 1250%",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23987"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1353545.php"
         }
       ],
-      "published_at": "2026-09-19T10:01:00+03:00"
+      "published_at": "2026-09-21T07:54:00+03:00"
     },
     {
-      "id": "lukoil-caspian-project-suspended",
-      "headline": "Проект поиска нефти Лукойла на Каспии приостановлен без решения о выходе",
-      "context": "Об этом сообщили в казахстанской государственной компании Казмунайгаз.",
-      "category": "corporate",
+      "id": "united-russia-constitutional-majority",
+      "headline": "Партия Единая Россия сохраняет конституционное большинство в Государственной думе девятого созыва",
+      "context": "По предварительным данным ЦИК после обработки более 95% протоколов партия получает крупнейшую фракцию в своей истории",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1117346"
+        }
+      ],
+      "published_at": "2026-09-21T06:59:00+03:00"
+    },
+    {
+      "id": "saudi-arabia-exits-mbridge",
+      "headline": "Саудовская Аравия вышла из проекта трансграничной платежной системы mBridge под руководством Китая",
+      "context": "Выход королевства из проекта цифровой валюты связывают с давлением со стороны США",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971101"
+        }
+      ],
+      "published_at": "2026-09-21T03:48:00+03:00"
+    },
+    {
+      "id": "gazpromneft-fuel-limits-moscow",
+      "headline": "На автозаправочных станциях Газпромнефти в Москве ввели ограничения на продажу бензина",
+      "context": "Решение принято после повреждения объекта на территории Московского нефтеперерабатывающего завода в результате атаки беспилотников",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385421"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/385490"
         }
       ],
-      "published_at": "2026-09-19T09:47:00+03:00"
-    },
-    {
-      "id": "oleg-pay-mixit-arrested",
-      "headline": "Суд отправил генерального директора косметического бренда Mixit Олега Пая под домашний арест",
-      "context": "Руководитель компании обвиняется по уголовному делу о мошенничестве.",
-      "category": "corporate",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970569"
-        }
-      ],
-      "published_at": "2026-09-19T15:46:00+03:00"
-    },
-    {
-      "id": "dmitriev-nord-stream-afd",
-      "headline": "Кирилл Дмитриев допустил совместную работу с партией АдГ по восстановлению Северного потока",
-      "context": "Спецпредставитель президента РФ заявил, что возвращение доступа к газопроводу позволит снизить цены на электроэнергию в Германии.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/385429"
-        }
-      ],
-      "published_at": "2026-09-19T10:34:00+03:00"
-    },
-    {
-      "id": "spb-exchange-opening-time",
-      "headline": "СПБ биржа с 24 сентября начнет открывать торговую сессию с 9 утра",
-      "context": "Изменение времени начала торгов содержится в сводке финансовых новостей.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/23987"
-        }
-      ],
-      "published_at": "2026-09-19T10:01:00+03:00"
-    },
-    {
-      "id": "us-denmark-greenland-agreement",
-      "headline": "США и Дания заключили соглашение о переходе контроля за безопасностью Гренландии",
-      "context": "Договоренность позволит Вашингтону бессрочно увеличить военное присутствие в Арктическом регионе.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8970413"
-        }
-      ],
-      "published_at": "2026-09-19T00:55:00+03:00"
+      "published_at": "2026-09-20T18:38:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-09-18"
   }
 }
