@@ -1,0 +1,38 @@
+[
+  {
+    "article_date": "2026-07-14",
+    "value": 43,
+    "value_period": "morning",
+    "source_url": "https://alfabank.ru/alfa-investor/t/hod-torgov-14-07-2026/",
+    "article_published_at": null,
+    "article_updated_at": null,
+    "collected_at": "2026-07-17T16:33:58+03:00"
+  },
+  {
+    "article_date": "2026-07-15",
+    "value": 42,
+    "value_period": "morning",
+    "source_url": "https://alfabank.ru/alfa-investor/t/hod-torgov-15-07-2026/",
+    "article_published_at": null,
+    "article_updated_at": null,
+    "collected_at": "2026-07-17T16:33:58+03:00"
+  },
+  {
+    "article_date": "2026-07-16",
+    "value": 34,
+    "value_period": "morning",
+    "source_url": "https://alfabank.ru/alfa-investor/t/hod-torgov-16-07-2026/",
+    "article_published_at": null,
+    "article_updated_at": null,
+    "collected_at": "2026-07-17T16:42:52+03:00"
+  },
+  {
+    "article_date": "2026-07-17",
+    "value": 31,
+    "value_period": "morning",
+    "source_url": "https://alfabank.ru/alfa-investor/t/hod-torgov-17-07-2026/",
+    "article_published_at": null,
+    "article_updated_at": null,
+    "collected_at": "2026-07-17T16:42:52+03:00"
+  }
+]

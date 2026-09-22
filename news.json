@@ -1,0 +1,389 @@
+{
+  "date": "2026-09-22",
+  "generated_at": "2026-09-22T10:57:04+03:00",
+  "session_open": "10:00 MSK",
+  "external_backdrop": "Американские и азиатские фондовые индексы растут, нефть марки Brent торгуется выше 101 доллара за баррель, золото снижается.",
+  "market_snapshot": [
+    {
+      "name": "S&P 500",
+      "value": "7764.70",
+      "change_pct": "+1.49%",
+      "as_of": "2026-09-21",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nasdaq",
+      "value": "27122.09",
+      "change_pct": "+2.26%",
+      "as_of": "2026-09-21",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "65018.95",
+      "change_pct": "+1.38%",
+      "as_of": "2026-09-18",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "25060.84",
+      "change_pct": "+0.07%",
+      "as_of": "2026-09-22",
+      "group": "global_equity"
+    },
+    {
+      "name": "Brent",
+      "value": "101.25",
+      "change_pct": "+0.91%",
+      "as_of": "2026-09-22",
+      "group": "commodity"
+    },
+    {
+      "name": "Золото",
+      "value": "4352.00",
+      "change_pct": "-0.73%",
+      "as_of": "2026-09-22",
+      "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2292.79",
+      "change_pct": "+1.54%",
+      "as_of": "2026-09-22 10:56:59",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "858.92",
+      "change_pct": "+1.55%",
+      "as_of": "2026-09-22 10:57:00",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "84.21",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-22 10:57:01",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.49",
+      "change_pct": "+0.01%",
+      "as_of": "2026-09-22 10:57:03",
+      "group": "fx"
+    }
+  ],
+  "overnight": [
+    {
+      "id": "t-tech-consolidation",
+      "headline": "Акционеры Т-Технологий одобрили допэмиссию акций для консолидации банка Точка",
+      "context": "Решение о размещении дополнительных 550 миллионов акций по закрытой подписке принято на общем собрании акционеров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/22/1230721-aktsioneri-progolosovali"
+        }
+      ],
+      "published_at": "2026-09-22T10:02:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-stalemate",
+      "headline": "Евросоюз не смог согласовать продление санкций из-за споров вокруг Усманова и Фридмана",
+      "context": "Латвия заблокировала компромиссное предложение о снятии ограничений с двух российских бизнесменов, из-за чего под угрозой истечения оказались санкции против 2,6 тысяч лиц.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305879"
+        }
+      ],
+      "published_at": "2026-09-22T03:47:00+03:00"
+    },
+    {
+      "id": "dom-rf-earnings",
+      "headline": "Чистая прибыль ДОМ.РФ по МСФО за восемь месяцев выросла на сорок процентов",
+      "context": "Показатель достиг 76,6 миллиарда рублей, что позволяет рассчитывать на выполнение годовых целей и увеличение дивидендов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1117646"
+        }
+      ],
+      "published_at": "2026-09-22T10:15:00+03:00"
+    },
+    {
+      "id": "drone-attack-regions",
+      "headline": "Российские силы противовоздушной обороны сбили за ночь двести девяносто семь беспилотников",
+      "context": "Атаки зафиксированы над пятнадцатью регионами страны, в Самарской области повреждены гражданские объекты, один человек погиб.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/22/1230703-za-noch"
+        }
+      ],
+      "published_at": "2026-09-22T08:04:00+03:00"
+    },
+    {
+      "id": "state-contracts-digital-ruble",
+      "headline": "Минфин обсуждает перевод отдельных государственных контрактов на расчеты в цифровых рублях",
+      "context": "Законодательные изменения в Бюджетный кодекс призваны обеспечить полную прослеживаемость расходования бюджетных средств.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305888"
+        }
+      ],
+      "published_at": "2026-09-22T07:46:00+03:00"
+    },
+    {
+      "id": "yandex-vk-cloud-jv",
+      "headline": "Яндекс и VK обсуждают создание совместного предприятия в сфере облачных технологий",
+      "context": "Объединение планируется на базе активов Yandex B2B Tech и VK Tech на фоне консолидации рынка после периода быстрого роста.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1353993.php"
+        }
+      ],
+      "published_at": "2026-09-22T07:21:00+03:00"
+    },
+    {
+      "id": "ozon-tax-deferral",
+      "headline": "Минфин обсуждает предоставление налоговых отсрочек для маркетплейса Ozon и его продавцов",
+      "context": "Перенос сроков уплаты налогов планируется реализовать по аналогии с мерами поддержки для объединенной компании РВБ.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-09-22T07:13:00+03:00"
+    },
+    {
+      "id": "grain-export-duties-zeroed",
+      "headline": "Правительство России приостановило взимание экспортных пошлин на зерно до конца года",
+      "context": "Соответствующее постановление кабинета министров будет действовать по 31 декабря 2026 года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971837"
+        }
+      ],
+      "published_at": "2026-09-21T20:35:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "budget-rule-oil-price",
+      "headline": "Минфин России заложил в трехлетний бюджет цену отсечения нефти пятьдесят долларов",
+      "context": "Министр финансов Антон Силуанов сообщил, что бюджет на 2027–2029 годы сформирован исходя из этого уровня.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971635"
+        }
+      ],
+      "published_at": "2026-09-21T16:50:00+03:00"
+    },
+    {
+      "id": "ozon-pharm-dividends",
+      "headline": "Акционеры Озон Фармацевтики одобрили дивиденды за первое полугодие",
+      "context": "Размер выплаты составит 0,49 рублей на одну обыкновенную акцию с отсечкой реестра 29 сентября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971497"
+        }
+      ],
+      "published_at": "2026-09-21T14:04:00+03:00"
+    },
+    {
+      "id": "headhunter-dividends-approved",
+      "headline": "Акционеры Хэдхантера утвердили выплату дивидендов в размере двухсот рублей на акцию",
+      "context": "Решение принято на внеочередном общем собрании акционеров, дата закрытия реестра установлена на 28 сентября 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971425"
+        }
+      ],
+      "published_at": "2026-09-21T12:51:00+03:00"
+    },
+    {
+      "id": "aeroflot-privatization-plans",
+      "headline": "Минфин допускает продажу части государственного пакета акций Аэрофлота",
+      "context": "Замминистра финансов Алексей Моисеев сообщил, что приватизационная сделка может состояться в 2026 или 2027 году.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/21/1230460-prodazha-gospaketa-aeroflota"
+        }
+      ],
+      "published_at": "2026-09-21T12:19:00+03:00"
+    },
+    {
+      "id": "mvideo-share-issue-price",
+      "headline": "Совет директоров М.Видео установил цену размещения акций дополнительной эмиссии",
+      "context": "Стоимость одной ценной бумаги по закрытой подписке составит 49 рублей 90 копеек за штуку.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/21/1230470-mvideo-dopemissii"
+        }
+      ],
+      "published_at": "2026-09-21T12:00:00+03:00"
+    },
+    {
+      "id": "cb-crypto-market-launch",
+      "headline": "Центробанк ожидает запуска легального рынка криптовалют в России до конца года",
+      "context": "Первый зампред ЦБ Владимир Чистюхин отметил, что сроки зависят от регистрации подзаконных актов Министерством юстиции.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971347"
+        }
+      ],
+      "published_at": "2026-09-21T11:42:00+03:00"
+    },
+    {
+      "id": "rusal-aluminum-pricing",
+      "headline": "Русал предложил изменить формулу расчета цен на первичный алюминий в России",
+      "context": "Новый механизм планируется внедрить с 1 октября на основе котировок Лондонской и Шанхайской бирж.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971754"
+        }
+      ],
+      "published_at": "2026-09-21T18:34:00+03:00"
+    },
+    {
+      "id": "cb-bank-provisioning-rules",
+      "headline": "Центробанк разрешит коммерческим банкам не формировать резервы при согласовании планов реструктуризации",
+      "context": "Послабление планируется внедрить в рамках нового закона о банкротстве, который начнет действовать в 2027 году.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305811"
+        }
+      ],
+      "published_at": "2026-09-21T15:05:00+03:00"
+    },
+    {
+      "id": "cb-non-custodial-wallets",
+      "headline": "Центробанк выступил против проведения эксперимента с некастодиальными криптовалютными кошельками",
+      "context": "Первый зампред ЦБ Владимир Чистюхин объяснил позицию регулятора рисками возникновения проблем с ФАТФ.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117466"
+        }
+      ],
+      "published_at": "2026-09-21T14:14:00+03:00"
+    },
+    {
+      "id": "tax-incentives-rejected",
+      "headline": "Минфин не поддержал введение дополнительных налоговых стимулов для капитализации фондового рынка",
+      "context": "Замминистра Иван Чебесков сообщил, что предложения по новым налоговым мерам поддержки не получили одобрения.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117453"
+        }
+      ],
+      "published_at": "2026-09-21T14:02:00+03:00"
+    },
+    {
+      "id": "alrosa-gokhran-purchases",
+      "headline": "Минфин России планирует провести небольшие закупки алмазов в Гохран в течение года",
+      "context": "Замглавы ведомства Алексей Моисеев отметил признаки оздоровления рынка, из-за чего министерство займет выжидательную позицию.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8971446"
+        }
+      ],
+      "published_at": "2026-09-21T13:08:00+03:00"
+    },
+    {
+      "id": "yandex-alice-ai-foundation",
+      "headline": "Яндекс представил большую языковую модель Alice AI Foundation собственной разработки",
+      "context": "Нейросеть обучена с нуля без использования иностранных компонентов и содержит 80 миллиардов параметров.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/305703"
+        }
+      ],
+      "published_at": "2026-09-21T08:37:00+03:00"
+    }
+  ],
+  "today_agenda": [],
+  "briefing": {
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
+    "last_trading_day": "2026-09-21"
+  }
+}
