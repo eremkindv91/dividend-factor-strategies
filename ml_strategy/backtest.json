@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-22T01:22:35+00:00",
+  "generated_at": "2026-09-23T01:10:18+00:00",
   "benchmark": "MCFTR",
   "target": "forward_excess_total_return_20d_vs_MCFTR",
   "validation": "purged_walk_forward",
@@ -1338,7 +1338,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -1461,7 +1461,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -1586,7 +1586,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -1712,7 +1712,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -1835,7 +1835,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -1958,7 +1958,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -2083,7 +2083,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -2212,7 +2212,7 @@
             "MOEX_MOEXTL"
           ],
           "latest_sector_index_at": "2026-03-19",
-          "sector_index_age_days": 186
+          "sector_index_age_days": 187
         },
         "identical_test_rows": {
           "status": "PASS",
@@ -2335,7 +2335,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -2459,7 +2459,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
@@ -2585,7 +2585,7 @@
         "source_freshness": {
           "status": "PASS",
           "stale_sources": [],
-          "latest_sector_index_at": "2026-09-21",
+          "latest_sector_index_at": "2026-09-22",
           "sector_index_age_days": 0
         },
         "identical_test_rows": {
