@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-22",
-  "generated_at": "2026-09-22T10:57:04+03:00",
+  "date": "2026-09-23",
+  "generated_at": "2026-09-23T10:58:28+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы растут, нефть марки Brent торгуется выше 101 доллара за баррель, золото снижается.",
+  "external_backdrop": "Американские индексы закрылись ростом, азиатские рынки торгуются разнонаправленно, нефть марки Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,119 +27,302 @@
     },
     {
       "name": "Hang Seng",
-      "value": "25060.84",
-      "change_pct": "+0.07%",
-      "as_of": "2026-09-22",
+      "value": "24819.08",
+      "change_pct": "-0.89%",
+      "as_of": "2026-09-23",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "101.25",
-      "change_pct": "+0.91%",
-      "as_of": "2026-09-22",
+      "value": "95.41",
+      "change_pct": "-3.87%",
+      "as_of": "2026-09-23",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4352.00",
-      "change_pct": "-0.73%",
-      "as_of": "2026-09-22",
+      "value": "4358.50",
+      "change_pct": "-0.41%",
+      "as_of": "2026-09-23",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2292.79",
-      "change_pct": "+1.54%",
-      "as_of": "2026-09-22 10:56:59",
+      "value": "2308.22",
+      "change_pct": "+0.35%",
+      "as_of": "2026-09-23 10:58:25",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "858.92",
-      "change_pct": "+1.55%",
-      "as_of": "2026-09-22 10:57:00",
+      "value": "865.07",
+      "change_pct": "+0.37%",
+      "as_of": "2026-09-23 10:58:26",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.21",
-      "change_pct": "+0.01%",
-      "as_of": "2026-09-22 10:57:01",
+      "value": "84.64",
+      "change_pct": "-0.03%",
+      "as_of": "2026-09-23 10:58:26",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.49",
-      "change_pct": "+0.01%",
-      "as_of": "2026-09-22 10:57:03",
+      "value": "12.55",
+      "change_pct": "-0.37%",
+      "as_of": "2026-09-23 10:58:27",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "t-tech-consolidation",
-      "headline": "Акционеры Т-Технологий одобрили допэмиссию акций для консолидации банка Точка",
-      "context": "Решение о размещении дополнительных 550 миллионов акций по закрытой подписке принято на общем собрании акционеров.",
+      "id": "todd-boehly-lukoil-assets",
+      "headline": "Американский инвестор Тодд Боэли получил поддержку властей США для покупки зарубежных активов Лукойла",
+      "context": "Консорциум инвесторов готов конкурировать с группой Carlyle за приобретение иностранных активов российской компании.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/22/1230721-aktsioneri-progolosovali"
-        }
-      ],
-      "published_at": "2026-09-22T10:02:00+03:00"
-    },
-    {
-      "id": "eu-sanctions-stalemate",
-      "headline": "Евросоюз не смог согласовать продление санкций из-за споров вокруг Усманова и Фридмана",
-      "context": "Латвия заблокировала компромиссное предложение о снятии ограничений с двух российских бизнесменов, из-за чего под угрозой истечения оказались санкции против 2,6 тысяч лиц.",
-      "category": "geopolitics",
-      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/305879"
+          "url": "https://frankmedia.ru/306109"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117906"
         }
       ],
-      "published_at": "2026-09-22T03:47:00+03:00"
+      "published_at": "2026-09-23T10:54:00+03:00"
     },
     {
-      "id": "dom-rf-earnings",
-      "headline": "Чистая прибыль ДОМ.РФ по МСФО за восемь месяцев выросла на сорок процентов",
-      "context": "Показатель достиг 76,6 миллиарда рублей, что позволяет рассчитывать на выполнение годовых целей и увеличение дивидендов.",
+      "id": "budget-deficit-h1-2026",
+      "headline": "Счетная палата оценила дефицит федерального бюджета России в пять триллионов рублей за полгода",
+      "context": "Показатель дефицита за первое полугодие в полтора раза превысил запланированный уровень на весь год.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972854"
+        }
+      ],
+      "published_at": "2026-09-23T09:23:00+03:00"
+    },
+    {
+      "id": "vienna-court-rasperia-rbi",
+      "headline": "Венский суд обязал российскую компанию Расперия выплатить три миллиарда евро группе Raiffeisen",
+      "context": "Австрийский Raiffeisen Bank International намерен взыскать эту сумму за счет замороженных активов компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972679"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306098"
+        }
+      ],
+      "published_at": "2026-09-22T21:32:00+03:00"
+    },
+    {
+      "id": "eu-removes-sanctions-usmanov-fridman",
+      "headline": "Евросоюз исключил Алишера Усманова и Михаила Фридмана из санкционного списка против России",
+      "context": "Решение о снятии ограничений с предпринимателей опубликовано в Официальном журнале ЕС.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972668"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306088"
+        }
+      ],
+      "published_at": "2026-09-22T20:51:00+03:00"
+    },
+    {
+      "id": "cbr-record-repo-liquidity",
+      "headline": "Банк России предоставил банкам рекордные семь триллионов рублей в рамках операций репо",
+      "context": "Рекордный объем ликвидности был предоставлен кредитным организациям на аукционах двадцать второго сентября.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972611"
+        }
+      ],
+      "published_at": "2026-09-22T19:13:00+03:00"
+    },
+    {
+      "id": "moex-bitcoin-ruble-trading",
+      "headline": "Московская биржа планирует запустить торги валютными парами с биткоином к рублю и доллару",
+      "context": "Запуск инструмента BTC/RUB позволит связать курс криптовалюты с рублевым и мировым рынками.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972858"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306125"
+        }
+      ],
+      "published_at": "2026-09-23T09:25:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "mvideo-working-capital-shortage",
+      "headline": "Коммерческий директор МВидео признал наличие временного дефицита оборотных средств у ритейлера",
+      "context": "Компания планирует урегулировать вопросы расчетов с поставщиками в течение одного-двух месяцев.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306054"
+        }
+      ],
+      "published_at": "2026-09-22T18:45:00+03:00"
+    },
+    {
+      "id": "afk-sistema-president-change",
+      "headline": "АФК Система сменит президента холдинга на сына основателя Феликса Евтушенкова",
+      "context": "Тагир Ситдеков покидает свой пост, совет директоров утвердит перестановки в ближайшие дни.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306015"
+        }
+      ],
+      "published_at": "2026-09-22T18:27:00+03:00"
+    },
+    {
+      "id": "inflation-expectations-september-rise",
+      "headline": "Инфляционные ожидания населения России в сентябре выросли до четырнадцати целых двух десятых процента",
+      "context": "Опрос по заказу Банка России зафиксировал рост показателя с тринадцати целых семи десятых процента в августе.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117709"
+        }
+      ],
+      "published_at": "2026-09-22T15:19:00+03:00"
+    },
+    {
+      "id": "sberbank-record-profit-dividends",
+      "headline": "Сбербанк планирует обновить рекорд по чистой прибыли и дивидендам по итогам года",
+      "context": "Глава банка Герман Греф на встрече с президентом выразил надежду на выплату пятидесяти процентов прибыли.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1117706"
+        }
+      ],
+      "published_at": "2026-09-22T13:54:00+03:00"
+    },
+    {
+      "id": "bank-sector-profit-august",
+      "headline": "Чистая прибыль российских банков в августе незначительно снизилась до четырехсот сорока миллиардов рублей",
+      "context": "На финансовый результат сектора повлияло увеличение расходов кредитных организаций на формирование резервов.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972532"
+        }
+      ],
+      "published_at": "2026-09-22T18:00:00+03:00"
+    },
+    {
+      "id": "rusal-jamaica-guyana-assets",
+      "headline": "Алюминиевый холдинг Русал рассматривает возможность продажи своих производственных активов на Ямайке и в Гайане",
+      "context": "Компания находится на ранней стадии оценки продажи глиноземного комплекса и доли в бокситовом предприятии.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1117646"
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/85388"
         }
       ],
-      "published_at": "2026-09-22T10:15:00+03:00"
+      "published_at": "2026-09-22T17:24:00+03:00"
     },
     {
-      "id": "drone-attack-regions",
-      "headline": "Российские силы противовоздушной обороны сбили за ночь двести девяносто семь беспилотников",
-      "context": "Атаки зафиксированы над пятнадцатью регионами страны, в Самарской области повреждены гражданские объекты, один человек погиб.",
-      "category": "geopolitics",
+      "id": "fas-mining-energy-ban",
+      "headline": "Антимонопольная служба предложила запретить электроэнергетическим компаниям совмещать деятельность с майнингом",
+      "context": "Законопроект направлен на ограничение управления объектами майнинговой инфраструктуры субъектами электроэнергетики.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1117727"
+        }
+      ],
+      "published_at": "2026-09-22T15:39:00+03:00"
+    },
+    {
+      "id": "t-technologies-tochka-consolidation",
+      "headline": "Акционеры Т-Технологий одобрили дополнительную эмиссию акций для консолидации банка Точка",
+      "context": "Решение о консолидации стопроцентного пакета акций было принято на внеочередном собрании акционеров.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972311"
+        }
+      ],
+      "published_at": "2026-09-22T14:01:00+03:00"
+    },
+    {
+      "id": "grain-export-duty-zero",
+      "headline": "Правительство России обнулило экспортные пошлины на зерновые культуры до конца года",
+      "context": "Решение направлено на поддержку отечественных сельхозпроизводителей в условиях высоких объемов сбора.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/09/22/1230703-za-noch"
+          "url": "https://www.vedomosti.ru/business/news/2026/09/22/1230758"
         }
       ],
-      "published_at": "2026-09-22T08:04:00+03:00"
+      "published_at": "2026-09-22T11:37:00+03:00"
     },
     {
-      "id": "state-contracts-digital-ruble",
-      "headline": "Минфин обсуждает перевод отдельных государственных контрактов на расчеты в цифровых рублях",
-      "context": "Законодательные изменения в Бюджетный кодекс призваны обеспечить полную прослеживаемость расходования бюджетных средств.",
+      "id": "digital-ruble-budget-contracts",
+      "headline": "Минфин обсуждает перевод крупных государственных контрактов на расчеты в цифровых рублях",
+      "context": "Мера призвана обеспечить полную прослеживаемость расходования бюджетных средств.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
@@ -149,234 +332,7 @@
           "url": "https://frankmedia.ru/305888"
         }
       ],
-      "published_at": "2026-09-22T07:46:00+03:00"
-    },
-    {
-      "id": "yandex-vk-cloud-jv",
-      "headline": "Яндекс и VK обсуждают создание совместного предприятия в сфере облачных технологий",
-      "context": "Объединение планируется на базе активов Yandex B2B Tech и VK Tech на фоне консолидации рынка после периода быстрого роста.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1353993.php"
-        }
-      ],
-      "published_at": "2026-09-22T07:21:00+03:00"
-    },
-    {
-      "id": "ozon-tax-deferral",
-      "headline": "Минфин обсуждает предоставление налоговых отсрочек для маркетплейса Ozon и его продавцов",
-      "context": "Перенос сроков уплаты налогов планируется реализовать по аналогии с мерами поддержки для объединенной компании РВБ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-22T07:13:00+03:00"
-    },
-    {
-      "id": "grain-export-duties-zeroed",
-      "headline": "Правительство России приостановило взимание экспортных пошлин на зерно до конца года",
-      "context": "Соответствующее постановление кабинета министров будет действовать по 31 декабря 2026 года.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971837"
-        }
-      ],
-      "published_at": "2026-09-21T20:35:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "budget-rule-oil-price",
-      "headline": "Минфин России заложил в трехлетний бюджет цену отсечения нефти пятьдесят долларов",
-      "context": "Министр финансов Антон Силуанов сообщил, что бюджет на 2027–2029 годы сформирован исходя из этого уровня.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971635"
-        }
-      ],
-      "published_at": "2026-09-21T16:50:00+03:00"
-    },
-    {
-      "id": "ozon-pharm-dividends",
-      "headline": "Акционеры Озон Фармацевтики одобрили дивиденды за первое полугодие",
-      "context": "Размер выплаты составит 0,49 рублей на одну обыкновенную акцию с отсечкой реестра 29 сентября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971497"
-        }
-      ],
-      "published_at": "2026-09-21T14:04:00+03:00"
-    },
-    {
-      "id": "headhunter-dividends-approved",
-      "headline": "Акционеры Хэдхантера утвердили выплату дивидендов в размере двухсот рублей на акцию",
-      "context": "Решение принято на внеочередном общем собрании акционеров, дата закрытия реестра установлена на 28 сентября 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971425"
-        }
-      ],
-      "published_at": "2026-09-21T12:51:00+03:00"
-    },
-    {
-      "id": "aeroflot-privatization-plans",
-      "headline": "Минфин допускает продажу части государственного пакета акций Аэрофлота",
-      "context": "Замминистра финансов Алексей Моисеев сообщил, что приватизационная сделка может состояться в 2026 или 2027 году.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/21/1230460-prodazha-gospaketa-aeroflota"
-        }
-      ],
-      "published_at": "2026-09-21T12:19:00+03:00"
-    },
-    {
-      "id": "mvideo-share-issue-price",
-      "headline": "Совет директоров М.Видео установил цену размещения акций дополнительной эмиссии",
-      "context": "Стоимость одной ценной бумаги по закрытой подписке составит 49 рублей 90 копеек за штуку.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/21/1230470-mvideo-dopemissii"
-        }
-      ],
-      "published_at": "2026-09-21T12:00:00+03:00"
-    },
-    {
-      "id": "cb-crypto-market-launch",
-      "headline": "Центробанк ожидает запуска легального рынка криптовалют в России до конца года",
-      "context": "Первый зампред ЦБ Владимир Чистюхин отметил, что сроки зависят от регистрации подзаконных актов Министерством юстиции.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971347"
-        }
-      ],
-      "published_at": "2026-09-21T11:42:00+03:00"
-    },
-    {
-      "id": "rusal-aluminum-pricing",
-      "headline": "Русал предложил изменить формулу расчета цен на первичный алюминий в России",
-      "context": "Новый механизм планируется внедрить с 1 октября на основе котировок Лондонской и Шанхайской бирж.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971754"
-        }
-      ],
-      "published_at": "2026-09-21T18:34:00+03:00"
-    },
-    {
-      "id": "cb-bank-provisioning-rules",
-      "headline": "Центробанк разрешит коммерческим банкам не формировать резервы при согласовании планов реструктуризации",
-      "context": "Послабление планируется внедрить в рамках нового закона о банкротстве, который начнет действовать в 2027 году.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305811"
-        }
-      ],
-      "published_at": "2026-09-21T15:05:00+03:00"
-    },
-    {
-      "id": "cb-non-custodial-wallets",
-      "headline": "Центробанк выступил против проведения эксперимента с некастодиальными криптовалютными кошельками",
-      "context": "Первый зампред ЦБ Владимир Чистюхин объяснил позицию регулятора рисками возникновения проблем с ФАТФ.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1117466"
-        }
-      ],
-      "published_at": "2026-09-21T14:14:00+03:00"
-    },
-    {
-      "id": "tax-incentives-rejected",
-      "headline": "Минфин не поддержал введение дополнительных налоговых стимулов для капитализации фондового рынка",
-      "context": "Замминистра Иван Чебесков сообщил, что предложения по новым налоговым мерам поддержки не получили одобрения.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1117453"
-        }
-      ],
-      "published_at": "2026-09-21T14:02:00+03:00"
-    },
-    {
-      "id": "alrosa-gokhran-purchases",
-      "headline": "Минфин России планирует провести небольшие закупки алмазов в Гохран в течение года",
-      "context": "Замглавы ведомства Алексей Моисеев отметил признаки оздоровления рынка, из-за чего министерство займет выжидательную позицию.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8971446"
-        }
-      ],
-      "published_at": "2026-09-21T13:08:00+03:00"
-    },
-    {
-      "id": "yandex-alice-ai-foundation",
-      "headline": "Яндекс представил большую языковую модель Alice AI Foundation собственной разработки",
-      "context": "Нейросеть обучена с нуля без использования иностранных компонентов и содержит 80 миллиардов параметров.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/305703"
-        }
-      ],
-      "published_at": "2026-09-21T08:37:00+03:00"
+      "published_at": "2026-09-22T07:28:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -384,6 +340,6 @@
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-09-21"
+    "last_trading_day": "2026-09-22"
   }
 }
