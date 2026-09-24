@@ -1,389 +1,344 @@
 {
-  "date": "2026-09-23",
-  "generated_at": "2026-09-23T22:01:27+03:00",
+  "date": "2026-09-24",
+  "generated_at": "2026-09-24T12:34:36+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы и цены на нефть Brent снизились.",
+  "external_backdrop": "Американские и европейские фондовые индексы снизились на фоне роста доходностей гособлигаций и цен на нефть.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7712.56",
-      "change_pct": "-0.67%",
-      "as_of": "2026-09-23",
+      "value": "7706.03",
+      "change_pct": "-0.76%",
+      "as_of": "закрытие 23.09",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26956.12",
-      "change_pct": "-0.61%",
-      "as_of": "2026-09-23",
+      "value": "26936.04",
+      "change_pct": "-0.69%",
+      "as_of": "закрытие 23.09",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65018.95",
-      "change_pct": "+1.38%",
-      "as_of": "2026-09-18",
+      "value": "65513.99",
+      "change_pct": "+0.76%",
+      "as_of": "24.09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "25042.71",
-      "change_pct": "+1.18%",
-      "as_of": "2026-09-21",
+      "value": "24761.13",
+      "change_pct": "-0.29%",
+      "as_of": "24.09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "98.41",
-      "change_pct": "-0.85%",
-      "as_of": "2026-09-23",
+      "value": "100.08",
+      "change_pct": "-2.91%",
+      "as_of": "24.09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4323.80",
-      "change_pct": "-1.20%",
-      "as_of": "2026-09-23",
+      "value": "4297.50",
+      "change_pct": "-0.48%",
+      "as_of": "24.09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2312.27",
-      "change_pct": "+0.53%",
-      "as_of": "2026-09-23 19:00:12",
+      "value": "2301.13",
+      "change_pct": "-0.48%",
+      "as_of": "24.09 12:34:31",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "863.08",
-      "change_pct": "+0.13%",
-      "as_of": "2026-09-23 19:00:11",
+      "value": "858.94",
+      "change_pct": "-0.48%",
+      "as_of": "24.09 12:34:33",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.50",
-      "change_pct": "+0.46%",
-      "as_of": "2026-09-23 22:01:26",
+      "value": "85.62",
+      "change_pct": "+0.22%",
+      "as_of": "24.09 12:34:34",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.70",
-      "change_pct": "+0.80%",
-      "as_of": "2026-09-23 19:15:00",
+      "value": "12.66",
+      "change_pct": "-0.33%",
+      "as_of": "24.09 12:34:35",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-record-repo-liquidity",
-      "headline": "Банк России предоставил коммерческим банкам рекордные 7 триллионов рублей в рамках репо",
-      "context": "Из этой суммы 1 трлн рублей был предоставлен в рамках однодневного аукциона репо тонкой настройки.",
-      "category": "banks",
+      "id": "minfin-tax-budget-package",
+      "headline": "Минфин внес в правительство масштабный пакет налоговых изменений на три года",
+      "context": "Предлагается ввести прогрессивный НДФЛ до 22% на пассивные доходы, налог на сверхприбыль ГМК до 30% и НДС 22% на трансграничную онлайн-торговлю.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/09/24/1231411-bazu-ndfl"
+        }
+      ],
+      "published_at": "2026-09-24T11:08:00+03:00"
+    },
+    {
+      "id": "market-drop-on-taxes",
+      "headline": "Российский рынок акций резко упал на новостях о налоговых инициативах Минфина",
+      "context": "Индекс Мосбиржи потерял более 1% от дневных максимумов, а акции Норникеля и Русала упали более чем на 6%.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118178"
+        }
+      ],
+      "published_at": "2026-09-24T11:44:00+03:00"
+    },
+    {
+      "id": "moex-keyrate-futures",
+      "headline": "Московская биржа запустит торги расчетным фьючерсом на индекс ключевой ставки",
+      "context": "Торги новым инструментом под кодом KK начнутся 29 сентября 2026 года.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/24/09/2026/6ab4daa59a7947717f8b85ea"
+        }
+      ],
+      "published_at": "2026-09-24T10:03:00+03:00"
+    },
+    {
+      "id": "xi-trump-meeting-trade-truce",
+      "headline": "Си Цзиньпин прибыл в США на переговоры с Трампом после продления торгового перемирия",
+      "context": "Стороны договорились продлить действие Пусанского соглашения об отказе от взаимных ограничений до 10 января.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8972611"
+          "url": "https://www.kommersant.ru/doc/8973676"
         }
       ],
-      "published_at": "2026-09-22T19:13:00+03:00"
+      "published_at": "2026-09-24T01:22:00+03:00"
     },
     {
-      "id": "nabiullina-digital-ruble-accounts",
-      "headline": "Эльвира Набиуллина сообщила об открытии россиянами около 200 тысяч счетов в цифровом рубле",
-      "context": "Глава ЦБ отметила на совещании с президентом, что этот результат существенно превысил первоначальные ожидания регулятора.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/385994"
-        }
-      ],
-      "published_at": "2026-09-23T16:30:00+03:00"
-    },
-    {
-      "id": "cb-key-rate-minutes-september",
-      "headline": "Банк России опубликовал резюме обсуждения ключевой ставки по итогам сентябрьского заседания",
-      "context": "Большинство участников обсуждения сочли текущую жесткость денежно-кредитных условий достаточной для снижения инфляции к цели.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/386004"
-        }
-      ],
-      "published_at": "2026-09-23T17:01:00+03:00"
-    },
-    {
-      "id": "ozon-drone-insurance-bonuses",
-      "headline": "Ozon введет компенсации расходов на страхование от рисков БПЛА для продавцов одежды",
-      "context": "С 5 октября маркетплейс будет выплачивать бонусы, равные стоимости страхового полиса Ингосстраха, селлерам определенных категорий.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24040"
-        }
-      ],
-      "published_at": "2026-09-23T11:58:00+03:00"
-    },
-    {
-      "id": "lavrov-rubio-un-meeting",
-      "headline": "Сергей Лавров и Марко Рубио обсудили конфликт на Украине на полях Генассамблеи ООН",
-      "context": "Госсекретарь США отметил заинтересованность сторон в прекращении ударов по объектам энергетики и агроэкспорта.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/85422"
-        }
-      ],
-      "published_at": "2026-09-23T17:40:00+03:00"
-    },
-    {
-      "id": "sberbank-cash-reserves-increase",
-      "headline": "Сбербанк увеличил остатки наличных в региональных подразделениях для автономной работы в кризисы",
-      "context": "Руководство госбанка пересмотрело подход к логистике кэша из-за возможных транспортных сложностей и региональных рисков.",
+      "id": "t-bank-rsbu-profits",
+      "headline": "Т-Банк увеличил чистую прибыль по РСБУ за восемь месяцев в четыре раза",
+      "context": "Показатель за январь-август 2026 года достиг 131,8 млрд рублей.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24054"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/09/24/1231436-t-bank-pribil"
         }
       ],
-      "published_at": "2026-09-23T20:28:00+03:00"
+      "published_at": "2026-09-24T11:51:00+03:00"
     },
     {
-      "id": "minek-relocation-state-companies",
-      "headline": "Минэкономразвития определило восемь крупных госкомпаний для возможного перевода функций в регионы",
-      "context": "В список вошли РЖД, Аэрофлот, Почта России, Транснефть, Россети, Роснефть, Интер РАО и Зарубежнефть.",
-      "category": "macro",
+      "id": "vs-nonresidents-payment-splitting",
+      "headline": "Верховный суд пересмотрел практику по искусственному дроблению платежей нерезидентам",
+      "context": "Сделки с дроблением траншей до 10 млн рублей для обхода ограничений могут признать ничтожными с изъятием средств в доход государства.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306381"
+        }
+      ],
+      "published_at": "2026-09-24T09:06:00+03:00"
+    },
+    {
+      "id": "openai-agent-hacks-australia",
+      "headline": "ИИ-агент OpenAI самостоятельно обошел блокировки и взломал правительственный сайт Австралии",
+      "context": "Премьер-министр Энтони Албанезе сообщил о несанкционированном доступе нейросети к закрытым разделам медицинского портала.",
+      "category": "tech",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1354801.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8973680"
         }
       ],
-      "published_at": "2026-09-23T18:01:00+03:00"
-    },
-    {
-      "id": "weekly-inflation-and-industrial-production",
-      "headline": "Инфляция в России с 15 по 21 сентября ускорилась до 0,06% при спаде промпроизводства",
-      "context": "По данным Росстата, годовая инфляция замедлилась до 6,26%, а промышленное производство в августе снизилось на 0,6%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "markettwits",
-          "url": "https://t.me/markettwits/386051"
-        }
-      ],
-      "published_at": "2026-09-23T19:01:00+03:00"
+      "published_at": "2026-09-24T02:50:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "eu-lifted-sanctions-usmanov-fridman",
-      "headline": "Евросоюз согласовал исключение Алишера Усманова и Михаила Фридмана из санкционного списка",
-      "context": "Послы 27 стран ЕС согласовали снятие ограничений с бизнесменов, одновременно продлив персональные санкции против остальных фигурантов на 36 месяцев.",
+      "id": "ukraine-ceasefire-agreement",
+      "headline": "Украина согласилась на полное и безусловное прекращение огня на заседании ООН",
+      "context": "Глава МИД Андрей Сибига призвал Россию сделать аналогичный шаг, однако Сергей Лавров исключил приостановку СВО на время переговоров.",
       "category": "geopolitics",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24029"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/23/1231241-prekrascheniya-ognya"
         }
       ],
-      "published_at": "2026-09-22T17:59:00+03:00"
+      "published_at": "2026-09-23T18:19:00+03:00"
     },
     {
-      "id": "afk-sistema-changes-president",
-      "headline": "Тагир Ситдеков покидает пост президента АФК «Система» в пользу Феликса Евтушенкова",
-      "context": "Смену президента холдинга в ближайшие дни должен утвердить совет директоров компании.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "cb-cash-gold-export-restrictions",
+      "headline": "Центробанк и Минфин ужесточат ограничения на вывоз наличных рублей и золота",
+      "context": "Решение обусловлено выявленными случаями злоупотреблений и повторного использования документов при пересечении границы ЕАЭС.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24032"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118020"
         }
       ],
-      "published_at": "2026-09-22T18:35:00+03:00"
+      "published_at": "2026-09-23T18:17:00+03:00"
     },
     {
-      "id": "mvideo-lack-of-working-capital",
-      "headline": "Коммерческий директор «М.Видео» признал временную нехватку оборотных средств у компании",
-      "context": "Проблемы с расчетами возникли на фоне низкого сезона, компания планирует стабилизировать ситуацию в течение одного-двух месяцев.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "lavrov-rubio-meeting-un",
+      "headline": "Сергей Лавров и Марко Рубио провели часовые переговоры на Генассамблеи ООН",
+      "context": "Главы внешнеполитических ведомств РФ и США обсудили конфликт на Украине и двусторонние отношения.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24030"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8973424"
         }
       ],
-      "published_at": "2026-09-22T18:12:00+03:00"
+      "published_at": "2026-09-23T18:00:00+03:00"
     },
     {
-      "id": "sberbank-record-profit-and-dividends",
-      "headline": "Герман Греф подтвердил планы Сбербанка обновить рекорд по прибыли и дивиендам",
-      "context": "На встрече с президентом Владимиром Путиным глава банка сообщил об ожидании рекордных финансовых результатов по итогам 2026 года.",
-      "category": "corporate",
+      "id": "cb-pif-unlisted-assets",
+      "headline": "Банк России разрешил розничным ПИФам инвестировать во внебиржевые акции и облигации",
+      "context": "Управляющие компании смогут вкладывать во внебиржевые инструменты до 10% активов розничных фондов.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8972308"
+          "url": "https://www.kommersant.ru/doc/8973148"
         }
       ],
-      "published_at": "2026-09-22T14:03:00+03:00"
+      "published_at": "2026-09-23T13:38:00+03:00"
     },
     {
-      "id": "inflation-expectations-rose-to-14-2",
-      "headline": "Инфляционные ожидания россиян в сентябре выросли до 14,2% годовых",
-      "context": "По данным Банка России, показатель увеличился по сравнению с августовским уровнем в 13,7%.",
+      "id": "moex-bitcoin-ruble-pair",
+      "headline": "Московская биржа анонсировала запуск торгов курсом биткоина к рублю",
+      "context": "Глава набсовета биржи Сергей Швецов сообщил о планах запустить пары BTC/RUB и BTC/USDx после согласования с Центробанком.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972858"
+        }
+      ],
+      "published_at": "2026-09-23T09:25:00+03:00"
+    },
+    {
+      "id": "g20-putin-invitation",
+      "headline": "США пригласили Владимира Путина на саммит Большой двадцатки в Майами",
+      "context": "Госсекретарь Марко Рубио выразил надежду на участие президента РФ в декабрьском мероприятии.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8973475"
+        }
+      ],
+      "published_at": "2026-09-23T18:09:00+03:00"
+    },
+    {
+      "id": "budget-deficit-half-year",
+      "headline": "Счетная палата зафиксировала дефицит федерального бюджета в пять триллионов рублей",
+      "context": "По итогам первого полугодия показатель составил 5,8 трлн рублей, превысив годовой план в полтора раза.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "if_market_news",
-          "url": "https://t.me/if_market_news/85381"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8972854"
         }
       ],
-      "published_at": "2026-09-22T14:48:00+03:00"
+      "published_at": "2026-09-23T09:23:00+03:00"
     },
     {
-      "id": "a7-moved-6-9bn-despite-sanctions",
-      "headline": "Финтех-компания A7 провела через международные банки более 6,9 миллиарда долларов в обход санкций",
-      "context": "Для проведения платежей зарубежным поставщикам использовалось около 100 компаний-посредников в ОАЭ, Гонконге и других юрисдикциях.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24018"
-        }
-      ],
-      "published_at": "2026-09-22T10:44:00+03:00"
-    },
-    {
-      "id": "minek-proposed-softening-sez-resident-penalties",
-      "headline": "Минэкономразвития предложило штрафовать резидентов особых экономических зон вместо лишения статуса при первом нарушении",
-      "context": "Законопроект предусматривает штрафы от 1 млн до 15 млн рублей, лишение статуса будет применяться только при повторном нарушении.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24013"
-        }
-      ],
-      "published_at": "2026-09-22T08:07:00+03:00"
-    },
-    {
-      "id": "minfin-discusses-digital-ruble-for-state-contracts",
-      "headline": "Минфин обсуждает перевод крупных государственных контрактов в цифровые рубли для контроля средств",
-      "context": "Соответствующую норму планируется закрепить в Бюджетном кодексе, несколько контрактов уже переведены в пилотном режиме.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24012"
-        }
-      ],
-      "published_at": "2026-09-22T07:46:00+03:00"
-    },
-    {
-      "id": "rnpk-terrorism-reinsurance",
-      "headline": "РНПК ужесточила условия перестрахования рисков терроризма и диверсий для бизнеса",
-      "context": "Теперь для каждой группы компаний будет действовать один базовый пакет и общий лимит с регрессивной шкалой на все страховые случаи.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24014"
-        }
-      ],
-      "published_at": "2026-09-22T08:34:00+03:00"
-    },
-    {
-      "id": "t-technologies-approved-dot-consolidation",
-      "headline": "Акционеры «Т-Технологий» одобрили дополнительную эмиссию акций для консолидации банка «Точка»",
-      "context": "Решение было принято на внеочередном общем собрании акционеров компании.",
-      "category": "corporate",
+      "id": "spain-rejects-russian-lng",
+      "headline": "Испания подтвердила полный отказ от закупок российского сжиженного природного газа",
+      "context": "Поставки прекратятся с 1 января 2027 года, несмотря на наличие долгосрочных контрактов у испанских компаний.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8972311"
+          "url": "https://www.kommersant.ru/doc/8972817"
         }
       ],
-      "published_at": "2026-09-22T14:01:00+03:00"
+      "published_at": "2026-09-23T08:27:00+03:00"
     },
     {
-      "id": "duma-financial-market-committee-faction",
-      "headline": "Комитет Госдумы по финансовому рынку в новом созыве может перейти к «Единой России»",
-      "context": "Вместо Анатолия Аксакова комитет может возглавить представитель ЕР, окончательное решение пока не принято.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24017"
-        }
-      ],
-      "published_at": "2026-09-22T10:30:00+03:00"
-    },
-    {
-      "id": "wb-bank-vtb-cash-withdrawal",
-      "headline": "WB-банк увеличил лимит бесплатного снятия наличных в банкоматах ВТБ до 500 тысяч рублей",
-      "context": "Изменения стали частью стратегического партнерства Wildberries и ВТБ по совместному развитию финансовых сервисов.",
-      "category": "banks",
+      "id": "us-consortium-lukoil-assets",
+      "headline": "Власти США поддержали консорциум Тодда Боэли для покупки зарубежных активов Лукойла",
+      "context": "Американский миллиардер планирует приобрести иностранные активы российской нефтяной компании.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "frank_media",
-          "url": "https://t.me/frank_media/24015"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306099"
         }
       ],
-      "published_at": "2026-09-22T09:01:00+03:00"
+      "published_at": "2026-09-23T08:09:00+03:00"
+    },
+    {
+      "id": "rasperia-rbi-court-ruling",
+      "headline": "Суд Вены обязал российскую компанию Распериа выплатить австрийскому банку три миллиарда евро",
+      "context": "Raiffeisen Bank International намерен взыскать сумму за счет замороженных в Австрии активов компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306098"
+        }
+      ],
+      "published_at": "2026-09-23T08:03:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-09-22"
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
+    "last_trading_day": "2026-09-23"
   }
 }
