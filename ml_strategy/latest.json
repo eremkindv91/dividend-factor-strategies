@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-24T01:03:13+00:00",
-  "data_as_of": "2026-09-23",
+  "generated_at": "2026-09-25T01:03:27+00:00",
+  "data_as_of": "2026-09-24",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-09-23-6bfe9f36-e25a3316",
-    "as_of": "2026-09-23",
-    "calculated_at": "2026-09-24T01:03:13+00:00",
+    "run_id": "2026-09-24-6bfe9f36-e25a3316",
+    "as_of": "2026-09-24",
+    "calculated_at": "2026-09-25T01:03:27+00:00",
     "model_version": "elastic_net:6bfe9f36784f680e",
     "artifact_hash": "6bfe9f36784f680e",
     "universe_version": "a52fad13c90a8ca0",
@@ -31,9 +31,9 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-09-23-6bfe9f36-e25a3316",
-    "as_of": "2026-09-23",
-    "calculated_at": "2026-09-24T01:03:13+00:00",
+    "run_id": "2026-09-24-6bfe9f36-e25a3316",
+    "as_of": "2026-09-24",
+    "calculated_at": "2026-09-25T01:03:27+00:00",
     "model_version": "elastic_net:6bfe9f36784f680e",
     "artifact_hash": "6bfe9f36784f680e",
     "universe_version": "a52fad13c90a8ca0",
@@ -50,102 +50,102 @@
         "ticker": "SBERP",
         "name": "Сбербанк-п",
         "sector": "Финансы (Банки)",
-        "calculated_weight": 0.059955,
-        "expected_excess_return_20d": 0.001346,
+        "calculated_weight": 0.059918,
+        "expected_excess_return_20d": -0.005095,
         "sector_drivers": []
       },
       {
         "ticker": "DOMRF",
         "name": "ДОМ.РФ",
         "sector": "Финансы",
-        "calculated_weight": 0.059083,
-        "expected_excess_return_20d": 0.000342,
+        "calculated_weight": 0.05838,
+        "expected_excess_return_20d": -0.006728,
         "sector_drivers": []
       },
       {
-        "ticker": "MTSS",
-        "name": "МТС-ао",
-        "sector": "Телекоммуникации",
-        "calculated_weight": 0.042537,
-        "expected_excess_return_20d": 0.000577,
+        "ticker": "HEAD",
+        "name": "Хэдхантер",
+        "sector": "IT",
+        "calculated_weight": 0.046464,
+        "expected_excess_return_20d": -0.009329,
         "sector_drivers": []
       },
       {
         "ticker": "BANEP",
         "name": "Башнефт ап",
         "sector": "Нефть и газ",
-        "calculated_weight": 0.03384,
-        "expected_excess_return_20d": 0.000926,
+        "calculated_weight": 0.032164,
+        "expected_excess_return_20d": -0.006058,
         "sector_drivers": []
       },
       {
         "ticker": "MOEX",
         "name": "МосБиржа",
         "sector": "Финансы",
-        "calculated_weight": 0.032824,
-        "expected_excess_return_20d": 0.000619,
+        "calculated_weight": 0.02875,
+        "expected_excess_return_20d": -0.005452,
         "sector_drivers": []
       },
       {
-        "ticker": "SIBN",
-        "name": "Газпрнефть",
-        "sector": "Нефть и газ",
-        "calculated_weight": 0.030607,
-        "expected_excess_return_20d": 0.00105,
+        "ticker": "X5",
+        "name": "КЦ ИКС 5",
+        "sector": "Потребительский сектор",
+        "calculated_weight": 0.0276,
+        "expected_excess_return_20d": -0.009507,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "MTSS",
+        "name": "МТС-ао",
+        "sector": "Телекоммуникации",
+        "calculated_weight": 0.026363,
+        "expected_excess_return_20d": -0.004888,
         "sector_drivers": []
       },
       {
         "ticker": "SVCB",
         "name": "Совкомбанк",
         "sector": "Финансы (Банки)",
-        "calculated_weight": 0.028009,
-        "expected_excess_return_20d": -0.002228,
+        "calculated_weight": 0.026153,
+        "expected_excess_return_20d": -0.008876,
         "sector_drivers": []
       },
       {
         "ticker": "FLOT",
         "name": "Совкомфлот",
         "sector": "Транспорт",
-        "calculated_weight": 0.027082,
-        "expected_excess_return_20d": 0.000295,
+        "calculated_weight": 0.025488,
+        "expected_excess_return_20d": -0.007512,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "SIBN",
+        "name": "Газпрнефть",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.024598,
+        "expected_excess_return_20d": -0.006744,
         "sector_drivers": []
       },
       {
         "ticker": "IRAO",
         "name": "ИнтерРАОао",
         "sector": "Энергетика",
-        "calculated_weight": 0.026393,
-        "expected_excess_return_20d": -0.002449,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "HYDR",
-        "name": "РусГидро",
-        "sector": "Энергетика",
-        "calculated_weight": 0.021954,
-        "expected_excess_return_20d": -0.002224,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "TATNP",
-        "name": "Татнфт 3ап",
-        "sector": "Нефть и газ",
-        "calculated_weight": 0.019514,
-        "expected_excess_return_20d": -0.001687,
+        "calculated_weight": 0.024438,
+        "expected_excess_return_20d": -0.009438,
         "sector_drivers": []
       },
       {
         "ticker": "AFKS",
         "name": "Система ао",
         "sector": "Конгломерат",
-        "calculated_weight": 0.016516,
-        "expected_excess_return_20d": 0.002913,
+        "calculated_weight": 0.01482,
+        "expected_excess_return_20d": -0.007569,
         "sector_drivers": []
       }
     ],
-    "cash_weight": 0.601685,
-    "diagnostic_turnover": 0.398315,
-    "diagnostic_cost_rub": 1194.94,
+    "cash_weight": 0.604865,
+    "diagnostic_turnover": 0.395135,
+    "diagnostic_cost_rub": 1185.41,
     "affects_current_portfolio": false
   },
   "execution": {
@@ -197,7 +197,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-09-24T00:56:41.826882+00:00"
+    "last_checked_at": "2026-09-25T00:56:59.976495+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
@@ -229,7 +229,7 @@
       }
     },
     "constraints": {
-      "turnover_actual": 0.398315,
+      "turnover_actual": 0.395135,
       "turnover_cap": 0.4,
       "one_way_cost_bps": 30.0,
       "solver_method": "HRP"
