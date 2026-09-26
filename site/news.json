@@ -1,177 +1,419 @@
 {
-  "date": "2026-09-25",
-  "generated_at": "2026-09-25T22:14:39+03:00",
+  "date": "2026-09-26",
+  "generated_at": "2026-09-26T15:18:05+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом, на азиатских рынках наблюдалась разнонаправленная динамика, золото подорожало, а нефть марки Brent снизилась.",
+  "external_backdrop": "Американские индексы и японский Nikkei закрылись ростом, в то время как Hang Seng и нефть марки Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7740.53",
-      "change_pct": "+0.47%",
+      "value": "7743.41",
+      "change_pct": "+0.51%",
       "as_of": "2026-09-25",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "27065.63",
-      "change_pct": "+0.47%",
+      "value": "27068.72",
+      "change_pct": "+0.48%",
       "as_of": "2026-09-25",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65513.99",
-      "change_pct": "+0.76%",
-      "as_of": "2026-09-24",
+      "value": "66364.20",
+      "change_pct": "+1.30%",
+      "as_of": "2026-09-25",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24761.13",
-      "change_pct": "-0.29%",
-      "as_of": "2026-09-24",
+      "value": "24510.09",
+      "change_pct": "-1.01%",
+      "as_of": "2026-09-25",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "97.57",
-      "change_pct": "-8.47%",
+      "value": "104.32",
+      "change_pct": "-2.14%",
       "as_of": "2026-09-25",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4325.30",
-      "change_pct": "+0.64%",
+      "value": "4321.20",
+      "change_pct": "+0.54%",
       "as_of": "2026-09-25",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2273.87",
-      "change_pct": "-1.66%",
-      "as_of": "2026-09-25 19:00:12",
+      "value": "2274.96",
+      "change_pct": "+0.05%",
+      "as_of": "2026-09-26 15:18:02",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "849.31",
-      "change_pct": "-1.01%",
-      "as_of": "2026-09-25 19:00:12",
+      "value": "849.72",
+      "change_pct": "+0.05%",
+      "as_of": "2026-09-26 15:18:02",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "84.70",
-      "change_pct": "+0.08%",
-      "as_of": "2026-09-25 22:14:38",
+      "change_pct": "-0.56%",
+      "as_of": "2026-09-25 23:54:57",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.51",
-      "change_pct": "-0.06%",
-      "as_of": "2026-09-25 19:15:01",
+      "change_pct": "-0.71%",
+      "as_of": "2026-09-25 23:50:01",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "pif-tax-only-for-qualified-investors",
-      "headline": "Инициатива Минфина по налогу на прибыль паевых инвестиционных фондов затронет только инструменты для квалифицированных инвесторов",
-      "context": "Новые правила коснутся закрытых и интервальных фондов, а полученный налог будет полностью зачисляться в федеральный бюджет.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/369551"
-        }
-      ],
-      "published_at": "2026-09-25T10:44:00+03:00"
-    },
-    {
-      "id": "tatneft-shareholders-approve-dividends",
-      "headline": "Акционеры нефтяной компании Татнефть утвердили выплату дивидендов за первое полугодие 2026 года",
-      "context": "Размер выплат составит 32,88 рубля на акцию, дата закрытия реестра назначена на 13 октября.",
+      "id": "minenergo-trassa-vneshnee-upravlenie",
+      "headline": "Минэнерго предложило ввести внешнее управление для сети АЗС «Трасса» компании «ЕвроТранс»",
+      "context": "Механизм внешнего управления по указу президента о безопасности критической инфраструктуры предлагается применить для обеспечения безопасности мощностей по хранению нефтепродуктов.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/25/1231725-tatnefti-dividendov"
+          "url": "https://www.vedomosti.ru/business/news/2026/09/26/1232074-minenergo-predlozhilo"
         }
       ],
-      "published_at": "2026-09-25T10:25:00+03:00"
+      "published_at": "2026-09-26T14:09:00+03:00"
     },
     {
-      "id": "minfin-zero-ndpi-yamal-lng",
-      "headline": "Министерство финансов предложило продлить нулевую ставку налога на добычу полезных ископаемых для проекта Ямал СПГ",
-      "context": "Применение льготы планируется увязать с обязательным заключением инвестиционного соглашения с правительством.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
+      "id": "usa-china-tariffs-reduction",
+      "headline": "США и Китай договорились снизить взаимные пошлины на товары объемом тридцать миллиардов долларов",
+      "context": "Договоренность о снижении пошлин на менее чувствительные товары была достигнута по итогам саммита Си Цзиньпина и Дональда Трампа в Вашингтоне.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/369544"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386456"
         }
       ],
-      "published_at": "2026-09-25T10:04:00+03:00"
+      "published_at": "2026-09-26T13:38:00+03:00"
     },
     {
-      "id": "sberdevices-lawsuit-against-mvideo",
-      "headline": "Компания разработчик устройств SberDevices подала иск к операционной компании группы МВидео на 6,6 млрд рублей",
-      "context": "Исковые требования ООО СалютДевайсы к ООО МВМ составляют 6,6 млрд рублей, суть претензий не раскрывается.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
+      "id": "government-bad-tariffs",
+      "headline": "Правительство России ввело таможенную пошлину в тридцать пять процентов на импортные БАДы",
+      "context": "Постановление о введении пошлин на биологически активные добавки к пище из недружественных стран подписал премьер-министр Михаил Мишустин.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8974639"
+          "url": "https://www.kommersant.ru/doc/8987757"
         }
       ],
-      "published_at": "2026-09-24T23:02:00+03:00"
+      "published_at": "2026-09-26T11:35:00+03:00"
     },
     {
-      "id": "bank-saint-petersburg-dividends-and-share-cancellation",
-      "headline": "Акционеры банка Санкт-Петербург одобрили выплату дивидендов и уменьшение уставного капитала путем погашения акций",
-      "context": "Размер дивидендов за первое полугодие составит 19,17 рубля на обыкновенную акцию.",
+      "id": "trump-rejects-iran-ceasefire",
+      "headline": "Дональд Трамп отклонил семидневный план Ирана по прекращению огня в Ормузском проливе",
+      "context": "Президент США рассчитывает возобновить удары по Исламской Республике после промежуточных выборов в ноябре.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8987687"
+        }
+      ],
+      "published_at": "2026-09-26T04:38:00+03:00"
+    },
+    {
+      "id": "bybit-restricts-garantex",
+      "headline": "Криптобиржа Bybit ввела ограничения против Garantex и ряда других российских криптосервисов",
+      "context": "В черный список контрагентов также вошли Bitzlato, EXMO, Payeer, Cryptex, Rapira и другие платформы.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386431"
+        }
+      ],
+      "published_at": "2026-09-25T22:46:00+03:00"
+    },
+    {
+      "id": "euroclear-cassation-cb-suit",
+      "headline": "Депозитарий Euroclear подал кассационную жалобу по иску Банка России о взыскании активов",
+      "context": "Ранее Арбитражный суд Москвы полностью удовлетворил иск регулятора о взыскании около 200 миллиардов евро из-за блокировки средств.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306858"
+        }
+      ],
+      "published_at": "2026-09-25T19:47:00+03:00"
+    },
+    {
+      "id": "cb-combats-credit-disguise",
+      "headline": "Банк России намерен пресекать практику маскировки потребительских кредитов под беспроцентную рассрочку",
+      "context": "Регулятор проводит работу с банками и маркетплейсами для устранения недобросовестных предложений на рынке.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118545"
+        }
+      ],
+      "published_at": "2026-09-25T19:04:00+03:00"
+    },
+    {
+      "id": "lsr-group-sales-decrease",
+      "headline": "Группа ЛСР сократила объем новых контрактов на жилую недвижимость в первом полугодии",
+      "context": "Объем новых контрактов снизился на 5,1% год к году до 241,9 тысячи квадратных метров, а их стоимость составила 68,1 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1355791.php"
+        }
+      ],
+      "published_at": "2026-09-25T18:53:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "bspb-dividends-and-buyback",
+      "headline": "Акционеры Банка «Санкт-Петербург» одобрили дивиденды за первое полугодие и погашение акций",
+      "context": "Утверждены дивиденды в размере 19,17 рубля на обыкновенную акцию, а также уменьшение уставного капитала путем погашения выкупленных акций.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
           "url": "https://t.me/markettwits/386385"
         }
       ],
       "published_at": "2026-09-25T15:25:00+03:00"
     },
     {
-      "id": "novoshakhtinsk-refinery-suspends-operations",
-      "headline": "Новошахтинский завод нефтепродуктов временно приостановил работу после повреждений в результате воздушной атаки",
-      "context": "Губернатор Ростовской области сообщил, что над регионом за ночь было уничтожено около 50 беспилотных летательных аппаратов.",
+      "id": "minfin-pif-tax-initiative",
+      "headline": "Минфин России планирует ввести налог на прибыль для закрытых и интервальных ПИФов",
+      "context": "Инициатива по уплате налога по ставке 15% с пассивных доходов затронет только фонды, предназначенные для квалифицированных инвесторов.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8974886"
+        }
+      ],
+      "published_at": "2026-09-25T10:49:00+03:00"
+    },
+    {
+      "id": "tatneft-dividends-approved",
+      "headline": "Акционеры нефтяной компании «Татнефть» утвердили дивиденды за первое полугодие",
+      "context": "Выплата составит 32,88 рубля на одну обыкновенную и привилегированную акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/25/1231747-tatnefti-dividendov"
+        }
+      ],
+      "published_at": "2026-09-25T10:02:00+03:00"
+    },
+    {
+      "id": "cb-crypto-market-rules",
+      "headline": "Банк России утвердил правила работы криптообменников и цифровых депозитариев",
+      "context": "Легально работать на рынке смогут только компании, вошедшие в реестры регулятора, правила вступают в силу 5 октября 2026 года.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/85474"
+        }
+      ],
+      "published_at": "2026-09-25T08:39:00+03:00"
+    },
+    {
+      "id": "perm-refinery-suspended",
+      "headline": "Пермский нефтеперерабатывающий завод приостановил работу после атаки украинского беспилотника",
+      "context": "Источники сообщают об остановке мощностей предприятия в Пермском крае после ночного инцидента.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/369516"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1355780.php"
         }
       ],
-      "published_at": "2026-09-25T07:49:00+03:00"
+      "published_at": "2026-09-25T18:28:00+03:00"
     },
     {
-      "id": "russian-metallurgical-coal-prices-drop",
-      "headline": "Цены на российский металлургический уголь снизились на величину до 15% за неделю",
-      "context": "Снижение котировок вызвано ограниченным спросом и мерами китайских регуляторов по восстановлению собственной добычи.",
-      "category": "markets",
+      "id": "md-medical-group-dividends",
+      "headline": "Совет директоров «МД Медикал Груп» рассмотрит промежуточные дивиденды тридцатого сентября",
+      "context": "Компания анонсировала заседание совета директоров по вопросу выплаты промежуточных дивидендов.",
+      "category": "corporate",
       "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386412"
+        }
+      ],
+      "published_at": "2026-09-25T18:00:00+03:00"
+    },
+    {
+      "id": "t-technologies-share-price-date",
+      "headline": "Совет директоров группы «Т-Технологии» определит цену размещения акций допэмиссии тридцатого сентября",
+      "context": "Заседание совета директоров по определению цены размещения дополнительных акций пройдет в конце месяца.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1355730.php"
+        }
+      ],
+      "published_at": "2026-09-25T17:02:00+03:00"
+    },
+    {
+      "id": "gazprom-gas-production-growth",
+      "headline": "Группа «Газпром» увеличила добычу газа в первом полугодии на три с половиной процента",
+      "context": "Добыча природного и попутного газа достигла 216,55 миллиарда кубических метров на фоне холодной зимы.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386391"
+        }
+      ],
+      "published_at": "2026-09-25T15:45:00+03:00"
+    },
+    {
+      "id": "minfin-family-mortgage-rules",
+      "headline": "Министерство финансов России утвердило новые условия программы семейной ипотеки с октября",
+      "context": "Новые правила предусматривают дифференциацию процентных ставок и лимитов по регионам и количеству детей.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8974950"
+        }
+      ],
+      "published_at": "2026-09-25T11:47:00+03:00"
+    },
+    {
+      "id": "inarctica-dividends-approved",
+      "headline": "Акционеры компании «Инарктика» одобрили выплату дивидендов за первое полугодие",
+      "context": "Размер дивидендов составит 10 рублей на одну обыкновенную акцию с датой закрытия реестра 4 октября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386328"
+        }
+      ],
+      "published_at": "2026-09-25T10:00:00+03:00"
+    },
+    {
+      "id": "minfin-yamal-spg-ndpi",
+      "headline": "Минфин России предложил продлить нулевую ставку НДПИ для проекта «Ямал СПГ»",
+      "context": "Льгота по налогу на добычу полезных ископаемых предлагается в обмен на заключение инвестиционного соглашения.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386325"
+        }
+      ],
+      "published_at": "2026-09-25T09:45:00+03:00"
+    },
+    {
+      "id": "construction-bankruptcies-growth",
+      "headline": "Число дел о банкротстве строительных компаний в России выросло на треть за три месяца",
+      "context": "Количество дел увеличилось до 1454 на фоне падения спроса на жилье и роста себестоимости строительства.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/85475"
+        }
+      ],
+      "published_at": "2026-09-25T09:06:00+03:00"
+    },
+    {
+      "id": "telecom-operators-block-banks",
+      "headline": "Операторы связи пригрозили блокировать немаркированные звонки крупнейших российских банков с октября",
+      "context": "С 15 октября вызовы без маркировки могут начать блокировать из-за отсутствия соглашений с крупнейшими кредитными организациями.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/24082"
+        }
+      ],
+      "published_at": "2026-09-25T08:50:00+03:00"
+    },
+    {
+      "id": "sberdevices-mvideo-lawsuit",
+      "headline": "Компания SberDevices потребовала взыскать с ритейлера «М.Видео» почти семь миллиардов рублей",
+      "context": "Иск к операционной компании МВМ на сумму 6,64 миллиарда рублей зарегистрирован в арбитражном суде, предмет претензий не раскрывается.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/24081"
+        }
+      ],
+      "published_at": "2026-09-25T08:11:00+03:00"
+    },
+    {
+      "id": "coal-prices-drop",
+      "headline": "Цены на российский металлургический уголь в дальневосточных портах снизились на пятнадцать процентов",
+      "context": "Стоимость коксующегося угля марки ГЖ упала до 166 долларов за тонну на фоне ограниченного спроса.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
@@ -180,210 +422,13 @@
         }
       ],
       "published_at": "2026-09-25T01:03:00+03:00"
-    },
-    {
-      "id": "cb-approves-cryptocurrency-market-rules",
-      "headline": "Банк России утвердил правила допуска участников на рынок криптовалют и запускает их лицензирование",
-      "context": "Положение вступает в силу 5 октября 2026 года и обязывает криптообменники входить в реестры регулятора.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8974648"
-        }
-      ],
-      "published_at": "2026-09-24T23:54:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "minfin-windfall-tax-metals",
-      "headline": "Минфин предложил ввести налог на сверхприбыль в размере 30% для горно-металлургических компаний",
-      "context": "Для золотодобывающих организаций ставка налога на дополнительный доход от роста мировых цен составит 20%.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/85446"
-        }
-      ],
-      "published_at": "2026-09-24T11:14:00+03:00"
-    },
-    {
-      "id": "minfin-pif-profit-tax",
-      "headline": "Минфин предложил обязать паевые инвестиционные фонды уплачивать налог на прибыль с пассивных доходов",
-      "context": "Ставку налога предлагается установить на уровне 15% с последующим зачетом при налогообложении пайщиков.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8973875"
-        }
-      ],
-      "published_at": "2026-09-24T11:09:00+03:00"
-    },
-    {
-      "id": "minfin-ndfl-passive-income",
-      "headline": "Минфин предложил облагать пассивные доходы россиян по прогрессивной шкале НДФЛ от 13% до 22%",
-      "context": "В основную налоговую базу планируется включить дивиденды, проценты по вкладам и доходы от операций с ценными бумагами.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8973849"
-        }
-      ],
-      "published_at": "2026-09-24T11:00:00+03:00"
-    },
-    {
-      "id": "vtb-postpones-share-issue",
-      "headline": "Банк ВТБ перенес проведение дополнительной эмиссии акций для сделки с маркетплейсом на октябрь",
-      "context": "Глава банка Андрей Костин сообщил, что стратегические планы по сотрудничеству с объединенной компанией не изменились.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8974356"
-        }
-      ],
-      "published_at": "2026-09-24T17:06:00+03:00"
-    },
-    {
-      "id": "minfin-family-mortgage-changes",
-      "headline": "Министерство финансов утвердило изменения условий программы льготной семейной ипотеки с 1 октября",
-      "context": "Процентные ставки составят от 2% до 12% годовых в зависимости от региона и количества детей.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/386234"
-        }
-      ],
-      "published_at": "2026-09-24T17:00:00+03:00"
-    },
-    {
-      "id": "cb-restrictions-nonresidents-transfers",
-      "headline": "Банк России продлил ограничения на переводы средств недружественных нерезидентов за рубеж еще на полгода",
-      "context": "Запрет на переводы со счетов брокеров и доверительных управляющих будет действовать с 1 октября 2026 года.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/386232"
-        }
-      ],
-      "published_at": "2026-09-24T16:46:00+03:00"
-    },
-    {
-      "id": "acron-board-dividend-recommendation",
-      "headline": "Совет директоров компании Акрон рекомендовал выплатить дивиденды по итогам 2021 года",
-      "context": "Рекомендация была опубликована на фоне обсуждения новых налоговых инициатив Минфина для рентных отраслей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/24/1231543-sd-akrona-dividendi"
-        }
-      ],
-      "published_at": "2026-09-24T15:46:00+03:00"
-    },
-    {
-      "id": "afk-sistema-new-president",
-      "headline": "Совет директоров акционерной финансовой корпорации Система назначил Феликса Евтушенкова новым президентом компании",
-      "context": "Ранее занимавший эту должность Тагир Ситдеков продолжит работу в структуре инвестиционной корпорации.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/24/1231531-feliks-naznachen-prezidentom"
-        }
-      ],
-      "published_at": "2026-09-24T15:19:00+03:00"
-    },
-    {
-      "id": "minfin-nds-foreign-goods",
-      "headline": "Минфин предложил ввести налог на добавленную стоимость в размере 22% на импортные товары",
-      "context": "Налог будет взиматься при покупке иностранных товаров на маркетплейсах, а электронные площадки выступят налоговыми агентами.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8973871"
-        }
-      ],
-      "published_at": "2026-09-24T11:04:00+03:00"
-    },
-    {
-      "id": "supreme-court-nonresident-payments-splitting",
-      "headline": "Верховный суд пересмотрел практику по дроблению платежей в пользу нерезидентов до 10 млн рублей",
-      "context": "Искусственное дробление обязательств перед иностранными кредиторами на транши может стать основанием для признания сделок ничтожными.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/306381"
-        }
-      ],
-      "published_at": "2026-09-24T09:06:00+03:00"
-    },
-    {
-      "id": "coal-freight-cost-russia-china",
-      "headline": "Стоимость транспортировки угля из России в Китай выросла до исторического максимума",
-      "context": "Цена фрахта из порта Восточный в Северный Китай увеличилась за неделю на 6%, достигнув 13,3–14,3 доллара за тонну.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8973644"
-        }
-      ],
-      "published_at": "2026-09-24T01:33:00+03:00"
-    },
-    {
-      "id": "rosstat-industrial-production-decline",
-      "headline": "Промышленное производство в России сократилось в августе на 0,6% в годовом выражении",
-      "context": "Росстат зафиксировал снижение индекса промышленного производства после двух месяцев слабого роста.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8973677"
-        }
-      ],
-      "published_at": "2026-09-24T01:28:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-09-24"
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-09-25"
   }
 }
