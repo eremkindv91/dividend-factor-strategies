@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-27",
-  "generated_at": "2026-09-27T21:31:50+03:00",
+  "date": "2026-09-28",
+  "generated_at": "2026-09-28T14:16:00+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские индексы преимущественно выросли, нефть Brent снизилась на 8.59%, золото подорожало на 0.54%.",
+  "external_backdrop": "Американские индексы закрылись ростом в пятницу, азиатские рынки показывают разнонаправленную динамику в понедельник, в то время как нефть Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,213 +20,189 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "66364.20",
-      "change_pct": "+1.30%",
-      "as_of": "2026-09-25",
+      "value": "65877.62",
+      "change_pct": "-0.73%",
+      "as_of": "2026-09-28",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24510.09",
-      "change_pct": "-1.01%",
-      "as_of": "2026-09-25",
+      "value": "24642.51",
+      "change_pct": "+0.54%",
+      "as_of": "2026-09-28",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "97.44",
-      "change_pct": "-8.59%",
-      "as_of": "2026-09-25",
+      "value": "101.21",
+      "change_pct": "-2.98%",
+      "as_of": "2026-09-28",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4321.20",
-      "change_pct": "+0.54%",
-      "as_of": "2026-09-25",
+      "value": "4182.80",
+      "change_pct": "-3.20%",
+      "as_of": "2026-09-28",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2279.86",
-      "change_pct": "+0.26%",
-      "as_of": "2026-09-27 19:00:02",
+      "value": "2255.37",
+      "change_pct": "-0.81%",
+      "as_of": "2026-09-28 14:15:55",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "851.55",
-      "change_pct": "+0.26%",
-      "as_of": "2026-09-27 19:00:02",
+      "value": "842.39",
+      "change_pct": "-0.81%",
+      "as_of": "2026-09-28 14:15:56",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.70",
-      "change_pct": "-0.56%",
-      "as_of": "2026-09-25 23:54:57",
+      "value": "85.03",
+      "change_pct": "+0.15%",
+      "as_of": "2026-09-28 14:15:58",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.51",
-      "change_pct": "-0.71%",
-      "as_of": "2026-09-25 23:50:01",
+      "value": "12.56",
+      "change_pct": "-0.01%",
+      "as_of": "2026-09-28 14:15:59",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minenergo-eutr-external-management",
-      "headline": "Минэнерго предложило ввести внешнее управление для активов оператора сети АЗС Трасса",
-      "context": "Предложение Минэнерго применить механизм по указу о безопасности критической инфраструктуры к активам ПАО ЕвроТранс связано с необходимостью обеспечения безопасности мощностей хранения.",
+      "id": "otp-exit",
+      "headline": "Венгерский OTP Bank рассматривает возможность полного ухода из России до конца 2026 года",
+      "context": "Решение будет принято с учетом планируемой покупки эстонского Luminor Bank и ограничений на вывод дивидендов.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306994"
+        }
+      ],
+      "published_at": "2026-09-28T14:06:00+03:00"
+    },
+    {
+      "id": "trump-refineries",
+      "headline": "Дональд Трамп заявил о согласии Владимира Зеленского ослабить удары по российским нефтеперерабатывающим заводам",
+      "context": "По словам президента США, это необходимо для стабилизации мировых цен на энергоносители.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8988202"
+        }
+      ],
+      "published_at": "2026-09-28T02:24:00+03:00"
+    },
+    {
+      "id": "sber-omk",
+      "headline": "Дочерняя структура Сбера Интегральные системы станет базой для Объединенной микроэлектронной компании",
+      "context": "ОМК также рассматривает возможность выкупа долей в китайских полупроводниковых производствах.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/26/1232074-minenergo-predlozhilo"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8987797"
-        }
-      ],
-      "published_at": "2026-09-26T14:09:00+03:00"
-    },
-    {
-      "id": "trump-rejects-iran-ceasefire",
-      "headline": "Президент США Дональд Трамп отклонил предложение Ирана по Ормузскому проливу и анонсировал новые переговоры",
-      "context": "Иран предлагал открыть пролив в обмен на снятие блокады и нефтяных санкций, однако США настаивают на ядерных уступках.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/27/09/2026/6ab8ceeff57f387a2e9c6638"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/09/27/1232199-tramp-dopustil"
-        }
-      ],
-      "published_at": "2026-09-27T20:22:00+03:00"
-    },
-    {
-      "id": "vucic-resigns-serbia-president",
-      "headline": "Президент Сербии Александр Вучич объявил о своей отставке накануне досрочных парламентских выборов",
-      "context": "Вучич планирует баллотироваться на пост премьер-министра от правящей Сербской прогрессивной партии для сохранения ключевой роли в политике.",
-      "category": "geopolitics",
-      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/27/09/2026/6ab95d3d1ddaebd2e7174907"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8988168"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118898"
         }
       ],
-      "published_at": "2026-09-27T21:21:00+03:00"
+      "published_at": "2026-09-28T13:59:00+03:00"
     },
     {
-      "id": "cb-rf-insider-trading-injunctions",
-      "headline": "Банк России резко увеличил число предписаний нарушителям закона об инсайде и манипулировании рынком",
-      "context": "В неполном третьем квартале регулятор выдал 105 предписаний, что почти на четверть больше показателя за все первое полугодие.",
-      "category": "cb_policy",
+      "id": "rgbi-drop",
+      "headline": "Индекс государственных облигаций RGBI снизился почти до отметки 111 пунктов",
+      "context": "Снижение индекса ОФЗ происходит на фоне ожиданий сохранения жесткой денежно-кредитной политики.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8988142"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/28/1232354-indeks-gosobligatsii"
         }
       ],
-      "published_at": "2026-09-27T19:54:00+03:00"
+      "published_at": "2026-09-28T13:14:00+03:00"
     },
     {
-      "id": "minfin-deposit-guarantee-expansion",
-      "headline": "Минфин планирует расширить систему гарантирования вкладов в России на три новых вида страхования",
-      "context": "Изменения вступят в силу с 1 января 2027 года, о чем сообщил заместитель министра финансов Иван Чебесков.",
-      "category": "cb_policy",
+      "id": "alrosa-production",
+      "headline": "Добыча алмазов АЛРОСА в первом полугодии 2026 года снизилась на 0,8 процента",
+      "context": "Показатель составил 11,8 млн каратов против 11,9 млн каратов за аналогичный период прошлого года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8987974"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/28/1232376-alrosa-snizila-dobichu"
         }
       ],
-      "published_at": "2026-09-27T12:08:00+03:00"
+      "published_at": "2026-09-28T12:06:00+03:00"
     },
     {
-      "id": "us-china-tariff-reduction",
-      "headline": "США и Китай договорились о взаимном снижении торговых пошлин на сумму тридцать миллиардов долларов",
-      "context": "Соглашение по менее чувствительным товарам было достигнуто в ходе государственного визита председателя КНР Си Цзиньпина в Вашингтон.",
+      "id": "budget-revenues",
+      "headline": "Счетная палата ожидает нефтегазовые доходы бюджета в 2026 году на 18 процентов ниже плана",
+      "context": "Разрыв с планом составит 1,6 трлн рублей из-за более крепкого курса рубля и затрат на логистику.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал InvestFuture",
+          "url": "https://t.me/if_market_news/85516"
+        }
+      ],
+      "published_at": "2026-09-28T09:43:00+03:00"
+    },
+    {
+      "id": "uav-moratorium",
+      "headline": "Правительство России ввело годовой мораторий на проверки пострадавшего от атак беспилотников бизнеса",
+      "context": "Мера вступает в силу 28 сентября 2026 года и будет действовать до 1 октября 2027 года.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8987891"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/09/26/1232089-knr-i-ssha-dogovorilis"
+          "url": "https://www.kommersant.ru/doc/8988307"
         }
       ],
-      "published_at": "2026-09-26T23:11:00+03:00"
+      "published_at": "2026-09-28T09:26:00+03:00"
     },
     {
-      "id": "russia-bad-import-tariffs",
-      "headline": "Правительство России ввело таможенную пошлину в размере тридцати пяти процентов на импорт БАДов",
-      "context": "Повышенные пошлины затронут продукцию из недружественных стран, что может привести к росту розничных цен на 10-15%.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "sme-loans",
+      "headline": "Российские банки ожидают ухудшения качества кредитов малому и среднему бизнесу из-за налогов и ставок",
+      "context": "Ухудшение прогнозируют 63% опрошенных руководителей банков на фоне роста налоговой нагрузки и высокой ключевой ставки.",
+      "category": "banks",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/26/1232071-pravitelstvo-vvodit"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8987757"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306878"
         }
       ],
-      "published_at": "2026-09-26T12:51:00+03:00"
-    },
-    {
-      "id": "marketplace-return-rules-revision",
-      "headline": "В России могут изменить правила возврата качественных товаров при покупках на маркетплейсах",
-      "context": "Глава ЦСР Павел Смелов и представители Wildberries отметили необходимость введения особого порядка возврата для отдельных категорий товаров.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8987971"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6aac80fc88eae288a2cbe70f"
-        }
-      ],
-      "published_at": "2026-09-27T20:44:00+03:00"
+      "published_at": "2026-09-28T07:55:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-09-25"
   }
 }
