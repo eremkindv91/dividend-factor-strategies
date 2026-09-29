@@ -1,208 +1,393 @@
 {
-  "date": "2026-09-28",
-  "generated_at": "2026-09-28T14:16:00+03:00",
+  "date": "2026-09-29",
+  "generated_at": "2026-09-29T12:00:44+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись ростом в пятницу, азиатские рынки показывают разнонаправленную динамику в понедельник, в то время как нефть Brent и золото снижаются.",
+  "external_backdrop": "Мировые фондовые индексы и цены на нефть снизились, золото незначительно подорожало.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7743.41",
-      "change_pct": "+0.51%",
-      "as_of": "2026-09-25",
+      "value": "7683.69",
+      "change_pct": "-0.77%",
+      "as_of": "2026-09-28",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "27068.72",
-      "change_pct": "+0.48%",
-      "as_of": "2026-09-25",
+      "value": "26820.38",
+      "change_pct": "-0.92%",
+      "as_of": "2026-09-28",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "65877.62",
-      "change_pct": "-0.73%",
-      "as_of": "2026-09-28",
+      "value": "65481.27",
+      "change_pct": "-0.60%",
+      "as_of": "2026-09-29",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24642.51",
-      "change_pct": "+0.54%",
-      "as_of": "2026-09-28",
+      "value": "24523.57",
+      "change_pct": "-0.48%",
+      "as_of": "2026-09-29",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "101.21",
-      "change_pct": "-2.98%",
-      "as_of": "2026-09-28",
+      "value": "97.94",
+      "change_pct": "-6.97%",
+      "as_of": "2026-09-29",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4182.80",
-      "change_pct": "-3.20%",
-      "as_of": "2026-09-28",
+      "value": "4172.00",
+      "change_pct": "+0.09%",
+      "as_of": "2026-09-29",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2255.37",
-      "change_pct": "-0.81%",
-      "as_of": "2026-09-28 14:15:55",
+      "value": "2235.51",
+      "change_pct": "-0.83%",
+      "as_of": "2026-09-29 12:00:41",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "842.39",
-      "change_pct": "-0.81%",
-      "as_of": "2026-09-28 14:15:56",
+      "value": "834.33",
+      "change_pct": "-0.83%",
+      "as_of": "2026-09-29 12:00:42",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.03",
-      "change_pct": "+0.15%",
-      "as_of": "2026-09-28 14:15:58",
+      "value": "85.20",
+      "change_pct": "-0.15%",
+      "as_of": "2026-09-29 12:00:38",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.56",
-      "change_pct": "-0.01%",
-      "as_of": "2026-09-28 14:15:59",
+      "value": "12.60",
+      "change_pct": "+0.09%",
+      "as_of": "2026-09-29 12:00:44",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "otp-exit",
-      "headline": "Венгерский OTP Bank рассматривает возможность полного ухода из России до конца 2026 года",
-      "context": "Решение будет принято с учетом планируемой покупки эстонского Luminor Bank и ограничений на вывод дивидендов.",
-      "category": "banks",
+      "id": "vtb-earnings-msfo",
+      "headline": "Чистая прибыль группы ВТБ по МСФО за восемь месяцев снизилась на четыре процента",
+      "context": "За отчетный период банк заработал 314,8 млрд рублей чистой прибыли, при этом в августе показатель вырос вдвое до 49,2 млрд рублей.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/306994"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1119089"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232615-pribil-vtb"
         }
       ],
-      "published_at": "2026-09-28T14:06:00+03:00"
+      "published_at": "2026-09-29T09:59:00+03:00"
     },
     {
-      "id": "trump-refineries",
-      "headline": "Дональд Трамп заявил о согласии Владимира Зеленского ослабить удары по российским нефтеперерабатывающим заводам",
-      "context": "По словам президента США, это необходимо для стабилизации мировых цен на энергоносители.",
-      "category": "geopolitics",
+      "id": "ofac-denials-euroclear",
+      "headline": "Минфин США начал отказывать российским инвесторам в разблокировке активов в Euroclear",
+      "context": "Решения мотивированы санкциями против ВТБ, введенными в рамках американской программы противодействия Ирану.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6aba5f679f6447bfdf2e0355"
+        }
+      ],
+      "published_at": "2026-09-29T08:42:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-borrowing-increase",
+      "headline": "Минфин России увеличил план чистого привлечения на внутреннем рынке на один триллион рублей",
+      "context": "Объем чистого привлечения через ОФЗ в 2026 году составит 5 трлн рублей вместо изначально запланированных 4 трлн рублей.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8988202"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1119091"
         }
       ],
-      "published_at": "2026-09-28T02:24:00+03:00"
+      "published_at": "2026-09-28T19:54:00+03:00"
     },
     {
-      "id": "sber-omk",
-      "headline": "Дочерняя структура Сбера Интегральные системы станет базой для Объединенной микроэлектронной компании",
-      "context": "ОМК также рассматривает возможность выкупа долей в китайских полупроводниковых производствах.",
+      "id": "vseh-buyback-approval",
+      "headline": "Совет директоров компании ВсеИнструменты ру одобрил программу обратного выкупа акций",
+      "context": "Объем программы составит до 500 млн рублей, выкуп планируется провести в период с 1 ноября 2026 года по 31 декабря 2027 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232651-viru-odobril-baibek"
+        }
+      ],
+      "published_at": "2026-09-29T11:44:00+03:00"
+    },
+    {
+      "id": "regional-investment-drop",
+      "headline": "Инвестиции в основной капитал в регионах России показали максимальный спад за десять лет",
+      "context": "В первом полугодии 2026 года показатель снизился на 9,9% в годовом выражении, сокращение зафиксировано в 62 субъектах РФ.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/307114"
+        }
+      ],
+      "published_at": "2026-09-29T08:19:00+03:00"
+    },
+    {
+      "id": "iran-npt-exit-bill",
+      "headline": "Парламент Ирана рассмотрит в срочном порядке законопроект о выходе из Договора о нераспространении ядерного оружия",
+      "context": "Законопроект подготовлен на фоне обострения геополитической ситуации в регионе Ближнего Востока.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1119049"
+        }
+      ],
+      "published_at": "2026-09-29T03:29:00+03:00"
+    },
+    {
+      "id": "gazprom-shares-drop-dividend-fears",
+      "headline": "Акции Газпрома снизились на вечерней сессии из за опасений инвесторов относительно дивидендных выплат",
+      "context": "Котировки компании упали на 2,8% на фоне ожиданий, что эмитент не вернется к выплате дивидендов в ближайшее время.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1118898"
+          "url": "https://www.interfax.ru/business/1119022"
         }
       ],
-      "published_at": "2026-09-28T13:59:00+03:00"
+      "published_at": "2026-09-28T21:54:00+03:00"
     },
     {
-      "id": "rgbi-drop",
-      "headline": "Индекс государственных облигаций RGBI снизился почти до отметки 111 пунктов",
-      "context": "Снижение индекса ОФЗ происходит на фоне ожиданий сохранения жесткой денежно-кредитной политики.",
-      "category": "markets",
+      "id": "taxes-on-metallurgists-budget",
+      "headline": "Власти России ожидают поступлений от налога на сверхприбыль металлургов в размере двухсот миллиардов рублей ежегодно",
+      "context": "Данный прогноз заложен в материалы к проекту федерального бюджета на 2027–2029 годы.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/28/1232354-indeks-gosobligatsii"
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/386708"
         }
       ],
-      "published_at": "2026-09-28T13:14:00+03:00"
+      "published_at": "2026-09-28T20:25:00+03:00"
     },
     {
-      "id": "alrosa-production",
-      "headline": "Добыча алмазов АЛРОСА в первом полугодии 2026 года снизилась на 0,8 процента",
-      "context": "Показатель составил 11,8 млн каратов против 11,9 млн каратов за аналогичный период прошлого года.",
+      "id": "magnet-repo-extension",
+      "headline": "Акции Магнита снизились на фоне продления договора РЕПО до апреля две тысячи двадцать седьмого года",
+      "context": "Дочерняя структура ритейлера АО Тандер продлила договор РЕПО на 3,8 млн акций компании.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/28/1232376-alrosa-snizila-dobichu"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8988991"
         }
       ],
-      "published_at": "2026-09-28T12:06:00+03:00"
-    },
+      "published_at": "2026-09-28T20:17:00+03:00"
+    }
+  ],
+  "yesterday": [
     {
-      "id": "budget-revenues",
-      "headline": "Счетная палата ожидает нефтегазовые доходы бюджета в 2026 году на 18 процентов ниже плана",
-      "context": "Разрыв с планом составит 1,6 трлн рублей из-за более крепкого курса рубля и затрат на логистику.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
+      "id": "sova-capital-mcb-deal",
+      "headline": "Путин разрешил Московскому кредитному банку сделки с акциями российских компаний из портфеля Sova Capital",
+      "context": "Распоряжение позволяет проводить операции с принадлежащими британской компании пакетами акций Газпрома, Роснефти, Норникеля и других эмитентов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
-          "name": "Telegram-канал InvestFuture",
-          "url": "https://t.me/if_market_news/85516"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1118954"
         }
       ],
-      "published_at": "2026-09-28T09:43:00+03:00"
+      "published_at": "2026-09-28T17:34:00+03:00"
     },
     {
-      "id": "uav-moratorium",
-      "headline": "Правительство России ввело годовой мораторий на проверки пострадавшего от атак беспилотников бизнеса",
-      "context": "Мера вступает в силу 28 сентября 2026 года и будет действовать до 1 октября 2027 года.",
+      "id": "diesel-export-ban-extension",
+      "headline": "Правительство России готовит продление запрета на экспорт дизельного топлива до конца октября",
+      "context": "Ограничительные меры планируется продлить еще на один месяц для обеспечения стабильности внутреннего рынка.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8988307"
+          "url": "https://www.kommersant.ru/doc/8988873"
         }
       ],
-      "published_at": "2026-09-28T09:26:00+03:00"
+      "published_at": "2026-09-28T17:57:00+03:00"
     },
     {
-      "id": "sme-loans",
-      "headline": "Российские банки ожидают ухудшения качества кредитов малому и среднему бизнесу из-за налогов и ставок",
-      "context": "Ухудшение прогнозируют 63% опрошенных руководителей банков на фоне роста налоговой нагрузки и высокой ключевой ставки.",
-      "category": "banks",
+      "id": "te-info-restriction-decree",
+      "headline": "Путин подписал указ об ограничении доступа к информации в сфере топливно энергетического комплекса",
+      "context": "Под ограничения попали данные об экспорте энергоресурсов, объемах переработки нефти и показателях производства нефтепродуктов.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1118947"
+        }
+      ],
+      "published_at": "2026-09-28T16:54:00+03:00"
+    },
+    {
+      "id": "metro-temporary-management",
+      "headline": "Президент России передал активы торговой сети Metro во временное управление компании УК Торг Рус",
+      "context": "Решение принято в целях обеспечения безопасности инфраструктуры и непрерывности бизнес-процессов ритейлера в стране.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8988793"
+        }
+      ],
+      "published_at": "2026-09-28T16:24:00+03:00"
+    },
+    {
+      "id": "nvidia-record-buyback",
+      "headline": "Американская корпорация Nvidia объявила о расширении программы обратного выкупа акций до рекордных значений",
+      "context": "Программа buyback увеличена на 150 млрд долларов, в результате чего ее общий объем достиг 235 млрд долларов.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118938"
+        }
+      ],
+      "published_at": "2026-09-28T16:09:00+03:00"
+    },
+    {
+      "id": "sber-omk-microelectronics",
+      "headline": "Дочерняя структура Сбера стала базовым юридическим лицом Объединенной микроэлектронной компании",
+      "context": "Компания Интегральные системы консолидирует ресурсы для финансирования крупных проектов в сфере производства микросхем и машиностроения.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/technology/news/2026/09/28/1232395-sozdast-obedinennuyu"
+        }
+      ],
+      "published_at": "2026-09-28T14:19:00+03:00"
+    },
+    {
+      "id": "otp-bank-exit-russia",
+      "headline": "Венгерский OTP Bank рассматривает возможность полного ухода с российского рынка до конца года",
+      "context": "Руководство группы связывает пересмотр стратегии с интересом к Балтийскому региону и ограничениями на вывод дивидендов.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/306994"
+        }
+      ],
+      "published_at": "2026-09-28T13:58:00+03:00"
+    },
+    {
+      "id": "western-union-russia-sale",
+      "headline": "Путин разрешил компании Софтэкс приобрести российскую дочернюю структуру платежной системы Western Union",
+      "context": "Соответствующее распоряжение президента опубликовано на официальном портале правовой информации.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1118946"
+        }
+      ],
+      "published_at": "2026-09-28T16:39:00+03:00"
+    },
+    {
+      "id": "sberbank-qr-laos-cambodia",
+      "headline": "Сбербанк запустил сервис оплаты покупок по QR кодам в Лаосе и Камбодже",
+      "context": "Сумма операции при оплате через мобильное приложение будет автоматически конвертироваться в российские рубли.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/307024"
+        }
+      ],
+      "published_at": "2026-09-28T16:20:00+03:00"
+    },
+    {
+      "id": "alrosa-production-1h2026",
+      "headline": "Компания Алроса незначительно снизила добычу алмазов в первом полугодии две тысячи двадцать шестого года",
+      "context": "Объем добычи сократился на 0,8% в годовом выражении и составил 11,8 млн каратов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/28/1232376-alrosa-snizila-dobichu"
+        }
+      ],
+      "published_at": "2026-09-28T13:47:00+03:00"
+    },
+    {
+      "id": "sme-credit-quality-banks",
+      "headline": "Российские банки ожидают ухудшения качества кредитов малому и среднему бизнесу из за налогов",
+      "context": "Согласно опросу Б1, рост кредитного риска прогнозируют 63% банков на фоне повышения налоговой нагрузки и высокой ставки.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/306878"
         }
       ],
-      "published_at": "2026-09-28T07:55:00+03:00"
+      "published_at": "2026-09-28T07:47:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-09-25"
+    "last_trading_day": "2026-09-28"
   }
 }
