@@ -1,8 +1,8 @@
 {
   "date": "2026-09-30",
-  "generated_at": "2026-09-30T11:59:48+03:00",
+  "generated_at": "2026-09-30T13:46:19+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы закрылись снижением, азиатские рынки растут, нефть марки Brent снизилась, золото подорожало.",
+  "external_backdrop": "Американские индексы и нефть Brent снизились, в то время как азиатские рынки и золото продемонстрировали рост.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -34,194 +34,249 @@
     },
     {
       "name": "Brent",
-      "value": "96.44",
-      "change_pct": "-5.99%",
+      "value": "97.20",
+      "change_pct": "-5.25%",
       "as_of": "2026-09-30",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4228.70",
-      "change_pct": "+1.17%",
+      "value": "4219.00",
+      "change_pct": "+0.94%",
       "as_of": "2026-09-30",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2261.25",
-      "change_pct": "-0.07%",
-      "as_of": "2026-09-30 11:59:44",
+      "value": "2251.18",
+      "change_pct": "-0.51%",
+      "as_of": "2026-09-30 13:46:16",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "843.73",
-      "change_pct": "-0.07%",
-      "as_of": "2026-09-30 11:59:45",
+      "value": "839.97",
+      "change_pct": "-0.51%",
+      "as_of": "2026-09-30 13:46:17",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.66",
-      "change_pct": "+0.13%",
-      "as_of": "2026-09-30 11:59:46",
+      "value": "84.20",
+      "change_pct": "-0.22%",
+      "as_of": "2026-09-30 13:46:17",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.54",
-      "change_pct": "+0.61%",
-      "as_of": "2026-09-30 11:59:47",
+      "value": "12.48",
+      "change_pct": "+0.13%",
+      "as_of": "2026-09-30 13:46:18",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "govt-diesel-export-ban",
-      "headline": "Правительство продлило временный запрет на экспорт дизельного топлива до 31 октября",
-      "context": "Ограничение касается дизельного и судового топлива, а также газойлей, вывозимых непосредственными производителями.",
-      "category": "macro",
-      "investment_relevant": true,
+      "id": "kremlin-denies-sanctions-swap",
+      "headline": "Кремль опроверг обсуждение с США смягчения санкций в обмен на освобождение заключенных",
+      "context": "Пресс-секретарь президента Дмитрий Песков заявил, что в России нет политзаключенных, поэтому подобная тема не обсуждалась.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6ab8e01afab500b7ff519f94"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1119360"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8990366"
+        }
+      ],
+      "published_at": "2026-09-30T12:58:00+03:00"
+    },
+    {
+      "id": "diesel-export-ban-extended",
+      "headline": "Правительство России продлило временный запрет на экспорт дизельного топлива до 31 октября",
+      "context": "Ограничение также распространяется на судовое топливо и газойли, вывозимые непосредственными производителями.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1357234.php"
+        },
+        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/09/30/1232976-zapret-na-export"
+          "url": "https://www.vedomosti.ru/business/news/2026/09/30/1232976-zapret-na-eksport"
         },
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/russia/1119311"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8990184"
         }
       ],
-      "published_at": "2026-09-30T10:12:00+03:00"
+      "published_at": "2026-09-30T10:00:00+03:00"
     },
     {
-      "id": "zaimer-dividends-approved",
-      "headline": "Акционеры микрофинансовой компании Займер утвердили дивиденды за второй квартал",
-      "context": "Выплата составит 4,86 рубля на акцию, дата закрытия реестра для получения выплат установлена на 10 октября 2026 года.",
+      "id": "mdmg-dividend-recommendation",
+      "headline": "Совет директоров МД Медикал Груп рекомендовал дивиденды за первое полугодие в размере 38 рублей",
+      "context": "Дивидендная доходность оценивается примерно в 3%, реестр акционеров закроется 19 октября.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1357291.php"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/30/1233032-sovet-direktorov"
+        }
+      ],
+      "published_at": "2026-09-30T12:05:00+03:00"
+    },
+    {
+      "id": "zaimer-dividend-approved",
+      "headline": "Акционеры микрофинансовой компании Займер утвердили дивиденды за второй квартал в размере 4,86 рубля",
+      "context": "На выплаты будет направлено 100% чистой прибыли за отчетный период, дата закрытия реестра — 10 октября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8990348"
+        },
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/09/30/1232980-zaimer-dividendov"
         }
       ],
-      "published_at": "2026-09-30T10:47:00+03:00"
+      "published_at": "2026-09-30T10:23:00+03:00"
     },
     {
-      "id": "cb-cash-deposit-control",
-      "headline": "Банк России готовит рекомендации по ужесточению контроля за внесением наличных на счета",
-      "context": "Меры связаны с противодействием использованию криптовалютных инструментов для незаконных операций.",
-      "category": "cb_policy",
-      "investment_relevant": true,
+      "id": "fas-fuel-market-cases",
+      "headline": "Федеральная антимонопольная служба возбудила 58 дел против участников топливного рынка из-за цен",
+      "context": "Дела возбуждены в отношении ряда нефтяных компаний и независимых АЗС по признакам нарушения закона о защите конкуренции.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/28/08/2021/6129eaed9a7947ce403df99a"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8990122"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1119293"
         }
       ],
-      "published_at": "2026-09-30T10:40:00+03:00"
+      "published_at": "2026-09-30T09:00:00+03:00"
     },
     {
       "id": "sberbank-forbes-profit-rating",
-      "headline": "Сбербанк второй год подряд возглавил рейтинг самых прибыльных компаний России по версии Forbes",
-      "context": "Чистая прибыль банка за 2025 год выросла на 7,9% и составила 1,7 триллиона рублей.",
-      "category": "corporate",
+      "headline": "Сбербанк вновь возглавил рейтинг ста самых прибыльных компаний России по версии Forbes",
+      "context": "Чистая прибыль банка за 2025 год выросла на 7,9% и составила 1,7 трлн рублей.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Forbes",
-          "url": ""
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8990089"
         },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/307324"
         }
       ],
-      "published_at": "2026-09-30T09:44:00+03:00"
+      "published_at": "2026-09-30T08:11:00+03:00"
     },
     {
-      "id": "russia-oil-export-revenue-record",
-      "headline": "Недельная выручка России от экспорта нефти достигла рекордных с начала 2022 года 2,75 миллиарда долларов",
-      "context": "Рост показателя зафиксирован на фоне увеличения мировых цен на энергоносители.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": ""
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8990087"
-        }
-      ],
-      "published_at": "2026-09-30T08:05:00+03:00"
-    },
-    {
-      "id": "inflation-expectations-rise",
-      "headline": "Инфляционные ожидания населения России в сентябре выросли на 0,5 процентного пункта до 14,2%",
-      "context": "По данным Банка России, у респондентов со сбережениями показатель увеличился до 12,8%.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Банк России",
-          "url": ""
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8990028"
-        }
-      ],
-      "published_at": "2026-09-30T02:19:00+03:00"
-    },
-    {
-      "id": "us-spr-oil-release",
-      "headline": "Министерство энергетики США высвободит до 40 миллионов баррелей нефти из стратегического резерва",
-      "context": "Решение принято для стабилизации цен на топливо в условиях конфликта на Ближнем Востоке.",
+      "id": "pif-outflow-tax-news",
+      "headline": "Инвесторы вывели из паевых инвестиционных фондов рекордные 2,7 миллиарда рублей за один день",
+      "context": "Разовый отток произошел на фоне новостей о планах Минфина ввести новые налоги для ПИФов.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Bloomberg",
-          "url": ""
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/307321"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1357163.php"
+        }
+      ],
+      "published_at": "2026-09-30T07:08:00+03:00"
+    },
+    {
+      "id": "us-spr-oil-release",
+      "headline": "Министерство энергетики США объявило о высвобождении сорока миллионов баррелей нефти из стратегического резерва",
+      "context": "Объем будет предоставлен в кредит энергетическим компаниям для стабилизации цен на фоне конфликта на Ближнем Востоке.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386893"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/29/1232884-ssha-visvobodyat-barrelei"
         },
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/8989923"
         }
       ],
-      "published_at": "2026-09-29T20:29:00+03:00"
+      "published_at": "2026-09-29T18:58:00+03:00"
     },
     {
-      "id": "severstal-vtb-lawsuit",
-      "headline": "Северсталь подала иск к банку ВТБ на сумму 1,84 миллиарда рублей",
-      "context": "Заявление направлено в Арбитражный суд Москвы, третьим лицом по спору привлечен Минпромторг.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "flydubai-emergency-landing",
+      "headline": "Самолет авиакомпании Flydubai экстренно приземлился в Саудовской Аравии из-за драки пилотов на борту",
+      "context": "Власти Израиля расследуют инцидент, в ходе которого самолет резко потерял высоту, в том числе как попытку теракта.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8989914"
+          "url": "https://www.kommersant.ru/doc/8990175"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/09/30/1232971-samolet-flydubai"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1119310"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/30/09/2026/6abcb46837658303ba289a16"
         }
       ],
-      "published_at": "2026-09-29T20:04:00+03:00"
+      "published_at": "2026-09-30T09:52:00+03:00"
     }
   ],
   "yesterday": [
     {
       "id": "samolet-technical-default",
-      "headline": "Девелопер Самолет допустил технический дефолт по облигациям из-за задержки расчетов с депозитарием",
-      "context": "Компания перевела средства вовремя, но из-за технических причин часть денег зачислена на день позже.",
+      "headline": "Девелопер Самолет допустил технический дефолт по выплате купона из-за поздних расчетов с депозитарием",
+      "context": "Компания перевела средства 28 сентября, однако из-за технических задержек НРД зафиксировал полное погашение только на следующий день.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -238,9 +293,9 @@
       "published_at": "2026-09-29T17:08:00+03:00"
     },
     {
-      "id": "court-seizes-rusagro-shares",
-      "headline": "Суд взыскал в доход государства около 8 миллионов акций группы Русагро у родственников основателя",
-      "context": "Решение вынесено Хамовническим судом Москвы в рамках антикоррупционного иска Генеральной прокуратуры.",
+      "id": "rusagro-shares-confiscated",
+      "headline": "Суд взыскал в доход государства около восьми миллионов акций Русагро и миллиарды рублей",
+      "context": "Решение вынесено по антикоррупционному иску Генпрокуратуры к бывшему гендиректору Максиму Басову и родственникам основателя компании.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -251,38 +306,141 @@
         },
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/society/news/2026/09/29/1232823-sud-vzischal"
+          "url": "https://www.vedomosti.ru/society/news/2026/09/29/1232823-sud-vziskal"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8989778"
         }
       ],
-      "published_at": "2026-09-29T16:41:00+03:00"
+      "published_at": "2026-09-29T16:54:00+03:00"
     },
     {
-      "id": "putin-cash-export-limit",
-      "headline": "Президент России ужесточил правила вывоза наличных рублей в страны ближнего зарубежья",
-      "context": "Физическим лицам запрещено вывозить наличные рубли в страны ЕАЭС и ряд других государств СНГ в объеме свыше 1 миллиона рублей.",
+      "id": "putin-ruble-export-limit",
+      "headline": "Президент России Владимир Путин ограничил вывоз наличных рублей в страны ближнего зарубежья",
+      "context": "Физическим лицам запрещено вывозить более 1 млн рублей в страны ЕАЭС, Азербайджан, Таджикистан и Узбекистан.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1119145"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8989504"
         },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/307216"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/09/29/1232700-ogranichil-vivoz-rublei"
         }
       ],
       "published_at": "2026-09-29T13:03:00+03:00"
     },
     {
-      "id": "vtb-net-profit-august",
-      "headline": "Чистая прибыль группы ВТБ в августе выросла в два раза до 49,2 миллиарда рублей",
-      "context": "За восемь месяцев 2026 года чистая прибыль по МСФО снизилась на 4% до 314,8 миллиарда рублей.",
+      "id": "cb-drone-protection-benefits",
+      "headline": "Банк России ввел льготные коэффициенты риска по кредитам на защиту инфраструктуры от беспилотников",
+      "context": "Пониженные риск-веса составят 30% для заемщиков инвестиционного класса и 50% для остальных компаний до конца года.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/307303"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/09/29/1232866-tsb-razreshil"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1119214"
+        }
+      ],
+      "published_at": "2026-09-29T18:24:00+03:00"
+    },
+    {
+      "id": "samara-share-reduction",
+      "headline": "Казахстанский инвестиционный фонд Fonte Inceptia Alpha Fund сократил долю в группе Самолет до пяти процентов",
+      "context": "Фонд снизил свое участие с 15% менее чем через два месяца после приобретения пакета акций у наследников соучредителя.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386839"
+        }
+      ],
+      "published_at": "2026-09-29T14:45:00+03:00"
+    },
+    {
+      "id": "yandex-share-issue-motivation",
+      "headline": "Яндекс проведет в ноябре дополнительную эмиссию одиннадцати миллионов акций для программы мотивации сотрудников",
+      "context": "Объем размещения составит около 2,8% уставного капитала, при этом компания снизила среднегодовой ориентир выпуска до 1%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8989585"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232688-vipusk-aktsii"
+        }
+      ],
+      "published_at": "2026-09-29T13:07:00+03:00"
+    },
+    {
+      "id": "tgk1-share-issue-plan",
+      "headline": "Акционеры ТГК-1 рассмотрят вопрос о допэмиссии акций для увеличения уставного капитала почти вдвое",
+      "context": "Внеочередное собрание акционеров назначено на 20 октября, оплата акций допускается бумагами МОЭК и Петербургтеплоэнерго.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/386804"
+        }
+      ],
+      "published_at": "2026-09-29T13:04:00+03:00"
+    },
+    {
+      "id": "vseinstrumenti-buyback-approved",
+      "headline": "Совет директоров ВсеИнструменты ру одобрил программу обратного выкупа акций на пятьсот миллионов рублей",
+      "context": "Выкуп запланирован на период с 1 ноября 2026 года по 31 декабря 2027 года, акции компании снизились на 5%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232651-viru-odobril-baibek"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8989642"
+        }
+      ],
+      "published_at": "2026-09-29T11:13:00+03:00"
+    },
+    {
+      "id": "vtb-eight-month-profit",
+      "headline": "Чистая прибыль группы ВТБ за восемь месяцев сократилась на четыре процента в годовом выражении",
+      "context": "За отчетный период банк заработал 314,8 млрд рублей чистой прибыли по МСФО, активы группы выросли на 5,8%.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8989040"
+        },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/307012"
@@ -292,147 +450,49 @@
           "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232615-pribil-vtb"
         }
       ],
-      "published_at": "2026-09-29T09:59:00+03:00"
+      "published_at": "2026-09-29T10:00:00+03:00"
     },
     {
-      "id": "sberbank-rossiya-eurotrans-bankruptcy",
-      "headline": "Сбербанк и банк Россия повторно уведомили о намерении обратиться в суд с заявлением о банкротстве Евротранса",
-      "context": "Соответствующие уведомления опубликованы в Едином федеральном реестре сведений о фактах деятельности юрлиц.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232869-obankrotit-evrotrans"
-        }
-      ],
-      "published_at": "2026-09-29T18:43:00+03:00"
-    },
-    {
-      "id": "cb-infrastructure-protection-loans",
-      "headline": "Банк России ввел льготные коэффициенты риска по кредитам на защиту критической инфраструктуры от беспилотников",
-      "context": "Пониженные риск-веса составят 30% для заемщиков инвестиционного класса и 50% для остальных компаний.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Банк России",
-          "url": ""
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/307303"
-        }
-      ],
-      "published_at": "2026-09-29T18:42:00+03:00"
-    },
-    {
-      "id": "rushydro-1h-2026-results",
-      "headline": "Чистая прибыль РусГидро по МСФО в первом полугодии выросла на 90,1% до 60,1 миллиарда рублей",
-      "context": "Выручка компании увеличилась на 18,9% и составила 387,2 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РусГидро",
-          "url": ""
-        }
-      ],
-      "published_at": "2026-09-29T17:25:00+03:00"
-    },
-    {
-      "id": "yandex-share-issue-motivation",
-      "headline": "Яндекс планирует провести в ноябре допэмиссию 11 миллионов акций для программы мотивации сотрудников",
-      "context": "Объем дополнительного размещения соответствует примерно 2,8% уставного капитала компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1119142"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8989585"
-        }
-      ],
-      "published_at": "2026-09-29T13:07:00+03:00"
-    },
-    {
-      "id": "vi-ru-buyback-approved",
-      "headline": "Совет директоров ВсеИнструменты.ру одобрил программу обратного выкупа акций на сумму до 500 миллионов рублей",
-      "context": "Выкуп акций планируется провести в период с 1 ноября 2026 года по 31 декабря 2027 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/29/1232651-viru-odobril-baibek"
-        }
-      ],
-      "published_at": "2026-09-29T11:13:00+03:00"
-    },
-    {
-      "id": "regions-investment-drop",
-      "headline": "Инвестиции в основной капитал в регионах России снизились на 9,9% в первом полугодии",
-      "context": "Аналитики Национального рейтингового агентства связали спад с сокращением государственного финансирования.",
+      "id": "regional-investment-slump",
+      "headline": "Инвестиции в основной капитал в регионах России показали худший спад за последнее десятилетие",
+      "context": "В первом полугодии показатель снизился на 9,9% в годовом выражении, падение зафиксировано в 62 субъектах страны.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": ""
-        },
-        {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/307114"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://t.me/frank_media/24112"
         }
       ],
       "published_at": "2026-09-29T08:19:00+03:00"
     },
     {
-      "id": "ofac-euroclear-unblocking-rejections",
-      "headline": "Минфин США начал отказывать российским инвесторам в разблокировке активов в депозитарии Euroclear",
-      "context": "Регулятор ссылается на ужесточение санкций в рамках иранской программы и ограничения против ВТБ.",
-      "category": "geopolitics",
-      "investment_relevant": true,
+      "id": "ofac-euroclear-unblocking-refusals",
+      "headline": "Управление по контролю за иностранными активами США начало отказывать российским инвесторам в разблокировке активов",
+      "context": "Отрицательные решения выносятся со ссылкой на новые санкции против Ирана и включение ВТБ в санкционный список.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "РБК",
-          "url": ""
+          "url": "https://t.me/if_market_news/85550"
         },
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/307115"
-        }
-      ],
-      "published_at": "2026-09-29T07:52:00+03:00"
-    },
-    {
-      "id": "otp-group-russia-exit",
-      "headline": "Венгерская группа OTP рассматривает возможность полного сворачивания банковского бизнеса в России",
-      "context": "В компании подтвердили пересмотр стратегии из-за сложностей с выводом дивидендов.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": ""
         },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8989122"
+          "url": "https://www.kommersant.ru/doc/8989180"
         }
       ],
-      "published_at": "2026-09-29T06:06:00+03:00"
+      "published_at": "2026-09-29T07:52:00+03:00"
     }
   ],
   "today_agenda": [],
