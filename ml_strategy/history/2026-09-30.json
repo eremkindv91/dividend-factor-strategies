@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-01T01:45:20+00:00",
+  "generated_at": "2026-10-01T15:11:09+00:00",
   "data_as_of": "2026-09-30",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-09-30-ff3fe790-e25a3316",
+    "run_id": "2026-09-30-c2c10a1a-e25a3316",
     "as_of": "2026-09-30",
-    "calculated_at": "2026-10-01T01:45:20+00:00",
-    "model_version": "elastic_net:ff3fe7901d247baf",
-    "artifact_hash": "ff3fe7901d247baf",
+    "calculated_at": "2026-10-01T15:11:09+00:00",
+    "model_version": "elastic_net:c2c10a1a7dd2f6fb",
+    "artifact_hash": "c2c10a1a7dd2f6fb",
     "universe_version": "d7ee63bd9ce8137e",
     "features_version": "4ce4b18eb12e9fac",
     "constraints_hash": "e25a33166a958b0b",
@@ -31,11 +31,11 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-09-30-ff3fe790-e25a3316",
+    "run_id": "2026-09-30-c2c10a1a-e25a3316",
     "as_of": "2026-09-30",
-    "calculated_at": "2026-10-01T01:45:20+00:00",
-    "model_version": "elastic_net:ff3fe7901d247baf",
-    "artifact_hash": "ff3fe7901d247baf",
+    "calculated_at": "2026-10-01T15:11:09+00:00",
+    "model_version": "elastic_net:c2c10a1a7dd2f6fb",
+    "artifact_hash": "c2c10a1a7dd2f6fb",
     "universe_version": "d7ee63bd9ce8137e",
     "features_version": "4ce4b18eb12e9fac",
     "constraints_hash": "e25a33166a958b0b",
@@ -197,7 +197,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-10-01T01:39:23.905912+00:00"
+    "last_checked_at": "2026-10-01T15:03:56.743143+00:00"
   },
   "diagnostics": {
     "predictive_gate": {

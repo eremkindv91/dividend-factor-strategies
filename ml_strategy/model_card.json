@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T01:45:20+00:00",
+  "generated_at": "2026-10-01T15:11:09+00:00",
   "champion": {
     "name": "elastic_net",
     "status": "research_only",
@@ -8,6 +8,16 @@
     "portfolio_gate": "after_cost_excess_positive_and_sharpe_positive"
   },
   "challengers": [
+    {
+      "name": "lightgbm",
+      "status": "EVALUATED",
+      "reason": null
+    },
+    {
+      "name": "catboost",
+      "status": "EVALUATED",
+      "reason": null
+    },
     {
       "name": "PatchTST",
       "status": "BLOCKED",
