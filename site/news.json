@@ -1,404 +1,208 @@
 {
-  "date": "2026-10-03",
-  "generated_at": "2026-10-03T15:38:10+03:00",
+  "date": "2026-10-05",
+  "generated_at": "2026-10-05T12:35:39+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, азиатские рынки снижаются, нефть марки Brent торгуется на уровне 102,25 доллара за баррель.",
+  "external_backdrop": "Американские и азиатские индексы закрылись ростом, золото дорожает, в то время как нефть марки Brent демонстрирует умеренное снижение.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7722.72",
       "change_pct": "+0.73%",
-      "as_of": "02.10.2026",
+      "as_of": "2026-10-02",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "27190.86",
       "change_pct": "+1.19%",
-      "as_of": "02.10.2026",
+      "as_of": "2026-10-02",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "68309.46",
-      "change_pct": "-0.94%",
-      "as_of": "02.10.2026",
+      "value": "69946.86",
+      "change_pct": "+2.40%",
+      "as_of": "2026-10-05",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23972.29",
-      "change_pct": "-2.60%",
-      "as_of": "02.10.2026",
+      "value": "24040.34",
+      "change_pct": "+0.28%",
+      "as_of": "2026-10-05",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "102.25",
-      "change_pct": "-0.06%",
-      "as_of": "02.10.2026",
+      "value": "101.89",
+      "change_pct": "-0.35%",
+      "as_of": "2026-10-05",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4162.30",
-      "change_pct": "-0.95%",
-      "as_of": "02.10.2026",
+      "value": "4195.70",
+      "change_pct": "+0.80%",
+      "as_of": "2026-10-05",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2286.42",
-      "change_pct": "+0.40%",
-      "as_of": "03.10.2026",
+      "value": "2307.68",
+      "change_pct": "+1.34%",
+      "as_of": "2026-10-05 12:35:36",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "862.77",
-      "change_pct": "+0.40%",
-      "as_of": "03.10.2026",
+      "value": "870.74",
+      "change_pct": "+1.33%",
+      "as_of": "2026-10-05 12:35:37",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.41",
-      "change_pct": "+0.73%",
-      "as_of": "02.10.2026",
+      "value": "85.45",
+      "change_pct": "+0.01%",
+      "as_of": "2026-10-05 12:35:37",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.50",
-      "change_pct": "+0.67%",
-      "as_of": "02.10.2026",
+      "value": "12.66",
+      "change_pct": "-0.01%",
+      "as_of": "2026-10-05 12:35:38",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-russia-lukoil-talks",
-      "headline": "США и Россия обсуждают сделку по продаже зарубежных активов Лукойла американским и ближневосточным инвесторам",
-      "context": "По данным The New York Times, сделка по активам Лукойла может стать частью переговоров по урегулированию конфликта на Украине.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6aad521cb6f74b61be20fca5"
-        }
-      ],
-      "published_at": "2026-10-03T13:51:00+03:00"
-    },
-    {
-      "id": "trump-no-diesel-export-ban",
-      "headline": "Дональд Трамп отказался от планов введения запрета на экспорт дизельного топлива из США",
-      "context": "Президент США заявил, что страна продолжит экспортные поставки дизеля на фоне высвобождения резервов странами Европы.",
+      "id": "minfin-fx-purchases-increase",
+      "headline": "Минфин России увеличит ежедневные покупки валюты и золота до двенадцати миллиардов рублей",
+      "context": "С 7 октября по 6 ноября ведомство направит на эти цели 279,42 млрд рублей на фоне роста нефтегазовых доходов.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005247"
-        }
-      ],
-      "published_at": "2026-10-02T23:42:00+03:00"
-    },
-    {
-      "id": "fuel-sales-exchange-normative",
-      "headline": "Правительство разрешило учитывать продажи топлива на АЗС с предельными ценами в биржевом нормативе",
-      "context": "Мера будет действовать до конца 2026 года для производителей бензина и дизельного топлива.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120118"
+          "url": "https://www.interfax.ru/business/1120386"
         }
       ],
-      "published_at": "2026-10-03T12:59:00+03:00"
+      "published_at": "2026-10-05T12:00:00+03:00"
     },
     {
-      "id": "gazprom-baltic-gas-reserves",
-      "headline": "Газпром сообщил о достижении исторического минимума запасов газа в единственном ПХГ Прибалтики",
-      "context": "На 1 октября уровень заполненности Инчукалнского подземного хранилища в Латвии оказался рекордно низким для этой даты.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005621"
-        }
-      ],
-      "published_at": "2026-10-03T12:34:00+03:00"
-    },
-    {
-      "id": "samolet-technical-default",
-      "headline": "Девелопер Самолет допустил технический дефолт по облигациям сроком на один день",
-      "context": "Рынок долговых обязательств зафиксировал краткосрочное неисполнение обязательств эмитентом в период с 28 сентября по 2 октября.",
+      "id": "opec-quotas-november-unchanged",
+      "headline": "Семерка стран ОПЕК плюс приняла решение сохранить действующие квоты на добычу нефти",
+      "context": "Ограничения продлены на ноябрь 2026 года, квота для России составит 9,949 млн баррелей в сутки.",
       "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/308150"
-        }
-      ],
-      "published_at": "2026-10-03T11:00:00+03:00"
-    },
-    {
-      "id": "trump-strategic-oil-reserves",
-      "headline": "Президент США Дональд Трамп анонсировал скорое начало восполнения стратегических запасов нефти",
-      "context": "Заявление прозвучало на фоне решения стран G7 высвободить до 100 млн баррелей нефти и дизеля из резервов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005544"
-        }
-      ],
-      "published_at": "2026-10-03T04:46:00+03:00"
-    },
-    {
-      "id": "pvz-cadastral-tax-proposal",
-      "headline": "Пункты выдачи заказов маркетплейсов планируют облагать налогом на имущество исходя из кадастровой стоимости",
-      "context": "Поправки в Налоговый кодекс, приравнивающие ПВЗ к торговым центрам и офисам, внесены в Государственную думу.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1120035"
-        }
-      ],
-      "published_at": "2026-10-02T20:19:00+03:00"
-    },
-    {
-      "id": "us-steel-tariffs-russia",
-      "headline": "Министерство торговли США оставило в силе антидемпинговые пошлины на углеродистую сталь из России",
-      "context": "Ограничения также сохранены в отношении аналогичной металлургической продукции из Китая.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005226"
-        }
-      ],
-      "published_at": "2026-10-02T21:52:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "rspp-against-windfall-tax",
-      "headline": "Российский союз промышленников и предпринимателей выступил против введения налога на сверхдоходы горнодобывающих компаний",
-      "context": "РСПП направил возражения Минфину, указав на нарушение принципа налоговой стабильности до 2030 года.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005145"
-        }
-      ],
-      "published_at": "2026-10-02T18:22:00+03:00"
-    },
-    {
-      "id": "genproc-freedom-holding-turlov",
-      "headline": "Генеральная прокуратура России потребовала конфисковать активы основателя Freedom Holding Тимура Турлова",
-      "context": "Иск направлен на обращение в доход государства денежных средств и имущества на общую сумму в сотни миллионов долларов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1120000"
-        }
-      ],
-      "published_at": "2026-10-02T18:04:00+03:00"
-    },
-    {
-      "id": "g7-oil-reserves-release",
-      "headline": "Страны Большой семерки приняли решение высвободить из стратегических резервов сто миллионов баррелей топлива",
-      "context": "Интервенции дизельного топлива и сырой нефти будут осуществляться в течение четырех месяцев для снижения мировых цен.",
-      "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/10/02/1233907-g7-visvobodyat-nefti"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9005883"
         }
       ],
-      "published_at": "2026-10-02T18:01:00+03:00"
+      "published_at": "2026-10-04T14:51:00+03:00"
     },
     {
-      "id": "t-technologies-dividends-approved",
-      "headline": "Акционеры Т-Технологий утвердили выплату дивидендов за второй квартал в размере четырех рублей семидесяти копеек",
-      "context": "Общий объем направляемых на дивиденды средств составит 12,6 млрд рублей с закрытием реестра 12 октября.",
+      "id": "severstal-vtb-lawsuit-hearings",
+      "headline": "Суд назначил предварительные слушания по иску Северстали к банку ВТБ на миллиард рублей",
+      "context": "Предварительное заседание по спору о взыскании 1,8 млрд рублей назначено на 3 ноября 2026 года.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9004969"
-        }
-      ],
-      "published_at": "2026-10-02T15:32:00+03:00"
-    },
-    {
-      "id": "novatek-dividends-approved",
-      "headline": "Акционеры Новатэка утвердили промежуточные дивиденды за первое полугодие в размере тридцати пяти рублей пятидесяти копеек",
-      "context": "Общая сумма выплат составит 107,79 млрд рублей, дата закрытия реестра акционеров назначена на 12 октября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/8992031"
-        }
-      ],
-      "published_at": "2026-10-02T11:25:00+03:00"
-    },
-    {
-      "id": "government-dempfer-formula-changes",
-      "headline": "Правительство предложило повысить нормативные цены на топливо в формуле демпфера на два года",
-      "context": "Соответствующие поправки к Налоговому кодексу внесены в Государственную думу в составе бюджетного пакета.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120001"
-        }
-      ],
-      "published_at": "2026-10-02T18:24:00+03:00"
-    },
-    {
-      "id": "fosagro-yuan-bonds-placement",
-      "headline": "Химический холдинг ФосАгро открыл книгу заявок на облигации объемом два миллиарда триста миллионов юаней",
-      "context": "Срок обращения нового выпуска биржевых облигаций составит полтора года со ставкой купона 8,4% годовых.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005108"
-        }
-      ],
-      "published_at": "2026-10-02T17:41:00+03:00"
-    },
-    {
-      "id": "germany-sefe-reprivatization",
-      "headline": "Правительство Германии запустило процесс приватизации ранее национализированной бывшей дочерней структуры Газпрома",
-      "context": "Министерство экономики ФРГ объявило тендер на продажу компании Sefe, перешедшей под контроль государства.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1119994"
-        }
-      ],
-      "published_at": "2026-10-02T17:54:00+03:00"
-    },
-    {
-      "id": "russian-oil-tax-price-september",
-      "headline": "Рублевая налоговая цена российской нефти в сентябре достигла максимума с октября две тысячи двадцать третьего года",
-      "context": "Показатель составил 7 830 рублей за баррель, превысив первоначальный бюджетный ориентир на 44%.",
-      "category": "macro",
-      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1358458.php"
+          "url": "https://smart-lab.ru/blog/1359003.php"
         }
       ],
-      "published_at": "2026-10-02T17:24:00+03:00"
+      "published_at": "2026-10-05T12:30:00+03:00"
     },
     {
-      "id": "finam-us-stocks-sell-request",
-      "headline": "Брокер Финам рекомендовал клиентам закрыть позиции по ценным бумагам США на зарубежных биржах",
-      "context": "Уведомления получили более 20 клиентов, владеющих активами, приобретенными на площадках NYSE и NASDAQ.",
+      "id": "spb-exchange-neoassets-expansion",
+      "headline": "СПБ Биржа расширит линейку неоактивов на акции глобальных компаний с седьмого октября",
+      "context": "На торги будут добавлены 20 новых контрактов, общее количество неоактивов достигнет 65.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/02/1233829-finam-poprosil-prodat"
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/05/1234192"
         }
       ],
-      "published_at": "2026-10-02T15:17:00+03:00"
+      "published_at": "2026-10-05T09:32:00+03:00"
     },
     {
-      "id": "japan-new-sanctions-russia",
-      "headline": "Япония расширила санкционные списки против России за счет тридцати трех организаций и девяти граждан",
-      "context": "Ограничения также затронули четыре компании из ОАЭ и Турции и тридцать пять судов теневого флота.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9004800"
-        }
-      ],
-      "published_at": "2026-10-02T13:04:00+03:00"
-    },
-    {
-      "id": "real-estate-ndfl-progressive-scale",
-      "headline": "Доходы россиян от продажи недвижимости с две тысячи двадцать седьмого года обложат по прогрессивной шкале НДФЛ",
-      "context": "Ставка налога будет рассчитываться в диапазоне от 13% до 22% в зависимости от суммарного годового дохода гражданина.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9002823"
-        }
-      ],
-      "published_at": "2026-10-02T12:57:00+03:00"
-    },
-    {
-      "id": "government-tax-administration-bill",
-      "headline": "Правительство внесло в Государственную думу законопроект о реформе налогового администрирования и повышении штрафов",
-      "context": "Документ предусматривает расширение налогового мониторинга, изменение правил для КИК и учет расходов на защиту от БПЛА.",
-      "category": "cb_policy",
+      "id": "severstal-metal-consumption-decline",
+      "headline": "Потребление металла в России сократилось на шестнадцать процентов за восемь месяцев года",
+      "context": "По оценкам Северстали, восстановление спроса ожидается не ранее второй половины 2027 года из-за высоких ставок.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/24175"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006021"
         }
       ],
-      "published_at": "2026-10-02T08:34:00+03:00"
+      "published_at": "2026-10-05T01:33:00+03:00"
+    },
+    {
+      "id": "grain-railway-priority-increase",
+      "headline": "Власти повысили приоритет перевозок российского зерна по железной дороге до третьей категории",
+      "context": "Решение принято для стимулирования экспорта зерна на фоне сложностей с транспортировкой.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006014"
+        }
+      ],
+      "published_at": "2026-10-05T01:31:00+03:00"
+    },
+    {
+      "id": "microloan-average-size-growth",
+      "headline": "Средний размер микрозайма в России вырос на тридцать семь процентов за год",
+      "context": "Рост чека произошел на фоне ужесточения регулирования и снижения уровня одобрения заявок закредитованным клиентам.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/308214"
+        }
+      ],
+      "published_at": "2026-10-05T00:02:00+03:00"
+    },
+    {
+      "id": "vk-sells-intickets-stake",
+      "headline": "Компания VK продала сорокапроцентную долю в билетном операторе Интикетс",
+      "context": "Сделка подтверждена профильными источниками, покупатель и сумма сделки не раскрываются.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1358978.php"
+        }
+      ],
+      "published_at": "2026-10-04T21:11:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-10-02"
   }
 }
