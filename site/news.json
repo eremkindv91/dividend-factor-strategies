@@ -1,224 +1,404 @@
 {
-  "date": "2026-10-05",
-  "generated_at": "2026-10-05T14:52:19+03:00",
+  "date": "2026-10-06",
+  "generated_at": "2026-10-06T00:58:50+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и сырьевые товары демонстрируют положительную динамику, нефть Brent торгуется выше 102 долларов за баррель.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, азиатские рынки снижаются, нефть Brent торгуется на уровне 100.32 доллара за баррель.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7722.72",
-      "change_pct": "+0.73%",
-      "as_of": "закрытие 02.10",
+      "value": "7773.95",
+      "change_pct": "+0.66%",
+      "as_of": "закрытие 05.10",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "27190.86",
-      "change_pct": "+1.19%",
-      "as_of": "закрытие 02.10",
+      "value": "27477.31",
+      "change_pct": "+1.05%",
+      "as_of": "закрытие 05.10",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "69946.86",
-      "change_pct": "+2.40%",
-      "as_of": "05.10",
+      "value": "68309.46",
+      "change_pct": "-0.94%",
+      "as_of": "закрытие 02.10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24040.34",
-      "change_pct": "+0.28%",
-      "as_of": "05.10",
+      "value": "23972.29",
+      "change_pct": "-2.60%",
+      "as_of": "закрытие 02.10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "102.47",
-      "change_pct": "+0.22%",
-      "as_of": "05.10",
+      "value": "100.32",
+      "change_pct": "-1.89%",
+      "as_of": "закрытие 05.10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4185.90",
-      "change_pct": "+0.57%",
-      "as_of": "05.10",
+      "value": "4167.60",
+      "change_pct": "+0.13%",
+      "as_of": "закрытие 05.10",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2308.23",
-      "change_pct": "+1.36%",
-      "as_of": "14:52",
+      "value": "2321.57",
+      "change_pct": "+1.95%",
+      "as_of": "2026-10-05 23:50:03",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "871.00",
-      "change_pct": "+1.36%",
-      "as_of": "14:52",
+      "value": "861.11",
+      "change_pct": "+0.21%",
+      "as_of": "2026-10-05 23:50:03",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.79",
-      "change_pct": "-0.18%",
-      "as_of": "14:52",
+      "value": "85.81",
+      "change_pct": "+1.66%",
+      "as_of": "2026-10-05 23:55:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.71",
-      "change_pct": "+1.71%",
-      "as_of": "14:52",
+      "value": "12.75",
+      "change_pct": "+2.06%",
+      "as_of": "2026-10-05 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minfin-fx-purchases-october",
-      "headline": "Минфин России увеличит ежедневные покупки валюты и золота в пять раз до 12,7 млрд рублей",
-      "context": "Всего с 7 октября по 6 ноября на эти цели будет направлено 279,42 млрд рублей.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9006327"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120386"
-        }
-      ],
-      "published_at": "2026-10-05T12:00:00+03:00"
-    },
-    {
-      "id": "opec-clipping-november-quotas",
-      "headline": "Страны ОПЕК плюс приняли решение сохранить действующие квоты на добычу нефти в ноябре",
-      "context": "Семь стран-участниц соглашения, включая Россию и Саудовскую Аравию, продлили добровольные ограничения добычи.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120242"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9005883"
-        }
-      ],
-      "published_at": "2026-10-04T14:51:00+03:00"
-    },
-    {
-      "id": "mosexchange-marking-non-disclosure",
-      "headline": "Московская биржа промаркировала акции восьми эмитентов за неполное раскрытие информации",
-      "context": "Специальную пометку получили в том числе бумаги Совкомфлота, Сургутнефтегаза, Башнефти и НМТП.",
+      "id": "ingrad-delisting",
+      "headline": "Акционеры девелопера Инград приняли решение о прекращении публичного статуса и делистинге с Московской биржи",
+      "context": "Решение принято на внеочередном собрании акционеров компании, в свободном обращении находится менее двух процентов акций.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РИА Новости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-10-05T19:03:00+03:00"
+    },
+    {
+      "id": "houthis-attack-saudi",
+      "headline": "Йеменские хуситы атаковали ракетами аэропорт в Эр-Рияде и нефтеперерабатывающий завод компании Aramco",
+      "context": "Представитель группировки заявил об ударах по международному аэропорту имени короля Халида и объекту в Рабихе.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120397"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/05/10/2026/6ac375d99a7947356c7d9b9d"
+          "url": "https://www.interfax.ru/world/1120507"
         }
       ],
-      "published_at": "2026-10-05T14:08:00+03:00"
+      "published_at": "2026-10-06T00:04:00+03:00"
     },
     {
-      "id": "yemen-military-operation-bab-el-mandeb",
-      "headline": "Правительственные силы Йемена при поддержке Саудовской Аравии начали масштабную операцию против хуситов",
-      "context": "Военные установили контроль над районом Баб-эль-Мандебского пролива, что привело к остановке саудовского нефтепровода Восток-Запад после новых атак.",
+      "id": "patriot-park-director-detained",
+      "headline": "Генеральный директор парка Патриот Игорь Васильев задержан по уголовному делу о коррупции",
+      "context": "Васильев возглавил военно-патриотический парк в начале 2026 года, следствие намерено просить о его аресте.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/10/05/1234259-pravitelstvo-iemena"
-        },
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/387562"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006898"
         }
       ],
-      "published_at": "2026-10-05T13:29:00+03:00"
+      "published_at": "2026-10-05T23:55:00+03:00"
     },
     {
-      "id": "zabotkin-budget-inflation-rates",
-      "headline": "Зампред Банка России Алексей Заботкин заявил о соответствии параметров проекта бюджета июльскому прогнозу регулятора",
-      "context": "По его словам, стабилизация инфляции на целевом уровне потребует средней ключевой ставки в размере 10,5–12,5%.",
+      "id": "crypto-market-registration-ru",
+      "headline": "В России началась регистрация первых официальных участников криптовалютного рынка после изменения правил",
+      "context": "Первые заявки в Банк России подали коммерческие банки, для которых установлен лимит вложений в один процент от капитала.",
       "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-10-05T20:48:00+03:00"
+    },
+    {
+      "id": "oil-gas-revenues-september",
+      "headline": "Нефтегазовые доходы федерального бюджета России в сентябре составили четыреста пятьдесят два миллиарда рублей",
+      "context": "Поступления оказались на двадцать два процента ниже прошлогоднего показателя из-за временного лага в уплате налогов.",
+      "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1120408"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006838"
         }
       ],
-      "published_at": "2026-10-05T13:02:00+03:00"
+      "published_at": "2026-10-05T20:37:00+03:00"
     },
     {
-      "id": "t-technologies-crypto-license",
-      "headline": "Группа Т-Технологии направила в Банк России документы для допуска к работе на крипторынке",
-      "context": "Платформа Атомайз претендует на статус цифрового депозитария, а Т-Инвест лаб — на включение в реестр криптообменников.",
-      "category": "banks",
+      "id": "over-the-counter-usd-rate",
+      "headline": "Внебиржевой курс доллара США поднялся выше восьмидесяти пяти рублей впервые с сентября",
+      "context": "В ходе торгов курс доллара достигал отметки 85,37 рубля на фоне новостей об увеличении покупок валюты Минфином.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006803"
+        }
+      ],
+      "published_at": "2026-10-05T20:03:00+03:00"
+    },
+    {
+      "id": "us-strategic-petroleum-reserve",
+      "headline": "Стратегический резерв нефти в США сократился до минимального уровня с тысяча девятьсот восемьдесят второго года",
+      "context": "По данным Министерства энергетики США, за неделю запасы снизились до 283 миллионов баррелей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Минэнерго США",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-10-05T23:12:00+03:00"
+    },
+    {
+      "id": "moscow-airports-restrictions",
+      "headline": "Московские аэропорты Внуково и Домодедово ввели временные ограничения на использование воздушного пространства",
+      "context": "Росавиация сообщила, что авиагавани обслуживают рейсы по согласованию с соответствующими органами.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/moscow/1120509"
+        }
+      ],
+      "published_at": "2026-10-06T00:24:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "minfin-fx-purchases-increase",
+      "headline": "Минфин России увеличит ежедневные покупки валюты и золота в пять раз до двенадцати миллиардов рублей",
+      "context": "С 7 октября по 6 ноября ведомство направит на эти цели 279,42 млрд рублей, что эквивалентно 12,7 млрд рублей в день.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120386"
+        }
+      ],
+      "published_at": "2026-10-05T12:19:00+03:00"
+    },
+    {
+      "id": "unicredit-russian-business-sale",
+      "headline": "Президент России разрешил реорганизацию ЮниКредит Банка и продажу ста процентов его акций",
+      "context": "Распоряжение позволяет провести сделку по выкупу долей у итальянской группы UniCredit S.p.A.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/24209"
+        }
+      ],
+      "published_at": "2026-10-05T18:35:00+03:00"
+    },
+    {
+      "id": "minfin-rspp-compromise-tax",
+      "headline": "Минфин России и РСПП согласовали компромиссный вариант налога на сверхдоходы горнодобывающей отрасли",
+      "context": "По словам Антона Силуанова, новая редакция законопроекта позволит сгладить последствия резких ценовых всплесков для плательщиков.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120433"
+        }
+      ],
+      "published_at": "2026-10-05T15:29:00+03:00"
+    },
+    {
+      "id": "zabotkin-key-rate-forecast",
+      "headline": "Банк России прогнозирует среднюю ключевую ставку на уровне десяти процентов для стабилизации инфляции",
+      "context": "Зампред ЦБ Алексей Заботкин заявил, что средняя ставка в 10,5–12,5% в 2027 году позволит вернуть инфляцию к цели.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/10/05/1234292-zabotkin-dlya-stabilizatsii"
+        }
+      ],
+      "published_at": "2026-10-05T13:27:00+03:00"
+    },
+    {
+      "id": "sberbank-digital-depository-application",
+      "headline": "Сбербанк направил в Банк России заявку на получение статуса цифрового депозитария для криптовалют",
+      "context": "Статус позволит кредитной организации вести учет цифровых валют и обеспечивать их переход.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/85725"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006534"
         }
       ],
-      "published_at": "2026-10-05T12:39:00+03:00"
+      "published_at": "2026-10-05T15:35:00+03:00"
     },
     {
-      "id": "severstal-lawsuit-vtb-court",
-      "headline": "Суд назначил на 3 ноября слушания по иску Северстали к ВТБ на 1,8 млрд рублей",
-      "context": "Спор касается субсидий Министерства промышленности и торговли по экспортным кредитам.",
+      "id": "t-technologies-crypto-market-application",
+      "headline": "Группа Т-Технологии подала документы в Банк России для допуска к работе на крипторынке",
+      "context": "Платформа «Атомайз» претендует на статус цифрового депозитария, а «Т-Инвест Лаб» — на статус криптообменника.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120441"
+        }
+      ],
+      "published_at": "2026-10-05T16:09:00+03:00"
+    },
+    {
+      "id": "moex-marking-limited-disclosure",
+      "headline": "Московская биржа ввела специальную маркировку для акций восьми эмитентов с ограниченным раскрытием информации",
+      "context": "Пометку получили в том числе акции Совкомфлота, Сургутнефтегаза, Башнефти и НМТП.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006447"
+        }
+      ],
+      "published_at": "2026-10-05T14:08:00+03:00"
+    },
+    {
+      "id": "court-cancels-fas-warning-rusal",
+      "headline": "Арбитражный суд Москвы отменил предупреждение Федеральной антимонопольной службы в отношении компании Русал",
+      "context": "Ранее ведомство требовало от производителя изменить условия поставок и цены на алюминий.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "ТАСС",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-10-05T16:37:00+03:00"
+    },
+    {
+      "id": "oil-companies-damper-payments",
+      "headline": "Российские нефтяные компании получили из бюджета триста пять миллиардов рублей по топливному демпферу",
+      "context": "Объем выплат за сентябрь 2026 года приводится в материалах Министерства финансов.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120385"
+        }
+      ],
+      "published_at": "2026-10-05T12:19:00+03:00"
+    },
+    {
+      "id": "corporate-bonds-placements-september",
+      "headline": "Объем размещений корпоративных облигаций в России по итогам сентября превысил один триллион рублей",
+      "context": "Показатель вырос на четверть в годовом выражении, при этом доля реального сектора составила менее тридцати процентов.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006738"
+        }
+      ],
+      "published_at": "2026-10-05T18:37:00+03:00"
+    },
+    {
+      "id": "minfin-eurobonds-coupon-payment",
+      "headline": "Министерство финансов России перечислило семь миллиардов рублей для выплаты купона по еврооблигациям",
+      "context": "Средства направлены в Национальный расчетный депозитарий для выплат по выпуску с погашением в 2042 году.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1359003.php"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120472"
         }
       ],
-      "published_at": "2026-10-05T12:30:00+03:00"
+      "published_at": "2026-10-05T18:09:00+03:00"
     },
     {
-      "id": "vk-exits-intickets-share",
-      "headline": "Компания VK вышла из капитала билетного агента Интикетс продав свою долю в сорок процентов",
-      "context": "Покупатель доли и сумма сделки в официальных сообщениях не раскрываются.",
-      "category": "corporate",
+      "id": "metal-consumption-decline-ru",
+      "headline": "Потребление металла в России за восемь месяцев сократилось на шестнадцать процентов к уровню позапрошлого года",
+      "context": "По оценкам Северстали, восстановление спроса ожидается не ранее второй половины 2027 года из-за высоких ставок.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1358978.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006021"
         }
       ],
-      "published_at": "2026-10-05T11:39:00+03:00"
+      "published_at": "2026-10-05T01:33:00+03:00"
+    },
+    {
+      "id": "mintsifry-vpn-5g-discussions",
+      "headline": "Министерство цифрового развития возобновило обсуждение платы за международный трафик свыше пятидесяти гигабайт",
+      "context": "Ограничение планируется ввести для пользователей сетей пятого поколения для тарификации VPN-трафика.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006026"
+        }
+      ],
+      "published_at": "2026-10-05T07:01:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-10-02"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-10-05"
   }
 }
