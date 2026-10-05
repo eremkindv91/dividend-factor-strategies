@@ -1,89 +1,93 @@
 {
   "date": "2026-10-05",
-  "generated_at": "2026-10-05T12:35:39+03:00",
+  "generated_at": "2026-10-05T14:52:19+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские индексы закрылись ростом, золото дорожает, в то время как нефть марки Brent демонстрирует умеренное снижение.",
+  "external_backdrop": "Мировые фондовые индексы и сырьевые товары демонстрируют положительную динамику, нефть Brent торгуется выше 102 долларов за баррель.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7722.72",
       "change_pct": "+0.73%",
-      "as_of": "2026-10-02",
+      "as_of": "закрытие 02.10",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "27190.86",
       "change_pct": "+1.19%",
-      "as_of": "2026-10-02",
+      "as_of": "закрытие 02.10",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "69946.86",
       "change_pct": "+2.40%",
-      "as_of": "2026-10-05",
+      "as_of": "05.10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
       "value": "24040.34",
       "change_pct": "+0.28%",
-      "as_of": "2026-10-05",
+      "as_of": "05.10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "101.89",
-      "change_pct": "-0.35%",
-      "as_of": "2026-10-05",
+      "value": "102.47",
+      "change_pct": "+0.22%",
+      "as_of": "05.10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4195.70",
-      "change_pct": "+0.80%",
-      "as_of": "2026-10-05",
+      "value": "4185.90",
+      "change_pct": "+0.57%",
+      "as_of": "05.10",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2307.68",
-      "change_pct": "+1.34%",
-      "as_of": "2026-10-05 12:35:36",
+      "value": "2308.23",
+      "change_pct": "+1.36%",
+      "as_of": "14:52",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "870.74",
-      "change_pct": "+1.33%",
-      "as_of": "2026-10-05 12:35:37",
+      "value": "871.00",
+      "change_pct": "+1.36%",
+      "as_of": "14:52",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.45",
-      "change_pct": "+0.01%",
-      "as_of": "2026-10-05 12:35:37",
+      "value": "85.79",
+      "change_pct": "-0.18%",
+      "as_of": "14:52",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.66",
-      "change_pct": "-0.01%",
-      "as_of": "2026-10-05 12:35:38",
+      "value": "12.71",
+      "change_pct": "+1.71%",
+      "as_of": "14:52",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "minfin-fx-purchases-increase",
-      "headline": "Минфин России увеличит ежедневные покупки валюты и золота до двенадцати миллиардов рублей",
-      "context": "С 7 октября по 6 ноября ведомство направит на эти цели 279,42 млрд рублей на фоне роста нефтегазовых доходов.",
+      "id": "minfin-fx-purchases-october",
+      "headline": "Минфин России увеличит ежедневные покупки валюты и золота в пять раз до 12,7 млрд рублей",
+      "context": "Всего с 7 октября по 6 ноября на эти цели будет направлено 279,42 млрд рублей.",
       "category": "macro",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9006327"
+        },
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/business/1120386"
@@ -92,13 +96,17 @@
       "published_at": "2026-10-05T12:00:00+03:00"
     },
     {
-      "id": "opec-quotas-november-unchanged",
-      "headline": "Семерка стран ОПЕК плюс приняла решение сохранить действующие квоты на добычу нефти",
-      "context": "Ограничения продлены на ноябрь 2026 года, квота для России составит 9,949 млн баррелей в сутки.",
+      "id": "opec-clipping-november-quotas",
+      "headline": "Страны ОПЕК плюс приняли решение сохранить действующие квоты на добычу нефти в ноябре",
+      "context": "Семь стран-участниц соглашения, включая Россию и Саудовскую Аравию, продлили добровольные ограничения добычи.",
       "category": "markets",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120242"
+        },
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9005883"
@@ -107,12 +115,80 @@
       "published_at": "2026-10-04T14:51:00+03:00"
     },
     {
-      "id": "severstal-vtb-lawsuit-hearings",
-      "headline": "Суд назначил предварительные слушания по иску Северстали к банку ВТБ на миллиард рублей",
-      "context": "Предварительное заседание по спору о взыскании 1,8 млрд рублей назначено на 3 ноября 2026 года.",
+      "id": "mosexchange-marking-non-disclosure",
+      "headline": "Московская биржа промаркировала акции восьми эмитентов за неполное раскрытие информации",
+      "context": "Специальную пометку получили в том числе бумаги Совкомфлота, Сургутнефтегаза, Башнефти и НМТП.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120397"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/05/10/2026/6ac375d99a7947356c7d9b9d"
+        }
+      ],
+      "published_at": "2026-10-05T14:08:00+03:00"
+    },
+    {
+      "id": "yemen-military-operation-bab-el-mandeb",
+      "headline": "Правительственные силы Йемена при поддержке Саудовской Аравии начали масштабную операцию против хуситов",
+      "context": "Военные установили контроль над районом Баб-эль-Мандебского пролива, что привело к остановке саудовского нефтепровода Восток-Запад после новых атак.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/10/05/1234259-pravitelstvo-iemena"
+        },
+        {
+          "name": "Telegram-канал markettwits",
+          "url": "https://t.me/markettwits/387562"
+        }
+      ],
+      "published_at": "2026-10-05T13:29:00+03:00"
+    },
+    {
+      "id": "zabotkin-budget-inflation-rates",
+      "headline": "Зампред Банка России Алексей Заботкин заявил о соответствии параметров проекта бюджета июльскому прогнозу регулятора",
+      "context": "По его словам, стабилизация инфляции на целевом уровне потребует средней ключевой ставки в размере 10,5–12,5%.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1120408"
+        }
+      ],
+      "published_at": "2026-10-05T13:02:00+03:00"
+    },
+    {
+      "id": "t-technologies-crypto-license",
+      "headline": "Группа Т-Технологии направила в Банк России документы для допуска к работе на крипторынке",
+      "context": "Платформа Атомайз претендует на статус цифрового депозитария, а Т-Инвест лаб — на включение в реестр криптообменников.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram-канал if_market_news",
+          "url": "https://t.me/if_market_news/85725"
+        }
+      ],
+      "published_at": "2026-10-05T12:39:00+03:00"
+    },
+    {
+      "id": "severstal-lawsuit-vtb-court",
+      "headline": "Суд назначил на 3 ноября слушания по иску Северстали к ВТБ на 1,8 млрд рублей",
+      "context": "Спор касается субсидий Министерства промышленности и торговли по экспортным кредитам.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
       "sources": [
         {
           "name": "SmartLab",
@@ -122,69 +198,9 @@
       "published_at": "2026-10-05T12:30:00+03:00"
     },
     {
-      "id": "spb-exchange-neoassets-expansion",
-      "headline": "СПБ Биржа расширит линейку неоактивов на акции глобальных компаний с седьмого октября",
-      "context": "На торги будут добавлены 20 новых контрактов, общее количество неоактивов достигнет 65.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/05/1234192"
-        }
-      ],
-      "published_at": "2026-10-05T09:32:00+03:00"
-    },
-    {
-      "id": "severstal-metal-consumption-decline",
-      "headline": "Потребление металла в России сократилось на шестнадцать процентов за восемь месяцев года",
-      "context": "По оценкам Северстали, восстановление спроса ожидается не ранее второй половины 2027 года из-за высоких ставок.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9006021"
-        }
-      ],
-      "published_at": "2026-10-05T01:33:00+03:00"
-    },
-    {
-      "id": "grain-railway-priority-increase",
-      "headline": "Власти повысили приоритет перевозок российского зерна по железной дороге до третьей категории",
-      "context": "Решение принято для стимулирования экспорта зерна на фоне сложностей с транспортировкой.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9006014"
-        }
-      ],
-      "published_at": "2026-10-05T01:31:00+03:00"
-    },
-    {
-      "id": "microloan-average-size-growth",
-      "headline": "Средний размер микрозайма в России вырос на тридцать семь процентов за год",
-      "context": "Рост чека произошел на фоне ужесточения регулирования и снижения уровня одобрения заявок закредитованным клиентам.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/308214"
-        }
-      ],
-      "published_at": "2026-10-05T00:02:00+03:00"
-    },
-    {
-      "id": "vk-sells-intickets-stake",
-      "headline": "Компания VK продала сорокапроцентную долю в билетном операторе Интикетс",
-      "context": "Сделка подтверждена профильными источниками, покупатель и сумма сделки не раскрываются.",
+      "id": "vk-exits-intickets-share",
+      "headline": "Компания VK вышла из капитала билетного агента Интикетс продав свою долю в сорок процентов",
+      "context": "Покупатель доли и сумма сделки в официальных сообщениях не раскрываются.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
@@ -194,7 +210,7 @@
           "url": "https://smart-lab.ru/blog/1358978.php"
         }
       ],
-      "published_at": "2026-10-04T21:11:00+03:00"
+      "published_at": "2026-10-05T11:39:00+03:00"
     }
   ],
   "yesterday": [],
