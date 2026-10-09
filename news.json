@@ -1,188 +1,179 @@
 {
   "date": "2026-10-09",
-  "generated_at": "2026-10-09T12:36:46+03:00",
+  "generated_at": "2026-10-09T14:32:41+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись снижением, азиатские рынки торгуются разнонаправленно, нефть марки Brent дешевеет, золото растет.",
+  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись снижением, в Азии Hang Seng вырос, а Nikkei 225 незначительно снизился, Brent дешевеет, золото растет.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7765.36",
       "change_pct": "-0.47%",
-      "as_of": "2026-10-08",
+      "as_of": "закрытие 08.10",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "27193.34",
       "change_pct": "-1.25%",
-      "as_of": "2026-10-08",
+      "as_of": "закрытие 08.10",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "69030.92",
       "change_pct": "-0.02%",
-      "as_of": "2026-10-09",
+      "as_of": "09.10",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
       "value": "24211.35",
       "change_pct": "+1.79%",
-      "as_of": "2026-10-09",
+      "as_of": "09.10",
       "group": "global_equity"
     },
     {
       "name": "Brent",
       "value": "102.84",
       "change_pct": "-1.38%",
-      "as_of": "2026-10-09",
+      "as_of": "09.10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4212.50",
-      "change_pct": "+1.34%",
-      "as_of": "2026-10-09",
+      "value": "4206.40",
+      "change_pct": "+1.19%",
+      "as_of": "09.10",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2310.24",
-      "change_pct": "-0.09%",
-      "as_of": "2026-10-09 12:36:42",
+      "value": "2305.13",
+      "change_pct": "-0.31%",
+      "as_of": "14:32 09.10",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "852.01",
-      "change_pct": "-0.09%",
-      "as_of": "2026-10-09 12:36:43",
+      "value": "850.12",
+      "change_pct": "-0.31%",
+      "as_of": "14:32 09.10",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.20",
-      "change_pct": "-0.12%",
-      "as_of": "2026-10-09 12:36:39",
+      "value": "85.24",
+      "change_pct": "-0.01%",
+      "as_of": "14:32 09.10",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.66",
-      "change_pct": "-0.19%",
-      "as_of": "2026-10-09 12:36:45",
+      "value": "12.65",
+      "change_pct": "-0.20%",
+      "as_of": "14:32 09.10",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "lukoil-9m-dividends-recommendation",
-      "headline": "Совет директоров ЛУКОЙЛа рекомендовал промежуточные дивиденды за девять месяцев в размере пятисот тридцати пяти рублей",
+      "id": "minstroy-banks-developers-support",
+      "headline": "Минстрой потребовал от банков-кредиторов мобилизовать ресурсы для поддержки крупных строительных организаций",
+      "context": "Сбербанк совместно с другими кредиторами разрабатывает план улучшения финансовой ситуации одного из крупнейших девелоперов страны на фоне снижения продаж.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РИА Новости",
+          "url": ""
+        }
+      ],
+      "published_at": "2026-10-09T12:41:00+03:00"
+    },
+    {
+      "id": "yandex-data-centers-attacks",
+      "headline": "Работа дата-центра Яндекса в Сасово полностью остановлена после серьезных повреждений от атаки беспилотников",
+      "context": "Компания также сообщила о повреждении инфраструктуры второго дата-центра в Калуге и затруднилась назвать сроки восстановления.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1121328"
+        }
+      ],
+      "published_at": "2026-10-09T11:51:00+03:00"
+    },
+    {
+      "id": "lukoil-dividends-9m-2026",
+      "headline": "Совет директоров ЛУКОЙЛа рекомендовал промежуточные дивиденды в размере 535 рублей на акцию",
       "context": "Дивидендная доходность к текущим котировкам составляет около 9,6%, реестр закроется 9 декабря 2026 года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121330"
-        },
-        {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/10/09/1235690-lukoila-dividendi"
         }
       ],
-      "published_at": "2026-10-09T10:54:00+03:00"
+      "published_at": "2026-10-09T10:31:00+03:00"
     },
     {
-      "id": "sber-9m-rcbu-profit",
-      "headline": "Чистая прибыль Сбербанка по российским стандартам бухучета за девять месяцев выросла на восемнадцать процентов",
-      "context": "Показатель достиг 1,501 трлн рублей, при этом чистая прибыль за сентябрь увеличилась на 12,1% в годовом выражении.",
-      "category": "corporate",
+      "id": "sberbank-earnings-9m-2026",
+      "headline": "Чистая прибыль Сбербанка по РСБУ за девять месяцев выросла на 18,2 процента",
+      "context": "В сентябре чистая прибыль банка увеличилась на 12,1% в годовом выражении и составила 168,5 млрд рублей.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/business/1121318"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309332"
         }
       ],
-      "published_at": "2026-10-09T09:51:00+03:00"
+      "published_at": "2026-10-09T09:50:00+03:00"
     },
     {
-      "id": "yandex-datacenter-attacks-damage",
-      "headline": "Компания Яндекс полностью остановила работу дата-центра в Сасово и зафиксировала повреждения ЦОД в Калуге",
-      "context": "Инфраструктурные объекты пострадали в результате атак беспилотных летательных аппаратов, сроки восстановления не определены.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/372374"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/09/10/2026/6ac898b2c9410d0735b7eab2"
-        }
-      ],
-      "published_at": "2026-10-09T11:57:00+03:00"
-    },
-    {
-      "id": "sber-corporate-borrowers-deterioration",
-      "headline": "Сбербанк зафиксировал тренд на ухудшение финансового состояния корпоративных заемщиков в последние месяцы",
-      "context": "Финдиректор банка Тарас Скворцов связал это с длительным периодом высокой ключевой ставки и замедлением экономики.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121337"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309372"
-        }
-      ],
-      "published_at": "2026-10-09T11:19:00+03:00"
-    },
-    {
-      "id": "nrd-excluded-cfa-operators",
-      "headline": "Банк России исключил Национальный расчетный депозитарий из реестра операторов информационных систем цифровых финансовых активов",
-      "context": "Решение регулятора в отношении НРД было принято восьмого октября.",
+      "id": "moscow-new-homes-sales-drop",
+      "headline": "Продажи квартир в новостройках Старой Москвы за девять месяцев упали до девятилетнего минимума",
+      "context": "По данным аналитиков, объем зарегистрированных сделок снизился на 36% в годовом выражении на фоне завершения массовой льготной ипотеки.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309398"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1360856.php"
+          "name": "РБК",
+          "url": ""
         }
       ],
-      "published_at": "2026-10-09T12:24:00+03:00"
+      "published_at": "2026-10-09T12:59:00+03:00"
     },
     {
-      "id": "fns-zpif-tax-optimization-criteria",
-      "headline": "Федеральная налоговая служба утвердила признаки использования закрытых паевых инвестиционных фондов для ухода от налогов",
-      "context": "В меморандуме зафиксированы такие критерии, как отсутствие инвестстратегии и контроль владельца паев над активами.",
-      "category": "cb_policy",
-      "investment_relevant": false,
+      "id": "carlyle-drops-lukoil-assets",
+      "headline": "Американская инвестиционная группа Carlyle вышла из процесса покупки зарубежных активов ЛУКОЙЛа",
+      "context": "Ранее сделка стоимостью 20 млрд долларов не получила одобрения со стороны Управления по контролю за иностранными активами Минфина США.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://smart-lab.ru/blog/1360726.php"
-        },
+          "url": "https://www.vedomosti.ru/business/news/2026/10/09/1235787-carlyle-podtverdila"
+        }
+      ],
+      "published_at": "2026-10-09T12:41:00+03:00"
+    },
+    {
+      "id": "fns-zpif-tax-optimization",
+      "headline": "Федеральная налоговая служба утвердила критерии использования закрытых паевых инвестиционных фондов для минимизации налогов",
+      "context": "Экспертный совет выделил отсутствие инвестстратегии и контроль владельца над активами как признаки недобросовестной оптимизации.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/309312"
@@ -191,68 +182,41 @@
       "published_at": "2026-10-09T07:45:00+03:00"
     },
     {
-      "id": "exporters-fx-sales-reduction",
-      "headline": "Крупнейшие российские экспортеры в сентябре сократили чистые продажи валюты до двух миллиардов ста миллионов долларов",
-      "context": "По данным Банка России, показатель снизился по сравнению с августовским значением в 2,4 млрд долларов.",
-      "category": "macro",
+      "id": "ormuz-strait-tankers-mines",
+      "headline": "Несколько коммерческих танкеров подорвались на минах в южной части Ормузского пролива",
+      "context": "Иранское агентство Fars назвало пострадавшие суда нарушителями правил транзита, пытавшимися пройти коридор без разрешения Тегерана.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121222"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309305"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9009565"
         }
       ],
-      "published_at": "2026-10-08T20:04:00+03:00"
-    },
-    {
-      "id": "retail-investors-stock-purchases-drop",
-      "headline": "Розничные инвесторы в сентябре сократили чистые покупки российских акций более чем в четыре раза",
-      "context": "Объем нетто-покупок со стороны физических лиц упал до 6,9 млрд рублей по сравнению с 29 млрд рублей в августе.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121229"
-        },
-        {
-          "name": "Банк России",
-          "url": "https://t.me/if_market_news/85849"
-        }
-      ],
-      "published_at": "2026-10-08T20:34:00+03:00"
+      "published_at": "2026-10-09T04:27:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "sber-dividends-gref",
-      "headline": "Герман Греф пообещал выплату очень хороших дивидендов Сбербанка в следующем году",
-      "context": "Глава банка также назвал справедливой стоимостью акций Сбера как минимум 1000 рублей.",
-      "category": "corporate",
+      "id": "uk-expands-russia-sanctions-october",
+      "headline": "Великобритания расширила антироссийские санкции за счет крупных нефтегазовых компаний и финансового сектора",
+      "context": "Под ограничения подпали Зарубежнефть, холдинг ИНК-Капитал, банк Столичный кредит, а также 12 судов теневого флота.",
+      "category": "geopolitics",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235339-poobeschal-dividendi"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309123"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9009104"
         }
       ],
-      "published_at": "2026-10-08T11:45:00+03:00"
+      "published_at": "2026-10-08T14:28:00+03:00"
     },
     {
-      "id": "samolet-rating-downgrade",
-      "headline": "Агентство АКРА понизило кредитный рейтинг группы Самолет до уровня BBB со снижением прогноза до негативного",
-      "context": "Решение принято на фоне слабых продаж девелопера, высокой долговой нагрузки и задержек ввода объектов.",
+      "id": "acra-downgrades-samolet-rating",
+      "headline": "Рейтинговое агентство АКРА понизило кредитный рейтинг девелопера Самолет до уровня три би",
+      "context": "Решение принято из-за снижения объемов продаж жилья ниже ожиданий, роста задержек ввода объектов и высокой долговой нагрузки.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -260,94 +224,44 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/309195"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235465-reiting-samoleta"
         }
       ],
-      "published_at": "2026-10-08T15:03:00+03:00"
+      "published_at": "2026-10-08T14:06:00+03:00"
     },
     {
-      "id": "lukoil-carlyle-deal-failed",
-      "headline": "Соглашение о продаже международных активов ЛУКОЙЛа американскому фонду Carlyle утратило силу",
-      "context": "Сделка не получила одобрения со стороны Управления по контролю за иностранными активами Минфина США.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/08/1235427-soglashenie-prodazhe"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/if_market_news/85840"
-        }
-      ],
-      "published_at": "2026-10-08T14:03:00+03:00"
-    },
-    {
-      "id": "moex-crypto-trading",
-      "headline": "Московская биржа планирует запустить торги криптовалютой с первого декабря",
-      "context": "В настоящее время площадка проводит тестирование операций совместно с профессиональными участниками рынка.",
+      "id": "moex-crypto-trading-launch",
+      "headline": "Московская биржа планирует запустить торги криптовалютой для профессиональных участников рынка с первого декабря",
+      "context": "Старший управляющий директор Борис Блохин сообщил, что площадка уже проводит тестирование операций совместно с профучастниками.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309183"
-        },
-        {
           "name": "РБК",
-          "url": "https://t.me/markettwits/388034"
+          "url": ""
         }
       ],
-      "published_at": "2026-10-08T14:10:00+03:00"
+      "published_at": "2026-10-08T13:54:00+03:00"
     },
     {
-      "id": "uk-sanctions-expansion",
-      "headline": "Великобритания расширила антироссийские санкции против финансовых сервисов и теневого флота",
-      "context": "Под ограничения подпали Зарубежнефть, холдинг ИНК-Капитал, банк Столичный кредит и 12 морских судов.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "sberbank-samolet-support-plan",
+      "headline": "Сбербанк совместно с другими кредиторами разрабатывает план действий по стабилизации работы группы Самолет",
+      "context": "Первый зампред правления Сбера Александр Ведяхин выразил уверенность, что девелопер выйдет на стабильную работу.",
+      "category": "banks",
+      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9009104"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/10/08/1235421-sanktsii-protiv-rossii"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/309123"
         }
       ],
-      "published_at": "2026-10-08T14:28:00+03:00"
+      "published_at": "2026-10-08T11:31:00+03:00"
     },
     {
-      "id": "gref-rate-cut-cycle",
-      "headline": "Глава Сбербанка Герман Греф заявил о начале цикла снижения ключевой ставки Банком России",
-      "context": "Заявление прозвучало в ходе выступления на инвестиционном форуме Настоящее будущее.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/10/08/1235328-tsikl-snizheniya-stavki"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/markettwits/387991"
-        }
-      ],
-      "published_at": "2026-10-08T11:49:00+03:00"
-    },
-    {
-      "id": "weekly-inflation-acceleration",
-      "headline": "Повышение тарифов жилищно-коммунальных услуг ускорило недельную инфляцию в России до девяноста шести сотых процента",
-      "context": "По данным Росстата, за отчетный период тарифы на водоотведение выросли на 17,1%, а на холодную воду — на 15,3%.",
+      "id": "weekly-inflation-acceleration-october",
+      "headline": "Повышение тарифов жилищно-коммунальных услуг разогнало недельную инфляцию в России до рекордных значений",
+      "context": "По данным Росстата, за неделю с 29 сентября по 5 октября индекс потребительских цен вырос на 0,96% против 0,12% неделей ранее.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
@@ -360,99 +274,109 @@
       "published_at": "2026-10-08T01:08:00+03:00"
     },
     {
-      "id": "sber-samolet-support-plan",
-      "headline": "Сбербанк совместно с другими кредиторами разрабатывает план поддержки девелопера Самолет",
-      "context": "Первый зампред правления Сбера Александр Ведяхин выразил ожидания, что группа выйдет на стабильную работу.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309135"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235392-nad-vihodom-samoleta"
-        }
-      ],
-      "published_at": "2026-10-08T13:22:00+03:00"
-    },
-    {
-      "id": "nornickel-conservative-dividends",
-      "headline": "Норникель сохраняет консервативный подход к выплате дивидендов с ориентацией на свободный денежный поток",
-      "context": "Менеджмент компании продолжает ориентироваться на показатель свободного денежного потока при принятии решений.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "ТАСС",
-          "url": "https://t.me/markettwits/388030"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/08/1235452-nornikele-dividendov"
-        }
-      ],
-      "published_at": "2026-10-08T14:51:00+03:00"
-    },
-    {
-      "id": "sber-crypto-testing",
-      "headline": "Сбербанк начал тестирование операций с криптовалютой для розничных инвесторов в Сбербанк Онлайн",
-      "context": "В банке отмечают высокий интерес со стороны клиентов к новому классу цифровых активов.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235333-operatsii-s-kriptovalyutoi"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/markettwits/388010"
-        }
-      ],
-      "published_at": "2026-10-08T11:40:00+03:00"
-    },
-    {
-      "id": "cb-stock-market-stimuli",
-      "headline": "Банк России усомнился в возможности предоставления дополнительных бюджетных стимулов для рынка акций",
-      "context": "Первый зампред ЦБ Владимир Чистюхин указал на жесткие бюджетные ограничения, препятствующие новым налоговым льготам.",
+      "id": "cbr-no-budget-incentives-equity-market",
+      "headline": "Банк России сомневается в возможности предоставления государством новых налоговых льгот для рынка акций",
+      "context": "Первый зампред ЦБ Владимир Чистюхин заявил, что жесткие бюджетные ограничения вряд ли позволят взять дополнительные расходы.",
       "category": "cb_policy",
-      "investment_relevant": false,
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/business/1121198"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235561-dopstimuli-dlya-rinka"
         }
       ],
-      "published_at": "2026-10-08T18:46:00+03:00"
+      "published_at": "2026-10-08T18:44:00+03:00"
     },
     {
-      "id": "novabev-9m-sales-growth",
-      "headline": "Группа Novabev Group увеличила общие отгрузки продукции на четыре и три десятых процента за девять месяцев",
-      "context": "Продажи собственной розничной сети ВинЛаб за отчетный период выросли на 24%.",
-      "category": "corporate",
+      "id": "cbr-naufor-sro-cfa",
+      "headline": "Банк России присвоил НАУФОР статус саморегулируемой организации для операторов цифровых финансовых активов",
+      "context": "Ассоциация займется разработкой стандартов деятельности и контролем за их исполнением участниками рынка цифровых прав.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/309181"
+        }
+      ],
+      "published_at": "2026-10-08T14:20:00+03:00"
+    },
+    {
+      "id": "cbr-sibur-rostelecom-bonds-manipulation",
+      "headline": "Банк России выявил факты манипулирования облигациями Сибур Холдинга и Ростелекома на Московской бирже",
+      "context": "Регулятор установил, что сделки совершались группой аффилированных юридических и физических лиц по предварительному сговору.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://t.me/markettwits/388007"
-        },
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/08/1235368-o-manipulirovanii-obligatsiyami"
+        }
+      ],
+      "published_at": "2026-10-08T12:51:00+03:00"
+    },
+    {
+      "id": "sberbank-autoloan-securitization",
+      "headline": "Сбербанк планирует провести первую за десять лет секьюритизацию портфеля автокредитов объемом до сорока миллиардов рублей",
+      "context": "Размещение двухтраншевого выпуска облигаций, обеспеченных автокредитами, запланировано на конец ноября или начало декабря.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9008934"
+        }
+      ],
+      "published_at": "2026-10-08T12:30:00+03:00"
+    },
+    {
+      "id": "novabev-group-9m-2026-results",
+      "headline": "Алкогольная группа Novabev Group увеличила общие отгрузки продукции за девять месяцев на четыре процента",
+      "context": "Драйвером роста осталась собственная розничная сеть ВинЛаб, увеличившая объем продаж на 24% при росте трафика на 14,6%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/if_market_news/85834"
+          "url": ""
         }
       ],
       "published_at": "2026-10-08T11:07:00+03:00"
+    },
+    {
+      "id": "cash-demand-maximum-2022",
+      "headline": "Спрос российских граждан на наличные деньги вырос до максимального уровня с две тысячи двадцать второго года",
+      "context": "Опрос показал снижение доли предпочитающих банковские счета до 37% против 43% годом ранее.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/309056"
+        }
+      ],
+      "published_at": "2026-10-08T08:33:00+03:00"
+    },
+    {
+      "id": "russian-oil-prices-rise-september",
+      "headline": "Российские экспортные сорта нефти Urals и ESPO подорожали в сентябре почти на треть",
+      "context": "Рост цен на 28-33% обусловлен перебоями с поставками ближневосточного сырья, что привело к смене дисконтов на премии в Азии.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9008596"
+        }
+      ],
+      "published_at": "2026-10-08T01:09:00+03:00"
     }
   ],
   "today_agenda": [],
