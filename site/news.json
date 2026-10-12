@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-09",
-  "generated_at": "2026-10-09T23:08:11+03:00",
+  "date": "2026-10-12",
+  "generated_at": "2026-10-12T12:44:07+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись ростом, золото подорожало на 1,52 процента, в то время как азиатские рынки снизились.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, цены на нефть Brent повысились, а золото подешевело.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,340 +20,174 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "69042.11",
-      "change_pct": "-1.42%",
-      "as_of": "2026-10-08",
+      "value": "69030.92",
+      "change_pct": "-0.02%",
+      "as_of": "2026-10-09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23785.79",
-      "change_pct": "-1.43%",
-      "as_of": "2026-10-08",
+      "value": "24271.20",
+      "change_pct": "+0.25%",
+      "as_of": "2026-10-12",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "104.32",
-      "change_pct": "+0.04%",
-      "as_of": "2026-10-09",
+      "value": "105.43",
+      "change_pct": "+0.68%",
+      "as_of": "2026-10-12",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4220.00",
-      "change_pct": "+1.52%",
-      "as_of": "2026-10-09",
+      "value": "4198.50",
+      "change_pct": "-0.42%",
+      "as_of": "2026-10-12",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2373.24",
-      "change_pct": "+2.63%",
-      "as_of": "2026-10-09 23:08:07",
+      "value": "2386.26",
+      "change_pct": "+2.80%",
+      "as_of": "2026-10-12 12:44:05",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "880.54",
-      "change_pct": "+3.25%",
-      "as_of": "2026-10-09 23:08:08",
+      "value": "885.35",
+      "change_pct": "+2.79%",
+      "as_of": "2026-10-12 12:44:05",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "85.35",
-      "change_pct": "-0.01%",
-      "as_of": "2026-10-09 23:08:08",
+      "value": "84.31",
+      "change_pct": "-0.13%",
+      "as_of": "2026-10-12 12:44:06",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.68",
-      "change_pct": "+0.02%",
-      "as_of": "2026-10-09 19:15:02",
+      "value": "12.53",
+      "change_pct": "-1.22%",
+      "as_of": "2026-10-12 12:44:07",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "putin-trump-diesel-deal",
-      "headline": "Путин и Трамп договорились о поставках российского дизельного топлива на мировой рынок",
-      "context": "Минфин США временно вывел из-под санкций операции с российским дизелем до 7 апреля 2027 года.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/09/10/2026/6ac5d89d60690198f91ebb41"
-        }
-      ],
-      "published_at": "2026-10-09T21:50:00+03:00"
-    },
-    {
-      "id": "lukoil-9m-dividends",
-      "headline": "Совет директоров ЛУКОЙЛа рекомендовал дивиденды за девять месяцев в размере 535 рублей на акцию",
-      "context": "Дивидендная доходность по текущей цене составляет 9,6 процента, реестр закроется 9 декабря 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121330"
-        }
-      ],
-      "published_at": "2026-10-09T10:31:00+03:00"
-    },
-    {
-      "id": "sberbank-9m-profit",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за девять месяцев выросла на 18,2 процента",
-      "context": "Финансовый результат банка достиг 1,501 трлн рублей, в сентябре чистая прибыль составила 168,5 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121318"
-        }
-      ],
-      "published_at": "2026-10-09T09:50:00+03:00"
-    },
-    {
-      "id": "yandex-kaluga-datacenter-attack",
-      "headline": "Дата-центр Яндекса в Калужской области получил повреждения в результате атаки беспилотника",
-      "context": "Несколько модулей объекта полностью выведены из строя, часть функций Алисы AI временно недоступна.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1121328"
-        }
-      ],
-      "published_at": "2026-10-09T10:35:00+03:00"
-    },
-    {
-      "id": "samolet-listing-downgrade",
-      "headline": "Московская биржа понизит уровень листинга облигаций девелопера Самолет до третьего уровня",
-      "context": "Решение вступит в силу 13 октября на фоне ухудшения кредитного рейтинга компании агентством АКРА.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9023254"
-        }
-      ],
-      "published_at": "2026-10-09T18:42:00+03:00"
-    },
-    {
-      "id": "russia-september-inflation",
-      "headline": "Годовая инфляция в России в сентябре ускорилась до 6,35 процента",
-      "context": "Потребительские цены за месяц выросли на 0,35 процента, превысив ожидания экономистов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9023315"
-        }
-      ],
-      "published_at": "2026-10-09T21:09:00+03:00"
-    },
-    {
-      "id": "russia-budget-deficit-9m",
-      "headline": "Дефицит федерального бюджета России за девять месяцев составил 5,2 триллиона рублей",
-      "context": "Минфин планирует покрывать дефицит преимущественно без привлечения дополнительных займов на рынке ОФЗ.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/10/09/1235952-defitsit-byudzheta"
-        }
-      ],
-      "published_at": "2026-10-09T19:36:00+03:00"
-    },
-    {
-      "id": "spb-exchange-crypto-trading",
-      "headline": "СПБ Биржа планирует запустить торги криптовалютами до конца 2026 года",
-      "context": "Площадка создает собственный расчетный цифровой депозитарий для включения в реестр Банка России.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/09/1235948-torgi-kriptovalyutami"
-        }
-      ],
-      "published_at": "2026-10-09T19:03:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "yandex-sasovo-datacenter-attack",
-      "headline": "Дата-центр Яндекса в Рязанской области загорелся после атаки беспилотника",
-      "context": "Работа объекта в Сасово полностью остановлена, что привело к временным сбоям в сервисах компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9008807"
-        }
-      ],
-      "published_at": "2026-10-08T09:39:00+03:00"
-    },
-    {
-      "id": "samolet-rating-downgrade-akra",
-      "headline": "Агентство АКРА понизило кредитный рейтинг группы Самолет до уровня BBB",
-      "context": "Прогноз изменен на негативный из-за слабых продаж жилья и высокой долговой нагрузки девелопера.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/309195"
-        }
-      ],
-      "published_at": "2026-10-08T14:53:00+03:00"
-    },
-    {
-      "id": "lukoil-carlyle-deal-failed",
-      "headline": "Минфин США заблокировал сделку по продаже зарубежных активов ЛУКОЙЛа компании Carlyle",
-      "context": "Соглашение утратило силу в конце июля, российская компания ведет переговоры с другими покупателями.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9009175"
-        }
-      ],
-      "published_at": "2026-10-08T16:13:00+03:00"
-    },
-    {
-      "id": "gref-sberinvest-forum-statements",
-      "headline": "Герман Греф анонсировал выплату хороших дивидендов Сбербанка в следующем году",
-      "context": "Глава банка оценил справедливую стоимость акций минимум в 1000 рублей и рекомендовал их к покупке.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram",
-          "url": "https://t.me/if_market_news/85824"
-        }
-      ],
-      "published_at": "2026-10-08T11:23:00+03:00"
-    },
-    {
-      "id": "weekly-inflation-jkh-tariffs",
-      "headline": "Повышение тарифов ЖКХ ускорило недельную инфляцию в России до 0,96 процента",
-      "context": "Росстат зафиксировал резкий рост тарифов на водоотведение, холодную и горячую воду с 1 октября.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9008695"
-        }
-      ],
-      "published_at": "2026-10-08T01:08:00+03:00"
-    },
-    {
-      "id": "sberbank-autoloan-securitization",
-      "headline": "Сбербанк готовит первую за десять лет секьюритизацию портфеля автокредитов",
-      "context": "Объем планируемого к размещению в конце ноября выпуска облигаций составит до 40 млрд рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9008934"
-        }
-      ],
-      "published_at": "2026-10-08T12:30:00+03:00"
-    },
-    {
-      "id": "uk-sanctions-zarubezhneft-stolychny",
-      "headline": "Великобритания ввела санкции против Зарубежнефти и банка Столичный кредит",
-      "context": "В обновленный санкционный список также вошли холдинг ИНК-Капитал и 12 судов теневого флота.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9009104"
-        }
-      ],
-      "published_at": "2026-10-08T14:28:00+03:00"
-    },
-    {
-      "id": "novabev-9m-sales-growth",
-      "headline": "Novabev Group увеличила общие отгрузки продукции за девять месяцев на 4,3 процента",
-      "context": "Продажи розничной сети ВинЛаб за отчетный период выросли на 24% при росте трафика на 14,6%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram",
-          "url": "https://t.me/if_market_news/85836"
-        }
-      ],
-      "published_at": "2026-10-08T15:46:00+03:00"
-    },
-    {
-      "id": "cb-manipulation-sibur-rostelecom",
-      "headline": "Банк России выявил факты манипулирования облигациями Сибура и Ростелекома",
-      "context": "Сделки совершались группой аффилированных юридических и физических лиц на торгах Московской биржи.",
+      "id": "cb-rate-reduction-conditions",
+      "headline": "Банк России назвал снижение дефицита бюджета условием для смягчения ДКП",
+      "context": "Зампред ЦБ Алексей Заботкин заявил, что запланированные бюджетные параметры позволят продолжить снижать ключевую ставку в 2027 году.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1121825"
+        }
+      ],
+      "published_at": "2026-10-12T12:29:00+03:00"
+    },
+    {
+      "id": "eu-22nd-sanctions-package",
+      "headline": "Евросоюз утвердил 22-й пакет санкций против российских физических и юридических лиц",
+      "context": "Новые ограничения затронут около 1600 компаний и граждан, связанных с оборонно-промышленным комплексом РФ.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/10/12/1236236-22-i-paket-sanktsii"
+        }
+      ],
+      "published_at": "2026-10-12T11:25:00+03:00"
+    },
+    {
+      "id": "yandex-data-center-attacks",
+      "headline": "Атаки беспилотников на дата-центры Яндекса вывели из строя инфраструктуру компании",
+      "context": "Повреждение ЦОД привело к сбоям в работе сервисов Яндекса и его облачных партнеров.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9009252"
+          "url": "https://www.kommersant.ru/doc/9024202"
         }
       ],
-      "published_at": "2026-10-08T17:30:00+03:00"
+      "published_at": "2026-10-12T09:48:00+03:00"
     },
     {
-      "id": "russia-international-reserves-drop",
-      "headline": "Международные резервы России за неделю сократились на 9,5 млрд долларов",
-      "context": "По состоянию на 2 октября объем резервов составил 733,2 млрд долларов против 742,7 млрд долларов неделей ранее.",
+      "id": "us-russia-diesel-agreement",
+      "headline": "США и Россия заключили соглашение о поставках российского дизельного топлива",
+      "context": "Известия о договоренности вызвали рост российских фондовых индексов и укрепление рубля при открытии торгов.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@interfax_news",
+          "url": "https://www.interfax.ru/business/1121769"
+        }
+      ],
+      "published_at": "2026-10-12T07:19:00+03:00"
+    },
+    {
+      "id": "russia-trade-balance-jan-aug",
+      "headline": "Профицит торгового баланса России в январе-августе вырос до 102,9 миллиарда долларов",
+      "context": "По данным ФТС, экспорт из РФ за 8 месяцев увеличился на 14,2 процента, а импорт вырос на 13,1 процента.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9009331"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1121804"
         }
       ],
-      "published_at": "2026-10-08T18:21:00+03:00"
+      "published_at": "2026-10-12T11:14:00+03:00"
+    },
+    {
+      "id": "coking-coal-prices-october",
+      "headline": "Цены на коксующийся уголь в России в октябре выросли почти на треть",
+      "context": "Увеличение стоимости сырья связано с ростом себестоимости добычи в Кузбассе и динамикой мировых котировок.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1361545.php"
+        }
+      ],
+      "published_at": "2026-10-12T07:56:00+03:00"
+    },
+    {
+      "id": "houthis-attacks-riyadh-airport",
+      "headline": "Йеменские хуситы совершили повторную атаку на международный аэропорт Эр-Рияда",
+      "context": "В результате удара по международному аэропорту в столице Саудовской Аравии один человек погиб и 11 получили ранения.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1121743"
+        }
+      ],
+      "published_at": "2026-10-12T02:44:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-10-08"
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
+    "last_trading_day": "2026-10-09"
   }
 }
