@@ -1,193 +1,374 @@
 {
-  "date": "2026-10-12",
-  "generated_at": "2026-10-12T12:44:07+03:00",
+  "date": "2026-10-16",
+  "generated_at": "2026-10-16T10:30:30+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись ростом, цены на нефть Brent повысились, а золото подешевело.",
+  "external_backdrop": "Американские и азиатские индексы завершили торги ростом, нефть Brent дешевеет, золото дорожает.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7811.54",
-      "change_pct": "+0.59%",
-      "as_of": "2026-10-09",
+      "value": "7744.06",
+      "change_pct": "+0.33%",
+      "as_of": "2026-10-15",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "27366.17",
-      "change_pct": "+0.64%",
-      "as_of": "2026-10-09",
+      "value": "26713.03",
+      "change_pct": "+0.08%",
+      "as_of": "2026-10-15",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "69030.92",
-      "change_pct": "-0.02%",
-      "as_of": "2026-10-09",
+      "value": "65324.29",
+      "change_pct": "+1.39%",
+      "as_of": "2026-10-16",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24271.20",
-      "change_pct": "+0.25%",
-      "as_of": "2026-10-12",
+      "value": "24165.91",
+      "change_pct": "+0.43%",
+      "as_of": "2026-10-16",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "105.43",
-      "change_pct": "+0.68%",
-      "as_of": "2026-10-12",
+      "value": "105.20",
+      "change_pct": "-0.68%",
+      "as_of": "2026-10-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4198.50",
-      "change_pct": "-0.42%",
-      "as_of": "2026-10-12",
+      "value": "4206.50",
+      "change_pct": "+0.87%",
+      "as_of": "2026-10-16",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2386.26",
-      "change_pct": "+2.80%",
-      "as_of": "2026-10-12 12:44:05",
+      "value": "2397.89",
+      "change_pct": "+0.46%",
+      "as_of": "2026-10-16 10:30:28",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "885.35",
-      "change_pct": "+2.79%",
-      "as_of": "2026-10-12 12:44:05",
+      "value": "901.86",
+      "change_pct": "+0.47%",
+      "as_of": "2026-10-16 10:30:29",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "84.31",
-      "change_pct": "-0.13%",
-      "as_of": "2026-10-12 12:44:06",
+      "value": "84.00",
+      "change_pct": "-0.17%",
+      "as_of": "2026-10-16 10:30:29",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.53",
-      "change_pct": "-1.22%",
-      "as_of": "2026-10-12 12:44:07",
+      "value": "12.51",
+      "change_pct": "+0.01%",
+      "as_of": "2026-10-16 10:30:30",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cb-rate-reduction-conditions",
-      "headline": "Банк России назвал снижение дефицита бюджета условием для смягчения ДКП",
-      "context": "Зампред ЦБ Алексей Заботкин заявил, что запланированные бюджетные параметры позволят продолжить снижать ключевую ставку в 2027 году.",
+      "id": "cian-recommended-dividends-9m",
+      "headline": "Совет директоров Циана рекомендовал дивиденды за девять месяцев в размере тридцати трех рублей",
+      "context": "Дивидендная доходность к текущим котировкам составляет около 4,9%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1363296.php"
+        }
+      ],
+      "published_at": "2026-10-16T09:00:00+03:00"
+    },
+    {
+      "id": "cbr-key-rate-consensus-october",
+      "headline": "Аналитики ожидают сохранения ключевой ставки Банка России на уровне четырнадцати процентов",
+      "context": "Большинство опрошенных экономистов рассчитывают на сохранение ставки на заседании 23 октября.",
       "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121825"
-        }
-      ],
-      "published_at": "2026-10-12T12:29:00+03:00"
-    },
-    {
-      "id": "eu-22nd-sanctions-package",
-      "headline": "Евросоюз утвердил 22-й пакет санкций против российских физических и юридических лиц",
-      "context": "Новые ограничения затронут около 1600 компаний и граждан, связанных с оборонно-промышленным комплексом РФ.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/10/12/1236236-22-i-paket-sanktsii"
-        }
-      ],
-      "published_at": "2026-10-12T11:25:00+03:00"
-    },
-    {
-      "id": "yandex-data-center-attacks",
-      "headline": "Атаки беспилотников на дата-центры Яндекса вывели из строя инфраструктуру компании",
-      "context": "Повреждение ЦОД привело к сбоям в работе сервисов Яндекса и его облачных партнеров.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9024202"
-        }
-      ],
-      "published_at": "2026-10-12T09:48:00+03:00"
-    },
-    {
-      "id": "us-russia-diesel-agreement",
-      "headline": "США и Россия заключили соглашение о поставках российского дизельного топлива",
-      "context": "Известия о договоренности вызвали рост российских фондовых индексов и укрепление рубля при открытии торгов.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@interfax_news",
-          "url": "https://www.interfax.ru/business/1121769"
-        }
-      ],
-      "published_at": "2026-10-12T07:19:00+03:00"
-    },
-    {
-      "id": "russia-trade-balance-jan-aug",
-      "headline": "Профицит торгового баланса России в январе-августе вырос до 102,9 миллиарда долларов",
-      "context": "По данным ФТС, экспорт из РФ за 8 месяцев увеличился на 14,2 процента, а импорт вырос на 13,1 процента.",
-      "category": "macro",
       "investment_relevant": false,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1121804"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1363254.php"
         }
       ],
-      "published_at": "2026-10-12T11:14:00+03:00"
+      "published_at": "2026-10-16T07:30:00+03:00"
     },
     {
-      "id": "coking-coal-prices-october",
-      "headline": "Цены на коксующийся уголь в России в октябре выросли почти на треть",
-      "context": "Увеличение стоимости сырья связано с ростом себестоимости добычи в Кузбассе и динамикой мировых котировок.",
+      "id": "ofac-lukoil-license-extension",
+      "headline": "Минфин США продлил разрешение на операции с зарубежными АЗС ЛУКОЙЛа до апреля двадцать седьмого года",
+      "context": "Лицензия OFAC также затрагивает операции с болгарскими активами компании.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1361545.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9027601"
         }
       ],
-      "published_at": "2026-10-12T07:56:00+03:00"
+      "published_at": "2026-10-15T20:19:00+03:00"
     },
     {
-      "id": "houthis-attacks-riyadh-airport",
-      "headline": "Йеменские хуситы совершили повторную атаку на международный аэропорт Эр-Рияда",
-      "context": "В результате удара по международному аэропорту в столице Саудовской Аравии один человек погиб и 11 получили ранения.",
-      "category": "geopolitics",
+      "id": "kuibyshevazot-dividends-recommendation",
+      "headline": "Совет директоров КуйбышевАзота рекомендовал дивиденды в размере двадцати рублей на акцию",
+      "context": "Выплаты планируется осуществить из нераспределенной прибыли прошлых лет.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram",
+          "url": "https://t.me/markettwits/389148"
+        }
+      ],
+      "published_at": "2026-10-16T10:10:00+03:00"
+    },
+    {
+      "id": "x5-q3-revenue-growth",
+      "headline": "Выручка ритейлера X5 Group в третьем квартале двадцать шестого года выросла на тринадцать процентов",
+      "context": "Компания представила операционные результаты за третий квартал 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram",
+          "url": "https://t.me/markettwits/389146"
+        }
+      ],
+      "published_at": "2026-10-16T10:00:00+03:00"
+    },
+    {
+      "id": "bspb-ras-net-profit-9m",
+      "headline": "Чистая прибыль Банка Санкт-Петербург по РСБУ за девять месяцев составила двадцать четыре миллиарда рублей",
+      "context": "Показатель чистой прибыли сократился на 27,8% по сравнению с аналогичным периодом прошлого года.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram",
+          "url": "https://t.me/markettwits/389138"
+        }
+      ],
+      "published_at": "2026-10-16T09:14:00+03:00"
+    },
+    {
+      "id": "alrosa-yakutia-budget-dividends",
+      "headline": "Якутия сформировала проект трехлетнего бюджета без учета дивидендных поступлений от компании АЛРОСА",
+      "context": "Региональный бюджет на 2027–2029 годы не включает выплат от алмазодобывающей компании.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Telegram",
+          "url": "https://t.me/markettwits/389136"
+        }
+      ],
+      "published_at": "2026-10-16T09:06:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "putin-long-money-ecosystem",
+      "headline": "Президент Владимир Путин поручил разработать экосистему длинных денег для инвестиций на фондовом рынке",
+      "context": "Глава государства подчеркнул необходимость защитить средства граждан в пенсионных фондах.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/10/15/1237440-putin-poruchil"
+        }
+      ],
+      "published_at": "2026-10-15T17:45:00+03:00"
+    },
+    {
+      "id": "cb-crypto-p2p-restrictions",
+      "headline": "Банк России запретил переводить криптовалюту на персональные холодные кошельки и ограничил сделки",
+      "context": "P2P-операции с цифровыми валютами между физлицами будут ограничены с 1 июля 2027 года.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9026976"
+        }
+      ],
+      "published_at": "2026-10-15T10:17:00+03:00"
+    },
+    {
+      "id": "deferred-investment-tax-deduction",
+      "headline": "Правительство проработает механизм предоставления отложенного инвестиционного налогового вычета для бизнеса",
+      "context": "Инструмент предполагает получение налогового сертификата на компенсацию из бюджета через пять лет.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/10/15/1237458-otlozhennii-investitsionnii-vichet"
+        }
+      ],
+      "published_at": "2026-10-15T18:10:00+03:00"
+    },
+    {
+      "id": "samolet-rating-downgrade",
+      "headline": "Рейтинговое агентство НКР понизило кредитный рейтинг группы Самолет до уровня три B",
+      "context": "Прогноз по рейтингу установлен как негативный.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/310395"
+        }
+      ],
+      "published_at": "2026-10-15T14:37:00+03:00"
+    },
+    {
+      "id": "prosecution-withdraws-turlov-suit",
+      "headline": "Генеральная прокуратура отменила иск о конфискации имущества основателя холдинга Freedom Тимура Турлова",
+      "context": "Суд прекратил производство по делу о передаче активов в доход государства.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/310409"
+        }
+      ],
+      "published_at": "2026-10-15T16:04:00+03:00"
+    },
+    {
+      "id": "ozon-insurance-subsidiaries",
+      "headline": "Маркетплейс Ozon учредил две собственные страховые компании для работы с малым и средним бизнесом",
+      "context": "Созданы «Озон страхование» и «Озон страхование жизни».",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/310324"
+        }
+      ],
+      "published_at": "2026-10-15T12:17:00+03:00"
+    },
+    {
+      "id": "novak-diesel-exports",
+      "headline": "Александр Новак заяви о готовности нефтяных компаний возобновить экспорт дизеля в течение трех недель",
+      "context": "Сроки поставок будут зависеть от заключения коммерческих контрактов и фрахта судов.",
+      "category": "markets",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1121743"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/10/15/1237267-eksport-dizelya"
         }
       ],
-      "published_at": "2026-10-12T02:44:00+03:00"
+      "published_at": "2026-10-15T11:41:00+03:00"
+    },
+    {
+      "id": "coal-industry-unprofitable-share",
+      "headline": "Минэнерго оценило долю убыточных угольных предприятий России по итогам года в семьдесят процентов",
+      "context": "Совокупный убыток отрасли по итогам 2026 года оценивается в 324 млрд рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9027002"
+        }
+      ],
+      "published_at": "2026-10-15T11:02:00+03:00"
+    },
+    {
+      "id": "sovcomflot-shares-rally",
+      "headline": "Акции Совкомфлота выросли более чем на пять процентов на новостях о смягчении санкций США",
+      "context": "Рост цен произошел после публикаций о возможных изъятиях из ограничений для теневого флота.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9027002"
+        }
+      ],
+      "published_at": "2026-10-15T10:55:00+03:00"
+    },
+    {
+      "id": "mgkl-investor-bank-acquisition",
+      "headline": "Мосгорломбард ведет переговоры с инвестором о привлечении десяти миллиардов рублей на покупку банка",
+      "context": "Средства планируется направить на расширение сети и создание золотообменников.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/310222"
+        }
+      ],
+      "published_at": "2026-10-15T07:44:00+03:00"
+    },
+    {
+      "id": "henderson-q3-revenue-growth",
+      "headline": "Совокупная выручка компании Henderson за третий квартал увеличилась на пять процентов год к году",
+      "context": "Выручка ритейлера достигла 7,2 млрд рублей с учетом НДС.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/15/1237283-viruchka-henderson"
+        }
+      ],
+      "published_at": "2026-10-15T12:25:00+03:00"
+    },
+    {
+      "id": "whoosh-lowers-revenue-forecast",
+      "headline": "Сервис кикшеринга Whoosh скорректировал прогноз выручки на текущий год до тринадцати миллиардов рублей",
+      "context": "За девять месяцев количество поездок в сервисе сократилось на 5%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Telegram",
+          "url": "https://t.me/if_market_news/86033"
+        }
+      ],
+      "published_at": "2026-10-15T12:16:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-10-09"
+    "last_trading_day": "2026-10-15"
   }
 }
