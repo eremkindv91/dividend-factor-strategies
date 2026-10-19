@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-17",
-  "generated_at": "2026-10-17T14:40:59+03:00",
+  "date": "2026-10-19",
+  "generated_at": "2026-10-19T13:19:51+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись снижением, азиатские индексы, Brent и золото показали рост.",
+  "external_backdrop": "Американские индексы завершили торги снижением, азиатские рынки демонстрируют разнонаправленную динамику, цены на нефть опускаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,9 +20,9 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "65324.29",
-      "change_pct": "+1.39%",
-      "as_of": "2026-10-16",
+      "value": "64916.70",
+      "change_pct": "-0.62%",
+      "as_of": "2026-10-19",
       "group": "global_equity"
     },
     {
@@ -34,370 +34,207 @@
     },
     {
       "name": "Brent",
-      "value": "109.86",
-      "change_pct": "+3.72%",
-      "as_of": "2026-10-16",
+      "value": "108.55",
+      "change_pct": "-1.19%",
+      "as_of": "2026-10-19",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4181.10",
-      "change_pct": "+0.26%",
-      "as_of": "2026-10-16",
+      "value": "4189.00",
+      "change_pct": "+0.19%",
+      "as_of": "2026-10-19",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2444.69",
-      "change_pct": "+0.77%",
-      "as_of": "2026-10-17 14:40:55",
+      "value": "2456.47",
+      "change_pct": "+1.25%",
+      "as_of": "2026-10-19 13:19:45",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "921.01",
-      "change_pct": "+0.77%",
-      "as_of": "2026-10-17 14:40:56",
+      "value": "925.48",
+      "change_pct": "+1.26%",
+      "as_of": "2026-10-19 13:19:48",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.73",
-      "change_pct": "-0.53%",
-      "as_of": "2026-10-16 23:55:02",
+      "value": "83.29",
+      "change_pct": "+0.06%",
+      "as_of": "2026-10-19 13:19:48",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.46",
-      "change_pct": "-0.18%",
-      "as_of": "2026-10-16 23:50:02",
+      "value": "12.39",
+      "change_pct": "-0.59%",
+      "as_of": "2026-10-19 13:19:50",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-freezes-graham-sanctions",
-      "headline": "Президент США заморозил введение санкций и тарифных пошлин по закону Грэма против России",
-      "context": "Дональд Трамп проинформировал Конгресс о приостановке действия 500-процентных пошлин и ограничений в отношении покупателей российских энергоресурсов.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040985"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1123126"
-        }
-      ],
-      "published_at": "2026-10-17T04:10:00+03:00"
-    },
-    {
-      "id": "us-diesel-deal-buyers-list",
-      "headline": "Минэнерго США передало Российской Федерации список компаний для закупок дизельного топлива",
-      "context": "Александр Новак подтвердил получение перечня импортеров, а в Палату представителей США внесен законопроект о блокировке сделки.",
+      "id": "gov-cabinet-reshuffle-siluanov-okladnikova",
+      "headline": "Мишустин предложил назначить Силуанова вице-премьером и обновить состав правительства РФ",
+      "context": "Президент Владимир Путин поддержал предложения по кадровым перестановкам в кабмине, включая назначение Антона Силуанова вице-премьером — главой Минфина.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040980"
+          "url": "https://www.kommersant.ru/doc/9041674"
         },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1123079"
+          "url": "https://t.me/interfax_news/374399"
         }
       ],
-      "published_at": "2026-10-17T01:56:00+03:00"
+      "published_at": "2026-10-19T10:10:00+03:00"
     },
     {
-      "id": "putin-infrastructure-restoration-program",
-      "headline": "Владимир Путин поручил утвердить программу восстановления пострадавшей от атак инфраструктуры",
-      "context": "Президент РФ также поручил Правительству и Банку России усовершенствовать меры поддержки инвестиций для запуска нового инвестцикла.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1123163"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/politics/news/2026/10/17/1237896-programmu-vosstanovleniya"
-        }
-      ],
-      "published_at": "2026-10-17T12:24:00+03:00"
-    },
-    {
-      "id": "mass-drone-attacks-airports-reopen",
-      "headline": "Средства ПВО уничтожили 610 украинских беспилотников за ночь над 16 регионами России",
-      "context": "Московские и региональные аэропорты возобновили работу после временной приостановки обслуживания рейсов.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1123140"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040994"
-        }
-      ],
-      "published_at": "2026-10-17T08:49:00+03:00"
-    },
-    {
-      "id": "hormuz-strait-supertanker-explosion",
-      "headline": "Супертанкер подорвался на морской мине при проходе через Ормузский пролив",
-      "context": "Корпус стражей Исламской революции заявил о попытке судна пройти коридор по недозволенному маршруту.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040989"
-        }
-      ],
-      "published_at": "2026-10-17T05:44:00+03:00"
-    },
-    {
-      "id": "bitget-bans-russian-users",
-      "headline": "Криптобиржа Bitget внесла пользователей из России Казахстана и Белоруссии в черный список",
-      "context": "Резиденты указанных стран не смогут пользоваться услугами торговой площадки согласно обновленному пользовательскому соглашению.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1123156"
-        }
-      ],
-      "published_at": "2026-10-17T10:49:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "us-treasury-rdif-diesel-assistance",
-      "headline": "Минфин США обратился к РФПИ с просьбой содействовать в реализации дизельной сделки",
-      "context": "Глава РФПИ Кирилл Дмитриев сообщил, что фонд задействован для проведения платежей и решения тактических вопросов.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1123029"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040683"
-        }
-      ],
-      "published_at": "2026-10-16T17:19:00+03:00"
-    },
-    {
-      "id": "smlt-ceo-change",
-      "headline": "Группа Самолет объявила о смене генерального директора на фоне снижения кредитного рейтинга",
-      "context": "Анна Акиньшина покидает пост по личным причинам, на должность нового руководителя предложен Иван Иванов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/310548"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040333"
-        }
-      ],
-      "published_at": "2026-10-16T13:12:00+03:00"
-    },
-    {
-      "id": "cian-9m-dividends",
-      "headline": "Совет директоров ЦИАН рекомендовал дивиденды за девять месяцев в размере 33 рублей",
-      "context": "Дивидендная доходность к текущим ценам составляет порядка 5%, дата закрытия реестра акционеров — 30 ноября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/16/1237574-tsiana-dividendi"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9027872"
-        }
-      ],
-      "published_at": "2026-10-16T09:00:00+03:00"
-    },
-    {
-      "id": "cabinet-postpones-refinery-modernization",
-      "headline": "Правительство России на год перенесет сроки модернизации нефтеперерабатывающих заводов с обратным акцизом",
-      "context": "Вице-премьер Александр Новак сообщил о подготовке соответствующего документа по соглашениям с Минэнерго.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1123041"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040603"
-        }
-      ],
-      "published_at": "2026-10-16T18:14:00+03:00"
-    },
-    {
-      "id": "henderson-9m-dividends",
-      "headline": "Совет директоров Хендерсон рекомендовал дивиденды по итогам девяти месяцев в 8 рублей",
-      "context": "Дата закрытия реестра акционеров для получения выплат установлена на 7 декабря 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/16/1237720-henderson-dividendi"
-        }
-      ],
-      "published_at": "2026-10-16T14:01:00+03:00"
-    },
-    {
-      "id": "vseh-9m-dividends",
-      "headline": "Совет директоров ВсеИнструменты рекомендовал дивиденды за девять месяцев в 7 рублей",
-      "context": "Дивидендная доходность рекомендованной выплаты составляет 8,4%, реестр закроется 7 декабря.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/16/1237709-dividendi-7-rublei"
-        }
-      ],
-      "published_at": "2026-10-16T13:06:00+03:00"
-    },
-    {
-      "id": "cb-kinetic-capital-manipulation",
-      "headline": "Банк России установил факт манипулирования акциями Сбербанка и ОФЗ главой Кинетик Капитала",
-      "context": "Регулятор направил предписание руководителю компании Вадиму Соломахину о недопущении аналогичных нарушений.",
+      "id": "cb-rate-decision-preview-october-2026",
+      "headline": "Аналитики ожидают сохранения ключевой ставки ЦБ РФ на уровне 14 процентов",
+      "context": "Консенсус-прогноз большинства экспертов указывает на сохранение ставки регулятором на заседании 23 октября.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/310537"
+          "url": "https://frankmedia.ru/310534"
         },
         {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1364048.php"
+        }
+      ],
+      "published_at": "2026-10-19T07:43:00+03:00"
+    },
+    {
+      "id": "trump-pauses-anti-russian-sanctions",
+      "headline": "Дональд Трамп приостановил введение новых антироссийских санкций на 60 дней",
+      "context": "Президент США объяснил шаг желанием дать шанс мирным переговорам и сохранить диалог по урегулированию конфликта на Украине.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040331"
-        }
-      ],
-      "published_at": "2026-10-16T11:30:00+03:00"
-    },
-    {
-      "id": "kazt-dividends-retained-earnings",
-      "headline": "Совет директоров КуйбышевАзота рекомендовал выплатить дивиденды из нераспределенной прибыли прошлых лет",
-      "context": "Рекомендованный размер выплат составляет 20 рублей на обыкновенную и привилегированную акции.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram @markettwits",
-          "url": "https://t.me/markettwits/389148"
-        }
-      ],
-      "published_at": "2026-10-16T10:10:00+03:00"
-    },
-    {
-      "id": "x5-q3-revenue-growth",
-      "headline": "Выручка ритейлера X5 в третьем квартале выросла на 13 процентов",
-      "context": "Сопоставимые продажи компании прибавили 7,4% при увеличении среднего чека на 4,9%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/16/1237597-x5-otchitalas-o-roste"
+          "url": "https://www.kommersant.ru/doc/9041529"
         },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9040300"
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/374341"
         }
       ],
-      "published_at": "2026-10-16T10:00:00+03:00"
+      "published_at": "2026-10-19T00:17:00+03:00"
     },
     {
-      "id": "alrosa-dividends-absent-yakutia-budget",
-      "headline": "Власти Якутии не заложили дивидендные поступления от компании АЛРОСА в трехлетний бюджет",
-      "context": "Проект бюджета региона сформирован исходя из полного отсутствия выплат от алмазодобытчика.",
-      "category": "corporate",
+      "id": "duma-gold-mining-taxation-increase",
+      "headline": "В Госдуме поддержали увеличение налогообложения для золотодобывающих компаний",
+      "context": "Вячеслав Володин назвал обоснованными предложения Счетной палаты по повышению налоговой ставки на добычу золота.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/374385"
+        },
+        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/10/16/1237580-otsutstvuyut-dividendi"
+          "url": "https://www.vedomosti.ru/economics/news/2026/10/19/1238083-volodin-podderzhal-ideyu"
         }
       ],
-      "published_at": "2026-10-16T09:06:00+03:00"
+      "published_at": "2026-10-19T10:28:00+03:00"
     },
     {
-      "id": "unicredit-commerzbank-stake-ecb",
-      "headline": "Европейский центральный банк одобрил увеличение доли компании UniCredit в Commerzbank",
-      "context": "Регулятор разрешил итальянской банковской группе нарастить пакет свыше 30% без верхнего предела.",
+      "id": "banks-block-usdt-crypto-arbitrage",
+      "headline": "Российские банки начали блокировать счета участников криптоарбитража с USDT",
+      "context": "Центробанк и кредитные организации пресекают схемы покупки криптовалюты в СНГ и продажи за наличные рубли в РФ из-за рисков отмывания денег.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/310528"
-        }
-      ],
-      "published_at": "2026-10-16T11:25:00+03:00"
-    },
-    {
-      "id": "lesta-games-sale-industrial-structures",
-      "headline": "Консорциум Промышленные сооружения приобрел сменившую владельца группу компаний Леста Игры",
-      "context": "Инвесторы планируют направить до 10 млрд рублей на развитие игровой индустрии в течение трех лет.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9027870"
+          "url": "https://frankmedia.ru/310743"
         },
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/310494"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1364044.php"
         }
       ],
-      "published_at": "2026-10-16T10:07:00+03:00"
+      "published_at": "2026-10-19T10:00:00+03:00"
+    },
+    {
+      "id": "gazprom-shares-rally-us-gas-proposal",
+      "headline": "Акции Газпрома поднялись на фоне новостей об обсуждении поставок газа в Европу",
+      "context": "Представители США обсуждали возобновление закупок российского газа европейскими странами в рамках мирного урегулирования.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1363893.php"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/19/1238055-tsena-aktsii-gazproma"
+        }
+      ],
+      "published_at": "2026-10-19T08:44:00+03:00"
+    },
+    {
+      "id": "us-russia-diesel-deliveries-agreement",
+      "headline": "Российское дизельное топливо поступит на рынок США через 15–20 дней после контрактов",
+      "context": "Вице-премьер Александр Новак подтвердил подготовку коммерческих условий поставок дизеля из РФ.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/374264"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9041332"
+        }
+      ],
+      "published_at": "2026-10-18T13:37:00+03:00"
+    },
+    {
+      "id": "drone-attack-vk-datacenter-ozon-hub",
+      "headline": "Беспилотники атаковали дата-центр VK и логистический хаб Ozon в Ленобласти",
+      "context": "Сервисы компаний продолжили работу в штатном режиме, а котировки акций быстро восстановились после падения.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/374244"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9041227"
+        }
+      ],
+      "published_at": "2026-10-18T09:00:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-10-16"
   }
 }
