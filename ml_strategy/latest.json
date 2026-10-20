@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-17T01:04:54+00:00",
-  "data_as_of": "2026-10-16",
+  "generated_at": "2026-10-20T01:28:35+00:00",
+  "data_as_of": "2026-10-19",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-10-16-6bfe9f36-e25a3316",
-    "as_of": "2026-10-16",
-    "calculated_at": "2026-10-17T01:04:54+00:00",
+    "run_id": "2026-10-19-6bfe9f36-e25a3316",
+    "as_of": "2026-10-19",
+    "calculated_at": "2026-10-20T01:28:35+00:00",
     "model_version": "elastic_net:6bfe9f36784f680e",
     "artifact_hash": "6bfe9f36784f680e",
-    "universe_version": "d1c8b4cb3719fe0b",
+    "universe_version": "704c32e42bc42ee7",
     "features_version": "4ce4b18eb12e9fac",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -31,12 +31,12 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-10-16-6bfe9f36-e25a3316",
-    "as_of": "2026-10-16",
-    "calculated_at": "2026-10-17T01:04:54+00:00",
+    "run_id": "2026-10-19-6bfe9f36-e25a3316",
+    "as_of": "2026-10-19",
+    "calculated_at": "2026-10-20T01:28:35+00:00",
     "model_version": "elastic_net:6bfe9f36784f680e",
     "artifact_hash": "6bfe9f36784f680e",
-    "universe_version": "d1c8b4cb3719fe0b",
+    "universe_version": "704c32e42bc42ee7",
     "features_version": "4ce4b18eb12e9fac",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -50,102 +50,102 @@
         "ticker": "SBERP",
         "name": "Сбербанк-п",
         "sector": "Финансы (Банки)",
-        "calculated_weight": 0.059781,
-        "expected_excess_return_20d": -0.001642,
+        "calculated_weight": 0.059884,
+        "expected_excess_return_20d": -0.000178,
         "sector_drivers": []
       },
       {
         "ticker": "DOMRF",
         "name": "ДОМ.РФ",
         "sector": "Финансы",
-        "calculated_weight": 0.059097,
-        "expected_excess_return_20d": 0.000495,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "HEAD",
-        "name": "Хэдхантер",
-        "sector": "IT",
-        "calculated_weight": 0.040755,
-        "expected_excess_return_20d": -0.000483,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "LENT",
-        "name": "Лента ао",
-        "sector": "Потребительский сектор",
-        "calculated_weight": 0.036792,
-        "expected_excess_return_20d": -0.000514,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "MOEX",
-        "name": "МосБиржа",
-        "sector": "Финансы",
-        "calculated_weight": 0.036387,
-        "expected_excess_return_20d": 0.001496,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "VSEH",
-        "name": "ВИ.ру",
-        "sector": "Потребительский сектор",
-        "calculated_weight": 0.031154,
-        "expected_excess_return_20d": 0.000182,
+        "calculated_weight": 0.059007,
+        "expected_excess_return_20d": 0.002497,
         "sector_drivers": []
       },
       {
         "ticker": "MDMG",
         "name": "MDMG-ао",
         "sector": "Здравоохранение",
-        "calculated_weight": 0.03111,
-        "expected_excess_return_20d": 0.000692,
+        "calculated_weight": 0.043042,
+        "expected_excess_return_20d": 0.002377,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "MOEX",
+        "name": "МосБиржа",
+        "sector": "Финансы",
+        "calculated_weight": 0.039125,
+        "expected_excess_return_20d": 0.002179,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "HEAD",
+        "name": "Хэдхантер",
+        "sector": "IT",
+        "calculated_weight": 0.03815,
+        "expected_excess_return_20d": 0.000379,
         "sector_drivers": []
       },
       {
         "ticker": "FLOT",
         "name": "Совкомфлот",
         "sector": "Транспорт",
-        "calculated_weight": 0.024445,
-        "expected_excess_return_20d": 0.001424,
+        "calculated_weight": 0.029954,
+        "expected_excess_return_20d": 0.002267,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "VSEH",
+        "name": "ВИ.ру",
+        "sector": "Потребительский сектор",
+        "calculated_weight": 0.028893,
+        "expected_excess_return_20d": 0.000352,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "SVCB",
+        "name": "Совкомбанк",
+        "sector": "Финансы (Банки)",
+        "calculated_weight": 0.02606,
+        "expected_excess_return_20d": -0.000108,
         "sector_drivers": []
       },
       {
         "ticker": "FESH",
         "name": "ДВМП ао",
         "sector": "Транспорт",
-        "calculated_weight": 0.020885,
-        "expected_excess_return_20d": 0.000644,
+        "calculated_weight": 0.021371,
+        "expected_excess_return_20d": 0.00223,
         "sector_drivers": []
       },
       {
         "ticker": "IRAO",
         "name": "ИнтерРАОао",
         "sector": "Энергетика",
-        "calculated_weight": 0.019298,
-        "expected_excess_return_20d": -0.000961,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "PHOR",
-        "name": "ФосАгро ао",
-        "sector": "Химия",
-        "calculated_weight": 0.017001,
-        "expected_excess_return_20d": -0.002293,
+        "calculated_weight": 0.020834,
+        "expected_excess_return_20d": -0.001207,
         "sector_drivers": []
       },
       {
         "ticker": "FEES",
         "name": "Россети",
         "sector": "Энергетика",
-        "calculated_weight": 0.013565,
-        "expected_excess_return_20d": -0.00165,
+        "calculated_weight": 0.014681,
+        "expected_excess_return_20d": -0.001023,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "POSI",
+        "name": "iПозитив",
+        "sector": "IT",
+        "calculated_weight": 0.013814,
+        "expected_excess_return_20d": 0.001945,
         "sector_drivers": []
       }
     ],
-    "cash_weight": 0.609732,
-    "diagnostic_turnover": 0.390268,
-    "diagnostic_cost_rub": 1170.8,
+    "cash_weight": 0.605184,
+    "diagnostic_turnover": 0.394816,
+    "diagnostic_cost_rub": 1184.45,
     "affects_current_portfolio": false
   },
   "execution": {
@@ -197,7 +197,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-10-17T00:58:01.938111+00:00"
+    "last_checked_at": "2026-10-20T01:21:41.697737+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
@@ -229,7 +229,7 @@
       }
     },
     "constraints": {
-      "turnover_actual": 0.390268,
+      "turnover_actual": 0.394816,
       "turnover_cap": 0.4,
       "one_way_cost_bps": 30.0,
       "solver_method": "HRP"
