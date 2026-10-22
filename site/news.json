@@ -1,240 +1,344 @@
 {
-  "date": "2026-10-19",
-  "generated_at": "2026-10-19T13:19:51+03:00",
+  "date": "2026-10-22",
+  "generated_at": "2026-10-22T22:11:45+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы завершили торги снижением, азиатские рынки демонстрируют разнонаправленную динамику, цены на нефть опускаются.",
+  "external_backdrop": "Американские фондовые индексы закрылись снижением, тогда как стоимость нефти Brent выросла более чем на 4%.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7659.44",
-      "change_pct": "-1.09%",
-      "as_of": "2026-10-16",
+      "value": "7643.90",
+      "change_pct": "-1.46%",
+      "as_of": "2026-10-22",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26140.03",
-      "change_pct": "-2.15%",
-      "as_of": "2026-10-16",
+      "value": "25937.84",
+      "change_pct": "-2.86%",
+      "as_of": "2026-10-22",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "64916.70",
-      "change_pct": "-0.62%",
-      "as_of": "2026-10-19",
+      "value": "64621.24",
+      "change_pct": "+0.85%",
+      "as_of": "2026-10-21",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24186.83",
-      "change_pct": "+0.52%",
-      "as_of": "2026-10-16",
+      "value": "23651.87",
+      "change_pct": "-0.90%",
+      "as_of": "2026-10-21",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "108.55",
-      "change_pct": "-1.19%",
-      "as_of": "2026-10-19",
+      "value": "113.29",
+      "change_pct": "+4.11%",
+      "as_of": "2026-10-22",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4189.00",
-      "change_pct": "+0.19%",
-      "as_of": "2026-10-19",
+      "value": "4043.00",
+      "change_pct": "-2.58%",
+      "as_of": "2026-10-22",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2456.47",
-      "change_pct": "+1.25%",
-      "as_of": "2026-10-19 13:19:45",
+      "value": "2433.58",
+      "change_pct": "-0.54%",
+      "as_of": "2026-10-22 22:11:42",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "925.48",
-      "change_pct": "+1.26%",
-      "as_of": "2026-10-19 13:19:48",
+      "value": "945.01",
+      "change_pct": "+0.50%",
+      "as_of": "2026-10-22 22:11:43",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.29",
-      "change_pct": "+0.06%",
-      "as_of": "2026-10-19 13:19:48",
+      "value": "81.53",
+      "change_pct": "-0.16%",
+      "as_of": "2026-10-22 22:11:44",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.39",
-      "change_pct": "-0.59%",
-      "as_of": "2026-10-19 13:19:50",
+      "value": "12.16",
+      "change_pct": "+0.05%",
+      "as_of": "2026-10-22 19:15:01",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "gov-cabinet-reshuffle-siluanov-okladnikova",
-      "headline": "Мишустин предложил назначить Силуанова вице-премьером и обновить состав правительства РФ",
-      "context": "Президент Владимир Путин поддержал предложения по кадровым перестановкам в кабмине, включая назначение Антона Силуанова вице-премьером — главой Минфина.",
+      "id": "rosstat-weekly-inflation-slows",
+      "headline": "Недельная инфляция в России замедлилась до 0,05 процента",
+      "context": "С начала года потребительские цены выросли на 6,15%, а годовая инфляция замедлилась до 7,15%.",
       "category": "macro",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9041674"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/374399"
-        }
-      ],
-      "published_at": "2026-10-19T10:10:00+03:00"
-    },
-    {
-      "id": "cb-rate-decision-preview-october-2026",
-      "headline": "Аналитики ожидают сохранения ключевой ставки ЦБ РФ на уровне 14 процентов",
-      "context": "Консенсус-прогноз большинства экспертов указывает на сохранение ставки регулятором на заседании 23 октября.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/310534"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1364048.php"
-        }
-      ],
-      "published_at": "2026-10-19T07:43:00+03:00"
-    },
-    {
-      "id": "trump-pauses-anti-russian-sanctions",
-      "headline": "Дональд Трамп приостановил введение новых антироссийских санкций на 60 дней",
-      "context": "Президент США объяснил шаг желанием дать шанс мирным переговорам и сохранить диалог по урегулированию конфликта на Украине.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9041529"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/374341"
-        }
-      ],
-      "published_at": "2026-10-19T00:17:00+03:00"
-    },
-    {
-      "id": "duma-gold-mining-taxation-increase",
-      "headline": "В Госдуме поддержали увеличение налогообложения для золотодобывающих компаний",
-      "context": "Вячеслав Володин назвал обоснованными предложения Счетной палаты по повышению налоговой ставки на добычу золота.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/374385"
-        },
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/10/19/1238083-volodin-podderzhal-ideyu"
+          "url": "https://www.vedomosti.ru/economics/news/2026/10/21/1239012-inflyatsiya-zamedlilas"
         }
       ],
-      "published_at": "2026-10-19T10:28:00+03:00"
+      "published_at": "2026-10-21T19:00:00+03:00"
     },
     {
-      "id": "banks-block-usdt-crypto-arbitrage",
-      "headline": "Российские банки начали блокировать счета участников криптоарбитража с USDT",
-      "context": "Центробанк и кредитные организации пресекают схемы покупки криптовалюты в СНГ и продажи за наличные рубли в РФ из-за рисков отмывания денег.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
+      "id": "minenergo-gasoline-price-increase-proposal",
+      "headline": "Минэнерго предложило повысить цены на АЗС на 2,1 рубля за литр",
+      "context": "Мера направлена на компенсацию расходов топливных компаний на импорт бензина и дизельного топлива.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/310743"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1364044.php"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9045193"
         }
       ],
-      "published_at": "2026-10-19T10:00:00+03:00"
+      "published_at": "2026-10-22T20:15:00+03:00"
     },
     {
-      "id": "gazprom-shares-rally-us-gas-proposal",
-      "headline": "Акции Газпрома поднялись на фоне новостей об обсуждении поставок газа в Европу",
-      "context": "Представители США обсуждали возобновление закупок российского газа европейскими странами в рамках мирного урегулирования.",
+      "id": "lsr-group-dividend-policy-update",
+      "headline": "Группа ЛСР утвердила новую редакцию дивидендной политики",
+      "context": "Совет директоров компании исключил из документа ориентир по выплате не менее 20% чистой прибыли.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1363893.php"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/19/1238055-tsena-aktsii-gazproma"
+          "url": "https://smart-lab.ru/blog/1365690.php"
         }
       ],
-      "published_at": "2026-10-19T08:44:00+03:00"
+      "published_at": "2026-10-22T17:53:00+03:00"
     },
     {
-      "id": "us-russia-diesel-deliveries-agreement",
-      "headline": "Российское дизельное топливо поступит на рынок США через 15–20 дней после контрактов",
-      "context": "Вице-премьер Александр Новак подтвердил подготовку коммерческих условий поставок дизеля из РФ.",
-      "category": "macro",
+      "id": "tgk1-approves-additional-share-issue",
+      "headline": "Акционеры ТГК-1 одобрили допэмиссию на 3,5 триллиона акций",
+      "context": "Размещение пройдет по закрытой подписке в пользу четырех компаний группы Газпром.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/374264"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9041332"
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/390069"
         }
       ],
-      "published_at": "2026-10-18T13:37:00+03:00"
+      "published_at": "2026-10-22T16:51:00+03:00"
     },
     {
-      "id": "drone-attack-vk-datacenter-ozon-hub",
-      "headline": "Беспилотники атаковали дата-центр VK и логистический хаб Ozon в Ленобласти",
-      "context": "Сервисы компаний продолжили работу в штатном режиме, а котировки акций быстро восстановились после падения.",
+      "id": "sberbank-investor-day-strategy-2029",
+      "headline": "Сбербанк представит новую стратегию на 2027–2029 годы 12 ноября",
+      "context": "На Дне инвестора топ-менеджмент подведет итоги действующей трехлетней программы и поделится планами развития.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/374244"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9041227"
+          "url": "https://www.interfax.ru/business/1124284"
         }
       ],
-      "published_at": "2026-10-18T09:00:00+03:00"
+      "published_at": "2026-10-22T15:34:00+03:00"
+    },
+    {
+      "id": "mmk-q3-operating-results",
+      "headline": "Группа ММК увеличила производство стали за девять месяцев на 7,4 процента",
+      "context": "Выплавка чугуна за тот же период выросла на 8,2%, а продажи металлопродукции — на 6,5%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/10/22/1239143-mmk-narastila"
+        }
+      ],
+      "published_at": "2026-10-22T10:35:00+03:00"
+    },
+    {
+      "id": "ofac-extends-lukoil-asset-sale-license",
+      "headline": "США продлили лицензию на переговоры о продаже зарубежных активов ЛУКОЙЛа",
+      "context": "Управление по контролю за иностранными активами Минфина США продлило разрешение до 21 ноября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9044206"
+        }
+      ],
+      "published_at": "2026-10-21T20:03:00+03:00"
     }
   ],
-  "yesterday": [],
+  "yesterday": [
+    {
+      "id": "cbr-inflation-expectations-october",
+      "headline": "Инфляционные ожидания населения России в октябре снизились до 13,2 процента",
+      "context": "Наблюдаемая гражданами инфляция за тот же период уменьшилась с 15,1% до 14,5%.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/10/21/1238934-inflyatsionnie-ozhidaniya"
+        }
+      ],
+      "published_at": "2026-10-21T16:03:00+03:00"
+    },
+    {
+      "id": "ra-expert-corporate-debt-growth",
+      "headline": "Кредиторская задолженность российских компаний за год выросла на 26 процентов",
+      "context": "Общий объем задолженности достиг 155 трлн рублей, увеличиваясь вдвое быстрее банковских кредитов.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/311045"
+        }
+      ],
+      "published_at": "2026-10-21T07:20:00+03:00"
+    },
+    {
+      "id": "siluanov-state-company-dividends-exceeded",
+      "headline": "Минфин сообщил о перевыполнении плана по дивидендам компаний с госучастием",
+      "context": "Министр финансов Антон Силуанов заявил о высоком уровне поступлений в федеральный бюджет.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/21/1238909-dividendam-s-gosuchastiem"
+        }
+      ],
+      "published_at": "2026-10-21T15:11:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-auction-results",
+      "headline": "Минфин разместил остатки выпуска ОФЗ 26253 на 36,45 миллиарда рублей",
+      "context": "Суммарный спрос инвесторов на аукционе гособлигаций достиг почти 277 млрд рублей.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/21/1238902-minfin-razmestil"
+        }
+      ],
+      "published_at": "2026-10-21T15:03:00+03:00"
+    },
+    {
+      "id": "russia-usa-diesel-export-deal",
+      "headline": "Первый танкер с российским дизельным топливом отправится в США 22 октября",
+      "context": "Судно водоизмещением 40 тыс. тонн доставит партию в рамках достигнутых соглашений.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9043624"
+        }
+      ],
+      "published_at": "2026-10-21T12:24:00+03:00"
+    },
+    {
+      "id": "glorax-share-buyback-offer",
+      "headline": "GloraX объявил оферту на выкуп акций участников IPO по 76,48 рубля",
+      "context": "Выкупная цена превышает стоимость первичного размещения девелопера на 19,5%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/311172"
+        }
+      ],
+      "published_at": "2026-10-21T10:48:00+03:00"
+    },
+    {
+      "id": "minpromtorg-car-loans-subsidy-expansion",
+      "headline": "Минпромторг предложил расширить программу льготного автокредитования",
+      "context": "Инициатива разработана для поддержки продаж отечественных легковых автомобилей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/10/21/1238991-lgotnogo-avtokreditovaniya"
+        }
+      ],
+      "published_at": "2026-10-21T18:20:00+03:00"
+    },
+    {
+      "id": "kamaz-rsbu-revenue-q3",
+      "headline": "Выручка КАМАЗа по РСБУ за девять месяцев выросла на 5 процентов",
+      "context": "Автопроизводитель раскрыл промежуточные финансовые результаты за три квартала.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/21/1238978-viruchka-kamaza"
+        }
+      ],
+      "published_at": "2026-10-21T17:38:00+03:00"
+    },
+    {
+      "id": "cbr-reveals-insider-trading-veles-capital",
+      "headline": "Банк России выявил использование инсайда старшим трейдером Велес Капитала",
+      "context": "Сотрудник совершал личные сделки с использованием информации о клиентских поручениях.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/311354"
+        }
+      ],
+      "published_at": "2026-10-21T16:46:00+03:00"
+    },
+    {
+      "id": "spb-exchange-joins-naufor-cfa",
+      "headline": "СПБ Биржа вошла в состав НАУФОР в качестве оператора систем ЦФА",
+      "context": "Совет директоров ассоциации утвердил членство торговой площадки по профильному направлению.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9043945"
+        }
+      ],
+      "published_at": "2026-10-21T16:11:00+03:00"
+    }
+  ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-10-16"
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
+    "last_trading_day": "2026-10-21"
   }
 }
