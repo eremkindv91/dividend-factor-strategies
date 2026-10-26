@@ -1,8 +1,8 @@
 {
   "date": "2026-10-26",
-  "generated_at": "2026-10-26T11:08:11+03:00",
+  "generated_at": "2026-10-26T13:33:27+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Фондовые индексы США закрылись в минусе, нефть марки Brent существенно дешевеет, а золото демонстрирует умеренный рост",
+  "external_backdrop": "Фондовые индексы США закрылись снижением, стоимость нефти марки Brent опустилась на 5,65%.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,65 +27,116 @@
     },
     {
       "name": "Hang Seng",
-      "value": "23210.29",
+      "value": "23211.81",
       "change_pct": "+0.51%",
       "as_of": "2026-10-26",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "110.38",
-      "change_pct": "-5.43%",
+      "value": "110.13",
+      "change_pct": "-5.65%",
       "as_of": "2026-10-26",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4023.70",
-      "change_pct": "+0.39%",
+      "value": "4030.20",
+      "change_pct": "+0.56%",
       "as_of": "2026-10-26",
       "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2476.85",
+      "change_pct": "+0.49%",
+      "as_of": "2026-10-26 13:33:24",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "968.81",
+      "change_pct": "+0.49%",
+      "as_of": "2026-10-26 13:33:25",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "80.96",
+      "change_pct": "-0.01%",
+      "as_of": "2026-10-26 13:33:24",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.07",
+      "change_pct": "+0.09%",
+      "as_of": "2026-10-26 13:33:27",
+      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "rnpk-insurance-risk-limits",
-      "headline": "РНПК обсуждает введение лимита убытков в 200 миллиардов рублей по рискам диверсий и атак БПЛА",
-      "context": "При превышении порога тариф перестрахования вырастет с 1% до 50%, а лимиты ответственности сократятся в пять раз",
+      "id": "nornickel-9m26-production-results",
+      "headline": "Норникель представил производственные результаты за девять месяцев 2026 года",
+      "context": "За девять месяцев 2026 года производство никеля выросло, в третьем квартале выпущено 736 тысяч унций палладия.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/24479"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/390493"
         },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060350"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1366692.php"
         }
       ],
-      "published_at": "2026-10-26T08:08:00+03:00"
+      "published_at": "2026-10-26T13:02:00+03:00"
     },
     {
-      "id": "minfin-budget-funds-auction",
-      "headline": "Минфин предложил отбирать банки для размещения свободных бюджетных средств через биржевые торги",
-      "context": "Кредитные организации будут конкурировать за средства путем предложения более высоких процентных ставок",
-      "category": "cb_policy",
+      "id": "brent-crude-drops-below-110",
+      "headline": "Стоимость нефти марки Brent опустилась ниже 110 долларов за баррель",
+      "context": "Декабрьский фьючерс на нефть марки Brent снижался до 109,5 доллара за баррель.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060397"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/375936"
+        }
+      ],
+      "published_at": "2026-10-26T09:04:00+03:00"
+    },
+    {
+      "id": "rusagro-9m26-revenue",
+      "headline": "Выручка Русагро за девять месяцев 2026 года увеличилась на 10 процентов",
+      "context": "Консолидированная выручка компании за девять месяцев достигла 292,8 миллиарда рублей.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/24480"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/390478"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1366639.php"
         }
       ],
-      "published_at": "2026-10-26T08:18:00+03:00"
+      "published_at": "2026-10-26T12:02:00+03:00"
     },
     {
-      "id": "phosagro-3q26-financial-results",
-      "headline": "Фосагро отчиталась о росте выручки в третьем квартале 2026 года на 15 процентов",
-      "context": "Скорректированная EBITDA компании за третий квартал выросла на 25,9% к предыдущему кварталу до 46,3 млрд рублей",
+      "id": "phosagro-9m26-financials",
+      "headline": "Чистая прибыль Фосагро за девять месяцев 2026 года сократилась на 67 процентов",
+      "context": "Выручка компании за три квартала составила 446,1 миллиарда рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -93,81 +144,70 @@
         {
           "name": "Mozgovik Research",
           "url": "https://t.me/mozgovikresearch/3950"
-        }
-      ],
-      "published_at": "2026-10-26T02:19:00+03:00"
-    },
-    {
-      "id": "zaymer-board-dividend-meeting",
-      "headline": "Совет директоров Займера 27 октября рассмотрит вопрос о дивидендах за девять месяцев",
-      "context": "Также совет директоров компании обсудит вопрос об участии в другой организации",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1366514.php"
-        },
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/390423"
-        }
-      ],
-      "published_at": "2026-10-26T08:15:00+03:00"
-    },
-    {
-      "id": "russia-gas-supplies-europe-readiness",
-      "headline": "Россия заявила о готовности обсуждать поставки газа в Европу при наличии свободного сырья",
-      "context": "Пресс-секретарь президента Дмитрий Песков отметил необходимость наличия коммерческого интереса со стороны покупателей",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060328"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/if_market_news/86317"
-        }
-      ],
-      "published_at": "2026-10-26T08:16:00+03:00"
-    },
-    {
-      "id": "mvideo-launches-marketplace-zones",
-      "headline": "Сеть М Видео перезапустила пять пилотных магазинов с зонами товаров из маркетплейса",
-      "context": "До конца 2026 года компания планирует открыть еще шесть магазинов в новом формате при успешных результатах",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/390455"
         },
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/26/1239667-mvideo-perezapustila"
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/26/1240046-pribil-fosagro"
         }
       ],
-      "published_at": "2026-10-26T10:08:00+03:00"
+      "published_at": "2026-10-26T10:20:00+03:00"
     },
     {
-      "id": "russia-thermal-coal-exports-drop",
-      "headline": "Экспорт некоксующегося угля из России за девять месяцев снизился на 18,6 процента",
-      "context": "Общий объем поставок упал до 42,5 млн тонн из-за ослабления спроса и конкуренции на азиатских рынках",
+      "id": "minfin-budget-funds-placement-exchange",
+      "headline": "Минфин предложил отбирать банки для размещения бюджетных средств через биржевые торги",
+      "context": "Кредитные организации будут конкурировать, предлагая более высокие процентные ставки.",
       "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312042"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1366553.php"
+        }
+      ],
+      "published_at": "2026-10-26T08:04:00+03:00"
+    },
+    {
+      "id": "rnpk-threshold-terrorism-risks",
+      "headline": "РНПК планирует ввести порог убытков в 200 миллиардов рублей по рискам диверсий",
+      "context": "При превышении лимита перестраховочный тариф вырастет с 1% до 50%.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060225"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312040"
+        }
+      ],
+      "published_at": "2026-10-26T07:52:00+03:00"
+    },
+    {
+      "id": "spb-exchange-record-trading-volume",
+      "headline": "СПБ Биржа зафиксировала новый рекорд дневного объема торгов неоактивами",
+      "context": "23 октября объем торгов неоактивами на площадке достигал 59,7 миллиарда рублей.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060263"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1366646.php"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/390480"
         }
       ],
-      "published_at": "2026-10-26T02:50:00+03:00"
+      "published_at": "2026-10-26T12:10:00+03:00"
     }
   ],
   "yesterday": [],
