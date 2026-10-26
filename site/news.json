@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-25",
-  "generated_at": "2026-10-25T20:43:00+03:00",
+  "date": "2026-10-26",
+  "generated_at": "2026-10-26T11:08:11+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы закрылись преимущественным снижением, цены на нефть Brent и золото также снизились.",
+  "external_backdrop": "Фондовые индексы США закрылись в минусе, нефть марки Brent существенно дешевеет, а золото демонстрирует умеренный рост",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,262 +20,162 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "62693.16",
-      "change_pct": "-0.34%",
-      "as_of": "2026-10-23",
+      "value": "62189.65",
+      "change_pct": "-0.80%",
+      "as_of": "2026-10-26",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23093.37",
-      "change_pct": "+0.69%",
-      "as_of": "2026-10-23",
+      "value": "23210.29",
+      "change_pct": "+0.51%",
+      "as_of": "2026-10-26",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "111.70",
-      "change_pct": "-1.30%",
-      "as_of": "2026-10-23",
+      "value": "110.38",
+      "change_pct": "-5.43%",
+      "as_of": "2026-10-26",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4007.90",
-      "change_pct": "-1.29%",
-      "as_of": "2026-10-23",
+      "value": "4023.70",
+      "change_pct": "+0.39%",
+      "as_of": "2026-10-26",
       "group": "commodity"
-    },
-    {
-      "name": "IMOEX",
-      "value": "2469.36",
-      "change_pct": "+1.64%",
-      "as_of": "2026-10-23 23:50:03",
-      "group": "ru_equity"
-    },
-    {
-      "name": "RTS",
-      "value": "965.88",
-      "change_pct": "+2.38%",
-      "as_of": "2026-10-23 23:50:02",
-      "group": "ru_equity"
-    },
-    {
-      "name": "USD/RUB",
-      "value": "80.81",
-      "change_pct": "-0.88%",
-      "as_of": "2026-10-23 23:54:58",
-      "group": "fx"
-    },
-    {
-      "name": "CNY/RUB",
-      "value": "12.06",
-      "change_pct": "-0.83%",
-      "as_of": "2026-10-23 23:50:02",
-      "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ozon-omsk-bpla-attack",
-      "headline": "Логистический центр компании Ozon в Омске подвергся атаке беспилотных летательных аппаратов",
-      "context": "На складе маркетплейса возникло возгорание, по предварительным данным пострадавших среди сотрудников нет.",
+      "id": "rnpk-insurance-risk-limits",
+      "headline": "РНПК обсуждает введение лимита убытков в 200 миллиардов рублей по рискам диверсий и атак БПЛА",
+      "context": "При превышении порога тариф перестрахования вырастет с 1% до 50%, а лимиты ответственности сократятся в пять раз",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9059892"
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/24479"
         },
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/24/1239869-logisticheskii-tsentr-ozon"
-        }
-      ],
-      "published_at": "2026-10-24T18:28:00+03:00"
-    },
-    {
-      "id": "novatek-alaska-spg-discussions",
-      "headline": "США и Россия обсуждают газовый терминал на Аляске в обмен на снятие санкций",
-      "context": "Проект развивается при участии НОВАТЭКа и инвестора Джентри Бича на фоне возможных послаблений для «Арктик СПГ-2».",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390317"
-        }
-      ],
-      "published_at": "2026-10-24T19:06:00+03:00"
-    },
-    {
-      "id": "nmtp-q3-2026-ras-results",
-      "headline": "Чистая прибыль НМТП по РСБУ за третий квартал снизилась на четыре процента",
-      "context": "Портовый оператор опубликует подробную отчетность по РСБУ за девять месяцев 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/3947"
-        }
-      ],
-      "published_at": "2026-10-24T00:10:00+03:00"
-    },
-    {
-      "id": "russia-us-trilateral-negotiations-ukraine",
-      "headline": "Россия и США готовят трехсторонние переговоры по украинскому урегулированию после четвертого ноября",
-      "context": "Представители сторон рассматривают возможность проведения встречи лидеров на саммите АТЭС в Китае.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060023"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1124856"
+          "url": "https://www.kommersant.ru/doc/9060350"
         }
       ],
-      "published_at": "2026-10-25T12:19:00+03:00"
+      "published_at": "2026-10-26T08:08:00+03:00"
     },
     {
-      "id": "sovcombank-npl-bond-issue",
-      "headline": "Совкомбанк собирает заявки на облигации с обеспечением из просроченных потребительских кредитов",
-      "context": "Объем пятилетнего выпуска составит 1,4 миллиарда рублей при пуле обеспечения на 7,2 миллиарда рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060211"
-        }
-      ],
-      "published_at": "2026-10-25T18:48:00+03:00"
-    },
-    {
-      "id": "nis-us-license-extension-request",
-      "headline": "Сербская компания NIS обратилась в Минфин США за продлением операционной лицензии",
-      "context": "Текущее специальное разрешение американского регулятора истекает 30 октября 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1124774"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/24/1239866-nis-zaprosila-prodlenie-litsenzii"
-        }
-      ],
-      "published_at": "2026-10-24T16:39:00+03:00"
-    },
-    {
-      "id": "starlink-usage-restriction-ukraine",
-      "headline": "Илон Маск заблокировал использование сети Starlink для наступательных атак беспилотников",
-      "context": "Глава SpaceX заявил об устраненной лазейке и соблюдении правил использования гражданского сервиса.",
-      "category": "tech",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1124810"
-        }
-      ],
-      "published_at": "2026-10-24T23:44:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "cbr-key-rate-maintained-14-percent",
-      "headline": "Банк России сохранил ключевую ставку на уровне четырнадцати процентов годовых",
-      "context": "Регулятор пересмотрел прогнозы по инфляции и траектории ключевой ставки на среднесрочный период.",
+      "id": "minfin-budget-funds-auction",
+      "headline": "Минфин предложил отбирать банки для размещения свободных бюджетных средств через биржевые торги",
+      "context": "Кредитные организации будут конкурировать за средства путем предложения более высоких процентных ставок",
       "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24476"
-        }
-      ],
-      "published_at": "2026-10-24T10:04:00+03:00"
-    },
-    {
-      "id": "sberbank-net-profit-2026-forecast",
-      "headline": "Сбербанк подтвердил прогноз по чистой прибыли около двух триллионов рублей в 2026 году",
-      "context": "Финансовая организация сохраняет ориентиры по прибыльности несмотря на жесткие денежно-кредитные условия.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24476"
-        }
-      ],
-      "published_at": "2026-10-24T10:04:00+03:00"
-    },
-    {
-      "id": "moex-tightens-bond-trading-rules",
-      "headline": "Московская биржа ужесточит правила торгов облигациями для предотвращения резких скачков цен",
-      "context": "Решение принято решением биржи после случаев нетипичного разгона стоимости отдельных выпусков.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24476"
-        }
-      ],
-      "published_at": "2026-10-24T10:04:00+03:00"
-    },
-    {
-      "id": "debt-market-26-defaults-registered",
-      "headline": "На российском долговом рынке зафиксировано двадцать шесть дефолтов за прошедшую неделю",
-      "context": "Три эмитента пополнили список нарушителей, при этом двое из них оперативно погасили обязательства.",
-      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/311458"
+          "url": "https://t.me/frank_media/24480"
         }
       ],
-      "published_at": "2026-10-24T10:00:00+03:00"
+      "published_at": "2026-10-26T08:18:00+03:00"
     },
     {
-      "id": "kazakhstan-central-bank-cuts-rate",
-      "headline": "Национальный банк Казахстана снизил базовую ставку до пятнадцати и семидесяти пяти сотых процента",
-      "context": "Регулятор продолжит оценивать поступающие макроэкономические данные для определения дальнейшей траектории.",
-      "category": "cb_policy",
-      "investment_relevant": false,
+      "id": "phosagro-3q26-financial-results",
+      "headline": "Фосагро отчиталась о росте выручки в третьем квартале 2026 года на 15 процентов",
+      "context": "Скорректированная EBITDA компании за третий квартал выросла на 25,9% к предыдущему кварталу до 46,3 млрд рублей",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Mozgovik Research",
+          "url": "https://t.me/mozgovikresearch/3950"
+        }
+      ],
+      "published_at": "2026-10-26T02:19:00+03:00"
+    },
+    {
+      "id": "zaymer-board-dividend-meeting",
+      "headline": "Совет директоров Займера 27 октября рассмотрит вопрос о дивидендах за девять месяцев",
+      "context": "Также совет директоров компании обсудит вопрос об участии в другой организации",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1366514.php"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/390423"
+        }
+      ],
+      "published_at": "2026-10-26T08:15:00+03:00"
+    },
+    {
+      "id": "russia-gas-supplies-europe-readiness",
+      "headline": "Россия заявила о готовности обсуждать поставки газа в Европу при наличии свободного сырья",
+      "context": "Пресс-секретарь президента Дмитрий Песков отметил необходимость наличия коммерческого интереса со стороны покупателей",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060328"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/if_market_news/86317"
+        }
+      ],
+      "published_at": "2026-10-26T08:16:00+03:00"
+    },
+    {
+      "id": "mvideo-launches-marketplace-zones",
+      "headline": "Сеть М Видео перезапустила пять пилотных магазинов с зонами товаров из маркетплейса",
+      "context": "До конца 2026 года компания планирует открыть еще шесть магазинов в новом формате при успешных результатах",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24476"
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/390455"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/10/26/1239667-mvideo-perezapustila"
         }
       ],
-      "published_at": "2026-10-24T10:04:00+03:00"
+      "published_at": "2026-10-26T10:08:00+03:00"
+    },
+    {
+      "id": "russia-thermal-coal-exports-drop",
+      "headline": "Экспорт некоксующегося угля из России за девять месяцев снизился на 18,6 процента",
+      "context": "Общий объем поставок упал до 42,5 млн тонн из-за ослабления спроса и конкуренции на азиатских рынках",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060263"
+        }
+      ],
+      "published_at": "2026-10-26T02:50:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-10-23"
   }
 }
