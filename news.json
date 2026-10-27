@@ -1,150 +1,256 @@
 {
-  "date": "2026-10-26",
-  "generated_at": "2026-10-26T13:33:27+03:00",
+  "date": "2026-10-27",
+  "generated_at": "2026-10-27T13:04:36+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Фондовые индексы США закрылись снижением, стоимость нефти марки Brent опустилась на 5,65%.",
+  "external_backdrop": "Американские и азиатские фондовые индексы, за исключением Hang Seng, завершили торги ростом, цены на нефть Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7623.68",
-      "change_pct": "-0.52%",
-      "as_of": "2026-10-23",
+      "value": "7676.77",
+      "change_pct": "+0.70%",
+      "as_of": "2026-10-26",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25955.34",
-      "change_pct": "-0.21%",
-      "as_of": "2026-10-23",
+      "value": "26169.38",
+      "change_pct": "+0.82%",
+      "as_of": "2026-10-26",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "62189.65",
-      "change_pct": "-0.80%",
-      "as_of": "2026-10-26",
+      "value": "63268.37",
+      "change_pct": "+1.73%",
+      "as_of": "2026-10-27",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23211.81",
-      "change_pct": "+0.51%",
-      "as_of": "2026-10-26",
+      "value": "23041.32",
+      "change_pct": "-0.73%",
+      "as_of": "2026-10-27",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "110.13",
-      "change_pct": "-5.65%",
-      "as_of": "2026-10-26",
+      "value": "110.86",
+      "change_pct": "-4.27%",
+      "as_of": "2026-10-27",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4030.20",
-      "change_pct": "+0.56%",
-      "as_of": "2026-10-26",
+      "value": "4010.30",
+      "change_pct": "-0.70%",
+      "as_of": "2026-10-27",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2476.85",
-      "change_pct": "+0.49%",
-      "as_of": "2026-10-26 13:33:24",
+      "value": "2514.29",
+      "change_pct": "+0.92%",
+      "as_of": "2026-10-27 13:04:33",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "968.81",
-      "change_pct": "+0.49%",
-      "as_of": "2026-10-26 13:33:25",
+      "value": "984.05",
+      "change_pct": "+0.92%",
+      "as_of": "2026-10-27 13:04:34",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "80.96",
-      "change_pct": "-0.01%",
-      "as_of": "2026-10-26 13:33:24",
+      "value": "80.84",
+      "change_pct": "-0.17%",
+      "as_of": "2026-10-27 13:04:35",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.07",
-      "change_pct": "+0.09%",
-      "as_of": "2026-10-26 13:33:27",
+      "value": "12.06",
+      "change_pct": "-0.22%",
+      "as_of": "2026-10-27 13:04:36",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "nornickel-9m26-production-results",
-      "headline": "Норникель представил производственные результаты за девять месяцев 2026 года",
-      "context": "За девять месяцев 2026 года производство никеля выросло, в третьем квартале выпущено 736 тысяч унций палладия.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/390493"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1366692.php"
-        }
-      ],
-      "published_at": "2026-10-26T13:02:00+03:00"
-    },
-    {
-      "id": "brent-crude-drops-below-110",
-      "headline": "Стоимость нефти марки Brent опустилась ниже 110 долларов за баррель",
-      "context": "Декабрьский фьючерс на нефть марки Brent снижался до 109,5 доллара за баррель.",
-      "category": "markets",
+      "id": "talks-stubb-store-putin",
+      "headline": "Президент Финляндии и премьер Норвегии провели телефонный разговор с Владимиром Путиным по Украине",
+      "context": "Европейские лидеры выступили инициаторами звонка с целью обсуждения условий прекращения конфликта и возобновления переговоров.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/27/10/2026/6ae07083671e79bee97f848b"
+        }
+      ],
+      "published_at": "2026-10-27T12:36:00+03:00"
+    },
+    {
+      "id": "astra-vmmanager-ai-attack",
+      "headline": "Система управления серверами VMmanager 6 от Группы Астра подверглась кибератаке с применением ИИ",
+      "context": "Атака затронула ряд хостинг-провайдеров и адаптировалась под индивидуальные настройки оборудования.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312290"
+        }
+      ],
+      "published_at": "2026-10-27T11:45:00+03:00"
+    },
+    {
+      "id": "moex-credit-default-swaps",
+      "headline": "Московская биржа до конца 2026 года запустит торги кредитными дефолтными свопами",
+      "context": "Новый финансовый инструмент планируют сделать доступным по контрактам десяти крупнейших российских эмитентов.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312277"
+        }
+      ],
+      "published_at": "2026-10-27T11:07:00+03:00"
+    },
+    {
+      "id": "us-congress-diesel-threats",
+      "headline": "В Конгрессе США пригрозили бизнесу уголовной ответственностью за импорт дизельного топлива из России",
+      "context": "Американские законодатели предупредили нефтяные компании о штрафах до 1 млн долларов и лишении свободы на срок до 20 лет.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060397"
-        },
+          "url": "https://www.kommersant.ru/doc/9061382"
+        }
+      ],
+      "published_at": "2026-10-27T10:08:00+03:00"
+    },
+    {
+      "id": "whoosh-four-day-workweek",
+      "headline": "Сервис кикшеринга Whoosh переводит сотрудников на четырехдневную рабочую неделю с урезанием зарплат",
+      "context": "Оптимизационные меры затронут руководство и головной офис компании и продлятся по март 2027 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9061233"
+        }
+      ],
+      "published_at": "2026-10-27T04:22:00+03:00"
+    },
+    {
+      "id": "opora-russia-tax-proposals",
+      "headline": "Объединение Опора России предложило ограничить налог на дивиденды предельной ставкой 18%",
+      "context": "Бизнес-объединение направило поправки к бюджетному пакету в Минфин и Госдуму для снижения финансовой нагрузки.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9061190"
+        }
+      ],
+      "published_at": "2026-10-27T00:02:00+03:00"
+    },
+    {
+      "id": "family-mortgage-diff-putin",
+      "headline": "Президент поручил рассмотреть дифференциацию максимального размера кредита по семейной ипотеке",
+      "context": "Правительству предписано подготовить предложения по изменению параметров льготной программы с учетом количества детей.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9061181"
+        }
+      ],
+      "published_at": "2026-10-26T21:44:00+03:00"
+    },
+    {
+      "id": "sfi-buys-bikow-assets",
+      "headline": "Холдинг ЭсЭфАй купил доли в банке и инвесткомпаниях на торгах за 1,43 миллиарда рублей",
+      "context": "Победитель аукциона зафиксировал покупку пакетов акций банковских и финансовых активов по минимальной стартовой цене.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312333"
+        }
+      ],
+      "published_at": "2026-10-27T13:03:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "cb-cash-operations-control",
+      "headline": "Банк России рекомендовал комбанкам проверять источники средств клиентов при операциях от 5 млн рублей",
+      "context": "Контроль рекомендовано вводить при внесении наличных на счета, покупке драгметаллов или обмене валюты.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/375936"
+          "url": "https://www.interfax.ru/business/1125049"
         }
       ],
-      "published_at": "2026-10-26T09:04:00+03:00"
+      "published_at": "2026-10-26T17:19:00+03:00"
     },
     {
-      "id": "rusagro-9m26-revenue",
-      "headline": "Выручка Русагро за девять месяцев 2026 года увеличилась на 10 процентов",
-      "context": "Консолидированная выручка компании за девять месяцев достигла 292,8 миллиарда рублей.",
+      "id": "acron-dividends-approval",
+      "headline": "Акционеры Акрона утвердили дивиденды из нераспределенной прибыли в размере 146 рублей на акцию",
+      "context": "Закрытие реестра акционеров для получения выплат назначено на 2 ноября 2026 года.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/390478"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1366639.php"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/26/1240209-akrona-dividendi"
         }
       ],
-      "published_at": "2026-10-26T12:02:00+03:00"
+      "published_at": "2026-10-26T16:09:00+03:00"
     },
     {
-      "id": "phosagro-9m26-financials",
-      "headline": "Чистая прибыль Фосагро за девять месяцев 2026 года сократилась на 67 процентов",
-      "context": "Выручка компании за три квартала составила 446,1 миллиарда рублей.",
+      "id": "nornickel-9m-production",
+      "headline": "Норникель нарастил производство никеля на 4% за девять месяцев и подтвердил годовой прогноз",
+      "context": "Объем выпуска никеля достиг 146 тыс. тонн, тогда как производство палладия снизилось на 4% до 1,93 млн унций.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "Mozgovik Research",
-          "url": "https://t.me/mozgovikresearch/3950"
-        },
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060869"
+        }
+      ],
+      "published_at": "2026-10-26T15:24:00+03:00"
+    },
+    {
+      "id": "phosagro-9m-results",
+      "headline": "Чистая прибыль Фосагро за девять месяцев сократилась на 67% до 31,3 миллиарда рублей",
+      "context": "Снижение финансового результата связано со значительным удорожанием серы и серной кислоты.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/10/26/1240046-pribil-fosagro"
@@ -153,69 +259,116 @@
       "published_at": "2026-10-26T10:20:00+03:00"
     },
     {
-      "id": "minfin-budget-funds-placement-exchange",
-      "headline": "Минфин предложил отбирать банки для размещения бюджетных средств через биржевые торги",
-      "context": "Кредитные организации будут конкурировать, предлагая более высокие процентные ставки.",
-      "category": "macro",
+      "id": "bank-sector-september-profit",
+      "headline": "Чистая прибыль банковского сектора России в сентябре снизилась на 5,9% до 414 миллиардов рублей",
+      "context": "Сокращение месячной прибыли обусловлено уменьшением дивидендных поступлений и убытками от ценных бумаг.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1125060"
+        }
+      ],
+      "published_at": "2026-10-26T18:04:00+03:00"
+    },
+    {
+      "id": "yandex-supercomputers-relocation",
+      "headline": "Яндекс сообщил о переносе суперкомпьютеров на новые площадки без их повреждения",
+      "context": "Вычислительные комплексы Ляпунов, Галушкин и Червоненкис продолжат использоваться для сервисов компании и обучения ИИ.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312122"
+        }
+      ],
+      "published_at": "2026-10-26T14:51:00+03:00"
+    },
+    {
+      "id": "trassa-bankruptcy-claim",
+      "headline": "Налоговая служба потребовала признать банкротом оператора сети АЗС Трасса",
+      "context": "Иск ФНС к юридическому лицу ООО Трасса ГСМ направлен в Арбитражный суд Московской области.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060724"
+        }
+      ],
+      "published_at": "2026-10-26T13:43:00+03:00"
+    },
+    {
+      "id": "minfin-budget-funds-auction",
+      "headline": "Минфин предложил отбирать банки для размещения временно свободных бюджетных средств через биржевые торги",
+      "context": "Новый механизм предполагает конкурс между кредитными организациями по уровню предлагаемых ставок.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312042"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1366553.php"
         }
       ],
       "published_at": "2026-10-26T08:04:00+03:00"
     },
     {
-      "id": "rnpk-threshold-terrorism-risks",
-      "headline": "РНПК планирует ввести порог убытков в 200 миллиардов рублей по рискам диверсий",
-      "context": "При превышении лимита перестраховочный тариф вырастет с 1% до 50%.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9060225"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312040"
-        }
-      ],
-      "published_at": "2026-10-26T07:52:00+03:00"
-    },
-    {
-      "id": "spb-exchange-record-trading-volume",
-      "headline": "СПБ Биржа зафиксировала новый рекорд дневного объема торгов неоактивами",
-      "context": "23 октября объем торгов неоактивами на площадке достигал 59,7 миллиарда рублей.",
-      "category": "markets",
+      "id": "europlan-bond-placement",
+      "headline": "Лизинговая компания Европлан зафиксировала объем размещения облигаций на уровне 13,5 миллиарда рублей",
+      "context": "Эмитент завершил формирование книги заявок по новому выпуску долговых ценных бумаг.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1366646.php"
-        },
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/390480"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/26/1240222-obem-razmescheniya"
         }
       ],
-      "published_at": "2026-10-26T12:10:00+03:00"
+      "published_at": "2026-10-26T16:41:00+03:00"
+    },
+    {
+      "id": "data-center-protection-guidelines",
+      "headline": "Минцифры утвердило рекомендации по защите дата-центров от атак беспилотных летательных аппаратов",
+      "context": "Документ распределяет ЦОД по трем категориям значимости и предусматривает комплекс инженерных мер.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312051"
+        }
+      ],
+      "published_at": "2026-10-26T08:55:00+03:00"
+    },
+    {
+      "id": "exporters-fx-sales-september",
+      "headline": "Продажи валюты крупнейшими экспортерами выросли в сентябре на 4,9 миллиарда долларов",
+      "context": "Суммарный объем продаж достиг 23,7 млрд долларов благодаря увеличению экспортных цен и предстоящим налоговым платежам.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9060241"
+        }
+      ],
+      "published_at": "2026-10-26T02:47:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-10-23"
+    "last_trading_day": "2026-10-26"
   }
 }
