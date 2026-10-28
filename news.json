@@ -1,85 +1,100 @@
 {
   "date": "2026-10-28",
-  "generated_at": "2026-10-28T13:51:46+03:00",
+  "generated_at": "2026-10-28T23:13:57+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Фондовые индексы США и Азии выросли, котировки нефти Brent и золота снизились.",
+  "external_backdrop": "Американские фондовые индексы и Nikkei 225 закрылись ростом, индекс Hang Seng и нефть Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7722.60",
-      "change_pct": "+0.60%",
-      "as_of": "2026-10-27",
+      "value": "7743.98",
+      "change_pct": "+0.28%",
+      "as_of": "2026-10-28",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "26477.81",
-      "change_pct": "+1.18%",
-      "as_of": "2026-10-27",
+      "value": "26549.85",
+      "change_pct": "+0.27%",
+      "as_of": "2026-10-28",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63954.19",
-      "change_pct": "+1.08%",
-      "as_of": "2026-10-28",
+      "value": "63268.37",
+      "change_pct": "+1.73%",
+      "as_of": "2026-10-27",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23094.83",
-      "change_pct": "+0.23%",
-      "as_of": "2026-10-28",
+      "value": "23041.32",
+      "change_pct": "-0.73%",
+      "as_of": "2026-10-27",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "110.77",
-      "change_pct": "-2.73%",
+      "value": "110.01",
+      "change_pct": "-3.40%",
       "as_of": "2026-10-28",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4060.20",
-      "change_pct": "-0.35%",
+      "value": "4088.40",
+      "change_pct": "+0.34%",
       "as_of": "2026-10-28",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2527.29",
-      "change_pct": "+0.67%",
-      "as_of": "2026-10-28 13:51:43",
+      "value": "2522.29",
+      "change_pct": "+0.47%",
+      "as_of": "2026-10-28 23:13:53",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "988.63",
-      "change_pct": "+0.67%",
-      "as_of": "2026-10-28 13:51:44",
+      "value": "982.58",
+      "change_pct": "+0.06%",
+      "as_of": "2026-10-28 23:13:54",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "81.00",
-      "change_pct": "-0.04%",
-      "as_of": "2026-10-28 13:51:44",
+      "value": "80.67",
+      "change_pct": "-0.45%",
+      "as_of": "2026-10-28 23:13:56",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.07",
-      "change_pct": "-0.06%",
-      "as_of": "2026-10-28 13:51:45",
+      "value": "12.03",
+      "change_pct": "-0.05%",
+      "as_of": "2026-10-28 19:15:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ozon-q3-2026-results-and-drone-losses",
-      "headline": "Ozon зарезервировал тридцать миллиардов рублей на покрытие убытков от атак беспилотников",
-      "context": "Выручка маркетплейса в третьем квартале выросла в 1,6 раза до 421,2 млрд рублей, а чистая прибыль составила 3,7 млрд рублей.",
+      "id": "sberbank-q3-2026-results-and-div-policy",
+      "headline": "Сбербанк увеличил чистую прибыль за девять месяцев на 17% до 1,53 триллиона рублей",
+      "context": "Банк также анонсировал рассмотрение новой дивидендной политики на 2027–2029 годы Наблюдательным советом 10 ноября.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9062552"
+        }
+      ],
+      "published_at": "2026-10-28T11:27:00+03:00"
+    },
+    {
+      "id": "ozon-q3-2026-financial-results",
+      "headline": "Чистая прибыль Ozon в третьем квартале выросла на 25% до 3,7 миллиарда рублей",
+      "context": "Компания зарезервировала 30,1 млрд рублей на покрытие убытков от атак беспилотников на свои логистические объекты.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -87,153 +102,121 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9062474"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/376375"
         }
       ],
       "published_at": "2026-10-28T09:53:00+03:00"
     },
     {
-      "id": "sberbank-q3-2026-ifrs-profit",
-      "headline": "Сбербанк увеличил чистую прибыль по МСФО за девять месяцев на семнадцать процентов",
-      "context": "Чистая прибыль кредитной организации за девять месяцев 2026 года достигла 1,53 трлн рублей, а за третий квартал составила 511 млрд рублей.",
+      "id": "fed-maintains-key-rate-october-2026",
+      "headline": "Федеральная резервная система США сохранила ключевую процентную ставку на уровне 3,75–4,00% годовых",
+      "context": "Регулятор отметил, что инфляция в стране остается повышенной, а для следующих решений потребуется больше данных.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1125617"
+        }
+      ],
+      "published_at": "2026-10-28T21:19:00+03:00"
+    },
+    {
+      "id": "lsr-group-announces-share-buyback",
+      "headline": "Совет директоров Группы ЛСР одобрил выкуп акций компании по цене 675 рублей за бумагу",
+      "context": "Всего девелопер планирует приобрести до 5,15 млн собственных акций в период с 18 ноября по 17 декабря.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/376373"
-        },
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/86410"
-        }
-      ],
-      "published_at": "2026-10-28T09:51:00+03:00"
-    },
-    {
-      "id": "preferential-auto-loans-resumption-december-2026",
-      "headline": "Минпромторг и Минфин согласовали возобновление программы льготного автокредитования с первого декабря",
-      "context": "Финансирование программы будет осуществляться из лимитов бюджетных ассигнований 2027 года.",
-      "category": "macro",
-      "investment_relevant": true,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/376428"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312640"
-        }
-      ],
-      "importance": 4,
-      "published_at": "2026-10-28T13:24:00+03:00"
-    },
-    {
-      "id": "ft-us-russia-energy-talks-and-novak-denial",
-      "headline": "Новак опроверг переговоры с американскими компаниями о возвращении в российские нефтегазовые проекты",
-      "context": "Ранее Financial Times сообщила о том, что США и Россия обсуждают возвращение американских энергетических компаний на российский рынок.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390895"
-        },
-        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/28/1240776-rf-ne-obsuzhdaet"
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/28/1240908-gruppa-lsr"
         }
       ],
-      "published_at": "2026-10-28T13:13:00+03:00"
+      "published_at": "2026-10-28T18:44:00+03:00"
     },
     {
-      "id": "zaymer-q3-2026-dividends",
-      "headline": "Совет директоров Займера рекомендовал дивиденды за третий квартал в размере семь рублей на акцию",
-      "context": "Выплата за третий квартал составит 7,14 рубля на акцию, а общие дивиденды за девять месяцев — 16,36 рубля на акцию.",
+      "id": "russia-weekly-inflation-october-2026",
+      "headline": "Годовая инфляция в России на 26 октября замедлилась до 7,11% при недельном росте на 0,08%",
+      "context": "По данным Минэкономразвития и Росстата, основной рост цен зафиксирован в сегменте плодоовощной продукции.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1125579"
+        }
+      ],
+      "published_at": "2026-10-28T19:19:00+03:00"
+    },
+    {
+      "id": "rosneft-board-to-consider-interim-dividends",
+      "headline": "Совет директоров Роснефти 6 ноября рассмотрит вопрос о рекомендации промежуточных дивидендов",
+      "context": "Заседание совета директоров компании по вопросу выплат за 9 месяцев 2026 года назначено на начало ноября.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390827"
-        },
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1125550"
+        }
+      ],
+      "published_at": "2026-10-28T17:49:00+03:00"
+    },
+    {
+      "id": "minfin-places-ofz-bonds-october-28",
+      "headline": "Минфин России разместил два выпуска ОФЗ-ПД на общую сумму 156,7 миллиарда рублей",
+      "context": "Ведомство признало прошедшие аукционы состоявшимися при высоком спросе со стороны инвесторов.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312748"
+        }
+      ],
+      "published_at": "2026-10-28T17:15:00+03:00"
+    },
+    {
+      "id": "zaymer-board-recommends-q3-2026-dividends",
+      "headline": "Совет директоров Займера рекомендовал выплатить дивиденды за третий квартал в размере 7,14 рубля",
+      "context": "Выплата составит 100% чистой прибыли группы за отчетный период, которая выросла на 48% к предыдущему кварталу.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9062461"
         }
       ],
       "published_at": "2026-10-28T09:28:00+03:00"
-    },
-    {
-      "id": "duma-committee-proposes-softening-tax-amendments",
-      "headline": "Комитет Госдумы предложил смягчить поправки к Налоговому кодексу по сверхдоходам и маркетплейсам",
-      "context": "Депутаты рекомендовали учитывать рентабельность компаний при расчете налога на сверхдоходы и исключить право ФНС приостанавливать продажи на маркетплейсах.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062478"
-        },
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/86409"
-        }
-      ],
-      "published_at": "2026-10-28T08:53:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "putin-gecf-summit-gas-market-speech",
-      "headline": "Путин на саммите ФСЭГ заявил о росте спроса на газ к 2050 году",
-      "context": "Президент отметил, что мировой спрос на газ вырастет до 5,5 трлн кубометров в год, а также сообщил о проработке возможностей совместной работы с США в Арктике.",
+      "id": "putin-fseg-gas-market-speech",
+      "headline": "Владимир Путин заявил о трансформации газового рынка и необходимости новых маршрутов поставок",
+      "context": "На фоне выступления президента на саммите Форума стран-экспортеров газа котировки акций Газпрома выросли на 3,5%.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390710"
-        },
-        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/27/1240507-vozmozhnost-sotrudnichestva"
+          "url": "https://www.vedomosti.ru/business/news/2026/10/27/1240503-novie-marshruti"
         }
       ],
-      "published_at": "2026-10-27T14:43:00+03:00"
-    },
-    {
-      "id": "novak-diesel-exports-to-usa",
-      "headline": "Новак анонсировал отправку четвертого танкера с российским дизельным топливом в США",
-      "context": "Вице-премьер сообщил, что три танкера с дизелем уже отправлены на экспорт в США, а четвертый отправится 28 октября.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9061797"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/27/1240485-novak-chetvertii-tanker"
-        }
-      ],
-      "published_at": "2026-10-27T14:10:00+03:00"
+      "published_at": "2026-10-27T15:14:00+03:00"
     },
     {
       "id": "opora-rossii-tax-proposals",
-      "headline": "Опора России предложила ограничить максимальную ставку по налогу на дивиденды восемнадцатью процентами",
-      "context": "Бизнес-объединение направило поправки к налоговому законопроекту, предложив сохранить действующие ставки НДФЛ в 13–15% по вкладам и ограничить ставку по дивидендам.",
+      "headline": "Опора России предложила ограничить НДФЛ на дивиденды ставкой 18% и сохранить поблажки по вкладам",
+      "context": "Бизнес-объединение направило предложения в Минфин и Госдуму для смягчения правительственного налогового пакета.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -241,18 +224,14 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9061190"
-        },
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24497"
         }
       ],
-      "published_at": "2026-10-27T08:23:00+03:00"
+      "published_at": "2026-10-27T00:02:00+03:00"
     },
     {
-      "id": "tatneft-ras-9m-2026-profit",
-      "headline": "Чистая прибыль Татнефти по РСБУ за девять месяцев выросла в два и восемь десятых раза",
-      "context": "Чистая прибыль компании составила 299,3 млрд рублей против 104,6 млрд рублей за аналогичный период прошлого года.",
+      "id": "tatneft-ras-net-profit-q3-2026",
+      "headline": "Чистая прибыль Татнефти по РСБУ за девять месяцев 2026 года выросла в 2,8 раза",
+      "context": "Улучшение показателей обусловлено положительной динамикой цен на нефть и нефтепродукты на мировом рынке.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -260,56 +239,59 @@
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/10/27/1240570-pribil-tatnefti"
-        },
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390725"
         }
       ],
       "published_at": "2026-10-27T17:49:00+03:00"
     },
     {
-      "id": "minfin-announces-ofz-auctions-26254-26244",
-      "headline": "Минфин проведет аукционы по размещению двух выпусков облигаций федерального займа",
-      "context": "На аукционах 28 октября ведомство предложит инвесторам выпуски ОФЗ-ПД 26254 и 26244.",
-      "category": "markets",
+      "id": "sovcomflot-ras-net-loss-9m-2026",
+      "headline": "Чистый убыток Совкомфлота по РСБУ за девять месяцев вырос на 17% до 787,8 миллиона рублей",
+      "context": "Выручка судоходной компании за аналогичный период сократилась на 2% и составила 85,5 миллиона рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9062023"
+        }
+      ],
+      "published_at": "2026-10-27T17:48:00+03:00"
+    },
+    {
+      "id": "nmtp-ifrs-net-profit-9m-2026",
+      "headline": "Новороссийский морской торговый порт снизил чистую прибыль по МСФО на 10% за девять месяцев",
+      "context": "Компания обнародовала промежуточные финансовые результаты своей деятельности во второй половине торгового дня.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/27/1240536-dva-auktsiona"
-        },
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390720"
+          "url": "https://www.vedomosti.ru/investments/news/2026/10/27/1240545-nmtp-snizil-pribil"
         }
       ],
-      "published_at": "2026-10-27T16:31:00+03:00"
+      "published_at": "2026-10-27T16:43:00+03:00"
     },
     {
-      "id": "moex-cds-trading-launch-2026",
-      "headline": "Московская биржа планирует запустить торги кредитными дефолтными свопами до конца года",
-      "context": "На первом этапе инструменты CDS станут доступны по 10 крупнейшим эмитентам с кредитным рейтингом не ниже АА+.",
-      "category": "markets",
+      "id": "russian-banking-sector-profit-september-2026",
+      "headline": "Прибыль банковского сектора России за сентябрь увеличилась на 12,8% до 400 миллиардов рублей",
+      "context": "За последние 12 месяцев финансовый результат сектора достиг 4,5 триллиона рублей, превысив прогноз ЦБ.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312277"
-        },
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/86388"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3955"
         }
       ],
-      "published_at": "2026-10-27T16:20:00+03:00"
+      "published_at": "2026-10-27T16:14:00+03:00"
     },
     {
-      "id": "sfi-buys-agropromcredit-bank-shares",
-      "headline": "Компания ЭсЭфАй приобрела акции банка Агропромкредит и двух инвесткомпаний на торгах",
-      "context": "Пакет из 50% акций банка «Агропромкредит» и 100% акций компаний «Дэнсиборг» и «Блаусент» был продан за 1,42 млрд рублей.",
+      "id": "sfi-buys-nationalized-assets-at-psb-auction",
+      "headline": "Холдинг ЭсЭфАй выкупил пакеты акций трех компаний на аукционе за 1,42 миллиарда рублей",
+      "context": "В состав приобретенного лота вошли 50% акций банка Агропромкредит и 100% акций инвестиционных компаний.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -317,75 +299,44 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312333"
-        },
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390695"
         }
       ],
-      "published_at": "2026-10-27T14:00:00+03:00"
+      "published_at": "2026-10-27T13:03:00+03:00"
     },
     {
-      "id": "sovcomflot-ras-9m-2026-loss",
-      "headline": "Чистый убыток Совкомфлота по РСБУ за девять месяцев вырос на семнадцать процентов",
-      "context": "Убыток компании за январь–сентябрь 2026 года достиг 787,8 млн рублей при сокращении выручки на два процента.",
-      "category": "corporate",
+      "id": "moscow-exchange-cds-trading-launch",
+      "headline": "Московская биржа планирует запустить торги кредитными дефолтными свопами до конца 2026 года",
+      "context": "На первом этапе контракты станут доступны по десяти крупнейшим российским эмитентам с высоким рейтингом.",
+      "category": "markets",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/27/1240591-ubitok-sovkomflota"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062023"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312277"
         }
       ],
-      "published_at": "2026-10-27T18:41:00+03:00"
+      "published_at": "2026-10-27T11:07:00+03:00"
     },
     {
-      "id": "nmtp-ifrs-9m-2026-profit",
-      "headline": "Чистая прибыль НМТП по МСФО за девять месяцев снизилась на десять процентов",
-      "context": "Показатель чистой прибыли группы за январь–сентябрь 2026 года составил 28,7 млрд рублей против 31,82 млрд рублей годом ранее.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/27/1240545-nmtp-snizil-pribil"
-        },
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/390716"
-        }
-      ],
-      "published_at": "2026-10-27T16:43:00+03:00"
-    },
-    {
-      "id": "sberbank-securitization-bonds-and-rate-hike",
-      "headline": "Сбербанк начинает прием заявок на новый выпуск облигаций секьюритизации потребительских кредитов",
-      "context": "Банк собирает заявки на седьмой выпуск бумаг объема портфеля потребительских кредитов с размещением 11 ноября.",
-      "category": "banks",
-      "investment_relevant": true,
+      "id": "china-star50-index-drops-on-ai-bubble-concerns",
+      "headline": "Китайский технологический индекс STAR50 упал на 40% с июля из-за переоценки сектора ИИ",
+      "context": "Капитализация входящих в индекс компаний снизилась на 480 млрд долларов на фоне опасений и торговых ограничений.",
+      "category": "markets",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9061159"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/10/27/1240481-stavku-po-schetu"
+          "url": "https://www.kommersant.ru/doc/9061900"
         }
       ],
-      "published_at": "2026-10-27T14:19:00+03:00"
+      "published_at": "2026-10-27T16:01:00+03:00"
     },
     {
-      "id": "astra-group-vmmanager-ai-cyberattack",
-      "headline": "Система управления серверами группы Астра подверглась кибератаке с использованием искусственного интеллекта",
-      "context": "Атака на уязвимые сборки системы VMmanager 6 затронула хостинг-провайдеров и адаптировалась под их настройки.",
+      "id": "group-astra-vmmanager-ai-cyberattack",
+      "headline": "Система управления серверами Группы Астра подверглась кибератаке с использованием искусственного интеллекта",
+      "context": "Разработчики компании зафиксировали адаптивные патерны ИИ при попытках взлома инфраструктуры хостинг-провайдеров.",
       "category": "tech",
       "investment_relevant": true,
       "importance": 3,
@@ -393,39 +344,31 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312290"
-        },
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24502"
         }
       ],
-      "published_at": "2026-10-27T11:49:00+03:00"
+      "published_at": "2026-10-27T11:45:00+03:00"
     },
     {
-      "id": "collectors-buy-record-mfi-debts-9m-2026",
-      "headline": "Коллекторы приобрели рекордный объем просроченных долгов микрофинансовых организаций за девять месяцев",
-      "context": "Объем выкупленных задолженностей МФО вырос на шестнадцать процентов и достиг 96,78 млрд рублей.",
-      "category": "macro",
-      "investment_relevant": false,
+      "id": "whoosh-transfers-staff-to-four-day-workweek",
+      "headline": "Сервис Whoosh временно переведет менеджмент на четырехдневную рабочую неделю с сокращением зарплат",
+      "context": "Оптимизация расходов на 20% в межсезонный период с ноября по март затронет сотрудников головного офиса компании.",
+      "category": "corporate",
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312246"
-        },
-        {
-          "name": "@frank_media",
-          "url": "https://t.me/frank_media/24498"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9061233"
         }
       ],
-      "published_at": "2026-10-27T09:13:00+03:00"
+      "published_at": "2026-10-27T04:22:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
+    "kind": "evening",
+    "title": "Итоги торгового дня",
+    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
     "last_trading_day": "2026-10-27"
   }
 }
