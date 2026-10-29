@@ -1,8 +1,8 @@
 {
   "date": "2026-10-29",
-  "generated_at": "2026-10-29T11:53:53+03:00",
+  "generated_at": "2026-10-29T14:07:46+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Фондовые индексы США закрылись умеренным ростом, тогда как азиатские площадки торгуются разнонаправленно на фоне снижения мировых цен на нефть.",
+  "external_backdrop": "Американские и азиатские фондовые индексы закрылись преимущественным ростом, цены на нефть Brent и золото снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -34,79 +34,86 @@
     },
     {
       "name": "Brent",
-      "value": "110.58",
-      "change_pct": "-4.11%",
+      "value": "110.03",
+      "change_pct": "-4.59%",
       "as_of": "2026-10-29",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4035.20",
-      "change_pct": "-0.40%",
+      "value": "4042.40",
+      "change_pct": "-0.23%",
       "as_of": "2026-10-29",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2504.55",
-      "change_pct": "-0.87%",
-      "as_of": "2026-10-29 11:53:50",
+      "value": "2505.76",
+      "change_pct": "-0.82%",
+      "as_of": "2026-10-29 14:07:43",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "975.71",
-      "change_pct": "-0.87%",
-      "as_of": "2026-10-29 11:53:51",
+      "value": "976.14",
+      "change_pct": "-0.82%",
+      "as_of": "2026-10-29 14:07:44",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "81.20",
-      "change_pct": "+0.09%",
-      "as_of": "2026-10-29 11:53:51",
+      "value": "81.08",
+      "change_pct": "-0.04%",
+      "as_of": "2026-10-29 14:07:43",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.10",
-      "change_pct": "+0.59%",
-      "as_of": "2026-10-29 11:53:52",
+      "value": "12.08",
+      "change_pct": "+0.43%",
+      "as_of": "2026-10-29 14:07:45",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "ydex-withdraws-guidance",
-      "headline": "«Яндекс» отозвал финансовые прогнозы на 2026 год из-за атак на дата-центры",
-      "context": "Компания опубликовала финансовые результаты за третий квартал 2026 года и заявила о восстановлении ключевых функций всех сервисов.",
-      "category": "tech",
+      "id": "yandex-q3-results-guidance",
+      "headline": "Яндекс отозвал финансовые прогнозы на 2026 год после атак на дата-центры",
+      "context": "Выручка компании в третьем квартале увеличилась на 12% до 411 млрд рублей, однако внешние факторы затрудняют оценку итогов года.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/business/1125699"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312905"
         }
       ],
       "published_at": "2026-10-29T09:14:00+03:00"
     },
     {
-      "id": "fed-keeps-rate-unchanged",
-      "headline": "ФРС США сохранила базовую процентную ставку на уровне 3,75–4,00% годовых",
-      "context": "Американский регулятор указал на сохранение повышенной инфляции и анонсировал изменение графика заседаний начиная с 2027 года.",
-      "category": "cb_policy",
+      "id": "ukraine-talks-abu-dhabi",
+      "headline": "Трехсторонние консультации России США и Украины состоятся после 4 ноября без участия ЕС",
+      "context": "Помощник президента РФ Юрий Ушаков сообщил, что формат переговоров останется трехсторонним, а точная дата зависит от обстановки в зоне боевых действий.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1125617"
-        },
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9063232"
+        }
+      ],
+      "published_at": "2026-10-28T23:47:00+03:00"
+    },
+    {
+      "id": "frs-rate-decision",
+      "headline": "ФРС США сохранила ключевую процентную ставку в диапазоне 3,75–4,00% годовых",
+      "context": "Американский регулятор оставил процентную ставку без изменений и заявил о необходимости дополнительного времени для анализа поступающих данных.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312809"
@@ -115,47 +122,9 @@
       "published_at": "2026-10-28T21:00:00+03:00"
     },
     {
-      "id": "ukraine-talks-in-abu-dhabi",
-      "headline": "Трехсторонние консультации по Украине в Абу-Даби пройдут после 4 ноября",
-      "context": "Помощник президента РФ Юрий Ушаков заявил, что формат встречи предусматривает участие делегаций России, США и Украины без европейских представителей.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9063232"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1125635"
-        }
-      ],
-      "published_at": "2026-10-28T23:47:00+03:00"
-    },
-    {
-      "id": "domrf-q3-2026-msfo",
-      "headline": "Чистая прибыль группы «ДОМ.РФ» по МСФО за девять месяцев выросла на 39%",
-      "context": "Финансовый результат составил 86,3 млрд рублей благодаря увеличению чистых процентных и комиссионных доходов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9063435"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312917"
-        }
-      ],
-      "published_at": "2026-10-29T09:50:00+03:00"
-    },
-    {
-      "id": "x5-q3-2026-revenue",
-      "headline": "Выручка X5 Group в третьем квартале 2026 года выросла на 13%",
-      "context": "Выручка ритейлера достигла 1,31 трлн рублей, а чистая прибыль за квартал увеличилась на 3,8% до 29,3 млрд рублей.",
+      "id": "x5-q3-results",
+      "headline": "Выручка X5 Group в третьем квартале увеличилась на 13% до 1,31 трлн рублей",
+      "context": "Чистая прибыль ритейлера за июль–сентябрь выросла на 3,8% в годовом выражении и составила 29,3 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -168,28 +137,24 @@
       "published_at": "2026-10-29T10:00:00+03:00"
     },
     {
-      "id": "us-russia-rfpi-sanctions-talks",
-      "headline": "Россия и США ведут обсуждение возможности снятия санкций с РФПИ",
-      "context": "Помощник президента Юрий Ушаков подтвердил факт проведения диалога с американской стороной по данному вопросу.",
-      "category": "geopolitics",
+      "id": "domrf-q3-ifrs",
+      "headline": "Чистая прибыль Дом.РФ по МСФО за девять месяцев выросла на 39%",
+      "context": "Показатель достиг 86,3 млрд рублей за счет роста чистой процентной маржи и расширения кредитного портфеля юридических лиц.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1125636"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9063257"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312917"
         }
       ],
-      "published_at": "2026-10-28T23:54:00+03:00"
+      "published_at": "2026-10-29T09:57:00+03:00"
     },
     {
-      "id": "russia-pvo-drone-attacks",
-      "headline": "Средства ПВО за ночь уничтожили более 1200 украинских беспилотников над регионами России",
-      "context": "В результате атак зафиксированы повреждения промышленных объектов в Башкирии и Пермском крае.",
+      "id": "massive-drone-attack-overnight",
+      "headline": "Средства ПВО за ночь уничтожили 1214 украинских беспилотников над регионами России",
+      "context": "Минобороны РФ заявило о массовой атаке БПЛА, при этом в направлении Московского региона летели 613 беспилотных летательных аппаратов.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 4,
@@ -197,73 +162,31 @@
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/russia/1125710"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9063382"
         }
       ],
       "published_at": "2026-10-29T09:29:00+03:00"
+    },
+    {
+      "id": "us-rdif-sanctions-talks",
+      "headline": "Россия и США обсуждают возможную отмену санкций в отношении РФПИ",
+      "context": "Помощник президента РФ Юрий Ушаков подтвердил ведение диалога с американской стороной по вопросу снятия ограничений с фонда.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1125636"
+        }
+      ],
+      "published_at": "2026-10-28T23:54:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "sber-9m-2026-msfo-profit",
-      "headline": "Чистая прибыль «Сбербанка» по МСФО за девять месяцев выросла на 17%",
-      "context": "Показатель чистой прибыли кредитной организации достиг 1,53 трлн рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062552"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/10/28/1240693-pribil-sbera"
-        }
-      ],
-      "published_at": "2026-10-28T11:27:00+03:00"
-    },
-    {
-      "id": "sber-new-dividend-policy",
-      "headline": "«Сбербанк» представит новую дивидендную политику на 2027–2029 годы 12 ноября",
-      "context": "Наблюдательный совет банка рассмотрит проект новой дивидендной политики на заседании 10 ноября.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062702"
-        }
-      ],
-      "published_at": "2026-10-28T13:26:00+03:00"
-    },
-    {
-      "id": "ozon-q3-2026-results-and-reserves",
-      "headline": "Ozon зарезервировал 30,1 миллиарда рублей на покрытие убытков от атак на склады",
-      "context": "Чистая прибыль маркетплейса за третий квартал 2026 года составила 3,7 млрд рублей при росте выручки в 1,6 раза.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062474"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312561"
-        }
-      ],
-      "published_at": "2026-10-28T09:53:00+03:00"
-    },
-    {
-      "id": "lsr-share-buyback-675-rub",
-      "headline": "Совет директоров группы ЛСР одобрил программу выкупа акций по 675 рублей",
-      "context": "Девелопер планирует приобрести до 5,15 млн собственных акций на общую сумму порядка 3,5 млрд рублей.",
+      "id": "lsr-group-buyback",
+      "headline": "Совет директоров группы ЛСР одобрил выкуп акций по цене 675 рублей за бумагу",
+      "context": "Девелопер планирует приобрести до 5,15 млн собственных акций в период с 18 ноября по 17 декабря.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -271,71 +194,59 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312769"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/28/1240908-gruppa-lsr"
         }
       ],
-      "published_at": "2026-10-28T17:01:00+03:00"
+      "published_at": "2026-10-28T17:37:00+03:00"
     },
     {
-      "id": "duma-tax-amendments-relaxation",
-      "headline": "Комитет Госдумы предложил смягчить налоговые поправки по налогу на сверхдоходы и ЗПИФам",
-      "context": "Депутаты рекомендовали учитывать реальную прибыльность компаний при расчете налога и сохранить действующий режим для распределяющих доход ЗПИФов.",
+      "id": "sberbank-9m-ifrs",
+      "headline": "Сбербанк увеличил чистую прибыль по МСФО за девять месяцев на 17% до 1,53 трлн рублей",
+      "context": "Чистая прибыль за третий квартал составила 511 млрд рублей, а новую дивидендную политику банк представит 12 ноября.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9062552"
+        }
+      ],
+      "published_at": "2026-10-28T11:27:00+03:00"
+    },
+    {
+      "id": "ozon-q3-results-reserves",
+      "headline": "Чистая прибыль Ozon за третий квартал выросла на 25% при формировании 30 млрд рублей резервов",
+      "context": "Маркетплейс создал резервы на 30,1 млрд рублей для покрытия убытков от атак БПЛА на логистические объекты.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9062492"
+        }
+      ],
+      "published_at": "2026-10-28T09:53:00+03:00"
+    },
+    {
+      "id": "tax-amendments-duma-committee",
+      "headline": "Комитет Госдумы предложил доработать законопроекты налогового пакета ко второму чтению",
+      "context": "Депутаты рекомендовали учитывать рентабельность при налоге на сверхдоходы и ограничить полномочия ФНС по блокировке продаж на маркетплейсах.",
       "category": "macro",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/312513"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062478"
+          "url": "https://frankmedia.ru/312537"
         }
       ],
       "published_at": "2026-10-28T08:53:00+03:00"
     },
     {
-      "id": "rosneft-interim-dividends-sd",
-      "headline": "Совет директоров «Роснефти» 6 ноября рассмотрит вопрос о промежуточных дивидендах",
-      "context": "Заседание совета директоров компании с соответствующей повесткой дня назначено на 6 ноября.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1125550"
-        }
-      ],
-      "published_at": "2026-10-28T17:20:00+03:00"
-    },
-    {
-      "id": "vk-9m-2026-financial-results",
-      "headline": "Выручка группы VK за девять месяцев 2026 года увеличилась на 15%",
-      "context": "Показатель достиг 128 млрд рублей, а показатель EBITDA вырос на 30% в годовом выражении.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/10/28/1240793-viruchka-vk"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312550"
-        }
-      ],
-      "published_at": "2026-10-28T14:00:00+03:00"
-    },
-    {
-      "id": "minfin-ofz-auctions-results",
-      "headline": "Минфин России разместил два выпуска ОФЗ на общую сумму 156,7 миллиарда рублей",
-      "context": "На аукционах были размещены выпуски ОФЗ-ПД 26254 на 81,13 млрд рублей и ОФЗ-ПД 26244 на 73,69 млрд рублей.",
+      "id": "minfin-ofz-auction-results",
+      "headline": "Минфин России разместил два выпуска ОФЗ на общую сумму 156,7 млрд рублей",
+      "context": "Основное размещение выпуска ПД-26244 с погашением в 2034 году составило 73,7 млрд рублей при доходности 16,41% годовых.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
@@ -343,40 +254,17 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/312748"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062995"
         }
       ],
-      "published_at": "2026-10-28T17:08:00+03:00"
+      "published_at": "2026-10-28T17:15:00+03:00"
     },
     {
-      "id": "auto-loans-subsidies-restart",
-      "headline": "Минпромторг и Минфин согласовали возобновление программы льготного автокредитования с декабря",
-      "context": "Финансирование льготных автокредитов будет возобновлено за счет лимитов, предусмотренных на 2027 год.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9062720"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/312640"
-        }
-      ],
-      "published_at": "2026-10-28T13:51:00+03:00"
-    },
-    {
-      "id": "cb-inflation-expectations-october",
+      "id": "inflation-expectations-october",
       "headline": "Инфляционные ожидания населения России в октябре снизились до 13,2%",
-      "context": "Банк России зафиксировал снижение показателя инфляционных ожиданий граждан по сравнению с предыдущим месяцем.",
+      "context": "Банк России зафиксировал снижение показателя инфляционных ожиданий граждан после предыдущего роста.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
@@ -386,9 +274,84 @@
       "published_at": "2026-10-28T16:10:00+03:00"
     },
     {
-      "id": "zaymer-q3-2026-dividends",
-      "headline": "Совет директоров «Займера» рекомендовал дивиденды за третий квартал в размере 7,14 рубля",
-      "context": "Общая рекомендованная выплата с учетом ранее выплаченных за первое полугодие сумм составила 16,36 рубля на акцию.",
+      "id": "soft-auto-loans-resumption",
+      "headline": "Правительство возобновит выдачу льготных автокредитов с 1 декабря за счет лимитов 2027 года",
+      "context": "Первый вице-премьер Денис Мантуров сообщил о согласовании финансирования программы Минпромторгом и Минфином.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312640"
+        }
+      ],
+      "published_at": "2026-10-28T13:28:00+03:00"
+    },
+    {
+      "id": "zpif-tax-softening-minfin",
+      "headline": "Минфин обсуждает сохранение действующего налогового режима для ряда ЗПИФов",
+      "context": "Послабление по налогу на прибыль в 15% может затронуть фонды, распределяющие почти весь доход среди пайщиков в течение года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312513"
+        }
+      ],
+      "published_at": "2026-10-28T10:17:00+03:00"
+    },
+    {
+      "id": "air-travel-levy-2027",
+      "headline": "В России с 2027 года планируют ввести авиасбор для поддержки отечественного авиастроения",
+      "context": "Размер сбора в составе стоимости билета может составить от 500 рублей на внутренних рейсах до 1000 рублей на международных.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9063186"
+        }
+      ],
+      "published_at": "2026-10-28T18:38:00+03:00"
+    },
+    {
+      "id": "samolet-debt-restructuring-sber",
+      "headline": "Сбербанк исключил вхождение в капитал девелопера Самолет и финализирует план реструктуризации",
+      "context": "Кредиторы завершают подготовку плана по улучшению финансового состояния застройщика без увеличения риска для резервов банка.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9063056"
+        }
+      ],
+      "published_at": "2026-10-28T18:14:00+03:00"
+    },
+    {
+      "id": "vk-9m-revenue-growth",
+      "headline": "Выручка группы VK за девять месяцев выросла на 15% до 128 млрд рублей",
+      "context": "Показатель EBITDA увеличился на 30% до 20,2 млрд рублей, а чистый долг компании снизился на 11%.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/312550"
+        }
+      ],
+      "published_at": "2026-10-28T14:34:00+03:00"
+    },
+    {
+      "id": "zaimer-q3-dividends",
+      "headline": "Совет директоров Займера рекомендовал выплатить дивиденды за третий квартал в 7,14 рубля на акцию",
+      "context": "Совокупная рекомендация за девять месяцев с учетом ранее выплаченных сумм составила 16,36 рубля на бумагу.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
@@ -396,51 +359,9 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9062461"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/10/28/1240730-zaimera-dividendi"
         }
       ],
       "published_at": "2026-10-28T09:28:00+03:00"
-    },
-    {
-      "id": "aviation-fee-2027-budget-proposal",
-      "headline": "Комитет Госдумы предложил ввести авиасбор с пассажиров для поддержки авиастроения с 2027 года",
-      "context": "Сбор в размере от 500 рублей на внутренних до 1000 рублей на международных рейсах направят на компенсацию затрат по поставкам новых самолетов.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1125563"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/10/28/1240921-aviasbor-dlya-postavok-samoletov"
-        }
-      ],
-      "published_at": "2026-10-28T18:34:00+03:00"
-    },
-    {
-      "id": "sber-no-plans-smlt-equity",
-      "headline": "«Сбербанк» заявил об отсутствии планов входить в капитал девелопера «Самолет»",
-      "context": "Финансовый директор банка Тарас Скворцов сообщил о рассчитываемой до конца года финализации плана реструктуризации долгов застройщика.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1125555"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9063056"
-        }
-      ],
-      "published_at": "2026-10-28T18:14:00+03:00"
     }
   ],
   "today_agenda": [],
