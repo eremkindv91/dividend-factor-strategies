@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-28T01:53:40+00:00",
-  "data_as_of": "2026-10-27",
+  "generated_at": "2026-10-30T02:26:18+00:00",
+  "data_as_of": "2026-10-29",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-10-27-d6166739-e25a3316",
-    "as_of": "2026-10-27",
-    "calculated_at": "2026-10-28T01:53:40+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
-    "universe_version": "fd43a4d1654aeadb",
+    "run_id": "2026-10-29-a35c7409-e25a3316",
+    "as_of": "2026-10-29",
+    "calculated_at": "2026-10-30T02:26:18+00:00",
+    "model_version": "elastic_net:a35c74094c4bc83a",
+    "artifact_hash": "a35c74094c4bc83a",
+    "universe_version": "533bdb7e26a2a990",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -31,12 +31,12 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-10-27-d6166739-e25a3316",
-    "as_of": "2026-10-27",
-    "calculated_at": "2026-10-28T01:53:40+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
-    "universe_version": "fd43a4d1654aeadb",
+    "run_id": "2026-10-29-a35c7409-e25a3316",
+    "as_of": "2026-10-29",
+    "calculated_at": "2026-10-30T02:26:18+00:00",
+    "model_version": "elastic_net:a35c74094c4bc83a",
+    "artifact_hash": "a35c74094c4bc83a",
+    "universe_version": "533bdb7e26a2a990",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -50,106 +50,106 @@
         "ticker": "DOMRF",
         "name": "ДОМ.РФ",
         "sector": "Финансы",
-        "calculated_weight": 0.059492,
-        "expected_excess_return_20d": -0.004766,
+        "calculated_weight": 0.05966,
+        "expected_excess_return_20d": -0.001734,
         "sector_drivers": []
       },
       {
         "ticker": "HEAD",
         "name": "Хэдхантер",
         "sector": "IT",
-        "calculated_weight": 0.0546,
-        "expected_excess_return_20d": -0.004887,
+        "calculated_weight": 0.05388,
+        "expected_excess_return_20d": 0.000971,
         "sector_drivers": []
       },
       {
-        "ticker": "MDMG",
-        "name": "MDMG-ао",
-        "sector": "Здравоохранение",
-        "calculated_weight": 0.052947,
-        "expected_excess_return_20d": -0.00447,
+        "ticker": "MOEX",
+        "name": "МосБиржа",
+        "sector": "Финансы",
+        "calculated_weight": 0.053219,
+        "expected_excess_return_20d": -0.001372,
         "sector_drivers": []
       },
       {
         "ticker": "VSEH",
         "name": "ВИ.ру",
         "sector": "Потребительский сектор",
-        "calculated_weight": 0.04004,
-        "expected_excess_return_20d": -0.00434,
+        "calculated_weight": 0.042368,
+        "expected_excess_return_20d": -0.000618,
         "sector_drivers": []
       },
       {
         "ticker": "IRAO",
         "name": "ИнтерРАОао",
         "sector": "Энергетика",
-        "calculated_weight": 0.036232,
-        "expected_excess_return_20d": 0.004165,
+        "calculated_weight": 0.038459,
+        "expected_excess_return_20d": 0.006615,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
       },
       {
-        "ticker": "FLOT",
-        "name": "Совкомфлот",
-        "sector": "Транспорт",
-        "calculated_weight": 0.032148,
-        "expected_excess_return_20d": -0.00391,
-        "sector_drivers": []
-      },
-      {
         "ticker": "LSRG",
         "name": "ЛСР ао",
         "sector": "Недвижимость",
-        "calculated_weight": 0.031786,
-        "expected_excess_return_20d": -0.002072,
+        "calculated_weight": 0.033483,
+        "expected_excess_return_20d": 0.003025,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "POSI",
+        "name": "iПозитив",
+        "sector": "IT",
+        "calculated_weight": 0.023176,
+        "expected_excess_return_20d": -0.000422,
         "sector_drivers": []
       },
       {
         "ticker": "HYDR",
         "name": "РусГидро",
         "sector": "Энергетика",
-        "calculated_weight": 0.020534,
-        "expected_excess_return_20d": -8.8e-05,
+        "calculated_weight": 0.021816,
+        "expected_excess_return_20d": 0.005988,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
@@ -158,28 +158,28 @@
         "ticker": "MRKC",
         "name": "РоссЦентр",
         "sector": "Энергетика",
-        "calculated_weight": 0.020129,
-        "expected_excess_return_20d": -0.003329,
+        "calculated_weight": 0.021506,
+        "expected_excess_return_20d": -0.00104,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
@@ -188,28 +188,28 @@
         "ticker": "FEES",
         "name": "Россети",
         "sector": "Энергетика",
-        "calculated_weight": 0.018328,
-        "expected_excess_return_20d": 0.003941,
+        "calculated_weight": 0.019429,
+        "expected_excess_return_20d": 0.006106,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
@@ -218,28 +218,28 @@
         "ticker": "UPRO",
         "name": "Юнипро ао",
         "sector": "Энергетика",
-        "calculated_weight": 0.015218,
-        "expected_excess_return_20d": 0.001968,
+        "calculated_weight": 0.01621,
+        "expected_excess_return_20d": 0.005653,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
@@ -248,36 +248,36 @@
         "ticker": "ENPG",
         "name": "ЭН+ГРУП ао",
         "sector": "Энергетика",
-        "calculated_weight": 0.015059,
-        "expected_excess_return_20d": -0.002844,
+        "calculated_weight": 0.015918,
+        "expected_excess_return_20d": 0.001508,
         "sector_drivers": [
           {
             "factor": "utilities_sector_return_20d",
-            "value": 0.1713,
+            "value": 0.143,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_return_60d",
-            "value": 0.0961,
+            "value": 0.066,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           },
           {
             "factor": "utilities_sector_relative_20d",
-            "value": 0.0544,
+            "value": 0.0475,
             "direction": "positive",
-            "data_as_of": "2026-10-27",
+            "data_as_of": "2026-10-29",
             "status": "APPROVED"
           }
         ]
       }
     ],
-    "cash_weight": 0.603486,
-    "diagnostic_turnover": 0.396514,
-    "diagnostic_cost_rub": 1189.54,
+    "cash_weight": 0.600877,
+    "diagnostic_turnover": 0.399123,
+    "diagnostic_cost_rub": 1197.37,
     "affects_current_portfolio": false
   },
   "execution": {
@@ -330,7 +330,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-10-28T01:46:40.125990+00:00"
+    "last_checked_at": "2026-10-30T02:20:29.197626+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
@@ -340,7 +340,7 @@
         "mae": 0.062067488405403555,
         "rmse": 0.08906171735031879,
         "spearman_ic": 0.008526528268541621,
-        "pearson_ic": 0.016200560936489576,
+        "pearson_ic": 0.01620056093648952,
         "hit_rate": 0.5760111576011158,
         "top_decile_mean_excess_return": -0.010783871940602381,
         "top_bottom_spread": 0.0007569197354587529
@@ -362,7 +362,7 @@
       }
     },
     "constraints": {
-      "turnover_actual": 0.396514,
+      "turnover_actual": 0.399123,
       "turnover_cap": 0.4,
       "one_way_cost_bps": 30.0,
       "solver_method": "HRP"
