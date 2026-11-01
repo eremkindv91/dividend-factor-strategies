@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-31T01:58:59+00:00",
+  "generated_at": "2026-11-01T14:48:18+00:00",
   "data_as_of": "2026-10-30",
   "status": "DEGRADED",
   "production_data": "real_sources_only",
@@ -34,7 +34,7 @@
     {
       "name": "staleness",
       "status": "PASS",
-      "value_calendar_days": 1,
+      "value_calendar_days": 2,
       "maximum": 7
     },
     {

@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-31T02:02:35+00:00",
+  "generated_at": "2026-11-01T14:52:46+00:00",
   "data_as_of": "2026-10-30",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-10-30-d6166739-e25a3316",
+    "run_id": "2026-10-30-79755a03-e25a3316",
     "as_of": "2026-10-30",
-    "calculated_at": "2026-10-31T02:02:35+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
+    "calculated_at": "2026-11-01T14:52:46+00:00",
+    "model_version": "elastic_net:79755a035fadb598",
+    "artifact_hash": "79755a035fadb598",
     "universe_version": "533bdb7e26a2a990",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
@@ -31,11 +31,11 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-10-30-d6166739-e25a3316",
+    "run_id": "2026-10-30-79755a03-e25a3316",
     "as_of": "2026-10-30",
-    "calculated_at": "2026-10-31T02:02:35+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
+    "calculated_at": "2026-11-01T14:52:46+00:00",
+    "model_version": "elastic_net:79755a035fadb598",
+    "artifact_hash": "79755a035fadb598",
     "universe_version": "533bdb7e26a2a990",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
@@ -310,7 +310,7 @@
   "data_quality": {
     "status": "DEGRADED",
     "investable_companies": 60,
-    "stale_days": 1
+    "stale_days": 2
   },
   "sector_features": {
     "status": "DEGRADED",
@@ -330,7 +330,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-10-31T01:58:59.587319+00:00"
+    "last_checked_at": "2026-11-01T14:48:18.509584+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
