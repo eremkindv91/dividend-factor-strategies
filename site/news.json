@@ -1,220 +1,224 @@
 {
-  "date": "2026-11-01",
-  "generated_at": "2026-11-01T22:00:30+03:00",
+  "date": "2026-11-02",
+  "generated_at": "2026-11-02T12:56:22+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы, а также цены на нефть и золото снизились по итогам торгов.",
+  "external_backdrop": "Американские фондовые индексы закрылись снижением, азиатские рынки торгуются разнонаправленно, фьючерсы на нефть Brent существенно падают.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7580.07",
       "change_pct": "-1.82%",
-      "as_of": "закрытие 30.10",
+      "as_of": "2026-10-30",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25437.00",
       "change_pct": "-2.86%",
-      "as_of": "закрытие 30.10",
+      "as_of": "2026-10-30",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "63290.11",
-      "change_pct": "-2.12%",
-      "as_of": "закрытие 30.10",
+      "value": "63081.86",
+      "change_pct": "-0.33%",
+      "as_of": "2026-11-02",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23294.42",
-      "change_pct": "+1.46%",
-      "as_of": "закрытие 30.10",
+      "value": "23393.32",
+      "change_pct": "+0.42%",
+      "as_of": "2026-11-02",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "113.43",
-      "change_pct": "-1.26%",
-      "as_of": "закрытие 30.10",
+      "value": "108.43",
+      "change_pct": "-7.83%",
+      "as_of": "2026-11-02",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3898.90",
-      "change_pct": "-3.29%",
-      "as_of": "закрытие 30.10",
+      "value": "3909.80",
+      "change_pct": "+0.28%",
+      "as_of": "2026-11-02",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2515.89",
-      "change_pct": "+0.11%",
-      "as_of": "01.11 19:00",
+      "value": "2489.73",
+      "change_pct": "-0.93%",
+      "as_of": "2026-11-02 12:56:18",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "983.85",
-      "change_pct": "+0.11%",
-      "as_of": "01.11 19:00",
+      "value": "973.60",
+      "change_pct": "-0.93%",
+      "as_of": "2026-11-02 12:56:20",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "81.00",
-      "change_pct": "-0.95%",
-      "as_of": "30.10 23:55",
+      "value": "81.57",
+      "change_pct": "+0.11%",
+      "as_of": "2026-11-02 12:56:21",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.07",
-      "change_pct": "-1.06%",
-      "as_of": "30.10 23:50",
+      "value": "12.19",
+      "change_pct": "+0.01%",
+      "as_of": "2026-11-02 12:56:22",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "opec-plus-keeps-production-quotas",
-      "headline": "Семь стран ОПЕК+ приняли решение сохранить действующие квоты на добычу нефти в декабре",
-      "context": "Участники соглашения продлили действующие параметры производства нефти без изменений до конца года.",
-      "category": "markets",
+      "id": "gazprom-raschet-rsbu-9m-2026",
+      "headline": "Чистая прибыль Газпрома по РСБУ за девять месяцев составила 114,8 миллиарда рублей",
+      "context": "Головная компания ПАО Газпром получила 114,794 млрд руб. чистой прибыли за 9 месяцев 2026 года против убытка 170,3 млрд руб. годом ранее.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1126538"
+        }
+      ],
+      "published_at": "2026-11-02T12:39:00+03:00"
+    },
+    {
+      "id": "minfin-pension-pds-transfer",
+      "headline": "Минфин разработал законопроект об автоматическом переводе пенсионных накоплений в программу долгосрочных сбережений",
+      "context": "Документ предусматривает автоконвертацию пенсионных накоплений россиян в ПДС с 1 апреля 2027 года для средств в ВЭБ.РФ и НПФ.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078485"
+          "url": "https://www.kommersant.ru/doc/9078685"
         },
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1126402"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/313457"
         }
       ],
-      "published_at": "2026-11-01T15:34:00+03:00"
+      "published_at": "2026-11-02T07:05:00+03:00"
     },
     {
-      "id": "russia-extends-diesel-export-ban",
-      "headline": "Правительство России продлило временный запрет на экспорт дизельного топлива до конца января 2027 года",
-      "context": "Кабмин продлил ограничения для производителей дизеля и судового топлива для стабилизации внутреннего рынка.",
+      "id": "opec-plus-december-quotas",
+      "headline": "Семерка ОПЕК плюс приняла решение сохранить действующие квоты на добычу нефти в декабре",
+      "context": "Министры семи стран ОПЕК+ по итогам ежемесячной встречи продлили действующие ограничения на нефтедобычу без изменений на декабрь.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1126298"
+          "url": "https://www.interfax.ru/business/1126402"
         },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078256"
+          "url": "https://www.kommersant.ru/doc/9078485"
         }
       ],
-      "published_at": "2026-10-31T14:14:00+03:00"
+      "published_at": "2026-11-01T15:39:00+03:00"
     },
     {
-      "id": "samolet-ras-results-9m-2026",
-      "headline": "ГК Самолет сократила чистую прибыль по РСБУ за девять месяцев 2026 года в 2,8 раза",
-      "context": "Выручка девелопера за январь — сентябрь выросла на 18,1% до 12,8 миллиарда рублей.",
+      "id": "inarctica-board-recommends-dividend-9m-2026",
+      "headline": "Совет директоров Инарктики рекомендовал дивиденды за девять месяцев 2026 года в размере 10 рублей",
+      "context": "Рекомендованная сумма выплат на одну акцию составляет 10 рублей, дата закрытия реестра для получения дивидендов назначена на 15 декабря.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1369309.php"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/02/1241964-inarktiki-dividendi"
         }
       ],
-      "published_at": "2026-10-31T18:27:00+03:00"
+      "published_at": "2026-11-02T12:02:00+03:00"
     },
     {
-      "id": "nizhny-novgorod-fuel-restrictions",
-      "headline": "Власти Нижегородской области ввели лимит на отпуск бензина на АЗС после атаки БПЛА",
-      "context": "В регионе ограничили отпуск топлива до 40 литров на один автомобиль за заправку.",
+      "id": "aeroflot-rsbu-3q-2026-profit",
+      "headline": "Скорректированная чистая прибыль Аэрофлота по РСБУ в третьем квартале выросла на 61 процент",
+      "context": "Скорректированная прибыль за третий квартал составила 16,2 млрд рублей, при этом совокупная чистая прибыль за 9 месяцев сократилась до 6,3 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078508"
-        }
-      ],
-      "published_at": "2026-11-01T16:37:00+03:00"
-    },
-    {
-      "id": "binance-resumes-withdrawals-after-hack",
-      "headline": "Криптобиржа Binance возобновила вывод средств для основных криптовалют после масштабной кибератаки",
-      "context": "Торговая площадка восстановила 95% активов клиентов и открыла вывод средств в нескольких сетях.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078479"
-        }
-      ],
-      "published_at": "2026-11-01T15:27:00+03:00"
-    },
-    {
-      "id": "moex-plans-crypto-trading-december",
-      "headline": "Московская биржа рассчитывает начать торги биткоином и другими криптовалютами с первого декабря",
-      "context": "Биржа планирует запустить торги криптовалютами Bitcoin, Ethereum и USDT.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078266"
-        },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1126292"
+          "url": "https://www.interfax.ru/business/1126530"
         }
       ],
-      "published_at": "2026-10-31T14:49:00+03:00"
+      "published_at": "2026-11-02T12:14:00+03:00"
     },
     {
-      "id": "yandex-to-update-forecasts-february",
-      "headline": "Яндекс опубликует новые прогнозы финансовых показателей вместе с отчетностью за четвертый квартал",
-      "context": "Компания обновит свои ориентиры по финансовым показателям в феврале 2027 года.",
-      "category": "corporate",
+      "id": "sovcombank-rsbu-9m-2026-results",
+      "headline": "Чистая прибыль Совкомбанка по РСБУ за девять месяцев 2026 года увеличилась в 4,2 раза",
+      "context": "Чистая прибыль Совкомбанка по РСБУ за 9 месяцев 2026 года составила 97,05 млрд рублей.",
+      "category": "banks",
       "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/02/1241980-chistaya-pribil-sovkombanka"
+        }
+      ],
+      "published_at": "2026-11-02T12:14:00+03:00"
+    },
+    {
+      "id": "gov-baths-export-petrochem-products",
+      "headline": "Правительство России ввело временный запрет на вывоз отдельных видов нефтехимической продукции за пределы ЕАЭС",
+      "context": "Ограничение на вывоз введено на три месяца для обеспечения внутреннего рынка сырьем.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1126481"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9078756"
+        }
+      ],
+      "published_at": "2026-11-02T09:24:00+03:00"
+    },
+    {
+      "id": "beget-hosting-outage-impacts-services",
+      "headline": "Масштабный сбой у хостинг-провайдера Beget нарушил работу сотен российских сайтов и сервисов",
+      "context": "Из-за аварии у провайдера фиксировались сбои в доступе к порталу Честный знак, сервису BelkaCar и ряду других ресурсов.",
+      "category": "tech",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078339"
-        }
-      ],
-      "published_at": "2026-10-31T21:35:00+03:00"
-    },
-    {
-      "id": "moscow-court-bans-apple-lawsuit-vk",
-      "headline": "Арбитражный суд Москвы запретил компаниям структуры Apple судиться против VK в США",
-      "context": "Российский суд обязал структуры Apple отозвать иск из американской юрисдикции в течение недели.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/313493"
+        },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9078380"
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a956e4f9a4bdb6a9772805b"
         }
       ],
-      "published_at": "2026-11-01T09:33:00+03:00"
+      "published_at": "2026-11-02T10:04:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-10-30"
   }
 }
