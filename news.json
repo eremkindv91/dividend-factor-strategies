@@ -1,85 +1,104 @@
 {
-  "date": "2026-11-06",
-  "generated_at": "2026-11-06T23:51:20+03:00",
+  "date": "2026-11-07",
+  "generated_at": "2026-11-07T17:10:25+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы S&P 500 и Nasdaq завершили сессию ростом, в то время как котировки нефти Brent и золота умеренно снизились.",
+  "external_backdrop": "Американские фондовые индексы завершили торги ростом, азиатские площадки снизились, а котировки Brent торгуются на уровне 98,32 доллара за баррель.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7393.22",
-      "change_pct": "+0.54%",
+      "value": "7376.86",
+      "change_pct": "+0.31%",
       "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "24624.28",
-      "change_pct": "+1.27%",
+      "value": "24579.43",
+      "change_pct": "+1.09%",
       "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "61077.90",
-      "change_pct": "-1.79%",
-      "as_of": "2026-11-05",
+      "value": "57434.77",
+      "change_pct": "-5.96%",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24796.98",
-      "change_pct": "+3.67%",
-      "as_of": "2026-11-05",
+      "value": "24481.86",
+      "change_pct": "-1.27%",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "98.05",
-      "change_pct": "-0.24%",
+      "value": "98.32",
+      "change_pct": "+0.03%",
       "as_of": "2026-11-06",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4071.80",
-      "change_pct": "-1.01%",
+      "value": "4074.90",
+      "change_pct": "-0.94%",
       "as_of": "2026-11-06",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2476.70",
-      "change_pct": "+0.87%",
-      "as_of": "2026-11-06 23:50:03",
+      "value": "2482.94",
+      "change_pct": "+0.78%",
+      "as_of": "2026-11-07 17:10:21",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "949.88",
-      "change_pct": "+0.44%",
-      "as_of": "2026-11-06 23:50:02",
+      "value": "952.27",
+      "change_pct": "+0.78%",
+      "as_of": "2026-11-07 17:10:23",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
       "value": "82.18",
       "change_pct": "-0.15%",
-      "as_of": "2026-11-06 23:51:18",
+      "as_of": "2026-11-06 23:55:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.28",
       "change_pct": "+0.51%",
-      "as_of": "2026-11-06 19:15:00",
+      "as_of": "2026-11-06 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "putin-abu-dhabi-talks",
-      "headline": "Трехсторонние переговоры России США и Украины по урегулированию конфликта пройдут в Абу Даби",
-      "context": "Президент России Владимир Путин подтвердил проведение трехсторонних переговоров 10 ноября и обсудил их с Советом безопасности.",
+      "id": "deflation-rf-nov",
+      "headline": "Росстат зафиксировал недельную дефляцию в 0,04% и замедление годовой инфляции до 6,95%",
+      "context": "По данным Минэкономразвития и Росстата, с 27 октября по 2 ноября потребительские цены снизились на 0,04%.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1127537"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9091862"
+        }
+      ],
+      "published_at": "2026-11-07T08:59:00+03:00"
+    },
+    {
+      "id": "abu-dhabi-talks-nov10",
+      "headline": "Трехсторонние переговоры РФ США и Украины по урегулированию пройдут 10 ноября в Абу-Даби",
+      "context": "Президент России Владимир Путин подтвердил проведение трехсторонней встречи делегаций в ОАЭ.",
       "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
@@ -96,67 +115,63 @@
       "published_at": "2026-11-06T20:46:00+03:00"
     },
     {
-      "id": "rosneft-div-9m",
-      "headline": "Совет директоров Роснефти рекомендовал выплатить промежуточные дивиденды по итогам девяти месяцев",
-      "context": "Размер рекомендуемых выплат составляет 9,44 рубля на акцию с датой закрытия реестра 12 января.",
+      "id": "rosneft-dividends-9m",
+      "headline": "Совет директоров Роснефти рекомендовал промежуточные дивиденды в размере 9,44 рубля на акцию",
+      "context": "Выплаты рекомендуются по итогам девяти месяцев 2026 года с датой закрытия реестра 12 января.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9091568"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1371712.php"
         },
         {
           "name": "Интерфакс",
           "url": "https://www.interfax.ru/business/1127495"
         }
       ],
-      "published_at": "2026-11-06T20:39:00+03:00"
+      "published_at": "2026-11-06T20:11:00+03:00"
     },
     {
-      "id": "x5-div-9m",
-      "headline": "Совет директоров Х5 рекомендовал выплатить дивиденды за девять месяцев в размере двухсот рублей",
-      "context": "Рекомендованная выплата составляет 204 рубля на акцию, а дата закрытия реестра назначена на 11 декабря.",
+      "id": "us-iran-negotiations",
+      "headline": "США и Иран продолжают консультации через посредников на фоне обсуждения военных сценариев",
+      "context": "Представители Катара подтвердили продолжение переговоров между Вашингтоном и Тегераном.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1127523"
+        }
+      ],
+      "published_at": "2026-11-07T07:34:00+03:00"
+    },
+    {
+      "id": "jti-assets-management",
+      "headline": "Президент России передал во временное управление еще три актива группы JTI",
+      "context": "Активы компании Japan Tobacco International переданы во временное управление АО «Промышленные активы».",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 5,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9086608"
+          "url": "https://www.kommersant.ru/doc/9091806"
         },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1127397"
+          "url": "https://www.interfax.ru/russia/1127514"
         }
       ],
-      "published_at": "2026-11-06T12:25:00+03:00"
+      "published_at": "2026-11-07T00:34:00+03:00"
     },
     {
-      "id": "tbank-cian-offer",
-      "headline": "Т Технологии направили добровольное предложение о покупке ста процентов акций сервиса Циан",
-      "context": "Группа предложила цену выкупа 993,05 рубля за акцию и планирует профинансировать сделку без проведения допэмиссии.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9081524"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1127370"
-        }
-      ],
-      "published_at": "2026-11-06T11:18:00+03:00"
-    },
-    {
-      "id": "pds-pension-convert",
-      "headline": "Кабмин внес в Госдуму законопроект об автоматической конвертации накопительной пенсии в ПДС",
-      "context": "Законопроект предусматривает перевод пенсионных накоплений граждан в программу долгосрочных сбережений с 1 апреля 2027 года.",
-      "category": "cb_policy",
+      "id": "pension-pds-bill",
+      "headline": "Правительство внесло в Госдуму проект о конвертации накопительной пенсии в программы сбережений",
+      "context": "Инициатива предусматривает автоматический перевод пенсионных накоплений в ПДС с 1 апреля 2027 года.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
@@ -169,34 +184,36 @@
           "url": "https://www.kommersant.ru/doc/9091550"
         }
       ],
-      "published_at": "2026-11-06T20:33:00+03:00"
+      "published_at": "2026-11-06T20:19:00+03:00"
     },
     {
-      "id": "minfin-ofz-issuance",
-      "headline": "Минфин зарегистрировал новые выпуски ОФЗ на триллион рублей для аукционов с ноября",
-      "context": "Зарегистрированы четыре допвыпуска ОФЗ-ПД на 800 млрд рублей и новый выпуск ОФЗ-ИН на 250 млрд рублей.",
-      "category": "macro",
+      "id": "t-tech-cian-offer",
+      "headline": "Т-Технологии заявили о намерении выкупить акции Циана, классифайд подтвердил получение инициативы",
+      "context": "Т-Технологии подали предложение в ЦБ о выкупе до 100% акций по цене 993,05 рубля за бумагу.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1127466"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9091531"
         },
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314522"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1127490"
         }
       ],
-      "published_at": "2026-11-06T18:34:00+03:00"
-    },
+      "published_at": "2026-11-06T19:40:00+03:00"
+    }
+  ],
+  "yesterday": [
     {
-      "id": "cb-crypto-nonqual",
-      "headline": "Банк России утвердил доступ трех криптовалют для неквалифицированных инвесторов с ноября",
-      "context": "С 17 ноября неквалифицированные инвесторы смогут приобретать Bitcoin, Ethereum и USDT с лимитом до 300 тысяч рублей в год.",
+      "id": "cb-crypto-access-nkwal",
+      "headline": "Банк России утвердил доступ неквалифицированных инвесторов к покупке биткоина эфира и USDT",
+      "context": "Указание ЦБ вступает в силу 17 ноября с установлением лимита на покупку в 300 тысяч рублей в год у одного посредника.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -210,224 +227,242 @@
       "published_at": "2026-11-06T15:46:00+03:00"
     },
     {
-      "id": "us-tech-selloff",
-      "headline": "Американские технологические акции обвалились на торгах из за переоценки политических рисков",
-      "context": "Индекс Nasdaq падал более чем на 5% после смены контроля в Конгрессе США по итогам выборов.",
-      "category": "markets",
+      "id": "x5-dividends-9m",
+      "headline": "Совет директоров X5 рекомендовал дивиденды за девять месяцев в размере 204 рублей на акцию",
+      "context": "Дивидендная доходность выплат составила около 8,7% к текущим рыночным котировкам.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9086608"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/06/1243182-x5-dividendi"
+        }
+      ],
+      "published_at": "2026-11-06T12:06:00+03:00"
+    },
+    {
+      "id": "beget-cloud-destroyed",
+      "headline": "Хостинг провайдер Beget сообщил об уничтожении облачной инфраструктуры из за кибератаки",
+      "context": "Компания подтердила утрату виртуальных серверов VPS и резревных копий данных части пользователей.",
+      "category": "tech",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/technology/news/2026/11/06/1243332-infrastruktura-unichtozhena"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314533"
+        }
+      ],
+      "published_at": "2026-11-06T18:26:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-registration",
+      "headline": "Минфин зарегистрировал новые выпуски ОФЗ на общую сумму 1,05 триллиона рублей",
+      "context": "С 18 ноября ведомство начнет предлагать на аукционах допвыпуски ОФЗ-ПД и новый выпуск ОФЗ-ИН.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314522"
+        },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1127328"
+          "url": "https://www.interfax.ru/russia/1127466"
         }
       ],
-      "published_at": "2026-11-06T06:44:00+03:00"
-    }
-  ],
-  "yesterday": [
+      "published_at": "2026-11-06T18:25:00+03:00"
+    },
     {
-      "id": "cb-overheat-q3",
-      "headline": "Банк России заявила о возвращении российской экономики к состоянию перегрева в третьем квартале",
-      "context": "В резюме обсуждения ключевой ставки регулятор отметил расширение положительного разрыва выпуска из за опережающего роста спроса.",
-      "category": "cb_policy",
+      "id": "vk-tech-revenue-9m",
+      "headline": "Выручка VK Tech за девять месяцев 2026 года выросла на 34,6 процента",
+      "context": "Показатель достиг 14,4 млрд рублей, основным драйвером стали сервисы продуктивности VK WorkSpace.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9091230"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/technology/news/2026/11/06/1243223-viruchka-vk-tech"
+        }
+      ],
+      "published_at": "2026-11-06T14:03:00+03:00"
+    },
+    {
+      "id": "us-markets-democrats-selloff",
+      "headline": "Победа демократов на выборах в США спровоцировала распродажу акций технологических компаний",
+      "context": "Индекс Nasdaq зафиксировал дневное падение, падение котировок бигтехов распространилось на азиатские рынки.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314303"
+        }
+      ],
+      "published_at": "2026-11-06T12:06:00+03:00"
+    },
+    {
+      "id": "crimea-sevastopol-mortgage",
+      "headline": "Правительство утвердило льготную ипотеку под 8% для жителей Крыма и Севастополя",
+      "context": "Программа действует с 1 ноября 2026 года по 30 апреля 2027 года с максимальной суммой кредита 8 млн рублей.",
+      "category": "macro",
       "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314154"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9081290"
-        }
-      ],
-      "published_at": "2026-11-05T17:00:00+03:00"
-    },
-    {
-      "id": "jt-nationalization",
-      "headline": "Владимир Путин передал российские активы Japan Tobacco во временное управление госструктуре",
-      "context": "Временным управляющим долей структуры JTI назначена компания Промышленные активы.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9080919"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/11/05/1242893-putin-peredal-jti"
-        }
-      ],
-      "published_at": "2026-11-05T14:39:00+03:00"
-    },
-    {
-      "id": "seligdar-charges",
-      "headline": "Акции Селигдара рухнули на торгах после предъявления ужесточенного обвинения совладельцам холдинга",
-      "context": "МВД добавило обвинение в создании преступного сообщества совладельцам компании по делу о хищениях в НПФ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9080892"
-        }
-      ],
-      "published_at": "2026-11-05T14:16:00+03:00"
-    },
-    {
-      "id": "ofz-overplan-1t",
-      "headline": "Правительство разрешило Минфину привлечь на рынке ОФЗ дополнительный триллион рублей",
-      "context": "Премьер-министр подписал распоряжение, разрешающее превышение планового объема внутренних заимствований на 2026 год.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9080757"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314011"
-        }
-      ],
-      "published_at": "2026-11-05T12:10:00+03:00"
-    },
-    {
-      "id": "smlt-restructuring",
-      "headline": "Банки кредиторы согласовали параметры программы финансового оздоровления девелопера Самолет",
-      "context": "Программа предполагает комплексные меры поддержки с учетом интересов держателей облигаций и акционеров.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/313955"
-        }
-      ],
-      "published_at": "2026-11-05T08:04:00+03:00"
-    },
-    {
-      "id": "luxembourg-nrd-unfreeze",
-      "headline": "Суд Люксембурга отменил решение Минфина об отказе в разблокировке активов в НРД",
-      "context": "Инстанция удовлетворила иск инвестора, заблокированного в рамках санкций против Национального расчетного депозитария.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/11/05/1242983-sud-otmenil-zapret"
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/06/1243286-lgotnuyu-ipoteku"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9091436"
         }
       ],
-      "published_at": "2026-11-05T17:49:00+03:00"
+      "published_at": "2026-11-06T16:41:00+03:00"
     },
     {
-      "id": "unfriendly-status-update",
-      "headline": "Указ президента уточнил критерии отнесения физических лиц к категории недружественных",
-      "context": "Недружественными признаются лица, не предоставившие подтверждение наличия гражданства или ВНЖ дружественных государств.",
+      "id": "diasoft-dividends-9m",
+      "headline": "Совет директоров Диасофта рекомендовал дивиденды в размере 16 рублей на акцию",
+      "context": "Выплаты рекомендуются за девять месяцев 2026 года, дата закрытия реестра — 22 декабря.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1371570.php"
+        }
+      ],
+      "published_at": "2026-11-06T15:46:00+03:00"
+    },
+    {
+      "id": "yandex-spo-motivation",
+      "headline": "Яндекс начал размещение акций в рамках допэмиссии по цене 3463,5 рубля",
+      "context": "Дополнительный выпуск бумаг осуществляется в целях реализации программы долгосрочной мотивации.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/06/1243264-yandeks-nachal-razmeschenie"
+        }
+      ],
+      "published_at": "2026-11-06T15:39:00+03:00"
+    },
+    {
+      "id": "skr-crypto-anti-money-laundering",
+      "headline": "Следственный комитет предложил включить криптоактивы в антиотмывочную инфраструктуру",
+      "context": "Ведомство предложило отслеживать транзакции криптовалют через ресурсы Росфинмониторинга.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314152"
-        }
-      ],
-      "published_at": "2026-11-05T16:54:00+03:00"
-    },
-    {
-      "id": "yandex-spo-price",
-      "headline": "Совет директоров Яндекса утвердил цену размещения акций в рамках программы мотивации сотрудников",
-      "context": "Цена дополнительного выпуска акций установлена на уровне 3463,5 рубля за бумагу.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9081099"
-        }
-      ],
-      "published_at": "2026-11-05T17:50:00+03:00"
-    },
-    {
-      "id": "mts-buyback-plan",
-      "headline": "Компания МТС подтвердила планы проведения паритетного обратного выкупа акций с рынка и у АФК Система",
-      "context": "Оператор направит до тридцати процентов дивидендных средств на выкуп для сохранения эффективных долей акционеров.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/86610"
-        }
-      ],
-      "published_at": "2026-11-05T15:00:00+03:00"
-    },
-    {
-      "id": "cb-borrower-risk-rules",
-      "headline": "Центробанк предложил ужесточить требования к оценке кредитных рисков и ипотеке для ИЖС",
-      "context": "Регулятор планирует ограничить выдачу ипотечных кредитов на индивидуальное жилье без использования счетов эскроу.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9080791"
-        }
-      ],
-      "published_at": "2026-11-05T12:47:00+03:00"
-    },
-    {
-      "id": "fx-gold-purchases-nov",
-      "headline": "Минфин увеличит ежедневный объем покупок валюты и золота по бюджетному правилу до шестнадцати миллиардов",
-      "context": "С 9 ноября ежедневный объем операций составит 15,6 млрд рублей против 12,7 млрд рублей месяцем ранее.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314034"
+          "url": "https://www.kommersant.ru/doc/9091230"
         },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9080823"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314464"
         }
       ],
-      "published_at": "2026-11-05T12:00:00+03:00"
+      "published_at": "2026-11-06T14:37:00+03:00"
     },
     {
-      "id": "retail-investors-october",
-      "headline": "Частные инвесторы сократили чистые вложения в российские акции почти на десять миллиардов рублей",
-      "context": "В октябре сократились вложения физлиц в акции и облигации при одновременном росте притока средств в ПИФы.",
-      "category": "markets",
+      "id": "seligdar-cb-moex-appeal",
+      "headline": "Селигдар обратился в Банк России и Мосбиржу из за обвала акций",
+      "context": "Руководство холдинга назвало резкое падение котировок манипулятивным и указало на стабильность работы компании.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/314035"
+          "url": "https://frankmedia.ru/314414"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9091259"
         }
       ],
-      "published_at": "2026-11-05T12:36:00+03:00"
+      "published_at": "2026-11-06T13:07:00+03:00"
+    },
+    {
+      "id": "mortgage-issuance-october",
+      "headline": "Объем выдачи ипотеки в России в октябре сократился в два раза",
+      "context": "По данным Frank RG, банки выдали ипотечных кредитов на 308,8 млрд рублей, что на 49% ниже показателя сентября.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9081528"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314301"
+        }
+      ],
+      "published_at": "2026-11-06T11:27:00+03:00"
+    },
+    {
+      "id": "b2b-rts-dividends-3q",
+      "headline": "Совет директоров B2B РТС рекомендовал дивиденды за третий квартал в 9,8 рубля на акцию",
+      "context": "Общий объем средств на выплату дивидендов составит 1,75 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9081547"
+        }
+      ],
+      "published_at": "2026-11-06T11:40:00+03:00"
+    },
+    {
+      "id": "gold-trading-record-moex",
+      "headline": "Объем торгов золотом на Московской бирже в октябре достиг исторического максимума",
+      "context": "Показатель вырос в 1,6 раза относительно предыдущего месяца и составил 52,2 тонны металла.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/06/1243129-torgi-zolotom"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314311"
+        }
+      ],
+      "published_at": "2026-11-06T10:46:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "evening",
-    "title": "Итоги торгового дня",
-    "context": "после закрытия основной сессии Мосбиржи (18:50 МСК)",
-    "last_trading_day": "2026-11-05"
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-11-06"
   }
 }
