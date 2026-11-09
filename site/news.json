@@ -1,85 +1,196 @@
 {
-  "date": "2026-11-09",
-  "generated_at": "2026-11-09T16:25:01+03:00",
+  "date": "2026-11-10",
+  "generated_at": "2026-11-10T02:49:20+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы S&P 500 и Nasdaq, а также азиатский Nikkei 225 выросли, цены на нефть Brent снизились, золото подорожало.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, а цены на нефть Brent снизились",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7376.86",
-      "change_pct": "+0.31%",
-      "as_of": "2026-11-06",
+      "value": "7549.94",
+      "change_pct": "+2.35%",
+      "as_of": "2026-11-09",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "24579.43",
-      "change_pct": "+1.09%",
-      "as_of": "2026-11-06",
+      "value": "25253.14",
+      "change_pct": "+2.74%",
+      "as_of": "2026-11-09",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "58775.50",
-      "change_pct": "+2.33%",
-      "as_of": "2026-11-09",
+      "value": "57434.77",
+      "change_pct": "-5.96%",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24448.95",
-      "change_pct": "-0.13%",
-      "as_of": "2026-11-09",
+      "value": "24481.86",
+      "change_pct": "-1.27%",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "94.46",
-      "change_pct": "-3.93%",
+      "value": "92.31",
+      "change_pct": "-6.11%",
       "as_of": "2026-11-09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4128.50",
-      "change_pct": "+1.32%",
+      "value": "4147.00",
+      "change_pct": "+1.77%",
       "as_of": "2026-11-09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2475.53",
-      "change_pct": "+0.48%",
-      "as_of": "2026-11-09 16:24:56",
+      "value": "2470.07",
+      "change_pct": "+0.25%",
+      "as_of": "2026-11-09 23:50:02",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "949.41",
-      "change_pct": "+0.47%",
-      "as_of": "2026-11-09 16:24:58",
+      "value": "940.29",
+      "change_pct": "-0.49%",
+      "as_of": "2026-11-09 23:50:02",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.09",
-      "change_pct": "+0.19%",
-      "as_of": "2026-11-09 16:24:53",
+      "value": "83.05",
+      "change_pct": "+1.06%",
+      "as_of": "2026-11-09 23:55:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.36",
-      "change_pct": "+0.63%",
-      "as_of": "2026-11-09 16:25:00",
+      "value": "12.37",
+      "change_pct": "+0.70%",
+      "as_of": "2026-11-09 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cbr-nabiullina-key-rate-2027",
-      "headline": "Глава ЦБ Эльвира Набиуллина заявила о сохранении двузначной ключевой ставки в 2027 году",
-      "context": "Председатель Банка России отметила, что торопиться со снижением ставки нельзя и экономика возвращается к умеренному росту.",
+      "id": "russia-delegation-abu-dhabi",
+      "headline": "Делегация России прибыла в Абу-Даби на трехсторонние переговоры по урегулированию",
+      "context": "В трехсторонних переговорах 10 и 11 ноября принимают участие представители России, США и Украины.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "ТАСС",
+          "url": "https://www.kommersant.ru/doc/9093213"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/09/11/2026/6af20c41880b9dc931df6def"
+        }
+      ],
+      "published_at": "2026-11-09T22:45:00+03:00"
+    },
+    {
+      "id": "mintsifra-datacenter-management",
+      "headline": "Минцифры предложило отключать неприоритетных клиентов ЦОДов с риском ввода временного управления",
+      "context": "Резервные 10% мощностей будут использоваться для работы систем из белого списка.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/technology_and_media/09/11/2026/6af22531830236b8512cf349"
+        }
+      ],
+      "published_at": "2026-11-09T23:19:00+03:00"
+    },
+    {
+      "id": "supreme-court-dividend-ruling",
+      "headline": "Верховный суд запретил выплачивать дивиденды за периоды отсутствия чистой прибыли",
+      "context": "Суд указал, что компания не может распределять прибыль при нехватке чистых активов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093138"
+        }
+      ],
+      "published_at": "2026-11-09T19:48:00+03:00"
+    },
+    {
+      "id": "russia-coal-exports-india",
+      "headline": "Доля России в поставках энергетического угля в Индию удвоилась за десять месяцев",
+      "context": "Объем экспорта из России вырос на 63% год к году и составил 10,4 млн тонн.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093207"
+        }
+      ],
+      "published_at": "2026-11-10T02:31:00+03:00"
+    },
+    {
+      "id": "anthropic-ipo-plans",
+      "headline": "Разработчик искусственного интеллекта Anthropic планирует провести первичное публичное размещение акций",
+      "context": "Начало торгов акциями компании на бирже ожидается 19 или 20 ноября.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392621"
+        }
+      ],
+      "published_at": "2026-11-10T00:17:00+03:00"
+    },
+    {
+      "id": "us-oil-reserve-record-low",
+      "headline": "Стратегический нефтяной резерв США упал до минимального уровня с 1982 года",
+      "context": "Объем резерва снизился за неделю до 279,5 млн баррелей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392619"
+        }
+      ],
+      "published_at": "2026-11-10T00:04:00+03:00"
+    },
+    {
+      "id": "us-iran-uranium-talks",
+      "headline": "США и Иран ведут переговоры о соглашении по снижению уровня обогащения урана",
+      "context": "Проект соглашения предусматривает ограничение обогащения урана до 3,67% и разморозку иранских активов.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093219"
+        }
+      ],
+      "published_at": "2026-11-09T23:29:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "cbr-key-rate-stance",
+      "headline": "Набиуллина заявила об отсутствии предпосылок для скорого снижения ключевой ставки",
+      "context": "Глава ЦБ допустила сохранение двузначной ключевой ставки в течение 2027 года.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -87,44 +198,37 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9092643"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/11/09/1243654-stavka-ostanetsya-dvuznachnoi"
         }
       ],
       "published_at": "2026-11-09T12:01:00+03:00"
     },
     {
-      "id": "abu-dhabi-trilateral-talks-security",
-      "headline": "В Абу-Даби состоятся трехсторонние переговоры России, США и Украины по безопасности",
-      "context": "Глава МИД РФ Сергей Лавров заявил, что стороны займутся согласованием базовых принципов урегулирования.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092847"
-        }
-      ],
-      "published_at": "2026-11-09T15:14:00+03:00"
-    },
-    {
-      "id": "t-technologies-cyan-acquisition-offer",
-      "headline": "Т-Технологии направили оферту на приобретение до 100% акций сервиса Циан",
-      "context": "Группа предложила 993,05 рубля за акцию, оценив весь бизнес сервиса объявлений о недвижимости в 77 млрд рублей.",
+      "id": "t-technologies-cyan-offer",
+      "headline": "Т-Технологии направили в Банк России предложение о покупке до 100% акций ЦИАНа",
+      "context": "Группа предложила выкупить акции по цене 993,05 рубля за бумагу с премией 29,3% к рынку.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392470"
+        },
+        {
           "name": "@if_market_news",
           "url": "https://t.me/if_market_news/86687"
         }
       ],
-      "published_at": "2026-11-09T14:04:00+03:00"
+      "published_at": "2026-11-09T00:13:00+03:00"
     },
     {
-      "id": "rosneft-board-recommends-9m-dividends",
-      "headline": "Совет директоров Роснефти рекомендовал дивиденды за девять месяцев 2026 года",
-      "context": "Рекомендованный размер выплат составляет 9,44 рубля на акцию, дата закрытия реестра — 12 января 2027 года.",
+      "id": "rosneft-dividends-9m",
+      "headline": "Совет директоров Роснефти рекомендовал дивиденды за девять месяцев в 9,44 рубля на акцию",
+      "context": "Сумма рекомендуемой выплаты соответствует 50% чистой прибыли по МСФО за первое полугодие.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -137,47 +241,66 @@
       "published_at": "2026-11-09T11:02:00+03:00"
     },
     {
-      "id": "evrotrans-trassa-station-suspension",
-      "headline": "Сеть автозаправочных станций Трасса компании Евротранс приостановила работу",
-      "context": "Собственник имущества Газпромбанк Лизинг изымает заправки сети, а Мосбиржа задействовала дискретный аукцион по акциям эмитента.",
+      "id": "kamaz-state-support-proposal",
+      "headline": "Акции КАМАЗа выросли после заявления Путина о программе обновления регионального транспорта",
+      "context": "Президент России предложил поддерживать автопром через программы обновления муниципального транспорта.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092228"
-        },
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/86667"
+          "url": "https://www.kommersant.ru/doc/9092963"
         }
       ],
-      "published_at": "2026-11-08T17:48:00+03:00"
+      "published_at": "2026-11-09T16:47:00+03:00"
     },
     {
-      "id": "leningrad-region-fuel-sale-limits",
-      "headline": "В Ленинградской области ввели ограничения на объем продажи топлива на заправках",
-      "context": "Оперативный штаб региона рекомендовал отпускать не более 30 литров бензина и 50 литров дизеля в одни руки.",
-      "category": "macro",
+      "id": "alrosa-mining-suspension",
+      "headline": "АЛРОСА приостановила добычу на ряде нерентабельных месторождений для оптимизации издержек",
+      "context": "Экономический эффект от программы оптимизации расходов компании оценивается в 40 млрд рублей.",
+      "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092871"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/11/09/1243788-alrosa-priostanovila-dobichu"
         }
       ],
-      "published_at": "2026-11-09T15:35:00+03:00"
+      "published_at": "2026-11-09T17:09:00+03:00"
     },
     {
-      "id": "uralsib-bank-dividends-9m-2026",
-      "headline": "Совет директоров банка Уралсиб рекомендовал выплату дивидендов за девять месяцев",
-      "context": "Рекомендованная сумма выплат составляет 0,0277 рубля на акцию, закрытие реестра назначено на 11 декабря.",
+      "id": "canada-sanctions-expansion",
+      "headline": "Канада внесла в санкционный список Озон-банк Яндекс-банк и Национальный расчетный депозитарий",
+      "context": "В новый антироссийский санкционный пакет вошли 38 юридических лиц и 24 гражданина РФ.",
       "category": "banks",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
+        {
+          "name": "@frank_media",
+          "url": "https://t.me/frank_media/24664"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1127844"
+        }
+      ],
+      "published_at": "2026-11-09T15:39:00+03:00"
+    },
+    {
+      "id": "uralsib-bank-dividends",
+      "headline": "Совет директоров банка Уралсиб рекомендовал выплату дивидендов за девять месяцев",
+      "context": "Размер рекомендованной выплаты составил 0,0277 рубля на одну обыкновенную акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392511"
+        },
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/11/09/1243596-sovet-direktorov"
@@ -186,27 +309,75 @@
       "published_at": "2026-11-09T10:42:00+03:00"
     },
     {
-      "id": "nvidia-board-investigates-ceo-jensen-huang",
-      "headline": "Совет директоров Nvidia начал расследование отношений гендиректора с предполагаемой шпионкой",
-      "context": "Дженсен Хуанг признался в измене супруге, а независимые директора проверяют факты утекших корпоративных данных.",
-      "category": "tech",
+      "id": "cbr-crypto-testing-rules",
+      "headline": "Банк России утвердит порядок тестирования частных инвесторов для доступа к криптовалютам",
+      "context": "Первые операции со сделкам с цифровыми валютами станут доступны инвесторам в декабре.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314603"
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/86700"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/09/1243819-testi-dlya-pokupki-kriptovalyuti"
         }
       ],
-      "published_at": "2026-11-09T09:00:00+03:00"
+      "published_at": "2026-11-09T18:51:00+03:00"
+    },
+    {
+      "id": "fnb-october-growth",
+      "headline": "Объем Фонда национального благосостояния России в октябре вырос на 70,7 млрд рублей",
+      "context": "Совокупный объем ФНБ на 1 ноября составил 13,055 трлн рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1127887"
+        }
+      ],
+      "published_at": "2026-11-09T18:09:00+03:00"
+    },
+    {
+      "id": "russia-international-reserves",
+      "headline": "Международные резервы России в октябре сократились на 1,5% до 720,9 млрд долларов",
+      "context": "За месяц объем золотовалютных резервов страны снизился на 10,8 млрд долларов.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1127857"
+        }
+      ],
+      "published_at": "2026-11-09T16:24:00+03:00"
+    },
+    {
+      "id": "lenobl-fuel-limits",
+      "headline": "В Ленинградской области ввели временные лимиты на отпуск топлива на автозаправочных станциях",
+      "context": "Ограничение составляет 30 литров бензина и 50 литров дизельного топлива в одни руки.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9092871"
+        }
+      ],
+      "published_at": "2026-11-09T15:35:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-06"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-11-09"
   }
 }
