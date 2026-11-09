@@ -1,85 +1,85 @@
 {
   "date": "2026-11-09",
-  "generated_at": "2026-11-09T13:18:04+03:00",
+  "generated_at": "2026-11-09T16:25:01+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Фондовые индексы США и Азии во главе с Nikkei 225 в основном выросли, золото подорожало, а нефть Brent снизилась.",
+  "external_backdrop": "Американские фондовые индексы S&P 500 и Nasdaq, а также азиатский Nikkei 225 выросли, цены на нефть Brent снизились, золото подорожало.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7376.86",
       "change_pct": "+0.31%",
-      "as_of": "закрытие 06.11",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "24579.43",
       "change_pct": "+1.09%",
-      "as_of": "закрытие 06.11",
+      "as_of": "2026-11-06",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
       "value": "58775.50",
       "change_pct": "+2.33%",
-      "as_of": "09.11",
+      "as_of": "2026-11-09",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
       "value": "24448.95",
       "change_pct": "-0.13%",
-      "as_of": "09.11",
+      "as_of": "2026-11-09",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "97.50",
-      "change_pct": "-0.83%",
-      "as_of": "09.11",
+      "value": "94.46",
+      "change_pct": "-3.93%",
+      "as_of": "2026-11-09",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4107.90",
-      "change_pct": "+0.81%",
-      "as_of": "09.11",
+      "value": "4128.50",
+      "change_pct": "+1.32%",
+      "as_of": "2026-11-09",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2469.88",
-      "change_pct": "+0.25%",
-      "as_of": "13:18 09.11",
+      "value": "2475.53",
+      "change_pct": "+0.48%",
+      "as_of": "2026-11-09 16:24:56",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "947.25",
-      "change_pct": "+0.24%",
-      "as_of": "13:18 09.11",
+      "value": "949.41",
+      "change_pct": "+0.47%",
+      "as_of": "2026-11-09 16:24:58",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "82.76",
-      "change_pct": "+0.11%",
-      "as_of": "13:18 09.11",
+      "value": "83.09",
+      "change_pct": "+0.19%",
+      "as_of": "2026-11-09 16:24:53",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.32",
-      "change_pct": "-0.01%",
-      "as_of": "13:18 09.11",
+      "value": "12.36",
+      "change_pct": "+0.63%",
+      "as_of": "2026-11-09 16:25:00",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "nabiullina-key-rate-2027",
-      "headline": "Глава ЦБ Набиуллина заявила о сохранении двузначной ключевой ставки в 2027 году в базовом сценарии",
-      "context": "Председатель Банка России отметила необходимость прохождения периода жесткой денежно-кредитной политики и отсутствие признаков переохлаждения экономики.",
+      "id": "cbr-nabiullina-key-rate-2027",
+      "headline": "Глава ЦБ Эльвира Набиуллина заявила о сохранении двузначной ключевой ставки в 2027 году",
+      "context": "Председатель Банка России отметила, что торопиться со снижением ставки нельзя и экономика возвращается к умеренному росту.",
       "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
@@ -87,98 +87,97 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9092643"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/11/09/1243654-stavka-ostanetsya-dvuznachnoi"
         }
       ],
       "published_at": "2026-11-09T12:01:00+03:00"
     },
     {
-      "id": "evrotrans-azs-trassa-stop",
-      "headline": "Сеть АЗС Трасса компании Евротранс приостановила работу из-за изъятия имущества лизингодателем",
-      "context": "Московская биржа запускала дискретный аукцион по акциям ПАО Евротранс после их падения более чем на 17%.",
+      "id": "abu-dhabi-trilateral-talks-security",
+      "headline": "В Абу-Даби состоятся трехсторонние переговоры России, США и Украины по безопасности",
+      "context": "Глава МИД РФ Сергей Лавров заявил, что стороны займутся согласованием базовых принципов урегулирования.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9092847"
+        }
+      ],
+      "published_at": "2026-11-09T15:14:00+03:00"
+    },
+    {
+      "id": "t-technologies-cyan-acquisition-offer",
+      "headline": "Т-Технологии направили оферту на приобретение до 100% акций сервиса Циан",
+      "context": "Группа предложила 993,05 рубля за акцию, оценив весь бизнес сервиса объявлений о недвижимости в 77 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/86687"
+        }
+      ],
+      "published_at": "2026-11-09T14:04:00+03:00"
+    },
+    {
+      "id": "rosneft-board-recommends-9m-dividends",
+      "headline": "Совет директоров Роснефти рекомендовал дивиденды за девять месяцев 2026 года",
+      "context": "Рекомендованный размер выплат составляет 9,44 рубля на акцию, дата закрытия реестра — 12 января 2027 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@dohod",
+          "url": "https://t.me/dohod/13241"
+        }
+      ],
+      "published_at": "2026-11-09T11:02:00+03:00"
+    },
+    {
+      "id": "evrotrans-trassa-station-suspension",
+      "headline": "Сеть автозаправочных станций Трасса компании Евротранс приостановила работу",
+      "context": "Собственник имущества Газпромбанк Лизинг изымает заправки сети, а Мосбиржа задействовала дискретный аукцион по акциям эмитента.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092474"
+          "url": "https://www.kommersant.ru/doc/9092228"
         },
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1127686"
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/86667"
         }
       ],
-      "published_at": "2026-11-09T09:20:00+03:00"
+      "published_at": "2026-11-08T17:48:00+03:00"
     },
     {
-      "id": "nvidia-ceo-investigation",
-      "headline": "Совет директоров Nvidia инициировал внутреннее расследование в отношении генерального директора Дженсена Хуанга",
-      "context": "Проверка начата после публикаций в СМИ о связях главы компании с лицом, подозреваемым в работе на китайскую разведку.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314603"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092377"
-        }
-      ],
-      "published_at": "2026-11-09T09:00:00+03:00"
-    },
-    {
-      "id": "rosneft-dividends-9m-2026",
-      "headline": "Совет директоров Роснефти рекомендовал дивиденды за девять месяцев 2026 года в размере 9,44 рубля на акцию",
-      "context": "Дата закрытия реестра акционеров для получения выплат назначена на 12 января 2027 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1372112.php"
-        }
-      ],
-      "published_at": "2026-11-09T08:01:00+03:00"
-    },
-    {
-      "id": "cbr-unfrozen-assets-investors",
-      "headline": "Глава Банка России заявила о возврате значительной части замороженных активов российских инвесторов",
-      "context": "Разблокировка средств и ценных бумаг осуществлялась в том числе с использованием механизма замещающих облигаций.",
-      "category": "markets",
+      "id": "leningrad-region-fuel-sale-limits",
+      "headline": "В Ленинградской области ввели ограничения на объем продажи топлива на заправках",
+      "context": "Оперативный штаб региона рекомендовал отпускать не более 30 литров бензина и 50 литров дизеля в одни руки.",
+      "category": "macro",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6af19024f3da4c0f673c464d"
-        },
-        {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092679"
+          "url": "https://www.kommersant.ru/doc/9092871"
         }
       ],
-      "published_at": "2026-11-09T12:42:00+03:00"
+      "published_at": "2026-11-09T15:35:00+03:00"
     },
     {
-      "id": "uralsib-dividends-9m-2026",
-      "headline": "Совет директоров банка Уралсиб рекомендовал дивиденды за девять месяцев 2026 года в размере 0,027767 рубля на акцию",
-      "context": "Датой фиксации лиц, имеющих право на получение дивидендных выплат, предложено установить 11 декабря.",
+      "id": "uralsib-bank-dividends-9m-2026",
+      "headline": "Совет директоров банка Уралсиб рекомендовал выплату дивидендов за девять месяцев",
+      "context": "Рекомендованная сумма выплат составляет 0,0277 рубля на акцию, закрытие реестра назначено на 11 декабря.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1372160.php"
-        },
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/11/09/1243596-sovet-direktorov"
@@ -187,19 +186,19 @@
       "published_at": "2026-11-09T10:42:00+03:00"
     },
     {
-      "id": "t-technologies-offer-cian",
-      "headline": "Холдинг Т-Технологии направил в Банк России предложение о покупке компании Циан",
-      "context": "Для выкупа бумаг и проведения делистинга холдингу потребуется согласие владельцев акций из свободного обращения.",
-      "category": "corporate",
+      "id": "nvidia-board-investigates-ceo-jensen-huang",
+      "headline": "Совет директоров Nvidia начал расследование отношений гендиректора с предполагаемой шпионкой",
+      "context": "Дженсен Хуанг признался в измене супруге, а независимые директора проверяют факты утекших корпоративных данных.",
+      "category": "tech",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/392470"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314603"
         }
       ],
-      "published_at": "2026-11-09T00:13:00+03:00"
+      "published_at": "2026-11-09T09:00:00+03:00"
     }
   ],
   "yesterday": [],
