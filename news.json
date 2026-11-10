@@ -1,8 +1,8 @@
 {
   "date": "2026-11-10",
-  "generated_at": "2026-11-10T13:21:30+03:00",
+  "generated_at": "2026-11-10T16:01:52+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские индексы выросли, цены на нефть Brent и золото снизились.",
+  "external_backdrop": "Американские и азиатские фондовые индексы продемонстрировали рост, цены на нефть марки Brent и золото снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -34,85 +34,180 @@
     },
     {
       "name": "Brent",
-      "value": "89.63",
-      "change_pct": "-3.18%",
+      "value": "90.17",
+      "change_pct": "-2.59%",
       "as_of": "2026-11-10",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4092.30",
-      "change_pct": "-0.54%",
+      "value": "4086.00",
+      "change_pct": "-0.69%",
       "as_of": "2026-11-10",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2451.98",
-      "change_pct": "-0.86%",
-      "as_of": "2026-11-10 13:21:25",
+      "value": "2461.99",
+      "change_pct": "-0.45%",
+      "as_of": "2026-11-10 16:01:50",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "933.42",
-      "change_pct": "-0.85%",
-      "as_of": "2026-11-10 13:21:26",
+      "value": "937.22",
+      "change_pct": "-0.45%",
+      "as_of": "2026-11-10 16:01:50",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.28",
-      "change_pct": "+0.20%",
-      "as_of": "2026-11-10 13:21:27",
+      "value": "83.41",
+      "change_pct": "+0.01%",
+      "as_of": "2026-11-10 16:01:46",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.39",
-      "change_pct": "+0.18%",
-      "as_of": "2026-11-10 13:21:30",
+      "value": "12.42",
+      "change_pct": "+0.40%",
+      "as_of": "2026-11-10 16:01:51",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "abu-dhabi-talks-start",
-      "headline": "В Абу-Даби начались трехсторонние переговоры делегаций России США и Украины по безопасности",
-      "context": "Стороны обсуждают параметры новой системы континентальной безопасности и вопросы урегулирования конфликта.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093469"
-        }
-      ],
-      "published_at": "2026-11-10T11:15:00+03:00"
-    },
-    {
-      "id": "t-technologies-q3-dividends",
-      "headline": "Совет директоров Т-Технологий рекомендовал дивиденды в 4,8 рубля и повысил финансовый прогноз",
-      "context": "Чистая прибыль компании за третий квартал 2026 года выросла на 58% до 63,4 миллиарда рублей.",
+      "id": "t-technologies-q3-results-and-dividends",
+      "headline": "Т-Технологии увеличили чистую прибыль за третий квартал на 58% и рекомендовали дивиденды",
+      "context": "Совет директоров рекомендовал выплатить 4,8 рубля на акцию за девять месяцев 2026 года и повысил прогноз по росту операционной чистой прибыли.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093473"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1127985"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314743"
         }
       ],
-      "published_at": "2026-11-10T10:00:00+03:00"
+      "published_at": "2026-11-10T10:24:00+03:00"
     },
     {
-      "id": "supreme-court-prohibits-dividends-losses",
-      "headline": "Верховный суд запретил компании распределять дивиденды за период пребывания в убытке",
-      "context": "ВС РФ разъяснил невозможность распределения прибыли при ее отсутствии за отчетный период.",
-      "category": "cb_policy",
-      "investment_relevant": true,
+      "id": "abu-dhabi-peace-talks-first-day",
+      "headline": "В Абу-Даби завершился первый день трехсторонних переговоров России, США и Украины",
+      "context": "Встреча продолжалась более четырех часов и будет продолжена 11 ноября.",
+      "category": "geopolitics",
+      "investment_relevant": false,
       "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/10/11/2026/6af1e824799fa233b533bf61"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1127971"
+        }
+      ],
+      "published_at": "2026-11-10T15:49:00+03:00"
+    },
+    {
+      "id": "ofz-auctions-announcement-minfin",
+      "headline": "Минфин России проведет 11 ноября аукционы по размещению двух выпусков ОФЗ-ПД",
+      "context": "Инвесторам будут предложены облигации выпусков 26250 и 26235.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1372921.php"
+        }
+      ],
+      "published_at": "2026-11-10T15:54:00+03:00"
+    },
+    {
+      "id": "yandex-cloud-data-recovery-status",
+      "headline": "Яндекс восстановил доступ к 97,16% клиентских данных в Yandex Cloud",
+      "context": "Остальные 2,84% данных восстановить невозможно из-за повреждений оборудования и отсутствия резервных копий у пользователей.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6adf44c200990092fe978360"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093770"
+        }
+      ],
+      "published_at": "2026-11-10T15:50:00+03:00"
+    },
+    {
+      "id": "positive-technologies-9m-results",
+      "headline": "Группа Позитив увеличила отгрузки за девять месяцев на 54% до 18,3 млрд рублей",
+      "context": "Компания сократила чистый убыток до 0,7 млрд рублей и подтвердила годовой прогноз по отгрузкам.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093647"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314741"
+        }
+      ],
+      "published_at": "2026-11-10T14:03:00+03:00"
+    },
+    {
+      "id": "banks-propose-delaying-deposit-tax-reform",
+      "headline": "Банки предложили отложить введение прогрессивного налога на вклады до 2028 года",
+      "context": "Финансовым организациям требуется время для настройки программного обеспечения и интеграции с системами ФНС.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314710"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9093186"
+        }
+      ],
+      "published_at": "2026-11-10T07:40:00+03:00"
+    },
+    {
+      "id": "rusal-no-dividends-9m",
+      "headline": "Совет директоров РУСАЛа рекомендовал не выплачивать дивиденды за девять месяцев",
+      "context": "Внеочередное собрание акционеров по вопросу выплат назначено на 4 декабря.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392622"
+        }
+      ],
+      "published_at": "2026-11-10T06:17:00+03:00"
+    },
+    {
+      "id": "supreme-court-dividend-payout-ruling",
+      "headline": "Верховный суд запретил выплачивать дивиденды за период пребывания компании в убытке",
+      "context": "ВС РФ разъяснил, что распределение прибыли невозможно, если чистые активы предприятия меньше уставного капитала и резервного фонда.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -120,136 +215,50 @@
         }
       ],
       "published_at": "2026-11-09T19:48:00+03:00"
-    },
-    {
-      "id": "banks-propose-deposit-tax-delay",
-      "headline": "Банки предложили отложить введение прогрессивной шкалы НДФЛ по доходам со вкладов на 2028 год",
-      "context": "Перенос требуется финансовым организациям для доработки программного обеспечения и интеграции с ФНС.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314710"
-        }
-      ],
-      "published_at": "2026-11-10T07:40:00+03:00"
-    },
-    {
-      "id": "rusal-no-dividends-9m",
-      "headline": "Совет директоров РУСАЛа рекомендовал не выплачивать дивиденды за девять месяцев 2026 года",
-      "context": "Внеочередное общее собрание акционеров по вопросу выплат назначено на 4 декабря.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram",
-          "url": "https://t.me/markettwits/392622"
-        }
-      ],
-      "published_at": "2026-11-10T06:17:00+03:00"
-    },
-    {
-      "id": "basis-group-q3-results",
-      "headline": "Группа Базис увеличила чистую прибыль по МСФО за девять месяцев на 28 процентов",
-      "context": "Выручка компании за период с января по сентябрь 2026 года выросла на 29% до 4,46 миллиарда рублей.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093310"
-        }
-      ],
-      "published_at": "2026-11-10T08:31:00+03:00"
-    },
-    {
-      "id": "government-titanium-rare-metals",
-      "headline": "Правительство России внесло титан в официальный перечень редких металлов",
-      "context": "Изделия из марганца отнесены распоряжением к продукции с высокой долей добавленной стоимости.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093202"
-        }
-      ],
-      "published_at": "2026-11-09T21:00:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "t-bank-cian-acquisition-offer",
-      "headline": "Т-Технологии объявили о намерении приобрести сто процентов акций сервиса объявлений ЦИАН",
-      "context": "Вся компания была оценена в рамках предложения примерно в 77 миллиардов рублей.",
-      "category": "corporate",
+      "id": "cbr-governor-key-rate-path-statement",
+      "headline": "Набиуллина заявила о сохранении двузначной ключевой ставки в базовом сценарии на 2027 год",
+      "context": "Глава ЦБ подчеркнула, что торопиться со снижением ставки нельзя из-за продолжающегося инфляционного давления.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram",
-          "url": "https://t.me/if_market_news/86687"
-        }
-      ],
-      "published_at": "2026-11-09T14:04:00+03:00"
-    },
-    {
-      "id": "nabiullina-monetary-policy-statement",
-      "headline": "Эльвира Набиуллина заявила о намерении сохранять двухзначную ключевую ставку в 2027 году",
-      "context": "Глава регулятора отметила отсутствие признаков переохлаждения российской экономики.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/11/09/1243654-stavka-ostanetsya-dvuznachnoi"
+        },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9092643"
+          "url": "https://www.kommersant.ru/doc/9093015"
         }
       ],
-      "published_at": "2026-11-09T12:01:00+03:00"
+      "published_at": "2026-11-09T12:18:00+03:00"
     },
     {
-      "id": "rosneft-dividends-recommendation",
-      "headline": "Совет директоров Роснефти рекомендовал дивиденды за девять месяцев в размере 9,44 рубля",
-      "context": "Сумма выплат соответствует пятидесяти процентам чистой прибыли по МСФО за первое полугодие.",
+      "id": "rosneft-9m-dividend-recommendation",
+      "headline": "Совет директоров Роснефти рекомендовал дивиденды в размере 9,44 рубля на акцию",
+      "context": "Дата закрытия реестра для получения выплат за девять месяцев 2026 года назначена на 12 января 2027 года.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Telegram",
+          "name": "@dohod",
           "url": "https://t.me/dohod/13241"
         }
       ],
       "published_at": "2026-11-09T11:02:00+03:00"
     },
     {
-      "id": "canada-expands-sanctions-financial-sector",
-      "headline": "Канада ввела санкции против трех банков маркетплейсов и Национального расчетного депозитария",
-      "context": "Под ограничения попали Озон-банк, Яндекс-банк, Вайлдберриз-банк и НРД.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram",
-          "url": "https://t.me/frank_media/24664"
-        }
-      ],
-      "published_at": "2026-11-09T18:13:00+03:00"
-    },
-    {
-      "id": "kamaz-shares-surge-putin-initiative",
-      "headline": "Акции КамАЗа выросли после предложения поддержать компанию через программу обновления транспорта",
-      "context": "В ходе встречи с главой Татарстана президент предложил программу обновления регионального транспорта.",
+      "id": "kamaz-shares-rally-on-putin-support-proposal",
+      "headline": "Акции КамАЗа выросли на 16% после предложения Путина обновить региональный транспорт",
+      "context": "Президент России предложил запустить специальную программу обновления техники для поддержки машиностроения.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
@@ -259,24 +268,96 @@
       "published_at": "2026-11-09T16:47:00+03:00"
     },
     {
-      "id": "uralsib-dividends-recommendation",
-      "headline": "Совет директоров банка Уралсиб рекомендовал выплатить дивиденды за девять месяцев",
-      "context": "Размер рекомендованной выплаты составил 0,0277 рубля на одну обыкновенную акцию.",
-      "category": "corporate",
+      "id": "uralsib-bank-dividends-recommended",
+      "headline": "Совет директоров Банка Уралсиб рекомендовал дивиденды за девять месяцев",
+      "context": "Выплата составит 0,0277 рубля на акцию с датой закрытия реестра 11 декабря.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/11/09/1243596-sovet-direktorov"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9092831"
         }
       ],
       "published_at": "2026-11-09T10:42:00+03:00"
     },
     {
-      "id": "eurotrans-discrete-auction-shares-drop",
-      "headline": "Мосбиржа проводила дискретный аукцион по акциям Евротранса из-за их падения",
-      "context": "Снижение котировок произошло на фоне сообщений о приостановке работы автозаправочных станций Трасса.",
+      "id": "fnb-october-growth-stat",
+      "headline": "Объем Фонда национального благосостояния вырос в октябре на 70,7 млрд рублей",
+      "context": "По данным Минфина, совокупный объем ФНБ достиг 13,055 трлн рублей, а его ликвидная часть составила 3,6 трлн рублей.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1127887"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314678"
+        }
+      ],
+      "published_at": "2026-11-09T18:09:00+03:00"
+    },
+    {
+      "id": "canada-new-sanctions-russian-banks",
+      "headline": "Канада расширила санкции против России и внесла в список банки маркетплейсов",
+      "context": "Под ограничения попали Озон-банк, Яндекс-банк, Вайлдберриз-банк, НРД и ряд других организаций.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314685"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/11/09/1243751-kanada-vvela"
+        }
+      ],
+      "published_at": "2026-11-09T18:34:00+03:00"
+    },
+    {
+      "id": "frozen-assets-unblock-progress-cbr",
+      "headline": "Набиуллина заявила о возврате значительной части замороженных активов россиян",
+      "context": "Банк России продолжает работу по разблокировке активов частных инвесторов.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9092679"
+        }
+      ],
+      "published_at": "2026-11-09T12:42:00+03:00"
+    },
+    {
+      "id": "developers-dividend-outlook-nra",
+      "headline": "Аналитики НРА спрогнозировали возможный возврат девелоперов к дивидендам не ранее 2030 года",
+      "context": "Причинами сдержанности выплат остаются высокая долговая нагрузка, падающая выручка и слабый спрос на рынке.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314609"
+        }
+      ],
+      "published_at": "2026-11-09T09:20:00+03:00"
+    },
+    {
+      "id": "eurotrans-trading-halt-discrete-auction",
+      "headline": "Мосбиржа задействовала дискретный аукцион по акциям Евротранса из-за падения цены",
+      "context": "Котировки снижались на фоне сообщений о временных приостановках работы части сети АЗС.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -289,49 +370,34 @@
       "published_at": "2026-11-09T09:20:00+03:00"
     },
     {
-      "id": "cb-announces-crypto-testing-november",
-      "headline": "Банк России анонсировал появление тестирования для покупки криптовалюты инвесторами в ноябре",
-      "context": "Первые сделки с цифровыми активами в рамках нового регулирования могут состояться в декабре.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Telegram",
-          "url": "https://t.me/markettwits/392595"
-        }
-      ],
-      "published_at": "2026-11-09T18:24:00+03:00"
-    },
-    {
-      "id": "russia-international-reserves-decrease",
-      "headline": "Международные резервы России сократились за октябрь на десять и восемь десятых миллиарда долларов",
-      "context": "Общий объем золотовалютных резервов страны снизился на полтора процента до 720,9 миллиарда долларов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/11/09/1243766-mezhdunarodnie-rezervi-sokratilis"
-        }
-      ],
-      "published_at": "2026-11-09T16:26:00+03:00"
-    },
-    {
-      "id": "nra-forecasts-no-developer-dividends",
-      "headline": "Аналитики НРА спрогнозировали отсутствие дивидендных выплат у застройщиков в ближайшие годы",
-      "context": "Массовый возврат девелоперов к распределению прибыли ожидается не ранее 2030 года.",
+      "id": "mvideo-spo-preemptive-rights-results",
+      "headline": "М.Видео подвела итоги реализации преимущественного права в рамках SPO",
+      "context": "По преимущественному праву было размещено 150 акций по цене 49,50 рублей за бумагу.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314609"
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392534"
         }
       ],
-      "published_at": "2026-11-09T09:20:00+03:00"
+      "published_at": "2026-11-09T13:02:00+03:00"
+    },
+    {
+      "id": "bank-fines-fns-data-transfers-growth",
+      "headline": "Штрафы российских банков за нарушения при передаче данных в ФНС выросли в 29 раз",
+      "context": "За январь–август 2026 года объем уплаченных штрафов достиг 553 млн рублей из-за технических сбоев и ужесточения контроля.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314594"
+        }
+      ],
+      "published_at": "2026-11-09T07:58:00+03:00"
     }
   ],
   "today_agenda": [],
