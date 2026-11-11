@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-11-10T04:32:20+00:00",
-  "data_as_of": "2026-11-09",
+  "generated_at": "2026-11-11T02:26:37+00:00",
+  "data_as_of": "2026-11-10",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-11-09-d6166739-e25a3316",
-    "as_of": "2026-11-09",
-    "calculated_at": "2026-11-10T04:32:20+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
-    "universe_version": "f0d401c5f1c6ce40",
+    "run_id": "2026-11-10-a35c7409-e25a3316",
+    "as_of": "2026-11-10",
+    "calculated_at": "2026-11-11T02:26:37+00:00",
+    "model_version": "elastic_net:a35c74094c4bc83a",
+    "artifact_hash": "a35c74094c4bc83a",
+    "universe_version": "f370f9c8385f2521",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -31,12 +31,12 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-11-09-d6166739-e25a3316",
-    "as_of": "2026-11-09",
-    "calculated_at": "2026-11-10T04:32:20+00:00",
-    "model_version": "elastic_net:d6166739d2b8b2f2",
-    "artifact_hash": "d6166739d2b8b2f2",
-    "universe_version": "f0d401c5f1c6ce40",
+    "run_id": "2026-11-10-a35c7409-e25a3316",
+    "as_of": "2026-11-10",
+    "calculated_at": "2026-11-11T02:26:37+00:00",
+    "model_version": "elastic_net:a35c74094c4bc83a",
+    "artifact_hash": "a35c74094c4bc83a",
+    "universe_version": "f370f9c8385f2521",
     "features_version": "828cfe7417561355",
     "constraints_hash": "e25a33166a958b0b",
     "cost_model_version": "one_way_30bps_v1",
@@ -50,102 +50,124 @@
         "ticker": "SBERP",
         "name": "Сбербанк-п",
         "sector": "Финансы (Банки)",
-        "calculated_weight": 0.059993,
-        "expected_excess_return_20d": -0.003436,
+        "calculated_weight": 0.059829,
+        "expected_excess_return_20d": -0.005752,
         "sector_drivers": []
       },
       {
         "ticker": "DOMRF",
         "name": "ДОМ.РФ",
         "sector": "Финансы",
-        "calculated_weight": 0.059945,
-        "expected_excess_return_20d": -0.001641,
+        "calculated_weight": 0.059581,
+        "expected_excess_return_20d": -0.004115,
         "sector_drivers": []
       },
       {
         "ticker": "HEAD",
         "name": "Хэдхантер",
         "sector": "IT",
-        "calculated_weight": 0.04176,
-        "expected_excess_return_20d": 0.003483,
+        "calculated_weight": 0.041145,
+        "expected_excess_return_20d": -0.000469,
         "sector_drivers": []
       },
       {
         "ticker": "SNGSP",
         "name": "Сургутнефтегаз ап",
         "sector": "Нефть и газ",
-        "calculated_weight": 0.040822,
-        "expected_excess_return_20d": -0.003153,
+        "calculated_weight": 0.035311,
+        "expected_excess_return_20d": -0.005127,
         "sector_drivers": []
+      },
+      {
+        "ticker": "SVCB",
+        "name": "Совкомбанк",
+        "sector": "Финансы (Банки)",
+        "calculated_weight": 0.031643,
+        "expected_excess_return_20d": -0.007845,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "IRAO",
+        "name": "ИнтерРАОао",
+        "sector": "Энергетика",
+        "calculated_weight": 0.030048,
+        "expected_excess_return_20d": -0.008244,
+        "sector_drivers": [
+          {
+            "factor": "utilities_sector_return_20d",
+            "value": 0.0772,
+            "direction": "positive",
+            "data_as_of": "2026-11-10",
+            "status": "APPROVED"
+          },
+          {
+            "factor": "utilities_sector_return_60d",
+            "value": 0.1778,
+            "direction": "positive",
+            "data_as_of": "2026-11-10",
+            "status": "APPROVED"
+          },
+          {
+            "factor": "utilities_sector_relative_20d",
+            "value": 0.0535,
+            "direction": "positive",
+            "data_as_of": "2026-11-10",
+            "status": "APPROVED"
+          }
+        ]
       },
       {
         "ticker": "CNRU",
         "name": "iЦиан",
         "sector": "IT",
-        "calculated_weight": 0.030307,
-        "expected_excess_return_20d": 1.1e-05,
+        "calculated_weight": 0.027444,
+        "expected_excess_return_20d": -0.003859,
         "sector_drivers": []
       },
       {
         "ticker": "MOEX",
         "name": "МосБиржа",
         "sector": "Финансы",
-        "calculated_weight": 0.027639,
-        "expected_excess_return_20d": -0.002657,
+        "calculated_weight": 0.026647,
+        "expected_excess_return_20d": -0.005809,
         "sector_drivers": []
       },
       {
         "ticker": "VSEH",
         "name": "ВИ.ру",
         "sector": "Потребительский сектор",
-        "calculated_weight": 0.027446,
-        "expected_excess_return_20d": 0.001264,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "SNGS",
-        "name": "Сургутнефтегаз",
-        "sector": "Нефть и газ",
-        "calculated_weight": 0.026282,
-        "expected_excess_return_20d": -0.005189,
+        "calculated_weight": 0.026551,
+        "expected_excess_return_20d": -0.002457,
         "sector_drivers": []
       },
       {
         "ticker": "MTSS",
         "name": "МТС-ао",
         "sector": "Телекоммуникации",
-        "calculated_weight": 0.024785,
-        "expected_excess_return_20d": -0.0046,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "LSRG",
-        "name": "ЛСР ао",
-        "sector": "Недвижимость",
-        "calculated_weight": 0.024107,
-        "expected_excess_return_20d": -0.005192,
+        "calculated_weight": 0.023839,
+        "expected_excess_return_20d": -0.007254,
         "sector_drivers": []
       },
       {
         "ticker": "RTKM",
         "name": "Ростел -ао",
         "sector": "Телекоммуникации",
-        "calculated_weight": 0.021081,
-        "expected_excess_return_20d": -0.004743,
+        "calculated_weight": 0.019648,
+        "expected_excess_return_20d": -0.008106,
         "sector_drivers": []
       },
       {
-        "ticker": "AFKS",
-        "name": "Система ао",
-        "sector": "Конгломерат",
-        "calculated_weight": 0.013502,
-        "expected_excess_return_20d": -0.00512,
+        "ticker": "SNGS",
+        "name": "Сургутнефтегаз",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.016679,
+        "expected_excess_return_20d": -0.008061,
         "sector_drivers": []
       }
     ],
-    "cash_weight": 0.602332,
-    "diagnostic_turnover": 0.397668,
-    "diagnostic_cost_rub": 1193.0,
+    "cash_weight": 0.601636,
+    "diagnostic_turnover": 0.398364,
+    "diagnostic_cost_rub": 1195.09,
     "affects_current_portfolio": false
   },
   "execution": {
@@ -198,7 +220,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-11-10T04:28:36.792461+00:00"
+    "last_checked_at": "2026-11-11T02:20:45.601465+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
@@ -208,7 +230,7 @@
         "mae": 0.062067488405403555,
         "rmse": 0.08906171735031879,
         "spearman_ic": 0.008526528268541621,
-        "pearson_ic": 0.016200560936489576,
+        "pearson_ic": 0.01620056093648952,
         "hit_rate": 0.5760111576011158,
         "top_decile_mean_excess_return": -0.010783871940602381,
         "top_bottom_spread": 0.0007569197354587529
@@ -230,7 +252,7 @@
       }
     },
     "constraints": {
-      "turnover_actual": 0.397668,
+      "turnover_actual": 0.398364,
       "turnover_cap": 0.4,
       "one_way_cost_bps": 30.0,
       "solver_method": "HRP"
