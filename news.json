@@ -1,123 +1,297 @@
 {
-  "date": "2026-11-11",
-  "generated_at": "2026-11-11T15:13:21+03:00",
+  "date": "2026-11-12",
+  "generated_at": "2026-11-12T13:15:49+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись снижением, азиатские рынки показывают разнонаправленную динамику, а котировки нефти Brent и золота растут.",
+  "external_backdrop": "Американские фондовые индексы закрылись ростом, азиатские рынки, нефть и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7520.93",
-      "change_pct": "-0.38%",
-      "as_of": "2026-11-10",
-      "group": "global_equity"
-    },
-    {
-      "name": "Nasdaq",
-      "value": "25065.87",
-      "change_pct": "-0.74%",
-      "as_of": "2026-11-10",
-      "group": "global_equity"
-    },
-    {
-      "name": "Nikkei 225",
-      "value": "61248.59",
+      "value": "7619.38",
       "change_pct": "+1.31%",
       "as_of": "2026-11-11",
       "group": "global_equity"
     },
     {
-      "name": "Hang Seng",
-      "value": "24315.92",
-      "change_pct": "-0.98%",
+      "name": "Nasdaq",
+      "value": "25466.19",
+      "change_pct": "+1.60%",
       "as_of": "2026-11-11",
       "group": "global_equity"
     },
     {
+      "name": "Nikkei 225",
+      "value": "60819.36",
+      "change_pct": "-0.70%",
+      "as_of": "2026-11-12",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "24008.55",
+      "change_pct": "-1.26%",
+      "as_of": "2026-11-12",
+      "group": "global_equity"
+    },
+    {
       "name": "Brent",
-      "value": "93.00",
-      "change_pct": "+1.65%",
-      "as_of": "2026-11-11",
+      "value": "92.19",
+      "change_pct": "-0.61%",
+      "as_of": "2026-11-12",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "4052.50",
-      "change_pct": "+0.55%",
-      "as_of": "2026-11-11",
+      "value": "3949.90",
+      "change_pct": "-1.26%",
+      "as_of": "2026-11-12",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2466.18",
-      "change_pct": "+0.90%",
-      "as_of": "2026-11-11 15:13:16",
+      "value": "2489.80",
+      "change_pct": "-0.01%",
+      "as_of": "2026-11-12 13:15:44",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "941.15",
-      "change_pct": "+0.90%",
-      "as_of": "2026-11-11 15:13:17",
+      "value": "948.82",
+      "change_pct": "-0.01%",
+      "as_of": "2026-11-12 13:15:46",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.26",
-      "change_pct": "-0.05%",
-      "as_of": "2026-11-11 15:13:18",
+      "value": "83.14",
+      "change_pct": "+0.02%",
+      "as_of": "2026-11-12 13:15:39",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
       "value": "12.40",
-      "change_pct": "-0.19%",
-      "as_of": "2026-11-11 15:12:35",
+      "change_pct": "+0.17%",
+      "as_of": "2026-11-12 13:15:48",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "abu-dhabi-talks-completed-kushner-moscow-visit",
-      "headline": "Завершились трехсторонние переговоры в Абу-Даби и анонсирован визит спецпосланников США в Москву",
-      "context": "Делегации России, США и Украины завершили двухдневные консультации в Абу-Даби, по итогам которых Владимир Мединский сообщил о согласовании масштабного обмена пленными, а Джаред Кушнер анонсировал визит в Москву 12 ноября.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1128275"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/10/11/2026/6af1f496c19562cb7b4e0c49"
-        }
-      ],
-      "published_at": "2026-11-11T14:30:00+03:00"
-    },
-    {
-      "id": "sber-october-rsbu-earnings",
-      "headline": "Чистая прибыль Сбербанка по РСБУ за десять месяцев 2026 года выросла на 17,6 процента",
-      "context": "За январь — октябрь 2026 года Сбербанк заработал 1,67 трлн рублей чистой прибыли по РСБУ, при этом в октябре чистая прибыль увеличилась на 12,6% год к году и составила 168,5 млрд рублей.",
+      "id": "sberbank-strategy-2029",
+      "headline": "Сбербанк в новой стратегии сохранил выплату пятидесяти процентов прибыли по МСФО на дивиденды",
+      "context": "Банк ставит целью рентабельность капитала не менее 21% и достаточность капитала не менее 13,3%.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1128218"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/315005"
+          "url": "https://www.interfax.ru/russia/1128511"
         }
       ],
-      "published_at": "2026-11-11T09:50:00+03:00"
+      "published_at": "2026-11-12T10:54:00+03:00"
     },
     {
-      "id": "fix-price-9m-dividends",
-      "headline": "Совет директоров Fix Price рекомендовал дивиденды за девять месяцев в размере 0,1 рубля на акцию",
-      "context": "Общий объем рекомендуемых выплат дивидендов за девять месяцев 2026 года составит 10 млрд рублей с датой закрытия реестра 28 декабря.",
+      "id": "us-envoys-talks-moscow",
+      "headline": "Спецпосланники президента США Уиткофф и Кушнер прибыли в Кремль на переговоры с Владимиром Путиным",
+      "context": "Стороны планируют обсудить вопросы европейской безопасности и условия урегулирования конфликта на Украине.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095442"
+        }
+      ],
+      "published_at": "2026-11-12T13:09:00+03:00"
+    },
+    {
+      "id": "weekly-inflation-acceleration",
+      "headline": "Еженедельная инфляция в России с трех по девятое ноября ускорилась до 0,12 процента",
+      "context": "С начала года рост потребительских цен составил 6,33%, годовая инфляция зафиксирована на уровне 6,98%.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1128418"
+        }
+      ],
+      "published_at": "2026-11-11T21:14:00+03:00"
+    },
+    {
+      "id": "rostelecom-q3-results",
+      "headline": "Выручка Ростелекома в третьем квартале выросла на двенадцать процентов до 233 миллиардов рублей",
+      "context": "Чистая прибыль компании за аналогичный период увеличилась на 17% и составила 6,6 миллиарда рублей.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1128504"
+        }
+      ],
+      "published_at": "2026-11-12T10:19:00+03:00"
+    },
+    {
+      "id": "headhunter-q3-results",
+      "headline": "Чистая прибыль компании HeadHunter в третьем квартале снизилась на шестнадцать с половиной процентов",
+      "context": "Выручка за отчетный период осталась на уровне прошлого года и составила 10,97 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/12/1244676-viruchka-headhunter"
+        }
+      ],
+      "published_at": "2026-11-12T10:16:00+03:00"
+    },
+    {
+      "id": "nvidia-ceo-dismissal-discussion",
+      "headline": "Совет директоров Nvidia рассматривает возможность отстранения Дженсена Хуанга от должности генерального директора",
+      "context": "Сообщения о личных скандалах руководителя вызвали падение котировок акций компании во время дополнительных торгов.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315258"
+        }
+      ],
+      "published_at": "2026-11-12T07:38:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-50-banks",
+      "headline": "Послы стран Европейского союза согласовали включение пятидесяти российских банков в новый пакет санкций",
+      "context": "Ограничения затронут 145 физических и юридических лиц, их окончательное утверждение запланировано на 16 ноября.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/frank_media/24695"
+        }
+      ],
+      "published_at": "2026-11-11T19:37:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "sberbank-october-ras-profit",
+      "headline": "Чистая прибыль Сбербанка по РСБУ за десять месяцев достигла почти 1,7 триллиона рублей",
+      "context": "В октябре банк получил 168,5 миллиарда рублей чистой прибыли, что превышает результат прошлого года.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9094296"
+        }
+      ],
+      "published_at": "2026-11-11T10:30:00+03:00"
+    },
+    {
+      "id": "samolet-bond-buyout-new-ceo",
+      "headline": "Девелопер Самолет выкупил более ста тысяч облигаций по оферте и утвердил нового генерального директора",
+      "context": "Руководителем компании назначен Иван Иванов, ранее возглавлявший направление Самолет Селект.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9094893"
+        }
+      ],
+      "published_at": "2026-11-11T18:07:00+03:00"
+    },
+    {
+      "id": "armenia-csto-voting-rights",
+      "headline": "Армению лишили права голоса на заседании Совета коллективной безопасности Организации Договора о коллективной безопасности",
+      "context": "Решение принято из-за невыполнения республикой своих финансовых обязательств и неуплаты взносов.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9094859"
+        }
+      ],
+      "published_at": "2026-11-11T17:28:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-placement-results",
+      "headline": "Минфин России разместил облигации федерального займа выпуска 26235 на тридцать четыре миллиарда рублей",
+      "context": "Спрос на аукционе составил 60,65 миллиарда рублей при средневзвешенной доходности 15,79% годовых.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/392948"
+        }
+      ],
+      "published_at": "2026-11-11T17:01:00+03:00"
+    },
+    {
+      "id": "cb-crypto-trading-permission",
+      "headline": "Банк России разрешил российским биржам запустить торги криптовалютами с двадцать второго ноября",
+      "context": "Регулятор определил параметры допуска цифровых активов к торгам на площадках организаторов торговли.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/11/1244511-torgi-kriptovalyutami"
+        }
+      ],
+      "published_at": "2026-11-11T16:57:00+03:00"
+    },
+    {
+      "id": "severstal-windfall-tax-expectations",
+      "headline": "Северсталь не закладывает расходы по налогу на сверхприбыль в финансовые планы на 2027 год",
+      "context": "Руководство компании ожидает сохранение объема производства стали в 2027 году на уровне текущего года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/86785"
+        }
+      ],
+      "published_at": "2026-11-11T15:55:00+03:00"
+    },
+    {
+      "id": "mygames-management-buyout",
+      "headline": "Топ-менеджмент издателя видеоигр My.Games выкупит компанию у ее владельца Александра Чачавы",
+      "context": "Сделка пройдет при финансовой поддержке частного инвестора из Объединенных Арабских Эмиратов.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9094307"
+        }
+      ],
+      "published_at": "2026-11-11T10:15:00+03:00"
+    },
+    {
+      "id": "fix-price-dividend-recommendation",
+      "headline": "Совет директоров Fix Price рекомендовал выплатить дивиденды за девять месяцев в размере десяти миллиардов рублей",
+      "context": "Выплата на одну акцию составит 0,1 рубля, дивидендная доходность оценивается в 17,2%.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -125,242 +299,39 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9094275"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/11/1244307-sd-fiks-praisa"
         }
       ],
-      "published_at": "2026-11-11T09:32:00+03:00"
+      "published_at": "2026-11-11T09:52:00+03:00"
     },
     {
-      "id": "ust-luga-drone-attack-fire",
-      "headline": "В порту Усть-Луга произошел пожар после атаки беспилотных летательных аппаратов",
-      "context": "Губернатор Ленинградской области сообщил о падении БПЛА в портовой зоне Усть-Луги, что привело к возгоранию и отключению трансформаторной подстанции.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1128182"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094137"
-        }
-      ],
-      "published_at": "2026-11-11T06:33:00+03:00"
-    },
-    {
-      "id": "minfin-ofz-26250-auction",
-      "headline": "Минфин России разместил ОФЗ серии 26250 на тридцать один миллиард рублей",
-      "context": "На аукционе были размещены облигации ОФЗ-ПД 26250 на сумму 31,63 млрд рублей при спросе 74,06 млрд рублей со средневзвешенной доходностью 16,78% годовых.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1373371.php"
-        }
-      ],
-      "published_at": "2026-11-11T14:17:00+03:00"
-    },
-    {
-      "id": "cbr-stops-exporters-fx-data",
-      "headline": "Банк России прекратил публикацию данных об операциях крупнейших экспортеров с иностранной валютой",
-      "context": "Регулятор перестал раскрывать статистику по продажам валютной выручки крупнейшими экспортерами из-за ее нерелевантности.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1128144"
-        }
-      ],
-      "published_at": "2026-11-10T21:44:00+03:00"
-    },
-    {
-      "id": "iran-refuses-to-export-enriched-uranium",
-      "headline": "Иран уведомил Россию об отказе вывозить за пределы страны обогащенный уран",
-      "context": "Секретарь Высшего совета национальной безопасности Ирана Мохсен Резаи заявил, что Тегеран не будет вывозить за границу запасы обогащенного ядерного материала.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094534"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1128267"
-        }
-      ],
-      "published_at": "2026-11-11T13:18:00+03:00"
-    },
-    {
-      "id": "expert-ra-developer-default-warning",
-      "headline": "Аналитики Эксперт РА предупредили о рисках дефолтов девелоперов при сохранении высокой ставки",
-      "context": "Агентство «Эксперт РА» прогнозирует уход средних и крупных застройщиков в 2026–2027 годах из-за падения рентабельности и высокого уровня процентных расходов.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314972"
-        }
-      ],
-      "published_at": "2026-11-11T08:03:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "t-technologies-q3-results-dividends",
-      "headline": "Т-Технологии повысили прогноз по прибыли на 2026 год и рекомендовали дивиденды",
-      "context": "Группа Т-Технологии увеличила чистую прибыль по МСФО за девять месяцев на 15% до 137,9 млрд рублей и рекомендовала выплатить дивиденды в размере 4,8 рубля на акцию за третий квартал.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314743"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/10/1243962-t-tehnologii-dividendi"
-        }
-      ],
-      "published_at": "2026-11-10T10:15:00+03:00"
-    },
-    {
-      "id": "samolet-bond-buyback-technical-delay",
-      "headline": "Девелопер Самолет перенес выкуп облигаций серии БО-П05 из-за технического сбоя",
-      "context": "Компания перенесла выполнение обязательств по выкупу биржевых облигаций у инвесторов на 11 ноября из-за задержки перевода средств банком.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093967"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314944"
-        }
-      ],
-      "published_at": "2026-11-10T17:32:00+03:00"
-    },
-    {
-      "id": "rosneft-places-750bn-ruble-bonds",
-      "headline": "Роснефть начала размещение десятилетних облигаций объемом семьсот пятьдесят миллиардов рублей",
-      "context": "ПАО НК «Роснефть» проводит техническое размещение выпуска 10-летних биржевых облигаций серии 006Р-01.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093708"
-        }
-      ],
-      "published_at": "2026-11-10T14:49:00+03:00"
-    },
-    {
-      "id": "yandex-cloud-data-loss-attack",
-      "headline": "Яндекс заявил о безвозвратной утрате почти трех процентов данных Yandex Cloud после атак",
-      "context": "После октябрьских атак беспилотников на ЦОДы инженерам компании удалось восстановить 97,15% клиентских данных, а 2,84% данных были утеряны из-за повреждений оборудования.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314863"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093770"
-        }
-      ],
-      "published_at": "2026-11-10T15:28:00+03:00"
-    },
-    {
-      "id": "banks-propose-delay-deposit-tax",
-      "headline": "Банки предложили перенести введение прогрессивного налога на доходы по вкладам на 2028 год",
-      "context": "Национальный совет финансового рынка отправил обращение в Госдуму с просьбой предоставить переходный период до 1 января 2028 года для доработки банковского ПО.",
+      "id": "t-technologies-q3-profit-growth",
+      "headline": "Операционная чистая прибыль Т-Технологий за третий квартал увеличилась на сорок один процент",
+      "context": "Совет директоров рекомендовал дивиденды за третий квартал в размере 4,8 рубля на акцию.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093186"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314710"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/3995"
         }
       ],
-      "published_at": "2026-11-10T05:50:00+03:00"
+      "published_at": "2026-11-11T09:02:00+03:00"
     },
     {
-      "id": "positive-technologies-9m-results",
-      "headline": "Выручка Positive Technologies за девять месяцев 2026 года выросла на 48 процентов",
-      "context": "Показатель выручки компании по МСФО достиг 16,1 млрд рублей, а чистый убыток сократился в 8 раз до 700 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093647"
-        },
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/11/10/1244048-positive-technologies"
-        }
-      ],
-      "published_at": "2026-11-10T14:03:00+03:00"
-    },
-    {
-      "id": "t-technologies-cian-control-condition",
-      "headline": "Т-Технологии назвали получение контрольного пакета главным условием покупки сервиса Циан",
-      "context": "Финансовый директор группы Игорь Герасимов сообщил, что компания не заинтересована в миноритарных инвестициях и нацелена на операционный контроль над активом.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314835"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093602"
-        }
-      ],
-      "published_at": "2026-11-10T13:17:00+03:00"
-    },
-    {
-      "id": "cbr-considers-interest-on-digital-ruble",
-      "headline": "Банк России прорабатывает возможность начисления процентов на счета в цифровых рублях",
-      "context": "Зампред ЦБ Зульфия Кахруманова заявила о намерении регулятора расширить функционал цифрового рубля за рамки обычного платежного инструмента.",
+      "id": "mincifry-telecom-minimum-fee",
+      "headline": "Минцифры предложило установить для операторов связи минимальный ежегодный взнос в пятьсот тысяч рублей",
+      "context": "Средства направляются в резерв универсального обслуживания для покрытия расходов на инфраструктуру связи.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9093624"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/314985"
         }
       ],
-      "published_at": "2026-11-10T13:43:00+03:00"
+      "published_at": "2026-11-11T09:25:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -368,6 +339,6 @@
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-10"
+    "last_trading_day": "2026-11-11"
   }
 }
