@@ -1,337 +1,363 @@
 {
-  "date": "2026-11-12",
-  "generated_at": "2026-11-12T16:18:09+03:00",
+  "date": "2026-11-13",
+  "generated_at": "2026-11-13T15:40:21+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы завершили торги ростом, азиатские рынки и котировки нефти Brent снижаются.",
+  "external_backdrop": "Американские фондовые индексы закрылись снижением, азиатские площадки торгуются разнонаправленно, котировки нефти Brent и золота умеренно растут.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7619.38",
-      "change_pct": "+1.31%",
-      "as_of": "2026-11-11",
+      "value": "7592.40",
+      "change_pct": "-0.35%",
+      "as_of": "закрытие 12.11",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25466.19",
-      "change_pct": "+1.60%",
-      "as_of": "2026-11-11",
+      "value": "25366.09",
+      "change_pct": "-0.39%",
+      "as_of": "закрытие 12.11",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "60819.36",
-      "change_pct": "-0.70%",
-      "as_of": "2026-11-12",
+      "value": "61142.35",
+      "change_pct": "+0.53%",
+      "as_of": "13.11",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "24008.55",
-      "change_pct": "-1.26%",
-      "as_of": "2026-11-12",
+      "value": "23637.60",
+      "change_pct": "-1.55%",
+      "as_of": "13.11",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "92.39",
-      "change_pct": "-0.40%",
-      "as_of": "2026-11-12",
+      "value": "96.22",
+      "change_pct": "+0.42%",
+      "as_of": "13.11",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3949.50",
-      "change_pct": "-1.27%",
-      "as_of": "2026-11-12",
+      "value": "3897.50",
+      "change_pct": "+0.31%",
+      "as_of": "13.11",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2487.31",
-      "change_pct": "-0.11%",
-      "as_of": "2026-11-12 16:18:04",
+      "value": "2507.44",
+      "change_pct": "-0.03%",
+      "as_of": "13.11 15:40",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "947.95",
-      "change_pct": "-0.10%",
-      "as_of": "2026-11-12 16:18:06",
+      "value": "951.91",
+      "change_pct": "-0.03%",
+      "as_of": "13.11 15:40",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.18",
-      "change_pct": "-0.03%",
-      "as_of": "2026-11-12 16:18:03",
+      "value": "82.63",
+      "change_pct": "+0.01%",
+      "as_of": "13.11 15:40",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.42",
-      "change_pct": "+0.33%",
-      "as_of": "2026-11-12 16:18:08",
+      "value": "12.31",
+      "change_pct": "-0.85%",
+      "as_of": "13.11 15:40",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "us-emissaries-putin-kremlin-talks",
-      "headline": "Владимир Путин провел в Кремле переговоры со спецпосланниками США Уиткоффом и Кушнером",
-      "context": "Стороны обсудили варианты урегулирования конфликта на Украине и вопросы европейской архитектуры безопасности.",
+      "id": "peace-talks-new-round-agreed",
+      "headline": "США, Россия и Украина согласовали проведение нового раунда переговоров с участием европейских стран",
+      "context": "Спецпосланники США Джаред Кушнер и Стив Уиткофф провели переговоры с Владимиром Путиным в Москве и Владимиром Зеленским в Дублине.",
       "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1128749"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095999"
+        }
+      ],
+      "published_at": "2026-11-13T04:18:00+03:00"
+    },
+    {
+      "id": "nvidia-ceo-jensen-huang-resigns",
+      "headline": "Генеральный директор Nvidia Дженсен Хуанг ушел в отставку на фоне расследования личных связей",
+      "context": "Исполняющим обязанности главы компании назначена финансовый директор Колетт Кресс, совет директоров ищет нового постоянного руководителя.",
+      "category": "tech",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9095586"
-        }
-      ],
-      "published_at": "2026-11-12T15:08:00+03:00"
-    },
-    {
-      "id": "sberbank-eurotrans-observation-bankruptcy",
-      "headline": "Суд ввел процедуру наблюдения в отношении топливного оператора ЕвроТранс по иску Сбербанка",
-      "context": "Заявление Сбербанка о признании компании банкротом признано обоснованным из-за задолженности в размере 38 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
+          "url": "https://www.kommersant.ru/doc/9095701"
+        },
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/379522"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315583"
         }
       ],
-      "published_at": "2026-11-12T14:49:00+03:00"
+      "published_at": "2026-11-12T16:54:00+03:00"
     },
     {
-      "id": "sberbank-strategy-2029",
-      "headline": "Сбербанк сохранит выплату 50% прибыли на дивиденды в стратегии до 2029 года",
-      "context": "Глава банка Герман Греф подтвердил дивидендные ориентиры и сообщил о выполнении всех целей предыдущего стратегического цикла.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/379438"
-        }
-      ],
-      "published_at": "2026-11-12T10:36:00+03:00"
-    },
-    {
-      "id": "rosstat-weekly-inflation-acceleration",
-      "headline": "Недельная инфляция в России ускорилась до 0,12% после недели дефляции",
-      "context": "С начала года рост потребительских цен составил 6,33%, а годовая инфляция на 9 ноября зафиксирована на уровне 6,98%.",
+      "id": "minfin-proposes-deposit-tax-withholding",
+      "headline": "Минфин предложил удерживать 13% НДФЛ с процентов по вкладам через банки с 2027 года",
+      "context": "Доначисление налога по прогрессивной шкале для доходов свыше 2,4 млн рублей будет производить ФНС по итогам года.",
       "category": "macro",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/379344"
-        }
-      ],
-      "published_at": "2026-11-11T21:00:00+03:00"
-    },
-    {
-      "id": "mvideo-additional-share-issue-completed",
-      "headline": "М.Видео полностью завершила допэмиссию акций на 24,95 млрд рублей",
-      "context": "Ретейлер разместил все 500 млн обыкновенных акций дополнительного выпуска по цене 49,90 рубля за бумагу.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9095572"
-        }
-      ],
-      "published_at": "2026-11-12T14:20:00+03:00"
-    },
-    {
-      "id": "rostelecom-q3-2026-ifrs",
-      "headline": "Чистая прибыль Ростелекома по МСФО в третьем квартале выросла на 17%",
-      "context": "Выручка компании увеличилась на 12% в годовом выражении до 233,1 млрд рублей за счет роста доходов от цифровых сервисов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/379430"
-        }
-      ],
-      "published_at": "2026-11-12T09:46:00+03:00"
-    },
-    {
-      "id": "headhunter-q3-2026-results",
-      "headline": "Выручка HeadHunter в третьем квартале сохранилась на уровне прошлого года",
-      "context": "Чистая прибыль компании по МСФО снизилась на 16,5% в годовом выражении и составила 4,8 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/12/1244676-viruchka-headhunter"
+          "url": "https://www.vedomosti.ru/economics/news/2026/11/13/1245134-uderzhivat-s-protsentov"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1128813"
         }
       ],
-      "published_at": "2026-11-12T08:16:00+03:00"
+      "published_at": "2026-11-13T12:59:00+03:00"
     },
     {
-      "id": "eu-ambassadors-approve-sanctions-50-russian-banks",
-      "headline": "Послы Евросоюза согласовали новый пакет санкций в отношении 50 российских банков",
-      "context": "Ограничительные меры затрагивают также структуры, обслуживающие теневой флот, и будут окончательно утверждены 16 ноября.",
+      "id": "sovcombank-doubles-9m-profit",
+      "headline": "Чистая прибыль Совкомбанка по МСФО за девять месяцев 2026 года выросла в два раза",
+      "context": "Показатель достиг 71,9 млрд рублей при чистом процентном доходе в 194,1 млрд рублей.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/315207"
+          "url": "https://frankmedia.ru/315669"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9108899"
         }
       ],
-      "published_at": "2026-11-11T19:30:00+03:00"
+      "published_at": "2026-11-13T08:45:00+03:00"
+    },
+    {
+      "id": "hormuz-strait-tanker-explosion",
+      "headline": "В Ормузском проливе загорелся газовоз после подрыва на мине",
+      "context": "Корпус стражей исламской революции Ирана заявил о полном уничтожении судна, проигнорировавшего предупреждения.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1128791"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9096210"
+        }
+      ],
+      "published_at": "2026-11-13T10:34:00+03:00"
+    },
+    {
+      "id": "massive-drone-attack-overnight",
+      "headline": "Российские силы ПВО за ночь уничтожили около 1200 беспилотников над регионами страны",
+      "context": "Под атаки попали приграничные и центральные области, а также юг России.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1128783"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9096091"
+        }
+      ],
+      "published_at": "2026-11-13T09:14:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "abu-dhabi-peace-talks-pow-exchange",
-      "headline": "Россия и Украина договорились о масштабном обмене пленными по итогам переговоров в Абу-Даби",
-      "context": "Глава российской делегации Владимир Мединский сообщил о продвижении в диалоге и обсуждении архитектуры безопасности.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094601"
-        }
-      ],
-      "published_at": "2026-11-11T14:16:00+03:00"
-    },
-    {
-      "id": "sberbank-october-2026-ras-profit",
-      "headline": "Сбербанк увеличил чистую прибыль по РСБУ за десять месяцев на 17,6%",
-      "context": "В октябре банк заработал 168,5 млрд рублей чистой прибыли, что на 12,6% выше результата аналогичного периода прошлого года.",
-      "category": "banks",
+      "id": "sberbank-div-policy-unchanged",
+      "headline": "Сбербанк сохранит дивидендную политику с выплатой не менее 50% прибыли в 2027–2029 годах",
+      "context": "Глава банка Герман Греф подтвердил целевой уровень рентабельности капитала ROE выше 21% и норматив достаточности капитала не менее 13,3%.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
           "name": "Frank Media",
-          "url": "https://frankmedia.ru/315005"
-        }
-      ],
-      "published_at": "2026-11-11T09:52:00+03:00"
-    },
-    {
-      "id": "samolet-group-appoints-ivan-ivanov-ceo",
-      "headline": "Генеральным директором группы Самолет утвержден Иван Иванов",
-      "context": "Ранее топ-менеджер занимал должность управляющего директора премиального направления компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
+          "url": "https://frankmedia.ru/315299"
+        },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094844"
+          "url": "https://www.kommersant.ru/doc/9095341"
         }
       ],
-      "published_at": "2026-11-11T17:06:00+03:00"
+      "published_at": "2026-11-12T10:56:00+03:00"
     },
     {
-      "id": "minfin-ofz-auction-placement-26235",
-      "headline": "Минфин РФ разместил ОФЗ серии 26235 на 34,06 млрд рублей при спросе в 60,65 млрд",
-      "context": "Средневзвешенная доходность на аукционе по выпуску с погашением в 2037 году составила 15,79% годовых.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/11/1244467-minfin-razmestil-ofz"
-        }
-      ],
-      "published_at": "2026-11-11T17:01:00+03:00"
-    },
-    {
-      "id": "my-games-management-buyout",
-      "headline": "Топ-менеджмент My.Games выкупит компанию у основателя Leta Capital Александра Чачавы",
-      "context": "Сделку поддержал частный инвестор из ОАЭ Георгий Нурисламов, ее завершение планируется до конца 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094307"
-        }
-      ],
-      "published_at": "2026-11-11T10:15:00+03:00"
-    },
-    {
-      "id": "fix-price-board-recommends-9m-dividends",
-      "headline": "Совет директоров Fix Price рекомендовал дивиденды за девять месяцев в 0,1 рубля на акцию",
-      "context": "Общий объем выплат составит 10 млрд рублей, а дивидендная доходность к текущей цене достигает 17,2%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9094275"
-        }
-      ],
-      "published_at": "2026-11-11T09:40:00+03:00"
-    },
-    {
-      "id": "expert-ra-developer-defaults-risk",
-      "headline": "Эксперт РА предупредил о рисках дефолтов девелоперов при сохранении двузначных ставок",
-      "context": "Аналитики отмечают снижение рентабельности застройщиков и рост их процентных расходов на фоне дорогого проектного финансирования.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/314972"
-        }
-      ],
-      "published_at": "2026-11-11T08:03:00+03:00"
-    },
-    {
-      "id": "cbr-sets-official-ruble-exchange-rate",
-      "headline": "Банк России установил официальный курс доллара США на 12 ноября на уровне 82,66 рубля",
-      "context": "Официальный курс американской валюты был скорректирован регулятором по итогам внебиржевых торгов.",
+      "id": "nabiullina-high-rate-prolonged",
+      "headline": "Эльвира Набиуллина заявила о необходимости долгого удержания высокой ключевой ставки ЦБ",
+      "context": "Председатель Банка России назвала масштабное льготное кредитование одной из главных причин высокого уровня ставки.",
       "category": "cb_policy",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095536"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/11/12/1244768-lgotnoe-kreditovanie"
+        }
+      ],
+      "published_at": "2026-11-12T14:35:00+03:00"
+    },
+    {
+      "id": "vtb-spo-details-rwb",
+      "headline": "ВТБ откроет подписку на допэмиссию 6,29 миллиарда акций по цене 87 рублей за бумагу",
+      "context": "Сбор заявок в рамках реализации преимущественного права под сделку с RWB пройдет с 13 по 30 ноября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/11/11/1244530-kurs-dollara"
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/12/1244904-vtb-otkril-podpisku"
+        },
+        {
+          "name": "Telegram-канал @if_market_news",
+          "url": "https://t.me/if_market_news/86852"
         }
       ],
-      "published_at": "2026-11-11T17:21:00+03:00"
+      "published_at": "2026-11-12T17:34:00+03:00"
     },
     {
-      "id": "post-of-russia-wine-online-sales-bill",
-      "headline": "Госдума приняла в первом чтении законопроект об онлайн-продаже вина через Почту России",
-      "context": "Эксперимент предусматривает дистанционную торговлю российским вином с подтверждением возраста через Госуслуги.",
-      "category": "macro",
+      "id": "rostelecom-q3-ifrs-results",
+      "headline": "Чистая прибыль Ростелекома по МСФО за девять месяцев 2026 года выросла на 12%",
+      "context": "Квартальная выручка оператора увеличилась на 12% год к году и составила 233,1 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095473"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315318"
+        }
+      ],
+      "published_at": "2026-11-12T13:52:00+03:00"
+    },
+    {
+      "id": "uk-expands-sanctions-oil-sector",
+      "headline": "Великобритания ввела санкции против десяти российских нефтяных компаний и судов теневого флота",
+      "context": "Под ограничения попали «Славнефть», «Сибур холдинг», «Кузбассразрезуголь» и проект «Восток ойл».",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095723"
+        }
+      ],
+      "published_at": "2026-11-12T17:37:00+03:00"
+    },
+    {
+      "id": "eurotrans-bankruptcy-observation-introduced",
+      "headline": "Арбитражный суд ввел процедуру наблюдения в отношении ЕвроТранса по иску Сбербанка",
+      "context": "В реестр требований кредиторов включена задолженность перед банком на сумму 38 миллионов рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095620"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/11/12/1244835-sud-priznal-obosnovannim"
+        }
+      ],
+      "published_at": "2026-11-12T15:30:00+03:00"
+    },
+    {
+      "id": "sheremetyevo-approves-biblio-globus-sale-rwb",
+      "headline": "Совет директоров Шереметьево одобрил продажу 75% туроператора Библио-Глобус структурам RWB",
+      "context": "Ориентировочная сумма сделки составляет около 40 миллиардов рублей с расчетом из будущей прибыли.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/business/news/2026/11/11/1244481-proekt-o-prodazhe-vina"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315582"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095681"
         }
       ],
-      "published_at": "2026-11-11T16:04:00+03:00"
+      "published_at": "2026-11-12T17:09:00+03:00"
+    },
+    {
+      "id": "mvideo-completes-additional-share-issue",
+      "headline": "Компания М.Видео завершила дополнительную эмиссию 500 миллионов акций по закрытой подписке",
+      "context": "Все ценные бумаги программы были полностью выкуплены инвесторами по цене 49,9 рубля за акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9095572"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/12/1244817-mvideo-zavershila"
+        }
+      ],
+      "published_at": "2026-11-12T15:00:00+03:00"
+    },
+    {
+      "id": "headhunter-q3-results-stagnation",
+      "headline": "Выручка группы HeadHunter в третьем квартале сохранилась на уровне 10,97 миллиарда рублей",
+      "context": "Скорректированная чистая прибыль сократилась на 16,5% до 4,8 миллиарда рублей при рентабельности EBITDA в 54,6%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Telegram-канал @if_market_news",
+          "url": "https://t.me/if_market_news/86809"
+        },
+        {
+          "name": "Telegram-канал @mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4000"
+        }
+      ],
+      "published_at": "2026-11-12T08:20:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -339,6 +365,6 @@
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-11"
+    "last_trading_day": "2026-11-12"
   }
 }
