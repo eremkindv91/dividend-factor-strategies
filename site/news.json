@@ -1,8 +1,8 @@
 {
   "date": "2026-11-16",
-  "generated_at": "2026-11-16T13:09:31+03:00",
+  "generated_at": "2026-11-16T16:10:52+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы и мировые цены на нефть и золото снижаются, американские индексы закрылись в минусе.",
+  "external_backdrop": "Азиатские фондовые индексы демонстрируют разнонаправленную динамику, цены на нефть Brent и золото снижаются.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -34,67 +34,71 @@
     },
     {
       "name": "Brent",
-      "value": "92.76",
-      "change_pct": "-3.21%",
+      "value": "94.68",
+      "change_pct": "-1.21%",
       "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3859.50",
-      "change_pct": "-0.69%",
+      "value": "3875.00",
+      "change_pct": "-0.29%",
       "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2469.51",
-      "change_pct": "-1.67%",
-      "as_of": "2026-11-16 13:09:26",
+      "value": "2479.68",
+      "change_pct": "-1.26%",
+      "as_of": "2026-11-16 16:10:49",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "946.83",
-      "change_pct": "-1.68%",
-      "as_of": "2026-11-16 13:09:27",
+      "value": "950.86",
+      "change_pct": "-1.26%",
+      "as_of": "2026-11-16 16:10:50",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.03",
-      "change_pct": "+0.02%",
-      "as_of": "2026-11-16 13:09:27",
+      "value": "83.10",
+      "change_pct": "+0.08%",
+      "as_of": "2026-11-16 16:10:40",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.37",
-      "change_pct": "+0.52%",
-      "as_of": "2026-11-16 13:09:30",
+      "value": "12.38",
+      "change_pct": "+0.63%",
+      "as_of": "2026-11-16 16:10:52",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "eu-sanctions-expansion",
-      "headline": "Евросоюз объявил о расширении санкций против российских физических и юридических лиц",
-      "context": "Ограничения касаются банков, покупателей нефти и компаний, связанных с перевозками российской нефти.",
-      "category": "geopolitics",
+      "id": "eu-sanctions-new-package",
+      "headline": "Евросоюз утвердил санкции против 145 российских физических и юридических лиц",
+      "context": "В санкционный список включены более 40 банков, НПЗ, а также Татьяна Ким и Руслан Байсаров.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/16/11/2026/6afaaad527dc4e34b75ec1e8"
+        },
+        {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1129232"
+          "url": "https://www.interfax.ru/world/1129298"
         }
       ],
-      "published_at": "2026-11-16T12:50:00+03:00"
+      "published_at": "2026-11-16T14:34:00+03:00"
     },
     {
-      "id": "moex-delisting-evrotrans",
-      "headline": "Московская биржа 30 декабря проведет делистинг акций и облигаций компании Евротранс",
-      "context": "Решение связано с введением процедур наблюдения в рамках дела о банкротстве эмитента.",
+      "id": "moex-eurotrans-delisting",
+      "headline": "Московская биржа 30 декабря проведет делистинг акций и всех выпусков облигаций Евротранса",
+      "context": "Торговая площадка прекратит торги бумагами эмитента в связи с введением в компании процедуры наблюдения.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -111,54 +115,9 @@
       "published_at": "2026-11-16T11:18:00+03:00"
     },
     {
-      "id": "crimean-bridge-attack",
-      "headline": "ВСУ нанесли удар по Крымскому мосту с временным ограничением движения автотранспорта",
-      "context": "Железнодорожное сообщение работает в штатном режиме, повреждения автомобильной части оцениваются.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/russia/1129224"
-        }
-      ],
-      "published_at": "2026-11-16T09:39:00+03:00"
-    },
-    {
-      "id": "minfin-windfall-tax-banks",
-      "headline": "Минфин выступил против распространения налога на сверхдоходы на банки и игорный бизнес",
-      "context": "В ведомстве пояснили, что законопроект касается конъюнктурных доходов недропользователей от цен на сырье.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/315987"
-        }
-      ],
-      "published_at": "2026-11-16T08:31:00+03:00"
-    },
-    {
-      "id": "vtb-wildberries-multibanking",
-      "headline": "ВТБ и банк Wildberries запустили пилотный проект по объединению данных о счетах клиентов",
-      "context": "Проект реализован на основе технологии открытых API и позволяет управлять средствами в едином интерфейсе.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/finances/12/11/2026/6af5cad46d4770d07df513a9"
-        }
-      ],
-      "published_at": "2026-11-16T12:05:00+03:00"
-    },
-    {
-      "id": "renessans-buyback-msfo",
-      "headline": "Группа Ренессанс Страхование направит на байбэк с последующим погашением до 10 процентов акций",
-      "context": "Чистая прибыль компании по МСФО за 9 месяцев 2026 года составила 1,3 млрд рублей.",
+      "id": "renessans-strahovanie-results-9m",
+      "headline": "Чистая прибыль группы Ренессанс страхование за девять месяцев 2026 года составила 1,3 миллиарда рублей",
+      "context": "За третий квартал компания заработала 2,7 млрд руб., а также планирует погасить до 10% акций после проведения байбэка.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -166,36 +125,86 @@
         {
           "name": "Frank Media",
           "url": "https://frankmedia.ru/316004"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1245589-renessans-strahovanie"
         }
       ],
       "published_at": "2026-11-16T10:50:00+03:00"
     },
     {
-      "id": "cb-fns-data-exchange-bill",
-      "headline": "В Госдуму внесен законопроект об обмене данными о счетах гражданах между ЦБ и ФНС",
-      "context": "С 1 января 2027 года регулятор получит право запрашивать у налоговой данные об открытии счетов и доходах физлиц.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1129231"
-        }
-      ],
-      "published_at": "2026-11-16T10:19:00+03:00"
-    },
-    {
-      "id": "spb-exchange-anthropic",
-      "headline": "СПБ Биржа планирует 19 ноября начать торги неоактивом на акции компании Anthropic",
-      "context": "Операции с инструментом откроются после проведение листинга акций компании на бирже NASDAQ.",
-      "category": "markets",
+      "id": "bank-client-inn-requirement",
+      "headline": "В Госдуму внесены поправки об ограничении банковского обслуживания клиентов без ИНН",
+      "context": "Кредитные организации обяжут собирать ИНН физлиц с 2027 года и ограничивать дистанционный доступ к счетам с июля 2028 года.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9110274"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1129229"
+        }
+      ],
+      "published_at": "2026-11-16T10:27:00+03:00"
+    },
+    {
+      "id": "minfin-windfall-tax-banks",
+      "headline": "Минфин выступил против распространения налога на сверхдоходы на банки и игорный бизнес",
+      "context": "Минфин пояснил, что законопроект касается конъюнктурных доходов недропользователей от изменчивости мировых цен на сырье.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9110082"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315987"
+        }
+      ],
+      "published_at": "2026-11-16T05:03:00+03:00"
+    },
+    {
+      "id": "ormuz-strait-tanker-attacks",
+      "headline": "В Ормузском проливе и Персидском заливе произошла серия подрывов нефтяных танкеров",
+      "context": "Иранские силы сообщили о подрывах судов на минах и приостановке плановых инспекций МАГАТЭ.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9109727"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1129128"
+        }
+      ],
+      "published_at": "2026-11-15T16:49:00+03:00"
+    },
+    {
+      "id": "spb-exchange-anthropic-asset",
+      "headline": "СПБ Биржа планирует начать торги неоактивом на акции разработчика искусственного интеллекта Anthropic",
+      "context": "Старт торгов бумагой на площадки запланирован не ранее проведения IPO компании на бирже NASDAQ 19 ноября.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9110153"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1245574-neoaktiv-anthropic"
         }
       ],
       "published_at": "2026-11-16T08:40:00+03:00"
