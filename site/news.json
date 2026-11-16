@@ -1,105 +1,277 @@
 {
-  "date": "2026-11-16",
-  "generated_at": "2026-11-16T16:10:52+03:00",
+  "date": "2026-11-17",
+  "generated_at": "2026-11-17T02:45:43+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Азиатские фондовые индексы демонстрируют разнонаправленную динамику, цены на нефть Brent и золото снижаются.",
+  "external_backdrop": "Американские и азиатские фондовые индексы снизились, цены на нефть Brent и золото упали.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7561.67",
-      "change_pct": "-0.40%",
-      "as_of": "2026-11-13",
+      "value": "7416.59",
+      "change_pct": "-1.92%",
+      "as_of": "2026-11-16",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "25136.27",
-      "change_pct": "-0.91%",
-      "as_of": "2026-11-13",
+      "value": "24509.76",
+      "change_pct": "-2.49%",
+      "as_of": "2026-11-16",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "59662.02",
-      "change_pct": "-2.42%",
-      "as_of": "2026-11-16",
+      "value": "61142.35",
+      "change_pct": "+0.53%",
+      "as_of": "2026-11-13",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23753.84",
-      "change_pct": "+0.49%",
-      "as_of": "2026-11-16",
+      "value": "23637.60",
+      "change_pct": "-1.55%",
+      "as_of": "2026-11-13",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "94.68",
-      "change_pct": "-1.21%",
+      "value": "92.13",
+      "change_pct": "-3.87%",
       "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3875.00",
-      "change_pct": "-0.29%",
+      "value": "3855.60",
+      "change_pct": "-0.79%",
       "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2479.68",
-      "change_pct": "-1.26%",
-      "as_of": "2026-11-16 16:10:49",
+      "value": "2475.70",
+      "change_pct": "-1.42%",
+      "as_of": "2026-11-16 23:50:03",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "950.86",
-      "change_pct": "-1.26%",
-      "as_of": "2026-11-16 16:10:50",
+      "value": "945.17",
+      "change_pct": "-1.86%",
+      "as_of": "2026-11-16 23:50:02",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "83.10",
-      "change_pct": "+0.08%",
-      "as_of": "2026-11-16 16:10:40",
+      "value": "83.25",
+      "change_pct": "+1.02%",
+      "as_of": "2026-11-16 23:55:01",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.38",
-      "change_pct": "+0.63%",
-      "as_of": "2026-11-16 16:10:52",
+      "value": "12.40",
+      "change_pct": "+0.83%",
+      "as_of": "2026-11-16 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "eu-sanctions-new-package",
-      "headline": "Евросоюз утвердил санкции против 145 российских физических и юридических лиц",
-      "context": "В санкционный список включены более 40 банков, НПЗ, а также Татьяна Ким и Руслан Байсаров.",
-      "category": "markets",
+      "id": "nvidia-board-rejects-huang-return",
+      "headline": "Совет директоров Nvidia не рассматривает возможность возвращения Дженсена Хуанга на пост генерального директора",
+      "context": "Совет директоров сосредоточен на расследовании в отношении бывшего главнокомандующего компанией, связанном с вопросами национальной безопасности.",
+      "category": "tech",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/16/11/2026/6afaaad527dc4e34b75ec1e8"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111075"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/11/16/1288889-nvidia-ne-rassmatrivaet-huanga"
+        }
+      ],
+      "published_at": "2026-11-16T20:59:00+03:00"
+    },
+    {
+      "id": "sovcombank-spo-investor-exit",
+      "headline": "Совкомбанк провёл ускоренное размещение акций для выхода из капитала крупного частного инвестора",
+      "context": "Объём сделки составил 471 млн акций, что эквивалентно 2,1% выпущенных бумаг банка.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111089"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1282541-sovkombank-razmestil"
+        }
+      ],
+      "published_at": "2026-11-16T19:52:00+03:00"
+    },
+    {
+      "id": "moscow-drone-attack-overnight",
+      "headline": "Силы ПВО за ночь сбили более двухсот беспилотников на подлете к Москве",
+      "context": "В московских аэропортах вводились временные ограничения на прием и отправку воздушных судов.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111153"
         },
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1129298"
+          "url": "https://t.me/interfax_news/380341"
         }
       ],
-      "published_at": "2026-11-16T14:34:00+03:00"
+      "published_at": "2026-11-17T02:40:00+03:00"
     },
     {
-      "id": "moex-eurotrans-delisting",
-      "headline": "Московская биржа 30 декабря проведет делистинг акций и всех выпусков облигаций Евротранса",
-      "context": "Торговая площадка прекратит торги бумагами эмитента в связи с введением в компании процедуры наблюдения.",
+      "id": "jpmorgan-glitch-software-issue",
+      "headline": "Банк JPMorgan Chase назвал причиной масштабного сбоя в обслуживании клиентов программную ошибку",
+      "context": "Технические проблемы затронули работу сервисов нескольких крупнейших американских кредитных организаций.",
+      "category": "banks",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/technology_and_media/17/11/2026/6afb8538dc023dc409ee64bd"
+        }
+      ],
+      "published_at": "2026-11-17T02:37:00+03:00"
+    },
+    {
+      "id": "fns-tax-control-eaeu-imports",
+      "headline": "Правительство предложило ввести налоговый контроль ФНС за ценами товаров из стран ЕАЭС",
+      "context": "Поправка направлена на проверку соответствия цен ввозимой продукции реальному рыночному уровню.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111116"
+        }
+      ],
+      "published_at": "2026-11-17T02:37:00+03:00"
+    },
+    {
+      "id": "crimean-bridge-new-attack",
+      "headline": "Вооруженные силы Украины повторно атаковали Крымский мост с временно остановленным движением автотранспорта",
+      "context": "На территории Крыма и Краснодарского края объявлялась ракетная опасность.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111152"
+        }
+      ],
+      "published_at": "2026-11-17T02:27:00+03:00"
+    },
+    {
+      "id": "hormuz-tanker-mine-explosion",
+      "headline": "Четвертый за сутки танкер загорелся в районе Ормузского пролива после подрыва на мине",
+      "context": "Инцидент произошел на фоне восстановления объемов морского экспорта сырья из Персидского залива.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/380325"
+        }
+      ],
+      "published_at": "2026-11-17T00:09:00+03:00"
+    },
+    {
+      "id": "opec-plus-capacity-assessment-2027",
+      "headline": "Альянс ОПЕК+ завершил независимую оценку максимальных мощностей добычи стран-участниц для определения квот",
+      "context": "Результаты проведенного аудита станут базой при установлении производственных лимитов на 2027 год.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/380288"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1375527.php"
+        }
+      ],
+      "published_at": "2026-11-16T19:14:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "mgkl-bond-default-restructuring",
+      "headline": "Компания МГКЛ допустила дефолт по выплате купона облигаций и готовит программу реструктуризации",
+      "context": "Эмитент не выплатил купонный доход серии 001Р-07 на сумму 24,66 млн рублей.",
       "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9111039"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/316192"
+        }
+      ],
+      "published_at": "2026-11-16T18:02:00+03:00"
+    },
+    {
+      "id": "alfa-bank-cian-stake-negotiations",
+      "headline": "Альфа-Банк начал переговоры о покупке доли в сервисе объявлений о недвижимости Циан",
+      "context": "Обсуждается приобретение пакета акций у структур, связанных с фондом Elbrus Capital.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/316227"
+        }
+      ],
+      "published_at": "2026-11-16T17:20:00+03:00"
+    },
+    {
+      "id": "eu-sanctions-package-approval",
+      "headline": "Евросоюз утвердил расширение санкций в отношении 145 российских физических и юридических лиц",
+      "context": "В санкционный список вошли более 40 кредитных организаций, 15 НПЗ и глава Wildberries Татьяна Ким.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/380192"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9110601"
+        }
+      ],
+      "published_at": "2026-11-16T13:24:00+03:00"
+    },
+    {
+      "id": "eurotrans-delisting-moscow-exchange",
+      "headline": "Московская биржа проведёт делистинг акций и облигаций компании Евротранс 30 декабря",
+      "context": "Решение обусловлено введением в отношении компании процедуры наблюдения в рамках дела о банкротстве.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
@@ -108,16 +280,69 @@
           "url": "https://www.kommersant.ru/doc/9110345"
         },
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1129252"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/316029"
         }
       ],
       "published_at": "2026-11-16T11:18:00+03:00"
     },
     {
-      "id": "renessans-strahovanie-results-9m",
-      "headline": "Чистая прибыль группы Ренессанс страхование за девять месяцев 2026 года составила 1,3 миллиарда рублей",
-      "context": "За третий квартал компания заработала 2,7 млрд руб., а также планирует погасить до 10% акций после проведения байбэка.",
+      "id": "minfin-opposes-bank-windfall-tax",
+      "headline": "Минфин РФ выступил против распространения налога на сверхприбыль на банки и микрофинансовые организации",
+      "context": "В ведомстве пояснили, что законопроект направлен на изъятие конъюнктурных доходов у недропользователей.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9110082"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315987"
+        }
+      ],
+      "published_at": "2026-11-16T08:31:00+03:00"
+    },
+    {
+      "id": "yandex-chachava-board-resignation",
+      "headline": "Александр Чачава вышел из состава совета директоров Яндекса после подпадания под санкции ЕС",
+      "context": "В компании заявили, что персональные ограничения в отношении акционера не распространяются на группу.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/380266"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9110834"
+        }
+      ],
+      "published_at": "2026-11-16T17:12:00+03:00"
+    },
+    {
+      "id": "cb-balance-of-payments-9m-2026",
+      "headline": "Профицит текущего счёта платежного баланса России за девять месяцев вырос на 42,7 процента",
+      "context": "Положительное сальдо счета текущих операций составило 40,8 млрд долларов против 28,6 млрд годом ранее.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/380246"
+        }
+      ],
+      "published_at": "2026-11-16T16:14:00+03:00"
+    },
+    {
+      "id": "renaissance-insurance-9m-2026-results",
+      "headline": "Группа Ренессанс Страхование сократила чистую прибыль за девять месяцев до 1,3 миллиарда рублей",
+      "context": "В третьем квартале компания заработала 2,7 млрд рублей, компенсировав убыток первого полугодия.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -134,11 +359,11 @@
       "published_at": "2026-11-16T10:50:00+03:00"
     },
     {
-      "id": "bank-client-inn-requirement",
-      "headline": "В Госдуму внесены поправки об ограничении банковского обслуживания клиентов без ИНН",
-      "context": "Кредитные организации обяжут собирать ИНН физлиц с 2027 года и ограничивать дистанционный доступ к счетам с июля 2028 года.",
-      "category": "banks",
-      "investment_relevant": true,
+      "id": "cb-fns-data-exchange-bill",
+      "headline": "В Госдуму внесли проект об обязательном сборе ИНН банками и обмене данными между ЦБ и ФНС",
+      "context": "Законопроект предусматривает ограничение дистанционного доступа к счетам физлиц без ИНН с июля 2028 года.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
@@ -146,76 +371,48 @@
           "url": "https://www.kommersant.ru/doc/9110274"
         },
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1129229"
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/316152"
         }
       ],
       "published_at": "2026-11-16T10:27:00+03:00"
     },
     {
-      "id": "minfin-windfall-tax-banks",
-      "headline": "Минфин выступил против распространения налога на сверхдоходы на банки и игорный бизнес",
-      "context": "Минфин пояснил, что законопроект касается конъюнктурных доходов недропользователей от изменчивости мировых цен на сырье.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9110082"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/315987"
-        }
-      ],
-      "published_at": "2026-11-16T05:03:00+03:00"
-    },
-    {
-      "id": "ormuz-strait-tanker-attacks",
-      "headline": "В Ормузском проливе и Персидском заливе произошла серия подрывов нефтяных танкеров",
-      "context": "Иранские силы сообщили о подрывах судов на минах и приостановке плановых инспекций МАГАТЭ.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109727"
-        },
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1129128"
-        }
-      ],
-      "published_at": "2026-11-15T16:49:00+03:00"
-    },
-    {
-      "id": "spb-exchange-anthropic-asset",
-      "headline": "СПБ Биржа планирует начать торги неоактивом на акции разработчика искусственного интеллекта Anthropic",
-      "context": "Старт торгов бумагой на площадки запланирован не ранее проведения IPO компании на бирже NASDAQ 19 ноября.",
-      "category": "markets",
+      "id": "incab-holding-dividend-policy",
+      "headline": "Совет директоров Инкаб Холдинга одобрил выплату дивидендов за 2026 год в размере не менее 50 процентов прибыли",
+      "context": "Расчет выплат будет осуществляться исходя из чистой прибыли компании по МСФО.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9110153"
-        },
-        {
           "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1245574-neoaktiv-anthropic"
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1250111-inkab-holding"
         }
       ],
-      "published_at": "2026-11-16T08:40:00+03:00"
+      "published_at": "2026-11-16T14:49:00+03:00"
+    },
+    {
+      "id": "mmtsb-dividends-9m-2026",
+      "headline": "Совет директоров ММЦБ рекомендовал выплатить дивиденды за девять месяцев в размере 2,33 рубля на акцию",
+      "context": "Внеочередное собрание акционеров назначено на 18 декабря, реестр закрывается 29 декабря.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/16/1245643-mmtsb-dividendi"
+        }
+      ],
+      "published_at": "2026-11-16T11:59:00+03:00"
     }
   ],
-  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-13"
+    "kind": "premarket",
+    "title": "Сводка до открытия",
+    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "last_trading_day": "2026-11-16"
   }
 }
