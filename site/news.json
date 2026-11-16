@@ -1,224 +1,212 @@
 {
-  "date": "2026-11-15",
-  "generated_at": "2026-11-15T22:51:33+03:00",
+  "date": "2026-11-16",
+  "generated_at": "2026-11-16T13:09:31+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские индексы S&P 500 и Nasdaq закрылись снижением, азиатские рынки продемонстрировали разнонаправленную динамику, цены на нефть Brent и золото изменились незначительно.",
+  "external_backdrop": "Азиатские фондовые индексы и мировые цены на нефть и золото снижаются, американские индексы закрылись в минусе.",
   "market_snapshot": [
     {
       "name": "S&P 500",
       "value": "7561.67",
       "change_pct": "-0.40%",
-      "as_of": "закрытие 13.11",
+      "as_of": "2026-11-13",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
       "value": "25136.27",
       "change_pct": "-0.91%",
-      "as_of": "закрытие 13.11",
+      "as_of": "2026-11-13",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "61142.35",
-      "change_pct": "+0.53%",
-      "as_of": "закрытие 13.11",
+      "value": "59662.02",
+      "change_pct": "-2.42%",
+      "as_of": "2026-11-16",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23637.60",
-      "change_pct": "-1.55%",
-      "as_of": "закрытие 13.11",
+      "value": "23753.84",
+      "change_pct": "+0.49%",
+      "as_of": "2026-11-16",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "95.84",
-      "change_pct": "+0.02%",
-      "as_of": "2026-11-13",
+      "value": "92.76",
+      "change_pct": "-3.21%",
+      "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3886.30",
-      "change_pct": "+0.03%",
-      "as_of": "2026-11-13",
+      "value": "3859.50",
+      "change_pct": "-0.69%",
+      "as_of": "2026-11-16",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2509.67",
-      "change_pct": "-0.07%",
-      "as_of": "15.11 19:00",
+      "value": "2469.51",
+      "change_pct": "-1.67%",
+      "as_of": "2026-11-16 13:09:26",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "962.37",
-      "change_pct": "-0.07%",
-      "as_of": "15.11 19:00",
+      "value": "946.83",
+      "change_pct": "-1.68%",
+      "as_of": "2026-11-16 13:09:27",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "82.41",
-      "change_pct": "-1.18%",
-      "as_of": "13.11 23:54",
+      "value": "83.03",
+      "change_pct": "+0.02%",
+      "as_of": "2026-11-16 13:09:27",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.30",
-      "change_pct": "-0.93%",
-      "as_of": "13.11 23:50",
+      "value": "12.37",
+      "change_pct": "+0.52%",
+      "as_of": "2026-11-16 13:09:30",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "nvidia-huang-comeback-talks",
-      "headline": "Дженсен Хуанг обсуждает возможное возвращение на пост генерального директора Nvidia",
-      "context": "Союзники бывшего главы компании в Кремниевой долине ведут переговоры с советом директоров о его восстановлении в должности.",
-      "category": "corporate",
+      "id": "eu-sanctions-expansion",
+      "headline": "Евросоюз объявил о расширении санкций против российских физических и юридических лиц",
+      "context": "Ограничения касаются банков, покупателей нефти и компаний, связанных с перевозками российской нефти.",
+      "category": "geopolitics",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/business/15/11/2026/6afa072242b21c4491aa0fdc"
-        },
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1129232"
+        }
+      ],
+      "published_at": "2026-11-16T12:50:00+03:00"
+    },
+    {
+      "id": "moex-delisting-evrotrans",
+      "headline": "Московская биржа 30 декабря проведет делистинг акций и облигаций компании Евротранс",
+      "context": "Решение связано с введением процедур наблюдения в рамках дела о банкротстве эмитента.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9110040"
-        }
-      ],
-      "published_at": "2026-11-15T22:34:00+03:00"
-    },
-    {
-      "id": "gazprom-kapital-bond-placement",
-      "headline": "Газпром капитал собрал заявки на трехлетние облигации объемом 50 миллиардов рублей",
-      "context": "Ставка ежемесячного купона по выпуску серии БО-003Р-31 была установлена на уровне ключевой ставки ЦБ плюс 150 базисных пунктов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
+          "url": "https://www.kommersant.ru/doc/9110345"
+        },
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1374884.php"
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1129252"
         }
       ],
-      "published_at": "2026-11-14T20:37:00+03:00"
+      "published_at": "2026-11-16T11:18:00+03:00"
     },
     {
-      "id": "rspp-key-rate-forecast-february-2027",
-      "headline": "Глава РСПП Шохин спрогнозировал сохранение ключевой ставки ЦБ на уровне 14 процентов до февраля 2027 года",
-      "context": "По оценке главы союза промышленников, длительная пауза Банка России повышает риск перехода предприятий к сокращениям персонала.",
-      "category": "cb_policy",
+      "id": "crimean-bridge-attack",
+      "headline": "ВСУ нанесли удар по Крымскому мосту с временным ограничением движения автотранспорта",
+      "context": "Железнодорожное сообщение работает в штатном режиме, повреждения автомобильной части оцениваются.",
+      "category": "geopolitics",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109575"
-        },
-        {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1128993"
+          "url": "https://www.interfax.ru/russia/1129224"
         }
       ],
-      "published_at": "2026-11-14T11:15:00+03:00"
+      "published_at": "2026-11-16T09:39:00+03:00"
     },
     {
-      "id": "minfin-tax-code-amendments-2027",
-      "headline": "Минфин предложил исключить добычу четырех металлов из налога на сверхдоходы",
-      "context": "Правительство поддержало вывод марганца, хрома, вольфрама и молибдена из-под налога, а также перенос обмена данными с ФНС по переводам физлиц на 2027 год.",
-      "category": "macro",
+      "id": "minfin-windfall-tax-banks",
+      "headline": "Минфин выступил против распространения налога на сверхдоходы на банки и игорный бизнес",
+      "context": "В ведомстве пояснили, что законопроект касается конъюнктурных доходов недропользователей от цен на сырье.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/315987"
+        }
+      ],
+      "published_at": "2026-11-16T08:31:00+03:00"
+    },
+    {
+      "id": "vtb-wildberries-multibanking",
+      "headline": "ВТБ и банк Wildberries запустили пилотный проект по объединению данных о счетах клиентов",
+      "context": "Проект реализован на основе технологии открытых API и позволяет управлять средствами в едином интерфейсе.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/finances/12/11/2026/6af5cad46d4770d07df513a9"
+        }
+      ],
+      "published_at": "2026-11-16T12:05:00+03:00"
+    },
+    {
+      "id": "renessans-buyback-msfo",
+      "headline": "Группа Ренессанс Страхование направит на байбэк с последующим погашением до 10 процентов акций",
+      "context": "Чистая прибыль компании по МСФО за 9 месяцев 2026 года составила 1,3 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/316004"
+        }
+      ],
+      "published_at": "2026-11-16T10:50:00+03:00"
+    },
+    {
+      "id": "cb-fns-data-exchange-bill",
+      "headline": "В Госдуму внесен законопроект об обмене данными о счетах гражданах между ЦБ и ФНС",
+      "context": "С 1 января 2027 года регулятор получит право запрашивать у налоговой данные об открытии счетов и доходах физлиц.",
+      "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109995"
-        },
-        {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1129143"
+          "url": "https://www.interfax.ru/business/1129231"
         }
       ],
-      "published_at": "2026-11-15T19:17:00+03:00"
+      "published_at": "2026-11-16T10:19:00+03:00"
     },
     {
-      "id": "bitcoin-crypto-liquidations-2-billion",
-      "headline": "Суточный объем ликвидаций на криптовалютном рынке превысил 2 миллиарда долларов",
-      "context": "Цена биткойна опускалась ниже 65 тысяч долларов на фоне фиксации прибыли инвесторами перед крупными технологическими IPO.",
+      "id": "spb-exchange-anthropic",
+      "headline": "СПБ Биржа планирует 19 ноября начать торги неоактивом на акции компании Anthropic",
+      "context": "Операции с инструментом откроются после проведение листинга акций компании на бирже NASDAQ.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109972"
+          "url": "https://www.kommersant.ru/doc/9110153"
         }
       ],
-      "published_at": "2026-11-15T18:25:00+03:00"
-    },
-    {
-      "id": "estonia-border-closure-december-1",
-      "headline": "Эстония закроет все пункты пропуска на границе с Россией с 1 декабря",
-      "context": "Министр иностранных дел республики Маргус Цахкна объяснил решение инцидентом с попыткой поджога оборонного предприятия.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/rbcfreenews/6ae891481eb6f46c9372c0e6"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109982"
-        }
-      ],
-      "published_at": "2026-11-15T18:46:00+03:00"
-    },
-    {
-      "id": "alfa-bank-cfa-drinkit-revenue",
-      "headline": "Альфа Банк выпустил цифровые финансовые активы с выплатами от выручки сети Дринкит",
-      "context": "Платформа А-Токен разместила ЦФА номиналом 100 тысяч рублей с ежемесячным доходом 0,01% от выручки кофейни сроком на семь лет.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/393418"
-        }
-      ],
-      "published_at": "2026-11-14T19:18:00+03:00"
-    },
-    {
-      "id": "putin-trump-xi-shenzhen-meeting",
-      "headline": "Трехсторонняя встреча лидеров России США и Китая состоится 19 ноября в Шэньчжэне",
-      "context": "Пресс-секретарь президента РФ Дмитрий Песков подтвердил проведение переговоров на полях саммита АТЭС.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9109690"
-        }
-      ],
-      "published_at": "2026-11-14T18:10:00+03:00"
+      "published_at": "2026-11-16T08:40:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-11-13"
   }
 }
