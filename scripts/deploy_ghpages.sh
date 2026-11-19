@@ -45,7 +45,7 @@ fi
 python3 scripts/build_instrument_logos.py --universe site/data.json --output-dir "$LOGO_BUILD" $PREVIOUS \
   || echo "[instrument-logos] API недоступен — сохраняем last-good"
 
-cp site/index.html site/styles.css site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/app.js site/data.json "$TMP/"
+cp site/index.html site/styles.css site/data_foundry.js site/instrument_logos.js site/instrument_identity.js site/bond_allocator.js site/bond_retail.js site/app.js site/data.json "$TMP/"
 [ -d site/assets ] && cp -r site/assets "$TMP/"
 if [ -n "$LOGO_LAST_GOOD" ]; then
   [ -f "$LOGO_LAST_GOOD/instrument_logos.js" ] && cp "$LOGO_LAST_GOOD/instrument_logos.js" "$TMP/"
@@ -65,6 +65,11 @@ fi
 [ -f site/marketsaw.json ] && cp site/marketsaw.json "$TMP/"
 [ -f site/market_history.json ] && cp site/market_history.json "$TMP/"
 [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"
+if [ -f site/data_foundry.json ]; then
+  cp site/data_foundry.json "$TMP/"
+elif [ -n "$LOGO_LAST_GOOD" ] && [ -f "$LOGO_LAST_GOOD/data_foundry.json" ]; then
+  cp "$LOGO_LAST_GOOD/data_foundry.json" "$TMP/"
+fi
 [ -f site/quality.json ] && cp site/quality.json "$TMP/"
 [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"
 [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"
@@ -98,6 +103,7 @@ html = html.replace('"instrument_logos.js"', f'"instrument_logos.js?v={version}"
 html = html.replace('"instrument_identity.js"', f'"instrument_identity.js?v={version}"')
 html = html.replace('"bond_allocator.js"', f'"bond_allocator.js?v={version}"')
 html = html.replace('"bond_retail.js"', f'"bond_retail.js?v={version}"')
+html = html.replace('"data_foundry.js"', f'"data_foundry.js?v={version}"')
 html = html.replace('"app.js"', f'"app.js?v={version}"')
 html = html.replace('"styles.css"', f'"styles.css?v={version}"')
 path.write_text(html, encoding="utf-8")

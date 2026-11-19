@@ -114,3 +114,9 @@ site/marketsaw_mcftr.json
 site/_snapshot/
 artifacts/
 site/build.json
+
+# Data Foundry versioned export/cache; only the derived snapshot is public
+.cache/data-foundry/
+site/data_foundry.json
+
+/node_modules

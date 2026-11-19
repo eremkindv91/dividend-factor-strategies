@@ -1,0 +1,67 @@
+name: Data Foundry — automatic financial statements
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install requests
+      - name: Read published universe
+        run: curl --fail --location --retry 3 https://eremkindv91.github.io/dividend-factor-strategies/data.json -o site/data.json
+      - uses: actions/cache@v4
+        with:
+          path: .cache/data-foundry
+          key: data-foundry-${{ github.run_id }}
+          restore-keys: data-foundry-
+      - name: Import accepted facts and evidence
+        run: python scripts/build_data_foundry.py
+      - name: Check WUSH reference and snapshot
+        run: |
+          python -m pip install pytest
+          python -m pytest -q tests/test_data_foundry_release.py -k wush
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+      - name: Publish additive financial layer
+        run: |
+          cp site/data_foundry.json published/data_foundry.json
+          cd published
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data_foundry.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'data: update Data Foundry financial statements'
+          git push origin HEAD:gh-pages
+      - name: Verify public data version
+        run: |
+          python - <<'PY'
+          import json, time, requests
+          expected = json.load(open('site/data_foundry.json'))
+          for attempt in range(18):
+              response = requests.get('https://eremkindv91.github.io/dividend-factor-strategies/data_foundry.json', params={'check': expected['meta']['fetched_at']}, timeout=30)
+              if response.ok:
+                  actual = response.json()
+                  if actual.get('meta', {}).get('fetched_at') == expected['meta']['fetched_at']:
+                      print('Published snapshot verified', actual['dataset']['version'])
+                      break
+              time.sleep(10)
+          else:
+              raise SystemExit('Published data did not reach the public URL')
+          PY

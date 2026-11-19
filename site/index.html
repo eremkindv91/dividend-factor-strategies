@@ -206,24 +206,27 @@
 
         <div class="section-panel" id="stocks-screener-panel" role="tabpanel"
           aria-labelledby="tab-stocks-screener">
+<div id="data-freshness-notice" class="data-freshness-notice" role="status" hidden></div>
 <div class="dates" id="dates"></div>
 
         <div class="controls" id="controls" hidden>
-          <input type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
-          <select id="sector"><option value="">Все отрасли</option></select>
-          <select id="statusFilter">
+          <input aria-label="Поиск по тикеру или названию" type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
+          <span class="count" id="count"></span>
+          <details class="stock-filter-drawer"><summary>Фильтры и экспорт</summary><div class="stock-filter-fields">
+          <select aria-label="Отрасль" id="sector"><option value="">Все отрасли</option></select>
+          <select aria-label="Статус данных" id="statusFilter">
             <option value="rankable" selected>Основной рейтинг</option>
             <option value="review">Требуют проверки</option>
             <option value="insufficient_data">Неполные данные</option>
             <option value="">Все статусы</option>
           </select>
-          <span class="spacer"></span>
-          <span class="count" id="count"></span>
+
           <button class="btn" id="csv">Экспорт CSV</button>
+          <div class="stock-chips" id="stock-chips" role="group" aria-label="Быстрые фильтры"></div>
+          </div></details>
         </div>
 
         <div class="stock-toolbar">
-          <div class="stock-chips" id="stock-chips" role="group" aria-label="Быстрые фильтры"></div>
           <div class="stock-view-toggle" id="stock-view-toggle" role="group" aria-label="Вид списка">
             <button class="stock-view-btn" type="button" data-view="table" aria-pressed="true" title="Таблица">Таблица</button>
             <button class="stock-view-btn" type="button" data-view="cards" aria-pressed="false" title="Карточки">Карточки</button>
@@ -235,6 +238,8 @@
           <span class="ranks-lbl" data-tooltip="Основной рейтинг автоматически исключает строки с экстремальной доходностью, payout выше 100%, старой ценой или неполными данными.">Рейтинг ↓</span>
         </div>
         <div class="stock-quality-gate" id="stock-quality-gate" aria-live="polite"></div>
+
+        <details class="foundry-panel" id="foundry-panel"><summary>Отчётность с источниками · Data Foundry</summary><div id="foundry-body"><p>Откройте панель для загрузки отчётности.</p></div></details>
 
         <details class="mapwrap" id="mapwrap" hidden>
           <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>
@@ -521,6 +526,7 @@
   <script src="instrument_identity.js" defer></script>
   <script src="bond_allocator.js" defer></script>
   <script src="bond_retail.js" defer></script>
+  <script src="data_foundry.js" defer></script>
   <script src="app.js" defer></script>
   <!-- Диалог графика рынка живёт вне секций-вкладок: showModal() у элемента внутри
        скрытой секции не показывает ничего — display:none на предке гасит и top layer. -->

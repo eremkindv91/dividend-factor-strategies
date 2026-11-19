@@ -235,16 +235,10 @@ wireDataCoverage(); // блок прозрачности источников �
 function renderDateChips(m) {
   const el = document.getElementById('dates');
   if (!el || !m) return;
-  const forecastLag = isoDayLag(m.forecast_asof, m.price_asof);
-  const lagChip = forecastLag > 0
-    ? `<span class="date-chip forecast-lag" data-tooltip="Прогноз модели пересчитывается реже цен MOEX"><span class="lbl">Модельный срез:</span> <b>${forecastLag} дн. до цены</b></span>`
-    : '';
-  el.innerHTML =
-    `<span class="date-chip"><span class="lbl">Прогноз модели:</span> <b>${esc(m.forecast_asof || '—')}</b></span>`
-    + `<span class="date-chip"><span class="lbl">Цены:</span> <b>${esc(m.price_asof || '—')}</b></span>`
-    + `<span class="date-chip"><span class="lbl">Горизонт:</span> <b>дивиденды ${esc(m.forecast_year || '')}</b></span>`
-    + `<span class="date-chip"><span class="lbl">Эмитентов:</span> <b>${m.n_total}</b></span>`
-    + lagChip;
+  if (window.DataFoundryUI) window.DataFoundryUI.renderFreshness(m);
+  el.innerHTML = `<details class="stock-dates"><summary>Даты и горизонт · дивиденды ${esc(m.forecast_year || '—')}</summary>`
+    + `<div>Прогноз: ${esc(m.forecast_asof || '—')} · Цены: ${esc(m.price_asof || '—')} · Бумаг: ${esc(m.n_total || '—')}. `
+    + `Дата сборки: ${esc(m['обновлено'] || '—')}. Дата сборки не означает обновление всех источников.</div></details>`;
 }
 
 // Переподгрузка главного data.json (цены/прогнозы) в ОТКРЫТОЙ вкладке: init() грузит его
@@ -481,7 +475,7 @@ function render() {
   if (gate) {
     const eligible = DATA.tickers.filter(stockRankingEligible).length;
     const review = DATA.tickers.filter((t) => stockRankingStatus(t) === 'review').length;
-    gate.innerHTML = `<b>Основной рейтинг: ${eligible}</b><span>На проверке: ${review}. Экстремальная доходность, payout &gt;100% и старая цена не ранжируются до проверки источника.</span>`;
+    gate.innerHTML = `<details><summary>Основной рейтинг: ${eligible} · На проверке: ${review}</summary><p>Экстремальная доходность, payout &gt;100% и старая цена не ранжируются до проверки источника.</p></details>`;
   }
   renderRanks();
   renderMap();
@@ -7758,9 +7752,11 @@ function updateDataStatus() {
   const fin = (DATA_COVERAGE && DATA_COVERAGE.meta) ? d10(DATA_COVERAGE.meta.generated_at) : null;
   const news = (SITE_STATUS && st.news && st.news.asof) ? d10(st.news.asof) : null;
   // overall health chip — человеческий текст (учитывает торговый календарь: выходной ≠ «устаревает»)
-  const overall = SITE_STATUS && !SITE_STATUS.failed ? SITE_STATUS.overall : null;
+  const savedOverall = SITE_STATUS && !SITE_STATUS.failed ? SITE_STATUS.overall : null;
+  const clientWarning = DATA && window.DataFoundryUI && window.DataFoundryUI.freshness(DATA.meta).warning;
+  const overall = clientWarning && savedOverall === 'fresh' ? 'stale' : savedOverall;
   const oLabel = { fresh: 'рыночные данные актуальны', stale: 'часть данных устарела', fallback: 'резервные данные', broken: 'часть данных недоступна' };
-  const oText = overall === 'fresh' ? oLabel.fresh
+  const oText = clientWarning ? 'проверьте даты цен и модели' : overall === 'fresh' ? oLabel.fresh
     : ((SITE_STATUS && SITE_STATUS.overall_message) ? SITE_STATUS.overall_message : (oLabel[overall] || overall));
   const chip = overall
     ? `<span class="ds-health ${cls[overall] || ''}" title="Свежесть данных по торговому календарю MOEX">● ${esc(oText)}</span>`
@@ -8471,7 +8467,9 @@ function renderDividendCalendar(refocus) {
   }
   const filtered = dividendFilteredEvents(combined, todayIso, portfolio);
   DIVIDEND_CURRENT_EVENTS = filtered;
-  const healthLabel = meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
+  const calendarAge = window.DataFoundryUI ? window.DataFoundryUI.age(meta.generated_at) : null;
+  const calendarExpired = calendarAge == null || calendarAge > 4;
+  const healthLabel = calendarExpired ? 'актуальность не подтверждена' : meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
   summary.textContent = `можно купить: ${buyable.length} · в портфеле: ${portfolioUpcoming.length} ${dividendEventWord(portfolioUpcoming.length)} / ${ru(portfolioGross, 0)} ₽ · ${healthLabel}`;
   const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
   const tabs = [['portfolio', `Мой портфель · ${portfolioUpcoming.length}`], ['buyable', `Можно купить · ${buyable.length}`],

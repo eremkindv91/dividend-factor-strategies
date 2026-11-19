@@ -91,13 +91,13 @@ def safe_features(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     for c in df.columns:
         if c in exclude or any(c.startswith(p) for p in EXCLUDE_PREFIXES):
             continue
-        if df[c].dtype == object or isinstance(df[c].dtype, pd.CategoricalDtype):
+        if pd.api.types.is_string_dtype(df[c].dtype) or isinstance(df[c].dtype, pd.CategoricalDtype):
             nu = df[c].nunique()
             if 1 < nu < 100:
                 feats.append(c)
                 cats.append(c)
             continue
-        if not np.issubdtype(df[c].dtype, np.number):
+        if not pd.api.types.is_numeric_dtype(df[c].dtype) or pd.api.types.is_bool_dtype(df[c].dtype):
             continue
         non_na = df[c].dropna()
         if len(non_na) < len(df) * 0.02:
