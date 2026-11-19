@@ -1,8 +1,8 @@
 {
   "date": "2026-11-19",
-  "generated_at": "2026-11-19T01:36:34+03:00",
+  "generated_at": "2026-11-19T13:44:40+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские фондовые индексы закрылись разнонаправленно, азиатские рынки снижаются, цены на нефть и золото продемонстрировали падение.",
+  "external_backdrop": "Мировые фондовые индексы продемонстрировали смешанную динамику, цены на нефть Brent и золото снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,220 +20,175 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "58860.43",
-      "change_pct": "-1.34%",
-      "as_of": "2026-11-17",
+      "value": "59444.21",
+      "change_pct": "+0.71%",
+      "as_of": "2026-11-19",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "23508.17",
-      "change_pct": "-1.03%",
-      "as_of": "2026-11-17",
+      "value": "22841.62",
+      "change_pct": "-1.95%",
+      "as_of": "2026-11-19",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.68",
-      "change_pct": "-4.79%",
-      "as_of": "2026-11-18",
+      "value": "89.77",
+      "change_pct": "-2.37%",
+      "as_of": "2026-11-19",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3727.80",
-      "change_pct": "-3.53%",
-      "as_of": "2026-11-18",
+      "value": "3731.20",
+      "change_pct": "-0.29%",
+      "as_of": "2026-11-19",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2470.81",
-      "change_pct": "-1.25%",
-      "as_of": "2026-11-18 23:50:03",
+      "value": "2454.43",
+      "change_pct": "-0.63%",
+      "as_of": "2026-11-19 13:44:37",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "946.59",
-      "change_pct": "-0.97%",
-      "as_of": "2026-11-18 23:50:02",
+      "value": "940.29",
+      "change_pct": "-0.63%",
+      "as_of": "2026-11-19 13:44:38",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "82.73",
-      "change_pct": "+0.72%",
-      "as_of": "2026-11-18 23:54:58",
+      "value": "82.34",
+      "change_pct": "+0.22%",
+      "as_of": "2026-11-19 13:44:38",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.31",
-      "change_pct": "+0.44%",
-      "as_of": "2026-11-18 23:50:03",
+      "value": "12.25",
+      "change_pct": "-0.47%",
+      "as_of": "2026-11-19 13:44:39",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "rf-weekly-inflation-acceleration",
-      "headline": "Недельная инфляция в России ускорилась до 0,19 процента а годовая выросла до 7,07 процента",
-      "context": "По данным Росстата с 10 по 16 ноября рост цен ускорился с 0,12% неделей ранее.",
+      "id": "trilateral-summit-shenzhen",
+      "headline": "В Шэньчжэне приняли совместное заявление по итогам первого трехстороннего саммита лидеров России США и Китая",
+      "context": "Переговоры Владимира Путина, Дональда Трампа и Си Цзиньпина продолжались полтора часа.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/394039"
+        }
+      ],
+      "published_at": "2026-11-19T13:40:00+03:00"
+    },
+    {
+      "id": "cb-rate-hike-possibility",
+      "headline": "Банк России допустил повышение ключевой ставки при отсутствии сигналов о замедлении инфляции",
+      "context": "Советник председателя ЦБ Кирилл Тремасов отметила базовый сценарий снижения ставки при нормализации цен.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393975"
+        }
+      ],
+      "published_at": "2026-11-19T09:00:00+03:00"
+    },
+    {
+      "id": "weekly-inflation-acceleration",
+      "headline": "Недельная инфляция в России ускорилась до нуля целых девятнадцати сотых процента",
+      "context": "С начала года потребительские цены выросли на 6,53%, а годовая инфляция достигла 7,07%.",
       "category": "macro",
       "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1376527.php"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393928"
         }
       ],
       "published_at": "2026-11-18T19:00:00+03:00"
     },
     {
-      "id": "fomc-minutes-rate-hike-risk",
-      "headline": "Протокол заседания ФРС указал на вероятность повышения процентной ставки более чем на 0,25 процента",
-      "context": "Участники заседания FOMC отметили более высокую устойчивость инфляции в США по сравнению с ожиданиями.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram: @markettwits",
-          "url": "https://t.me/markettwits/393937"
-        }
-      ],
-      "published_at": "2026-11-18T22:01:00+03:00"
-    },
-    {
-      "id": "russia-diesel-exports-decline-kpler",
-      "headline": "Экспорт дизельного топлива из России в ноябре может сократиться из за снижения переработки",
-      "context": "По данным аналитиков Kpler с конца октября объем нефтепереработки снизился на фоне атак беспилотников.",
-      "category": "macro",
+      "id": "europlan-9m-msfo-profit",
+      "headline": "Чистая прибыль Европлана по МСФО за девять месяцев выросла в два и четыре десятых раза",
+      "context": "Показатель чистой прибыли превысил 7 млрд рублей на фоне сокращения расходов на возможные потери.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113077"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393985"
         }
       ],
-      "published_at": "2026-11-18T20:52:00+03:00"
+      "published_at": "2026-11-19T09:34:00+03:00"
     },
     {
-      "id": "russia-us-china-apec-summit-format",
-      "headline": "На трехстороннюю встречу лидеров России США и Китая на саммите АТЭС отвели один час",
-      "context": "Пресс-секретарь президента РФ Дмитрий Песков сообщил что полноформатные переговоры Владимира Путина и Дональда Трампа 19 ноября не планируются.",
-      "category": "geopolitics",
-      "investment_relevant": false,
+      "id": "mts-bank-9m-msfo-results",
+      "headline": "МТС-Банк увеличил чистую прибыль по МСФО за девять месяцев до двенадцати и одной десятой миллиарда рублей",
+      "context": "Годом ранее чистая прибыль банка за аналогичный период составляла 9,4 млрд рублей.",
+      "category": "banks",
+      "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112918"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393992"
         }
       ],
-      "published_at": "2026-11-18T18:54:00+03:00"
+      "published_at": "2026-11-19T09:53:00+03:00"
     },
     {
-      "id": "kii-russian-software-transition-rules",
-      "headline": "Правительство России утвердило порядок и сроки перехода объектов КИИ на отечественное ПО",
-      "context": "Постановление устанавливает правила и графики замены иностранного программного обеспечения на значимых объектах критической информационной инфраструктуры.",
-      "category": "tech",
+      "id": "mgkl-second-default",
+      "headline": "Компания МГКЛ допустила второй дефолт по выплате купонного дохода по облигациям",
+      "context": "Сумма невыплаченного восьмого купона по выпуску серии 001РS-02 составила 20,14 млн рублей.",
+      "category": "markets",
       "investment_relevant": true,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113141"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393988"
         }
       ],
-      "published_at": "2026-11-19T01:20:00+03:00"
+      "published_at": "2026-11-19T09:40:00+03:00"
     },
     {
-      "id": "us-veneruela-military-cooperation",
-      "headline": "США и Венесуэла подписали соглашение о восстановлении военного сотрудничества",
-      "context": "Глава Пентагона Пит Хегсет сообщил о подписании документа в ходе визита в Каракас.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/380844"
-        }
-      ],
-      "published_at": "2026-11-18T22:29:00+03:00"
-    },
-    {
-      "id": "crimea-bus-services-resumption",
-      "headline": "Автобусное сообщение из Крыма в регионы России и Минск возобновляется с 19 ноября",
-      "context": "Пассажиров автобусов будут перевозить через Керченский пролив в поездах по мосту.",
+      "id": "ormuz-strait-tanker-attacks",
+      "headline": "Три нефтяных танкера загорелись после подрыва на минах к востоку от Ормузского пролива",
+      "context": "Об инциденте в акватории сообщил иранский Корпус стражей исламской революции.",
       "category": "markets",
       "investment_relevant": false,
-      "importance": 3,
+      "importance": 4,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/society/news/2026/11/18/1413131-avtobusnie-perevozki-iz-krima"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9113167"
         }
       ],
-      "published_at": "2026-11-18T22:06:00+03:00"
+      "published_at": "2026-11-19T07:11:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "cb-tremasov-rate-reduction-space",
-      "headline": "В Банке России заявили о наличии пространства для постепенного снижения ключевой ставки",
-      "context": "Советник председателя Банка России Кирилл Тремасов отметил что регулятор будет плавно смягчать денежно-кредитную политику.",
+      "id": "gosduma-deposit-insurance",
+      "headline": "Госдума одобрила повышение максимального страхового возмещения по долгосрочным вкладам до двух миллионов рублей",
+      "context": "Закон касается рублевых вкладов сроком более трех лет и безотзывных сберегательных сертификатов.",
       "category": "cb_policy",
       "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1129787"
-        }
-      ],
-      "published_at": "2026-11-18T12:54:00+03:00"
-    },
-    {
-      "id": "cb-listing-financial-requirements",
-      "headline": "Банк России предложил ввести финансовые требования к эмитентам акций первого и второго уровней листинга",
-      "context": "Регулятор планирует оценить финансовое состояние компаний по показателям долга и выручки.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112417"
-        }
-      ],
-      "published_at": "2026-11-18T12:19:00+03:00"
-    },
-    {
-      "id": "tatneft-bod-dividends-9m",
-      "headline": "Совет директоров Татнефти 20 ноября рассмотрит вопрос о дивидендах за девять месяцев",
-      "context": "Заседание руководства компании пройдет в форме заочного голосования.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram: @markettwits",
-          "url": "https://t.me/markettwits/393905"
-        }
-      ],
-      "published_at": "2026-11-18T17:21:00+03:00"
-    },
-    {
-      "id": "duma-deposit-insurance-limit-increase",
-      "headline": "Госдума приняла закон об увеличении лимита страхового возмещения по долгосрочным вкладам до 2 млн рублей",
-      "context": "Максимальная страховая выплата по долгосрочным рублевым вкладам свыше трех лет и безотзывным сберегательным сертификатам повышена с 1,4 млн до 2 млн рублей с 2027 года.",
-      "category": "banks",
-      "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
@@ -244,84 +199,114 @@
       "published_at": "2026-11-18T14:58:00+03:00"
     },
     {
-      "id": "europlan-dividend-recommendation-9m",
-      "headline": "Совет директоров Европлана рекомендовал дивиденды в размере 87 рублей на акцию по итогам девяти месяцев",
-      "context": "На выплату дивидендов планируется направить 10 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
+      "id": "cb-listing-requirements",
+      "headline": "Банк России предложил увязать нахождение акций в котировальных списках с финансовыми показателями эмитентов",
+      "context": "Требования затронут компании из первого и второго котировальных списков Московской биржи.",
+      "category": "cb_policy",
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112319"
+          "url": "https://www.kommersant.ru/doc/9112417"
         }
       ],
-      "published_at": "2026-11-18T10:45:00+03:00"
+      "published_at": "2026-11-18T12:19:00+03:00"
     },
     {
-      "id": "minfin-ofz-placements-results",
-      "headline": "Минфин России удовлетворил заявки на инвестаукционах ОФЗ на сумму 70,8 млрд рублей",
-      "context": "Ведомство отсекло 56,6% поступивших заявок, при этом совокупный спрос на два выпуска с фиксированным купоном превысил 163 млрд рублей.",
+      "id": "alfa-bank-dividends-recommendation",
+      "headline": "Совет директоров Альфа-банка рекомендовал выплатить дивиденды на сумму восемь миллиардов рублей",
+      "context": "Выплаты планируется произвести из нераспределенной прибыли прошлых лет из расчета 135,62 рубля на акцию.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "frank_media",
+          "url": "https://t.me/frank_media/24801"
+        }
+      ],
+      "published_at": "2026-11-18T18:44:00+03:00"
+    },
+    {
+      "id": "minfin-ofz-placements",
+      "headline": "Минфин России разместил ОФЗ двух выпусков на общую сумму семьдесят миллиардов рублей",
+      "context": "Совокупный спрос на аукционах превысил 163 млрд рублей.",
       "category": "macro",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393906"
+        }
+      ],
+      "published_at": "2026-11-18T17:25:00+03:00"
+    },
+    {
+      "id": "spb-exchange-crypto-testing",
+      "headline": "СПБ Биржа запустила тестовые торги биткоином Ethereum и стейблкоином USDT",
+      "context": "Участники рынка начали заключать единичные тестовые сделки перед выходом на промышленные объемы.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/393904"
+        }
+      ],
+      "published_at": "2026-11-18T17:12:00+03:00"
+    },
+    {
+      "id": "rshb-9m-profit-growth",
+      "headline": "Чистая прибыль Россельхозбанка по МСФО за девять месяцев выросла на четверть до шестидесяти миллиардов рублей",
+      "context": "Рентабельность собственного капитала банка за отчетный период увеличилась до 19,4%.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113063"
+          "url": "https://www.kommersant.ru/doc/9112703"
         }
       ],
-      "published_at": "2026-11-18T20:36:00+03:00"
+      "published_at": "2026-11-18T15:39:00+03:00"
     },
     {
-      "id": "spb-exchange-crypto-trading-tests",
-      "headline": "СПБ Биржа запустила тестовые торги криптовалютами биткоин Ethereum и USDT",
-      "context": "Участники рынка начали заключать тестовые сделки перед предполагаемым стартом реальных торгов до конца года.",
-      "category": "markets",
+      "id": "alfa-bank-crypto-register",
+      "headline": "Банк России включил Альфа-банк в реестр организаций по обмену цифровых валют",
+      "context": "Кредитная организация стала 31-м участником официального государственного реестра.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Telegram: @if_market_news",
-          "url": "https://t.me/if_market_news/87029"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9112655"
         }
       ],
-      "published_at": "2026-11-18T17:14:00+03:00"
+      "published_at": "2026-11-18T15:00:00+03:00"
     },
     {
-      "id": "novatek-spg-contracts-turkey-vietnam",
-      "headline": "НОВАТЭК подписал контракт на поставку СПГ в Турцию и планирует отгрузки во Вьетнам",
-      "context": "Председатель правления компании Леонид Михельсон также заявил о ведении переговоров о поставках сжиженного природного газа в Таиланд.",
+      "id": "novatek-turkey-lng-contract",
+      "headline": "НОВАТЭК подписал контракт на поставку сжиженного природного газа в Турцию",
+      "context": "Компания ведет работы по переориентации объемов СПГ на азиатские и турецкие рынки.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112781"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/11/18/1412925-kontrakt-na-spg"
         }
       ],
-      "published_at": "2026-11-18T16:52:00+03:00"
+      "published_at": "2026-11-18T13:19:00+03:00"
     },
     {
-      "id": "eu-22nd-sanctions-package-details",
-      "headline": "Евросоюз представит проект 22-го пакета санкций в отношении России на следующей неделе",
-      "context": "Председатель Еврокомиссии Урсула фон дер Ляйен подтвердила подготовку ограничений в отношении банков, криптопровайдеров и 65 судов теневого флота.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112710"
-        }
-      ],
-      "published_at": "2026-11-18T15:34:00+03:00"
-    },
-    {
-      "id": "cian-financial-results-9m-2026",
-      "headline": "Чистая прибыль Циана по МСФО за девять месяцев выросла на 45 процентов до 3 млрд рублей",
-      "context": "Выручка платформы за тот же период увеличена на 18,9% в годовом выражении и составила 13,1 млрд рублей.",
+      "id": "cian-9m-financial-results",
+      "headline": "Чистая прибыль ЦИАНа за девять месяцев по МСФО выросла на сорок пять процентов",
+      "context": "Показатель чистой прибыли компании достиг почти 3 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -334,41 +319,26 @@
       "published_at": "2026-11-18T10:01:00+03:00"
     },
     {
-      "id": "mgkl-bond-default-rating-downgrade",
-      "headline": "Рейтинговое агентство НРА понизило рейтинг МГКЛ до уровня D из за дефолта по облигациям",
-      "context": "Эмитент ушел в дефолт из-за невыплаты купонного дохода по выпуску 001Р-07 в размере 24,7 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112143"
-        }
-      ],
-      "published_at": "2026-11-18T07:01:00+03:00"
-    },
-    {
-      "id": "alfa-bank-crypto-exchangers-registry",
-      "headline": "Банк России включил Альфа-банк в реестр организаций по обмену цифровых валют",
-      "context": "Кредитная организация стала 31-м участником государственного реестра криптообменников.",
-      "category": "banks",
-      "investment_relevant": true,
+      "id": "tax-control-marketplaces",
+      "headline": "Правительство отказалось от передачи маркетплейсам функций налогового контроля в отношении продавцов",
+      "context": "Платформы будут ежеквартально передавать данные в ФНС без права блокировки продавцов.",
+      "category": "macro",
+      "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9112655"
+          "name": "frank_media",
+          "url": "https://t.me/frank_media/24785"
         }
       ],
-      "published_at": "2026-11-18T15:00:00+03:00"
+      "published_at": "2026-11-18T09:08:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "premarket",
-    "title": "Сводка до открытия",
-    "context": "до открытия основной сессии Мосбиржи (10:00 МСК)",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-11-18"
   }
 }
