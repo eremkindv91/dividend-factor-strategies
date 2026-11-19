@@ -27,6 +27,35 @@
   function safeUrl(url) {
     try { const u = new URL(url); return u.protocol === 'https:' ? u.href : null; } catch (_) { return null; }
   }
+  let snapshot = null, loading = null;
+  function load() {
+    if (snapshot) return Promise.resolve(snapshot);
+    if (!loading) loading = fetch('data_foundry.json', {cache: 'no-store'}).then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    }).then(data => {
+      if (data.schema_version !== 1 || !Array.isArray(data.companies)) throw new Error('Неподдерживаемый формат');
+      snapshot = data; return data;
+    }).catch(error => { loading = null; throw error; });
+    return loading;
+  }
+  function reportHTML(ticker) {
+    const company = snapshot && snapshot.companies.find(c => c.ticker === ticker);
+    if (!company || !company.facts.length) return '';
+    const codes = ['fin.revenue', 'fin.operating_profit', 'fin.net_income', 'fin.total_assets', 'fin.total_equity'];
+    const rows = codes.map(code => {
+      const facts = company.facts.filter(f => f.metric_code === code && f.period.group === 'annual');
+      const end = facts.map(f => f.period.end).sort().pop();
+      const latest = facts.filter(f => f.period.end === end);
+      if (!latest.length) return '';
+      // No automatic choice between differing assertions of the same period.
+      if (new Set(latest.map(f => f.value)).size !== 1) return `<tr><td>${escape(snapshot.metrics[code])}</td><td colspan="2">Несколько вариантов · см. панель Data Foundry</td></tr>`;
+      const f = latest[0], evidence = snapshot.evidence[f.source_id] || {}, url = safeUrl(evidence.official_url);
+      return `<tr><td>${escape(snapshot.metrics[code])}</td><td>${escape(f.period.key)}</td><td class="tnum">${(Number(f.value)/1e6).toLocaleString('ru-RU',{maximumFractionDigits:1})}</td><td>${url ? `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer">Отчёт</a>` : 'н/д'}</td></tr>`;
+    }).join('');
+    if (!rows) return '';
+    return `<div class="foundry-card"><b>Отчётность Data Foundry · МСФО группы</b><p>Последние доступные годовые значения, млн ₽. Периоды у строк могут различаться. База опубликована ${escape(day(snapshot.dataset.published_at))}; наличие последнего отчёта не гарантировано.</p><div class="foundry-table"><table><thead><tr><th>Показатель</th><th>Период</th><th>Млн ₽</th><th>Источник</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
   function mount() {
     const panel = document.getElementById('foundry-panel');
     if (!panel) return;
@@ -36,10 +65,7 @@
       loaded = true;
       const body = document.getElementById('foundry-body');
       try {
-        const response = await fetch('data_foundry.json', { cache: 'no-store' });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        if (data.schema_version !== 1 || !Array.isArray(data.companies)) throw new Error('Неподдерживаемый формат');
+        const data = await load();
         const meta = data.meta, dataset = data.dataset;
         body.innerHTML = `<p>Покрытие: <b>${escape(meta.covered_companies)} из ${escape(meta.requested_companies)}</b> бумаг. `
           + `Публикация базы: ${escape(day(dataset.published_at) || 'н/д')}. Загрузка: ${escape(day(meta.fetched_at))}.</p>`
@@ -75,7 +101,7 @@
       }
     });
   }
-  root.DataFoundryUI = { age, freshness, renderFreshness };
+  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML };
   if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl };
   if (typeof document !== 'undefined') mount();
 })(typeof window !== 'undefined' ? window : globalThis);

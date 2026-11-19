@@ -267,6 +267,7 @@ function init(data) {
   const m = data.meta;
 
   applyTaxRate(uiStateLoad().taxRate);   // §5.1 — применить сохранённую ставку НДФЛ до рендеров (дефолт 13% → NET_OF_TAX=0.87)
+  if (window.DataFoundryUI) window.DataFoundryUI.load().then(() => render()).catch(() => {});
   renderDateChips(m);   // даты (Прогноз/Цены/Горизонт/Эмитентов/лаг модельного среза)
 
   if (m.prices_stale) {
@@ -628,7 +629,9 @@ function historyHTML(h) {
 
 function fundamentalsOrHistoryHTML(t) {
   const html = fundamentalsHTML(t && t.ticker);
-  return html || historyHTML(t && t.history);
+  const foundry = window.DataFoundryUI ? window.DataFoundryUI.reportHTML(t && t.ticker) : '';
+  const legacy = html || historyHTML(t && t.history);
+  return foundry ? foundry + `<details><summary>Исторический слой и дополнительные показатели</summary>${legacy}</details>` : legacy;
 }
 
 function fundamentalsHTML(ticker) {
