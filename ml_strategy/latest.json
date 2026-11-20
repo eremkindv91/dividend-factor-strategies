@@ -1,0 +1,245 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-20T03:58:56+00:00",
+  "data_as_of": "2026-11-19",
+  "benchmark": "MCFTR",
+  "horizon_sessions": 20,
+  "run": {
+    "run_id": "2026-11-19-18cea5a4-e25a3316",
+    "as_of": "2026-11-19",
+    "calculated_at": "2026-11-20T03:58:56+00:00",
+    "model_version": "elastic_net:18cea5a48c8bf9dd",
+    "artifact_hash": "18cea5a48c8bf9dd",
+    "universe_version": "586ce98c5b2f1205",
+    "features_version": "828cfe7417561355",
+    "constraints_hash": "e25a33166a958b0b",
+    "cost_model_version": "one_way_30bps_v1",
+    "signal_valid_until": null,
+    "next_review_at": null,
+    "next_execution_at": null
+  },
+  "model_status": "research_only",
+  "data_status": "degraded",
+  "signal_status": "no_signal",
+  "action_status": "no_trade",
+  "signal": {
+    "action": "no_trade",
+    "status": "no_signal",
+    "title": "Целевой состав не сформирован",
+    "reason": "Входы модели не прошли контроль качества. Новые веса и операции не публикуются.",
+    "mode": "monthly_threshold"
+  },
+  "published_portfolio": null,
+  "candidate_portfolio": {
+    "run_id": "2026-11-19-18cea5a4-e25a3316",
+    "as_of": "2026-11-19",
+    "calculated_at": "2026-11-20T03:58:56+00:00",
+    "model_version": "elastic_net:18cea5a48c8bf9dd",
+    "artifact_hash": "18cea5a48c8bf9dd",
+    "universe_version": "586ce98c5b2f1205",
+    "features_version": "828cfe7417561355",
+    "constraints_hash": "e25a33166a958b0b",
+    "cost_model_version": "one_way_30bps_v1",
+    "signal_valid_until": null,
+    "next_review_at": null,
+    "next_execution_at": null,
+    "status": "rejected",
+    "method": "HRP",
+    "positions": [
+      {
+        "ticker": "SBERP",
+        "name": "Сбербанк-п",
+        "sector": "Финансы (Банки)",
+        "calculated_weight": 0.059847,
+        "expected_excess_return_20d": -0.004197,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "DOMRF",
+        "name": "ДОМ.РФ",
+        "sector": "Финансы",
+        "calculated_weight": 0.058622,
+        "expected_excess_return_20d": -0.00067,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "HEAD",
+        "name": "Хэдхантер",
+        "sector": "IT",
+        "calculated_weight": 0.047664,
+        "expected_excess_return_20d": 0.000622,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "SNGSP",
+        "name": "Сургутнефтегаз ап",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.047318,
+        "expected_excess_return_20d": -0.004129,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "VSEH",
+        "name": "ВИ.ру",
+        "sector": "Потребительский сектор",
+        "calculated_weight": 0.028656,
+        "expected_excess_return_20d": -0.004879,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "CNRU",
+        "name": "iЦиан",
+        "sector": "IT",
+        "calculated_weight": 0.027999,
+        "expected_excess_return_20d": -0.00381,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "MOEX",
+        "name": "МосБиржа",
+        "sector": "Финансы",
+        "calculated_weight": 0.027871,
+        "expected_excess_return_20d": -0.002266,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "FLOT",
+        "name": "Совкомфлот",
+        "sector": "Транспорт",
+        "calculated_weight": 0.026555,
+        "expected_excess_return_20d": -0.006162,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "MTSS",
+        "name": "МТС-ао",
+        "sector": "Телекоммуникации",
+        "calculated_weight": 0.024394,
+        "expected_excess_return_20d": -0.004909,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "AQUA",
+        "name": "ИНАРКТИКА",
+        "sector": "Потребительский сектор",
+        "calculated_weight": 0.020375,
+        "expected_excess_return_20d": -0.005278,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "TATNP",
+        "name": "Татнфт 3ап",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.013411,
+        "expected_excess_return_20d": -0.00351,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "TATN",
+        "name": "Татнфт 3ао",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.011884,
+        "expected_excess_return_20d": -0.006365,
+        "sector_drivers": []
+      }
+    ],
+    "cash_weight": 0.605402,
+    "diagnostic_turnover": 0.394598,
+    "diagnostic_cost_rub": 1183.79,
+    "affects_current_portfolio": false
+  },
+  "execution": {
+    "status": "no_trade",
+    "turnover": null,
+    "estimated_cost_rub": null,
+    "one_way_cost_bps": 30.0,
+    "turnover_cap": 0.4,
+    "turnover_formula": "0.5 * sum(abs(target_weight - current_weight)), including cash",
+    "next_review_at": null,
+    "next_execution_at": null
+  },
+  "portfolio": {
+    "method": "HRP",
+    "positions": [],
+    "cash_weight": 1.0,
+    "turnover": null,
+    "estimated_cost_rub": null,
+    "one_way_cost_bps": 30.0,
+    "annualized_volatility": null,
+    "beta": null,
+    "fallback_reason": null
+  },
+  "model": {
+    "champion": "elastic_net",
+    "status": "research_only",
+    "prediction_gate_status": "RESEARCH_ONLY",
+    "forecast_shrinkage": 0.35
+  },
+  "data_quality": {
+    "status": "DEGRADED",
+    "investable_companies": 60,
+    "stale_days": 1
+  },
+  "sector_features": {
+    "status": "DEGRADED",
+    "approved_packs": [
+      "ELECTRIC_UTILITIES"
+    ],
+    "research_only_packs": [
+      "OIL_AND_GAS",
+      "STEEL_AND_FERROUS_METALS",
+      "BANKS_AND_FINANCIALS",
+      "REAL_ESTATE_DEVELOPERS",
+      "CONSUMER_SECTOR",
+      "INFORMATION_TECHNOLOGY",
+      "TELECOMMUNICATIONS",
+      "TRANSPORT",
+      "CHEMICALS_AND_PETROCHEMICALS",
+      "FINANCIAL_SERVICES"
+    ],
+    "blocked_issuer_exposures": true,
+    "last_checked_at": "2026-11-20T03:53:05.824344+00:00"
+  },
+  "diagnostics": {
+    "predictive_gate": {
+      "status": "fail",
+      "actual": {
+        "n": 1434,
+        "mae": 0.06258498857351597,
+        "rmse": 0.09134096806531883,
+        "spearman_ic": 0.011544155967811144,
+        "pearson_ic": 0.013114095000166472,
+        "hit_rate": 0.5683403068340307,
+        "top_decile_mean_excess_return": -0.010783871940602381,
+        "top_bottom_spread": -0.0009380571593391555
+      },
+      "thresholds": {
+        "spearman_ic_above_best_baseline_by": 0.01,
+        "hit_rate_minimum": 0.5
+      }
+    },
+    "portfolio_gate": {
+      "status": "fail",
+      "actual": {
+        "excess_cumulative_return": -0.176586,
+        "sharpe_after_costs": -0.325119
+      },
+      "thresholds": {
+        "excess_cumulative_return": "> 0",
+        "sharpe_after_costs": "> 0"
+      }
+    },
+    "constraints": {
+      "turnover_actual": 0.394598,
+      "turnover_cap": 0.4,
+      "one_way_cost_bps": 30.0,
+      "solver_method": "HRP"
+    }
+  },
+  "limitations": [
+    "Исследовательский модельный портфель, не индивидуальная инвестиционная рекомендация.",
+    "Исторический состав бумаг пока неполон: в backtest остаётся остаточный survivorship risk.",
+    "Неразрешённые split-like наблюдения исключаются, а не исправляются догадкой.",
+    "Прогнозы неопределённы; система может воздержаться от изменения портфеля."
+  ]
+}

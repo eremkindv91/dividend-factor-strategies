@@ -1,0 +1,438 @@
+{
+  "date": "2026-11-21",
+  "generated_at": "2026-11-21T01:35:23+03:00",
+  "session_open": "10:00 MSK",
+  "external_backdrop": "Американские фондовые индексы завершили торги глубоким падением, а мировые цены на нефть и золото снизились.",
+  "market_snapshot": [
+    {
+      "name": "S&P 500",
+      "value": "6910.39",
+      "change_pct": "-3.70%",
+      "as_of": "2026-11-20",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nasdaq",
+      "value": "22617.73",
+      "change_pct": "-5.28%",
+      "as_of": "2026-11-20",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "59444.21",
+      "change_pct": "+0.71%",
+      "as_of": "2026-11-19",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "22841.62",
+      "change_pct": "-1.95%",
+      "as_of": "2026-11-19",
+      "group": "global_equity"
+    },
+    {
+      "name": "Brent",
+      "value": "89.87",
+      "change_pct": "-2.29%",
+      "as_of": "2026-11-20",
+      "group": "commodity"
+    },
+    {
+      "name": "Золото",
+      "value": "3539.00",
+      "change_pct": "-3.98%",
+      "as_of": "2026-11-20",
+      "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2354.40",
+      "change_pct": "-2.62%",
+      "as_of": "2026-11-20 23:50:02",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "902.39",
+      "change_pct": "-2.93%",
+      "as_of": "2026-11-20 23:50:02",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "81.69",
+      "change_pct": "-0.89%",
+      "as_of": "2026-11-20 23:54:58",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.15",
+      "change_pct": "-0.55%",
+      "as_of": "2026-11-20 23:50:02",
+      "group": "fx"
+    }
+  ],
+  "overnight": [
+    {
+      "id": "us-stocks-fall-nvidia-plunge",
+      "headline": "Американские фондовые индексы упали в пятницу во главе с бумагами Nvidia",
+      "context": "Индекс S&P 500 снизился на 3,51%, Nasdaq упал на 5,15%, а акции Nvidia потеряли 14%.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1377699.php"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/394317"
+        }
+      ],
+      "published_at": "2026-11-21T00:02:00+03:00"
+    },
+    {
+      "id": "trump-ukraine-diplomacy-peace",
+      "headline": "Дональд Трамп сообщил о ходе переговоров по украинскому урегулированию и дипломатической позиции РФ",
+      "context": "Президент США заявил, что Владимир Путин выразил желание завершить конфликт дипломатическим путем.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1130519"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126684"
+        }
+      ],
+      "published_at": "2026-11-20T21:48:00+03:00"
+    },
+    {
+      "id": "iran-hormuz-strait-conditions",
+      "headline": "Иран назвал условия проведения переговоров с США по открытию Ормузского пролива",
+      "context": "Глава МИД Ирана Аббас Аракчи заявил о готовности к диалогу при условии искренней приверженности США.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/21/11/2026/6b00c549c0fbd0525d1faa69"
+        }
+      ],
+      "published_at": "2026-11-21T01:14:00+03:00"
+    },
+    {
+      "id": "mgkl-default-bonds-series-001p06",
+      "headline": "Мосбиржа зафиксировала дефолт МГКЛ по купонным выплатам облигаций серии 001Р-06",
+      "context": "Эмитент не выплатил 28-й купонный доход по выпуску на сумму 9,45 миллиона рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1377660.php"
+        },
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87153"
+        }
+      ],
+      "published_at": "2026-11-20T21:43:00+03:00"
+    },
+    {
+      "id": "minenergo-jet-fuel-export-proposal",
+      "headline": "Минэнерго подготовило документы по возможному возобновлению экспорта авиационного керосина из России",
+      "context": "Вопрос об отмене ограничений находится на рассмотрении правительства РФ с учетом топливного баланса.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1130514"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126651"
+        }
+      ],
+      "published_at": "2026-11-20T20:44:00+03:00"
+    },
+    {
+      "id": "trump-poland-missile-incident-comment",
+      "headline": "Дональд Трамп назвал случайностью падение ракет и беспилотника на территории Польши",
+      "context": "Президент США прокомментировал инцидент с падением объектов на востоке республики.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126968"
+        }
+      ],
+      "published_at": "2026-11-21T01:27:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "estonia-closes-border-crossings-russia",
+      "headline": "Правительство Эстонии привело в действие решение о закрытии автомобильных пунктов пропуска с Россией",
+      "context": "С 1 декабря закрываются все автомобильные пограничные переходы на эстонско-российской границе.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126250"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/world/1130436"
+        }
+      ],
+      "published_at": "2026-11-20T13:59:00+03:00"
+    },
+    {
+      "id": "cbr-osago-tariff-corridor-proposal",
+      "headline": "Банк России предложил снизить нижнюю границу тарифа ОСАГО до одного рубля",
+      "context": "Верхняя граница базового тарифа для обычных автовладельцев при этом вырастет на 20%.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/20/1413637-tsb-predlozhil-snizit"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9114422"
+        }
+      ],
+      "published_at": "2026-11-20T11:19:00+03:00"
+    },
+    {
+      "id": "mts-dividends-and-buyback-2027",
+      "headline": "Совет директоров МТС рекомендовал дивиденды за девять месяцев и утвердил байбэк",
+      "context": "Рекомендованы выплаты 7 рублей на акцию, а объем программы обратного выкупа на 2027 год составит до 21,5 миллиарда рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9114324"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413607-mts-dividendi"
+        }
+      ],
+      "published_at": "2026-11-20T10:30:00+03:00"
+    },
+    {
+      "id": "cbr-official-fx-rates-weekend",
+      "headline": "Банк России установил официальные курсы основных валют на предстоящие выходные дни",
+      "context": "Курс доллара составит 82,19 рубля, евро — 90,34 рубля, а юаня — 12,28 рубля.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317378"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1377573.php"
+        }
+      ],
+      "published_at": "2026-11-20T17:58:00+03:00"
+    },
+    {
+      "id": "vk-lawsuit-against-apple-31m-euro",
+      "headline": "Холдинг VK подал иск к Apple о взыскании более 31 миллиона евро",
+      "context": "Компания требует вернуть средства пользователей от покупок в App Store, не перечисленные разработчику.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1130487"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126517"
+        }
+      ],
+      "published_at": "2026-11-20T17:24:00+03:00"
+    },
+    {
+      "id": "klvz-kristall-technical-default",
+      "headline": "Калужский ликеро-водочный завод Кристалл допустил технический дефолт по двум выпускам облигаций",
+      "context": "Предприятие не выплатило купонный доход на общую сумму 8,8 миллиона рублей из-за реструктуризации долга.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126438"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413786-likero-vodochnii-zavod"
+        }
+      ],
+      "published_at": "2026-11-20T15:44:00+03:00"
+    },
+    {
+      "id": "cian-shareholders-approved-dividends-9m",
+      "headline": "Акционеры ЦИАНа одобрили выплату дивидендов за девять месяцев в 33 рубля на акцию",
+      "context": "Дата закрытия реестра для получения выплат установлена на 30 ноября.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126424"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413781-tsian-dividendi"
+        }
+      ],
+      "published_at": "2026-11-20T15:28:00+03:00"
+    },
+    {
+      "id": "sovcomflot-9m-2026-results",
+      "headline": "Совкомфлот получил 396 миллионов долларов чистой прибыли за девять месяцев года",
+      "context": "Выручка компании на базе тайм-чартерного эквивалента выросла на 65% до 1,26 миллиарда долларов.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413657-sovkomflot-poluchil-pribili"
+        },
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87128"
+        }
+      ],
+      "published_at": "2026-11-20T11:41:00+03:00"
+    },
+    {
+      "id": "bank-spb-9m-2026-msfo-profit",
+      "headline": "Чистая прибыль банка Санкт-Петербург за девять месяцев снизилась на 27,8 процента",
+      "context": "Показатель достиг 24,1 миллиарда рублей на фоне снижения чистых процентных доходов.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317265"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413640-pribil-banka"
+        }
+      ],
+      "published_at": "2026-11-20T11:17:00+03:00"
+    },
+    {
+      "id": "europlan-9m-profit-and-dividend-recommendation",
+      "headline": "Европлан отчитался о росте чистой прибыли за девять месяцев до 7,1 миллиарда рублей",
+      "context": "Совет директоров рекомендовал дивиденды в размере 87 рублей на акцию с доходностью 12,1%.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4021"
+        }
+      ],
+      "published_at": "2026-11-20T08:38:00+03:00"
+    },
+    {
+      "id": "wildberries-russ-new-shareholders-zpif",
+      "headline": "Два закрытых паевых инвестиционных фонда получили 30 процентов в компании РВБ",
+      "context": "Фонды Томь и Гало стали владельцами долей в рамках оптимизации активов группы.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317301"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1130414"
+        }
+      ],
+      "published_at": "2026-11-20T13:09:00+03:00"
+    },
+    {
+      "id": "astra-increased-stake-in-astra-ai",
+      "headline": "Группа Астра увеличила долю в разработчике искусственного интеллекта до 80 процентов",
+      "context": "Сделка совершена через дочернюю структуру Астра Инвестиции по покупке доли в Астра ИИ.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413616-gruppa-astra"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9114456"
+        }
+      ],
+      "published_at": "2026-11-20T12:49:00+03:00"
+    },
+    {
+      "id": "minpromtorg-subsidized-car-loans-restart",
+      "headline": "Минпромторг доработал условия программы льготного автокредитования перед перезапуском с 1 декабря",
+      "context": "Уточнены требования по локализации автомобилей и расширены условия для категории Семейный автомобиль.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9114405"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/russia/1130365"
+        }
+      ],
+      "published_at": "2026-11-20T11:15:00+03:00"
+    }
+  ],
+  "today_agenda": [],
+  "briefing": {
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-11-20"
+  }
+}
