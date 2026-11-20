@@ -1,85 +1,235 @@
 {
-  "date": "2026-11-20",
-  "generated_at": "2026-11-20T16:39:05+03:00",
+  "date": "2026-11-21",
+  "generated_at": "2026-11-21T01:13:59+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы продемонстрировали падение, котировки нефти Brent и золота также снизились.",
+  "external_backdrop": "Американские фондовые индексы, нефть Brent и золото завершили торги существенным падением.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7175.83",
-      "change_pct": "-2.02%",
-      "as_of": "2026-11-19",
+      "value": "6910.39",
+      "change_pct": "-3.70%",
+      "as_of": "2026-11-20",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "23879.20",
-      "change_pct": "-2.25%",
-      "as_of": "2026-11-19",
+      "value": "22617.73",
+      "change_pct": "-5.28%",
+      "as_of": "2026-11-20",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "56436.65",
-      "change_pct": "-5.06%",
-      "as_of": "2026-11-20",
+      "value": "59444.21",
+      "change_pct": "+0.71%",
+      "as_of": "2026-11-19",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "22410.80",
-      "change_pct": "-1.89%",
-      "as_of": "2026-11-20",
+      "value": "22841.62",
+      "change_pct": "-1.95%",
+      "as_of": "2026-11-19",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "89.25",
-      "change_pct": "-2.97%",
+      "value": "89.87",
+      "change_pct": "-2.29%",
       "as_of": "2026-11-20",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3559.20",
-      "change_pct": "-3.43%",
+      "value": "3539.00",
+      "change_pct": "-3.98%",
       "as_of": "2026-11-20",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2341.46",
-      "change_pct": "-3.15%",
-      "as_of": "2026-11-20 16:39:01",
+      "value": "2354.40",
+      "change_pct": "-2.62%",
+      "as_of": "2026-11-20 23:50:02",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "900.29",
-      "change_pct": "-3.16%",
-      "as_of": "2026-11-20 16:39:02",
+      "value": "902.39",
+      "change_pct": "-2.93%",
+      "as_of": "2026-11-20 23:50:02",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "82.34",
-      "change_pct": "-0.29%",
-      "as_of": "2026-11-20 16:39:03",
+      "value": "81.69",
+      "change_pct": "-0.89%",
+      "as_of": "2026-11-20 23:54:58",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.24",
-      "change_pct": "+0.20%",
-      "as_of": "2026-11-20 16:39:04",
+      "value": "12.15",
+      "change_pct": "-0.55%",
+      "as_of": "2026-11-20 23:50:02",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "mts-dividends-buyback-2027",
-      "headline": "Совет директоров МТС рекомендовал дивиденды в 7 рублей и выкуп акций на 21,5 миллиарда рублей",
-      "context": "Выплаты за девять месяцев 2026 года обеспечат дивидендную доходность около 3,9%, а реализация программы обратного выкупа запланирована на первый квартал 2027 года.",
+      "id": "sec-nvidia-investigation",
+      "headline": "SEC начала расследование в отношении Nvidia из-за возможных нарушений в бухгалтерском учете",
+      "context": "Акции компании упали на премаркете более чем на 10% на фоне сообщений о проверке регулятора.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/394308"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1377684.php"
+        }
+      ],
+      "published_at": "2026-11-20T22:16:00+03:00"
+    },
+    {
+      "id": "trump-ukraine-diplomacy",
+      "headline": "Дональд Трамп заявил о стремлении Владимира Путина завершить конфликт на Украине путем переговоров",
+      "context": "Президент США отметил успешный ход консультаций и желание достичь соглашения до января.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6afff5d7e8791267474bdbef"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126684"
+        }
+      ],
+      "published_at": "2026-11-20T21:47:00+03:00"
+    },
+    {
+      "id": "mgkl-default-28-coupon",
+      "headline": "Московская биржа зафиксировала дефолт МГКЛ по невыплате купона по облигациям серии 001Р-06",
+      "context": "Эмитент не перечислил 9,45 млн рублей в счет выплаты 28-го купонного дохода.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1377660.php"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/if_market_news/87153"
+        }
+      ],
+      "published_at": "2026-11-20T21:43:00+03:00"
+    },
+    {
+      "id": "minenergo-kerosene-export",
+      "headline": "Минэнерго России подготовило документы для возможного возобновления экспорта авиакеросина",
+      "context": "Решение будет приниматься правительством с учетом складывающегося топливного баланса.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/rbcfreenews/6a1d3cb19a79472d355b1c4a"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126651"
+        }
+      ],
+      "published_at": "2026-11-20T20:37:00+03:00"
+    },
+    {
+      "id": "ormuz-straits-tankers-attacked",
+      "headline": "Шесть нефтяных танкеров подверглись атакам в районе Ормузского пролива за последнюю неделю",
+      "context": "Об инцидентах в акватории сообщило Управление морских торговых операций Великобритании.",
+      "category": "geopolitics",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/381421"
+        }
+      ],
+      "published_at": "2026-11-21T00:59:00+03:00"
+    },
+    {
+      "id": "gta-vi-record-sales",
+      "headline": "Продажи видеоигры Grand Theft Auto VI в первый день достигли 3,79 миллиарда долларов",
+      "context": "Издатель Take-Two Interactive сообщил о рекордных стартовых продажах в 32,5 млн копий.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126700"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/394314"
+        }
+      ],
+      "published_at": "2026-11-21T00:03:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "kristall-bond-technical-default",
+      "headline": "Калужский завод Кристалл допустил технический дефолт по купонам двух выпусков облигаций",
+      "context": "Компания не выплатила купонный доход на общую сумму 8,8 млн рублей из-за реструктуризации долга.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126438"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://t.me/if_market_news/87142"
+        }
+      ],
+      "published_at": "2026-11-20T15:44:00+03:00"
+    },
+    {
+      "id": "cbr-osago-tariff-corridor",
+      "headline": "Банк России предложил снизить нижнюю границу тарифного коридора ОСАГО до одного рубля",
+      "context": "Верхняя граница базового тарифа для обычных автовладельцев при этом вырастет на 20%.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9114422"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/20/1413637-tsb-predlozhil-snizit"
+        }
+      ],
+      "published_at": "2026-11-20T11:19:00+03:00"
+    },
+    {
+      "id": "mts-dividends-and-buyback",
+      "headline": "Совет директоров МТС рекомендовал дивиденды за девять месяцев и байбэк на 2027 год",
+      "context": "Выплата составит 7 рублей на акцию, а объем программы обратного выкупа — до 21,5 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -87,29 +237,128 @@
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9114324"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/394181"
         }
       ],
-      "published_at": "2026-11-20T09:14:00+03:00"
+      "published_at": "2026-11-20T09:29:00+03:00"
     },
     {
-      "id": "klvz-kristall-tech-default",
-      "headline": "Калужский ликеро-водочный завод Кристалл допустил технический дефолт по двум выпускам облигаций",
-      "context": "Эмитент не выплатил купонный доход на сумму 8,8 млн рублей из-за отсутствия средств на расчетном счете в процессе комплексной реструктуризации долга.",
+      "id": "europlan-q3-dividends",
+      "headline": "Совет директоров Европлана рекомендовал дивиденды в размере 87 рублей на акцию за девять месяцев",
+      "context": "Чистая прибыль лизинговой компании за третий квартал выросла в 2,6 раза до 2,8 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Mozgovik Research",
+          "url": "https://t.me/mozgovikresearch/4021"
+        }
+      ],
+      "published_at": "2026-11-20T08:38:00+03:00"
+    },
+    {
+      "id": "vk-lawsuit-against-apple",
+      "headline": "VK подала иск к компаниям группы Apple в Арбитражный суд Москвы на 31 миллион евро",
+      "context": "Холдинг требует взыскать средства пользователей за покупки в App Store, не переведенные разработчику.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://www.interfax.ru/business/1130487"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126517"
+        }
+      ],
+      "published_at": "2026-11-20T17:24:00+03:00"
+    },
+    {
+      "id": "cian-9m-dividends-approved",
+      "headline": "Акционеры сервиса ЦИАН утвердили выплату дивидендов за девять месяцев в размере 33 рублей",
+      "context": "Дата закрытия реестра для получения выплат назначена на 30 ноября.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126444"
+          "url": "https://www.kommersant.ru/doc/9126424"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/394248"
         }
       ],
-      "published_at": "2026-11-20T15:44:00+03:00"
+      "published_at": "2026-11-20T15:28:00+03:00"
     },
     {
-      "id": "bspb-9m-2026-msfo-results",
-      "headline": "Чистая прибыль банка Санкт-Петербург по МСФО упала на 27,8% за девять месяцев",
-      "context": "За отчетный период финансовая организация заработала 24,1 млрд рублей чистой прибыли против 33,4 млрд рублей годом ранее.",
+      "id": "estonia-closes-russian-border",
+      "headline": "Эстония приняла решение полностью закрыть все автомобильные пункты пропуска на границе с Россией",
+      "context": "Ограничения вступят в силу с 1 декабря 2026 года сроком минимум на шесть месяцев.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9126250"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/politics/news/2026/11/20/1413734-estoniya-zakroet"
+        }
+      ],
+      "published_at": "2026-11-20T13:35:00+03:00"
+    },
+    {
+      "id": "wildberries-pif-shareholders",
+      "headline": "Два закрытых паевых инвестиционных фонда получили 30% долей в компании РВБ",
+      "context": "Фонды Томь и Гало вошли в состав соучредителей объединенной компании Wildberries и Russ.",
+      "category": "corporate",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317301"
+        },
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/381307"
+        }
+      ],
+      "published_at": "2026-11-20T13:09:00+03:00"
+    },
+    {
+      "id": "sovcomflot-9m-results",
+      "headline": "Совкомфлот получил 396 миллионов долларов чистой прибыли за девять месяцев 2026 года",
+      "context": "Компания подтвердила план по выплате дивидендов на уровне не менее 50% от скорректированной прибыли.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413657-sovkomflot-poluchil-pribili"
+        },
+        {
+          "name": "MarketTwits",
+          "url": "https://t.me/markettwits/394194"
+        }
+      ],
+      "published_at": "2026-11-20T11:41:00+03:00"
+    },
+    {
+      "id": "bspb-q3-msfo-profit",
+      "headline": "Чистая прибыль Банка Санкт-Петербург за девять месяцев снизилась на 27,8% по МСФО",
+      "context": "Показатель составил 24,1 млрд рублей на фоне сокращения процентных доходов.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 4,
@@ -117,228 +366,20 @@
         {
           "name": "Ведомости",
           "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413640-pribil-banka"
+        },
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317265"
         }
       ],
       "published_at": "2026-11-20T11:17:00+03:00"
-    },
-    {
-      "id": "cbr-osago-tariff-corridor",
-      "headline": "Банк России предложил снизить нижнюю границу тарифа ОСАГО до одного рубля",
-      "context": "Регулятор также предлагает повысить верхнюю границу базового тарифа на 20% для автовладельцев и на 35% для юридических лиц и такси.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/11/20/1413637-tsb-predlozhil-snizit"
-        }
-      ],
-      "published_at": "2026-11-20T11:12:00+03:00"
-    },
-    {
-      "id": "sovcomflot-9m-2026-financial-results",
-      "headline": "Совкомфлот зафиксировал чистую прибыль в 396 миллионов долларов за девять месяцев",
-      "context": "Выручка компании на основе тайм-чартерного эквивалента выросла на 65% до 1,26 млрд долларов, подтверждена цель по выплате дивидендов не менее 50% от скорректированной прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://t.me/interfax_news/381248"
-        }
-      ],
-      "published_at": "2026-11-20T10:04:00+03:00"
-    },
-    {
-      "id": "estonia-closes-border-crossings-russia",
-      "headline": "Эстония решит закрыть все автомобильные пункты пропуска на границе с Россией",
-      "context": "Ограничение вступит в силу с 1 декабря 2026 года и затронет КПП Нарва-1, Нарва-2, Койдула, Лухамаа и Саатсе.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126250"
-        }
-      ],
-      "published_at": "2026-11-20T13:16:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "cbr-inflation-expectations-november-2026",
-      "headline": "Инфляционные ожидания населения России в ноябре выросли до 13,5%",
-      "context": "Согласно опросу ЦБ, показатель увеличился с 13,2% в октябре на фоне роста цен на моторное топливо.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/394073"
-        }
-      ],
-      "published_at": "2026-11-19T15:26:00+03:00"
-    },
-    {
-      "id": "russia-us-china-summit-shenzhen",
-      "headline": "Лидеры России США и Китая приняли совместную декларацию о мире в Шэньчжэне",
-      "context": "Стороны подтвердили отсутствие победителей в ядерной войне, договорились о снижении ядерных рисков и наращивании поставок продуктов нефтепереработки.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113683"
-        }
-      ],
-      "published_at": "2026-11-19T13:51:00+03:00"
-    },
-    {
-      "id": "cbr-tremasov-key-rate-hike-possibility",
-      "headline": "Советник главы Банка России допустил повышение ключевой ставки при сохранении инфляции",
-      "context": "Кирилл Тремасов отметил, что базовый сценарий регулятора закладывает снижение ставки, но при отсутствии замедления роста цен возможно ее повышение.",
-      "category": "cb_policy",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113305"
-        }
-      ],
-      "published_at": "2026-11-19T10:00:00+03:00"
-    },
-    {
-      "id": "cbr-banking-sector-profit-forecast-2026",
-      "headline": "Банк России повысил прогноз по чистой прибыли банковского сектора до 4,9 трлн рублей",
-      "context": "Пересмотр оценки с прежних 3,9-4,4 трлн рублей связан с ожиданиями более высокой чистой процентной маржи на уровне 5,2-5,3%.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/317235"
-        }
-      ],
-      "published_at": "2026-11-19T18:45:00+03:00"
-    },
-    {
-      "id": "us-ofac-extends-lukoil-license",
-      "headline": "Минфин США продлил разрешение на переговоры о продаже зарубежных активов ЛУКОЙЛа",
-      "context": "Управление по контролю за иностранными активами продлило действие генеральной лицензии до 19 декабря 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9114019"
-        }
-      ],
-      "published_at": "2026-11-19T17:53:00+03:00"
-    },
-    {
-      "id": "duma-approved-ndpi-tax-deductions",
-      "headline": "Госдума одобрила во втором чтении налоговые поправки по НДПИ для нефтегазового сектора",
-      "context": "Продлен нулевой НДПИ для Ямал СПГ, перенесен на пять лет вычет для зрелых месторождений и одобрен вычет для Восток Ойл.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "MarketTwits",
-          "url": "https://t.me/markettwits/394079"
-        }
-      ],
-      "published_at": "2026-11-19T15:39:00+03:00"
-    },
-    {
-      "id": "state-budget-2027-2029-second-reading",
-      "headline": "Госдума приняла во втором чтении проект федерального бюджета на 2027-2029 годы",
-      "context": "Документ предполагает перераспределение средств без изменения общих параметров доходов и расходов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113722"
-        }
-      ],
-      "published_at": "2026-11-19T14:15:00+03:00"
-    },
-    {
-      "id": "mgkl-bonds-coupon-default-shares-drop",
-      "headline": "ПАО МГКЛ допустило дефолт по купону облигаций на 20,14 миллиона рублей",
-      "context": "Московская биржа запускала дискретный аукцион по акциям эмитента, падение котировок от цены IPO 2023 года достигло 92%.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "IF Market News",
-          "url": "https://t.me/if_market_news/87054"
-        }
-      ],
-      "published_at": "2026-11-19T10:12:00+03:00"
-    },
-    {
-      "id": "europlan-9m-2026-dividends-recommendation",
-      "headline": "Совет директоров Европлана рекомендовал дивиденды в 87 рублей на акцию",
-      "context": "Чистая прибыль автолизинговой компании по МСФО за девять месяцев 2026 года выросла в 2,4 раза до 7,1 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/316961"
-        }
-      ],
-      "published_at": "2026-11-19T10:07:00+03:00"
-    },
-    {
-      "id": "segezha-3q-2026-msfo-loss-reduction",
-      "headline": "Segezha Group сократила чистый убыток по МСФО в третьем квартале на 32%",
-      "context": "Убыток лесопромышленного холдинга составил 7,06 млрд рублей против более высоких показателей аналогичного периода прошлого года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9113572"
-        }
-      ],
-      "published_at": "2026-11-19T13:18:00+03:00"
-    },
-    {
-      "id": "mts-bank-9m-2026-financial-results",
-      "headline": "Чистая прибыль МТС-Банка за девять месяцев выросла на 28% до 12,1 миллиарда рублей",
-      "context": "В третьем квартале показатель снизился на 18% до 4,9 млрд рублей, а чистые процентные доходы с начала года увеличились на 39%.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://t.me/frank_media/24813"
-        }
-      ],
-      "published_at": "2026-11-19T10:57:00+03:00"
     }
   ],
   "today_agenda": [],
   "briefing": {
-    "kind": "intraday",
-    "title": "Сводка к текущей сессии",
-    "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-19"
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-11-20"
   }
 }
