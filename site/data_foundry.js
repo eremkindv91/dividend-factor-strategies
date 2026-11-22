@@ -30,7 +30,7 @@
   let snapshot = null, loading = null, loadFailed = false;
   function load() {
     if (snapshot) return Promise.resolve(snapshot);
-    if (!loading) loading = fetch('data_foundry_summary.json', {cache: 'no-store'}).then(response => {
+    if (!loading) loading = fetch('data_foundry.json', {cache: 'no-store'}).then(response => {
       if (!response.ok) throw new Error('HTTP ' + response.status);
       return response.json();
     }).then(data => {
@@ -53,7 +53,7 @@
     const company = snapshot.companies.find(c => c.ticker === ticker);
     if (!company || !(company.fact_count ?? company.facts.length)) return '<span class="foundry-coverage-badge is-missing" title="Отсутствие в этом наборе не означает отсутствия отчётности компании. Другие источники показаны в подробностях.">Data Foundry: нет принятых значений</span>';
     const end = company.latest_report_end || company.facts.map(f => f.period.end).sort().pop();
-    return `<span class="foundry-coverage-badge is-covered" title="Есть принятые факты, но полнота последней отчётности и качество модельной оценки проверяются отдельно.">Data Foundry: есть данные · период до ${escape(end)}</span>`;
+    return `<span class="foundry-coverage-badge is-covered" title="Есть принятые факты, но полнота последней отчётности и качество модельной оценки проверяются отдельно.">Data Foundry: есть данные${end ? ' · период до ' + escape(end) : ''}</span>`;
   }
   function renderCoverageSummary() {
     if (typeof document === 'undefined') return;
@@ -79,7 +79,7 @@
     const fmt = v => v.toLocaleString('ru-RU', {maximumFractionDigits: 3});
     if (/^[A-Z]{3}$/.test(unit) || unit === 'currency') return {value:fmt(n / 1e6), unit:'млн ' + (f.currency || unit)};
     if (unit === 'percent') return {value:fmt(n), unit:'%'};
-    if (['multiple','times'].includes(unit)) return {value:fmt(n), unit:'×'};
+    if (['multiple','times','x'].includes(unit)) return {value:fmt(n), unit:'×'};
     if (unit.endsWith('_per_share')) return {value:fmt(n), unit:unit.replace('_per_share',' / акция')};
     return {value:fmt(n), unit:({shares:'акций', count:'шт.', ratio:'доля'}[unit] || unit)};
   }
@@ -113,9 +113,35 @@
   }
   function reportHTML(ticker) {
     const company = snapshot && snapshot.companies.find(c => c.ticker === ticker);
-    if (!company || !company.facts.length) return '';
+    if (!company || !(company.fact_count ?? company.facts.length)) return '';
+    if (!company.facts.length) return `<div data-foundry-detail="${escape(ticker)}">Загрузка всех показателей Data Foundry…</div>`;
     const facts = [...company.facts].sort((a,b) => (snapshot.metrics[a.metric_code] || a.metric_code).localeCompare(snapshot.metrics[b.metric_code] || b.metric_code,'ru') || b.period.end.localeCompare(a.period.end));
     return `<div class="foundry-card"><b>Все доступные показатели Data Foundry · ${facts.length} значений</b><p>Последние доступные наблюдения каждого показателя и варианта отчётности. Валюты, периоды и периметры различаются — они подписаны у значений. База опубликована ${escape(day(snapshot.dataset.published_at))}.</p>${factTable(facts,snapshot)}</div>`;
+  }
+  const detailCache = new Map();
+  async function loadCompany(ticker) {
+    if (!detailCache.has(ticker)) {
+      const response = await fetch('data_foundry/companies/' + encodeURIComponent(ticker) + '.json', {cache:'no-store'});
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const payload = await response.json();
+      if (!snapshot || payload.dataset.version !== snapshot.dataset.version) throw new Error('Разные версии данных');
+      detailCache.set(ticker,payload);
+    }
+    const payload = detailCache.get(ticker);
+    const company = snapshot.companies.find(c => c.ticker === ticker);
+    if (company) company.facts = latestFacts(payload.company.facts);
+    Object.assign(snapshot.evidence,payload.evidence);
+    return payload;
+  }
+  function fillReports(element, ticker) {
+    if (!element.querySelector('[data-foundry-detail]')) return;
+    loadCompany(ticker).then(() => {
+      const slot = element.querySelector('[data-foundry-detail]');
+      if (slot) slot.outerHTML = reportHTML(ticker);
+    }).catch(() => {
+      const slot = element.querySelector('[data-foundry-detail]');
+      if (slot) slot.textContent = 'Показатели Data Foundry временно недоступны. Повторите открытие карточки.';
+    });
   }
   function mount() {
     const panel = document.getElementById('foundry-panel');
@@ -182,7 +208,7 @@
       }
     });
   }
-  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML, formatFact, latestFacts };
+  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML, formatFact, latestFacts, fillReports };
   if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl, load, reportHTML, coverageHTML, formatFact, latestFacts };
   if (typeof document !== 'undefined') mount();
 })(typeof window !== 'undefined' ? window : globalThis);

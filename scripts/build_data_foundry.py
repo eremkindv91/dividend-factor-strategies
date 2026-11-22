@@ -222,6 +222,8 @@ def build_from_database(tickers, output, database=None):
     connection.close()
     if not accepted:
         raise ValueError('Empty accepted import; previous file preserved')
+    used_codes = {f['metric_code'] for f in accepted}
+    names = {code: label for code, label in names.items() if code in used_codes}
     result = {'schema_version': 1, 'dataset': dataset, 'metrics': names,
         'meta': {'fetched_at': datetime.now(timezone.utc).isoformat(), 'source': ENDPOINT,
                  'requested_companies': len(tickers), 'covered_companies': sum(bool(c['facts']) for c in companies),
@@ -285,7 +287,8 @@ def partition_snapshot(data, output):
             raise ValueError(f'Company payload too large: {ticker}')
         temporary.replace(target)
         companies.append({**{k: v for k, v in company.items() if k != 'facts'},
-                          'facts': [], 'fact_count': len(company['facts'])})
+                          'facts': [], 'fact_count': len(company['facts']),
+                          'latest_report_end': max((f['period']['end'] for f in company['facts']), default=None)})
     index = {**data, 'companies': companies, 'evidence': {}, 'is_index': True}
     temporary = output.with_suffix('.tmp')
     temporary.write_text(json.dumps(index, ensure_ascii=False, separators=(',', ':')) + '\n')

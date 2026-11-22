@@ -952,6 +952,7 @@ function toggleDetail(tr, t) {
     <div class="detail-card"><h4>Детали и флаги</h4>${detailKV(t)}</div>
   </div></td>`;
   tr.after(dr);
+  if (window.DataFoundryUI) window.DataFoundryUI.fillReports(dr, t.ticker);
   wireCharts(dr);
   wireStockChart(dr, t.ticker);
 }
@@ -987,6 +988,7 @@ function renderCards() {
     const t = SHOWN[+this.dataset.i];
     box.innerHTML = stockDetailSummaryHTML(t) + stockPriceChartHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
     box.dataset.filled = '1';
+    if (window.DataFoundryUI) window.DataFoundryUI.fillReports(box, t.ticker);
     wireCharts(box);
     wireStockChart(box, t.ticker);
   }));
