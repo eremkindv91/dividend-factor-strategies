@@ -253,6 +253,26 @@
     });
   }
 
+  function maturityMatrix(rows) {
+    const buckets = new Map();
+    for (const row of rows) {
+      if (!row.bond_safety?.ytmConfirmed || row.bond_safety.reasonCodes.includes('STALE_PRICE')
+        || row.has_put_offer || row.has_call || row.cashflows_deterministic !== true
+        || !finite(row.ytm_net_est_pct) || !finite(row.years_to_maturity) || row.years_to_maturity <= 0) continue;
+      const grade = row.instrument_type === 'ofz' ? 'ОФЗ' : row.rating_group || 'Без рейтинга';
+      const term = [1, 3, 5, Infinity].findIndex(limit => row.years_to_maturity <= limit);
+      const key = grade + '/' + term;
+      if (!buckets.has(key)) buckets.set(key, { grade, term, rows: [] });
+      buckets.get(key).rows.push(row);
+    }
+    for (const cell of buckets.values()) {
+      const yields = cell.rows.map(row => Number(row.ytm_net_est_pct)).sort((a,b) => a-b);
+      const mid = Math.floor(yields.length / 2);
+      cell.median = yields.length % 2 ? yields[mid] : (yields[mid-1] + yields[mid]) / 2;
+    }
+    return buckets;
+  }
+
   function priceFreshness(rows, asOf = new Date().toISOString()) {
     const dates = (rows || []).map((r) => isoDay(r.source_dates && r.source_dates.price)).filter(Boolean).sort();
     const stale = (rows || []).filter((r) => {
@@ -570,7 +590,7 @@
 
   return Object.freeze({
     SCHEMA_VERSION, STORAGE_KEY, SETTINGS_KEY, BOND_SAFETY_CONFIG, REASON_LABELS, RATING_SCALE,
-    ratingRank, liquidity, classifyBond, classifyUniverse, filterRows, priceFreshness, weightedMetric, coverage, purchaseBreakdown,
+    ratingRank, liquidity, classifyBond, classifyUniverse, filterRows, maturityMatrix, priceFreshness, weightedMetric, coverage, purchaseBreakdown,
     parsePortfolioText, resolvePortfolio, savePortfolio, loadPortfolio, clearPortfolio,
     saveSettings, loadSettings, reconcile, cashflowSchedule, concentration, stress,
     findAlternatives, alerts,

@@ -4494,3 +4494,21 @@ body.has-chart-fullscreen { overflow: hidden; }
   .bond-budget-summary > div:nth-child(n+3) { border-top: 1px solid var(--line); }
   .bondlab-coupons { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+.issuer-group, .issuer-report-link { grid-column: 1/-1; min-width: 0; }
+.issuer-group { padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.issuer-group > summary { padding: 12px 0; cursor: pointer; font-weight: 650; }
+.issuer-group > div { padding-bottom: 14px; overflow-x: auto; }
+.issuer-report-link { display: inline-block; padding: 10px 0; }
+.bond-matrix, .bond-compare { margin: 16px 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); min-width: 0; }
+.bond-matrix h3, .bond-compare h3 { margin: 0 0 8px; }
+.bond-matrix p, .bond-matrix small { color: var(--ink-soft); font-size: .82rem; }
+.matrix-scroll { overflow: auto; margin: 12px 0; }
+.matrix-scroll table { border-spacing: 4px; width: 100%; font-variant-numeric: tabular-nums; }
+.matrix-scroll th { font-size: .8rem; text-align: center; }
+.matrix-scroll button { width: 100%; min-width: 76px; min-height: 50px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; color: var(--ink); background: color-mix(in srgb, #6596b8 var(--shade), var(--surface)); }
+.matrix-scroll button small { display: block; }
+.matrix-scroll button[aria-pressed=true] { outline: 2px solid var(--accent-deep); outline-offset: -2px; }
+.matrix-empty { text-align: center; color: var(--ink-soft); }
+.compare-check { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-size: .8rem; }
+#bond-matrix-results { scroll-margin-top: 110px; }

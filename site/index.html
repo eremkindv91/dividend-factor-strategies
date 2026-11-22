@@ -56,7 +56,7 @@
         <!-- Вкладки раздела: «Новости» перестали быть отдельным пунктом меню — они
              отвечают на вопрос «что произошло» внутри «Обзора», а не рядом с ним.
              Названия — «Сводка» и «Новости»: «Обзор» внутри «Обзора» было бы тавтологией. -->
-        <a class="foundry-entry" href="#stocks"><strong>Финансовые показатели компаний →</strong><span>Выручка, прибыль, денежные потоки, долг и рентабельность — с историей и источниками. Открыть отчётность в разделе «Акции».</span></a>
+        <a class="foundry-entry" href="#stocks?tab=reports"><strong>Финансовые показатели компаний →</strong><span>Выручка, прибыль, денежные потоки, долг и рентабельность — с историей и источниками. Открыть отчётность в разделе «Акции».</span></a>
         <div class="section-subtabs" role="tablist" aria-label="Разделы обзора">
           <button type="button" role="tab" data-subtab="market:summary" id="tab-market-summary"
             aria-controls="market-summary-panel" aria-selected="true" class="active">Сводка</button>
@@ -201,17 +201,13 @@
         <div class="section-subtabs" role="tablist" aria-label="Разделы акций">
           <button type="button" role="tab" data-subtab="stocks:screener" id="tab-stocks-screener"
             aria-controls="stocks-screener-panel" aria-selected="true" class="active">Скринер</button>
+          <button type="button" role="tab" data-subtab="stocks:reports" id="tab-stocks-reports" aria-controls="stocks-reports-panel" aria-selected="false" tabindex="-1">Отчётность</button>
           <button type="button" role="tab" data-subtab="stocks:banks" id="tab-stocks-banks"
             aria-controls="stocks-banks-panel" aria-selected="false" tabindex="-1">Банки РФ</button>
         </div>
 
         <div class="section-panel" id="stocks-screener-panel" role="tabpanel"
           aria-labelledby="tab-stocks-screener">
-        <details class="foundry-panel" id="foundry-panel" open><summary>Финансовые показатели компаний · Data Foundry</summary><div id="foundry-body" aria-live="polite"><p>Загрузка финансовых показателей…</p></div></details>
-<div id="foundry-coverage-summary" class="foundry-coverage-summary" role="status" hidden></div>
-<div id="data-freshness-notice" class="data-freshness-notice" role="status" hidden></div>
-<div class="dates" id="dates"></div>
-
         <div class="controls" id="controls" hidden>
           <input aria-label="Поиск по тикеру или названию" type="search" id="search" placeholder="Поиск по тикеру или названию…" autocomplete="off">
           <span class="count" id="count"></span>
@@ -229,6 +225,8 @@
           </div></details>
         </div>
 
+<div id="data-freshness-notice" class="data-freshness-notice" role="status" hidden></div>
+<div class="dates" id="dates"></div>
         <div class="stock-toolbar">
           <div class="stock-view-toggle" id="stock-view-toggle" role="group" aria-label="Вид списка">
             <button class="stock-view-btn" type="button" data-view="table" aria-pressed="true" title="Таблица">Таблица</button>
@@ -254,6 +252,10 @@
 
         </div>
 
+        <div class="section-panel" id="stocks-reports-panel" role="tabpanel" aria-labelledby="tab-stocks-reports" hidden>
+        <details class="foundry-panel" id="foundry-panel"><summary>Финансовые показатели компаний · Data Foundry</summary><div id="foundry-body" aria-live="polite"><p>Загрузка отчётности…</p></div></details>
+<div id="foundry-coverage-summary" class="foundry-coverage-summary" role="status" hidden></div>
+        </div>
         <div class="section-panel" id="stocks-banks-panel" role="tabpanel"
           aria-labelledby="tab-stocks-banks" hidden>
 

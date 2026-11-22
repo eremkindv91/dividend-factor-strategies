@@ -61,12 +61,8 @@
     if (!el || !snapshot) return;
     const {covered_companies: count, requested_companies: total, fetched_at: fetched} = snapshot.meta;
     el.hidden = false;
-    el.innerHTML = `<b>Данные Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
-      + 'Покрытие источника не означает полноту последней отчётности. <button type="button">Посмотреть источники</button>';
-    el.querySelector('button').addEventListener('click', () => {
-      const panel = document.getElementById('foundry-panel');
-      if (panel) { panel.open = true; panel.scrollIntoView({block:'start', behavior:'auto'}); }
-    });
+    el.textContent = `Источник: Data Foundry · покрытие ${count} из ${total} бумаг · импорт ${day(fetched)}`;
+
   }
   function scopeLabel(f) {
     const basis = {IFRS:'МСФО', RAS:'РСБУ', US_GAAP:'US GAAP', APM:'Управленческий / расчётный'}[f.accounting_basis] || f.accounting_basis || 'стандарт н/д';
@@ -159,19 +155,24 @@
         const meta = data.meta, dataset = data.dataset;
         body.innerHTML = `<p>Покрытие: <b>${escape(meta.covered_companies)} из ${escape(meta.requested_companies)}</b> бумаг. `
           + `Публикация базы: ${escape(day(dataset.published_at) || 'н/д')}. Загрузка: ${escape(day(meta.fetched_at))}.</p>`
-          + `<p class="muted">Все доступные проверенные показатели: отчётность, денежные потоки, долг, рентабельность, мультипликаторы и отраслевые метрики. Единицы, валюта и периметр указаны отдельно. Витрина поставщика обновляется вручную; наличие последнего отчёта не гарантировано. Этот слой пока не заменяет входы ML и оценки стоимости.</p>`
+          + `<p class="muted">Выберите компанию и показатель. У каждой строки указаны период, единицы и источник. Поставщик может опубликовать отчёт с задержкой.</p>`
           + `<label for="foundry-company">Компания</label> <select id="foundry-company">${data.companies.map(c => `<option value="${escape(c.ticker)}">${escape(c.ticker)} · ${escape(c.name || 'нет покрытия')}</option>`).join('')}</select>`
-          + `<label for="foundry-metric">Показатель</label> <select id="foundry-metric"><option value="">Все показатели</option>${Object.entries(data.metrics).map(([code,name]) => `<option value="${escape(code)}">${escape(name)}</option>`).join('')}</select>`
+          + `<label for="foundry-metric">Показатель</label> <select id="foundry-metric"><option value="">Все показатели</option></select>`
           + '<label class="foundry-latest-label"><input type="checkbox" id="foundry-latest" checked> Последние доступные значения (снять для истории)</label><div id="foundry-facts" aria-live="polite"></div>';
         const select = document.getElementById('foundry-company');
         const metric = document.getElementById('foundry-metric');
         const latest = document.getElementById('foundry-latest');
+        let metricTicker = '';
         let renderVersion = 0;
         const companyCache = new Map();
         const render = async () => {
           const version = ++renderVersion;
           let company = data.companies.find(c => c.ticker === select.value);
           const out = document.getElementById('foundry-facts');
+          if (metricTicker !== select.value) {
+            metric.innerHTML = '<option value="">Все показатели</option>';
+            metricTicker = '';
+          }
           if (!company || !(company.fact_count ?? company.facts.length)) { out.innerHTML = '<p>Нет принятых сопоставимых значений в запрошенных периодах. Это не нулевая выручка или прибыль.</p>'; return; }
           let detailData = data;
           if (data.is_index) {
@@ -194,14 +195,26 @@
               return;
             }
           }
+          if (metricTicker !== select.value) {
+            const codes = Array.from(new Set(company.facts.map(f => f.metric_code)));
+            codes.sort((a,b) => (data.metrics[a] || a).localeCompare(data.metrics[b] || b,'ru'));
+            for (const code of codes) metric.add(new Option(data.metrics[code] || code, code));
+            metricTicker = select.value;
+          }
           let facts = company.facts.filter(f => !metric.value || f.metric_code === metric.value);
           if (latest.checked) facts = latestFacts(facts);
           facts.sort((a,b) => (data.metrics[a.metric_code] || a.metric_code).localeCompare(data.metrics[b.metric_code] || b.metric_code,'ru') || b.period.end.localeCompare(a.period.end));
           if (!facts.length) { out.innerHTML = '<p>Этот показатель не покрыт принятым набором.</p>'; return; }
           out.innerHTML = `<p>Показано ${facts.length} значений. Периоды, стандарты и валюты могут различаться.</p>` + factTable(facts,detailData,true);
         };
-        if (data.companies.some(c => c.ticker === 'WUSH')) select.value = 'WUSH';
-        select.addEventListener('change', render); metric.addEventListener('change', render); latest.addEventListener('change', render); render();
+        const requested = new URLSearchParams(location.hash.split('?')[1] || '').get('issuer') || 'WUSH';
+        if (data.companies.some(c => c.ticker === requested)) select.value = requested;
+        select.addEventListener('change', () => {
+          const params = new URLSearchParams(location.hash.split('?')[1]);
+          params.set('issuer', select.value);
+          history.replaceState(null, '', '#stocks?' + params);
+          render();
+        }); metric.addEventListener('change', render); latest.addEventListener('change', render); render();
       } catch (e) {
         body.textContent = 'Отчётность Data Foundry недоступна. Данные других разделов сохранены. Повторите открытие панели для загрузки.';
         loaded = false;

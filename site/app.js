@@ -935,6 +935,17 @@ function dividendMetricsHTML(t) {
   </dl>`;
 }
 
+function issuerSectionsHTML(t) {
+  const group = (title, html) => `<details class="issuer-group"><summary>${title}</summary><div>${html}</div></details>`;
+  const reportLink = `<a class="issuer-report-link" href="#stocks?tab=reports&amp;issuer=${encodeURIComponent(t.ticker)}">Отчётность ${esc(t.ticker)} по периодам →</a>`;
+  return stockDetailSummaryHTML(t) + reportLink
+    + group('Цена и динамика торгов', stockPriceChartHTML(t))
+    + group('Дивиденды и прогноз выплат', dividendMetricsHTML(t))
+    + group('Оценка стоимости и сравнение с сектором', valuationHTML(t.valuation) + sectorPercentilesHTML(t))
+    + group('Финансовые показатели компании', fundamentalsOrHistoryHTML(t))
+    + group('Факторы модели и качество данных', shapHTML(t) + detailKV(t));
+}
+
 function toggleDetail(tr, t) {
   const next = tr.nextElementSibling;
   if (next && next.classList.contains('detail-row')) { next.remove(); return; }
@@ -942,14 +953,7 @@ function toggleDetail(tr, t) {
   const dr = document.createElement('tr');
   dr.className = 'detail-row';
   dr.innerHTML = `<td colspan="${COLS.length}"><div class="detail detail-investor">
-    ${stockDetailSummaryHTML(t)}
-    ${stockPriceChartHTML(t)}
-    <div class="detail-card"><h4>Оценка стоимости</h4>${valuationHTML(t.valuation)}</div>
-    <div class="detail-card"><h4>Дивидендные метрики</h4>${dividendMetricsHTML(t)}</div>
-    <div class="detail-card"><h4>Позиция в секторе</h4>${sectorPercentilesHTML(t)}</div>
-    <div class="detail-card"><h4>Фундаментальные показатели</h4>${fundamentalsOrHistoryHTML(t)}</div>
-    <div class="detail-card"><h4>Ключевые факторы (SHAP)</h4>${shapHTML(t)}</div>
-    <div class="detail-card"><h4>Детали и флаги</h4>${detailKV(t)}</div>
+    ${issuerSectionsHTML(t)}
   </div></td>`;
   tr.after(dr);
   if (window.DataFoundryUI) window.DataFoundryUI.fillReports(dr, t.ticker);
@@ -975,7 +979,7 @@ function renderCards() {
         <div><span class="lbl">Payout</span><span class="tnum">${isNum(t.payout) ? ru(t.payout,1)+'%' : mdash}</span></div>
         <div><span class="lbl">Статус</span>${statusChip}</div>
       </div>
-      <details data-i="${i}"><summary>Оценка, динамика и факторы</summary>
+      <details data-i="${i}"><summary>Карточка компании</summary>
         <div class="card-detail" style="margin-top:8px"></div>
       </details>
     </div>`;
@@ -986,7 +990,7 @@ function renderCards() {
     const box = this.querySelector('.card-detail');
     if (!box || box.dataset.filled) return;
     const t = SHOWN[+this.dataset.i];
-    box.innerHTML = stockDetailSummaryHTML(t) + stockPriceChartHTML(t) + dividendMetricsHTML(t) + valuationHTML(t.valuation) + sectorPercentilesHTML(t) + fundamentalsOrHistoryHTML(t) + shapHTML(t) + detailKV(t);
+    box.innerHTML = issuerSectionsHTML(t);
     box.dataset.filled = '1';
     if (window.DataFoundryUI) window.DataFoundryUI.fillReports(box, t.ticker);
     wireCharts(box);
@@ -5636,6 +5640,9 @@ let BOND_USER_PORTFOLIO = [];
 let BOND_USER_IMPORT_ERRORS = [];
 let BOND_REBALANCE_MODE = 'full';
 let BOND_COMPARE_SECIDS = [];
+let bondMatrixSelection = '';
+let bondListLimit = 50;
+const bondTermLabels = ['До 1 года', 'Свыше 1 до 3 лет', 'Свыше 3 до 5 лет', 'Свыше 5 лет'];
 // Пользовательские настройки расчёта. Поднимаются из localStorage при загрузке раздела и
 // РЕАЛЬНО участвуют в расчётах: налог идёт в денежный календарь, комиссия и проскальзывание —
 // в стоимость покупки и ребаланс, порог сделки и no-trade band — в подбор сделок.
@@ -5786,6 +5793,7 @@ function wireBonds() {
     const tab = event.target.closest('[data-bondlab-tab]');
     if (!tab) return;
     BOND_LAB_TAB = tab.dataset.bondlabTab;
+    history.replaceState(null, '', BOND_LAB_TAB === 'screener' ? '#bonds?view=matrix' : '#bonds');
     drawBondLab();
   });
 }
@@ -6381,11 +6389,46 @@ function bondScreenerRows(universe) {
   });
 }
 
+function bondMatrixHTML(cells, total) {
+  const grades = [...new Set([...cells.values()].map(cell => cell.grade))];
+  const priority = ['ОФЗ','AAA','AA','A','BBB','Без рейтинга'];
+  grades.sort((a,b) => priority.indexOf(a) - priority.indexOf(b));
+  const yields = [...cells.values()].map(cell => cell.median);
+  const low = Math.min(...yields), high = Math.max(...yields);
+  const count = [...cells.values()].reduce((sum,cell) => sum + cell.rows.length, 0);
+  const body = grades.map(grade => `<tr><th scope="row">${esc(grade)}</th>${bondTermLabels.map((term,i) => {
+    const key = grade + '/' + i, cell = cells.get(key);
+    if (!cell) return '<td class="matrix-empty">—</td>';
+    const shade = high > low ? (cell.median - low) / (high - low) : 0;
+    return `<td><button type="button" data-matrix-cell="${esc(key)}" aria-pressed="${key === bondMatrixSelection}" aria-label="${esc(grade)}, ${term}, ${cell.rows.length} вып." style="--shade:${Math.round(9 + 40 * shade)}%"><strong>${bondPct(cell.median,2)}</strong><small>${cell.rows.length} вып.</small></button></td>`;
+  }).join('')}</tr>`).join('');
+  return `<section class="bond-matrix"><h3>Доходность по рейтингу и сроку</h3><p>Медианная YTM после оценочного налога. Насыщенность цвета растёт вместе с доходностью. Выберите ячейку для просмотра выпусков.</p>
+    ${count ? `<div class="matrix-scroll"><table><thead><tr><th>Рейтинг</th>${bondTermLabels.map(term => `<th>${term}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>` : '<p>Для выбранных фильтров нет сопоставимых выпусков.</p>'}
+    <small>В матрице ${count} из ${total} найденных выпусков. Срок считается до погашения на дату среза. Включены бумаги с определёнными потоками и проверенной YTM, без оферт и call-опционов.</small></section>`;
+}
+
+function bondCompareHTML(all) {
+  const selected = BOND_COMPARE_SECIDS.map(id => all.find(r => r.secid === id)).filter(Boolean);
+  if (!selected.length) return '<p class="bonds-disc">Для сравнения отметьте до четырёх выпусков в списке.</p>';
+  const fields = [
+    ['YTM после налога', bondConfirmedYtmHTML], ['Лот с НКД',r => rub2(r.dirty_price_per_lot_rub)],
+    ['Дата цены',r => esc(shortIsoDate(r.source_dates?.price) || ND)],
+    ['Рейтинг',r => esc(r.instrument_type === 'ofz' ? 'ОФЗ' : r.rating || ND)],
+    ['Дюрация, лет',r => isNum(r.duration_value) ? ru(r.duration_value,2) : ND],
+    ['Погашение',r => esc(shortIsoDate(r.maturity_date) || ND)], ['Статус проверки',bondSafetyBadgeHTML],
+  ];
+  return `<section class="bond-compare"><h3>Сравнение выпусков · ${selected.length} из 4</h3><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Показатель</th>${selected.map(r => `<th>${bondOpenIdentityHTML(r)}<button class="btn" type="button" data-compare-issue="${esc(r.secid)}">Убрать</button></th>`).join('')}</tr></thead><tbody>${fields.map(([label,format]) => `<tr><th scope="row">${label}</th>${selected.map(r => `<td>${format(r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;
+}
+
 function bondUniverseScreenerHTML(universe) {
   if (!universe || !Array.isArray(universe.bonds)) return bondsErrorHTML();
   const all = universe.bonds;
   const safeCount = all.filter((row) => row.bond_safety && row.bond_safety.investable).length;
-  const rows = sortedBonds(bondScreenerRows(universe));
+  const filtered = bondScreenerRows(universe);
+  const cells = window.BondRetail.maturityMatrix(filtered);
+  if (!cells.has(bondMatrixSelection)) bondMatrixSelection = '';
+  const selectedCell = cells.get(bondMatrixSelection);
+  const rows = sortedBonds(selectedCell ? selectedCell.rows : filtered);
   const f = BOND_SCREEN_FILTERS;
   const риск = BOND_SCREEN_MODE === 'risk';
 
@@ -6443,10 +6486,10 @@ function bondUniverseScreenerHTML(universe) {
     bondSortHeaderHTML('freq', 'Выплат/год', 'Сколько раз в год платится купон: 12 — ежемесячно, 4 — ежеквартально, 2 — раз в полгода, 1 — раз в год. На доходность не влияет, влияет на регулярность денежного потока.'),
     bondSortHeaderHTML('maturity', 'Погашение'),
   ].join('');
-  const body = rows.slice(0, 100).map((row) => {
+  const body = rows.slice(0, bondListLimit).map((row) => {
     const liq = window.BondRetail ? window.BondRetail.liquidity(row) : {};
     return `<tr>
-      <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small>${риск ? bondReasonListHTML(row, true) : bondWarningListHTML(row, true)}</td>
+      <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small><label class="compare-check"><input type="checkbox" data-compare-issue="${esc(row.secid)}" ${BOND_COMPARE_SECIDS.includes(row.secid) ? 'checked' : BOND_COMPARE_SECIDS.length >= 4 ? 'disabled' : ''}> Сравнить</label>${риск ? bondReasonListHTML(row, true) : bondWarningListHTML(row, true)}</td>
       <td>${bondSafetyBadgeHTML(row)}</td>
       <td>${row.instrument_type === 'ofz' ? 'ОФЗ' : (row.rating ? esc(row.rating) : '<span class="muted">не найден</span>')}</td>
       <td>${row.sector && row.sector !== 'unknown' ? esc(row.sector) : ND}</td>
@@ -6485,13 +6528,19 @@ function bondUniverseScreenerHTML(universe) {
     ${cov.groups_pct === 0 ? '<small>Связи «материнская — дочерняя» в данных MOEX нет, поэтому лимит на группу компаний посчитать не из чего.</small>' : ''}
   </div>` : '';
 
-  return `${modes}${warning}${coverageStrip}
+  return `${modes}${warning}
     <div class="bondlab-tools"><label>Поиск<input id="bondlab-search" type="search" value="${esc(BOND_SCREEN_QUERY)}" placeholder="SECID, выпуск или эмитент"></label>
       <div class="bondlab-choices">${[['all','Все'],['AAA','AAA'],['AA','AA'],['A','A'],['BBB','BBB'],['ofz','ОФЗ']].map(([id,label]) => `<button type="button" class="bondlab-choice${id === BOND_SCREEN_RATING ? ' active' : ''}" data-bond-rating="${id}">${label}</button>`).join('')}</div>
       <span class="muted">Найдено: ${rows.length} из ${all.length}</span></div>
+    ${bondMatrixHTML(cells,filtered.length)}
     ${filters}
+    ${bondCompareHTML(all)}
+    <h3 id="bond-matrix-results" tabindex="-1">${selectedCell ? esc(selectedCell.grade) + ' · ' + bondTermLabels[selectedCell.term] : 'Все найденные выпуски'} · ${rows.length}</h3>
+    ${selectedCell ? '<button class="btn" type="button" data-matrix-cell="">Все сроки и рейтинги</button>' : ''}
     <div class="bonds-table-wrap"><table class="bonds-table"><thead><tr>${headers}</tr></thead><tbody>${body || empty}</tbody></table></div>
-    <p class="bonds-disc">Показаны до 100 строк. Нажмите на название, чтобы открыть карточку выпуска. Доходность, не прошедшая проверку, не показывается числом — вместо неё стоит «Расчёт требует проверки».</p>`;
+    ${rows.length > bondListLimit ? '<button class="btn" type="button" id="bond-more-issues">Показать следующие выпуски</button>' : ''}
+    ${coverageStrip}
+    <p class="bonds-disc">Показано ${Math.min(rows.length,bondListLimit)} из ${rows.length}. Нажмите на название, чтобы открыть карточку выпуска. Доходность, не прошедшая проверку, не показывается числом — вместо неё стоит «Расчёт требует проверки».</p>`;
 }
 
 function bondRelativeValueHTML(universe) {
@@ -6798,6 +6847,22 @@ const BOND_FILTERS_DEFAULT = Object.freeze({
 });
 
 function wireBondLabControls() {
+  const panel = document.getElementById('bondlab-panel');
+  panel.querySelectorAll('[data-matrix-cell]').forEach(btn => btn.onclick = () => {
+    bondMatrixSelection = btn.dataset.matrixCell;
+    bondListLimit = 50;
+    drawBondLab();
+    document.getElementById('bond-matrix-results')?.focus();
+  });
+  panel.querySelectorAll('[data-compare-issue]').forEach(btn => btn.onclick = () => {
+    const id = btn.dataset.compareIssue;
+    if (BOND_COMPARE_SECIDS.includes(id)) BOND_COMPARE_SECIDS = BOND_COMPARE_SECIDS.filter(v => v !== id);
+    else if (BOND_COMPARE_SECIDS.length < 4) BOND_COMPARE_SECIDS.push(id);
+    drawBondLab();
+  });
+  const more = document.getElementById('bond-more-issues');
+  if (more) more.onclick = () => { bondListLimit += 50; drawBondLab(); };
+
   const filterDrawer = document.querySelector('[data-bond-filter-drawer]');
   if (filterDrawer) filterDrawer.addEventListener('toggle', () => {
     BOND_FILTERS_OPEN = filterDrawer.open;
@@ -6892,6 +6957,7 @@ function wireBondLabControls() {
 
   const resetFilters = document.getElementById('bond-filters-reset');
   if (resetFilters) resetFilters.addEventListener('click', () => {
+    bondMatrixSelection = ''; bondListLimit = 50;
     BOND_SCREEN_FILTERS = { ...BOND_FILTERS_DEFAULT };
     BOND_SCREEN_MODE = 'safe';           // сброс всегда возвращает в безопасный режим
     BOND_SCREEN_RATING = 'all';
@@ -7424,6 +7490,7 @@ const NAV_CONFIG = [
   { id: 'stocks', label: 'Акции', icon: 'stocks', sub: 'Скринер: прогноз дивидендов, оценка, риск невыплаты',
     mobile: true,
     tabs: [{ id: 'screener', label: 'Скринер', sub: 'Прогноз дивидендов, оценка, риск невыплаты' },
+           { id: 'reports', label: 'Отчётность', sub: 'Финансовые показатели, периоды и первоисточники' },
            { id: 'banks', label: 'Банки РФ', sub: 'Отчётность банков по формам ЦБ РФ' }] },
   { id: 'bonds', label: 'Облигации', icon: 'bonds', sub: 'Скринер рублёвых корпоративных облигаций MOEX',
     mobile: true },
@@ -7564,6 +7631,14 @@ function onSubtabShown(sec, tab) {
     });
   } else if (sec === 'market' && tab === 'news') {
     renderNews();
+  } else if (sec === 'stocks' && tab === 'reports') {
+    openDetails('foundry-panel');
+    const company = document.getElementById('foundry-company');
+    const ticker = getRouteState().params.get('issuer');
+    if (company && ticker && company.value !== ticker && Array.from(company.options).some(o => o.value === ticker)) {
+      company.value = ticker;
+      company.dispatchEvent(new Event('change'));
+    }
   } else if (sec === 'stocks' && tab === 'banks') {
     // Раскрываем оценку, а не помесячную отчётность: вопрос «дорого или дёшево» —
     // первый, с которым приходят в раздел, и свёрнутый блок читался как отсутствующий.
@@ -7596,7 +7671,10 @@ function onSectionShown(sec) {
     if (ACTIVE_STRATEGY_MODE === 'ml') renderMlStrategy();
     else { openDetails('pf'); openDetails('marlamov'); }
   }
-  else if (sec === 'bonds') { renderBondLab(); }
+  else if (sec === 'bonds') {
+    if (getRouteState().params.get('view') === 'matrix') BOND_LAB_TAB = 'screener';
+    renderBondLab();
+  }
   else if (sec === 'methodology') {
     openDetails('data-coverage');
     const c = document.getElementById('data-coverage');
