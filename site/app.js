@@ -267,7 +267,7 @@ function init(data) {
   const m = data.meta;
 
   applyTaxRate(uiStateLoad().taxRate);   // §5.1 — применить сохранённую ставку НДФЛ до рендеров (дефолт 13% → NET_OF_TAX=0.87)
-  if (window.DataFoundryUI) window.DataFoundryUI.load().then(() => render()).catch(() => {});
+  if (window.DataFoundryUI) window.DataFoundryUI.load().then(() => render()).catch(() => render());
   renderDateChips(m);   // даты (Прогноз/Цены/Горизонт/Эмитентов/лаг модельного среза)
 
   if (m.prices_stale) {

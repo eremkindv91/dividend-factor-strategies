@@ -1,0 +1,47 @@
+{
+  "dataset": {
+    "version": "20261110T230508Z-d72b1c90",
+    "schema_version": 1,
+    "built_at": "2026-11-10T23:05:08.602721Z",
+    "published_at": "2026-11-11T02:04:30.316556Z",
+    "source_updated_at": "2026-11-11T01:40:53.692692+03:00"
+  },
+  "roe": {
+    "id": "7401ecff-bf2c-4553-885e-04a8bbdef27a",
+    "source_id": "7401ecff-bf2c-4553-885e-04a8bbdef27a",
+    "ticker": "WUSH",
+    "metric_code": "ratio.roe",
+    "layer": "derived",
+    "period": {
+      "source_key": "FY2024",
+      "key": "2024-FY",
+      "kind": "duration",
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "code": "FY",
+      "calendar_year": 2024,
+      "is_cumulative": true,
+      "group": "annual"
+    },
+    "value": "30.5280912442",
+    "reported_value": null,
+    "reported_unit": null,
+    "scale_multiplier": "1",
+    "unit": "percent",
+    "currency": null,
+    "as_of_date": null,
+    "accounting_basis": "IFRS",
+    "consolidation_scope": "consolidated",
+    "methodology": null,
+    "dimensions": {
+      "business_segment": "all",
+      "geography": "group"
+    },
+    "status": "computed",
+    "review_status": "formula_verified",
+    "has_source_conflict": false,
+    "supersedes_id": null,
+    "selection_reason": null,
+    "updated_at": "2026-09-07T17:01:57.566491+03:00"
+  }
+}

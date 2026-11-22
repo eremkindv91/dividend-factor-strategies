@@ -303,6 +303,15 @@ if __name__ == '__main__':
     try:
         result = (json.loads(args.output.read_text()) if args.summary_only else
                   build_from_database(args.tickers or universe(args.universe), args.output, args.database))
+        if result.get('is_index'):
+            companies, evidence = [], {}
+            for entry in result['companies']:
+                path = args.output.parent / 'data_foundry/companies' / (entry['ticker'] + '.json')
+                payload = json.loads(path.read_text())
+                companies.append(payload['company'])
+                evidence.update(payload['evidence'])
+            result = {**result, 'companies': companies, 'evidence': evidence}
+            result.pop('is_index', None)
         build_summary(result, args.output.with_name('data_foundry_summary.json'))
         partition_snapshot(result, args.output)
         print(json.dumps(result['meta'], ensure_ascii=False))

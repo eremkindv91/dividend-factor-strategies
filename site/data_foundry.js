@@ -27,7 +27,7 @@
   function safeUrl(url) {
     try { const u = new URL(url); return u.protocol === 'https:' ? u.href : null; } catch (_) { return null; }
   }
-  let snapshot = null, loading = null;
+  let snapshot = null, loading = null, loadFailed = false;
   function load() {
     if (snapshot) return Promise.resolve(snapshot);
     if (!loading) loading = fetch('data_foundry_summary.json', {cache: 'no-store'}).then(response => {
@@ -38,11 +38,18 @@
       snapshot = data;
       renderCoverageSummary();
       return data;
-    }).catch(error => { loading = null; throw error; });
+    }).catch(error => {
+      loading = null; loadFailed = true;
+      if (typeof document !== 'undefined') {
+        const el = document.getElementById('foundry-coverage-summary');
+        if (el) { el.hidden = false; el.textContent = 'Data Foundry временно недоступен. Данные основного скринера показаны со своими датами.'; }
+      }
+      throw error;
+    });
     return loading;
   }
   function coverageHTML(ticker) {
-    if (!snapshot) return '<span class="foundry-coverage-badge">Покрытие отчётности проверяется</span>';
+    if (!snapshot) return `<span class="foundry-coverage-badge">${loadFailed ? 'Data Foundry недоступен' : 'Покрытие отчётности проверяется'}</span>`;
     const company = snapshot.companies.find(c => c.ticker === ticker);
     if (!company || !(company.fact_count ?? company.facts.length)) return '<span class="foundry-coverage-badge is-missing" title="Отсутствие в этом наборе не означает отсутствия отчётности компании. Другие источники показаны в подробностях.">Data Foundry: нет принятых значений</span>';
     const end = company.latest_report_end || company.facts.map(f => f.period.end).sort().pop();
