@@ -80,14 +80,14 @@ class Client:
 
 
 def accepted_fact(fact):
-    """Keep values and variants separate; accept only reviewed group IFRS facts."""
+    """Keep published units, reporting scope and verified formula results distinct."""
     try:
         number = Decimal(fact['value'])
-        return (number.is_finite() and fact.get('accounting_basis') == 'IFRS'
-            and fact.get('consolidation_scope') == 'consolidated'
-            and fact.get('review_status') in ('reviewed', 'reviewed_owner_approved')
+        return (number.is_finite() and bool(fact.get('accounting_basis'))
+            and bool(fact.get('consolidation_scope'))
+            and fact.get('review_status') in ('reviewed', 'reviewed_owner_approved', 'formula_verified')
             and not fact.get('has_source_conflict') and bool(fact.get('source_id'))
-            and fact.get('currency') == 'RUB' and fact.get('unit') == 'RUB'
+            and bool(fact.get('unit'))
             and fact['period']['end'] <= datetime.now(timezone.utc).date().isoformat())
     except (KeyError, InvalidOperation, TypeError):
         return False
@@ -192,7 +192,7 @@ def build_from_database(tickers, output, database=None):
         temporary.replace(database)
     connection = sqlite3.connect(f'file:{database}?mode=ro', uri=True)
     metrics = {row[0]: json.loads(row[1]) for row in connection.execute('SELECT code,payload FROM metrics')}
-    names = {code: definition.get('name_ru', code) for code, definition in metrics.items() if code.startswith('fin.')}
+    names = {code: definition.get('name_ru', code) for code, definition in metrics.items()}
     accepted, companies, source_ids = [], [], set()
     year = datetime.now(timezone.utc).year
     for ticker in tickers:
@@ -225,7 +225,7 @@ def build_from_database(tickers, output, database=None):
         'meta': {'fetched_at': datetime.now(timezone.utc).isoformat(), 'source': ENDPOINT,
                  'requested_companies': len(tickers), 'covered_companies': sum(bool(c['facts']) for c in companies),
                  'facts': len(accepted), 'database_sha256': export['sha256'],
-                 'note': 'Отдельный слой отчётности; входы ML и оценки стоимости не заменены.'},
+                 'note': 'Все доступные проверенные метрики с исходными единицами и областью отчётности; входы ML и оценки стоимости не заменены.'},
         'companies': companies, 'evidence': evidence}
     output.parent.mkdir(parents=True, exist_ok=True)
     temp = output.with_suffix('.tmp')
@@ -235,21 +235,30 @@ def build_from_database(tickers, output, database=None):
 
 
 def build_summary(data, output):
-    """Small initial payload; full statement history stays lazy-loaded."""
-    codes = {'fin.revenue', 'fin.operating_profit', 'fin.net_income', 'fin.total_assets', 'fin.total_equity'}
+    """Latest observations for EVERY metric and reporting variant, without full history."""
     companies, sources = [], set()
+    keep = ('id', 'source_id', 'metric_code', 'period', 'value', 'unit', 'currency',
+            'accounting_basis', 'consolidation_scope', 'dimensions', 'methodology', 'layer')
     for company in data['companies']:
-        facts, selected = company['facts'], []
-        for code in codes:
-            annual = [f for f in facts if f['metric_code'] == code and f['period']['group'] == 'annual']
-            end = max((f['period']['end'] for f in annual), default=None)
-            selected.extend(f for f in annual if f['period']['end'] == end)
+        facts, groups = company['facts'], {}
+        for fact in facts:
+            key = (fact['metric_code'], fact.get('accounting_basis'), fact.get('consolidation_scope'),
+                   fact.get('unit'), fact.get('currency'),
+                   json.dumps(fact.get('dimensions', {}), sort_keys=True),
+                   (fact.get('methodology') or {}).get('code'))
+            groups.setdefault(key, []).append(fact)
+        selected = []
+        for group in groups.values():
+            end = max(f['period']['end'] for f in group)
+            selected.extend({k: f.get(k) for k in keep} for f in group if f['period']['end'] == end)
         sources.update(f['source_id'] for f in selected)
         companies.append({**{k: v for k, v in company.items() if k != 'facts'},
             'facts': selected, 'fact_count': len(facts),
             'latest_report_end': max((f['period']['end'] for f in facts), default=None)})
+    evidence_keys = ('source_id', 'kind', 'official_url', 'locator', 'title', 'verification_scope')
     summary = {**data, 'companies': companies,
-        'evidence': {key: data['evidence'][key] for key in sources}, 'is_summary': True}
+        'evidence': {key: {k: data['evidence'][key].get(k) for k in evidence_keys} for key in sources},
+        'is_summary': True}
     temporary = output.with_suffix('.tmp')
     temporary.write_text(json.dumps(summary, ensure_ascii=False, separators=(',', ':')) + '\n')
     temporary.replace(output)

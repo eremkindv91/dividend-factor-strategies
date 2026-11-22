@@ -42,7 +42,9 @@ def test_wush_reference_when_snapshot_exists():
     data = json.loads(path.read_text())
     company = next(c for c in data['companies'] if c['ticker'] == 'WUSH')
     facts = [f for f in company['facts'] if f['metric_code'] == 'fin.revenue'
-             and f['period']['key'] == '2024-FY']
+             and f['period']['key'] == '2024-FY'
+             and f['consolidation_scope'] == 'consolidated'
+             and f['accounting_basis'] == 'IFRS']
     assert facts
     from decimal import Decimal
     assert all(Decimal(f['value']) == Decimal('14304301000') for f in facts)
@@ -67,6 +69,7 @@ def test_summary_preserves_real_facts_and_coverage(tmp_path):
     assert len(summary['companies']) == len(original['companies'])
     for compact, full in zip(summary['companies'], original['companies']):
         assert compact['fact_count'] == len(full['facts'])
-        assert all(fact in full['facts'] for fact in compact['facts'])
+        original_by_id = {fact['id']: fact for fact in full['facts']}
+        assert all(all(value == original_by_id[fact['id']].get(key) for key, value in fact.items()) for fact in compact['facts'])
         assert all(fact['source_id'] in summary['evidence'] for fact in compact['facts'])
-    assert output.stat().st_size < path.stat().st_size / 4
+    assert output.stat().st_size < path.stat().st_size

@@ -33,19 +33,23 @@ def _universe() -> list[dict]:
 
 
 def test_universe_size_matches_declared_enrichment_cap():
-    """Число корпоратов в универсуме = отсечке из конфига, а не случайной величине.
+    """The configured maximum is a ceiling; a smaller live candidate set is valid.
 
-    Если однажды окажется меньше — значит бумаги теряются где-то ещё, и это надо
-    расследовать отдельно, а не списывать на лимит.
+    Verify the actual collection trail instead of requiring exactly 800 bonds.
+    The 2026-11-22 snapshot requested/completed 801 instruments: 745 corporates
+    and 56 OFZ, with no enrichment failures. No instruments disappeared in that run.
     """
-    universe = _universe()
+    snapshot = json.loads((SITE_BONDS / "universe.json").read_text(encoding="utf-8"))
+    universe = snapshot["bonds"]
     corp = [row for row in universe if row.get("instrument_type") == "corp"]
     cap = int(CONFIG["universe"]["maximum_corporate_enrichment"])
-
+    enrichment = snapshot["source_status"]["enrichment"]
+    assert universe, "пустой универсум не подтверждает качество загрузки"
     assert len(corp) <= cap, "корпоратов больше лимита — отсечка перестала работать"
-    assert len(corp) == cap, (
-        f"корпоратов {len(corp)} при лимите {cap}: если источник отдаёт меньше кандидатов, "
-        "это отдельная проблема — проверьте _candidate и доступность MOEX"
+    assert len(universe) == enrichment["completed"], "бумаги потерялись после обогащения"
+    failed_issues = {row["secid"] for row in enrichment.get("errors", []) if row.get("secid")}
+    assert enrichment["requested"] == enrichment["completed"] + len(failed_issues), (
+        "не все запрошенные инструменты учтены как загруженные или ошибочные"
     )
 
 

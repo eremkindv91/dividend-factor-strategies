@@ -44,7 +44,7 @@
   function coverageHTML(ticker) {
     if (!snapshot) return '<span class="foundry-coverage-badge">Покрытие отчётности проверяется</span>';
     const company = snapshot.companies.find(c => c.ticker === ticker);
-    if (!company || !(company.fact_count ?? company.facts.length)) return '<span class="foundry-coverage-badge is-missing" title="В этом слое отобраны проверенные консолидированные факты МСФО в RUB. Отсутствие сопоставимого среза не означает отсутствия отчётности. Другие источники показаны в подробностях.">Data Foundry: нет сопоставимого среза</span>';
+    if (!company || !(company.fact_count ?? company.facts.length)) return '<span class="foundry-coverage-badge is-missing" title="Отсутствие в этом наборе не означает отсутствия отчётности компании. Другие источники показаны в подробностях.">Data Foundry: нет принятых значений</span>';
     const end = company.latest_report_end || company.facts.map(f => f.period.end).sort().pop();
     return `<span class="foundry-coverage-badge is-covered" title="Есть принятые факты, но полнота последней отчётности и качество модельной оценки проверяются отдельно.">Data Foundry: есть данные · период до ${escape(end)}</span>`;
   }
@@ -54,29 +54,61 @@
     if (!el || !snapshot) return;
     const {covered_companies: count, requested_companies: total, fetched_at: fetched} = snapshot.meta;
     el.hidden = false;
-    el.innerHTML = `<b>МСФО в рублях · Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
+    el.innerHTML = `<b>Данные Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
       + 'Покрытие источника не означает полноту последней отчётности. <button type="button">Посмотреть источники</button>';
     el.querySelector('button').addEventListener('click', () => {
       const panel = document.getElementById('foundry-panel');
       if (panel) { panel.open = true; panel.scrollIntoView({block:'start', behavior:'auto'}); }
     });
   }
+  function scopeLabel(f) {
+    const basis = {IFRS:'МСФО', RAS:'РСБУ', US_GAAP:'US GAAP', APM:'Управленческий / расчётный'}[f.accounting_basis] || f.accounting_basis || 'стандарт н/д';
+    const scope = {consolidated:'группа', standalone:'отдельная компания', separate:'отдельная компания'}[f.consolidation_scope] || f.consolidation_scope || 'периметр н/д';
+    return basis + ' · ' + scope;
+  }
+  function formatFact(f) {
+    const n = Number(f.value), unit = f.unit || 'единицы н/д';
+    if (!Number.isFinite(n)) return {value:'н/д', unit};
+    const fmt = v => v.toLocaleString('ru-RU', {maximumFractionDigits: 3});
+    if (/^[A-Z]{3}$/.test(unit) || unit === 'currency') return {value:fmt(n / 1e6), unit:'млн ' + (f.currency || unit)};
+    if (unit === 'percent') return {value:fmt(n), unit:'%'};
+    if (['multiple','times'].includes(unit)) return {value:fmt(n), unit:'×'};
+    if (unit.endsWith('_per_share')) return {value:fmt(n), unit:unit.replace('_per_share',' / акция')};
+    return {value:fmt(n), unit:({shares:'акций', count:'шт.', ratio:'доля'}[unit] || unit)};
+  }
+  function latestFacts(facts) {
+    const groups = new Map();
+    facts.forEach(f => {
+      const key = JSON.stringify([f.metric_code, f.accounting_basis, f.consolidation_scope, f.unit, f.currency,
+        Object.entries(f.dimensions || {}).sort(), (f.methodology || {}).code]);
+      const group = groups.get(key) || [];
+      if (!group.length || f.period.end > group[0].period.end) groups.set(key,[f]);
+      else if (f.period.end === group[0].period.end) group.push(f);
+    });
+    return [...groups.values()].flat();
+  }
+  function sourceHTML(e, full = false) {
+    const url = safeUrl(e.official_url);
+    if (url) return `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer">Отчёт${e.locator && e.locator.page ? ', стр. ' + escape(e.locator.page) : ''}</a>`;
+    if (e.kind !== 'calculation') return 'Ссылка отсутствует';
+    if (!full || !e.calculation) return 'Расчёт Data Foundry · формула в панели источников';
+    const c = e.calculation;
+    return `<details><summary>Расчёт Data Foundry</summary><p>${escape(c.expression || c.formula_code)}</p>${(c.inputs || []).map(i => `<small>${escape(i.name || i.metric)}: ${escape(i.value)} ${escape(i.unit)}</small>`).join('')}</details>`;
+  }
+  function factRow(f, data, full = false) {
+    const shown = formatFact(f), e = data.evidence[f.source_id] || {};
+    const dims = Object.entries(f.dimensions || {}).map(([k,v]) => ({business_segment:'Сегмент',geography:'География'}[k] || k) + ': ' + ({all:'все',group:'вся группа'}[v] || v)).join(', ');
+    return `<tr><td>${escape(data.metrics[f.metric_code] || f.metric_code)}</td><td>${escape(f.period.key)}<small>${escape(scopeLabel(f))}</small></td><td class="tnum" title="${escape(f.value)} ${escape(f.unit)}">${escape(shown.value)}</td><td>${escape(shown.unit)}</td><td>${sourceHTML(e,full)}<small>${escape(dims)}${f.methodology && f.methodology.name ? ' · ' + escape(f.methodology.name) : ''}</small></td></tr>`;
+  }
+  function factTable(facts, data, full = false) {
+    return '<div class="foundry-table" tabindex="0" role="region" aria-label="Все финансовые показатели с источниками"><table><thead><tr><th>Показатель</th><th>Период / стандарт</th><th>Значение</th><th>Единицы</th><th>Источник / методика</th></tr></thead><tbody>'
+      + facts.map(f => factRow(f,data,full)).join('') + '</tbody></table></div>';
+  }
   function reportHTML(ticker) {
     const company = snapshot && snapshot.companies.find(c => c.ticker === ticker);
     if (!company || !company.facts.length) return '';
-    const codes = ['fin.revenue', 'fin.operating_profit', 'fin.net_income', 'fin.total_assets', 'fin.total_equity'];
-    const rows = codes.map(code => {
-      const facts = company.facts.filter(f => f.metric_code === code && f.period.group === 'annual');
-      const end = facts.map(f => f.period.end).sort().pop();
-      const latest = facts.filter(f => f.period.end === end);
-      if (!latest.length) return '';
-      // No automatic choice between differing assertions of the same period.
-      if (new Set(latest.map(f => f.value)).size !== 1) return `<tr><td>${escape(snapshot.metrics[code])}</td><td colspan="2">Несколько вариантов · см. панель Data Foundry</td></tr>`;
-      const f = latest[0], evidence = snapshot.evidence[f.source_id] || {}, url = safeUrl(evidence.official_url);
-      return `<tr><td>${escape(snapshot.metrics[code])}</td><td>${escape(f.period.key)}</td><td class="tnum">${(Number(f.value)/1e6).toLocaleString('ru-RU',{maximumFractionDigits:1})}</td><td>${url ? `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer">Отчёт</a>` : 'н/д'}</td></tr>`;
-    }).join('');
-    if (!rows) return '';
-    return `<div class="foundry-card"><b>Отчётность Data Foundry · МСФО группы</b><p>Последние доступные годовые значения, млн ₽. Периоды у строк могут различаться. База опубликована ${escape(day(snapshot.dataset.published_at))}; наличие последнего отчёта не гарантировано.</p><div class="foundry-table"><table><thead><tr><th>Показатель</th><th>Период</th><th>Млн ₽</th><th>Источник</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    const facts = [...company.facts].sort((a,b) => (snapshot.metrics[a.metric_code] || a.metric_code).localeCompare(snapshot.metrics[b.metric_code] || b.metric_code,'ru') || b.period.end.localeCompare(a.period.end));
+    return `<div class="foundry-card"><b>Все доступные показатели Data Foundry · ${facts.length} значений</b><p>Последние доступные наблюдения каждого показателя и варианта отчётности. Валюты, периоды и периметры различаются — они подписаны у значений. База опубликована ${escape(day(snapshot.dataset.published_at))}.</p>${factTable(facts,snapshot)}</div>`;
   }
   function mount() {
     const panel = document.getElementById('foundry-panel');
@@ -94,39 +126,32 @@
         const meta = data.meta, dataset = data.dataset;
         body.innerHTML = `<p>Покрытие: <b>${escape(meta.covered_companies)} из ${escape(meta.requested_companies)}</b> бумаг. `
           + `Публикация базы: ${escape(day(dataset.published_at) || 'н/д')}. Загрузка: ${escape(day(meta.fetched_at))}.</p>`
-          + `<p class="muted">Групповая МСФО, RUB. Доступные финансовые показатели группы. Витрина поставщика обновляется вручную; наличие последнего отчёта не гарантировано. Этот слой пока не заменяет входы ML и оценки стоимости.</p>`
+          + `<p class="muted">Все доступные проверенные показатели: отчётность, денежные потоки, долг, рентабельность, мультипликаторы и отраслевые метрики. Единицы, валюта и периметр указаны отдельно. Витрина поставщика обновляется вручную; наличие последнего отчёта не гарантировано. Этот слой пока не заменяет входы ML и оценки стоимости.</p>`
           + `<label for="foundry-company">Компания</label> <select id="foundry-company">${data.companies.map(c => `<option value="${escape(c.ticker)}">${escape(c.ticker)} · ${escape(c.name || 'нет покрытия')}</option>`).join('')}</select>`
-          + `<label for="foundry-metric">Показатель</label> <select id="foundry-metric">${Object.entries(data.metrics).map(([code,name]) => `<option value="${escape(code)}">${escape(name)}</option>`).join('')}</select>`
-          + '<div id="foundry-facts" aria-live="polite"></div>';
+          + `<label for="foundry-metric">Показатель</label> <select id="foundry-metric"><option value="">Все показатели</option>${Object.entries(data.metrics).map(([code,name]) => `<option value="${escape(code)}">${escape(name)}</option>`).join('')}</select>`
+          + '<label class="foundry-latest-label"><input type="checkbox" id="foundry-latest" checked> Последние доступные значения (снять для истории)</label><div id="foundry-facts" aria-live="polite"></div>';
         const select = document.getElementById('foundry-company');
         const metric = document.getElementById('foundry-metric');
-        if (data.metrics['fin.revenue']) metric.value = 'fin.revenue';
+        const latest = document.getElementById('foundry-latest');
         const render = () => {
           const company = data.companies.find(c => c.ticker === select.value);
           const out = document.getElementById('foundry-facts');
           if (!company || !company.facts.length) { out.innerHTML = '<p>Нет принятых сопоставимых значений в запрошенных периодах. Это не нулевая выручка или прибыль.</p>'; return; }
-          const facts = company.facts.filter(f => f.metric_code === metric.value).sort((a,b) => b.period.end.localeCompare(a.period.end) || a.metric_code.localeCompare(b.metric_code));
+          let facts = company.facts.filter(f => !metric.value || f.metric_code === metric.value);
+          if (latest.checked) facts = latestFacts(facts);
+          facts.sort((a,b) => (data.metrics[a.metric_code] || a.metric_code).localeCompare(data.metrics[b.metric_code] || b.metric_code,'ru') || b.period.end.localeCompare(a.period.end));
           if (!facts.length) { out.innerHTML = '<p>Этот показатель не покрыт принятым набором.</p>'; return; }
-          out.innerHTML = '<div class="foundry-table" tabindex="0" role="region" aria-label="Отчётность с источниками"><table><thead><tr><th>Период</th><th>Показатель</th><th>Млн ₽</th><th>Источник / вариант</th></tr></thead><tbody>'
-            + facts.map(f => {
-              const e = data.evidence[f.source_id] || {}, url = safeUrl(e.official_url);
-              const value = Number(f.value) / 1e6;
-              const dims = Object.entries(f.dimensions || {}).map(([k,v]) => ({business_segment:'Сегмент',geography:'География'}[k] || k) + ': ' + ({all:'все',group:'вся группа'}[v] || v)).join(', ');
-              return `<tr><td>${escape(f.period.key)}</td><td>${escape(data.metrics[f.metric_code])}</td>`
-                + `<td class="tnum" title="${escape(f.value)} RUB">${Number.isFinite(value) ? value.toLocaleString('ru-RU', {maximumFractionDigits: 3}) : 'н/д'}</td>`
-                + `<td>${url ? `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer">Отчёт${e.locator && e.locator.page ? ', стр. ' + escape(e.locator.page) : ''}</a>` : 'Ссылка отсутствует'}`
-                + `<small>${escape(dims || 'Без дополнительных измерений')} · сохранённые сведения об источнике</small></td></tr>`;
-            }).join('') + '</tbody></table></div>';
+          out.innerHTML = `<p>Показано ${facts.length} значений. Периоды, стандарты и валюты могут различаться.</p>` + factTable(facts,data,true);
         };
         if (data.companies.some(c => c.ticker === 'WUSH')) select.value = 'WUSH';
-        select.addEventListener('change', render); metric.addEventListener('change', render); render();
+        select.addEventListener('change', render); metric.addEventListener('change', render); latest.addEventListener('change', render); render();
       } catch (e) {
         body.textContent = 'Отчётность Data Foundry недоступна. Данные других разделов сохранены. Повторите открытие панели для загрузки.';
         loaded = false;
       }
     });
   }
-  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML };
-  if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl, load, reportHTML, coverageHTML };
+  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML, formatFact, latestFacts };
+  if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl, load, reportHTML, coverageHTML, formatFact, latestFacts };
   if (typeof document !== 'undefined') mount();
 })(typeof window !== 'undefined' ? window : globalThis);
