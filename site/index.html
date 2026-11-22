@@ -56,6 +56,7 @@
         <!-- Вкладки раздела: «Новости» перестали быть отдельным пунктом меню — они
              отвечают на вопрос «что произошло» внутри «Обзора», а не рядом с ним.
              Названия — «Сводка» и «Новости»: «Обзор» внутри «Обзора» было бы тавтологией. -->
+        <a class="foundry-entry" href="#stocks"><strong>Финансовые показатели компаний →</strong><span>Выручка, прибыль, денежные потоки, долг и рентабельность — с историей и источниками. Открыть отчётность в разделе «Акции».</span></a>
         <div class="section-subtabs" role="tablist" aria-label="Разделы обзора">
           <button type="button" role="tab" data-subtab="market:summary" id="tab-market-summary"
             aria-controls="market-summary-panel" aria-selected="true" class="active">Сводка</button>
@@ -206,6 +207,7 @@
 
         <div class="section-panel" id="stocks-screener-panel" role="tabpanel"
           aria-labelledby="tab-stocks-screener">
+        <details class="foundry-panel" id="foundry-panel" open><summary>Финансовые показатели компаний · Data Foundry</summary><div id="foundry-body" aria-live="polite"><p>Загрузка финансовых показателей…</p></div></details>
 <div id="foundry-coverage-summary" class="foundry-coverage-summary" role="status" hidden></div>
 <div id="data-freshness-notice" class="data-freshness-notice" role="status" hidden></div>
 <div class="dates" id="dates"></div>
@@ -240,7 +242,6 @@
         </div>
         <div class="stock-quality-gate" id="stock-quality-gate" aria-live="polite"></div>
 
-        <details class="foundry-panel" id="foundry-panel"><summary>Отчётность с источниками · Data Foundry</summary><div id="foundry-body"><p>Откройте панель для загрузки отчётности.</p></div></details>
 
         <details class="mapwrap" id="mapwrap" hidden>
           <summary>Карта рынка: надёжность дивиденда × оценка <span class="muted">(клик по точке — открыть тикер)</span></summary>

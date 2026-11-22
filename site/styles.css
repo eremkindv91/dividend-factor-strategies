@@ -4440,3 +4440,12 @@ body.has-chart-fullscreen { overflow: hidden; }
 
 .foundry-latest-label { display: block; margin-top: 12px; font-size: .875rem; }
 .foundry-card { font-size: .875rem; line-height: 1.5; }
+
+/* Отчётность видна сразу; длинная история не вытесняет скринер. */
+.foundry-entry { display: grid; gap: 6px; margin: 14px 0; padding: 16px; border: 1px solid var(--line); border-left: 4px solid var(--accent-deep); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; line-height: 1.45; }
+.foundry-entry strong { color: var(--accent-deep); }
+.foundry-entry span { font-size: .875rem; color: var(--ink-soft); }
+.foundry-entry:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 3px; }
+#foundry-panel { scroll-margin-top: 100px; }
+#foundry-facts .foundry-table { max-height: 420px; overflow: auto; }
+#foundry-facts th { position: sticky; top: 0; background: var(--surface); z-index: 1; }

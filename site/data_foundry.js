@@ -147,7 +147,7 @@
     const panel = document.getElementById('foundry-panel');
     if (!panel) return;
     let loaded = false;
-    panel.addEventListener('toggle', async () => {
+    const openPanel = async () => {
       if (!panel.open || loaded) return;
       loaded = true;
       const body = document.getElementById('foundry-body');
@@ -206,7 +206,9 @@
         body.textContent = 'Отчётность Data Foundry недоступна. Данные других разделов сохранены. Повторите открытие панели для загрузки.';
         loaded = false;
       }
-    });
+    };
+    panel.addEventListener('toggle', openPanel);
+    if (panel.open) openPanel();
   }
   root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML, formatFact, latestFacts, fillReports };
   if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl, load, reportHTML, coverageHTML, formatFact, latestFacts };
