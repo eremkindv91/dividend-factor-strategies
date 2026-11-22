@@ -87,7 +87,8 @@ def accepted_fact(fact):
             and fact.get('consolidation_scope') == 'consolidated'
             and fact.get('review_status') in ('reviewed', 'reviewed_owner_approved')
             and not fact.get('has_source_conflict') and bool(fact.get('source_id'))
-            and fact.get('currency') == 'RUB' and fact.get('unit') == 'RUB')
+            and fact.get('currency') == 'RUB' and fact.get('unit') == 'RUB'
+            and fact['period']['end'] <= datetime.now(timezone.utc).date().isoformat())
     except (KeyError, InvalidOperation, TypeError):
         return False
 

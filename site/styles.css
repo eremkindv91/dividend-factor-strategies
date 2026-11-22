@@ -4430,3 +4430,10 @@ body.has-chart-fullscreen { overflow: hidden; }
   .data-freshness-notice { gap: 3px; padding: 10px 12px; }
   .data-freshness-notice details { font-size: .8125rem; }
 }
+
+.foundry-coverage-summary { margin: 12px 0 0; padding: 10px 12px; font-size: .875rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; line-height: 1.4; }
+.foundry-coverage-summary[hidden] { display: none; }
+.foundry-coverage-summary button { font: inherit; color: var(--accent-deep); background: transparent; border: 0; text-decoration: underline; cursor: pointer; padding: 3px 0; }
+.foundry-coverage-badge { display: block; color: var(--ink-soft); font-size: .8125rem; line-height: 1.35; margin: 5px 0; }
+.foundry-coverage-badge.is-covered { color: var(--accent-deep); }
+.foundry-coverage-badge.is-missing { color: var(--warn-ink); }

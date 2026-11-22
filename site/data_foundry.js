@@ -35,9 +35,31 @@
       return response.json();
     }).then(data => {
       if (data.schema_version !== 1 || !Array.isArray(data.companies)) throw new Error('Неподдерживаемый формат');
-      snapshot = data; return data;
+      snapshot = data;
+      renderCoverageSummary();
+      return data;
     }).catch(error => { loading = null; throw error; });
     return loading;
+  }
+  function coverageHTML(ticker) {
+    if (!snapshot) return '<span class="foundry-coverage-badge">Покрытие отчётности проверяется</span>';
+    const company = snapshot.companies.find(c => c.ticker === ticker);
+    if (!company || !company.facts.length) return '<span class="foundry-coverage-badge is-missing" title="Это ограничение дополнительного источника, а не утверждение об отсутствии отчётности компании. Другие источники показаны в подробностях.">Data Foundry: нет покрытия</span>';
+    const end = company.facts.map(f => f.period.end).sort().pop();
+    return `<span class="foundry-coverage-badge is-covered" title="Есть принятые факты, но полнота последней отчётности и качество модельной оценки проверяются отдельно.">Data Foundry: есть данные · период до ${escape(end)}</span>`;
+  }
+  function renderCoverageSummary() {
+    if (typeof document === 'undefined') return;
+    const el = document.getElementById('foundry-coverage-summary');
+    if (!el || !snapshot) return;
+    const {covered_companies: count, requested_companies: total, fetched_at: fetched} = snapshot.meta;
+    el.hidden = false;
+    el.innerHTML = `<b>Отчётность Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
+      + 'Покрытие источника не означает полноту последней отчётности. <button type="button">Посмотреть источники</button>';
+    el.querySelector('button').addEventListener('click', () => {
+      const panel = document.getElementById('foundry-panel');
+      if (panel) { panel.open = true; panel.scrollIntoView({block:'start', behavior:'auto'}); }
+    });
   }
   function reportHTML(ticker) {
     const company = snapshot && snapshot.companies.find(c => c.ticker === ticker);
@@ -101,7 +123,7 @@
       }
     });
   }
-  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML };
-  if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl };
+  root.DataFoundryUI = { age, freshness, renderFreshness, load, reportHTML, coverageHTML };
+  if (typeof module !== 'undefined') module.exports = { age, freshness, safeUrl, load, reportHTML, coverageHTML };
   if (typeof document !== 'undefined') mount();
 })(typeof window !== 'undefined' ? window : globalThis);

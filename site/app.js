@@ -507,7 +507,7 @@ function renderTable() {
       <td class="tnum">${payoutTxt}</td>
       <td class="tnum">${cellNum(t.dividend_yield_expected, fmtPct)}</td>
       <td class="tnum">${cellNum(t.dividend_yield_if_paid, fmtPct)}</td>
-      <td>${statusChip}</td>
+      <td>${statusChip}${window.DataFoundryUI ? window.DataFoundryUI.coverageHTML(t.ticker) : ''}</td>
     </tr>`;
   }).join('') : `<tr><td colspan="${COLS.length}" class="empty">Ничего не найдено</td></tr>`;
 
@@ -912,6 +912,7 @@ function stockDetailSummaryHTML(t) {
       ${verdictChip(t.verdict, true)}
       ${riskBadge(t.cut_risk)}
       ${statusChipHTML(t)}
+      ${window.DataFoundryUI ? window.DataFoundryUI.coverageHTML(t.ticker) : ''}
     </div>
     <div class="issuer-kpis">
       <div><span>Устойчивость</span>${stabilityCell(t.stability_score)}</div>
@@ -964,6 +965,7 @@ function renderCards() {
       <div class="top"><div class="instrument-ranked"><span class="rank">${i + 1}</span>${instrumentIdentityHTML(t.ticker, t.name, instrumentTypeHint(t), 'md')}</div>${riskBadge(t.cut_risk)}</div>
       <div class="nm card-sector">${esc(t.sector)}</div>
       <div class="card-verdict">${verdictChip(t.verdict, true)}</div>
+      ${window.DataFoundryUI ? window.DataFoundryUI.coverageHTML(t.ticker) : ''}
       <div class="grid">
         <div><span class="lbl">Устойчивость</span>${stabilityCell(t.stability_score)}</div>
         <div><span class="lbl">Прогноз дивиденда</span><span class="tnum">${cellNum(t.dividend_forecast, fmtRub)}</span>${announcedBadgeHTML(t)}</div>
@@ -5215,7 +5217,7 @@ function marketSignalsHTML() {
     card(
       'Дивидендный спред',
       spreads.length ? `${positiveSpread}/${spreads.length} выше RFR` : '—',
-      medianSpread == null ? 'нужен marlamov.json' : `медиана: ${sawPct(medianSpread)}`,
+      medianSpread == null ? 'Нет сопоставимого дивидендного прогноза' : `медиана: ${sawPct(medianSpread)}`,
       positiveSpread > 0 ? 'warn' : 'risk'
     ),
     // Убраны три карточки, которые были служебной телеметрией, а не сигналом инвестору:
