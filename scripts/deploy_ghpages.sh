@@ -68,9 +68,11 @@ fi
 if [ -f site/data_foundry.json ]; then
   cp site/data_foundry.json "$TMP/"
   [ -f site/data_foundry_summary.json ] && cp site/data_foundry_summary.json "$TMP/"
+  [ -d site/data_foundry ] && cp -r site/data_foundry "$TMP/"
 elif [ -n "$LOGO_LAST_GOOD" ] && [ -f "$LOGO_LAST_GOOD/data_foundry.json" ]; then
   cp "$LOGO_LAST_GOOD/data_foundry.json" "$TMP/"
   [ -f "$LOGO_LAST_GOOD/data_foundry_summary.json" ] && cp "$LOGO_LAST_GOOD/data_foundry_summary.json" "$TMP/"
+  [ -d "$LOGO_LAST_GOOD/data_foundry" ] && cp -R "$LOGO_LAST_GOOD/data_foundry" "$TMP/"
 fi
 [ -f site/quality.json ] && cp site/quality.json "$TMP/"
 [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"

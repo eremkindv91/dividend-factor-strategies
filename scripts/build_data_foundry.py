@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 import json
 import hashlib
+import re
 import sqlite3
 from pathlib import Path
 import sys
@@ -265,6 +266,32 @@ def build_summary(data, output):
     return summary
 
 
+def partition_snapshot(data, output):
+    """Keep each company's history separate: no giant browser/GitHub payload."""
+    directory = output.parent / 'data_foundry/companies'
+    directory.mkdir(parents=True, exist_ok=True)
+    companies = []
+    for company in data['companies']:
+        ticker = company['ticker']
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+', ticker):
+            raise ValueError('Invalid company file identifier')
+        source_ids = {f['source_id'] for f in company['facts']}
+        payload = {'schema_version': 1, 'dataset': data['dataset'], 'company': company,
+                   'evidence': {key: data['evidence'][key] for key in source_ids}}
+        target = directory / (ticker + '.json')
+        temporary = target.with_suffix('.tmp')
+        temporary.write_text(json.dumps(payload, ensure_ascii=False, separators=(',', ':')) + '\n')
+        if temporary.stat().st_size > 50 * 1024 * 1024:
+            raise ValueError(f'Company payload too large: {ticker}')
+        temporary.replace(target)
+        companies.append({**{k: v for k, v in company.items() if k != 'facts'},
+                          'facts': [], 'fact_count': len(company['facts'])})
+    index = {**data, 'companies': companies, 'evidence': {}, 'is_index': True}
+    temporary = output.with_suffix('.tmp')
+    temporary.write_text(json.dumps(index, ensure_ascii=False, separators=(',', ':')) + '\n')
+    temporary.replace(output)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--universe', type=Path, default=ROOT / 'site/data.json')
@@ -277,6 +304,7 @@ if __name__ == '__main__':
         result = (json.loads(args.output.read_text()) if args.summary_only else
                   build_from_database(args.tickers or universe(args.universe), args.output, args.database))
         build_summary(result, args.output.with_name('data_foundry_summary.json'))
+        partition_snapshot(result, args.output)
         print(json.dumps(result['meta'], ensure_ascii=False))
     except Exception as exc:
         print(f'[foundry] import failed; previous file untouched: {exc}', file=sys.stderr)

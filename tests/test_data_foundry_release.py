@@ -7,6 +7,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def accepted_snapshot():
+    import json
+    import pytest
+    path = ROOT / 'site/data_foundry.json'
+    if not path.exists():
+        pytest.skip('Accepted live snapshot is generated separately')
+    data = json.loads(path.read_text())
+    if data.get('is_index'):
+        companies, evidence = [], {}
+        for entry in data['companies']:
+            payload = json.loads((path.parent / 'data_foundry/companies' / (entry['ticker'] + '.json')).read_text())
+            companies.append(payload['company'])
+            evidence.update(payload['evidence'])
+        data = {**data, 'companies': companies, 'evidence': evidence}
+    return data
+
+
 def test_optional_sdk_cannot_block_core_updates():
     text = (ROOT / '.github/workflows/update.yml').read_text()
     assert 'optional enrichment skipped' in text
@@ -39,7 +56,7 @@ def test_wush_reference_when_snapshot_exists():
     if not path.exists():
         import pytest
         pytest.skip('Live snapshot is generated separately')
-    data = json.loads(path.read_text())
+    data = accepted_snapshot()
     company = next(c for c in data['companies'] if c['ticker'] == 'WUSH')
     facts = [f for f in company['facts'] if f['metric_code'] == 'fin.revenue'
              and f['period']['key'] == '2024-FY'
@@ -61,7 +78,7 @@ def test_summary_preserves_real_facts_and_coverage(tmp_path):
     spec = importlib.util.spec_from_file_location('foundry_export', ROOT / 'scripts/build_data_foundry.py')
     exporter = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(exporter)
-    original = json.loads(path.read_text())
+    original = accepted_snapshot()
     output = tmp_path / 'summary.json'
     summary = exporter.build_summary(original, output)
     assert summary['dataset'] == original['dataset']
@@ -72,4 +89,4 @@ def test_summary_preserves_real_facts_and_coverage(tmp_path):
         original_by_id = {fact['id']: fact for fact in full['facts']}
         assert all(all(value == original_by_id[fact['id']].get(key) for key, value in fact.items()) for fact in compact['facts'])
         assert all(fact['source_id'] in summary['evidence'] for fact in compact['facts'])
-    assert output.stat().st_size < path.stat().st_size
+    assert output.stat().st_size < len(json.dumps(original).encode())

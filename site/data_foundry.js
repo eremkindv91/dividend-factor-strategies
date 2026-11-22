@@ -133,15 +133,39 @@
         const select = document.getElementById('foundry-company');
         const metric = document.getElementById('foundry-metric');
         const latest = document.getElementById('foundry-latest');
-        const render = () => {
-          const company = data.companies.find(c => c.ticker === select.value);
+        let renderVersion = 0;
+        const companyCache = new Map();
+        const render = async () => {
+          const version = ++renderVersion;
+          let company = data.companies.find(c => c.ticker === select.value);
           const out = document.getElementById('foundry-facts');
-          if (!company || !company.facts.length) { out.innerHTML = '<p>Нет принятых сопоставимых значений в запрошенных периодах. Это не нулевая выручка или прибыль.</p>'; return; }
+          if (!company || !(company.fact_count ?? company.facts.length)) { out.innerHTML = '<p>Нет принятых сопоставимых значений в запрошенных периодах. Это не нулевая выручка или прибыль.</p>'; return; }
+          let detailData = data;
+          if (data.is_index) {
+            const ticker = company.ticker;
+            out.textContent = 'Загрузка показателей компании…';
+            try {
+              if (!companyCache.has(ticker)) {
+                const response = await fetch('data_foundry/companies/' + encodeURIComponent(ticker) + '.json', {cache:'no-store'});
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const payload = await response.json();
+                if (payload.dataset.version !== data.dataset.version) throw new Error('Разные версии данных');
+                companyCache.set(ticker,payload);
+              }
+              if (version !== renderVersion) return;
+              const payload = companyCache.get(ticker);
+              company = payload.company;
+              detailData = {...data, evidence: payload.evidence};
+            } catch (_) {
+              if (version === renderVersion) out.textContent = 'Данные компании недоступны. Повторите выбор компании.';
+              return;
+            }
+          }
           let facts = company.facts.filter(f => !metric.value || f.metric_code === metric.value);
           if (latest.checked) facts = latestFacts(facts);
           facts.sort((a,b) => (data.metrics[a.metric_code] || a.metric_code).localeCompare(data.metrics[b.metric_code] || b.metric_code,'ru') || b.period.end.localeCompare(a.period.end));
           if (!facts.length) { out.innerHTML = '<p>Этот показатель не покрыт принятым набором.</p>'; return; }
-          out.innerHTML = `<p>Показано ${facts.length} значений. Периоды, стандарты и валюты могут различаться.</p>` + factTable(facts,data,true);
+          out.innerHTML = `<p>Показано ${facts.length} значений. Периоды, стандарты и валюты могут различаться.</p>` + factTable(facts,detailData,true);
         };
         if (data.companies.some(c => c.ticker === 'WUSH')) select.value = 'WUSH';
         select.addEventListener('change', render); metric.addEventListener('change', render); latest.addEventListener('change', render); render();
