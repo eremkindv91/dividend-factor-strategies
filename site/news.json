@@ -1,8 +1,8 @@
 {
-  "date": "2026-11-21",
-  "generated_at": "2026-11-21T18:27:47+03:00",
+  "date": "2026-11-22",
+  "generated_at": "2026-11-22T23:46:46+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и золото закрылись снижением, нефть Brent выросла.",
+  "external_backdrop": "Мировые фондовые индексы и цены на сырьевые товары снизились по итогам предыдущей торговой сессии.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -34,8 +34,8 @@
     },
     {
       "name": "Brent",
-      "value": "92.57",
-      "change_pct": "+0.64%",
+      "value": "89.95",
+      "change_pct": "-2.21%",
       "as_of": "2026-11-20",
       "group": "commodity"
     },
@@ -48,16 +48,16 @@
     },
     {
       "name": "IMOEX",
-      "value": "2326.44",
-      "change_pct": "-1.14%",
-      "as_of": "2026-11-21 18:27:42",
+      "value": "2351.54",
+      "change_pct": "-0.07%",
+      "as_of": "2026-11-22 19:00:02",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "891.68",
-      "change_pct": "-1.14%",
-      "as_of": "2026-11-21 18:27:43",
+      "value": "901.30",
+      "change_pct": "-0.07%",
+      "as_of": "2026-11-22 19:00:01",
       "group": "ru_equity"
     },
     {
@@ -77,13 +77,93 @@
   ],
   "overnight": [
     {
-      "id": "wb-ceo-change",
-      "headline": "Татьяна Ким покинула пост генерального директора компании Wildberries",
-      "context": "Новым руководителем ООО «Вайлдберриз» назначен Алексей Куликов.",
-      "category": "corporate",
+      "id": "cbr-crypto-rules-in-force",
+      "headline": "Вступило в силу указание Банка России о правилах биржевых торгов криптовалютами",
+      "context": "Российские биржи получили право организовывать торги криптовалютой и цифровыми правами после согласования порядка сделок с Центробанком.",
+      "category": "cb_policy",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127345"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/394359"
+        }
+      ],
+      "published_at": "2026-11-22T23:22:00+03:00"
+    },
+    {
+      "id": "us-investigates-nvidia-chip-exports",
+      "headline": "Власти США и Калифорнии проверяют Nvidia по подозрениям в поставках чипов в КНР",
+      "context": "Администрация США затребовала отчет о возможных поставках микросхем через посредников в обход экспортных ограничений.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/society/10/11/2026/6af2f556b84c27b3021f5654"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127228"
+        }
+      ],
+      "published_at": "2026-11-22T22:54:00+03:00"
+    },
+    {
+      "id": "china-lowers-margin-requirements",
+      "headline": "Биржи Китая снизят минимальный размер обеспечения при покупке акций в кредит до 80%",
+      "context": "Шанхайская фондовая биржа утвердила снижение маржинальных требований с 100% до 80% с 30 ноября.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127358"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/394358"
+        }
+      ],
+      "published_at": "2026-11-22T23:01:00+03:00"
+    },
+    {
+      "id": "sparta-ii-leaves-finnish-waters",
+      "headline": "Российский сухогруз Sparta II покинул территориальные воды Финляндии после атаки БПЛА",
+      "context": "Судно подверглось атаке в нейтральных водах Финского залива, экипаж эвакуирован, угрозы снабжению Калининграда нет.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127554"
+        },
+        {
+          "name": "РБК",
+          "url": "https://www.rbc.ru/politics/22/11/2026/6b0351c40012904afd16541f"
+        }
+      ],
+      "published_at": "2026-11-22T23:42:00+03:00"
+    },
+    {
+      "id": "wildberries-ceo-changed",
+      "headline": "Генеральным директором Wildberries вместо Татьяны Ким назначен Алексей Куликов",
+      "context": "Кадровые изменения зарегистрированы в ЕГРЮЛ, при этом Татьяна Ким продолжит работу над стратегическим развитием группы RWB.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/317431"
+        },
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9127101"
@@ -92,268 +172,61 @@
       "published_at": "2026-11-21T13:35:00+03:00"
     },
     {
-      "id": "us-tech-selloff",
-      "headline": "Американские фондовые индексы и технологический сектор котировок снизились на торгах в США",
-      "context": "Индекс Nasdaq упал более чем на 5%, S&P 500 опустился ниже 7000 пунктов.",
-      "category": "markets",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1377699.php"
-        }
-      ],
-      "published_at": "2026-11-20T23:48:00+03:00"
-    },
-    {
-      "id": "mgkl-third-default",
-      "headline": "МГКЛ допустила дефолт по выплате купонного дохода по облигациям серии 001Р-06",
-      "context": "Компания не выплатила 28-й купонный доход на сумму 9,45 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1377660.php"
-        }
-      ],
-      "published_at": "2026-11-20T20:49:00+03:00"
-    },
-    {
-      "id": "trump-ukraine-peace-target",
-      "headline": "Дональд Трамп заявил о стремлении заключить мирное соглашение по Украине до января",
-      "context": "Администрация США рассчитывает достичь соглашения до перехода контроля над Конгрессом к демократам.",
-      "category": "geopolitics",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/world/1130513"
-        }
-      ],
-      "published_at": "2026-11-20T20:29:00+03:00"
-    },
-    {
-      "id": "minenergo-kerosene-exports",
-      "headline": "Минэнерго подготовило документы по возможному возобновлению экспорта авиакеросина",
-      "context": "Инициатива находится на рассмотрении в правительстве РФ с учетом баланса топливного рынка.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126651"
-        }
-      ],
-      "published_at": "2026-11-20T20:01:00+03:00"
-    },
-    {
-      "id": "mvideo-rsbu-9m",
-      "headline": "Чистая прибыль М.Видео по РСБУ за девять месяцев снизилась до 2,45 млн рублей",
-      "context": "Выручка компании за января — сентябрь сократилась на 18,2% и составила 118,27 млн рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1377641.php"
-        }
-      ],
-      "published_at": "2026-11-20T19:50:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "cb-osago-corridor",
-      "headline": "Банк России предложил снизить нижнюю границу тарифа ОСАГО до одного рубля",
-      "context": "Регулятор предложил расширить тарифный коридор ОСАГО и повысить верхнюю границу базового тарифа.",
-      "category": "cb_policy",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9114422"
-        }
-      ],
-      "published_at": "2026-11-20T11:19:00+03:00"
-    },
-    {
-      "id": "mts-dividends-buyback",
-      "headline": "Совет директоров МТС рекомендовал дивиденды за девять месяцев в размере 7 рублей на акцию",
-      "context": "Компания также утвердила программу обратного выкупа акций на 2027 год объемом до 21,5 млрд рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9114324"
-        }
-      ],
-      "published_at": "2026-11-20T09:29:00+03:00"
-    },
-    {
-      "id": "cian-dividends-approved",
-      "headline": "Акционеры Циана утвердили дивиденды за девять месяцев в размере 33 рублей на акцию",
-      "context": "Реестр акционеров для получения выплат закроется 30 ноября 2026 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126424"
-        }
-      ],
-      "published_at": "2026-11-20T15:28:00+03:00"
-    },
-    {
-      "id": "minfin-eurobond-coupons",
-      "headline": "Минфин России направил 3,3 млрд рублей на выплату купонов по еврооблигациям",
-      "context": "Выплаты произведены по суверенным бумагам с погашением в 2027 и 2032 годах и замещающим выпускам.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/finance/news/2026/11/20/1413771-minfin-napravil-rublei"
-        }
-      ],
-      "published_at": "2026-11-20T14:40:00+03:00"
-    },
-    {
-      "id": "estonia-border-closure",
-      "headline": "Правительство Эстонии приняло решение закрыть все автомобильные погранпереходы с Россией с 1 декабря",
-      "context": "Ограничение затронет все пять пунктов пропуска на эстонско-российской границе.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126250"
-        }
-      ],
-      "published_at": "2026-11-20T13:16:00+03:00"
-    },
-    {
-      "id": "sovcomflot-9m-results",
-      "headline": "Чистая прибыль Совкомфлота за девять месяцев 2026 года составила 396 млн долларов",
-      "context": "Выручка компании на основе тайм-чартерного эквивалента выросла на 65% до 1,26 млрд долларов.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413657-sovkomflot-poluchil-pribili"
-        }
-      ],
-      "published_at": "2026-11-20T11:41:00+03:00"
-    },
-    {
-      "id": "bspb-9m-results",
-      "headline": "Чистая прибыль банка Санкт-Петербург за девять месяцев снизилась на 27,8%",
-      "context": "По итогам девяти месяцев 2026 года показатель по МСФО составил 24,13 млрд рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/20/1413640-pribil-banka"
-        }
-      ],
-      "published_at": "2026-11-20T11:17:00+03:00"
-    },
-    {
-      "id": "europlan-9m-results-dividends",
-      "headline": "Совет директоров Европлана рекомендовал дивиденды в размере 87 рублей на акцию",
-      "context": "Чистая прибыль компании по итогам девяти месяцев 2026 года выросла на 141% до 7,1 млрд рублей.",
+      "id": "mts-reports-q3-2026-ifrs",
+      "headline": "МТС нарастила чистую прибыль по МСФО в третьем квартале 2026 года на 87,6%",
+      "context": "Выручка оператора выросла на 8,7% в годовом выражении до 232,5 млрд рублей, скорректированная OIBDA увеличилась до 78,7 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
           "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/4021"
+          "url": "https://t.me/mozgovikresearch/4023"
         }
       ],
-      "published_at": "2026-11-20T08:38:00+03:00"
+      "published_at": "2026-11-21T09:07:00+03:00"
     },
     {
-      "id": "vk-apple-lawsuit",
-      "headline": "Холдинг VK подал иск к Apple в Арбитражный суд Москвы на 31 млн евро",
-      "context": "Компания требует взыскать средства пользователей за покупки через App Store.",
-      "category": "corporate",
+      "id": "bspb-reports-9m-2026-ifrs",
+      "headline": "Чистая прибыль Банка Санкт-Петербург по МСФО за девять месяцев 2026 года снизилась на 28%",
+      "context": "За третий квартал банк заработал 7,6 млрд рублей чистой прибыли, что на 36% выше показателя предыдущего квартала.",
+      "category": "banks",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126517"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4024"
         }
       ],
-      "published_at": "2026-11-20T17:00:00+03:00"
+      "published_at": "2026-11-22T16:42:00+03:00"
     },
     {
-      "id": "klvz-crystal-default",
-      "headline": "Ликеро-водочный завод Кристалл допустил технический дефолт по купонам двух выпусков облигаций",
-      "context": "Общая сумма невыплаченного купонного дохода по сериям 001P-02 и 001P-03 составила 8,8 млн рублей.",
-      "category": "corporate",
+      "id": "coreweave-accumulates-47b-debt",
+      "headline": "Поставщик вычислительных мощностей CoreWeave накопил 47 млрд долларов долговых обязательств",
+      "context": "Аналитики предупреждают о рисках финансового краха компании на фоне высокой долговой нагрузки.",
+      "category": "tech",
       "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://t.me/if_market_news/87142"
-        }
-      ],
-      "published_at": "2026-11-20T15:44:00+03:00"
-    },
-    {
-      "id": "crimean-bridge-damage",
-      "headline": "Вице-премьер Марат Хуснуллин сообщил о повреждении основной балки пролета Крымского моста",
-      "context": "Проектировщики разрабатывают варианты инженерных решений для восстановления сооружения.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 3,
-      "sources": [
+          "name": "РБК",
+          "url": "https://www.rbc.ru/quote/26/10/2026/6adf26ba9a7947714cbf25c2"
+        },
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9126221"
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/394362"
         }
       ],
-      "published_at": "2026-11-20T12:55:00+03:00"
-    },
-    {
-      "id": "rwb-zpif-shareholders",
-      "headline": "Два закрытых паевых инвестиционных фонда получили 30% долей в компании РВБ",
-      "context": "ЗПИФ Томь получил 17,5% компании, ЗПИФ Гало — 12,5% объединенного Wildberries & Russ.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/317301"
-        }
-      ],
-      "published_at": "2026-11-20T11:36:00+03:00"
+      "published_at": "2026-11-22T23:42:00+03:00"
     }
   ],
+  "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "weekend",
-    "title": "Обзор недели",
-    "context": "в выходной день, когда биржа закрыта",
+    "kind": "week_ahead",
+    "title": "К новой неделе",
+    "context": "в воскресенье, накануне открытия недели",
     "last_trading_day": "2026-11-20"
   }
 }
