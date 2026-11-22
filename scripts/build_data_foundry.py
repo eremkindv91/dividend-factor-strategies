@@ -234,15 +234,40 @@ def build_from_database(tickers, output, database=None):
     return result
 
 
+def build_summary(data, output):
+    """Small initial payload; full statement history stays lazy-loaded."""
+    codes = {'fin.revenue', 'fin.operating_profit', 'fin.net_income', 'fin.total_assets', 'fin.total_equity'}
+    companies, sources = [], set()
+    for company in data['companies']:
+        facts, selected = company['facts'], []
+        for code in codes:
+            annual = [f for f in facts if f['metric_code'] == code and f['period']['group'] == 'annual']
+            end = max((f['period']['end'] for f in annual), default=None)
+            selected.extend(f for f in annual if f['period']['end'] == end)
+        sources.update(f['source_id'] for f in selected)
+        companies.append({**{k: v for k, v in company.items() if k != 'facts'},
+            'facts': selected, 'fact_count': len(facts),
+            'latest_report_end': max((f['period']['end'] for f in facts), default=None)})
+    summary = {**data, 'companies': companies,
+        'evidence': {key: data['evidence'][key] for key in sources}, 'is_summary': True}
+    temporary = output.with_suffix('.tmp')
+    temporary.write_text(json.dumps(summary, ensure_ascii=False, separators=(',', ':')) + '\n')
+    temporary.replace(output)
+    return summary
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--universe', type=Path, default=ROOT / 'site/data.json')
     parser.add_argument('--tickers', nargs='+')
     parser.add_argument('--output', type=Path, default=ROOT / 'site/data_foundry.json')
     parser.add_argument('--database', type=Path, help='Already downloaded SQLite; size and SHA-256 are checked')
+    parser.add_argument('--summary-only', action='store_true', help='Rebuild summary from an existing accepted snapshot')
     args = parser.parse_args()
     try:
-        result = build_from_database(args.tickers or universe(args.universe), args.output, args.database)
+        result = (json.loads(args.output.read_text()) if args.summary_only else
+                  build_from_database(args.tickers or universe(args.universe), args.output, args.database))
+        build_summary(result, args.output.with_name('data_foundry_summary.json'))
         print(json.dumps(result['meta'], ensure_ascii=False))
     except Exception as exc:
         print(f'[foundry] import failed; previous file untouched: {exc}', file=sys.stderr)

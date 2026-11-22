@@ -30,7 +30,7 @@
   let snapshot = null, loading = null;
   function load() {
     if (snapshot) return Promise.resolve(snapshot);
-    if (!loading) loading = fetch('data_foundry.json', {cache: 'no-store'}).then(response => {
+    if (!loading) loading = fetch('data_foundry_summary.json', {cache: 'no-store'}).then(response => {
       if (!response.ok) throw new Error('HTTP ' + response.status);
       return response.json();
     }).then(data => {
@@ -44,8 +44,8 @@
   function coverageHTML(ticker) {
     if (!snapshot) return '<span class="foundry-coverage-badge">Покрытие отчётности проверяется</span>';
     const company = snapshot.companies.find(c => c.ticker === ticker);
-    if (!company || !company.facts.length) return '<span class="foundry-coverage-badge is-missing" title="Это ограничение дополнительного источника, а не утверждение об отсутствии отчётности компании. Другие источники показаны в подробностях.">Data Foundry: нет покрытия</span>';
-    const end = company.facts.map(f => f.period.end).sort().pop();
+    if (!company || !(company.fact_count ?? company.facts.length)) return '<span class="foundry-coverage-badge is-missing" title="В этом слое отобраны проверенные консолидированные факты МСФО в RUB. Отсутствие сопоставимого среза не означает отсутствия отчётности. Другие источники показаны в подробностях.">Data Foundry: нет сопоставимого среза</span>';
+    const end = company.latest_report_end || company.facts.map(f => f.period.end).sort().pop();
     return `<span class="foundry-coverage-badge is-covered" title="Есть принятые факты, но полнота последней отчётности и качество модельной оценки проверяются отдельно.">Data Foundry: есть данные · период до ${escape(end)}</span>`;
   }
   function renderCoverageSummary() {
@@ -54,7 +54,7 @@
     if (!el || !snapshot) return;
     const {covered_companies: count, requested_companies: total, fetched_at: fetched} = snapshot.meta;
     el.hidden = false;
-    el.innerHTML = `<b>Отчётность Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
+    el.innerHTML = `<b>МСФО в рублях · Data Foundry: ${escape(count)} из ${escape(total)} бумаг</b> · загрузка ${escape(day(fetched))}. `
       + 'Покрытие источника не означает полноту последней отчётности. <button type="button">Посмотреть источники</button>';
     el.querySelector('button').addEventListener('click', () => {
       const panel = document.getElementById('foundry-panel');
@@ -87,7 +87,10 @@
       loaded = true;
       const body = document.getElementById('foundry-body');
       try {
-        const data = await load();
+        const response = await fetch('data_foundry.json', {cache:'no-store'});
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (data.schema_version !== 1 || !Array.isArray(data.companies)) throw new Error('Неподдерживаемый формат');
         const meta = data.meta, dataset = data.dataset;
         body.innerHTML = `<p>Покрытие: <b>${escape(meta.covered_companies)} из ${escape(meta.requested_companies)}</b> бумаг. `
           + `Публикация базы: ${escape(day(dataset.published_at) || 'н/д')}. Загрузка: ${escape(day(meta.fetched_at))}.</p>`

@@ -120,3 +120,5 @@ site/build.json
 site/data_foundry.json
 
 /node_modules
+
+site/data_foundry_summary.json

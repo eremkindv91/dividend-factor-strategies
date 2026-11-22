@@ -290,6 +290,7 @@ jobs:
           [ -f site/market_history.json ] && cp site/market_history.json "$TMP/"   # графики и техуровни MOEX ISS
           [ -f site/marlamov.json ] && cp site/marlamov.json "$TMP/"   # форвардная дивдоходность (Марламов)
           [ -f site/data_foundry.json ] && cp site/data_foundry.json "$TMP/"
+          [ -f site/data_foundry_summary.json ] && cp site/data_foundry_summary.json "$TMP/"
           [ -f site/quality.json ] && cp site/quality.json "$TMP/"   # RU Quality Core + provenance
           [ -f site/site_coverage.json ] && cp site/site_coverage.json "$TMP/"   # покрытие и качество фундаментальных данных
           [ -f site/site_financials.json ] && cp site/site_financials.json "$TMP/"   # additive unified financial layer
@@ -348,6 +349,7 @@ jobs:
           # Data Foundry publishes independently; preserve its latest accepted layer.
           if [ ! -f "$TMP/data_foundry.json" ] && [ -n "$LAST_GOOD" ] && [ -f "$LAST_GOOD/data_foundry.json" ]; then
             cp "$LAST_GOOD/data_foundry.json" "$TMP/"
+            [ -f "$LAST_GOOD/data_foundry_summary.json" ] && cp "$LAST_GOOD/data_foundry_summary.json" "$TMP/" || true
           fi
           # Свежий валидный набор имеет приоритет над last-good. Генератор пишет его
           # атомарно и только если получил хотя бы один корректный PNG.

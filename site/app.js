@@ -190,7 +190,7 @@ function loadBuildManifest() {
     .then((j) => { if (j && j.version != null) BUILD.version = String(j.version); })
     .catch(() => { /* build.json может отсутствовать (локально / до первого деплоя) */ });
 }
-loadBuildManifest();
+const BUILD_READY = loadBuildManifest();
 
 // ── версионируемое хранилище UI-настроек (редизайн, Итерация 3, §6.6) ──
 // Единый ключ dfs.ui.v1 с полем версии → безопасная миграция при смене схемы.
@@ -217,7 +217,7 @@ function uiStateSave(patch) {
 }
 
 // ── загрузка ──
-fetch(dataURL('data.json'))
+BUILD_READY.then(() => fetch(dataURL('data.json'), { cache: 'no-store' }))
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(init)
   .catch((e) => {
@@ -246,7 +246,7 @@ function renderDateChips(m) {
 // listener'ы), поэтому здесь ТОЛЬКО обновляем DATA и перерисовываем DATA-зависимые вью,
 // без ре-wiring. Дополняет invalidateStaleDataCaches() (тот чинил lazy-глобалы, но не DATA).
 function refreshCoreData(cb) {
-  fetch(dataURL('data.json'))
+  fetch(dataURL('data.json'), { cache: 'no-store' })
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((j) => {
       if (j && Array.isArray(j.tickers) && j.meta) {

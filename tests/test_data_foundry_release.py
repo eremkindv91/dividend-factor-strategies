@@ -47,3 +47,26 @@ def test_wush_reference_when_snapshot_exists():
     from decimal import Decimal
     assert all(Decimal(f['value']) == Decimal('14304301000') for f in facts)
     assert all(data['evidence'][f['source_id']]['official_url'] for f in facts)
+
+
+def test_summary_preserves_real_facts_and_coverage(tmp_path):
+    import json
+    import importlib.util
+    import pytest
+    path = ROOT / 'site/data_foundry.json'
+    if not path.exists():
+        pytest.skip('Accepted live snapshot is generated separately')
+    spec = importlib.util.spec_from_file_location('foundry_export', ROOT / 'scripts/build_data_foundry.py')
+    exporter = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(exporter)
+    original = json.loads(path.read_text())
+    output = tmp_path / 'summary.json'
+    summary = exporter.build_summary(original, output)
+    assert summary['dataset'] == original['dataset']
+    assert summary['meta'] == original['meta']
+    assert len(summary['companies']) == len(original['companies'])
+    for compact, full in zip(summary['companies'], original['companies']):
+        assert compact['fact_count'] == len(full['facts'])
+        assert all(fact in full['facts'] for fact in compact['facts'])
+        assert all(fact['source_id'] in summary['evidence'] for fact in compact['facts'])
+    assert output.stat().st_size < path.stat().st_size / 4
