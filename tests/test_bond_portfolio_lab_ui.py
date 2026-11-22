@@ -355,7 +355,7 @@ def test_calendar_shows_empty_months_and_configurable_tax():
     app = (SITE / "app.js").read_text(encoding="utf-8")
 
     assert "bond-month-empty" in app, "пустые месяцы должны быть видны на графике"
-    assert "for (let i = 0; i < 12; i += 1)" in app, "календарь строится на все 12 месяцев"
+    assert "for (let i = 0; i <= 12; i += 1)" in app, "скользящие 12 месяцев включают неполные первый и последний календарные месяцы"
     # ставка налога в подписи берётся из настроек, а не зашита
     assert "ru(BOND_SETTINGS.taxRate * 100, 0)" in app
     assert "по ставке 13% только для купонов" not in app

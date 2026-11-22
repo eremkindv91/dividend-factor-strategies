@@ -7,9 +7,20 @@
 
   const round = (value, digits = 2) => Number(Number(value).toFixed(digits));
 
+  function parseBudget(raw, limits = {}) {
+    const text = String(raw ?? '').trim().replace(/\s|\u00a0|\u202f/g, '').replace(/₽$/, '').replace(',', '.');
+    if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return { ok: false, code: 'invalid_format' };
+    const value = Number(text);
+    if (!Number.isFinite(value) || value <= 0) return { ok: false, code: 'invalid_format' };
+    if (value < Number(limits.minimum_rub || 0)) return { ok: false, code: 'below_minimum' };
+    if (value > Number(limits.maximum_rub || Infinity)) return { ok: false, code: 'above_maximum' };
+    return { ok: true, value: round(value) };
+  }
+
   function allocate(target, universe, budgetRub, profile, horizon, costs) {
     const bySecid = Object.fromEntries((universe.bonds || []).map((row) => [row.secid, row]));
-    const source = (target.target_positions || []).filter((item) => bySecid[item.secid]);
+    const source = target.target_positions || [];
+    if (source.some((item) => !bySecid[item.secid])) return failure('missing_target_issue');
     const budget = round(budgetRub);
     if (!source.length || !Number.isFinite(budget) || budget <= 0) return failure('invalid_input');
     const costRate = (Number(costs.commission_bps || 0) + Number(costs.slippage_bps || 0)) / 10000;
@@ -121,6 +132,13 @@
       + Math.max(0, portfolioDuration - Number(horizon.max));
     if (requireMinimums && ofz / budget + ofzTolerance < Number(profile.minimum_ofz)) reasons.push('minimum_ofz');
     if (requireMinimums && (portfolioDuration < Number(horizon.min) - 0.01 || portfolioDuration > Number(horizon.max) + 0.01)) reasons.push('duration_corridor');
+    if (requireMinimums) {
+      if (items.length < Number(profile.minimum_issues || 0)) reasons.push('minimum_issues');
+      if (Object.keys(byIssuer).length < Number(profile.minimum_issuers || 0)) reasons.push('minimum_issuers');
+      if (items.some((row, index) => lots[index] * row.lotCost / budget < Number(profile.minimum_position || 0) - 0.01)) reasons.push('minimum_position');
+      const cashWeight = (budget - invested) / budget;
+      if (cashWeight > Number(profile.cash_max ?? 1) + 0.001 || cashWeight < Number(profile.cash_min || 0) - 0.001) reasons.push('cash_limit');
+    }
     return { ok: reasons.length === 0, maximumsOk: reasons.length === 0, minimumPenalty, reasons: [...new Set(reasons)] };
   }
 
@@ -128,5 +146,5 @@
     return { status: 'INFEASIBLE', reason_codes: [code, ...reasons], positions: [] };
   }
 
-  return Object.freeze({ allocate });
+  return Object.freeze({ allocate, parseBudget });
 });

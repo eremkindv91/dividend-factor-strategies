@@ -4449,3 +4449,48 @@ body.has-chart-fullscreen { overflow: hidden; }
 #foundry-panel { scroll-margin-top: 100px; }
 #foundry-facts .foundry-table { max-height: 420px; overflow: auto; }
 #foundry-facts th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+
+/* Подбор облигационного портфеля: сначала сумма, затем состав и риски. */
+.bond-data-status { display: grid; gap: 4px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); font-size: .8rem; }
+.bond-data-status > div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; }
+.bond-data-status span, .bond-data-status p { color: var(--ink-soft); }
+.bond-data-status p { margin: 0; line-height: 1.4; }
+.bond-data-status.is-stale { border-color: var(--warn-ink); background: var(--warn-fill); }
+.bond-budget-form { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.bond-budget-heading h3 { margin: 5px 0 7px; font-size: 1.35rem; }
+.bond-budget-heading p, .bond-budget-method { color: var(--ink-soft); line-height: 1.5; font-size: .85rem; }
+.bond-budget-heading p { margin: 0 0 18px; max-width: 760px; }
+.bond-budget-amount { display: grid; gap: 12px; }
+.bond-budget-amount label { display: block; font-size: .85rem; font-weight: 650; margin-bottom: 6px; }
+.bond-budget-input { display: flex; gap: 10px; max-width: 640px; }
+.bond-budget-input input { flex: 1; width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 1.25rem; background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; }
+.bond-budget-input input[aria-invalid="true"] { border-color: var(--risk-ink); }
+.bond-budget-input .btn { flex-shrink: 0; min-height: 48px; font-weight: 650; color: white; background: var(--accent-deep); }
+.bond-budget-amount small { display: block; margin-top: 7px; color: var(--ink-faint); font-size: .76rem; line-height: 1.45; }
+.bond-budget-presets { display: flex; gap: 7px; flex-wrap: wrap; }
+.bondlab-builder.bond-budget-options { grid-template-columns: 1fr 1fr; padding: 16px 0 0; margin-top: 15px; border: 0; border-top: 1px solid var(--line); border-radius: 0; }
+.bond-budget-options small { line-height: 1.45; }
+.bond-budget-method { margin-bottom: 0; font-size: .76rem; }
+.bond-budget-feedback { padding: 10px 12px; border-radius: 8px; background: var(--warn-fill); color: var(--warn-ink); font-size: .85rem; line-height: 1.5; }
+.bond-budget-result { margin: 24px 0 10px; }
+.bond-budget-result h3 { margin: 0 0 6px; font-size: 1.2rem; }
+.bond-budget-result p, .bond-budget-assumptions { font-size: .8rem; line-height: 1.5; color: var(--ink-soft); }
+.bond-budget-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bond-budget-summary > div:nth-child(3n+1) { border-left: 0; }
+.bond-budget-summary > div:nth-child(n+4) { border-top: 1px solid var(--line); }
+.bond-budget-summary b { font-size: 1.25rem; }
+.bond-budget-metrics { margin: 14px 0 20px; }
+.bond-budget-metrics summary { cursor: pointer; color: var(--ink-soft); font-size: .85rem; }
+#bondlab-results[hidden], .bond-budget-feedback[hidden] { display: none; }
+@media (max-width: 680px) {
+  .bond-budget-form { padding: 14px; }
+  .bondlab-builder.bond-budget-options { grid-template-columns: 1fr; gap: 16px; }
+  .bond-budget-input { flex-direction: column; }
+  .bond-budget-input .btn { width: 100%; }
+  .bond-budget-presets .bondlab-choice { flex: 1 1 42%; min-height: 42px; }
+  .bond-budget-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bond-budget-summary > div { border-left: 1px solid var(--line); }
+  .bond-budget-summary > div:nth-child(odd) { border-left: 0; }
+  .bond-budget-summary > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .bondlab-coupons { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

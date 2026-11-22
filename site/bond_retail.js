@@ -224,6 +224,57 @@
     });
   }
 
+  // Пропуск не является нулём; неподтверждённая YTM не участвует в отборе по доходности.
+  function filterRows(rows, options = {}) {
+    const f = options.filters || {};
+    const query = String(options.query || '').trim().toLocaleLowerCase('ru');
+    const mode = options.mode || 'safe';
+    const minRank = ratingRank(f.minRating);
+    const bounded = (value, limit, lower = false) => !finite(limit)
+      || (finite(value) && (lower ? Number(value) >= Number(limit) : Number(value) <= Number(limit)));
+    return (rows || []).filter((row) => {
+      const safety = row.bond_safety || classifyBond(row, options);
+      if (mode === 'safe' && !safety.investable) return false;
+      if (mode === 'risk' && safety.investable) return false;
+      if (query && ![row.secid, row.isin, row.name, row.issuer_name].join(' ').toLocaleLowerCase('ru').includes(query)) return false;
+      const rating = options.rating || 'all';
+      if (rating !== 'all' && (rating === 'ofz' ? row.instrument_type !== 'ofz' : row.rating_group !== rating)) return false;
+      if (minRank && row.instrument_type !== 'ofz' && mode !== 'risk' && (ratingRank(row.rating) || 0) < minRank) return false;
+      if ((finite(f.minYtm) || finite(f.maxYtm)) && !safety.ytmConfirmed) return false;
+      if (!bounded(row.ytm_net_est_pct, f.minYtm, true) || !bounded(row.ytm_net_est_pct, f.maxYtm)) return false;
+      if (!bounded(row.duration_value, f.maxDuration)) return false;
+      if (f.sector && f.sector !== 'all' && row.sector !== f.sector) return false;
+      if (f.couponType && f.couponType !== 'all' && row.coupon_type !== f.couponType) return false;
+      if (f.couponFreq && f.couponFreq !== 'all' && Number(row.coupon_frequency) !== Number(f.couponFreq)) return false;
+      if (f.retailOnly && row.qualified_only) return false;
+      if (f.simpleOnly && (row.amortizing || row.has_put_offer || row.has_call)) return false;
+      if (number(f.minLiquidity, 0) > 0 && !bounded(liquidity(row).score, f.minLiquidity, true)) return false;
+      return true;
+    });
+  }
+
+  function priceFreshness(rows, asOf = new Date().toISOString()) {
+    const dates = (rows || []).map((r) => isoDay(r.source_dates && r.source_dates.price)).filter(Boolean).sort();
+    const stale = (rows || []).filter((r) => {
+      const age = daysBetween(r.source_dates && r.source_dates.price, asOf);
+      return age == null || age < 0 || age > BOND_SAFETY_CONFIG.maxPriceAgeDays;
+    }).length;
+    return { oldest: dates[0] || null, latest: dates[dates.length - 1] || null,
+      missing: (rows || []).length - dates.length, stale, total: (rows || []).length };
+  }
+
+  function weightedMetric(rows, field) {
+    let totalWeight = 0, coveredWeight = 0, sum = 0;
+    (rows || []).forEach((r) => {
+      const weight = number(r.actual_weight, 0);
+      if (weight <= 0) return;
+      totalWeight += weight;
+      if (finite(r[field])) { coveredWeight += weight; sum += weight * Number(r[field]); }
+    });
+    return { value: coveredWeight ? sum / coveredWeight : null,
+      coverage: totalWeight ? coveredWeight / totalWeight : 0 };
+  }
+
   function coverage(rows) {
     const total = Math.max(1, (rows || []).length);
     const ratio = (predicate) => round((rows || []).filter(predicate).length / total * 100, 1);
@@ -412,6 +463,9 @@
       if (!row) return;
       const quantity = Math.max(0, Math.trunc(number(position.quantity_bonds, number(position.lots, 0) * number(row.lot_size, 1))));
       (row.cashflows_12m || []).forEach((flow) => {
+        const date = isoDay(flow.date);
+        if (!date || date <= asOf || Date.parse(date + 'T00:00:00Z') > end.getTime()) return;
+        if (!finite(flow.amount_per_bond_rub)) { warnings.push({ secid: row.secid, code: 'MISSING_PAYMENT_AMOUNT' }); return; }
         const type = flow.flow_type || 'coupon';
         const gross = number(flow.amount_per_bond_rub, 0) * quantity;
         const tax = type === 'coupon' ? gross * taxRate : 0;
@@ -516,7 +570,7 @@
 
   return Object.freeze({
     SCHEMA_VERSION, STORAGE_KEY, SETTINGS_KEY, BOND_SAFETY_CONFIG, REASON_LABELS, RATING_SCALE,
-    ratingRank, liquidity, classifyBond, classifyUniverse, coverage, purchaseBreakdown,
+    ratingRank, liquidity, classifyBond, classifyUniverse, filterRows, priceFreshness, weightedMetric, coverage, purchaseBreakdown,
     parsePortfolioText, resolvePortfolio, savePortfolio, loadPortfolio, clearPortfolio,
     saveSettings, loadSettings, reconcile, cashflowSchedule, concentration, stress,
     findAlternatives, alerts,

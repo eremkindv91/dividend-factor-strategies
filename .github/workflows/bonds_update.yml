@@ -52,7 +52,7 @@ jobs:
         run: python scripts/validate_site_data.py bonds
 
       - name: Тесты Bond Portfolio Lab
-        run: pytest -q tests/bonds/test_bond_portfolio_lab_v3.py tests/test_bond_portfolio_lab_ui.py
+        run: pytest -q tests/bonds/test_bond_portfolio_lab_v3.py tests/test_bond_portfolio_lab_ui.py tests/test_bond_budget.py
 
       - name: Коммит site/bonds/*.json в ветку
         run: |

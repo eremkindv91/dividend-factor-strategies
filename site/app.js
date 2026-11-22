@@ -5792,13 +5792,13 @@ function wireBonds() {
 
 function loadBonds(cb) {
   if (BONDS) { cb(); return; }
-  Promise.all([
-    fetch(dataURL('bonds/screener.json')).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
-    fetch(dataURL('bonds/chart_data.json')).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
-    fetch(dataURL('bonds/portfolios.json')).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
+  BUILD_READY.then(() => Promise.all([
+    fetch(dataURL('bonds/screener.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('screener ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/chart_data.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('chart ' + r.status); return r.json(); }),
+    fetch(dataURL('bonds/portfolios.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('portfolios ' + r.status); return r.json(); }),
     ...['universe.json', 'portfolio_presets.json', 'portfolio_validation.json', 'portfolio_last_valid.json'].map((name) =>
-      fetch(dataURL('bonds/' + name)).then((r) => r.ok ? r.json() : null).catch(() => null)),
-  ]).then(([screener, chart, portfolios, universe, presets, validation, lastValid]) => {
+      fetch(dataURL('bonds/' + name), { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).catch(() => null)),
+  ])).then(([screener, chart, portfolios, universe, presets, validation, lastValid]) => {
     if (!screener || !screener.bonds || !chart) throw new Error('пустые/битые JSON облигаций');
     if (universe && Array.isArray(universe.bonds) && window.BondRetail) {
       universe = { ...universe, bonds: window.BondRetail.classifyUniverse(universe.bonds) };
@@ -5816,6 +5816,7 @@ function loadBonds(cb) {
       portfolios: (portfolios && portfolios.portfolios) || {},
       lab: { universe, presets, validation, lastValid },
     };
+    updateDataStatus();
     cb();
   }).catch((e) => { console.error('[bonds] не загрузились:', e); cb(e); });
 }
@@ -5824,6 +5825,7 @@ let BOND_LAB_TAB = 'portfolios';
 let BOND_LAB_PROFILE = 'balanced';
 let BOND_LAB_HORIZON = '3y';
 let BOND_LAB_BUDGET = 1000000;
+let BOND_LAB_BUDGET_INPUT = '1000000';
 let BOND_LAB_BUDGET_ERROR = '';
 let BOND_LAB_CURRENT_ALLOCATION = null;
 
@@ -5856,6 +5858,7 @@ function drawBondLab() {
     if (BOND_ANALYTICS_VIEW === 'curve') loadChartJS((err) => { if (!err && window.Chart) bondsChart(BONDS); });
     if (BOND_ANALYTICS_VIEW === 'finder') renderFinder();
   }
+  panel.insertAdjacentHTML('afterbegin', bondDataStatusHTML(BONDS.lab && BONDS.lab.universe));
   wireBondLabControls();
 }
 
@@ -5914,11 +5917,14 @@ function bondConfirmedYtmHTML(row) {
 
 function bondLabUnavailableHTML(target) {
   const d = (target && target.candidate_diagnostics) || {};
+  const horizon = BONDS && BONDS.lab && BONDS.lab.presets && BONDS.lab.presets.horizons[BOND_LAB_HORIZON];
   return `<div class="bondlab-unavailable">
-    <span class="bondlab-status">Портфель не сформирован</span>
-    <h3>Текущая ликвидная выборка не позволяет соблюсти все ограничения</h3>
-    <p>Для защитного горизонта 1 год требуется modified duration 0,35–1,10. В этом диапазоне сейчас ${d.issues_inside_duration_corridor ?? 0} выпуск одного эмитента, а профиль требует минимум 9 эмитентов и не более 10% на выпуск.</p>
-    <p class="muted">Модель не расширяет corridor, не повышает концентрацию и не подставляет неликвидные бумаги. Можно выбрать другой горизонт или профиль.</p>
+    <span class="bondlab-status">Нет подтверждённого состава</span>
+    <h3>Для выбранного профиля и горизонта модельный портфель не сформирован</h3>
+    <p>Требования к диверсификации, ликвидности и процентному риску не подтверждены одновременно.
+      ${horizon ? `Диапазон дюрации: ${esc(horizon.min)}–${esc(horizon.max)} лет.` : ''}
+      ${Number.isInteger(d.issues_inside_duration_corridor) ? `Выпусков внутри диапазона: ${d.issues_inside_duration_corridor}.` : ''}</p>
+    <p class="muted">Выберите другой профиль или горизонт. Сайт не ослабляет ограничения автоматически и не выдаёт отсутствие расчёта за готовый портфель.</p>
   </div>`;
 }
 
@@ -6045,7 +6051,7 @@ function bondCouponCalendar(rows, universe) {
   // там, где его нет.
   const start = new Date();
   const entries = [];
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i <= 12; i += 1) {
     const d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + i, 1));
     const key = d.toISOString().slice(0, 7);
     entries.push([key, paid[key] || { coupon_gross_rub: 0, principal_rub: 0, net_rub: 0 }]);
@@ -6062,9 +6068,86 @@ function bondCouponCalendar(rows, universe) {
   const flows = schedule.flows.map((flow) => `<tr data-cashflow-month="${esc(String(flow.date || '').slice(0, 7))}"><td>${esc(shortIsoDate(flow.date))}</td><td>${esc(flow.secid)}</td><td>${flow.type === 'coupon' ? 'Купон' : 'Возврат номинала'}</td><td class="tnum">${rub0(flow.gross_rub)}</td><td class="tnum">${rub0(flow.tax_rub)}</td><td class="tnum b-strong">${rub0(flow.net_rub)}</td></tr>`).join('');
   const monthlyAverage = schedule.coupon_net_rub / 12;
   return `<div class="bond-cash-kpis"><div><span>Купоны gross</span><b>${rub0(schedule.coupon_gross_rub)}</b></div><div><span>Купоны net</span><b>${rub0(schedule.coupon_net_rub)}</b></div><div><span>Возврат номинала</span><b>${rub0(schedule.principal_rub)}</b></div><div><span>Средний купон / месяц</span><b>${rub0(monthlyAverage)}</b>${emptyMonths ? `<small>${plural(emptyMonths, 'месяц', 'месяца', 'месяцев')} без выплат</small>` : ''}</div></div>
-    <div class="bondlab-coupons">${bars}</div>
+    <p class="muted">Ближайшие 12 месяцев: первый и последний календарные месяцы могут быть неполными. Среднее за месяц не означает равномерных выплат.</p><div class="bondlab-coupons">${bars}</div>
     ${bondReinvestHTML(schedule)}
     <details class="bond-cash-details"><summary>Выплаты по точным датам</summary><div class="bonds-table-wrap"><table class="bonds-table"><thead><tr><th>Дата</th><th>Выпуск</th><th>Тип</th><th>Gross</th><th>Налог, оценка</th><th>Net</th></tr></thead><tbody>${flows}</tbody></table></div><p>Возврат номинала показан отдельно и не считается инвестиционным доходом. Налог оценочный: ${ru(BOND_SETTINGS.taxRate * 100, 0)}% удерживается только с купонов, налог с разницы цен и льготы счёта не учитываются.</p></details>`;
+}
+
+function bondDataStatusHTML(universe) {
+  if (!universe || !window.BondRetail) return '';
+  const state = window.BondRetail.priceFreshness(universe.bonds || []);
+  const range = state.oldest === state.latest ? shortIsoDate(state.latest)
+    : `${shortIsoDate(state.oldest)} — ${shortIsoDate(state.latest)}`;
+  return `<div class="bond-data-status${state.stale ? ' is-stale' : ''}" role="status">
+    <div><b>Цены: ${esc(state.latest ? range : 'дата не подтверждена')}</b>
+      <span>Загрузка набора: ${esc(shortIsoDate(universe.generated_at))} · ${state.total} выпусков</span></div>
+    <p>${state.stale ? `У ${state.stale} выпусков цена устарела или её дата не подтверждена. Расчёт по этому набору нельзя считать текущей ценой покупки.`
+      : 'Цены последней доступной сессии; перед сделкой цена и НКД могут измениться.'}</p>
+  </div>`;
+}
+
+function bondAllocationReasonsHTML(allocation) {
+  const labels = {
+    invalid_input: 'Не хватает данных состава или сумма некорректна.',
+    missing_target_issue: 'Выпуск из модельного состава отсутствует в текущем наборе. Нужна согласованная публикация данных.',
+    invalid_dirty_lot_price: 'Для части лотов не подтверждена цена с НКД.',
+    budget_below_minimum_lots: 'Суммы не хватает даже на один лот каждого выпуска модельного состава.',
+    issue_or_liquidity_cap: 'После округления превышен лимит выпуска или участия в обороте.',
+    issuer_cap: 'После округления превышен лимит эмитента.',
+    sector_cap: 'После округления превышен лимит сектора.',
+    maturity_bucket_cap: 'Превышена концентрация на одном году погашения.',
+    bbb_cap: 'Превышен лимит выпусков с рейтингом BBB.',
+    new_issue_cap: 'Превышен лимит новых размещений.',
+    minimum_ofz: 'Не подтверждена минимальная доля ОФЗ.',
+    duration_corridor: 'Дюрация выходит за выбранный диапазон.',
+    integer_allocation_failed: 'Серверный подбор целых лотов не получил проверенного решения.',
+    milp_infeasible: 'Серверный подбор состава не получил допустимого решения.',
+    minimum_issues: 'Недостаточно выпусков для диверсификации выбранного профиля.',
+    minimum_issuers: 'Недостаточно эмитентов для диверсификации выбранного профиля.',
+    minimum_position: 'После округления доля части выпусков ниже минимальной.',
+    cash_limit: 'Остаток денег выходит за допустимый диапазон профиля.',
+  };
+  const codes = [...new Set((allocation && allocation.reason_codes) || [])]
+    .filter((code) => code !== 'post_rounding_constraints_failed');
+  return codes.length ? `<ul>${codes.map((code) => `<li>${esc(labels[code] || 'Ограничения состава не подтверждены.')}</li>`).join('')}</ul>` : '';
+}
+
+function bondBudgetBuilderHTML(limits, profiles, horizons, profileConfig) {
+  return `<form class="bond-budget-form" id="bondlab-budget-form" novalidate>
+    <div class="bond-budget-heading"><div><span class="section-kicker">Портфель под вашу сумму</span><h3>Сколько планируете вложить?</h3>
+      <p>Выберите сумму, профиль и процентный риск. Сайт рассчитает целые лоты и остаток с учётом НКД и издержек.</p></div></div>
+    <div class="bond-budget-amount"><div><label for="bondlab-budget">Сумма в рублях</label>
+      <div class="bond-budget-input"><input id="bondlab-budget" type="text" inputmode="decimal" autocomplete="off" value="${esc(BOND_LAB_BUDGET_INPUT)}" aria-describedby="bondlab-budget-help bondlab-budget-feedback"><button class="btn" type="submit">Рассчитать портфель</button></div>
+      <small id="bondlab-budget-help">От ${rub0(limits.minimum_rub)} до ${rub0(limits.maximum_rub)}. Можно ввести любую сумму в этом диапазоне, например 275 000.</small></div>
+      <div class="bond-budget-presets" role="group" aria-label="Быстрый выбор суммы">${[250000,500000,1000000,3000000].filter((v) => v >= limits.minimum_rub && v <= limits.maximum_rub).map((v) => `<button type="button" class="bondlab-choice${v === BOND_LAB_BUDGET ? ' active' : ''}" data-bond-budget="${v}">${rub0(v)}</button>`).join('')}</div></div>
+    <div class="bondlab-builder bond-budget-options"><div><label>Профиль риска</label><div class="bondlab-choices">${profiles}</div><small>Минимальный рейтинг корпоратов: ${esc(profileConfig.minimum_corporate_rating || ND)}. Риск дефолта сохраняется.</small></div>
+      <div><label>Горизонт по процентному риску</label><div class="bondlab-choices">${horizons}</div><small>Горизонт задаёт диапазон дюрации. Даты погашения выпусков могут быть позже.</small></div></div>
+    <p class="bond-budget-feedback" id="bondlab-budget-feedback" role="status" hidden></p>
+    <p class="bond-budget-method">При смене суммы сохраняется состав выбранной модели и пересчитываются лоты. Новый подбор выпусков под индивидуальные ограничения здесь не выполняется.</p>
+  </form>`;
+}
+
+function applyBondBudget() {
+  const input = document.getElementById('bondlab-budget');
+  const feedback = document.getElementById('bondlab-budget-feedback');
+  if (!input || !window.BondLotAllocator) return false;
+  BOND_LAB_BUDGET_INPUT = input.value;
+  const limits = (BONDS && BONDS.lab && BONDS.lab.presets && BONDS.lab.presets.budget_limits) || {};
+  const parsed = window.BondLotAllocator.parseBudget(input.value, limits);
+  if (!parsed.ok) {
+    input.setAttribute('aria-invalid', 'true');
+    if (feedback) {
+      feedback.hidden = false;
+      feedback.textContent = parsed.code === 'below_minimum' ? `Для этой модели минимальная сумма — ${rub0(limits.minimum_rub)}. Подбор меньшей суммы с теми же ограничениями не подтверждён.`
+        : parsed.code === 'above_maximum' ? `Максимальная сумма расчёта — ${rub0(limits.maximum_rub)}. Для крупных сделок нужна отдельная проверка ликвидности.`
+          : 'Введите сумму цифрами. Пробелы между тысячами и запятая для копеек допустимы.';
+    }
+    input.focus();
+    return false;
+  }
+  BOND_LAB_BUDGET = parsed.value;
+  BOND_LAB_BUDGET_INPUT = parsed.value.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+  return true;
 }
 
 function bondPortfolioLabHTML(lab) {
@@ -6089,40 +6172,46 @@ function bondPortfolioLabHTML(lab) {
   const profileConfig = presets.profiles[BOND_LAB_PROFILE] || {};
   const horizonConfig = presets.horizons[BOND_LAB_HORIZON] || {};
   let allocation = serverAllocation;
+  let allocationFailure = null;
   BOND_LAB_BUDGET_ERROR = '';
+  if (target && !serverAllocation && target.status !== 'INFEASIBLE') {
+    allocationFailure = (validation.presets || {})[key];
+    BOND_LAB_BUDGET_ERROR = 'Для этого профиля и горизонта нет опубликованного проверенного распределения по лотам. Выберите другой профиль или горизонт.';
+  }
   if (target && serverAllocation && Number(BOND_LAB_BUDGET) !== Number(serverAllocation.budget_rub)) {
     if (!window.BondLotAllocator) {
       allocation = null; BOND_LAB_BUDGET_ERROR = 'Модуль пересчёта лотов не загрузился.';
     } else {
       allocation = window.BondLotAllocator.allocate(target, universe, BOND_LAB_BUDGET, profileConfig, horizonConfig, presets.costs || {});
       if (!allocation || allocation.status !== 'CLIENT_VALIDATED') {
-        BOND_LAB_BUDGET_ERROR = 'Для этой суммы нельзя сохранить текущий состав и все жёсткие ограничения. Увеличь бюджет или сбрось сумму.';
+        allocationFailure = allocation;
+        BOND_LAB_BUDGET_ERROR = 'Для этой суммы не удалось подтвердить лоты готового состава с заданными ограничениями. Попробуйте другую сумму, профиль или горизонт.';
         allocation = null;
       }
     }
   }
   const profiles = Object.entries(presets.profiles || {}).map(([id, item]) =>
-    `<button type="button" class="bondlab-choice${id === BOND_LAB_PROFILE ? ' active' : ''}" data-bond-profile="${esc(id)}">${esc(item.label)}</button>`).join('');
+    `<button type="button" class="bondlab-choice${id === BOND_LAB_PROFILE ? ' active' : ''}" data-bond-profile="${esc(id)}" aria-pressed="${id === BOND_LAB_PROFILE}">${esc(item.label)}</button>`).join('');
   const horizons = Object.entries(presets.horizons || {}).map(([id, item]) =>
-    `<button type="button" class="bondlab-choice${id === BOND_LAB_HORIZON ? ' active' : ''}" data-bond-horizon="${esc(id)}">${esc(item.label)}</button>`).join('');
+    `<button type="button" class="bondlab-choice${id === BOND_LAB_HORIZON ? ' active' : ''}" data-bond-horizon="${esc(id)}" aria-pressed="${id === BOND_LAB_HORIZON}">${esc(item.label)}</button>`).join('');
   const snapshotGeneratedAt = currentGatePassed ? universe.generated_at : lastValid.generated_at;
   const generated = shortIsoDate(String(snapshotGeneratedAt || '').slice(0, 10));
   const gateFailures = ((validation.quality_gate || {}).failures || []).join(', ');
   const staleNotice = currentGatePassed ? '' : `<div class="bondlab-stale"><b>Показан последний валидный расчёт от ${esc(generated)}</b><span>Свежий запуск не опубликован${gateFailures ? `: ${esc(gateFailures)}` : '.'}</span></div>`;
   const limits = presets.budget_limits || { minimum_rub: 250000, maximum_rub: 100000000, step_rub: 50000 };
-  const head = `${staleNotice}<div class="bondlab-meta"><span class="${currentGatePassed ? 'bondlab-pass' : 'bondlab-last-valid'}">${currentGatePassed ? 'Quality gate: PASS' : 'Последний валидный snapshot'}</span><span>Данные ${esc(generated)}</span><span>${universe.bonds.length} выпусков</span><span>${Object.keys(activeAllocations).length}/15 портфелей доступны</span></div>
-    <div class="bondlab-builder"><div><label>Профиль риска</label><div class="bondlab-choices">${profiles}</div><small>Минимальный рейтинг: ${esc(profileConfig.minimum_corporate_rating || ND)}</small></div><div><label>Горизонт <span class="bond-help" title="Горизонт задаёт целевую дюрацию и структуру портфеля, а не одну дату погашения.">?</span></label><div class="bondlab-choices">${horizons}</div><small>Это цель по процентному риску; выпуски могут погашаться позже.</small></div><div class="bondlab-budget"><label for="bondlab-budget">Сумма, ₽</label><div><input id="bondlab-budget" type="number" inputmode="numeric" min="${limits.minimum_rub}" max="${limits.maximum_rub}" step="${limits.step_rub}" value="${Number(BOND_LAB_BUDGET)}"><button class="btn" type="button" id="bondlab-recalculate">Рассчитать</button></div><small>${allocation && allocation.status === 'CLIENT_VALIDATED' ? 'лоты пересчитаны локально' : 'эталонный серверный расчёт'}</small></div></div>
+  const head = `${staleNotice}<div class="bondlab-meta"><span class="${currentGatePassed ? 'bondlab-pass' : 'bondlab-last-valid'}">${currentGatePassed ? 'Контроль данных пройден' : 'Последний проверенный расчёт'}</span><span>Расчёт ${esc(generated)}</span><span>${universe.bonds.length} выпусков</span><span>${Object.keys(activeAllocations).length}/15 портфелей доступны</span></div>
+    ${bondBudgetBuilderHTML(limits, profiles, horizons, profileConfig)}
     ${BOND_LAB_BUDGET_ERROR ? `<div class="bondlab-inline-error">${esc(BOND_LAB_BUDGET_ERROR)}</div>` : ''}`;
   if (!target || target.status === 'INFEASIBLE') return head + bondLabUnavailableHTML(target || {});
-  if (!allocation) return head + `<div class="bondlab-unavailable"><h3>Пересчёт лотов для этой суммы недоступен</h3><p>${esc(BOND_LAB_BUDGET_ERROR)}</p><button class="btn" type="button" id="bondlab-reset-budget">Вернуть 1 000 000 ₽</button></div>`;
+  if (!allocation) return head + `<div class="bondlab-unavailable"><h3>Лоты для ${rub2(BOND_LAB_BUDGET)} не подтверждены</h3><p>${esc(BOND_LAB_BUDGET_ERROR)}</p>${bondAllocationReasonsHTML(allocationFailure)}<button class="btn" type="button" id="bondlab-reset-budget">Вернуть 1 000 000 ₽</button></div>`;
   BOND_LAB_CURRENT_ALLOCATION = allocation;
 
   const rows = allocation.positions || [];
-  const investedWeight = rows.reduce((sum, row) => sum + Number(row.actual_weight || 0), 0);
-  const weighted = (field) => investedWeight ? rows.reduce((sum, row) => sum + Number(row.actual_weight || 0) * Number(row[field] || 0), 0) / investedWeight : null;
+  const weighted = (field) => window.BondRetail ? window.BondRetail.weightedMetric(rows, field).value : null;
   const ytmGross = weighted('ytm_gross_pct');
   const ytmNet = weighted('ytm_net_est_pct');
   const duration = weighted('duration_value');
+  const paymentSchedule = window.BondRetail ? window.BondRetail.cashflowSchedule(rows, universe.bonds, { taxRate: BOND_SETTINGS.taxRate }) : null;
   const weightedGSpread = weighted('g_spread_pp');
   const weightedPeerExcess = weighted('excess_spread_pp');
   const ofzWeight = rows.filter((row) => row.instrument_type === 'ofz').reduce((sum, row) => sum + Number(row.actual_weight || 0), 0);
@@ -6137,8 +6226,8 @@ function bondPortfolioLabHTML(lab) {
     <td class="b-name">${bondOpenIdentityHTML(row)}<small>${esc(row.issuer_name || '')}</small></td>
     <td>${row.instrument_type === 'ofz' ? '<span class="bondlab-ofz">ОФЗ</span>' : esc(row.rating || ND)}</td>
     <td class="tnum">${bondPct(row.target_weight * 100)}</td><td class="tnum b-strong">${bondPct(row.actual_weight * 100)}</td>
-    <td class="tnum">${Number(row.lots || 0).toLocaleString('ru-RU')}</td><td class="tnum">${rub0(row.dirty_price_per_lot_rub)}</td>
-    <td class="tnum">${rub0(row.total_amount_rub)}</td><td class="tnum">${bondPct(row.ytm_net_est_pct, 2)}</td>
+    <td class="tnum">${Number(row.lots || 0).toLocaleString('ru-RU')}</td><td class="tnum">${rub2(row.dirty_price_per_lot_rub)}</td>
+    <td class="tnum">${rub2(row.total_amount_rub)}</td><td class="tnum">${bondPct(row.ytm_net_est_pct, 2)}</td>
     <td class="tnum">${Number(row.duration_value).toFixed(2)}</td><td>${esc(shortIsoDate(row.maturity_date))}</td>
   </tr>`).join('');
   const cards = rows.map((row) => `<article class="bondlab-mobile-card">
@@ -6147,24 +6236,31 @@ function bondPortfolioLabHTML(lab) {
     <details><summary>Параметры выпуска</summary><p>${esc(row.issuer_name || '')} · ${esc(row.sector || 'Сектор не определён')}</p><p>Dirty/лот ${rub0(row.dirty_price_per_lot_rub)} · дюрация ${Number(row.duration_value).toFixed(2)} · погашение ${esc(shortIsoDate(row.maturity_date))}</p><p>${esc(row.reason_included || '')}</p></details>
   </article>`).join('');
   return `${head}
-    <div class="bondlab-cockpit">
-      <div><span>Бюджет</span><b>${rub0(allocation.budget_rub)}</b><small>${allocation.status === 'CLIENT_VALIDATED' ? 'локальный пересчёт' : 'server validated'}</small></div>
-      <div><span>Инвестировано</span><b>${rub0(allocation.invested_with_costs_rub)}</b><small>включая издержки</small></div>
-      <div><span>Издержки</span><b>${rub0(allocation.estimated_costs_rub)}</b><small>${allocation.commission_bps + allocation.slippage_bps} б.п.</small></div>
-      <div><span>YTM gross</span><b>${bondPct(ytmGross, 2)}</b><small>оценка до НДФЛ</small></div>
-      <div><span>YTM net</span><b>${bondPct(ytmNet, 2)}</b><small>упрощённая tax model</small></div>
-      <div><span>Modified duration</span><b>${duration ? duration.toFixed(2) : ND}</b><small>цель ${target.target_duration.toFixed(2)}</small></div>
-      <div><span>ОФЗ</span><b>${bondPct(ofzWeight * 100)}</b><small>минимум профиля соблюдён</small></div>
-      <div><span>BBB</span><b>${bondPct(bbbWeight * 100)}</b><small>лимит ${bondPct(profileConfig.max_bbb * 100)}</small></div>
-      <div><span>Остаток</span><b>${rub0(allocation.cash_rub)}</b><small>после лотов и издержек</small></div>
-      <div><span>DV01</span><b>${rub0(dv01)}</b><small>оценка на +1 б.п.</small></div>
-      <div><span>G-spread</span><b>${bondPct(weightedGSpread, 2)}</b><small>взвешенный</small></div>
-      <div><span>Peer excess</span><b>${bondPct(weightedPeerExcess, 2)}</b><small>не сигнал покупки</small></div>
-      <div><span>Диверсификация</span><b>${rows.length} / ${issuerCount}</b><small>выпусков / эмитентов</small></div>
+    <div id="bondlab-results">
+    <div class="bond-budget-result"><h3>Портфель на ${rub2(allocation.budget_rub)}</h3>
+      <p>${rows.length} выпусков · ${issuerCount} эмитентов · ${esc(profileConfig.label || BOND_LAB_PROFILE)} · ${esc(horizonConfig.label || BOND_LAB_HORIZON)}.
+      ${allocation.status === 'CLIENT_VALIDATED' ? 'Лоты пересчитаны под сумму; проверки округления пройдены.' : 'Опубликованный состав и лоты прошли серверные проверки.'}</p></div>
+    <div class="bondlab-cockpit bond-budget-summary">
+      <div><span>Вложено с издержками</span><b>${rub2(allocation.invested_with_costs_rub)}</b><small>${bondPct(allocation.invested_with_costs_rub / allocation.budget_rub * 100)} бюджета</small></div>
+      <div><span>Остаток денег</span><b>${rub2(allocation.cash_rub)}</b><small>после покупки целых лотов</small></div>
+      <div><span>Купоны за 12 месяцев</span><b>${paymentSchedule ? rub0(paymentSchedule.coupon_net_rub) : ND}</b><small>после оценки налога ${ru(BOND_SETTINGS.taxRate * 100, 0)}%, без возврата номинала</small></div>
+      <div><span>Средняя YTM после налога</span><b>${bondPct(ytmNet, 2)}</b><small>взвешенная оценка выпусков, не IRR портфеля</small></div>
+      <div><span>Дюрация</span><b>${isNum(duration) ? ru(duration, 2) + ' лет' : ND}</b><small>модифицированная · риск ставки</small></div>
+      <div><span>Ставка +1 п.п.</span><b>${rub0(rateShock100.combined_impact_rub)}</b><small>оценка изменения цены, не прогноз</small></div>
     </div>
+    <p class="bond-budget-assumptions">Цена лота включает НКД. Издержки покупки — ${rub2(allocation.estimated_costs_rub)}: комиссия ${ru(allocation.commission_bps / 100, 2)}% + проскальзывание ${ru(allocation.slippage_bps / 100, 2)}%. Доходность после налога — упрощённая модель из набора данных, а не обещанный купонный доход.
+      ${allocation.cash_rub / allocation.budget_rub > Number(profileConfig.cash_max || 0.05) + 0.001 ? '<b>Остаток выше лимита профиля: такой результат требует отдельной проверки.</b>' : ''}</p>
+    <details class="bond-budget-metrics"><summary>Доходность, доли и дополнительные показатели</summary><div class="bondlab-cockpit">
+      <div><span>Средняя YTM до налога</span><b>${bondPct(ytmGross, 2)}</b><small>взвешенная по вложенной сумме</small></div>
+      <div><span>ОФЗ</span><b>${bondPct(ofzWeight * 100)}</b><small>доля бюджета</small></div>
+      <div><span>BBB</span><b>${bondPct(bbbWeight * 100)}</b><small>лимит ${bondPct(profileConfig.max_bbb * 100)}</small></div>
+      <div><span>Изменение цены на 1 б.п.</span><b>${rub0(dv01)}</b><small>DV01, линейная оценка</small></div>
+      <div><span>Премия к ОФЗ</span><b>${isNum(weightedGSpread) ? ru(weightedGSpread, 2) + ' п.п.' : ND}</b><small>G-spread, среднее по известным значениям</small></div>
+      <div><span>Премия к аналогам</span><b>${isNum(weightedPeerExcess) ? ru(weightedPeerExcess, 2) + ' п.п.' : ND}</b><small>Peer excess, не сигнал покупки</small></div>
+    </div></details>
     <div class="bondlab-grid">
-      <section class="bondlab-main"><div class="bondlab-block-head"><div><h3>Модельный список</h3><p>Целевые веса преобразованы в целые лоты по dirty price с комиссией ${allocation.commission_bps} б.п. и slippage ${allocation.slippage_bps} б.п.</p></div><div class="bondlab-actions"><button class="btn" type="button" id="bondlab-copy">Копировать</button><button class="btn" type="button" data-bond-download="csv">CSV</button><button class="btn" type="button" data-bond-download="json">JSON</button></div></div>
-        <div class="bonds-table-wrap bondlab-desktop-table"><table class="bonds-table bondlab-portfolio-table"><thead><tr><th>Выпуск</th><th>Класс</th><th>Цель</th><th>Факт</th><th>Лоты</th><th>Dirty/лот</th><th>Сумма</th><th>YTM net</th><th>Дюр.</th><th>Погашение</th></tr></thead><tbody>${table}</tbody></table></div>
+      <section class="bondlab-main"><div class="bondlab-block-head"><div><h3>Модельный список</h3><p>Целые лоты по цене с НКД. Сумма строки уже включает оценку комиссии и проскальзывания.</p></div><div class="bondlab-actions"><button class="btn" type="button" id="bondlab-copy">Копировать</button><button class="btn" type="button" data-bond-download="csv">CSV</button><button class="btn" type="button" data-bond-download="json">JSON</button></div></div>
+        <div class="bonds-table-wrap bondlab-desktop-table"><table class="bonds-table bondlab-portfolio-table"><thead><tr><th>Выпуск</th><th>Класс</th><th>Цель</th><th>Факт</th><th>Лоты</th><th>Лот с НКД</th><th>Сумма с издержками</th><th>YTM после налога</th><th>Дюр.</th><th>Погашение</th></tr></thead><tbody>${table}</tbody></table></div>
         <div class="bondlab-mobile-cards">${cards}</div>
       </section>
       <aside class="bondlab-side"><section><h3>Рейтинг</h3>${bondDistribution(rows, 'rating', (r) => r.instrument_type === 'ofz' ? 'ОФЗ' : (r.rating_group || 'Без рейтинга'))}</section><section><h3>Секторы</h3>${bondDistribution(rows, 'sector')}</section><section class="bondlab-shock"><h3>Стресс портфеля</h3><dl><div><dt>Ставка +100 б.п.</dt><dd>${rub0(rateShock100.combined_impact_rub)}</dd></div><div><dt>Ставка +200 б.п.</dt><dd>${rub0(rateShock200.combined_impact_rub)}</dd></div><div><dt>Кредитный spread +100 б.п.</dt><dd>${rub0(spreadShock100.combined_impact_rub)}</dd></div></dl><p>Линейная duration-оценка без convexity. Процентный и кредитный шоки рассчитаны отдельно.</p></section>${bondDowngradeHTML(rows)}${bondAlternativesCompareHTML(allocation, rows)}<section><h3>Группы компаний</h3><b>${bondPct(groupCoverage.unknown_group_weight_pct, 1)} не подтверждено</b><p>Неизвестная группа не считается диверсификацией. Лимит группы станет расчётным после появления проверенного ultimate parent.</p></section></aside>
@@ -6172,7 +6268,7 @@ function bondPortfolioLabHTML(lab) {
     <section class="bondlab-coupon-block"><div class="bondlab-block-head"><div><h3>Денежный календарь · 12 месяцев</h3><p>Купоны, оценка налога и возврат номинала для фактического количества облигаций.</p></div></div>${bondCouponCalendar(rows, universe)}</section>
     ${bondUserPortfolioHTML(allocation, universe, activeAllocations)}
     <details class="bonds-limits"><summary>Расширенные настройки · только просмотр</summary><div class="bonds-limits-body bondlab-advanced"><p>Custom optimization в браузере не имитируется: изменение ограничений требует полного MILP на сервере.</p><dl><div><dt>Мин. рейтинг</dt><dd>${esc(profileConfig.minimum_corporate_rating)}</dd></div><div><dt>ОФЗ минимум</dt><dd>${bondPct(profileConfig.minimum_ofz * 100)}</dd></div><div><dt>Выпуск / эмитент</dt><dd>${bondPct(profileConfig.max_issue * 100)} / ${bondPct(profileConfig.max_issuer * 100)}</dd></div><div><dt>Сектор</dt><dd>${bondPct(profileConfig.max_sector * 100)}</dd></div><div><dt>Дюрация</dt><dd>${horizonConfig.min}–${horizonConfig.max}</dd></div><div><dt>Мин. эмитентов</dt><dd>${profileConfig.minimum_issuers}</dd></div><div><dt>Ликвидность 20d</dt><dd>${rub0(profileConfig.minimum_median_volume_20d_rub)}</dd></div><div><dt>Участие в обороте</dt><dd>${bondPct(profileConfig.maximum_participation_rate * 100)}</dd></div></dl></div></details>
-    <details class="bonds-limits"><summary>Как сформирован портфель</summary><div class="bonds-limits-body"><p>MILP максимизирует скорректированный carry при жёстких лимитах выпуска, эмитента, сектора, рейтинга, ОФЗ, дюрации, ликвидности и лестницы погашений. Затем отдельная integer-модель подбирает лоты и повторно проверяет ограничения.</p><p>Estimated net YTM — упрощённая модель налога, не персональный налоговый расчёт. Состав является исследовательским модельным списком для самостоятельной проверки, не индивидуальной рекомендацией.</p>${['7y','10y'].includes(BOND_LAB_HORIZON) ? '<p>Модель использует лестницу погашений и предполагает реинвестирование. Это не означает удержание одного неизменного набора облигаций весь горизонт.</p>' : ''}</div></details>`;
+    <details class="bonds-limits"><summary>Как сформирован портфель</summary><div class="bonds-limits-body"><p>MILP максимизирует скорректированный carry при жёстких лимитах выпуска, эмитента, сектора, рейтинга, ОФЗ, дюрации, ликвидности и лестницы погашений. Затем отдельная integer-модель подбирает лоты и повторно проверяет ограничения.</p><p>Estimated net YTM — упрощённая модель налога, не персональный налоговый расчёт. Состав является исследовательским модельным списком для самостоятельной проверки, не индивидуальной рекомендацией.</p>${['7y','10y'].includes(BOND_LAB_HORIZON) ? '<p>Модель использует лестницу погашений и предполагает реинвестирование. Это не означает удержание одного неизменного набора облигаций весь горизонт.</p>' : ''}</div></details></div>`;
 }
 
 /** Параметры расчёта. Спрятаны в раскрываемый блок: на первом экране инвестору нужны
@@ -6279,40 +6375,9 @@ function bondUserPortfolioHTML(allocation, universe, allocations) {
  *  Такие выпуски не исчезают: они доступны в отдельном режиме с перечнем конкретных причин.
  */
 function bondScreenerRows(universe) {
-  const query = BOND_SCREEN_QUERY.toLowerCase();
-  const f = BOND_SCREEN_FILTERS;
-  const minRank = window.BondRetail ? window.BondRetail.ratingRank(f.minRating) : null;
-  return (universe.bonds || []).filter((row) => {
-    const safety = row.bond_safety;
-    if (BOND_SCREEN_MODE === 'safe' && !(safety && safety.investable)) return false;
-    if (BOND_SCREEN_MODE === 'risk' && safety && safety.investable) return false;
-    if (query && !`${row.secid} ${row.name} ${row.issuer_name}`.toLowerCase().includes(query)) return false;
-    if (BOND_SCREEN_RATING !== 'all') {
-      if (BOND_SCREEN_RATING === 'ofz' ? row.instrument_type !== 'ofz' : row.rating_group !== BOND_SCREEN_RATING) return false;
-    }
-    // Фильтр минимального рейтинга не применяется:
-    //  • к ОФЗ — у госбумаг рейтинг выпуска не выставляется;
-    //  • в режиме высокого риска — иначе он прятал бы именно безрейтинговые выпуски,
-    //    ради показа которых этот режим и существует.
-    if (minRank && row.instrument_type !== 'ofz' && BOND_SCREEN_MODE !== 'risk') {
-      const rank = window.BondRetail.ratingRank(row.rating);
-      if (!rank || rank < minRank) return false;
-    }
-    if (f.maxDuration !== '' && isNum(Number(f.maxDuration)) && Number(row.duration_value) > Number(f.maxDuration)) return false;
-    if (f.minYtm !== '' && Number(row.ytm_net_est_pct) < Number(f.minYtm)) return false;
-    if (f.maxYtm !== '' && Number(row.ytm_net_est_pct) > Number(f.maxYtm)) return false;
-    if (f.sector !== 'all' && row.sector !== f.sector) return false;
-    if (f.couponType !== 'all' && row.coupon_type !== f.couponType) return false;
-    // Частота выплат — предпочтение инвестора (кому-то нужен ежемесячный поток,
-    // кому-то безразлично), а не признак качества: фильтруем, но не гейтим.
-    if (f.couponFreq !== 'all' && Number(row.coupon_frequency) !== Number(f.couponFreq)) return false;
-    if (f.retailOnly && row.qualified_only) return false;
-    if (f.simpleOnly && (row.amortizing || row.has_put_offer || row.has_call)) return false;
-    if (Number(f.minLiquidity) > 0 && window.BondRetail) {
-      const score = window.BondRetail.liquidity(row).score;
-      if (score == null || score < Number(f.minLiquidity)) return false;
-    }
-    return true;
+  if (!window.BondRetail) return [];
+  return window.BondRetail.filterRows(universe.bonds, {
+    mode: BOND_SCREEN_MODE, query: BOND_SCREEN_QUERY, rating: BOND_SCREEN_RATING, filters: BOND_SCREEN_FILTERS,
   });
 }
 
@@ -6325,8 +6390,8 @@ function bondUniverseScreenerHTML(universe) {
   const риск = BOND_SCREEN_MODE === 'risk';
 
   const modes = `<div class="bond-mode-switch" role="group" aria-label="Режим отбора">
-    <button type="button" class="bond-mode${!риск ? ' on' : ''}" data-bond-screen-mode="safe" aria-pressed="${!риск}">Безопасные и доступные <b>${safeCount}</b></button>
-    <button type="button" class="bond-mode${риск ? ' on risky' : ''}" data-bond-screen-mode="risk" aria-pressed="${риск}">Высокий риск · требуется проверка <b>${all.length - safeCount}</b></button>
+    <button type="button" class="bond-mode${!риск ? ' on' : ''}" data-bond-screen-mode="safe" aria-pressed="${!риск}">Прошли фильтр <b>${safeCount}</b></button>
+    <button type="button" class="bond-mode${риск ? ' on risky' : ''}" data-bond-screen-mode="risk" aria-pressed="${риск}">Требуют проверки <b>${all.length - safeCount}</b></button>
   </div>`;
   const warning = риск ? `<div class="bond-mode-warning"><b>Это режим непроверенных выпусков.</b>
     <span>Здесь могут быть бумаги без подтверждённого рейтинга, с низкой ликвидностью, сложными условиями
@@ -6833,8 +6898,8 @@ function wireBondLabControls() {
     BOND_SCREEN_QUERY = '';
     drawBondLab();
   });
-  document.querySelectorAll('[data-bond-profile]').forEach((button) => button.addEventListener('click', () => { BOND_LAB_PROFILE = button.dataset.bondProfile; drawBondLab(); }));
-  document.querySelectorAll('[data-bond-horizon]').forEach((button) => button.addEventListener('click', () => { BOND_LAB_HORIZON = button.dataset.bondHorizon; drawBondLab(); }));
+  document.querySelectorAll('[data-bond-profile]').forEach((button) => button.addEventListener('click', () => { if (!applyBondBudget()) return; BOND_LAB_PROFILE = button.dataset.bondProfile; drawBondLab(); }));
+  document.querySelectorAll('[data-bond-horizon]').forEach((button) => button.addEventListener('click', () => { if (!applyBondBudget()) return; BOND_LAB_HORIZON = button.dataset.bondHorizon; drawBondLab(); }));
   document.querySelectorAll('[data-bond-rating]').forEach((button) => button.addEventListener('click', () => { BOND_SCREEN_RATING = button.dataset.bondRating; drawBondLab(); }));
   const search = document.getElementById('bondlab-search');
   if (search) search.addEventListener('input', debounce(() => { BOND_SCREEN_QUERY = search.value; drawBondLab(); }, 180));
@@ -6845,16 +6910,33 @@ function wireBondLabControls() {
         : { key: null, dir: 0 };
     drawBondLab();
   }));
-  const recalculate = document.getElementById('bondlab-recalculate');
+  const budgetForm = document.getElementById('bondlab-budget-form');
   const budget = document.getElementById('bondlab-budget');
-  if (recalculate && budget) recalculate.addEventListener('click', () => {
-    const value = Number(budget.value);
-    if (!budget.checkValidity() || !Number.isFinite(value)) { budget.reportValidity(); return; }
-    BOND_LAB_BUDGET = Math.round(value * 100) / 100;
-    drawBondLab();
-  });
+  if (budgetForm && budget) {
+    budgetForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (applyBondBudget()) drawBondLab();
+    });
+    budget.addEventListener('input', () => {
+      BOND_LAB_BUDGET_INPUT = budget.value;
+      budget.removeAttribute('aria-invalid');
+      const feedback = document.getElementById('bondlab-budget-feedback');
+      if (feedback) { feedback.hidden = false; feedback.textContent = 'Сумма изменена. Нажмите «Рассчитать портфель», чтобы получить новые лоты.'; }
+      // Старый расчёт не должен выглядеть результатом для только что введённой суммы.
+      const results = document.getElementById('bondlab-results');
+      if (results) results.hidden = true;
+      BOND_LAB_CURRENT_ALLOCATION = null;
+    });
+  }
+  document.querySelectorAll('[data-bond-budget]').forEach((button) => button.addEventListener('click', () => {
+    if (!budget) return;
+    budget.value = button.dataset.bondBudget;
+    if (applyBondBudget()) drawBondLab();
+  }));
   const resetBudget = document.getElementById('bondlab-reset-budget');
-  if (resetBudget) resetBudget.addEventListener('click', () => { BOND_LAB_BUDGET = 1000000; drawBondLab(); });
+  if (resetBudget) resetBudget.addEventListener('click', () => {
+    BOND_LAB_BUDGET = 1000000; BOND_LAB_BUDGET_INPUT = '1000000'; drawBondLab();
+  });
   const copy = document.getElementById('bondlab-copy');
   if (copy) copy.addEventListener('click', () => copyBondPreset(copy));
   document.querySelectorAll('[data-bond-download]').forEach((button) => button.addEventListener('click', () => downloadBondPreset(button.dataset.bondDownload)));
@@ -7755,7 +7837,9 @@ function updateDataStatus() {
   };
   const price = DATA && DATA.meta ? d10(DATA.meta.price_asof) : null;
   const saw = SAW_DATA ? d10(SAW_DATA.data_last) : null;
-  const bonds = (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
+  const bonds = (BONDS && BONDS.lab && BONDS.lab.universe)
+    ? d10((BONDS.lab.universe.as_of || {}).prices)
+    : (BONDS && BONDS.meta) ? d10(BONDS.meta.data_date || BONDS.meta.updated) : null;
   const fin = (DATA_COVERAGE && DATA_COVERAGE.meta) ? d10(DATA_COVERAGE.meta.generated_at) : null;
   const news = (SITE_STATUS && st.news && st.news.asof) ? d10(st.news.asof) : null;
   // overall health chip — человеческий текст (учитывает торговый календарь: выходной ≠ «устаревает»)
