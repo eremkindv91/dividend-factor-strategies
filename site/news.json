@@ -1,8 +1,8 @@
 {
-  "date": "2026-11-22",
-  "generated_at": "2026-11-22T23:46:46+03:00",
+  "date": "2026-11-23",
+  "generated_at": "2026-11-23T14:14:24+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Мировые фондовые индексы и цены на сырьевые товары снизились по итогам предыдущей торговой сессии.",
+  "external_backdrop": "Американские и азиатские фондовые индексы вместе со стоимостью нефти Brent снизились, в то время как цены на золото выросли.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -27,206 +27,199 @@
     },
     {
       "name": "Hang Seng",
-      "value": "22410.80",
-      "change_pct": "-1.89%",
-      "as_of": "2026-11-20",
+      "value": "22383.74",
+      "change_pct": "-0.12%",
+      "as_of": "2026-11-23",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "89.95",
-      "change_pct": "-2.21%",
-      "as_of": "2026-11-20",
+      "value": "88.64",
+      "change_pct": "-4.25%",
+      "as_of": "2026-11-23",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3515.40",
-      "change_pct": "-4.62%",
-      "as_of": "2026-11-20",
+      "value": "3622.30",
+      "change_pct": "+3.04%",
+      "as_of": "2026-11-23",
       "group": "commodity"
     },
     {
       "name": "IMOEX",
-      "value": "2351.54",
-      "change_pct": "-0.07%",
-      "as_of": "2026-11-22 19:00:02",
+      "value": "2364.66",
+      "change_pct": "+0.48%",
+      "as_of": "2026-11-23 14:14:20",
       "group": "ru_equity"
     },
     {
       "name": "RTS",
-      "value": "901.30",
-      "change_pct": "-0.07%",
-      "as_of": "2026-11-22 19:00:01",
+      "value": "906.31",
+      "change_pct": "+0.48%",
+      "as_of": "2026-11-23 14:14:21",
       "group": "ru_equity"
     },
     {
       "name": "USD/RUB",
-      "value": "81.69",
-      "change_pct": "-0.89%",
-      "as_of": "2026-11-20 23:54:58",
+      "value": "82.49",
+      "change_pct": "+0.05%",
+      "as_of": "2026-11-23 14:14:22",
       "group": "fx"
     },
     {
       "name": "CNY/RUB",
-      "value": "12.15",
-      "change_pct": "-0.55%",
-      "as_of": "2026-11-20 23:50:02",
+      "value": "12.29",
+      "change_pct": "+1.14%",
+      "as_of": "2026-11-23 14:14:23",
       "group": "fx"
     }
   ],
   "overnight": [
     {
-      "id": "cbr-crypto-rules-in-force",
-      "headline": "Вступило в силу указание Банка России о правилах биржевых торгов криптовалютами",
-      "context": "Российские биржи получили право организовывать торги криптовалютой и цифровыми правами после согласования порядка сделок с Центробанком.",
-      "category": "cb_policy",
+      "id": "ozon-dividends-9m-2026",
+      "headline": "Совет директоров Ozon рекомендовал дивиденды за 9 месяцев 2026 года в 120 рублей на акцию",
+      "context": "Дивидендная доходность выплат составляет 3,3%, внеочередное общее собрание акционеров назначено на 28 декабря.",
+      "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
+      "sources": [
+        {
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/394449"
+        },
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1378296.php"
+        },
+        {
+          "name": "if_market_news",
+          "url": "https://t.me/if_market_news/87183"
+        }
+      ],
+      "published_at": "2026-11-23T14:00:00+03:00"
+    },
+    {
+      "id": "cb-crypto-trading-rules",
+      "headline": "Вступило в силу указание Банка России о правилах биржевых торгов криптовалютами",
+      "context": "Российские биржи получили право организовывать сделки с цифровыми активами после согласования порядка торгов с регулятором.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
           "url": "https://www.kommersant.ru/doc/9127345"
         },
         {
-          "name": "@markettwits",
+          "name": "markettwits",
           "url": "https://t.me/markettwits/394359"
         }
       ],
-      "published_at": "2026-11-22T23:22:00+03:00"
+      "published_at": "2026-11-22T14:21:00+03:00"
     },
     {
-      "id": "us-investigates-nvidia-chip-exports",
-      "headline": "Власти США и Калифорнии проверяют Nvidia по подозрениям в поставках чипов в КНР",
-      "context": "Администрация США затребовала отчет о возможных поставках микросхем через посредников в обход экспортных ограничений.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/society/10/11/2026/6af2f556b84c27b3021f5654"
-        },
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9127228"
-        }
-      ],
-      "published_at": "2026-11-22T22:54:00+03:00"
-    },
-    {
-      "id": "china-lowers-margin-requirements",
-      "headline": "Биржи Китая снизят минимальный размер обеспечения при покупке акций в кредит до 80%",
-      "context": "Шанхайская фондовая биржа утвердила снижение маржинальных требований с 100% до 80% с 30 ноября.",
+      "id": "spb-exchange-record-volume",
+      "headline": "СПБ Биржа зафиксировала новый рекорд дневного объема торгов неоактивами в 93,5 млрд рублей",
+      "context": "Показатель 20 ноября на 19,3% превысил предыдущий рекордный уровень от 5 ноября.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9127358"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/394431"
         },
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/394358"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1378253.php"
         }
       ],
-      "published_at": "2026-11-22T23:01:00+03:00"
+      "published_at": "2026-11-23T12:57:00+03:00"
     },
     {
-      "id": "sparta-ii-leaves-finnish-waters",
-      "headline": "Российский сухогруз Sparta II покинул территориальные воды Финляндии после атаки БПЛА",
-      "context": "Судно подверглось атаке в нейтральных водах Финского залива, экипаж эвакуирован, угрозы снабжению Калининграда нет.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9127554"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/politics/22/11/2026/6b0351c40012904afd16541f"
-        }
-      ],
-      "published_at": "2026-11-22T23:42:00+03:00"
-    },
-    {
-      "id": "wildberries-ceo-changed",
-      "headline": "Генеральным директором Wildberries вместо Татьяны Ким назначен Алексей Куликов",
-      "context": "Кадровые изменения зарегистрированы в ЕГРЮЛ, при этом Татьяна Ким продолжит работу над стратегическим развитием группы RWB.",
+      "id": "novoshakhtinsky-refinery-suspended",
+      "headline": "Новошахтинский завод нефтепродуктов приостановил работу из-за атаки беспилотников",
+      "context": "Предприятие временно остановило деятельность после массированного удара БПЛА в Ростовской области.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/317431"
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/381686"
         },
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9127101"
+          "url": "https://www.kommersant.ru/doc/9127996"
         }
       ],
-      "published_at": "2026-11-21T13:35:00+03:00"
+      "published_at": "2026-11-23T13:24:00+03:00"
     },
     {
-      "id": "mts-reports-q3-2026-ifrs",
-      "headline": "МТС нарастила чистую прибыль по МСФО в третьем квартале 2026 года на 87,6%",
-      "context": "Выручка оператора выросла на 8,7% в годовом выражении до 232,5 млрд рублей, скорректированная OIBDA увеличилась до 78,7 млрд рублей.",
+      "id": "fertilizer-price-freeze-extension",
+      "headline": "ФАС продлила заморозку предельных цен на минеральные удобрения до июня 2027 года",
+      "context": "Предельные цены на удобрения на внутреннем рынке останутся зафиксированными на уровне 2022 года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Интерфакс",
+          "url": "https://t.me/interfax_news/381659"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127987"
+        }
+      ],
+      "published_at": "2026-11-23T10:49:00+03:00"
+    },
+    {
+      "id": "promomed-9m-2026-results",
+      "headline": "Выручка фармацевтической компании «Промомед» за девять месяцев 2026 года выросла на 113%",
+      "context": "Выручка достигла 40,6 млрд рублей, а прогноз по росту годовой выручки повышен до 70%.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/4023"
-        }
-      ],
-      "published_at": "2026-11-21T09:07:00+03:00"
-    },
-    {
-      "id": "bspb-reports-9m-2026-ifrs",
-      "headline": "Чистая прибыль Банка Санкт-Петербург по МСФО за девять месяцев 2026 года снизилась на 28%",
-      "context": "За третий квартал банк заработал 7,6 млрд рублей чистой прибыли, что на 36% выше показателя предыдущего квартала.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/4024"
-        }
-      ],
-      "published_at": "2026-11-22T16:42:00+03:00"
-    },
-    {
-      "id": "coreweave-accumulates-47b-debt",
-      "headline": "Поставщик вычислительных мощностей CoreWeave накопил 47 млрд долларов долговых обязательств",
-      "context": "Аналитики предупреждают о рисках финансового краха компании на фоне высокой долговой нагрузки.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/quote/26/10/2026/6adf26ba9a7947714cbf25c2"
+          "name": "markettwits",
+          "url": "https://t.me/markettwits/394400"
         },
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/394362"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1378119.php"
         }
       ],
-      "published_at": "2026-11-22T23:42:00+03:00"
+      "published_at": "2026-11-23T09:31:00+03:00"
+    },
+    {
+      "id": "seligdar-9m-2026-profit",
+      "headline": "Чистая прибыль компании «Селигдар» по МСФО за 9 месяцев составила 4,53 млрд рублей",
+      "context": "Годом ранее компания зафиксировала убыток в 7,67 млрд рублей, а консолидированная выручка выросла на 26% до 78,2 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1378076.php"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9127801"
+        }
+      ],
+      "published_at": "2026-11-23T08:14:00+03:00"
     }
   ],
   "yesterday": [],
   "today_agenda": [],
   "briefing": {
-    "kind": "week_ahead",
-    "title": "К новой неделе",
-    "context": "в воскресенье, накануне открытия недели",
+    "kind": "intraday",
+    "title": "Сводка к текущей сессии",
+    "context": "уже во время основной сессии Мосбиржи",
     "last_trading_day": "2026-11-20"
   }
 }
