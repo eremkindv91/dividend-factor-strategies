@@ -1,72 +1,168 @@
 {
-  "date": "2026-11-25",
-  "generated_at": "2026-11-25T14:42:05+03:00",
+  "date": "2026-11-26",
+  "generated_at": "2026-11-26T14:28:29+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы, а также котировки нефти и золота снизились.",
+  "external_backdrop": "Азиатские фондовые индексы и цены на золото выросли, тогда как американские площадки и нефть Brent снизились.",
   "market_snapshot": [
     {
       "name": "S&P 500",
-      "value": "7201.09",
-      "change_pct": "-0.50%",
-      "as_of": "2026-11-24",
+      "value": "7182.78",
+      "change_pct": "-0.25%",
+      "as_of": "2026-11-25",
       "group": "global_equity"
     },
     {
       "name": "Nasdaq",
-      "value": "23733.54",
-      "change_pct": "-1.48%",
-      "as_of": "2026-11-24",
+      "value": "23585.80",
+      "change_pct": "-0.62%",
+      "as_of": "2026-11-25",
       "group": "global_equity"
     },
     {
       "name": "Nikkei 225",
-      "value": "57011.62",
-      "change_pct": "-2.78%",
-      "as_of": "2026-11-25",
+      "value": "57499.16",
+      "change_pct": "+0.86%",
+      "as_of": "2026-11-26",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "21966.01",
-      "change_pct": "-1.14%",
-      "as_of": "2026-11-25",
+      "value": "22226.88",
+      "change_pct": "+1.19%",
+      "as_of": "2026-11-26",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "88.12",
-      "change_pct": "-3.59%",
-      "as_of": "2026-11-25",
+      "value": "90.95",
+      "change_pct": "-3.87%",
+      "as_of": "2026-11-26",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3544.30",
-      "change_pct": "-0.49%",
-      "as_of": "2026-11-25",
+      "value": "3592.90",
+      "change_pct": "+1.61%",
+      "as_of": "2026-11-26",
       "group": "commodity"
     }
   ],
   "overnight": [
     {
-      "id": "minfin-ofz-plan-reduction",
-      "headline": "Минфин России скорректирует в меньшую сторону план заимствований на четвертый квартал",
-      "context": "Снижение объема размещения ОФЗ связано с поступлением дополнительных доходов в федеральный бюджет.",
+      "id": "weekly-inflation-accelerated",
+      "headline": "Недельная инфляция в России ускорилась до 0,3 процента",
+      "context": "В годовом выражении показатель вырос до 7,17%, а с начала года цены поднялись на 6,72%.",
       "category": "macro",
-      "investment_relevant": true,
+      "investment_relevant": false,
       "importance": 5,
       "sources": [
         {
           "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1131254"
+          "url": "https://www.interfax.ru/business/1131387"
+        },
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130680"
         }
       ],
-      "published_at": "2026-11-25T12:34:00+03:00"
+      "published_at": "2026-11-25T19:00:00+03:00"
     },
     {
-      "id": "ozon-pharm-9m-2026",
-      "headline": "Озон Фармацевтика увеличила чистую прибыль за девять месяцев и рекомендовала дивиденды",
-      "context": "Чистая прибыль выросла на 52% до 5,22 миллиарда рублей, а совет директоров рекомендовал выплату 0,51 рубля на акцию.",
+      "id": "moex-q3-ifrs-profit",
+      "headline": "Московская биржа увеличила чистую прибыль по МСФО в третьем квартале на 21 процент",
+      "context": "Чистая прибыль компании достигла 20,8 млрд рублей против 17,3 млрд рублей годом ранее.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130960"
+        }
+      ],
+      "published_at": "2026-11-26T09:48:00+03:00"
+    },
+    {
+      "id": "boehly-group-lukoil-deal",
+      "headline": "Консорциум Тодда Бёли подписал соглашение о приобретении международных активов ЛУКОЙЛа",
+      "context": "Оплата предполагается бумагами на 10 млрд долларов с размещением на эскроу-счете до отмены санкций.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130604"
+        }
+      ],
+      "published_at": "2026-11-25T20:00:00+03:00"
+    },
+    {
+      "id": "ozon-launches-brokerage-business",
+      "headline": "Ozon Банк открыл розничным клиентам доступ к торговле акциями и облигациями",
+      "context": "В приложении банка стали доступны акции фондовой секции Мосбиржи, облигации и паевые фонды.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9131091"
+        }
+      ],
+      "published_at": "2026-11-26T12:00:00+03:00"
+    },
+    {
+      "id": "putin-direct-line-date",
+      "headline": "Совмещенная прямая линия и пресс-конференция Владимира Путина назначена на 10 декабря",
+      "context": "Мероприятие пройдет в формате программы «Итоги года» в 12:00 по московскому времени.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130909"
+        }
+      ],
+      "published_at": "2026-11-26T09:10:00+03:00"
+    },
+    {
+      "id": "google-assets-seized-france",
+      "headline": "Французский суд наложил арест на активы Google на сумму 1,9 млрд евро",
+      "context": "Обеспечительные меры приняты в рамках иска российской структуры ООО «Гугл» к ирландскому подразделению.",
+      "category": "tech",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130753"
+        }
+      ],
+      "published_at": "2026-11-25T21:23:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "minfin-ofz-borrowing-plan-reduction",
+      "headline": "Минфин России сократит программу внутренних заимствований в четвертом квартале",
+      "context": "Корректировка плана по выпуску ОФЗ связана с ожидаемыми дополнительными доходами федерального бюджета.",
+      "category": "cb_policy",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130130"
+        }
+      ],
+      "published_at": "2026-11-25T12:44:00+03:00"
+    },
+    {
+      "id": "astra-group-9m-ifrs-results",
+      "headline": "Чистая прибыль Группы Астра по МСФО за девять месяцев выросла на 87 процентов",
+      "context": "Показатель достиг 1,5 млрд рублей, при этом выручка компании увеличилась на 16% до 12,1 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -76,294 +172,142 @@
           "url": "https://www.kommersant.ru/doc/9129955"
         }
       ],
-      "published_at": "2026-11-25T11:00:00+03:00"
+      "published_at": "2026-11-25T10:16:00+03:00"
     },
     {
-      "id": "astra-results-9m-2026",
-      "headline": "Чистая прибыль Группы Астра за девять месяцев выросла на 87% по МСФО",
-      "context": "Выручка IT-разработчика за отчетный период увеличилась на 16% и достигла 12,1 миллиарда рублей.",
+      "id": "dom-rf-10m-ifrs-results",
+      "headline": "Чистая прибыль компании ДОМ.РФ за десять месяцев по МСФО выросла на 38 процентов",
+      "context": "Финансовый результат составил 96,85 млрд рублей, компания планирует направить на дивиденды не менее 50% прибыли.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/25/1415047-gruppa-astra-uvelichila"
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130024"
         }
       ],
-      "published_at": "2026-11-25T09:30:00+03:00"
+      "published_at": "2026-11-25T11:17:00+03:00"
     },
     {
-      "id": "chibis-arrest-investigation",
-      "headline": "Суд арестовал губернатора Мурманской области Андрея Чибиса по делу о растрате",
-      "context": "Чиновнику предъявлены обвинения в растрате более 1 миллиарда рублей и получении денежной взятки.",
-      "category": "geopolitics",
+      "id": "ozone-pharma-dividend-recommendation",
+      "headline": "Совет директоров Озон Фармацевтики рекомендовал дивиденды за девять месяцев в размере 0,51 рубля",
+      "context": "Дата закрытия реестра для получения выплат назначена на 29 декабря 2026 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/394787"
+        }
+      ],
+      "published_at": "2026-11-25T13:54:00+03:00"
+    },
+    {
+      "id": "henderson-dividend-approval",
+      "headline": "Акционеры ритейлера Henderson утвердили дивиденды за девять месяцев в размере 8 рублей на акцию",
+      "context": "Сессия фиксации списка лиц, имеющих право на получение выплат, состоится 7 декабря.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/25/1415262-aktsioneri-henderson"
+        }
+      ],
+      "published_at": "2026-11-25T15:55:00+03:00"
+    },
+    {
+      "id": "minenergo-kerosene-export-ban",
+      "headline": "Минэнерго России подготовило предложение о продлении запрета на экспорт авиационного керосина",
+      "context": "Решение обусловлено напряженной ситуацией на внутреннем рынке топлива из-за плановых ремонтов НПЗ.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/business/news/2026/11/25/1415251-predlozhilo-prodlit"
+        }
+      ],
+      "published_at": "2026-11-25T15:17:00+03:00"
+    },
+    {
+      "id": "banking-liquidity-deficit-growth",
+      "headline": "Структурный дефицит ликвидности в российском банковском секторе вырос до 3,3 трлн рублей",
+      "context": "Согласно обзору НРА, за девять месяцев 2026 года показатель увеличился в 5,5 раза с первоначальных 0,6 трлн рублей.",
+      "category": "banks",
       "investment_relevant": false,
       "importance": 4,
       "sources": [
         {
           "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9130088"
+          "url": "https://www.kommersant.ru/doc/9129734"
         }
       ],
-      "published_at": "2026-11-25T12:54:00+03:00"
+      "published_at": "2026-11-25T01:26:00+03:00"
     },
     {
-      "id": "domrf-results-10m-2026",
-      "headline": "Чистая прибыль ДОМ.РФ за десять месяцев выросла на 38% по МСФО",
-      "context": "Показатель достиг 96,9 миллиарда рублей, при этом компания планирует направить на дивиденды не менее половины прибыли.",
+      "id": "october-mortgage-issuance-drop",
+      "headline": "Объем выданных ипотечных кредитов в России в октябре сократился на 55 процентов",
+      "context": "По данным ОКБ, всего было выдано 78,63 тысячи ипотек на сумму 300,26 млрд рублей, что на 40% ниже прошлого года.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87245"
+        }
+      ],
+      "published_at": "2026-11-25T08:27:00+03:00"
+    },
+    {
+      "id": "ozon-pharmaceuticals-9m-results",
+      "headline": "Чистая прибыль компании Озон Фармацевтика за девять месяцев выросла на 52 процента",
+      "context": "Выручка составила 22,8 млрд рублей, а скорректированная EBITDA выросла на 19% до 9,2 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "Интерфакс",
-          "url": "https://www.interfax.ru/business/1131217"
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87251"
         }
       ],
-      "published_at": "2026-11-25T10:24:00+03:00"
+      "published_at": "2026-11-25T11:10:00+03:00"
     },
     {
-      "id": "whoosh-results-9m-2026",
-      "headline": "Выручка Whoosh за девять месяцев составила почти 11 миллиардов рублей",
-      "context": "Чистый убыток кикшерингового оператора сократился на 18% до 957 миллионов рублей.",
+      "id": "whoosh-9m-financial-results",
+      "headline": "Чистый убыток сервиса Whoosh за девять месяцев сократился на 18 процентов",
+      "context": "Выручка компании составила 10,9 млрд рублей, а показатель EBITDA кикшеринга увеличился на 10% до 4,1 млрд рублей.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/11/25/1415075-whoosh-ebitda"
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87247"
         }
       ],
       "published_at": "2026-11-25T09:01:00+03:00"
     },
     {
-      "id": "segezha-bonds-high-risk",
-      "headline": "Московская биржа включила пятнадцать выпусков облигаций Сегежи в сектор повышенного риска",
-      "context": "Перевод ценных бумаг лесопромышленного холдинга в соответствующий сектор вступил в силу на биржевой площадке.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394723"
-        }
-      ],
-      "published_at": "2026-11-25T07:22:00+03:00"
-    },
-    {
-      "id": "anthropic-shares-fall",
-      "headline": "Акции разработчика искусственного интеллекта Anthropic упали ниже цены первичного размещения",
-      "context": "Котировки компании опустились на торгах в США на фоне общей распродажи акций технологического сектора.",
-      "category": "tech",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/317867"
-        }
-      ],
-      "published_at": "2026-11-25T12:02:00+03:00"
-    }
-  ],
-  "yesterday": [
-    {
-      "id": "lsr-group-delisting-offer",
-      "headline": "Совет директоров группы ЛСР рекомендовал делистинг акций и утвердил оферту по 710 рублей",
-      "context": "Выкуп акций планируется провести в период с февраля по март 2027 года.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394688"
-        }
-      ],
-      "published_at": "2026-11-24T18:25:00+03:00"
-    },
-    {
-      "id": "t-technologies-offer-cyan",
-      "headline": "Т-Технологии направили акционерам ЦИАН предложение о выкупе акций по 993 рубля",
-      "context": "Оферта распространяется на выкуп до 100% акций сервиса объявлений о недвижимости.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129412"
-        }
-      ],
-      "published_at": "2026-11-24T15:01:00+03:00"
-    },
-    {
-      "id": "ndfl-passive-income-increase",
-      "headline": "Пассивные доходы граждан в России подпадут под общую прогрессивную шкалу НДФЛ",
-      "context": "Госдума одобрила законопроект о применении ставок от 13% до 22% к процентам и дивидендам.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129376"
-        }
-      ],
-      "published_at": "2026-11-24T14:40:00+03:00"
-    },
-    {
-      "id": "windfall-tax-mining-metallurgy",
-      "headline": "Госдума утвердила введение налога на сверхдоходы горнодобывающих и металлургических компаний",
-      "context": "Ставка налога составит 30% для большинства ископаемых и 20% для добычи золота.",
-      "category": "macro",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129389"
-        }
-      ],
-      "published_at": "2026-11-24T14:38:00+03:00"
-    },
-    {
-      "id": "state-budget-2027-2029-approved",
-      "headline": "Государственная дума приняла проект федерального бюджета на трехлетний период в окончательном чтении",
-      "context": "Закон об утверждении параметров бюджета на 2027–2029 годы поддержали 396 депутатов.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129106"
-        }
-      ],
-      "published_at": "2026-11-24T13:34:00+03:00"
-    },
-    {
-      "id": "samolet-rating-under-watch",
-      "headline": "Рейтинговое агентство АКРА присвоило статус под наблюдением кредитному рейтингу Группы Самолет",
-      "context": "Рейтинг компании и ее облигационных выпусков сохранен на уровне BBB(RU) с негативным прогнозом.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129564"
-        }
-      ],
-      "published_at": "2026-11-24T17:04:00+03:00"
-    },
-    {
-      "id": "cb-fns-suspicious-transfers",
-      "headline": "Центральный банк обяжут передавать налоговой службе данные о подозрительных переводах граждан",
-      "context": "Принятый Госдумой закон вступает в силу с 1 января 2027 года.",
-      "category": "banks",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9129378"
-        }
-      ],
-      "published_at": "2026-11-24T15:37:00+03:00"
-    },
-    {
-      "id": "lukoil-treasury-shares",
-      "headline": "Лукойл перевел на собственный баланс свыше сорока четырех миллионов акций после ликвидации дочерней структуры",
-      "context": "Пакет составляет 6,45% акций нефтегазовой компании.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394640"
-        }
-      ],
-      "published_at": "2026-11-24T14:22:00+03:00"
-    },
-    {
-      "id": "t-bank-ras-profit-10m",
-      "headline": "Чистая прибыль Т-Банка по РСБУ за десять месяцев увеличилась до 160,5 миллиарда рублей",
-      "context": "Финансовый результат кредитной организации вырос в 2,4 раза по сравнению с аналогичным периодом прошлого года.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394614"
-        }
-      ],
-      "published_at": "2026-11-24T12:02:00+03:00"
-    },
-    {
-      "id": "sovcomflot-ebitda-forecast",
-      "headline": "Совкомфлот прогнозирует двукратное увеличение EBITDA и продолжение выплаты дивидендов",
-      "context": "Руководство судоходной компании рассчитывает на сохранение дивидендных выплат в размере 50% от чистой прибыли.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/87205"
-        }
-      ],
-      "published_at": "2026-11-24T07:49:00+03:00"
-    },
-    {
-      "id": "cbr-fx-rates-set",
-      "headline": "Банк России установил официальные курсы иностранных валют на двадцать пятое ноября",
-      "context": "Официальный курс евро снизился и опустился ниже отметки 90 рублей.",
+      "id": "eaeu-court-duties-decision",
+      "headline": "Суд ЕАЭС признал неправомерным повторное взимание пошлин с товаров из недружественных стран",
+      "context": "Решение касается товаров, уже прошедших таможенное оформление и выпущенных в обращение в Казахстане.",
       "category": "markets",
       "investment_relevant": false,
       "importance": 3,
       "sources": [
         {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394686"
+          "name": "@frank_media",
+          "url": "https://t.me/frank_media/24876"
         }
       ],
-      "published_at": "2026-11-24T18:05:00+03:00"
-    },
-    {
-      "id": "kuibyshevazot-dividend-approval",
-      "headline": "Акционеры КуйбышевАзота утвердили дивидендные выплаты за девять месяцев в размере двадцати рублей",
-      "context": "Дивиденды в аналогичном размере одобрены как по обыкновенным, так и по привилегированным акциям.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Telegram-канал markettwits",
-          "url": "https://t.me/markettwits/394619"
-        }
-      ],
-      "published_at": "2026-11-24T12:36:00+03:00"
-    },
-    {
-      "id": "arenadata-9m-results",
-      "headline": "Выручка компании Аренадата за девять месяцев увеличилась на восемьдесят три процента",
-      "context": "Чистый убыток IT-разработчика сократился в два раза до 688 миллионов рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 3,
-      "sources": [
-        {
-          "name": "Telegram-канал if_market_news",
-          "url": "https://t.me/if_market_news/87209"
-        }
-      ],
-      "published_at": "2026-11-24T10:21:00+03:00"
+      "published_at": "2026-11-25T10:22:00+03:00"
     }
   ],
   "today_agenda": [],
@@ -371,6 +315,6 @@
     "kind": "intraday",
     "title": "Сводка к текущей сессии",
     "context": "уже во время основной сессии Мосбиржи",
-    "last_trading_day": "2026-11-24"
+    "last_trading_day": "2026-11-25"
   }
 }
