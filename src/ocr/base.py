@@ -13,6 +13,8 @@ class OCRResult:
     markdown: str = ""
     confidence: float = 0.0
     extraction_method: str = "ocr"
+    model: str | None = None
+    source_sha256: str | None = None
 
 
 class OCRBackend:
