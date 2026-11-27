@@ -7,6 +7,8 @@ from copy import deepcopy
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_dividend_calendar as builder  # noqa: E402
@@ -224,6 +226,38 @@ def test_cache_fallback_and_empty_success_are_distinct():
     assert stats == {"success": 1, "cache_used": 1, "failed": 0}
 
 
+def test_moex_dividend_response_requires_a_dividend_table(monkeypatch):
+    monkeypatch.setattr(builder.moex_iss, "_http_get_json",
+                        lambda *_args, **_kwargs: {"description": {}, "boards": {}})
+    with pytest.raises(RuntimeError, match="отсутствует таблица дивидендов SBER"):
+        builder.moex_iss.fetch_dividend_records("SBER")
+
+    monkeypatch.setattr(builder.moex_iss, "_http_get_json", lambda *_args, **_kwargs: {
+        "dividends": {"columns": ["registryclosedate", "value"], "data": []},
+    })
+    assert builder.moex_iss.fetch_dividend_records("SBER") == []
+
+
+def test_empty_fallback_does_not_replace_published_calendar(monkeypatch, tmp_path):
+    output = tmp_path / "dividends.json"
+    original = json.dumps(payload([event()]))
+    output.write_text(original, encoding="utf-8")
+    snapshot = tmp_path / "previous.json"
+    marker = tmp_path / "marker"
+    args = builder.parse_args(["--out", str(output), "--cache", str(tmp_path / "cache.json"),
+                               "--snapshot", str(snapshot), "--change-marker", str(marker)])
+    monkeypatch.setattr(builder, "load_universe", lambda *_: {"SBER": security()})
+    monkeypatch.setattr(builder, "collect_moex_records", lambda *_: (
+        {"SBER": []}, {"success": 0, "cache_used": 1, "failed": 0},
+    ))
+    monkeypatch.setattr(builder, "_price_rows", lambda *_: ({}, {}))
+    monkeypatch.setenv("TINVEST_TOKEN", "")
+    assert builder.run_build(args) == (None, False)
+    assert output.read_text(encoding="utf-8") == original
+    assert not marker.exists()
+    assert not snapshot.exists()
+
+
 def test_build_payload_summary_counters():
     universe = {"SBER": security()}
     source = {"SBER": [row()]}
@@ -268,7 +302,9 @@ def test_frontend_and_deploy_contracts_are_wired():
     assert ".dc-mcard-names" in css and ".dc-mcard-tk" in css
     assert "dividendMobileCardHTML" in js
     assert 'cron: "0 5 * * *"' in workflow and "group: gh-pages-publish" in workflow
-    assert "t-tech-investments==1.49.2" in workflow and 'SSL_TBANK_VERIFY: "True"' in workflow
-    assert "t-tech-investments==1.49.2" in update and 'SSL_TBANK_VERIFY: "True"' in update
+    sdk_install = (ROOT / "scripts" / "install_tinvest_sdk.sh").read_text(encoding="utf-8")
+    assert "scripts/install_tinvest_sdk.sh" in workflow and 'SSL_TBANK_VERIFY: "True"' in workflow
+    assert "t-tech-investments==1.49.2" in sdk_install
+    assert "scripts/install_tinvest_sdk.sh" in update and 'SSL_TBANK_VERIFY: "True"' in update
     assert "validate_dividend_calendar.py" in workflow
     assert "site/dividend_calendar.json" in update and "site/dividend_calendar.json" in deploy

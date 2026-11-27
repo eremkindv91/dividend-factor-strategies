@@ -218,14 +218,18 @@ def build_payload(
 
     covered = source_stats["success"] + source_stats["cache_used"]
     coverage = covered / len(universe) if universe else 0.0
+    live_coverage = source_stats["success"] / len(universe) if universe else 0.0
     if source_stats["success"] == 0 and source_stats["cache_used"] > 0:
-        status = "fallback"
-    elif source_stats["success"] > 0 and coverage >= FRESH_COVERAGE:
-        status = "fresh"
+        moex_status = "fallback"
+    elif live_coverage >= FRESH_COVERAGE:
+        moex_status = "fresh"
     elif coverage >= PARTIAL_COVERAGE:
-        status = "partial"
+        moex_status = "partial"
     else:
-        status = "broken"
+        moex_status = "broken"
+    status = moex_status
+    if moex_status == "broken" and tinvest_stats["success"] and events:
+        status = "partial"
     actionable = [row for row in events if row["decision_status"] in core.ACTIONABLE_DECISIONS
                   and row["decision_status"] != "cancelled" and not row.get("has_conflict")]
     conflicts = sum(1 for row in events if row.get("has_conflict"))
@@ -243,7 +247,7 @@ def build_payload(
         "conflict_count": conflicts,
         "no_price_count": sum(1 for row in events if row["price_status"] == "missing"),
         "source_health": {
-            "moex": {"status": status, **source_stats, "last_successful_live_fetch": now.isoformat(timespec="seconds")
+            "moex": {"status": moex_status, **source_stats, "last_successful_live_fetch": now.isoformat(timespec="seconds")
                      if source_stats["success"] else None},
             "prices": {"status": "fresh" if price_meta.get("source_ok") else "fallback",
                        "asof": price_meta.get("price_asof"), "fresh": price_meta.get("n_fresh", 0),
@@ -277,8 +281,9 @@ def run_build(args) -> tuple[dict | None, bool]:
         tinvest_max_instruments=args.tinvest_max_instruments,
         back_days=args.back_days, forward_days=args.forward_days,
     )
-    if payload["meta"]["status"] == "broken":
-        sys.stderr.write("[div-calendar] broken source coverage; current last-good was not replaced\n")
+    status = payload["meta"]["status"]
+    if status == "broken" or (status != "fresh" and not payload["events"]):
+        sys.stderr.write(f"[div-calendar] insufficient data ({status}); current last-good was not replaced\n")
         return None, False
     changed = core.business_signature(payload) != core.business_signature(previous)
     core.atomic_write_json(str(out), payload)
