@@ -10,6 +10,13 @@ from src.provider_http import ProviderError, request_json
 
 OCR_MODEL = "mistral-ocr-latest"
 MAX_PDF_BYTES = 50_000_000
+BILLING_ERRORS = {
+    "2300": "достигнут лимит расходов организации",
+    "2301": "достигнут лимит расходов рабочего пространства",
+    "2302": "не прошла оплата счёта",
+    "2303": "исчерпан включённый месячный лимит API",
+    "2308": "закончились предоплаченные кредиты",
+}
 
 
 class MistralOCRBackend(OCRBackend):
@@ -42,6 +49,7 @@ class MistralOCRBackend(OCRBackend):
             payload["pages"] = pages
         response = request_json(
             "POST", "https://api.mistral.ai/v1/ocr", "Mistral OCR",
+            billing_errors=BILLING_ERRORS,
             headers={"Authorization": f"Bearer {self.api_key}"}, json=payload,
         )
         extracted = response.get("pages")

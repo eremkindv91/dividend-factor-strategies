@@ -22,10 +22,11 @@ def test_finam_accepts_only_readonly_tokens_and_keeps_exact_quote(monkeypatch):
         return next(replies)
 
     monkeypatch.setattr(finam_adapter, "request_json", request)
-    result = finam_adapter.latest_quote("test-key")
+    result = finam_adapter.latest_quote(" test-key\n")
     assert result.last == Decimal("288.0700")
     assert str(result.last) == "288.0700"
     assert [method for method, *_ in calls] == ["POST", "POST", "GET"]
+    assert calls[0][2]["json"] == {"secret": "test-key"}
     assert calls[-1][2]["headers"] == {"Authorization": "Bearer test-access-token"}
 
 
@@ -34,6 +35,12 @@ def test_finam_rejects_trading_permission_before_quote_request(monkeypatch):
     monkeypatch.setattr(finam_adapter, "request_json", lambda *a, **k: next(replies))
     with pytest.raises(provider_http.ProviderError, match="только чтение"):
         finam_adapter.latest_quote("test-key")
+
+
+def test_finam_reports_access_key_before_attempting_secret_exchange(monkeypatch):
+    monkeypatch.setattr(finam_adapter, "request_json", lambda *a, **k: pytest.fail("Access Key sent"))
+    with pytest.raises(provider_http.ProviderError, match="требуется Secret Key"):
+        finam_adapter.latest_quote("tapi_ak_example")
 
 
 def test_mistral_sends_only_selected_pages_for_processing(monkeypatch):
@@ -68,3 +75,17 @@ def test_provider_rejects_redirects_without_logging_response_body(monkeypatch):
     monkeypatch.setattr(provider_http.requests, "request", request)
     with pytest.raises(provider_http.ProviderError, match=r"^Diagnostic: HTTP 307$"):
         provider_http.request_json("GET", "https://api.finam.ru", "Diagnostic")
+
+
+def test_mistral_billing_error_reports_only_known_code(monkeypatch):
+    class BillingResponse:
+        status_code = 402
+
+        def json(self):
+            return {"code": 2308, "message": "provider details that must stay private"}
+
+    monkeypatch.setattr(provider_http.requests, "request", lambda *a, **kw: BillingResponse())
+    with pytest.raises(provider_http.ProviderError, match=r"^Mistral OCR: HTTP 402 · 2308 · закончились предоплаченные кредиты$"):
+        provider_http.request_json(
+            "POST", "https://api.mistral.ai/v1/ocr", "Mistral OCR", billing_errors=mistral_ocr.BILLING_ERRORS,
+        )
