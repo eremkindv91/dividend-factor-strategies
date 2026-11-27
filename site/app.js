@@ -8640,7 +8640,18 @@ function renderDividendCalendar(refocus) {
   const calendarExpired = calendarAge == null || calendarAge > 4;
   const healthLabel = calendarExpired ? 'актуальность не подтверждена' : meta.status === 'fresh' ? 'данные свежие' : meta.status === 'partial' ? 'частичное покрытие' : meta.status === 'fallback' ? 'резервные данные' : 'статус неизвестен';
   summary.textContent = `можно купить: ${buyable.length} · в портфеле: ${portfolioUpcoming.length} ${dividendEventWord(portfolioUpcoming.length)} / ${ru(portfolioGross, 0)} ₽ · ${healthLabel}`;
-  const alert = ['partial', 'fallback'].includes(meta.status) ? `<div class="dc-alert"><b>${meta.status === 'fallback' ? 'Показаны резервные данные.' : 'Часть источников недоступна.'}</b><span>Проверено ${esc(String(meta.generated_at || '').replace('T', ' ').slice(0, 16))}; coverage ${ru(meta.universe_coverage_pct || 0, 0)}%.</span></div>` : '';
+  const {moex, tinvest} = meta.source_health || {};
+  const sourceDetails = [];
+  if (meta.generated_at) sourceDetails.push(`Снимок от ${String(meta.generated_at).replace('T', ' ').slice(0, 16)} МСК`);
+  if (Number.isInteger(moex?.success) && Number.isInteger(meta.universe_count)) {
+    sourceDetails.push(`Ответы MOEX ISS — ${moex.success} из ${meta.universe_count}`);
+  }
+  if (Number.isInteger(moex?.cache_used) && moex.cache_used > 0) sourceDetails.push(`Из кэша — ${moex.cache_used}`);
+  if (Number.isInteger(tinvest?.success)) sourceDetails.push(`Ответы Т-Инвест — ${tinvest.success}`);
+  const alertTitle = calendarExpired ? 'Актуальность календаря не подтверждена.'
+    : meta.status === 'fallback' ? 'Показаны резервные данные.'
+    : meta.status === 'partial' ? 'Календарь покрывает часть источников.' : '';
+  const alert = alertTitle ? `<div class="dc-alert"><b>${alertTitle}</b><span>${esc(sourceDetails.join(' · '))}</span></div>` : '';
   const tabs = [['portfolio', `Мой портфель · ${portfolioUpcoming.length}`], ['buyable', `Можно купить · ${buyable.length}`],
     ['upcoming', `Все будущие · ${marketUpcoming.length}`], ['confirmed', `Подтверждены · ${officialUpcoming.length}`], ['changes', 'Изменения']];
   const nearestBuyDate = buyable.map((event) => event.last_buy_date).sort()[0];
