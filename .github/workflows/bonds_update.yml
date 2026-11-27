@@ -17,6 +17,7 @@ concurrency:
   # общая группа с update.yml: сериализует записи в gh-pages (orphan-push vs additive bonds) → без гонок
   group: gh-pages-publish
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build:

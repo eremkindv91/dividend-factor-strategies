@@ -14,6 +14,7 @@ permissions:
 concurrency:
   group: gh-pages-publish       # общая с update.yml/bonds — сериализует записи в gh-pages
   cancel-in-progress: false
+  queue: max
 
 jobs:
   daily-data:

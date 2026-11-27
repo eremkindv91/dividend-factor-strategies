@@ -31,6 +31,7 @@ concurrency:
   # Общая группа с основными деплоями: все записи в gh-pages идут последовательно.
   group: gh-pages-publish
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build-news:
