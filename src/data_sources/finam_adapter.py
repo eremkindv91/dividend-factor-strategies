@@ -19,8 +19,11 @@ class FinamQuote:
 
 
 def latest_quote(secret: str, symbol: str = "SBER@MISX") -> FinamQuote:
+    secret = secret.strip()
     if not secret:
         raise ProviderError("Finam: отсутствует FINAM_TRADE_API_KEY")
+    if secret.startswith("tapi_ak_"):
+        raise ProviderError("Finam: сохранён Access Key, для авторизации требуется Secret Key")
     if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,39}@[A-Z0-9]{4}", symbol):
         raise ValueError("Finam: ожидается символ в формате SBER@MISX")
     session = request_json("POST", f"{API}/sessions", "Finam: авторизация", json={"secret": secret})
