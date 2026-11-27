@@ -29,6 +29,8 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: ./.github/actions/market-data-tls
+
       - name: Установка зависимостей
         run: python -m pip install --quiet requests pandas numpy scipy openpyxl pypdf pytest
 

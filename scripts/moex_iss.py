@@ -225,8 +225,16 @@ def fetch_candles(ticker: str, days: int = 430, interval: int = 24, timeout: int
 def fetch_dividend_records(ticker: str, timeout: int = 25, retries: int = 3) -> List[dict]:
     """Official dividend rows with security identifiers and record dates."""
     payload = _http_get_json(ISS_DIV_URL.format(tk=ticker), timeout=timeout, retries=retries)
+    table = payload.get("dividends")
+    if (
+        not isinstance(table, dict)
+        or not isinstance(table.get("columns"), list)
+        or not {"registryclosedate", "value"} <= set(table["columns"])
+        or not isinstance(table.get("data"), list)
+    ):
+        raise RuntimeError(f"MOEX ISS: отсутствует таблица дивидендов {ticker}")
     out = []
-    for row in _rows(payload.get("dividends", {"columns": [], "data": []})):
+    for row in _rows(table):
         value, currency, record_date = row.get("value"), row.get("currencyid"), row.get("registryclosedate")
         if value is not None and float(value) > 0 and currency in (None, "SUR", "RUB") and record_date:
             out.append({

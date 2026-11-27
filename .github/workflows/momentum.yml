@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - uses: ./.github/actions/market-data-tls
           # build_momentum.py — чистый stdlib, pip install не требуется
 
       - name: Пересчёт momentum + returns (свечи + дивиденды MOEX, circuit-breaker)

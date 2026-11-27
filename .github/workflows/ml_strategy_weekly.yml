@@ -17,6 +17,8 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+
+      - uses: ./.github/actions/market-data-tls
       - name: Install diagnostic runtime
         run: python -m pip install --quiet pandas pyarrow numpy scipy scikit-learn requests lxml ta lightgbm catboost
       - uses: actions/cache@v4

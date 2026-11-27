@@ -1,0 +1,16 @@
+name: Market data TLS
+description: Add the verified Russian NCA certificates to this job's Python trust bundle
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        MARKET_CA_PATH: ${{ github.action_path }}/../../../config/tls
+      run: |
+        bundle="$RUNNER_TEMP/market-data-ca.pem"
+        cat /etc/ssl/certs/ca-certificates.crt "$MARKET_CA_PATH"/russian_trusted_*.pem > "$bundle"
+        {
+          echo "SSL_CERT_FILE=$bundle"
+          echo "REQUESTS_CA_BUNDLE=$bundle"
+          echo "MARKET_DATA_CA_BUNDLE=$bundle"
+        } >> "$GITHUB_ENV"

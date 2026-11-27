@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - uses: ./.github/actions/market-data-tls
           # build_cbr_banks.py / cbr_soap.py — только stdlib, pip install не требуется
 
       - name: Сбор данных ЦБ (формы 102/123/135, SOAP)
