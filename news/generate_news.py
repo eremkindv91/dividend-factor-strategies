@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 from datetime import datetime, time, timedelta, timezone
+from itertools import zip_longest
 from pathlib import Path
 from time import sleep   # ВНИМАНИЕ: имя `time` уже занято под datetime.time
 from typing import Any
@@ -22,6 +23,8 @@ MSK = timezone(timedelta(hours=3))
 DEFAULT_PROMPT = NEWS_DIR / "prompt.md"
 DEFAULT_OUTPUT = SITE / "news.json"
 DEFAULT_MODEL = "gemini-3.5-flash"
+# Leave headroom below the free-tier input tokens per minute quota, including retries.
+NEWS_INPUT_BYTES = 120_000
 
 REQUIRED_TOP = {
     "date": str,
@@ -109,11 +112,44 @@ def briefing_kind(now: datetime) -> str:
     return "evening"
 
 
+def select_news_for_prompt(blob: str, market_close: str) -> str:
+    if len(blob.encode("utf-8")) <= NEWS_INPUT_BYTES:
+        return blob
+
+    separator = "\n---\n"
+    before_close: dict[str, list[tuple[int, str]]] = {}
+    after_close: dict[str, list[tuple[int, str]]] = {}
+    for index, item in enumerate(blob.removesuffix("\n---").split(separator)):
+        header = item.partition("\n")[0].rsplit(" | ", 2)
+        if len(header) != 3 or not header[0].startswith("[Источник: ") or not header[2].endswith(" MSK]"):
+            continue
+        source, _url, timestamp = header
+        period = after_close if timestamp.removesuffix("]") > market_close else before_close
+        period.setdefault(source, []).append((index, item))
+
+    periods = (before_close, after_close)
+    budget = NEWS_INPUT_BYTES // max(1, sum(bool(period) for period in periods))
+    selected: list[tuple[int, str]] = []
+    for sources in periods:
+        remaining = budget
+        # Take the latest items round-robin so that a single busy feed cannot crowd out the others.
+        for group in zip_longest(*(reversed(items) for items in sources.values())):
+            for entry in group:
+                if entry is None:
+                    continue
+                size = len((entry[1] + separator).encode("utf-8"))
+                if size <= remaining:
+                    selected.append(entry)
+                    remaining -= size
+    return "".join(item + separator for _, item in sorted(selected)).rstrip()
+
+
 def build_prompt(template: str, now: datetime) -> str:
     today = now.date()
     yesterday = last_trading_day(today)
     kind = briefing_kind(now)
     kind_title, kind_context = BRIEFING_KINDS[kind]
+    market_close = f"{yesterday.isoformat()} 18:50 MSK"
     values = {
         "TODAY": today.isoformat(),
         "YESTERDAY": yesterday.isoformat(),
@@ -121,9 +157,9 @@ def build_prompt(template: str, now: datetime) -> str:
         "BRIEFING_CONTEXT": kind_context,
         "NOW_ISO": now.isoformat(),
         "SESSION_OPEN": "10:00 MSK",
-        "RU_CLOSE": f"{yesterday.isoformat()} 18:50 MSK",
+        "RU_CLOSE": market_close,
         "OVERNIGHT_MARKETS": read_text(ARTIFACTS / "overnight_markets.txt").strip(),
-        "NEWS_BLOB": read_text(ARTIFACTS / "news_blob.txt").strip(),
+        "NEWS_BLOB": select_news_for_prompt(read_text(ARTIFACTS / "news_blob.txt").strip(), market_close),
         "TODAY_CALENDAR": read_text(ARTIFACTS / "today_calendar.txt").strip(),
     }
     for key, value in values.items():
@@ -295,6 +331,7 @@ def main() -> int:
     now = datetime.now(MSK).replace(microsecond=0)
     prompt = build_prompt(args.prompt.read_text(encoding="utf-8"), now)
     (ARTIFACTS / "compiled_prompt.txt").write_text(prompt, encoding="utf-8")
+    print(f"[news] prompt_bytes={len(prompt.encode('utf-8'))}", flush=True)
     if args.dry_run:
         print(f"[news] dry-run ok, prompt_chars={len(prompt)}")
         return 0

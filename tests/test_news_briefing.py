@@ -88,6 +88,27 @@ def test_prompt_uses_trading_day_and_briefing_type():
     assert "{" not in rendered.replace("{}", "")   # плейсхолдеров не осталось
 
 
+def test_large_news_input_keeps_whole_articles_from_both_periods_and_multiple_sources(monkeypatch):
+    monkeypatch.setattr(gn, "NEWS_INPUT_BYTES", 900)
+    close = "2026-11-26 18:50 MSK"
+    separator = "\n---\n"
+    articles = [
+        f"[Источник: {source} (A) | - | 2026-11-26 {hour}:{minute:02d} MSK]\n"
+        f"Текст сообщения {minute} " + "а" * 45
+        for hour in ("16", "21")
+        for minute, source in enumerate(["A", "B", "A", "A", "A"])
+    ]
+    blob = separator.join(articles) + "\n---"
+    selected = gn.select_news_for_prompt(blob, close)
+    selected_articles = selected.removesuffix("\n---").split(separator)
+    assert len(selected.encode("utf-8")) <= gn.NEWS_INPUT_BYTES
+    assert all(article in articles for article in selected_articles)
+    assert {record.split(" (A)")[0] for record in selected_articles} == {"[Источник: A", "[Источник: B"}
+    assert any("16:" in article for article in selected_articles)
+    assert any("21:" in article for article in selected_articles)
+    assert gn.select_news_for_prompt(articles[0], close) == articles[0]
+
+
 # ── устойчивость к временным сбоям Gemini ────────────────────────────────────
 
 @pytest.mark.parametrize("message", [
