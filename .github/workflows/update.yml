@@ -19,6 +19,7 @@ concurrency:
   # чтобы публикации не гонялись друг с другом. cancel-in-progress: false — не рвать push на полпути.
   group: gh-pages-publish
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build-deploy:

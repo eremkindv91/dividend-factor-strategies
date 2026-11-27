@@ -17,6 +17,7 @@ concurrency:
   # сериализует записи в gh-pages, чтобы публикации не гонялись друг с другом
   group: gh-pages-publish
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build:
