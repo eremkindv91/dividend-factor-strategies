@@ -1,0 +1,424 @@
+{
+  "date": "2026-11-28",
+  "generated_at": "2026-11-28T02:59:09+03:00",
+  "session_open": "10:00 MSK",
+  "external_backdrop": "Американские и азиатские биржевые индексы закрылись ростом, котировки нефти Brent снизились, цены на золото выросли.",
+  "market_snapshot": [
+    {
+      "name": "S&P 500",
+      "value": "7297.49",
+      "change_pct": "+1.60%",
+      "as_of": "2026-11-27",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nasdaq",
+      "value": "24129.50",
+      "change_pct": "+2.31%",
+      "as_of": "2026-11-27",
+      "group": "global_equity"
+    },
+    {
+      "name": "Nikkei 225",
+      "value": "57499.16",
+      "change_pct": "+0.86%",
+      "as_of": "2026-11-26",
+      "group": "global_equity"
+    },
+    {
+      "name": "Hang Seng",
+      "value": "22226.88",
+      "change_pct": "+1.19%",
+      "as_of": "2026-11-26",
+      "group": "global_equity"
+    },
+    {
+      "name": "Brent",
+      "value": "90.84",
+      "change_pct": "-3.98%",
+      "as_of": "2026-11-27",
+      "group": "commodity"
+    },
+    {
+      "name": "Золото",
+      "value": "3668.50",
+      "change_pct": "+3.75%",
+      "as_of": "2026-11-27",
+      "group": "commodity"
+    },
+    {
+      "name": "IMOEX",
+      "value": "2364.93",
+      "change_pct": "+1.22%",
+      "as_of": "2026-11-27 23:50:03",
+      "group": "ru_equity"
+    },
+    {
+      "name": "RTS",
+      "value": "905.53",
+      "change_pct": "+1.04%",
+      "as_of": "2026-11-27 23:50:02",
+      "group": "ru_equity"
+    },
+    {
+      "name": "USD/RUB",
+      "value": "82.58",
+      "change_pct": "-0.05%",
+      "as_of": "2026-11-27 23:55:01",
+      "group": "fx"
+    },
+    {
+      "name": "CNY/RUB",
+      "value": "12.31",
+      "change_pct": "+0.24%",
+      "as_of": "2026-11-27 23:50:01",
+      "group": "fx"
+    }
+  ],
+  "overnight": [
+    {
+      "id": "ksir-tankers-ormuz-incident",
+      "headline": "ВМС Ирана заявили о подрыве двух нефтяных танкеров вблизи Ормузского пролива",
+      "context": "Корпус стражей исламской революции сообщил о подрыве танкеров на морских минах.",
+      "category": "geopolitics",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9144896"
+        }
+      ],
+      "published_at": "2026-11-28T01:33:00+03:00"
+    },
+    {
+      "id": "metall-trade-tech-default",
+      "headline": "Металл Трейд допустил первый технический дефолт по купону облигаций серии БО-01",
+      "context": "Сумма неисполненных обязательств компании по выплате купонного дохода составила 937 тысяч рублей.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380777.php"
+        }
+      ],
+      "published_at": "2026-11-27T20:29:00+03:00"
+    },
+    {
+      "id": "mkb-msfo-9m-2026",
+      "headline": "Чистая прибыль МКБ по МСФО за девять месяцев 2026 года снизилась на 23%",
+      "context": "Чистая прибыль банка составила 22,21 млрд рублей, при этом чистый процентный доход вырос на 12,7% до 81,17 млрд рублей.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380773.php"
+        }
+      ],
+      "published_at": "2026-11-27T20:05:00+03:00"
+    },
+    {
+      "id": "mechel-rsbu-9m-2026",
+      "headline": "Чистый убыток Мечела по РСБУ за девять месяцев 2026 года вырос до 10 млрд рублей",
+      "context": "Выручка компании по РСБУ за девять месяцев сократилась на 45,5% год к году и составила 8,20 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380761.php"
+        }
+      ],
+      "published_at": "2026-11-27T19:33:00+03:00"
+    },
+    {
+      "id": "novatek-spg-eu-redirection",
+      "headline": "Новатэк сформировал план перенаправления объемов СПГ с европейского рынка",
+      "context": "Компания завершает подготовку логистической схемы по перенаправлению поставок сжиженного природного газа.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380751.php"
+        }
+      ],
+      "published_at": "2026-11-27T19:13:00+03:00"
+    },
+    {
+      "id": "samolet-governance-moex",
+      "headline": "Мосбиржа выявила несоответствие ГК Самолет требованиями первого уровня листинга",
+      "context": "Площадка зафиксировала отклонения в стандартах корпоративного управления застройщика.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380733.php"
+        }
+      ],
+      "published_at": "2026-11-27T18:50:00+03:00"
+    },
+    {
+      "id": "abrau-durso-rsbu-9m-2026",
+      "headline": "Выручка Абрау-Дюрсо по РСБУ за девять месяцев 2026 года снизилась вдвое",
+      "context": "Выручка упала на 52,4% до 288,23 млн рублей, а чистая прибыль сохранилась на уровне 870,61 млн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380803.php"
+        }
+      ],
+      "published_at": "2026-11-27T22:43:00+03:00"
+    },
+    {
+      "id": "tech-fee-electronics-rules",
+      "headline": "Правительство РФ утвердило правила взимания технологического сбора с ноутбуков и смартфонов",
+      "context": "Сбор начинает действовать с декабря и на первом этапе затронет импорт и производство электроники.",
+      "category": "macro",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/economics/news/2026/11/27/1416201-pravitelstvo-utverdilo-pravila"
+        }
+      ],
+      "published_at": "2026-11-27T22:16:00+03:00"
+    }
+  ],
+  "yesterday": [
+    {
+      "id": "gazprom-msfo-9m-2026",
+      "headline": "Выручка Газпрома по МСФО за девять месяцев 2026 года увеличилась на 10%",
+      "context": "Показатель выручки достиг 7,88 трлн рублей, а чистая прибыль составила 1,11 трлн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380709.php"
+        },
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87343"
+        }
+      ],
+      "published_at": "2026-11-27T18:13:00+03:00"
+    },
+    {
+      "id": "gazprom-neft-msfo-9m-2026",
+      "headline": "Чистая прибыль Газпром нефти по МСФО за девять месяцев превысила 495 млрд рублей",
+      "context": "Прибыль компании увеличилась более чем в два раза, а выручка выросла на 14% до 3,1 трлн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87342"
+        }
+      ],
+      "published_at": "2026-11-27T17:39:00+03:00"
+    },
+    {
+      "id": "transneft-msfo-9m-2026",
+      "headline": "Чистая прибыль акционеров Транснефти за девять месяцев по МСФО упала на 17%",
+      "context": "Прибыль составила 192,7 млрд рублей при росте выручки на 3% до 1,11 трлн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87340"
+        }
+      ],
+      "published_at": "2026-11-27T16:34:00+03:00"
+    },
+    {
+      "id": "moex-msfo-3q-2026",
+      "headline": "Чистая прибыль Московской биржи за III квартал по МСФО выросла на 20,7%",
+      "context": "Прибыль площадки за квартал составила 20,8 млрд рублей, а за 9 месяцев выросла до 53,8 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4048"
+        }
+      ],
+      "published_at": "2026-11-27T13:04:00+03:00"
+    },
+    {
+      "id": "vtb-msfo-10m-2026",
+      "headline": "Чистая прибыль ВТБ по МСФО за десять месяцев 2026 года достигла 451 млрд рублей",
+      "context": "За 10 месяцев прибыль вырасти на 10,8% год к году, а за октябрь банк заработал 43,6 млрд рублей.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 5,
+      "sources": [
+        {
+          "name": "Frank Media",
+          "url": "https://frankmedia.ru/318346"
+        },
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4050"
+        }
+      ],
+      "published_at": "2026-11-27T10:00:00+03:00"
+    },
+    {
+      "id": "diasoft-additional-dividend",
+      "headline": "Совет директоров Диасофта рассмотрит выплат дополнительных дивидендов за 9 месяцев",
+      "context": "Вопрос о допвыплатах будет решен в дополнение к ранее рекомендованным 16 рублям на акцию.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380711.php"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/395154"
+        }
+      ],
+      "published_at": "2026-11-27T18:20:00+03:00"
+    },
+    {
+      "id": "spb-exchange-crypto-depository",
+      "headline": "Банк России включил СПБ биржу в официальный реестр цифровых депозитариев",
+      "context": "Регулятор присвоил площадке статус депозитария цифровых финансовых активов.",
+      "category": "markets",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380704.php"
+        }
+      ],
+      "published_at": "2026-11-27T17:59:00+03:00"
+    },
+    {
+      "id": "tax-crime-amendments-duma",
+      "headline": "Правительство предложило не передавать следствию налоговые дела с действующей рассрочкой",
+      "context": "Законопроект предполагает приостановку передачи материалов в СК при соблюдении условий отсрочки долга.",
+      "category": "cb_policy",
+      "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9144465"
+        },
+        {
+          "name": "@frank_media",
+          "url": "https://t.me/frank_media/24915"
+        }
+      ],
+      "published_at": "2026-11-27T17:50:00+03:00"
+    },
+    {
+      "id": "inter-rao-msfo-3q-2026",
+      "headline": "Интер РАО закрыла III квартал 2026 года с чистым убытком 4,2 млрд рублей",
+      "context": "Операционный убыток компании составил 7,6 млрд рублей против прибыли годом ранее.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4049"
+        }
+      ],
+      "published_at": "2026-11-27T16:08:00+03:00"
+    },
+    {
+      "id": "samolet-buyback-price-reorg",
+      "headline": "Самолет установил цену выкупа акций для несогласных с реорганизацией в 326,92 рубля",
+      "context": "Цена выкупа определена советом директоров компании в рамках процедуры реорганизации.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87336"
+        }
+      ],
+      "published_at": "2026-11-27T15:11:00+03:00"
+    },
+    {
+      "id": "cian-shareholders-sale-t-tech",
+      "headline": "Ключевые акционеры Циана продали 52% акций на фоне предложения оферты от Т-Технологий",
+      "context": "Новыми владельцами крупных пакетов акций стали основатель Балансплатформы Леван Назаров и группа Атон.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@frank_media",
+          "url": "https://t.me/frank_media/24908"
+        }
+      ],
+      "published_at": "2026-11-27T07:43:00+03:00"
+    },
+    {
+      "id": "vk-no-ai-agent-plans",
+      "headline": "VK отказалась от создания собственного ИИ-агента в пользу партнерских проектов",
+      "context": "Компания планирует развивать существующие сервисы на базе партнерских нейросетевых решений.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380732.php"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/395160"
+        }
+      ],
+      "published_at": "2026-11-27T18:48:00+03:00"
+    },
+    {
+      "id": "cbr-asset-management-growth-3q",
+      "headline": "Активы под управлением российских УК выросли до 37,1 трлн рублей в III квартале",
+      "context": "Прирост за квартал составил 3,5%, основные поступления обеспечили паевые инвестиционные фонды.",
+      "category": "markets",
+      "investment_relevant": false,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380717.php"
+        }
+      ],
+      "published_at": "2026-11-27T18:20:00+03:00"
+    }
+  ],
+  "today_agenda": [],
+  "briefing": {
+    "kind": "weekend",
+    "title": "Обзор недели",
+    "context": "в выходной день, когда биржа закрыта",
+    "last_trading_day": "2026-11-27"
+  }
+}
