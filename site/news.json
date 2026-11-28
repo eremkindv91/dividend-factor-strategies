@@ -1,8 +1,8 @@
 {
   "date": "2026-11-28",
-  "generated_at": "2026-11-28T02:24:14+03:00",
+  "generated_at": "2026-11-28T19:17:02+03:00",
   "session_open": "10:00 MSK",
-  "external_backdrop": "Американские и азиатские фондовые индексы закрылись ростом, цены на нефть Brent снизились, золото подорожало.",
+  "external_backdrop": "Мировые фондовые индексы, цены на нефть Brent и золото завершили торги ростом.",
   "market_snapshot": [
     {
       "name": "S&P 500",
@@ -20,29 +20,29 @@
     },
     {
       "name": "Nikkei 225",
-      "value": "57499.16",
-      "change_pct": "+0.86%",
-      "as_of": "2026-11-26",
+      "value": "58711.11",
+      "change_pct": "+2.11%",
+      "as_of": "2026-11-27",
       "group": "global_equity"
     },
     {
       "name": "Hang Seng",
-      "value": "22226.88",
-      "change_pct": "+1.19%",
-      "as_of": "2026-11-26",
+      "value": "22694.77",
+      "change_pct": "+2.11%",
+      "as_of": "2026-11-27",
       "group": "global_equity"
     },
     {
       "name": "Brent",
-      "value": "90.84",
-      "change_pct": "-3.98%",
+      "value": "95.44",
+      "change_pct": "+0.88%",
       "as_of": "2026-11-27",
       "group": "commodity"
     },
     {
       "name": "Золото",
-      "value": "3668.50",
-      "change_pct": "+3.75%",
+      "value": "3639.60",
+      "change_pct": "+2.94%",
       "as_of": "2026-11-27",
       "group": "commodity"
     },
@@ -77,103 +77,9 @@
   ],
   "overnight": [
     {
-      "id": "dom-rf-mortgage-drop-october",
-      "headline": "Выдача ипотеки в России в октябре сократилась на 37% до 325 миллиардов рублей",
-      "context": "По данным Дом.РФ, объем выданных ипотечных кредитов в октябре снизился на 48% в годовом выражении.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/87347"
-        }
-      ],
-      "published_at": "2026-11-27T21:57:00+03:00"
-    },
-    {
-      "id": "samolet-listing-governance-issue",
-      "headline": "Московская биржа выявила несоответствие «Самолета» требованиям корпоративного управления первого уровня листинга",
-      "context": "Мосбиржа зафиксировала отклонение ценных бумаг девелопера от стандартов первого уровня списков допуска.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380733.php"
-        }
-      ],
-      "published_at": "2026-11-27T18:50:00+03:00"
-    },
-    {
-      "id": "ksir-ormuz-tanker-explosions",
-      "headline": "Корпус стражей исламской революции заявил о подрыве двух нефтяных танкеров у Ормузского пролива",
-      "context": "Иранский телеканал Press TV сообщил о подрыве судов на морских минах в акватории пролива.",
-      "category": "geopolitics",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Коммерсантъ",
-          "url": "https://www.kommersant.ru/doc/9144896"
-        }
-      ],
-      "published_at": "2026-11-28T01:33:00+03:00"
-    },
-    {
-      "id": "electronics-tech-fee-rules-approved",
-      "headline": "Правительство утвердило порядок уплаты технологического сбора на смартфоны и ноутбуки",
-      "context": "Сбор начнет действовать с декабря, а его расчет будет производиться автоматически через ГИСП.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "Ведомости",
-          "url": "https://www.vedomosti.ru/economics/news/2026/11/27/1416201-pravitelstvo-utverdilo-pravila"
-        },
-        {
-          "name": "РБК",
-          "url": "https://www.rbc.ru/business/18/08/2026/6a8388149a794773cd254c52"
-        }
-      ],
-      "published_at": "2026-11-27T22:16:00+03:00"
-    },
-    {
-      "id": "mkb-9m-msfo-results",
-      "headline": "Чистая прибыль МКБ по МСФО за девять месяцев снизилась на 23%",
-      "context": "Чистый процентный доход банка за период вырос на 12,7% и достиг 81,17 миллиарда рублей.",
-      "category": "banks",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380773.php"
-        }
-      ],
-      "published_at": "2026-11-27T20:05:00+03:00"
-    },
-    {
-      "id": "mechel-9m-rsbu-loss",
-      "headline": "«Мечел» зафиксировал чистый убыток по РСБУ за девять месяцев в десять миллиардов рублей",
-      "context": "Выручка компании за девять месяцев 2026 года снизилась на 45,5% до 8,20 миллиарда рублей.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380761.php"
-        }
-      ],
-      "published_at": "2026-11-27T19:33:00+03:00"
-    },
-    {
-      "id": "novatek-lng-rerouting-plan",
-      "headline": "«Новатэк» сформировал план перенаправления поставок сжиженного природного газа с рынка Европы",
-      "context": "Компания завершает подготовку логистических маршрутов для перераспределения объемов СПГ.",
+      "id": "novatek-spg-plan",
+      "headline": "Новатэк сформировал план перенаправления поставок СПГ с европейского рынка",
+      "context": "Компания подготовила варианты перенаправления сжиженного природного газа с европейского направления на другие рынки.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 4,
@@ -186,45 +92,101 @@
       "published_at": "2026-11-27T19:13:00+03:00"
     },
     {
-      "id": "sp-france-rating-outlook-negative",
-      "headline": "Рейтинговое агентство S&P понизило прогноз по кредитному рейтингу Франции до негативного",
-      "context": "Изменение прогноза связано с риском сохранения бюджетного дефицита и политической фрагментации.",
-      "category": "macro",
+      "id": "mechel-rsbu-9m-loss",
+      "headline": "Мечел зафиксировал чистый убыток по РСБУ в размере 10,12 млрд рублей за 9 месяцев",
+      "context": "Выручка компании по РСБУ за январь–сентябрь 2026 года снизилась на 45,5% до 8,20 млрд рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380761.php"
+        }
+      ],
+      "published_at": "2026-11-27T19:33:00+03:00"
+    },
+    {
+      "id": "mkb-msfo-9m-results",
+      "headline": "Чистая прибыль МКБ по МСФО за 9 месяцев снизилась на 23,1 процента",
+      "context": "Чистая прибыль банка составила 22,21 млрд рублей, при этом чистый процентный доход вырос на 12,7% до 81,17 млрд рублей.",
+      "category": "banks",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380773.php"
+        }
+      ],
+      "published_at": "2026-11-27T20:05:00+03:00"
+    },
+    {
+      "id": "us-bank-bankruptcy-united-fidelity",
+      "headline": "В США обанкротился банк United Fidelity, ставший крупнейшим с 2024 года",
+      "context": "Финансовый институт стал крупнейшим обанкротившимся американским банком за последние два года.",
+      "category": "banks",
       "investment_relevant": false,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/28/1416253-obankrotilsya-bank"
+        }
+      ],
+      "published_at": "2026-11-28T16:59:00+03:00"
+    },
+    {
+      "id": "moex-samolet-governance-issue",
+      "headline": "Мосбиржа выявила несоответствие ГК Самолет требованиям корпоративного управления первого уровня листинга",
+      "context": "Торговая площадка зафиксировала отклонение показателей корпоративного управления девелопера от стандартов первого уровня.",
+      "category": "markets",
+      "investment_relevant": true,
       "importance": 3,
       "sources": [
         {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/395167"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380733.php"
         }
       ],
-      "published_at": "2026-11-28T00:15:00+03:00"
+      "published_at": "2026-11-27T18:50:00+03:00"
+    },
+    {
+      "id": "metall-trade-technical-default",
+      "headline": "Металл Трейд допустил первый технический дефолт по купону облигаций",
+      "context": "Размер неисполненных обязательств компании по выпуску БО-01 составил 937 тысяч рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380777.php"
+        }
+      ],
+      "published_at": "2026-11-27T20:29:00+03:00"
+    },
+    {
+      "id": "abrau-durso-rsbu-9m",
+      "headline": "Выручка Абрау-Дюрсо по РСБУ за 9 месяцев сократилась вдвое при прибыли в 870,61 млн рублей",
+      "context": "Выручка упала на 52,4% до 288,23 млн рублей, тогда как чистая прибыль сохранилась на уровне прошлого года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380803.php"
+        }
+      ],
+      "published_at": "2026-11-27T22:43:00+03:00"
     }
   ],
   "yesterday": [
     {
-      "id": "spb-exchange-crypto-trading-launch",
-      "headline": "СПБ Биржа запустит торги криптовалютами с первого декабря",
-      "context": "Торговая площадка откроет доступ к операциям с цифровыми активами в начале месяца.",
-      "category": "markets",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/395156"
-        },
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380723.php"
-        }
-      ],
-      "published_at": "2026-11-27T18:34:00+03:00"
-    },
-    {
-      "id": "gazprom-9m-msfo-financial-results",
-      "headline": "Чистая прибыль «Газпрома» по МСФО за девять месяцев составила 1,11 триллиона рублей",
-      "context": "Выручка группы выросла на 10% до 7,88 триллиона рублей при росте EBITDA на 34%.",
+      "id": "gazprom-msfo-9m-profit",
+      "headline": "Чистая прибыль Газпрома по МСФО за 9 месяцев 2026 года составила 1,11 трлн рублей",
+      "context": "Выручка холдинга выросла на 10,1% до 7,88 трлн рублей, а показатель EBITDA увеличился на 34% до 2,93 трлн рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -234,16 +196,16 @@
           "url": "https://smart-lab.ru/blog/1380709.php"
         },
         {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/87343"
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/investments/news/2026/11/27/1416155-pribil-gazproma"
         }
       ],
       "published_at": "2026-11-27T18:05:00+03:00"
     },
     {
-      "id": "gazprom-neft-9m-msfo-profit-doubled",
-      "headline": "Чистая прибыль «Газпром нефти» по МСФО за девять месяцев увеличилась в два раза",
-      "context": "Прибыль компании достигла 495,3 миллиарда рублей при росте выручки за девять месяцев на 14%.",
+      "id": "gazprom-neft-msfo-9m",
+      "headline": "Газпром нефть нарастила чистую прибыль за 9 месяцев более чем в два раза до 495,3 млрд рублей",
+      "context": "Выручка нефтяной компании по МСФО увеличилась на 14% до 3,1 трлн рублей.",
       "category": "corporate",
       "investment_relevant": true,
       "importance": 5,
@@ -256,24 +218,9 @@
       "published_at": "2026-11-27T17:39:00+03:00"
     },
     {
-      "id": "transneft-9m-msfo-net-profit",
-      "headline": "Чистая прибыль «Транснефти» по МСФО за девять месяцев снизилась на 17%",
-      "context": "Показатель составил 192,7 миллиарда рублей при увеличении выручки компании на 3%.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 5,
-      "sources": [
-        {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/87340"
-        }
-      ],
-      "published_at": "2026-11-27T16:34:00+03:00"
-    },
-    {
-      "id": "vtb-october-msfo-earnings",
-      "headline": "Чистая прибыль ВТБ по МСФО в октябре выросла на 65% до 43,6 миллиарда рублей",
-      "context": "За 10 месяцев 2026 года банк заработал 451 миллиард рублей чистой прибыли.",
+      "id": "vtb-msfo-10m-profit",
+      "headline": "Чистая прибыль ВТБ по МСФО за 10 месяцев 2026 года достигла 451 млрд рублей",
+      "context": "За октябрь банк заработал 43,6 млрд рублей чистой прибыли, показав рост на 65% в годовом выражении.",
       "category": "banks",
       "investment_relevant": true,
       "importance": 5,
@@ -290,12 +237,50 @@
       "published_at": "2026-11-27T10:00:00+03:00"
     },
     {
-      "id": "cian-shareholders-sell-controlling-stake",
-      "headline": "Владельцы 52% акций «Циана» сменились на фоне предложения «Т-технологий» о консолидации",
-      "context": "Новыми крупными владельцами пакета стали Леван Назаров и инвестиционная группа «Атон».",
-      "category": "corporate",
+      "id": "spb-exchange-crypto-launch",
+      "headline": "СПБ Биржа объявила о старте торгов криптовалютами с 1 декабря",
+      "context": "Площадка начнет проведение операций с цифровыми активами в начале следующего месяца.",
+      "category": "markets",
       "investment_relevant": true,
       "importance": 5,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380723.php"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/395156"
+        }
+      ],
+      "published_at": "2026-11-27T18:34:00+03:00"
+    },
+    {
+      "id": "transneft-msfo-9m-results",
+      "headline": "Чистая прибыль Транснефти по МСФО за 9 месяцев 2026 года снизилась на 17 процентов",
+      "context": "Показатель составил 192,7 млрд рублей при росте выручки на 3% до 1,11 трлн рублей.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
+      "sources": [
+        {
+          "name": "@if_market_news",
+          "url": "https://t.me/if_market_news/87340"
+        },
+        {
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4051"
+        }
+      ],
+      "published_at": "2026-11-27T16:34:00+03:00"
+    },
+    {
+      "id": "cian-shareholders-sell-stake",
+      "headline": "Ключевые акционеры Циана продали 52 процента акций на фоне предложения оферты Т-Технологий",
+      "context": "Новыми совладельцами стали Леван Назаров с долей 21,9%, инвестиционная группа Атон с 20% и структура Д8.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 4,
       "sources": [
         {
           "name": "@frank_media",
@@ -305,62 +290,24 @@
       "published_at": "2026-11-27T07:43:00+03:00"
     },
     {
-      "id": "diasoft-board-additional-dividends",
-      "headline": "Совет директоров «Диасофта» рассмотрит вопрос о дополнительных дивидендах за девять месяцев",
-      "context": "Рассмотрение выплат пройдет в дополнение к ранее рекомендованным 16 рублям на акцию.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380711.php"
-        },
-        {
-          "name": "@markettwits",
-          "url": "https://t.me/markettwits/395154"
-        }
-      ],
-      "published_at": "2026-11-27T18:09:00+03:00"
-    },
-    {
-      "id": "cbr-sets-official-exchange-rates",
-      "headline": "Банк России установил официальный курс доллара США на уровне 82,27 рубля",
-      "context": "Официальный курс юаня на 28 ноября составил 12,33 рубля, евро — 90,29 рубля.",
-      "category": "macro",
-      "investment_relevant": false,
-      "importance": 4,
-      "sources": [
-        {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380706.php"
-        },
-        {
-          "name": "Frank Media",
-          "url": "https://frankmedia.ru/318545"
-        }
-      ],
-      "published_at": "2026-11-27T18:02:00+03:00"
-    },
-    {
-      "id": "spb-exchange-digital-depositories-registry",
-      "headline": "Банк России включил СПБ Биржу в реестр цифровых депозитариев",
-      "context": "Решение ЦБ расширяет перечень депозитарных лицензий и статусов площадки.",
+      "id": "moex-q3-2026-financials",
+      "headline": "Чистая прибыль Московской биржи по итогам третьего квартала выросла на 20,7 процента",
+      "context": "Квартальная прибыль площадки достигнла 20,8 млрд рублей, а показатель за 9 месяцев вырос на 18,7% до 53,8 млрд рублей.",
       "category": "markets",
       "investment_relevant": true,
       "importance": 4,
       "sources": [
         {
-          "name": "SmartLab",
-          "url": "https://smart-lab.ru/blog/1380704.php"
+          "name": "@mozgovikresearch",
+          "url": "https://t.me/mozgovikresearch/4048"
         }
       ],
-      "published_at": "2026-11-27T17:59:00+03:00"
+      "published_at": "2026-11-27T13:04:00+03:00"
     },
     {
-      "id": "tax-crime-cases-deferral-softening",
-      "headline": "Правительство предложило не передавать следствию дела по налогам при наличии отсрочки",
-      "context": "Соответствующий пакет законопроектов внесен Правительством РФ на рассмотрение в Госдуму.",
+      "id": "tax-crime-law-amendments",
+      "headline": "Правительство предложило не передавать следствию налоговые дела при наличии действующей рассрочки",
+      "context": "Законопроект предполагает передачу материалов в СК только в случае нарушения условий предоставленной отсрочки по уплате долга.",
       "category": "cb_policy",
       "investment_relevant": false,
       "importance": 4,
@@ -377,34 +324,72 @@
       "published_at": "2026-11-27T17:50:00+03:00"
     },
     {
-      "id": "inter-rao-q3-msfo-loss",
-      "headline": "«Интер РАО» получила 4,2 миллиарда рублей чистого убытка по МСФО в третьем квартале",
-      "context": "Выручка группы за третий квартал снизилась на 7,5% в годовом выражении до 392,2 миллиарда рублей.",
+      "id": "diasoft-board-extra-dividends",
+      "headline": "Совет директоров Диасофта рассмотрит решение по дополнительным дивидендам за 9 месяцев",
+      "context": "Вопрос о дополнительных выплатах рассматривается к ранее рекомендованным 16 рублям на акцию.",
       "category": "corporate",
       "investment_relevant": true,
-      "importance": 4,
+      "importance": 3,
       "sources": [
         {
-          "name": "@mozgovikresearch",
-          "url": "https://t.me/mozgovikresearch/4049"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380711.php"
+        },
+        {
+          "name": "@markettwits",
+          "url": "https://t.me/markettwits/395154"
         }
       ],
-      "published_at": "2026-11-27T16:08:00+03:00"
+      "published_at": "2026-11-27T18:09:00+03:00"
     },
     {
-      "id": "samolet-reorganization-buyback-price",
-      "headline": "ГК «Самолет» установила цену выкупа акций для несогласных с реорганизацией в 326,92 рубля",
-      "context": "Утвержденный размер выплаты определен для бумаг акционеров, голосующих против реструктуризации.",
-      "category": "corporate",
-      "investment_relevant": true,
-      "importance": 4,
+      "id": "cb-official-fx-rates-nov-28",
+      "headline": "Банк России установил официальный курс доллара США на уровне 82,27 рубля",
+      "context": "Официальный курс юаня составил 12,33 рубля, евро — 90,29 рубля.",
+      "category": "macro",
+      "investment_relevant": false,
+      "importance": 3,
       "sources": [
         {
-          "name": "@if_market_news",
-          "url": "https://t.me/if_market_news/87336"
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380706.php"
+        },
+        {
+          "name": "Ведомости",
+          "url": "https://www.vedomosti.ru/finance/news/2026/11/27/1416149-kurs-dollara"
         }
       ],
-      "published_at": "2026-11-27T15:11:00+03:00"
+      "published_at": "2026-11-27T18:02:00+03:00"
+    },
+    {
+      "id": "rnpk-aviation-insurance-limits",
+      "headline": "РНПК обсуждает сокращение лимитов страховки от терроризма и диверсий для авиакомпаний",
+      "context": "Перестраховщик рассматривает возможность снижения покрытия по военным и террористическим рискам с 1 января 2027 года.",
+      "category": "corporate",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "@frank_media",
+          "url": "https://t.me/frank_media/24910"
+        }
+      ],
+      "published_at": "2026-11-27T09:14:00+03:00"
+    },
+    {
+      "id": "vk-ai-strategy-partnerships",
+      "headline": "Группа VK отказалась от создания собственного ИИ-агента в пользу партнерских проектов",
+      "context": "Компания планирует развивать интеграции с существующими разработчиками искусственного интеллекта на рынке.",
+      "category": "tech",
+      "investment_relevant": true,
+      "importance": 3,
+      "sources": [
+        {
+          "name": "SmartLab",
+          "url": "https://smart-lab.ru/blog/1380732.php"
+        }
+      ],
+      "published_at": "2026-11-27T18:48:00+03:00"
     }
   ],
   "today_agenda": [],
