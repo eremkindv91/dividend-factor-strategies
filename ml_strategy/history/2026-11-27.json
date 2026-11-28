@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-11-27T11:56:41+00:00",
-  "data_as_of": "2026-11-26",
+  "generated_at": "2026-11-28T04:25:19+00:00",
+  "data_as_of": "2026-11-27",
   "benchmark": "MCFTR",
   "horizon_sessions": 20,
   "run": {
-    "run_id": "2026-11-26-18cea5a4-e25a3316",
-    "as_of": "2026-11-26",
-    "calculated_at": "2026-11-27T11:56:41+00:00",
+    "run_id": "2026-11-27-18cea5a4-e25a3316",
+    "as_of": "2026-11-27",
+    "calculated_at": "2026-11-28T04:25:19+00:00",
     "model_version": "elastic_net:18cea5a48c8bf9dd",
     "artifact_hash": "18cea5a48c8bf9dd",
     "universe_version": "6c7aac41b3e8d23e",
@@ -31,9 +31,9 @@
   },
   "published_portfolio": null,
   "candidate_portfolio": {
-    "run_id": "2026-11-26-18cea5a4-e25a3316",
-    "as_of": "2026-11-26",
-    "calculated_at": "2026-11-27T11:56:41+00:00",
+    "run_id": "2026-11-27-18cea5a4-e25a3316",
+    "as_of": "2026-11-27",
+    "calculated_at": "2026-11-28T04:25:19+00:00",
     "model_version": "elastic_net:18cea5a48c8bf9dd",
     "artifact_hash": "18cea5a48c8bf9dd",
     "universe_version": "6c7aac41b3e8d23e",
@@ -47,105 +47,105 @@
     "method": "HRP",
     "positions": [
       {
-        "ticker": "DOMRF",
-        "name": "ДОМ.РФ",
-        "sector": "Финансы",
-        "calculated_weight": 0.059942,
-        "expected_excess_return_20d": -0.006781,
-        "sector_drivers": []
-      },
-      {
         "ticker": "SBERP",
         "name": "Сбербанк-п",
         "sector": "Финансы (Банки)",
-        "calculated_weight": 0.059852,
-        "expected_excess_return_20d": -0.009618,
+        "calculated_weight": 0.059873,
+        "expected_excess_return_20d": -0.009881,
         "sector_drivers": []
       },
       {
-        "ticker": "HEAD",
-        "name": "Хэдхантер",
-        "sector": "IT",
-        "calculated_weight": 0.046998,
-        "expected_excess_return_20d": -0.004057,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "PRMD",
-        "name": "iПРОМОМЕД",
-        "sector": "Здравоохранение",
-        "calculated_weight": 0.046277,
-        "expected_excess_return_20d": -0.006282,
+        "ticker": "DOMRF",
+        "name": "ДОМ.РФ",
+        "sector": "Финансы",
+        "calculated_weight": 0.059241,
+        "expected_excess_return_20d": -0.006756,
         "sector_drivers": []
       },
       {
         "ticker": "SNGSP",
         "name": "Сургутнефтегаз ап",
         "sector": "Нефть и газ",
-        "calculated_weight": 0.034681,
-        "expected_excess_return_20d": -0.008438,
+        "calculated_weight": 0.052348,
+        "expected_excess_return_20d": -0.010237,
         "sector_drivers": []
       },
       {
         "ticker": "MOEX",
         "name": "МосБиржа",
         "sector": "Финансы",
-        "calculated_weight": 0.027543,
-        "expected_excess_return_20d": -0.00863,
+        "calculated_weight": 0.041285,
+        "expected_excess_return_20d": -0.009693,
         "sector_drivers": []
       },
       {
-        "ticker": "MTSS",
-        "name": "МТС-ао",
-        "sector": "Телекоммуникации",
-        "calculated_weight": 0.023961,
-        "expected_excess_return_20d": -0.011455,
+        "ticker": "HEAD",
+        "name": "Хэдхантер",
+        "sector": "IT",
+        "calculated_weight": 0.0399,
+        "expected_excess_return_20d": -0.00414,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "PRMD",
+        "name": "iПРОМОМЕД",
+        "sector": "Здравоохранение",
+        "calculated_weight": 0.036612,
+        "expected_excess_return_20d": -0.006826,
         "sector_drivers": []
       },
       {
         "ticker": "SIBN",
         "name": "Газпрнефть",
         "sector": "Нефть и газ",
-        "calculated_weight": 0.023597,
-        "expected_excess_return_20d": -0.00793,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "TATNP",
-        "name": "Татнфт 3ап",
-        "sector": "Нефть и газ",
-        "calculated_weight": 0.021712,
-        "expected_excess_return_20d": -0.007118,
-        "sector_drivers": []
-      },
-      {
-        "ticker": "FLOT",
-        "name": "Совкомфлот",
-        "sector": "Транспорт",
-        "calculated_weight": 0.020872,
-        "expected_excess_return_20d": -0.010283,
+        "calculated_weight": 0.028356,
+        "expected_excess_return_20d": -0.007213,
         "sector_drivers": []
       },
       {
         "ticker": "GMKN",
         "name": "ГМКНорНик",
         "sector": "Металлы и добыча",
-        "calculated_weight": 0.016653,
-        "expected_excess_return_20d": -0.010153,
+        "calculated_weight": 0.019969,
+        "expected_excess_return_20d": -0.010146,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "FLOT",
+        "name": "Совкомфлот",
+        "sector": "Транспорт",
+        "calculated_weight": 0.019908,
+        "expected_excess_return_20d": -0.01058,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "MAGN",
+        "name": "ММК",
+        "sector": "Металлы и добыча",
+        "calculated_weight": 0.013648,
+        "expected_excess_return_20d": -0.011259,
+        "sector_drivers": []
+      },
+      {
+        "ticker": "TATNP",
+        "name": "Татнфт 3ап",
+        "sector": "Нефть и газ",
+        "calculated_weight": 0.013262,
+        "expected_excess_return_20d": -0.007871,
         "sector_drivers": []
       },
       {
         "ticker": "TATN",
         "name": "Татнфт 3ао",
         "sector": "Нефть и газ",
-        "calculated_weight": 0.014258,
-        "expected_excess_return_20d": -0.008973,
+        "calculated_weight": 0.011238,
+        "expected_excess_return_20d": -0.009303,
         "sector_drivers": []
       }
     ],
-    "cash_weight": 0.603652,
-    "diagnostic_turnover": 0.396348,
-    "diagnostic_cost_rub": 1189.04,
+    "cash_weight": 0.604361,
+    "diagnostic_turnover": 0.395639,
+    "diagnostic_cost_rub": 1186.92,
     "affects_current_portfolio": false
   },
   "execution": {
@@ -198,7 +198,7 @@
       "FINANCIAL_SERVICES"
     ],
     "blocked_issuer_exposures": true,
-    "last_checked_at": "2026-11-27T11:51:24.412873+00:00"
+    "last_checked_at": "2026-11-28T04:18:31.305242+00:00"
   },
   "diagnostics": {
     "predictive_gate": {
@@ -230,7 +230,7 @@
       }
     },
     "constraints": {
-      "turnover_actual": 0.396348,
+      "turnover_actual": 0.395639,
       "turnover_cap": 0.4,
       "one_way_cost_bps": 30.0,
       "solver_method": "HRP"
